@@ -1,0 +1,460 @@
+import { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import type { EvidenceGrade, SearchCriteria } from '@fmt/core';
+import { useCatalog } from '../data/CatalogContext.js';
+import { MethodPictogram } from '../components/MethodPictogram.js';
+import { ProfileRadarSvg } from '../components/ProfileRadarSvg.js';
+import { EvidenceBadge } from '../components/EvidenceBadge.js';
+
+export function CatalogPage() {
+  const {
+    bundle,
+    search,
+    loading,
+    error,
+    labelOf,
+    valuesOf,
+    comparePair,
+    setComparePair,
+    queueBlockForPlanner
+  } = useCatalog();
+  const navigate = useNavigate();
+
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [showExpert, setShowExpert] = useState(false);
+  const [filters, setFilters] = useState<SearchCriteria>({});
+
+  const setFilter = (key: string, val: unknown) => {
+    setFilters((prev) => {
+      const next = { ...prev };
+      if (val === '' || val === false || val == null) delete next[key];
+      else next[key] = val;
+      return next;
+    });
+  };
+
+  const hits = useMemo(() => {
+    if (!search) return [];
+    return search.suche(filters);
+  }, [search, filters]);
+
+  if (loading) return <div className="page-section">Lade FMT-Methodenkatalog…</div>;
+  if (error || !bundle || !search) return <div className="page-section">Fehler: {error}</div>;
+
+  const ansatzValues = valuesOf('ansatz');
+  const activeAnsatz = typeof filters.ansatz === 'string' ? filters.ansatz : '';
+
+  const pickForCompare = (kennung: string) => {
+    setComparePair([kennung, comparePair[0] === kennung ? comparePair[1] : comparePair[0]]);
+    navigate('/vergleich');
+  };
+
+  const addToPlanner = (kennung: string) => {
+    queueBlockForPlanner(kennung);
+    navigate('/planer');
+  };
+
+  return (
+    <div className="page-section">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <h1>Methodenkatalog</h1>
+          <p className="muted" style={{ maxWidth: '68ch', marginTop: 6 }}>
+            {bundle.bausteine.length} Unterrichtsmethoden für Bildung im deutschsprachigen Raum – beschrieben als
+            13-Facetten-Profile, verknüpfbar über Lernzustände und maschinenlesbar unter CC BY 4.0 (Jan Schachtschabel).
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Link to="/planer" className="btn btn-primary">
+            ✦ Szenario im Baukasten planen
+          </Link>
+          <Link to="/systematik" className="btn">
+            Systematik (FMT)
+          </Link>
+        </div>
+      </div>
+
+      {/* Quick Ansatz Tabs */}
+      <div style={{ marginTop: 18 }}>
+        <ul className="chips" role="group" aria-label="Filter nach didaktischem Ansatz">
+          <li>
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={!activeAnsatz}
+              onClick={() => setFilter('ansatz', '')}
+            >
+              Alle Ansätze ({bundle.bausteine.length})
+            </button>
+          </li>
+          {ansatzValues.map((a) => (
+            <li key={a.id}>
+              <button
+                type="button"
+                className="btn btn-sm"
+                aria-pressed={activeAnsatz === a.id}
+                onClick={() => setFilter('ansatz', activeAnsatz === a.id ? '' : a.id)}
+              >
+                {a.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Faceted Filter Panel */}
+      <section className="filter-panel" aria-label="Such- und Facettenfilter">
+        <div className="filter-grid">
+          <label style={{ gridColumn: 'span 2' }}>
+            Suche (Name, Synonym, Phase wie „Einstieg“ / „Sicherung“)
+            <input
+              type="search"
+              placeholder="z. B. Jigsaw, Sicherung, Debatte, Feedback…"
+              value={String(filters.text || '')}
+              onChange={(e) => setFilter('text', e.target.value)}
+            />
+          </label>
+
+          <label>
+            A1 Lernfunktion
+            <select
+              value={String(filters.lernfunktion || '')}
+              onChange={(e) => setFilter('lernfunktion', e.target.value)}
+            >
+              <option value="">beliebig</option>
+              {valuesOf('lernfunktion').map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Reichweite
+            <select value={String(filters.reichweite || '')} onChange={(e) => setFilter('reichweite', e.target.value)}>
+              <option value="">beliebig</option>
+              {valuesOf('reichweite').map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.id.toUpperCase()} {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            B1 Anleitungsgrad
+            <select value={String(filters.anleitung || '')} onChange={(e) => setFilter('anleitung', e.target.value)}>
+              <option value="">beliebig</option>
+              {valuesOf('anleitung').map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            A2 Engagement
+            <select value={String(filters.engagement || '')} onChange={(e) => setFilter('engagement', e.target.value)}>
+              <option value="">beliebig</option>
+              {valuesOf('engagement').map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Zeitbudget (min)
+            <input
+              type="number"
+              min={0}
+              placeholder="verfügbar"
+              value={filters.maxDauer ?? ''}
+              onChange={(e) => setFilter('maxDauer', e.target.value)}
+            />
+          </label>
+
+          <label>
+            Evidenz mindestens
+            <select
+              value={String(filters.minEvidenz || '')}
+              onChange={(e) => setFilter('minEvidenz', e.target.value as EvidenceGrade | '')}
+            >
+              <option value="">beliebig</option>
+              <option value="A">Grad A (mehrere Synthesen)</option>
+              <option value="B">Grad B oder besser</option>
+              <option value="C">Grad C oder besser</option>
+            </select>
+          </label>
+        </div>
+
+        {showExpert && (
+          <div className="filter-grid" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
+            <label>
+              Liefert Lernzustand
+              <select value={String(filters.liefert || '')} onChange={(e) => setFilter('liefert', e.target.value)}>
+                <option value="">beliebig</option>
+                {valuesOf('lernzustand').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              C1 Interaktionsstruktur
+              <select value={String(filters.interaktion || '')} onChange={(e) => setFilter('interaktion', e.target.value)}>
+                <option value="">beliebig</option>
+                {valuesOf('interaktion').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              C3 Raum-Zeit-Modus
+              <select value={String(filters.raumzeit || '')} onChange={(e) => setFilter('raumzeit', e.target.value)}>
+                <option value="">beliebig</option>
+                {valuesOf('raumzeit').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Technik höchstens
+              <select value={String(filters.maxTechnik || '')} onChange={(e) => setFilter('maxTechnik', e.target.value)}>
+                <option value="">beliebig</option>
+                {valuesOf('technikbedarf').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Bildungsstufe
+              <select
+                value={String(filters.bildungsstufe || '')}
+                onChange={(e) => setFilter('bildungsstufe', e.target.value)}
+              >
+                <option value="">beliebig</option>
+                {valuesOf('bildungsstufe').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Lerngruppe (Personen)
+              <input
+                type="number"
+                min={1}
+                placeholder="z. B. 28"
+                value={filters.gruppe ?? ''}
+                onChange={(e) => setFilter('gruppe', e.target.value)}
+              />
+            </label>
+
+            <label>
+              Redaktionsstatus
+              <select value={String(filters.status || '')} onChange={(e) => setFilter('status', e.target.value)}>
+                <option value="">alle</option>
+                <option value="kuratiert">Kuratiert (Kernkatalog)</option>
+                <option value="entwurf">Ersterfassung (100er-Ausbau)</option>
+              </select>
+            </label>
+
+            <label style={{ justifyContent: 'flex-end' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(filters.ohneKI)}
+                  onChange={(e) => setFilter('ohneKI', e.target.checked)}
+                />
+                Ohne KI-Bausteine
+              </span>
+            </label>
+          </div>
+        )}
+
+        <div
+          style={{
+            marginTop: 12,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 10,
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>
+            {hits.length} von {bundle.bausteine.length} Methoden
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowExpert((s) => !s)}>
+              {showExpert ? '▲ Expertenfilter ausblenden' : '▼ Alle Facetten & Rahmenbedingungen'}
+            </button>
+            {Object.keys(filters).length > 0 && (
+              <button type="button" className="btn btn-sm" onClick={() => setFilters({})}>
+                Filter zurücksetzen
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={viewMode === 'cards'}
+              onClick={() => setViewMode('cards')}
+            >
+              Karten
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={viewMode === 'table'}
+              onClick={() => setViewMode('table')}
+            >
+              Tabelle
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {hits.length === 0 ? (
+        <div className="card" style={{ padding: 24, textAlign: 'center' }}>
+          <p>Keine Methode erfüllt alle gewählten Kriterien. Lockern Sie einzelne Filter.</p>
+          <button type="button" className="btn" onClick={() => setFilters({})}>
+            Alle Filter zurücksetzen
+          </button>
+        </div>
+      ) : viewMode === 'cards' ? (
+        <div className="catalog-grid">
+          {hits.map((b) => {
+            const grade = search.bestGrade(b);
+            return (
+              <article key={b.kennung} className="card method-card">
+                <div className="method-card-head">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <MethodPictogram type={b.piktogramm} />
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span className="range-badge">{b.reichweite.toUpperCase()}</span>
+                        {b.komposit && <span className="status-badge">Komposit</span>}
+                        {b.ki && <span className="status-badge">KI</span>}
+                        <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
+                          {b.status === 'kuratiert' ? 'Kuratiert' : 'Ersterfassung'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <ProfileRadarSvg baustein={b} facetten={bundle.facetten} mode="mini" />
+                </div>
+
+                <div>
+                  <Link to={`/methoden/${b.kennung}`} className="method-card-title">
+                    {b.name}
+                  </Link>
+                  {b.alternativname?.length > 0 && (
+                    <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
+                      {b.alternativname.slice(0, 3).join(' · ')}
+                    </div>
+                  )}
+                </div>
+
+                <p className="method-card-desc">{b.kurzbeschreibung}</p>
+
+                <ul className="chips">
+                  {b.lernfunktion.slice(0, 3).map((f) => (
+                    <li key={f} className="chip chip-a">
+                      {labelOf('lernfunktion', f)}
+                    </li>
+                  ))}
+                  {b.anleitung.slice(0, 1).map((a) => (
+                    <li key={a} className="chip chip-b">
+                      {labelOf('anleitung', a)}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="method-card-foot">
+                  <div className="meta-row">
+                    <span>
+                      ⏱ {b.dauerMin}–{b.dauerMax} min
+                    </span>
+                    <span>👥 {b.gruppeMin}–{b.gruppeMax}</span>
+                    <EvidenceBadge grade={grade} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button type="button" className="btn btn-sm" onClick={() => pickForCompare(b.kennung)}>
+                      Vergleich
+                    </button>
+                    <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
+                      + Baukasten
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Methode</th>
+                <th>R</th>
+                <th>min</th>
+                <th>Lernfunktion</th>
+                <th>Anleitung</th>
+                <th>Liefert</th>
+                <th>Evidenz</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hits.map((b) => (
+                <tr key={b.kennung}>
+                  <td>
+                    <Link to={`/methoden/${b.kennung}`} style={{ fontWeight: 700 }}>
+                      {b.name}
+                    </Link>
+                    <div className="muted" style={{ fontSize: 13 }}>
+                      {b.alternativname.slice(0, 3).join(', ')}
+                    </div>
+                  </td>
+                  <td>{b.reichweite.toUpperCase()}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    {b.dauerMin}–{b.dauerMax}
+                  </td>
+                  <td>{b.lernfunktion.map((f) => labelOf('lernfunktion', f)).join(', ')}</td>
+                  <td>{b.anleitung.map((a) => labelOf('anleitung', a)).join(', ')}</td>
+                  <td>{(b.nachbedingung || []).map((z) => labelOf('lernzustand', z)).join(', ') || '–'}</td>
+                  <td>
+                    <EvidenceBadge grade={search.bestGrade(b)} />
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
+                      + Baukasten
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
