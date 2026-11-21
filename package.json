@@ -1,0 +1,31 @@
+{
+  "name": "fmt-methodendatenbank",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, REST/Linked-Data-API & MCP-Server (Autor Inhalte: Jan Schachtschabel, CC-BY 4.0)",
+  "license": "Apache-2.0",
+  "author": "Jan Schachtschabel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/janschachtschabel/Facettierte-Methodentaxonomie.git"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build:data": "npm -w @fmt/core run build && npm -w @fmt/core run build:artefacts",
+    "build": "npm run build:data && npm -w @fmt/web run build && npm -w @fmt/server run build",
+    "test": "npm -w @fmt/core test && npm -w @fmt/server test && npm -w @fmt/web test",
+    "start": "node apps/server/dist/index.js",
+    "mcp:stdio": "node apps/server/dist/mcp/stdio.js",
+    "dev:server": "npm -w @fmt/server run dev",
+    "dev:web": "npm -w @fmt/web run dev"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

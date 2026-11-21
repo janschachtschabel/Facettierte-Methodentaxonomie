@@ -1,0 +1,19 @@
+# Dependencies & build output
+node_modules/
+dist/
+dist-data/
+coverage/
+*.tsbuildinfo
+
+# Local reference & agent scratch (never pushed to public repo)
+wissen/
+Die Facettierte Methodentaxonomie*.md
+.agents/
+.superpowers/
+
+# Environment & OS files
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db

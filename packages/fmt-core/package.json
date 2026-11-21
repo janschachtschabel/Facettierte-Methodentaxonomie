@@ -1,0 +1,29 @@
+{
+  "name": "@fmt/core",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./load-data": {
+      "types": "./dist/src/load-data.d.ts",
+      "import": "./dist/src/load-data.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:artefacts": "tsx scripts/build-artefacts.ts",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/jsonld": "^1.5.15",
+    "@types/n3": "^1.17.3",
+    "ajv": "^8.17.1",
+    "jsonld": "^8.3.3",
+    "n3": "^1.22.3"
+  }
+}
