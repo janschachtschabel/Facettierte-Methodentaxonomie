@@ -119,7 +119,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
           { role: 'system', content: systemPrompt },
           { role: 'user', content: text }
         ],
-        { jsonMode: true, maxTokens: 400, timeoutMs: config.llmTimeoutMs }
+        {
+          jsonMode: true,
+          maxTokens: 600,
+          timeoutMs: config.llmTimeoutMs,
+          reasoningEffort: config.llmReasoningEffort
+        }
       );
       const parsed = extractJsonObject(raw);
       if (!parsed) return fallback('LLM-Antwort enthielt kein gültiges JSON – Regel-Zuordnung als Fallback genutzt.');
@@ -137,7 +142,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         ergebnis,
         leitplanken: FMT_GUARDRAILS
       });
-    } catch {
+    } catch (e) {
+      req.log.warn({ model: target.model, err: e instanceof Error ? e.message : String(e) }, 'LLM translate failed; using rule fallback');
       return fallback('LLM derzeit nicht erreichbar – deterministische Regel-Zuordnung als Fallback genutzt.');
     }
   });
@@ -227,7 +233,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        { jsonMode: false, maxTokens: 1400, timeoutMs: config.llmTimeoutMs }
+        {
+          jsonMode: false,
+          maxTokens: 1600,
+          timeoutMs: config.llmTimeoutMs,
+          reasoningEffort: config.llmReasoningEffort
+        }
       );
       if (!target.isByok) elaborateCache.set(cacheKey, ausarbeitung);
       return reply.send({ gecacht: false, pruefung, ausarbeitung, leitplanken: FMT_GUARDRAILS });

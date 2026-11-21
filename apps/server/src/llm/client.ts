@@ -1,4 +1,4 @@
-import type { ServerConfig } from '../config.js';
+import { DEFAULT_LLM_MODEL, type ServerConfig } from '../config.js';
 
 export const BYOK_PROVIDERS: Record<string, string> = {
   openai: 'https://api.openai.com/v1',
@@ -6,6 +6,18 @@ export const BYOK_PROVIDERS: Record<string, string> = {
   mistral: 'https://api.mistral.ai/v1',
   openrouter: 'https://openrouter.ai/api/v1'
 };
+
+export function isOpenAiReasoningSeries(model: string): boolean {
+  const m = model.trim().toLowerCase();
+  return /(?:^|\/)(?:gpt-[56](?:[.\-_]|$)|o[134](?:[.\-_]|$))/.test(m);
+}
+
+export function supportsReasoningEffort(model: string): boolean {
+  const m = model.trim().toLowerCase();
+  if (!isOpenAiReasoningSeries(m)) return false;
+  if (m.includes('search-api') || /(?:^|\/)o1-(?:mini|preview)/.test(m)) return false;
+  return true;
+}
 
 export interface LlmOverride {
   apiKey?: string;
@@ -50,14 +62,14 @@ export function resolveLlmTarget(config: ServerConfig, override?: LlmOverride): 
     } else {
       baseUrl = BYOK_PROVIDERS[rawProvider];
     }
-    const model = override?.model?.trim() || config.llmModel || 'gpt-4o-mini';
+    const model = override?.model?.trim() || config.llmModel || DEFAULT_LLM_MODEL;
     return { baseUrl, model, apiKey: userKey, isByok: true };
   }
 
   if (!config.llmApiKey || !config.llmBaseUrl) return null;
   return {
     baseUrl: config.llmBaseUrl,
-    model: config.llmModel || 'gpt-4o-mini',
+    model: config.llmModel || DEFAULT_LLM_MODEL,
     apiKey: config.llmApiKey,
     isByok: false
   };
@@ -68,23 +80,50 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface ChatCompletionOptions {
+  jsonMode?: boolean;
+  maxTokens?: number;
+  timeoutMs: number;
+  reasoningEffort?: string;
+}
+
+export function buildChatCompletionBody(
+  target: Pick<ResolvedLlmTarget, 'model'>,
+  messages: ChatMessage[],
+  opts: Pick<ChatCompletionOptions, 'jsonMode' | 'maxTokens' | 'reasoningEffort'>
+): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    model: target.model,
+    messages
+  };
+
+  if (isOpenAiReasoningSeries(target.model)) {
+    // OpenAI GPT-5, GPT-6 & o-series require max_completion_tokens and reject non-default temperature
+    const requested = opts.maxTokens ?? 1200;
+    body.max_completion_tokens = Math.max(requested, opts.jsonMode ? 1000 : 2400);
+    if (supportsReasoningEffort(target.model)) {
+      body.reasoning_effort = opts.reasoningEffort || 'low';
+    }
+  } else {
+    body.temperature = 0.2;
+    body.max_tokens = opts.maxTokens ?? 900;
+  }
+
+  if (opts.jsonMode) {
+    body.response_format = { type: 'json_object' };
+  }
+  return body;
+}
+
 export async function callChatCompletion(
   target: ResolvedLlmTarget,
   messages: ChatMessage[],
-  opts: { jsonMode?: boolean; maxTokens?: number; timeoutMs: number }
+  opts: ChatCompletionOptions
 ): Promise<string> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs);
   try {
-    const body: Record<string, unknown> = {
-      model: target.model,
-      messages,
-      temperature: 0.2,
-      max_tokens: opts.maxTokens ?? 900
-    };
-    if (opts.jsonMode) {
-      body.response_format = { type: 'json_object' };
-    }
+    const body = buildChatCompletionBody(target, messages, opts);
     const res = await fetch(`${target.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -95,7 +134,14 @@ export async function callChatCompletion(
       signal: controller.signal
     });
     if (!res.ok) {
-      throw new Error(`LLM-Anfrage fehlgeschlagen (HTTP ${res.status}).`);
+      let detail = '';
+      try {
+        const errJson = (await res.json()) as { error?: { message?: string } };
+        if (errJson?.error?.message) detail = `: ${errJson.error.message.slice(0, 240)}`;
+      } catch {
+        // ignore non-json upstream error body
+      }
+      throw new Error(`LLM-Anfrage fehlgeschlagen (HTTP ${res.status})${detail}`);
     }
     const data = (await res.json()) as {
       choices?: Array<{ message?: { content?: string } }>;

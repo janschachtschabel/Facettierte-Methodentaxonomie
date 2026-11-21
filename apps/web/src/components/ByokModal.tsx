@@ -10,7 +10,7 @@ interface Props {
 
 export function ByokModal({ open, onClose, value, onSave }: Props) {
   const [provider, setProvider] = useState(value.provider || 'openai');
-  const [model, setModel] = useState(value.model || 'gpt-4o-mini');
+  const [model, setModel] = useState(value.model || 'gpt-6-luna');
   const [apiKey, setApiKey] = useState(value.apiKey || '');
 
   if (!open) return null;
@@ -50,7 +50,7 @@ export function ByokModal({ open, onClose, value, onSave }: Props) {
           </label>
           <label style={{ fontFamily: 'var(--display)', fontWeight: 600, display: 'flex', flexDirection: 'column', gap: 4 }}>
             Modellname
-            <input type="text" value={model} onChange={(e) => setModel(e.target.value)} placeholder="z. B. gpt-4o-mini oder gemini-2.5-flash" />
+            <input type="text" value={model} onChange={(e) => setModel(e.target.value)} placeholder="z. B. gpt-6-luna, gpt-5-mini oder gemini-2.5-flash" />
           </label>
           <label style={{ fontFamily: 'var(--display)', fontWeight: 600, display: 'flex', flexDirection: 'column', gap: 4 }}>
             API-Key

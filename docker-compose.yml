@@ -10,11 +10,13 @@ services:
       PORT: "8080"
       HOST: "0.0.0.0"
       CORS_ORIGIN: "${CORS_ORIGIN:-*}"
-      # Optional: OpenAI-kompatible LLM-Anbindung (leer lassen für reinen deterministischen 0-€-Modus)
+      # Optional: OpenAI-kompatible LLM-Anbindung (nutzt LLM_API_KEY oder OPENAI_API_KEY; leer lassen für 0-€-Modus)
       LLM_BASE_URL: "${LLM_BASE_URL:-https://api.openai.com/v1}"
-      LLM_MODEL: "${LLM_MODEL:-gpt-4o-mini}"
-      LLM_API_KEY: "${LLM_API_KEY:-}"
+      LLM_MODEL: "${LLM_MODEL:-gpt-6-luna}"
+      LLM_API_KEY: "${LLM_API_KEY:-${OPENAI_API_KEY:-}}"
+      LLM_REASONING_EFFORT: "${LLM_REASONING_EFFORT:-low}"
       LLM_ALLOW_BYOK: "${LLM_ALLOW_BYOK:-true}"
       LLM_RATE_LIMIT_PER_MIN: "${LLM_RATE_LIMIT_PER_MIN:-20}"
+      LLM_TIMEOUT_MS: "${LLM_TIMEOUT_MS:-45000}"
       LLM_CACHE_MAX: "${LLM_CACHE_MAX:-500}"
       LLM_CACHE_TTL_MS: "${LLM_CACHE_TTL_MS:-3600000}"

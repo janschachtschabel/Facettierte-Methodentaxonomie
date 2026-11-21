@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
+import { loadConfig } from '../src/config.js';
+import { buildChatCompletionBody, isOpenAiReasoningSeries } from '../src/llm/client.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
@@ -12,6 +14,7 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
   let mockServer: http.Server;
   let mockBaseUrl = '';
   let mockCalls = 0;
+  let lastMockBody: Record<string, unknown> | null = null;
   let mockBehavior: 'valid' | 'bad-json' | 'hallucinated-enum' | 'error' = 'valid';
   let appWithKey: FastifyInstance;
   let appNoKey: FastifyInstance;
@@ -28,6 +31,7 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
           return;
         }
         const parsed = JSON.parse(body || '{}');
+        lastMockBody = parsed;
         const userText = String(parsed.messages?.[1]?.content || '');
         let content = '';
         if (userText.includes('AUSGESTALTUNG') || parsed.messages?.[0]?.content?.includes('ausgestalten')) {
@@ -243,5 +247,65 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(byok1.json().gecacht).toBe(false);
     expect(byok1.body).not.toContain('sk-user-secret-999');
     expect(mockCalls).toBe(before + 1);
+  });
+
+  it('defaults to OpenAI gpt-6-luna, resolves OPENAI_API_KEY fallback safely, and adapts GPT-5/GPT-6 parameters', async () => {
+    const cfgDefault = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key' });
+    expect(cfgDefault.llmBaseUrl).toBe('https://api.openai.com/v1');
+    expect(cfgDefault.llmModel).toBe('gpt-6-luna');
+    expect(cfgDefault.llmApiKey).toBe('sk-os-test-key');
+
+    const cfgDisabled = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key', LLM_API_KEY: 'none' });
+    expect(cfgDisabled.llmApiKey).toBe('');
+
+    const cfgNonOpenAi = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key', LLM_BASE_URL: 'https://api.mistral.ai/v1' });
+    expect(cfgNonOpenAi.llmApiKey).toBe('');
+
+    for (const m of ['gpt-5', 'gpt-5-mini', 'gpt-5.4-mini', 'gpt-5.6-luna', 'gpt-6-luna', 'gpt-6-sol', 'gpt-6.2-astra', 'o3-mini']) {
+      expect(isOpenAiReasoningSeries(m)).toBe(true);
+      const body = buildChatCompletionBody({ model: m }, [{ role: 'user', content: 'JSON bitte' }], {
+        jsonMode: true,
+        maxTokens: 600,
+        reasoningEffort: 'low'
+      });
+      expect(body.max_completion_tokens).toBeGreaterThanOrEqual(1000);
+      expect(body.max_tokens).toBeUndefined();
+      expect(body.temperature).toBeUndefined();
+      expect(body.reasoning_effort).toBe('low');
+      expect(body.response_format).toEqual({ type: 'json_object' });
+    }
+
+    for (const m of ['gpt-4o-mini', 'gemini-2.5-flash', 'mistral-small-latest']) {
+      expect(isOpenAiReasoningSeries(m)).toBe(false);
+      const body = buildChatCompletionBody({ model: m }, [{ role: 'user', content: 'JSON bitte' }], {
+        jsonMode: true,
+        maxTokens: 600
+      });
+      expect(body.max_tokens).toBe(600);
+      expect(body.temperature).toBe(0.2);
+      expect(body.max_completion_tokens).toBeUndefined();
+      expect(body.reasoning_effort).toBeUndefined();
+    }
+
+    // End-to-end wire payload verification for gpt-6-luna
+    mockBehavior = 'valid';
+    lastMockBody = null;
+    const wire = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/translate',
+      headers: {
+        'x-llm-api-key': 'sk-byok-wire',
+        'x-llm-provider': 'server',
+        'x-llm-model': 'gpt-6-luna'
+      },
+      payload: { text: 'Einstieg Fotosynthese 15 Minuten' }
+    });
+    expect(wire.statusCode).toBe(200);
+    expect(wire.json().quelle).toBe('llm');
+    expect(lastMockBody?.model).toBe('gpt-6-luna');
+    expect(lastMockBody?.max_completion_tokens).toBeGreaterThanOrEqual(1000);
+    expect(lastMockBody?.max_tokens).toBeUndefined();
+    expect(lastMockBody?.temperature).toBeUndefined();
+    expect(lastMockBody?.reasoning_effort).toBe('low');
   });
 });
