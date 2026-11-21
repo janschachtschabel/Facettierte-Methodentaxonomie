@@ -1,0 +1,13 @@
+**/node_modules
+node_modules
+**/dist
+dist
+dist-data
+**/.vite
+wissen
+.agents
+.superpowers
+.git
+.env
+*.log
+Die Facettierte Methodentaxonomie*.md
