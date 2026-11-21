@@ -1,0 +1,154 @@
+{
+  "status": "entwurf",
+  "kennung": "ki-textfeedback",
+  "name": "KI-gestütztes kriteriengeleitetes Textfeedback",
+  "kurzbeschreibung": "Lernende reichen einen eigenen Textentwurf zusammen mit dem fachlichen Kriterienraster bei einem KI-System ein, prüfen die Rückmeldung kritisch und überarbeiten selbstständig.",
+  "alternativname": [
+    "KI-Feedback-Assistent",
+    "Formatives KI-Schreibfeedback"
+  ],
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Formatives Assessment",
+      "url": "https://de.wikipedia.org/wiki/Formatives_Assessment",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wisniewski et al. (2020); Bastani et al. (2025)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "ki": true,
+  "lernfunktion": [
+    "diagnose",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-produkt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "selbstkontrolle",
+    "unmittelbar",
+    "aufgabenebene",
+    "prozessebene",
+    "formativ",
+    "fb-elaboriert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "eigenentwurf",
+      "name": "Vollständiger eigener Textentwurf vor KI-Nutzung"
+    },
+    {
+      "kennung": "kriterien",
+      "name": "Festes Kriterienraster im Feedback-Prompt (keine Umschreibung durch KI)"
+    },
+    {
+      "kennung": "pruefung",
+      "name": "Kritische Auswahl und eigene Überarbeitung dokumentieren"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Lehrkräfte können Zwischenentwürfe einer ganzen Klasse nicht sofort individuell und kriterienorientiert kommentieren.",
+  "durchfuehrung": [
+    "Eigenen Textentwurf ohne KI verfassen",
+    "Mit vorgegebenem Kriterien-Prompt ausschließlich Hinweise (keine umgeschriebene Lösung) anfordern",
+    "Feedback-Hinweise kritisch auf Plausibilität prüfen und selbstständig überarbeiten",
+    "Begründen, welche Hinweise übernommen oder verworfen wurden"
+  ],
+  "material": [
+    "Eigener Textentwurf",
+    "Kriterienraster + Feedback-Prompt",
+    "Endgerät"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 25,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "Kombination aus KI-Erstcheck und anschließendem Peer-Feedback"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/25-6"
+  ],
+  "hinweis": "Datenschutz beachten (keine personenbezogenen Daten eingeben); KI darf den Text nicht umschreiben, sonst droht kognitives Auslagern.",
+  "qualitaetsrisiko": [
+    "Lernende lassen die KI den Text direkt neu schreiben statt selbst zu revidieren",
+    "Halluzinierte Kritikpunkte werden unkritisch übernommen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Erste kontrollierte Studien zeigen Nutzen bei klarer Kriterienbindung; Risiko des Auslagerns bei Umschreib-Funktionen hoch",
+      "quelle": "Bastani et al. 2025; Wisniewski et al. 2020",
+      "geltung": "Sekundarstufe und Hochschule; Evidenz zu KI-Feedback jung und rasch im Wandel"
+    }
+  ],
+  "plot": {
+    "x": 0.58,
+    "y": 2.25
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "status": "entwurf",
+  "kennung": "sq3r-lesemethode",
+  "name": "Fünf-Schritt-Lesemethode (SQ3R)",
+  "kurzbeschreibung": "Systematische Erschließung anspruchsvoller Fachtexte in fünf Schritten: Überblicken, Fragen stellen, genau Lesen, abschnittsweise Wiedergeben und Rückblicken.",
+  "alternativname": [
+    "SQ3R",
+    "5-Schritt-Lesemethode",
+    "PQ4R"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: SQ3R",
+      "url": "https://de.wikipedia.org/wiki/SQ3R",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Fünf-Schritt-Lesemethode",
+      "url": "https://de.wikipedia.org/wiki/F%25C3%25BCnf-Schritt-Lesemethode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ueberblick",
+      "name": "Überfliegen von Überschriften/Grafiken"
+    },
+    {
+      "kennung": "fragen",
+      "name": "Eigene Leitfragen vor dem Lesen"
+    },
+    {
+      "kennung": "wiedergabe",
+      "name": "Freies Zusammenfassen aus dem Gedächtnis je Abschnitt"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Lernende markieren beim Lesen halbe Seiten, ohne den Text wirklich zu durchdringen oder zu behalten.",
+  "durchfuehrung": [
+    "1. Text überfliegen (Überschriften, Bilder)",
+    "2. Fragen an den Text formulieren",
+    "3. Abschnittsweise gründlich lesen und Schlüsselwörter notieren",
+    "4. Jeden Abschnitt aus dem Gedächtnis in eigenen Worten zusammenfassen",
+    "5. Gesamtüberblick prüfen und offene Fragen klären"
+  ],
+  "material": [
+    "Strukturierter Sachtext",
+    "Schrittkarte"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "PQ4R mit explizitem Reflexionsschritt"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-4"
+  ],
+  "hinweis": "Besonders der 4. Schritt (Wiedergeben ohne Blick in den Text) nutzt den Testeffekt.",
+  "qualitaetsrisiko": [
+    "Lernende bleiben beim bloßen Markieren stehen und überspringen das freie Wiedergeben"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Klassische Lesestrategie (Robinson 1946); einzelne Teilkomponenten (Fragen stellen, freier Abruf) sind gut belegt",
+      "quelle": "Robinson 1946; Dunlosky et al. 2013",
+      "geltung": "Sekundarstufe und Hochschule, international"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 2.15
+  }
+}

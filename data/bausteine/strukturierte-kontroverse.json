@@ -1,0 +1,146 @@
+{
+  "status": "entwurf",
+  "kennung": "strukturierte-kontroverse",
+  "name": "Strukturierte Kontroverse (SAC)",
+  "kurzbeschreibung": "Kleingruppen erarbeiten beide Seiten einer Streitfrage, tauschen die Positionen gezielt aus und suchen abschließend einen begründeten Kompromiss.",
+  "alternativname": [
+    "Structured Academic Controversy",
+    "Konstruktive Kontroverse"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Konstruktive Kontroverse",
+      "url": "https://de.wikipedia.org/wiki/Konstruktive_Kontroverse",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Johnson & Johnson (2009): Energizing Learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zweipositionen",
+      "name": "Belegte Pro- und Contra-Materialien"
+    },
+    {
+      "kennung": "perspektivwechsel",
+      "name": "Verpflichtender Rollentausch in Runde 2"
+    },
+    {
+      "kennung": "synthese",
+      "name": "Gemeinsame Synthese jenseits der Rollen"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Offene Debatten verhärten oft Fronten, statt fundiertes Verständnis beider Perspektiven zu fördern.",
+  "durchfuehrung": [
+    "Vierergruppen in zwei Tandems (Pro / Contra) teilen",
+    "Position anhand von Quellen erarbeiten und vortragen",
+    "Positionen tauschen und die Gegenseite überzeugend vertreten",
+    "Rollen ablegen und gemeinsamen begründeten Beschluss formulieren"
+  ],
+  "material": [
+    "Ausgewogene Materialpakete für Pro und Contra"
+  ],
+  "gruppeMin": 8,
+  "gruppeMax": 36,
+  "teamMin": 4,
+  "teamMax": 4,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kurzform für 45 Minuten mit einseitigen Quellenkarten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-3"
+  ],
+  "hinweis": "Der erzwungene Perspektivenwechsel unterscheidet SAC grundlegend von einer Gewinner-Verlierer-Debatte.",
+  "qualitaetsrisiko": [
+    "Synthesephase wird aus Zeitmangel abgeschnitten"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Fördert begründetes Urteilen, Perspektivenübernahme und konzeptuelles Verständnis stärker als klassische Debatte oder Einzelarbeit",
+      "quelle": "Johnson & Johnson 2009",
+      "geltung": "Meta-Analyse eines Forschungsprogramms, Schule und Hochschule, überwiegend USA"
+    }
+  ],
+  "plot": {
+    "x": 0.54,
+    "y": 2.95
+  }
+}

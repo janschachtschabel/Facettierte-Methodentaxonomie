@@ -1,0 +1,132 @@
+{
+  "status": "entwurf",
+  "kennung": "kopfstandmethode",
+  "name": "Kopfstandmethode (Umkehrtechnik)",
+  "kurzbeschreibung": "Ein Problem wird absichtlich ins Gegenteil verkehrt („Wie scheitert man garantiert?“), um Denkblockaden zu lösen und die Antworten anschließend in konstruktive Lösungen umzukehren.",
+  "alternativname": [
+    "Umkehrmethode",
+    "Reverse Brainstorming",
+    "Flip-Flop-Technik"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kopfstandtechnik",
+      "url": "https://de.wikipedia.org/wiki/Kopfstandtechnik",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "umkehrfrage",
+      "name": "Zugespitzte gegenteilige Fragestellung"
+    },
+    {
+      "kennung": "rueckuebersetzung",
+      "name": "Systematische Rückübersetzung in positive Kriterien"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Bei Standardfragen („Was macht einen guten Vortrag aus?“) fallen Lernenden oft nur abgedroschene Floskeln ein.",
+  "durchfuehrung": [
+    "Ausgangsfrage ins Gegenteil verkehren („Wie hält man garantiert das schlechteste Referat?“)",
+    "5 min lang konkrete Sabotage-Ideen sammeln",
+    "Jeden Punkt gezielt in ein konstruktives Qualitätskriterium umkehren und ordnen"
+  ],
+  "material": [
+    "Tafel oder zwei Flipcharts"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Zur Erarbeitung von Kriterienrastern vor Präsentationen oder Gruppenarbeiten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1"
+  ],
+  "hinweis": "Humorvoller, wirksamer Weg zur gemeinsamen Entwicklung von Qualitätskriterien.",
+  "qualitaetsrisiko": [
+    "Bleibt beim Scherzen stehen, wenn die Rückübersetzung zu kurz kommt"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Bewährte Kreativitätstechnik in Schule und Erwachsenenbildung; keine kontrollierte Lernleistungsstudie",
+      "quelle": "Mattes 2011",
+      "geltung": "Sekundarstufe, Berufsbildung und Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.1
+  }
+}

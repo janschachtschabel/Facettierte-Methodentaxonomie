@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "mind-mapping",
+  "name": "Mind Mapping",
+  "kurzbeschreibung": "Radiale, grafische Strukturierung von Begriffen, Ästen und Symbolen rund um ein Zentralthema zur Übersicht, Ideenordnung oder Wiederholung.",
+  "alternativname": [
+    "Gedankenlandkarte",
+    "Mindmap"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Mindmap",
+      "url": "https://de.wikipedia.org/wiki/Mindmap",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "fb-lehrkraft"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zentrum",
+      "name": "Zentralbegriff in der Mitte"
+    },
+    {
+      "kennung": "hauptaeste",
+      "name": "Gegliederte Haupt- und Unteräste"
+    },
+    {
+      "kennung": "schluesselwoerter",
+      "name": "Knappe Schlüsselbegriffe und visuelle Marker"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Lineare Mitschriften verschleiern oft Ober- und Unterbegriffe eines Themenfelds.",
+  "durchfuehrung": [
+    "Zentralthema in die Blattmitte setzen",
+    "Hauptäste als Oberkategorien anlegen",
+    "Unterbegriffe, Beispiele und Symbole ergänzen",
+    "Struktur im Partnerabgleich auf Vollständigkeit prüfen"
+  ],
+  "material": [
+    "Querformatiges Papier und Farbstifte (oder Mindmap-Tool)"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Gemeinsame Klassen-Mindmap an der Tafel"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/41-8"
+  ],
+  "hinweis": "Für präzise Kausal- und Prozessbeziehungen ist Concept Mapping der Mind Map überlegen.",
+  "qualitaetsrisiko": [
+    "Dekorative Gestaltung ersetzt fachliches Durchdenken"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Weit verbreitetes Organisationswerkzeug; empirische Vorteile kleiner und uneinheitlicher als bei Concept Mapping",
+      "quelle": "Buzan 1993; Farrand et al. 2002",
+      "geltung": "Schule und Hochschule; Nutzen hängt an aktiver Strukturierung"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 1.8
+  }
+}

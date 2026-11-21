@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "wortwolke",
+  "name": "Assoziations-Wortwolke",
+  "kurzbeschreibung": "Alle Lernenden geben simultan ein bis drei Schlüsselbegriffe digital ein, sodass Häufigkeiten, Vorwissen oder Stimmungsbilder sofort als Wortwolke sichtbar werden.",
+  "alternativname": [
+    "Live-Wortwolke",
+    "Word Cloud",
+    "Begriffswolke"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "kreativ",
+    "digital-ki",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schlagwortwolke",
+      "url": "https://de.wikipedia.org/wiki/Schlagwortwolke",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Wortwolke",
+      "url": "https://unterrichten.zum.de/wiki/Wortwolke",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "system",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "impuls",
+      "name": "Präzise Ein-Wort- oder Begriffsfrage"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Gemeinsame inhaltliche Auswertung der Häufungen und Ausreißer"
+    }
+  ],
+  "dauerMin": 3,
+  "dauerMax": 8,
+  "problem": "In größeren Gruppen sollen alle gleichzeitig und anonym ihre Assoziationen oder offenen Begriffe einbringen können.",
+  "durchfuehrung": [
+    "QR-Code/Link einblenden und knappe Frage stellen",
+    "Alle senden 1–3 Begriffe anonym ab",
+    "Entstehende Wortwolke gemeinsam auf Schwerpunkte, Lücken und Fehlvorstellungen hin besprechen"
+  ],
+  "material": [
+    "Live-Umfragetool (z. B. Oncoo, Tweedback, Particify)",
+    "Projektion"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 300,
+  "vorbereitungMin": 5,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "Analoge Klebepunkt- oder Kartenwolke"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/25-5"
+  ],
+  "hinweis": "Der didaktische Wert entsteht erst durch das anschließende Auswerten der Begriffe.",
+  "qualitaetsrisiko": [
+    "Spaßeinträge oder unkommentiertes Weiterklicken"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Digitales Aktivierungs- und Rückkanalformat; einzeln nicht als Lernmethode meta-analysiert",
+      "quelle": "Praxisliteratur digitale Lehre",
+      "geltung": "Sekundarstufe, Hochschule, Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 1.1
+  }
+}

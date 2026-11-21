@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "advance-organizer",
+  "name": "Advance Organizer",
+  "kurzbeschreibung": "Eine vorausgeschickte, übersichtliche Strukturkarte verknüpft neues Wissen mit dem Vorwissen und gibt Orientierung über eine Einheit.",
+  "alternativname": [
+    "Vorausorganisator",
+    "Strukturierende Lernhilfe",
+    "Experten-Landkarte"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "instruktion",
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Advance Organizer",
+      "url": "https://de.wikipedia.org/wiki/Advance_Organizer",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Ausubel (1960); Wahl (2013): Lernumgebungen erfolgreich gestalten",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ueberblick",
+      "name": "Visuelle Übersicht der Kernkonzepte vorab"
+    },
+    {
+      "kennung": "anknuepfung",
+      "name": "Explizite Verbindung zum Vorwissen"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Zu Beginn einer neuen Einheit fehlt Lernenden das übergeordnete Gerüst, um Einzelheiten einzuordnen.",
+  "durchfuehrung": [
+    "Strukturkarte der Einheit visuell präsentieren",
+    "Bekannte Ankerbegriffe und offene Fragen markieren",
+    "Strukturkarte im Verlauf der Reihe immer wieder als Orientierung aufgreifen"
+  ],
+  "material": [
+    "Plakat, Folie oder Handout mit Strukturübersicht"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 45,
+  "technik": "t-projektion",
+  "internet": false,
+  "variante": [
+    "Lücken-Organizer zum gemeinsamen Ergänzen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-1"
+  ],
+  "hinweis": "Wirkung hängt an Verständlichkeit und Rückbezug im Unterrichtsverlauf.",
+  "qualitaetsrisiko": [
+    "Überladene Grafik überfordert statt zu entlasten"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kleine bis mittlere positive Effekte auf Behalten und Verstehen komplexer Inhalte",
+      "quelle": "Luiten, Ames & Ackerson 1980",
+      "geltung": "Ältere Meta-Analyse, Schule und Hochschule, USA"
+    }
+  ],
+  "plot": {
+    "x": 0.85,
+    "y": 1.05
+  }
+}

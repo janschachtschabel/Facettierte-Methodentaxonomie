@@ -1,0 +1,151 @@
+{
+  "status": "entwurf",
+  "kennung": "wochenplanarbeit",
+  "name": "Wochenplanarbeit",
+  "kurzbeschreibung": "Lernende bearbeiten Pflicht- und Wahlaufgaben innerhalb einer Woche eigenverantwortlich in selbst gewählter Reihenfolge und Zeiteinteilung.",
+  "alternativname": [
+    "Wochenplanunterricht",
+    "Wochenplan"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "offen",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Wochenplanunterricht",
+      "url": "https://de.wikipedia.org/wiki/Wochenplanunterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "verzoegert",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "metakognitiv",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "pflicht-wahl",
+      "name": "Klare Trennung von Pflicht- und Wahlaufgaben"
+    },
+    {
+      "kennung": "zeitplanung",
+      "name": "Selbstständige Zeiteinteilung"
+    },
+    {
+      "kennung": "rueckmeldung",
+      "name": "Auswertungs- und Reflexionsphase am Wochenschluss"
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 450,
+  "problem": "Lernende brauchen Übungszeit in individuellem Tempo und sollen zugleich Selbstorganisation trainieren.",
+  "durchfuehrung": [
+    "Wochenplan mit Pflicht- und Wahlaufgaben ausgeben und klären",
+    "Lernende planen Reihenfolge und Sozialform eigenständig",
+    "Lehrkraft berät individuell und gibt kurze Hilfen",
+    "Ergebnisse selbst kontrollieren und Woche gemeinsam bilanzieren"
+  ],
+  "material": [
+    "Wochenplan-Übersicht",
+    "Differenzierte Aufgaben mit Lösungsblättern"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "vorbereitungMin": 90,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitaler Wochenplan im LMS",
+    "Arbeitsplan über zwei Wochen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/113-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/310-3"
+  ],
+  "hinweis": "Setzt eingeführte Arbeitsroutinen und echte Rückmeldung auf Arbeitsergebnisse voraus.",
+  "qualitaetsrisiko": [
+    "Abarbeiten ohne fachliches Verstehen",
+    "Aufschieben bis zum letzten Tag"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Klassische Methode der Grund- und Sekundarschule; empirische Befunde zu offenem Unterricht sind uneinheitlich",
+      "quelle": "Lipowsky 2002; Peschel 2002",
+      "geltung": "Grundschule und Sek I, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 1.5
+  }
+}

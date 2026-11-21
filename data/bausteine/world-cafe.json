@@ -1,0 +1,150 @@
+{
+  "status": "entwurf",
+  "kennung": "world-cafe",
+  "name": "World Café",
+  "kurzbeschreibung": "Kleingruppen diskutieren an mehreren Thementischen und wechseln in Runden die Tische, während je ein Gastgeber die bisherigen Gedanken weiterträgt.",
+  "alternativname": [
+    "Weltcafé",
+    "Café-Dialog"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: World-Café",
+      "url": "https://de.wikipedia.org/wiki/World-Caf%25C3%25A9",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: World Café",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "tischfragen",
+      "name": "Fokussierte Leitfragen je Tisch"
+    },
+    {
+      "kennung": "gastgeber",
+      "name": "Fester Tisch-Gastgeber sichert Kontinuität"
+    },
+    {
+      "kennung": "rotation",
+      "name": "Mindestens zwei Wechselrunden mit Tischdecken-Notizen"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Eine größere Lerngruppe soll ein vielschichtiges Thema vernetzt aus mehreren Blickwinkeln durchdenken.",
+  "durchfuehrung": [
+    "3 bis 5 Tische mit Papier-Tischdecken und Leitfragen vorbereiten",
+    "Runde 1: Gruppen diskutieren und skizzieren auf der Tischdecke (10–15 min)",
+    "Ein Gastgeber bleibt am Tisch; alle anderen wechseln an neue Tische",
+    "Gastgeber fasst kurz zusammen, neue Gruppe denkt weiter (2–3 Runden)",
+    "Ergebnisse im Plenum bündeln"
+  ],
+  "material": [
+    "Packpapier/Flipcharts als Tischdecken",
+    "Stifte",
+    "Leitfragenkarten"
+  ],
+  "raum": "Raum mit beweglichen Tischen",
+  "gruppeMin": 12,
+  "gruppeMax": 80,
+  "teamMin": 4,
+  "teamMax": 6,
+  "vorbereitungMin": 25,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Online-World-Café in Breakout-Räumen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "hinweis": "Ideal für komplexe Fragestellungen ab Sekundarstufe II, Hochschule und Erwachsenenbildung.",
+  "qualitaetsrisiko": [
+    "Beliebiges Plaudern ohne präzise Leitfragen und Erntephase"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etabliertes Großgruppenverfahren der politischen und Erwachsenenbildung; kaum kontrollierte Lernleistungsstudien",
+      "quelle": "Brown & Isaacs 2005",
+      "geltung": "Erwachsenenbildung, Hochschule, Sek II"
+    }
+  ],
+  "plot": {
+    "x": 0.34,
+    "y": 2.75
+  }
+}

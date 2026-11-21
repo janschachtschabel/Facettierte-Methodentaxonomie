@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "lernvertrag",
+  "name": "Lernvertrag (Zielvereinbarung)",
+  "kurzbeschreibung": "Lernende und Lehrkraft halten verbindlich individuelle Lernziele, konkrete Arbeitsschritte, Zeitrahmen, Unterstützungsbedarf und Erfolgsnachweise schriftlich fest.",
+  "alternativname": [
+    "Lernvereinbarung",
+    "Zielvereinbarung",
+    "Learning Contract"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernvertrag",
+      "url": "https://de.wikipedia.org/wiki/Lernvertrag",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Knowles (1986): Using Learning Contracts",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "orientierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "mikro",
+    "diff-inhalt",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "verzoegert",
+    "selbstregulationsebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ziele",
+      "name": "Konkrete, überprüfbare Lernziele"
+    },
+    {
+      "kennung": "nachweis",
+      "name": "Vereinbarte Kriterien und Nachweisform"
+    },
+    {
+      "kennung": "bilanz",
+      "name": "Fester Termin zur Auswertung"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 90,
+  "problem": "Selbstlernphasen scheitern oft an unklaren Zielen oder mangelnder Verbindlichkeit.",
+  "durchfuehrung": [
+    "Auf Basis einer Diagnose realistische Ziele und Teilaufgaben formulieren",
+    "Ressourcen, Zeitplan und Nachweisform schriftlich vereinbaren",
+    "Zwischenstand kurz prüfen und bei Bedarf nachsteuern",
+    "Am Ende gemeinsam bilanzieren"
+  ],
+  "material": [
+    "Lernvertrag-Vorlage"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Klassen-Lernvereinbarung in der Projektarbeit"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/113-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/39-2"
+  ],
+  "hinweis": "Fördert Eigenverantwortung besonders in Förder-, Projekt- und Erwachsenenbildungssettings.",
+  "qualitaetsrisiko": [
+    "Wird als bürokratisches Kontrollformular statt als Unterstützung erlebt"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etabliertes Instrument der Selbstregulations- und Erwachsenenbildung; eng verwandt mit Zielsetzungsforschung",
+      "quelle": "Knowles 1986; Locke & Latham 2002",
+      "geltung": "Sekundarstufe, Berufsbildung, Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 1.9
+  }
+}

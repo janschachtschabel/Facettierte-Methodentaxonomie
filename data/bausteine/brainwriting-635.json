@@ -1,0 +1,136 @@
+{
+  "status": "entwurf",
+  "kennung": "brainwriting-635",
+  "name": "Methode 6-3-5 (Brainwriting)",
+  "kurzbeschreibung": "Sechs Personen notieren still je drei Ideen auf einem Blatt und reichen die Blätter fünfmal weiter, um fremde Ansätze systematisch weiterzuentwickeln.",
+  "alternativname": [
+    "Brainwriting",
+    "6-3-5-Methode"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "kreativ",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Methode 635",
+      "url": "https://de.wikipedia.org/wiki/Methode_635",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "verzoegert"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stille",
+      "name": "Stilles schriftliches Arbeiten ohne Produktionsblockade"
+    },
+    {
+      "kennung": "weitergeben",
+      "name": "Systematisches Weiterreichen und Aufgreifen fremder Ideen"
+    },
+    {
+      "kennung": "auswahl",
+      "name": "Bewertung und Auswahl der besten Ansätze"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 35,
+  "problem": "Mündliches Brainstorming hemmt stille Teilnehmende und führt zu wenigen, sich wiederholenden Ideen.",
+  "durchfuehrung": [
+    "Problemstellung klären und 6-Zeilen×3-Spalten-Blätter austeilen",
+    "Runde 1: jede Person schreibt 3 Ideen in Zeile 1 (3–5 min)",
+    "Blatt im Uhrzeigersinn weiterreichen; nächste Zeile greift Vorideen auf oder ergänzt neue",
+    "Nach 3–5 Runden beste Ideen im Team markieren und auswerten"
+  ],
+  "material": [
+    "6-3-5-Arbeitsblätter",
+    "Stifte"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 36,
+  "teamMin": 4,
+  "teamMax": 6,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Methode 4-3-3 für kürzere Unterrichtsphasen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "hinweis": "Vermeidet die Produktionsblockade mündlichen Brainstormings.",
+  "qualitaetsrisiko": [
+    "Zeitdruck erzeugt ab Runde 4 bloße Wiederholungen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Basiert auf dem sozialpsychologischen Vorteil schriftlichen Brainwritings gegenüber mündlichem Brainstorming",
+      "quelle": "Rohrbach 1969; Mullen et al. 1991",
+      "geltung": "Kreativitätsforschung, Sek II, Berufsbildung, Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.35
+  }
+}

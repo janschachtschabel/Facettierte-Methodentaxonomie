@@ -1,0 +1,147 @@
+{
+  "status": "entwurf",
+  "kennung": "lehrgespraech",
+  "name": "Fragend-entwickelndes Unterrichtsgespräch",
+  "kurzbeschreibung": "Gelenktes Gespräch im Plenum, in dem die Lehrkraft durch gestufte Impulse und Rückfragen gemeinsam mit der Klasse Zusammenhänge erschließt.",
+  "alternativname": [
+    "Lehrgespräch",
+    "Unterrichtsgespräch",
+    "Gelenktes Unterrichtsgespräch"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "instruktion",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Unterrichtsgespräch",
+      "url": "https://de.wikipedia.org/wiki/Unterrichtsgespr%25C3%25A4ch",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Meyer (1987): Unterrichtsmethoden",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "erwerb"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "wartezeit",
+      "name": "Ausreichende Wartezeit nach Fragen (3–5 s)"
+    },
+    {
+      "kennung": "begruendung",
+      "name": "Nachfragen nach Begründungen statt Stichwortraten"
+    },
+    {
+      "kennung": "sicherung",
+      "name": "Sichtbare Ergebnissicherung"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Neue Zusammenhänge sollen im Klassenverband entwickelt werden, indem an Schülerbeiträge unmittelbar angeknüpft wird.",
+  "durchfuehrung": [
+    "Offenen Denkanstoß oder Phänomen einbringen",
+    "Wartezeit lassen und verschiedene Beiträge sammeln",
+    "Beiträge durch Rückfragen vertiefen und kontrastieren",
+    "Gemeinsam erarbeitetes Ergebnis festhalten"
+  ],
+  "material": [
+    "Tafel oder Flipchart zur Mitschrift"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kombination mit kurzer Murmelphase vor dem Aufrufen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-3"
+  ],
+  "hinweis": "Gefahr des „Osterhasen-Pädagogik“-Stichwortratens vermeiden.",
+  "qualitaetsrisiko": [
+    "Nur wenige leistungsstarke Lernende tragen das Gespräch",
+    "Engführendes Stichwortraten"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Klassische Grundform im deutschsprachigen Unterricht; Wirksamkeit hängt stark an Gesprächsqualität und kognitiver Aktivierung",
+      "quelle": "Aebli 1983; Praetorius et al. 2018",
+      "geltung": "Allgemeindidaktik und Unterrichtsqualitätsforschung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.74,
+    "y": 1.55
+  }
+}

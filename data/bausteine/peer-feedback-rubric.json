@@ -1,0 +1,154 @@
+{
+  "status": "entwurf",
+  "kennung": "peer-feedback-rubric",
+  "name": "Kriteriengeleitetes Peer-Feedback",
+  "kurzbeschreibung": "Lernende prüfen gegenseitig Arbeitsergebnisse anhand eines konkreten Kriterienrasters (Rubric) und formulieren konstruktive Hinweise für die Überarbeitung.",
+  "alternativname": [
+    "Peer-Assessment",
+    "Peer-Review",
+    "Zwei Sterne und ein Wunsch"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "diagnose-feedback",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Peer-Review",
+      "url": "https://de.wikipedia.org/wiki/Peer-Review",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Double, McGrane & Hopfenbeck (2020): Meta-analysis of peer assessment",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "diagnose",
+    "metakognition",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "prozessebene",
+    "formativ",
+    "fb-elaboriert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rubric",
+      "name": "Verständliches Kriterienraster mit Niveaustufen"
+    },
+    {
+      "kennung": "training",
+      "name": "Kurzes Einüben der Kriterien an einem Beispiel"
+    },
+    {
+      "kennung": "revision",
+      "name": "Zeit zur Überarbeitung nach dem Feedback"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Lehrkräfte können nicht jedes Zwischenprodukt ausführlich kommentieren, und Lernende entwickeln ohne fremde Produkte kaum ein Qualitätsgefühl.",
+  "durchfuehrung": [
+    "Kriterienraster vorstellen und an einem Beispiel kalibrieren",
+    "Produkte im Tandem oder anonymisiert begutachten",
+    "Konkrete Stärken und 1–2 umsetzbare Verbesserungshinweise geben",
+    "Eigenes Produkt gezielt überarbeiten"
+  ],
+  "material": [
+    "Kriterienraster (Rubric)",
+    "Zwischenprodukte"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 100,
+  "teamMin": 2,
+  "teamMax": 3,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Zwei Sterne und ein Wunsch (Primar / Sek I)",
+    "Digitales anonymisiertes Peer-Review"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-3"
+  ],
+  "hinweis": "Auch die Feedbackgebenden profitieren stark vom aktiven Anwenden der Kriterien.",
+  "qualitaetsrisiko": [
+    "Gefälligkeits- oder kränkendes Feedback ohne Kriterienbezug"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Peer-Assessment verbessert die akademische Leistung im Mittel (g ≈ 0,31) über Schulstufen und Fächer hinweg",
+      "quelle": "Double, McGrane & Hopfenbeck 2020",
+      "geltung": "Primarstufe bis Hochschule, international; Kriterienraster stärken den Effekt"
+    }
+  ],
+  "plot": {
+    "x": 0.6,
+    "y": 2.65
+  }
+}

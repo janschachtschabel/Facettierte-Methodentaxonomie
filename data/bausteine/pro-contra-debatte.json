@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "pro-contra-debatte",
+  "name": "Pro-Contra-Debatte (Jugend debattiert)",
+  "kurzbeschreibung": "Zwei feste Teams (Pro und Contra) debattieren eine präzise Entscheidungsfrage nach strenger Zeit- und Rederegelung mit Eröffnung, freier Aussprache und Schlusswort.",
+  "alternativname": [
+    "Debatte",
+    "Jugend debattiert",
+    "Streitgespräch"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Debatte",
+      "url": "https://de.wikipedia.org/wiki/Debatte",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Jugend debattiert",
+      "url": "https://de.wikipedia.org/wiki/Jugend_debattiert",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "frage",
+      "name": "Präzise Ja/Nein-Streitfrage („Soll …?“)"
+    },
+    {
+      "kennung": "zeitregeln",
+      "name": "Feste Redezeiten und Phasen (Eröffnung, Aussprache, Schluss)"
+    },
+    {
+      "kennung": "kriterien",
+      "name": "Kriteriengeleitetes Feedback (Sachkenntnis, Überzeugungskraft, Gesprächsfähigkeit)"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Argumentieren und sachliches Streiten bleiben unstrukturiert, wenn Redezeit, Rollen und Beurteilungskriterien fehlen.",
+  "durchfuehrung": [
+    "Entscheidungsfrage klären und Pro-/Contra-Positionen (ggf. per Los) zuweisen",
+    "Argumente recherchieren und strukturieren",
+    "Debatte mit Zeitwächter durchführen (Eröffnung, freie Aussprache, Schlussrunden)",
+    "Beobachter geben kriteriengeleitetes Feedback"
+  ],
+  "material": [
+    "Zeitnehmer/Stoppuhr",
+    "Beobachtungsbogen mit Kriterien"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kleingruppen-Debatte (4 Debattierende + 2 Juroren parallel)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-2"
+  ],
+  "hinweis": "Parallele Debatten in 6er-Gruppen erhöhen die aktive Redezeit drastisch.",
+  "qualitaetsrisiko": [
+    "Rhetorisches Gewinnen verdrängt sachliche Prüfung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Evaluationsbefunde zu Jugend debattiert zeigen Zuwächse bei Argumentationsfähigkeit und politischem Interesse",
+      "quelle": "Hertie-Stiftung / Jugend debattiert Evaluationen",
+      "geltung": "Sekundarstufe I/II, Deutschland"
+    }
+  ],
+  "plot": {
+    "x": 0.58,
+    "y": 2.8
+  }
+}

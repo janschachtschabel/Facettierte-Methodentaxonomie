@@ -1,0 +1,139 @@
+{
+  "status": "entwurf",
+  "kennung": "walt-disney-methode",
+  "name": "Walt-Disney-Methode",
+  "kurzbeschreibung": "Lernende betrachten eine Projektidee nacheinander aus drei klar getrennten Perspektiven an drei Orten: Träumer (Vision), Realist (Umsetzung) und Kritiker (Risiken).",
+  "alternativname": [
+    "Disney-Strategie",
+    "Drei-Stühle-Methode"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "kreativ",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Walt-Disney-Methode",
+      "url": "https://de.wikipedia.org/wiki/Walt-Disney-Methode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "trennung",
+      "name": "Strikte Trennung von Träumer, Realist und Kritiker"
+    },
+    {
+      "kennung": "ortswechsel",
+      "name": "Räumlicher Positionswechsel je Rolle"
+    },
+    {
+      "kennung": "durchgang",
+      "name": "Mindestens ein vollständiger Durchlauf aller drei Rollen"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Frühe Kritik erstickt kreative Entwürfe, während reine Visionen an der praktischen Umsetzbarkeit scheitern.",
+  "durchfuehrung": [
+    "Drei Plätze/Stationen im Raum für Träumer, Realist und Kritiker festlegen",
+    "Alle entwickeln als Träumer hemmungslos Visionen (10 min)",
+    "Wechsel auf Realisten-Platz: konkreten Umsetzungsplan entwerfen (10 min)",
+    "Wechsel auf Kritiker-Platz: Schwachstellen konstruktiv prüfen und Plan nachschärfen (10 min)"
+  ],
+  "material": [
+    "Drei Rollenkarten",
+    "Plakate oder Moderationskarten"
+  ],
+  "raum": "Platz für drei kleine Zonen je Team",
+  "gruppeMin": 3,
+  "gruppeMax": 30,
+  "teamMin": 3,
+  "teamMax": 6,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Einsatz bei der Projektplanung"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4"
+  ],
+  "hinweis": "Der Kritiker prüft den Plan, nicht die Personen.",
+  "qualitaetsrisiko": [
+    "Rollen werden vermischt und der Kritiker blockiert bereits in Phase 1"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Kreativitäts- und Planungsmethode aus Praxis und Moderation; keine Wirksamkeitsmeta-Analyse",
+      "quelle": "Dilts 1994",
+      "geltung": "Sekundarstufe II, Berufsbildung, Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.55
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "status": "entwurf",
+  "kennung": "fallstudie",
+  "name": "Fallstudie (Case Study)",
+  "kurzbeschreibung": "Lernende analysieren einen realitätsnahen, dokumentierten Einzelfall, entwickeln Handlungsalternativen, begründen eine Entscheidung und vergleichen sie mit der Realität.",
+  "alternativname": [
+    "Fallmethode",
+    "Case Study",
+    "Fallarbeit"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Fallstudie",
+      "url": "https://de.wikipedia.org/wiki/Fallstudie",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Fallstudie",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "fall",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fallmaterial",
+      "name": "Authentisches Fallmaterial mit Daten/Quellen"
+    },
+    {
+      "kennung": "optionen",
+      "name": "Abwägen mehrerer Handlungsoptionen"
+    },
+    {
+      "kennung": "vergleich",
+      "name": "Abgleich mit realer Entscheidung oder Fachkriterien"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Abstrakte Regeln und Modelle bleiben ohne Anwendung an realen Entscheidungssituationen unverstanden.",
+  "durchfuehrung": [
+    "Fallmaterial sichten und Problem herausarbeiten",
+    "Fehlende Informationen beschaffen",
+    "Handlungsalternativen entwickeln und kriteriengeleitet bewerten",
+    "Entscheidung begründen, vorstellen und mit der Praxis vergleichen"
+  ],
+  "material": [
+    "Falldossier (Texte, Daten, Dokumente)"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Harvard-Methode (ausführliches Dossier)",
+    "Incident-Methode (Informationen auf gezielte Nachfrage)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/33-4"
+  ],
+  "hinweis": "Besonders verbreitet in Politik, Wirtschaft, Ethik, Recht und Berufsbildung.",
+  "qualitaetsrisiko": [
+    "Fall wird nacherzählt statt kriteriengeleitet analysiert"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Traditionsreiche Methode der Wirtschafts-, Politik- und Berufsdidaktik; wenige kontrollierte Meta-Analysen",
+      "quelle": "Kaiser 1983; Flechsig 1996",
+      "geltung": "Sekundarstufe II, Berufsbildung und Hochschule, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 2.5
+  }
+}

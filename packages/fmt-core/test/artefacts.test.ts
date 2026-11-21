@@ -154,4 +154,44 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
       }
     }
   });
+
+  it('covers 100 German teaching methods across all 12 didactic approaches, all 11 learning states, and free sources', () => {
+    const bundle = readJson<CatalogBundle>('catalog.bundle.json');
+    expect(bundle.bausteine.length).toBe(100);
+
+    const ids = new Set(bundle.bausteine.map((b) => b.kennung));
+    expect(ids.size).toBe(100);
+
+    const kuratiert = bundle.bausteine.filter((b) => b.status === 'kuratiert');
+    const entwurf = bundle.bausteine.filter((b) => b.status === 'entwurf');
+    expect(kuratiert.length).toBe(22);
+    expect(entwurf.length).toBe(78);
+
+    // Every one of the 12 didactic approaches has >= 4 methods
+    const ansatzScheme = bundle.schemes.find((s) => s.id === 'ansatz')!;
+    for (const a of ansatzScheme.werte || []) {
+      const count = bundle.bausteine.filter((b) => b.ansatz.includes(a.id)).length;
+      expect(count, `ansatz ${a.id} has too few methods (${count})`).toBeGreaterThanOrEqual(4);
+    }
+
+    // Every one of the 11 learning states is produced by >= 2 methods
+    const stateScheme = bundle.schemes.find((s) => s.id === 'lernzustand')!;
+    for (const z of stateScheme.werte || []) {
+      const producers = bundle.bausteine.filter((b) => (b.nachbedingung || []).includes(z.id)).length;
+      expect(producers, `lernzustand ${z.id} produced by only ${producers} blocks`).toBeGreaterThanOrEqual(2);
+    }
+
+    // Every Wikipedia/OER source has a valid https URL
+    for (const b of bundle.bausteine) {
+      for (const q of b.quellen) {
+        if (q.quelltyp === 'wikipedia' || q.quelltyp === 'oer') {
+          expect(q.url, `${b.kennung}: ${q.titel} needs https URL`).toMatch(/^https:\/\//);
+        }
+      }
+      // Every method without komposit has plot coordinates
+      if (!b.komposit) {
+        expect(b.plot, `${b.kennung} needs plot coordinates`).toBeDefined();
+      }
+    }
+  });
 });

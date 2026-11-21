@@ -1,0 +1,156 @@
+{
+  "status": "entwurf",
+  "kennung": "lernen-durch-lehren",
+  "name": "Lernen durch Lehren (LdL)",
+  "kurzbeschreibung": "Lernende erarbeiten einen neuen Stoffabschnitt tiefgehend in Teams und gestalten anschließend selbst eine aktivierende Unterrichtssequenz für ihre Mitschülerinnen und Mitschüler.",
+  "alternativname": [
+    "LdL",
+    "Learning by Teaching"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "offen",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernen durch Lehren",
+      "url": "https://de.wikipedia.org/wiki/Lernen_durch_Lehren",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Martin (1985); Kobayashi (2019): Learning by Teaching Meta-Analysis",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fachpruefung",
+      "name": "Fachliche Vorab-Beratung durch die Lehrkraft"
+    },
+    {
+      "kennung": "aktivierung",
+      "name": "Lehrendenteam aktiviert die Klasse statt nur vorzutragen"
+    },
+    {
+      "kennung": "nachbesprechung",
+      "name": "Fachliche und methodische Nachbesprechung"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Referate fördern oft nur oberflächliches Vortragen statt tiefer gedanklicher Durchdringung und Beteiligung der Klasse.",
+  "durchfuehrung": [
+    "Themenabschnitt an Kleinteam vergeben und Material bereitstellen",
+    "Team durchdringt den Stoff und plant eine aktivierende Sequenz (mit Lehrkraft-Check)",
+    "Team moderiert die Erarbeitung mit der Klasse",
+    "Lehrkraft greift bei fachlichen Fehlern behutsam ein und rundet im Feedback ab"
+  ],
+  "material": [
+    "Fachmaterial",
+    "Methoden-Leitfaden für das Lehrendenteam"
+  ],
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Peer-Tutoring in Tandems"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/23-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "hinweis": "Lehrkraft bleibt fachliche Sicherheitsinstanz, um Fehlkonzepte zu verhindern.",
+  "qualitaetsrisiko": [
+    "Verflacht zum schlecht vorbereiteten Schülerreferat ohne Aktivierung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Lernen durch Lehren (insb. mit interaktivem Erklären) zeigt mittlere positive Effekte auf das eigene Verstehen (g ≈ 0,48)",
+      "quelle": "Kobayashi 2019",
+      "geltung": "Schule und Hochschule, international; Effekt stärker für die Lehrenden als für passive Zuhörende"
+    }
+  ],
+  "plot": {
+    "x": 0.38,
+    "y": 2.85
+  }
+}

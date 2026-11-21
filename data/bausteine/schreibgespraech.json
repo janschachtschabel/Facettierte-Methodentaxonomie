@@ -1,0 +1,147 @@
+{
+  "status": "entwurf",
+  "kennung": "schreibgespraech",
+  "name": "Schreibgespräch (Stille Diskussion)",
+  "kurzbeschreibung": "Lernende diskutieren eine Leitfrage ausschließlich schriftlich auf großen Bögen, indem sie wechselseitig kommentieren, nachfragen und verknüpfen.",
+  "alternativname": [
+    "Stille Diskussion",
+    "Silent Discussion",
+    "Wortloses Gespräch"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schreibgespräch",
+      "url": "https://de.wikipedia.org/wiki/Schreibgespr%25C3%25A4ch",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Schreibgespräch",
+      "url": "https://unterrichten.zum.de/wiki/Schreibgespr%25C3%25A4ch",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stille",
+      "name": "Striktes Sprechverbot während der Schreibphase"
+    },
+    {
+      "kennung": "bezugnahme",
+      "name": "Sichtbare Pfeile und Antworten auf fremde Beiträge"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Mündliche Auswertung im Anschluss"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "In mündlichen Diskussionen kommen ruhigere oder nachdenklichere Lernende kaum zu Wort.",
+  "durchfuehrung": [
+    "Plakate mit Leitfragen oder Provokationen auslegen",
+    "Lernende schreiben still ihre Gedanken und kommentieren Beiträge anderer per Verbindungslinien",
+    "Nach 10–15 min Ergebnisse still sichten",
+    "Zentrale Argumente und Kontroversen mündlich auswerten"
+  ],
+  "material": [
+    "Große Papierbögen (A2/Flipchart)",
+    "Filzstifte"
+  ],
+  "raum": "Gruppentische oder Wandflächen",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 6,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Wanderndes Schreibgespräch zwischen Tischen",
+    "Digitales Schreibgespräch auf Etherpad/TaskCards"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "hinweis": "Geringe sprachliche Hemmschwelle und direkt dokumentiertes Ergebnis.",
+  "qualitaetsrisiko": [
+    "Beiträge stehen isoliert nebeneinander statt aufeinander Bezug zu nehmen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Methode in Deutsch-, Politik- und Ethikdidaktik; keine isolierte Meta-Analyse",
+      "quelle": "Brenner & Brenner 2011; Mattes 2011",
+      "geltung": "Deutschsprachige Fachdidaktik und Unterrichtspraxis"
+    }
+  ],
+  "plot": {
+    "x": 0.52,
+    "y": 2.45
+  }
+}

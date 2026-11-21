@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "sketchnotes",
+  "name": "Sketchnotes (Visuelle Notizen)",
+  "kurzbeschreibung": "Lernende verarbeiten Vorträge, Texte oder Themen aktiv, indem sie Schlüsselbegriffe mit einfachen Skizzen, Pfeilen und Containern zu einer visuellen Übersicht verbinden.",
+  "alternativname": [
+    "Visuelle Notizen",
+    "Graphic Recording (Schüler)"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Sketchnotes",
+      "url": "https://de.wikipedia.org/wiki/Sketchnotes",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wammes, Meade & Fernandes (2016): The drawing effect",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "fakten",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "reduktion",
+      "name": "Verdichtung auf Kernaussagen"
+    },
+    {
+      "kennung": "dual",
+      "name": "Verbindung von Text und bedeutungstragender Skizze"
+    },
+    {
+      "kennung": "erklaerung",
+      "name": "Erklären der eigenen Sketchnote im Tandem"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Wortwörtliches Abschreiben erzeugt wenig gedankliche Durchdringung und geringe Behaltensleistung.",
+  "durchfuehrung": [
+    "Grundelemente (Container, Pfeile, einfache Symbole) kurz einführen",
+    "Inhalt in eigene Sketchnote übersetzen (ohne künstlerischen Anspruch)",
+    "Sketchnotes im Tandem gegenseitig erklären und fehlende Zusammenhänge ergänzen"
+  ],
+  "material": [
+    "Blankopapier, Fineliner, ein Akzentmarker (oder Tablet mit Stift)"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Gemeinsame Tafel-Sketchnote zur Stundensicherung"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-2"
+  ],
+  "hinweis": "Es zählt die fachliche Übersetzungsleistung, nicht zeichnerisches Talent.",
+  "qualitaetsrisiko": [
+    "Verlieren in rein dekorativen Zeichnungen ohne fachlichen Gehalt"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Lernendes Zeichnen fördert Behalten und Verstehen, wenn es konzeptuelle Zusammenhänge abbildet",
+      "quelle": "Fiorella & Zhang 2018; Wammes et al. 2016",
+      "geltung": "Schule und Hochschule, überwiegend MINT/Psychologie; Wirkung sinkt bei zu hohem Zeichenaufwand"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.2
+  }
+}

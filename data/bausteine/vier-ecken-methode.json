@@ -1,0 +1,143 @@
+{
+  "status": "entwurf",
+  "kennung": "vier-ecken-methode",
+  "name": "Vier-Ecken-Methode",
+  "kurzbeschreibung": "Lernende positionieren sich räumlich zu vier vorgegebenen Thesen oder Antwortoptionen in den Raumecken, begründen ihre Wahl im Team und tauschen Argumente aus.",
+  "alternativname": [
+    "Vier-Ecken-Spiel",
+    "Ecken-Diskussion",
+    "Four Corners"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Vier-Ecken-Methode",
+      "url": "https://de.wikipedia.org/wiki/Vier-Ecken-Methode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Vier-Ecken-Methode",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "thesen",
+      "name": "Vier trennscharfe Positionen oder Antwortoptionen"
+    },
+    {
+      "kennung": "begruendung",
+      "name": "Kurze Begründungsphase innerhalb jeder Ecke"
+    },
+    {
+      "kennung": "wechsel",
+      "name": "Möglichkeit zum begründeten Eckenwechsel"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Meinungsvielfalt oder unterschiedliche Alltagsvorstellungen sollen rasch sichtbar und mit Bewegung verbunden werden.",
+  "durchfuehrung": [
+    "Vier Thesen oder Antwortoptionen in den Raumecken aushängen",
+    "Alle ordnen sich ohne Diskussion einer Ecke zu",
+    "In jeder Ecke kurz Hauptargumente sammeln (3 min)",
+    "Jede Ecke begründet ihre Wahl; danach ist ein begründeter Wechsel möglich"
+  ],
+  "material": [
+    "Vier große Thesen-Schilder"
+  ],
+  "raum": "Bewegungsraum in vier Ecken",
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Diagnostische Vier-Ecken-Abfrage mit vier Konzept-Antworten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Auch hervorragend zum Sichtbarmachen fachlicher Fehlvorstellungen geeignet.",
+  "qualitaetsrisiko": [
+    "Herdentrieb zu Freunden statt eigener Positionierung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Verbreitete Aktivierungs- und Positionierungsmethode in Schule und politischer Bildung",
+      "quelle": "bpb Methodenkoffer",
+      "geltung": "Primar bis Sek II und Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.35
+  }
+}

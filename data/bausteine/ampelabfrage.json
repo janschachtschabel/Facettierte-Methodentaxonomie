@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "ampelabfrage",
+  "name": "Ampel- und Fingerabfrage",
+  "kurzbeschreibung": "Sofortige visuelle Rückmeldung der gesamten Klasse über Ampelkarten oder Handzeichen (1–5 Finger) zur Einschätzung von Verständnis oder Tempo.",
+  "alternativname": [
+    "Ampelmethode",
+    "Daumenabfrage",
+    "Fist-to-Five",
+    "Kartenabfrage"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Formatives Assessment",
+      "url": "https://de.wikipedia.org/wiki/Formatives_Assessment",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wiliam (2011): Embedded Formative Assessment",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "selbstkontrolle",
+    "unmittelbar",
+    "formativ",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "simultan",
+      "name": "Gleichzeitiges Zeichen aller auf Kommando"
+    },
+    {
+      "kennung": "konsequenz",
+      "name": "Unmittelbare didaktische Reaktion (z. B. Grün erklärt Gelb)"
+    }
+  ],
+  "dauerMin": 1,
+  "dauerMax": 4,
+  "problem": "Auf die pauschale Frage „Habt ihr es verstanden?“ nicken alle oder niemand meldet sich.",
+  "durchfuehrung": [
+    "Klare Skala nennen (Grün = kann ich erklären, Gelb = unsicher, Rot = brauche Hilfe)",
+    "Alle zeigen gleichzeitig ihr Signal (ggf. verdeckt vor der Brust)",
+    "Direkt reagieren: z. B. Grün-Gelb-Tandems bilden, während Lehrkraft Rot unterstützt"
+  ],
+  "material": [
+    "Ampelkarten/Becher oder schlicht die Hand"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 100,
+  "vorbereitungMin": 1,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Ampelbecher auf dem Gruppentisch während Stillarbeitsphasen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2"
+  ],
+  "hinweis": "Misst subjektive Sicherheit, nicht automatisch tatsächliches Verstehen – ideal kombiniert mit einer Kontrollfrage.",
+  "qualitaetsrisiko": [
+    "Soziale Erwünschtheit (alle zeigen Grün) oder Verstehensillusion"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Teil von Wiliams Strategien formativer Beurteilung; Selbstauskünfte weichen oft von tatsächlicher Leistung ab",
+      "quelle": "Wiliam 2011; Kingston & Nash 2011",
+      "geltung": "Schule, international; sollte durch inhaltliche Prüfaufgaben ergänzt werden"
+    }
+  ],
+  "plot": {
+    "x": 0.85,
+    "y": 0.95
+  }
+}

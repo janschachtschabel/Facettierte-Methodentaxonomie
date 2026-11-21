@@ -1,0 +1,147 @@
+{
+  "status": "entwurf",
+  "kennung": "karteikarten-leitner",
+  "name": "Lernkartei (Leitner-System)",
+  "kurzbeschreibung": "Wissens- und Vokabelkarten wandern je nach Abruferfolg durch gestaffelte Fächer, sodass Unsicheres häufiger und Sicheres in wachsenden Abständen wiederholt wird.",
+  "alternativname": [
+    "Leitner-System",
+    "Lernkartei",
+    "Spaced-Repetition-Karten",
+    "Anki"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernkartei",
+      "url": "https://de.wikipedia.org/wiki/Lernkartei",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Cepeda et al. (2006); Rowland (2014)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lehrkraft",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1"
+  ],
+  "sequenz": [
+    "verteilt",
+    "verschachtelt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abruf",
+      "name": "Aktives Abrufen vor dem Umdrehen"
+    },
+    {
+      "kennung": "faecher",
+      "name": "Wachsende Wiederholungsabstände nach Erfolg"
+    },
+    {
+      "kennung": "rueckstufung",
+      "name": "Falsche Karten wandern zurück in Fach 1"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Fakten, Fachbegriffe und Vokabeln werden kurz vor Tests gepaukt und danach rasch vergessen.",
+  "durchfuehrung": [
+    "Karten mit eindeutiger Frage/Antwort erstellen (oder digitale Kartei laden)",
+    "Antwort aus dem Gedächtnis formulieren, dann Rückseite prüfen",
+    "Richtige Karten ein Fach weiter, unsichere zurück in Fach 1",
+    "Kurz und regelmäßig über Wochen verteilt üben"
+  ],
+  "material": [
+    "Lernkarteikasten (5 Fächer) oder Spaced-Repetition-App (z. B. Anki)"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitale Spaced-Repetition-Kartei",
+    "Tandem-Abfrage mit Lernkarten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/37-5"
+  ],
+  "hinweis": "Kombiniert zwei der am besten belegten Lernprinzipien: Abruf und zeitliche Verteilung.",
+  "qualitaetsrisiko": [
+    "Vorzeitiges Umdrehen ohne echten Abrufversuch"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Verteilter Abruf zeigt robuste, große Behaltensvorteile gegenüber massiertem Wiederlesen",
+      "quelle": "Cepeda et al. 2006; Rowland 2014; Dunlosky et al. 2013",
+      "geltung": "Schule und Hochschule, international; besonders stark für Fakten, Begriffe und Vokabeln"
+    }
+  ],
+  "plot": {
+    "x": 0.86,
+    "y": 1.25
+  }
+}

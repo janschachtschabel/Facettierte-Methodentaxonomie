@@ -1,0 +1,153 @@
+{
+  "status": "entwurf",
+  "kennung": "textlupe",
+  "name": "Textlupe (Peer-Textüberarbeitung)",
+  "kurzbeschreibung": "Schülertexte wandern reihum durch eine Kleingruppe; Mitschülerinnen und Mitschüler geben nach klaren Kriterien Lob, Fragen und konkrete Überarbeitungstipps.",
+  "alternativname": [
+    "Schreibkonferenz",
+    "Text-Feedback-Runde"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "visualisierung",
+    "diagnose-feedback",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Textlupe",
+      "url": "https://de.wikipedia.org/wiki/Textlupe",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Textlupe",
+      "url": "https://unterrichten.zum.de/wiki/Textlupe",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "verzoegert",
+    "aufgabenebene",
+    "prozessebene",
+    "formativ",
+    "fb-elaboriert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "entwurf",
+      "name": "Vorliegender eigener Textentwurf"
+    },
+    {
+      "kennung": "bogen",
+      "name": "Strukturierter Textlupen-Bogen (Stärken, Fragen, Tipps)"
+    },
+    {
+      "kennung": "ueberarbeitung",
+      "name": "Verbindliche Überarbeitungsphase auf Basis des Feedbacks"
+    }
+  ],
+  "dauerMin": 25,
+  "dauerMax": 45,
+  "problem": "Texte werden nach dem ersten Entwurf abgegeben, ohne Rückmeldung aus Leserperspektive zur Überarbeitung zu nutzen.",
+  "durchfuehrung": [
+    "Textentwurf mit angeheftetem Feedbackbogen in 3er- bis 4er-Gruppen reihum geben",
+    "Jede Person liest still und notiert gezielt Stärken, offene Fragen und Verbesserungstipps",
+    "Autorin bzw. Autor erhält die Rückmeldungen zurück und überarbeitet den Text gezielt"
+  ],
+  "material": [
+    "Schülertext-Entwürfe",
+    "Textlupen-Feedbackbögen"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 4,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Fokussierte Textlupe auf genau zwei Kriterien (z. B. Argumentationslogik + Übergänge)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-3"
+  ],
+  "hinweis": "Funktioniert nur, wenn danach tatsächlich Zeit zum Überarbeiten eingeplant wird.",
+  "qualitaetsrisiko": [
+    "Unkonkrete Floskeln („gut geschrieben“) ohne Kriterienfokus"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kriteriengeleitetes Peer-Feedback im Schreibprozess verbessert die Textqualität (ES ≈ 0,30–0,50)",
+      "quelle": "Graham, Hebert & Harris 2015",
+      "geltung": "Schreibdidaktik, Schule (Primar und Sek), international"
+    }
+  ],
+  "plot": {
+    "x": 0.6,
+    "y": 2.5
+  }
+}

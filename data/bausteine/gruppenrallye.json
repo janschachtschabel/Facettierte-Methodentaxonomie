@@ -1,0 +1,153 @@
+{
+  "status": "entwurf",
+  "kennung": "gruppenrallye",
+  "name": "Gruppenrallye (STAD)",
+  "kurzbeschreibung": "Heterogene Kleingruppen üben gemeinsam, legen anschließend individuelle Kurztests ab und erzielen Gruppenpunkte über persönliche Lernfortschritte.",
+  "alternativname": [
+    "STAD",
+    "Student Teams-Achievement Divisions"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Student Teams-Achievement Divisions",
+      "url": "https://de.wikipedia.org/wiki/Student_Teams-Achievement_Divisions",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Slavin (1995): Cooperative Learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "heterogen",
+      "name": "Heterogene Lerngruppen"
+    },
+    {
+      "kennung": "einzeltest",
+      "name": "Individueller Kurztest"
+    },
+    {
+      "kennung": "fortschritt",
+      "name": "Gruppenwertung über individuellen Lernzuwachs"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 180,
+  "problem": "Leistungsschwächere Lernende profitieren beim Üben kaum, wenn Gruppen nur eine gemeinsame Abgabe erstellen.",
+  "durchfuehrung": [
+    "Stoff im Plenum einführen",
+    "Heterogene Vierergruppen üben gemeinsam bis alle sicher sind",
+    "Individueller Kurztest ohne Gruppenhilfe",
+    "Individuelle Verbesserungspunkte zur Gruppenwertung addieren und würdigen"
+  ],
+  "material": [
+    "Übungsbögen mit Lösungen",
+    "Kurztest",
+    "Ausgangswertetabelle"
+  ],
+  "gruppeMin": 8,
+  "gruppeMax": 36,
+  "teamMin": 4,
+  "teamMax": 4,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Vereinfachte Punktewertung ohne komplexe Basiswerte"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-1"
+  ],
+  "hinweis": "Individuelle Bezugsnorm verhindert, dass leistungsschwächere Gruppenmitglieder abgewertet werden.",
+  "qualitaetsrisiko": [
+    "Überbetonung des Wettbewerbs verdrängt sachliches Verstehen"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "STAD zählt zu den am stärksten empirisch untersuchten kooperativen Verfahren mit positiven Leistungseffekten",
+      "quelle": "Slavin 1995; Johnson, Johnson & Stanne 2000; Kyndt et al. 2013",
+      "geltung": "Schule (Primar bis Sek II), überwiegend USA und Europa"
+    }
+  ],
+  "plot": {
+    "x": 0.65,
+    "y": 2.7
+  }
+}

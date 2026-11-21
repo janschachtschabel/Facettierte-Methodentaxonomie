@@ -1,0 +1,136 @@
+{
+  "status": "entwurf",
+  "kennung": "lautes-denken",
+  "name": "Lautes Denken (Cognitive Modeling)",
+  "kurzbeschreibung": "Die Lehrkraft bearbeitet eine typische Aufgabe exemplarisch und verbalisiert dabei Strategien, Entscheidungen und Selbstkontrollen.",
+  "alternativname": [
+    "Cognitive Modeling",
+    "Modellieren durch lautes Denken",
+    "Think-Aloud"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lautes Denken",
+      "url": "https://de.wikipedia.org/wiki/Lautes_Denken",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Collins, Brown & Newman (1989): Cognitive Apprenticeship",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "metakognitiv",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "verbalisierung",
+      "name": "Explizite Verbalisierung von Denk- und Kontrollschritten"
+    },
+    {
+      "kennung": "beispielaufgabe",
+      "name": "Authentische Beispielaufgabe"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Lernende sehen fertige Lösungen, aber nicht die kognitiven Entscheidungsschritte dahinter.",
+  "durchfuehrung": [
+    "Aufgabe sichtbar machen",
+    "Lösung Schritt für Schritt ausführen und Gedanken, Zweifel und Prüfstrategien laut aussprechen",
+    "Schlüsselschritte kurz zusammenfassen und an die Gruppe übergeben"
+  ],
+  "material": [
+    "Tafel, Dokumentenkamera oder Bildschirm"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Fehler bewusst einbauen und laut korrigieren",
+    "Schüler-Tandem denkt laut"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-2"
+  ],
+  "hinweis": "Besonders hilfreich für Lesestrategien, Textplanung und mathematisches Problemlösen bei Novizen.",
+  "qualitaetsrisiko": [
+    "Lehrkraft spricht zu schnell oder überspringt automatisierte Zwischenschritte"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Kernbaustein von Cognitive Apprenticeship und expliziter Instruktion; einzeln selten isoliert meta-analysiert",
+      "quelle": "Collins, Brown & Newman 1989; Rosenshine 2012",
+      "geltung": "Schule und Hochschule, fachübergreifend"
+    }
+  ],
+  "plot": {
+    "x": 0.9,
+    "y": 0.8
+  }
+}

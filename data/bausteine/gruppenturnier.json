@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "gruppenturnier",
+  "name": "Gruppenturnier (TGT)",
+  "kurzbeschreibung": "Heterogene Stammgruppen bereiten sich gemeinsam vor; anschließend treten jeweils leistungsähnliche Mitglieder an Turniertischen in Wissensrunden gegeneinander an.",
+  "alternativname": [
+    "TGT",
+    "Teams-Games-Tournaments"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "kooperativ",
+    "spiel-simulation",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Teams-Games-Tournaments",
+      "url": "https://de.wikipedia.org/wiki/Teams-Games-Tournaments",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Slavin (1995): Cooperative Learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "bn-sozial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stammgruppe",
+      "name": "Gemeinsame Vorbereitung in heterogenen Stammgruppen"
+    },
+    {
+      "kennung": "turniertisch",
+      "name": "Leistungshomogene Turniertische"
+    },
+    {
+      "kennung": "punktetransfer",
+      "name": "Punkte fließen an die Stammgruppe zurück"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 135,
+  "problem": "Wiederholungs- und Übungsphasen verlieren rasch an Motivation, und klassische Quiz-Wettbewerbe begünstigen immer dieselben.",
+  "durchfuehrung": [
+    "Stoff in heterogenen Stammgruppen gemeinsam erarbeiten und trainieren",
+    "Lernende nach Leistungsstand an Dreiertische einteilen",
+    "Fragenkarten im Uhrzeigersinn ziehen, beantworten und kontrollieren",
+    "Erzielte Punkte den Stammgruppen gutschreiben"
+  ],
+  "material": [
+    "Nummerierte Fragenkarten",
+    "Antwortblatt je Turniertisch"
+  ],
+  "raum": "Tische für 3er- bis 4er-Gruppen",
+  "gruppeMin": 9,
+  "gruppeMax": 36,
+  "teamMin": 3,
+  "teamMax": 4,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Regelmäßiger Auf- und Abstieg zwischen Turniertischen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-1"
+  ],
+  "hinweis": "Leistungshomogene Tische schaffen faire Erfolgschancen für alle.",
+  "qualitaetsrisiko": [
+    "Soziale Vergleichsdruck bei ungeschickter Tischzuordnung"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Positive Effekte strukturierter kooperativer Turnierformen mit individueller Verantwortlichkeit",
+      "quelle": "Johnson, Johnson & Stanne 2000; Kyndt et al. 2013",
+      "geltung": "Schule, überwiegend USA und Europa"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.8
+  }
+}

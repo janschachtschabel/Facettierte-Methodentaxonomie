@@ -183,7 +183,10 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       expect(ph.kriterien.bildungsstufe).toBe('sek1');
       expect(ph.kriterien.gruppe).toBe(28);
       expect(ph.kriterien.maxTechnik).toBe('t-keine');
-      expect(ph.vorschlaege[0].baustein).toBe('abrufquiz');
+      expect(ph.vorschlaege[0].evidenzgrad).toBe('A');
+      const topIds = ph.vorschlaege.slice(0, 3).map((v) => v.baustein);
+      expect(topIds).toContain('abrufquiz');
+      expect(topIds).toContain('brain-dump');
     }
 
     for (const k of D.ketten) {

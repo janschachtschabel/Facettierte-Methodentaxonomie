@@ -1,0 +1,149 @@
+{
+  "status": "entwurf",
+  "kennung": "belehrbarer-ki-agent",
+  "name": "Belehrbarer KI-Agent (Teachable Agent)",
+  "kurzbeschreibung": "Rollentausch mit KI: Lernende erklären einem programmierten oder per Systemprompt instruierten KI-Agenten einen Fachinhalt, korrigieren dessen gezielte Nachfragen und festigen dabei ihr eigenes Verständnis.",
+  "alternativname": [
+    "Teachable Agent",
+    "KI als Schüler",
+    "Lernen durch Lehren mit KI"
+  ],
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Intelligentes tutorielles System",
+      "url": "https://de.wikipedia.org/wiki/Intelligentes_tutorielles_System",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Chase et al. (2009): Learning and the Protégé Effect",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "ki": true,
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "selbstkontrolle",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "belehrbarer-agent"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rollentausch",
+      "name": "Lernende erklären, Agent gibt keine Musterlösung vor"
+    },
+    {
+      "kennung": "nachfragen",
+      "name": "Gezielte Verständnis- und Warum-Nachfragen des Agenten"
+    },
+    {
+      "kennung": "pruefung",
+      "name": "Abschließender Check des Verstehens ohne KI"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Lernende nutzen KI häufig passiv zum Generieren von Antworten, statt selbst aktiv zu erklären und eigene Lücken zu bemerken.",
+  "durchfuehrung": [
+    "Systemprompt vorgeben: KI spielt interessierten Mitschüler, der Rückfragen stellt und nicht korrigiert, sondern nachhakt",
+    "Lernende erklären das Konzept Schritt für Schritt mit eigenen Beispielen",
+    "Verständnislücken aus dem Dialog notieren und abschließend ohne KI überprüfen"
+  ],
+  "material": [
+    "Endgerät mit KI-Zugang",
+    "Geprüfter Rollen-Prompt"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "Feynman-Technik im Dialog mit einem Teachable Agent"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/25-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/24-3"
+  ],
+  "hinweis": "Dreht das Risiko des kognitiven Auslagerns um; fachliche Richtigkeit abschließend durch Lehrkraft oder Material sichern.",
+  "qualitaetsrisiko": [
+    "KI verlässt die Rolle und liefert doch fertige Erklärungen",
+    "Unbemerkte Fachfehler bleiben stehen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Protégé-Effekt für klassische Teachable Agents gut beschrieben; für LLM-basierte belehrbare Agenten noch junge Einzelstudien",
+      "quelle": "Chase et al. 2009",
+      "geltung": "Schule und Hochschule, überwiegend MINT; Übertragung auf LLMs laufend zu prüfen"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.75
+  }
+}

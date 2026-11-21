@@ -1,0 +1,184 @@
+{
+  "status": "entwurf",
+  "kennung": "problemorientiertes-lernen",
+  "name": "Problemorientiertes Lernen (POL / PBL)",
+  "kurzbeschreibung": "Kleingruppen erschließen selbstständig ein authentisches, komplexes Problem entlang fester Schritte (z. B. Maastrichter Siebensprung), definieren Lernfragen und führen Wissen zusammen.",
+  "alternativname": [
+    "POL",
+    "PBL",
+    "Problem-Based Learning",
+    "Siebensprung"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Problembasiertes Lernen",
+      "url": "https://de.wikipedia.org/wiki/Problembasiertes_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Dochy et al. (2003): Effects of problem-based learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fallproblem",
+      "name": "Authentisches Ausgangsproblem vor Instruktion"
+    },
+    {
+      "kennung": "siebensprung",
+      "name": "Strukturierte Schrittfolge (z. B. Siebensprung)"
+    },
+    {
+      "kennung": "selbststudium",
+      "name": "Selbststudium zur Klärung der Lernfragen"
+    },
+    {
+      "kennung": "synthese",
+      "name": "Gemeinsame Synthese und Sicherung"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "sicherung",
+      "name": "Konzeptsicherung",
+      "lernfunktion": [
+        "verstehen",
+        "konsolidierung"
+      ],
+      "reichweite": "r2",
+      "pflicht": false,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 600,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "problem": "Träges Fachwissen lässt sich nicht auf komplexe reale Berufssituationen oder Probleme übertragen.",
+  "durchfuehrung": [
+    "Begriffe klären und Problem definieren",
+    "Vorwissen sammeln und Hypothesen ordnen",
+    "Lernfragen formulieren",
+    "Lernfragen im Selbststudium recherchieren",
+    "Ergebnisse in der Gruppe zusammenführen, auf den Fall anwenden und sichern"
+  ],
+  "material": [
+    "Authentischer Problemfall",
+    "Zugang zu Fachquellen",
+    "Moderationsmaterial"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 5,
+  "teamMax": 8,
+  "vorbereitungMin": 90,
+  "technik": "t-geteilt",
+  "internet": true,
+  "variante": [
+    "Kompakte 2-Sitzungs-Variante für die Sekundarstufe II"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/33-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-1"
+  ],
+  "hinweis": "Stärker bei Anwendung und Transfer als bei isoliertem Faktenwissen; setzt Vorwissen und Tutor-Begleitung voraus.",
+  "qualitaetsrisiko": [
+    "Fehlende fachliche Sicherung bei schwachem Vorwissen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Positiver Effekt auf Anwendungsfähigkeiten (ES ≈ 0,46), geringfügig negativ bis neutral bei reinem Faktenwissen",
+      "quelle": "Dochy et al. 2003",
+      "geltung": "Überwiegend Hochschule (Medizin, Berufsbildung); Übertragung auf Sek I eingeschränkt"
+    }
+  ],
+  "plot": {
+    "x": 0.38,
+    "y": 2.75
+  }
+}

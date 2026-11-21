@@ -1,0 +1,169 @@
+{
+  "status": "entwurf",
+  "kennung": "design-thinking",
+  "name": "Design Thinking im Unterricht",
+  "kurzbeschreibung": "Teams durchlaufen einen nutzerzentrierten Innovationsprozess aus Verstehen, Beobachten, Ideen entwickeln, schnellem Prototyping und Testen.",
+  "alternativname": [
+    "Design-Thinking-Sprint",
+    "Double Diamond",
+    "Prototyping-Zyklus"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "forschend",
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Design Thinking",
+      "url": "https://de.wikipedia.org/wiki/Design_Thinking",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Plattner, Meinel & Weinberg (2009)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "empathie",
+      "name": "Nutzerperspektive erkunden"
+    },
+    {
+      "kennung": "prototyp",
+      "name": "Schneller greifbarer Prototyp"
+    },
+    {
+      "kennung": "iteration",
+      "name": "Testen und Überarbeiten auf Basis von Feedback"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "ideen",
+      "name": "Ideenfindung",
+      "lernfunktion": [
+        "orientierung",
+        "problemloesen"
+      ],
+      "reichweite": "r1",
+      "pflicht": false
+    }
+  ],
+  "dauerMin": 135,
+  "dauerMax": 450,
+  "problem": "Lernende sollen für ein offenes Alltags- oder Technikproblem nutzerorientierte Lösungen entwerfen und erproben.",
+  "durchfuehrung": [
+    "Challenge verstehen und Nutzerbedürfnisse erkunden",
+    "Problem zuspitzen (Point of View)",
+    "Vielfältige Ideen generieren und auswählen",
+    "Einfachen Prototyp bauen",
+    "Mit Zielgruppe oder anderer Gruppe testen und verbessern"
+  ],
+  "material": [
+    "Bastel-/Prototyping-Material",
+    "Klebezettel",
+    "Whiteboard/Flipchart"
+  ],
+  "raum": "Flexibler Gruppenraum",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "90-Minuten-Mini-Sprint"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/35-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-2"
+  ],
+  "hinweis": "Klare Zeitboxen verhindern, dass Teams in der Diskussionsphase stecken bleiben.",
+  "qualitaetsrisiko": [
+    "Basteln ohne fachliche Tiefe oder ohne echte Test-Schleife"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Vorwiegend Fallstudien aus MINT-, Informatik- und Hochschuldidaktik; methodische Heterogenität hoch",
+      "quelle": "Panke 2019",
+      "geltung": "Sekundarstufe und Hochschule, international"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 2.8
+  }
+}

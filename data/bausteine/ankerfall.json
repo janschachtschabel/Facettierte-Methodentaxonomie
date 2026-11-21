@@ -118,5 +118,9 @@
       "quelle": "Cognition and Technology Group at Vanderbilt 1990",
       "geltung": "USA, Mathematik, Klasse 5 und 6"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.52,
+    "y": 1.75
+  }
 }

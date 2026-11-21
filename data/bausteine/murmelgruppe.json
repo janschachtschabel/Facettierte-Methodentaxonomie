@@ -1,0 +1,134 @@
+{
+  "status": "entwurf",
+  "kennung": "murmelgruppe",
+  "name": "Murmelgruppe (Buzz Group)",
+  "kurzbeschreibung": "Sehr kurze, informelle 2- bis 3-minütige Nachbargespräche mitten in einer Plenumsphase zum Aktivieren, Klären oder Sammeln von Fragen.",
+  "alternativname": [
+    "Buzz Group",
+    "Bienenkorb",
+    "Flüstergruppe"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "diskurs",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Murmelgruppe",
+      "url": "https://de.wikipedia.org/wiki/Murmelgruppe",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zeitbox",
+      "name": "Sehr kurze Zeitbox (2–5 min)"
+    },
+    {
+      "kennung": "auftrag",
+      "name": "Klarer, enger Gesprächsauftrag"
+    },
+    {
+      "kennung": "stichprobe",
+      "name": "Kurzes Einholen von 2–3 Stimmen im Plenum"
+    }
+  ],
+  "dauerMin": 3,
+  "dauerMax": 8,
+  "problem": "Längere Vorträge oder stockende Plenumsgespräche ermüden und hemmen Wortmeldungen.",
+  "durchfuehrung": [
+    "Konkrete Frage stellen („Welche Stelle war eben unklar?“, „Nennen Sie ein Gegenbeispiel“)",
+    "Sitznachbarn tauschen sich 2–3 min halblaut aus",
+    "2–3 Ergebnisse kurz im Plenum aufgreifen"
+  ],
+  "material": [
+    "Kein Material erforderlich"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 300,
+  "teamMin": 2,
+  "teamMax": 3,
+  "vorbereitungMin": 2,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Online in kurzen Zufalls-Breakouts"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17"
+  ],
+  "hinweis": "Ideal zum Auflockern großer Vorlesungen ohne jeden Raumumbau.",
+  "qualitaetsrisiko": [
+    "Ohne klares akustisches Signal dauert das Zurückholen ins Plenum zu lange"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Niedrigschwellige Aktivierungsroutine in Schule und Hochschule; stützt kurze Unterbrechung passiver Phasen",
+      "quelle": "Freeman et al. 2014",
+      "geltung": "Indirekt über Befunde zu aktivierenden Vorlesungen (Hochschule MINT)"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 2.25
+  }
+}

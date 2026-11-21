@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "impulsreferat",
+  "name": "Impulsreferat (Kurzinput)",
+  "kurzbeschreibung": "Knapper, zugespitzter Kurzvortrag von maximal 5 bis 10 Minuten als thematischer Anstoß für anschließende Eigenarbeit oder Diskussion.",
+  "alternativname": [
+    "Kurzinput",
+    "Mini-Lecture",
+    "Theseninput"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Referat (Vortrag)",
+      "url": "https://de.wikipedia.org/wiki/Referat_(Vortrag)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Impulsreferat",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "verzoegert"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kuerze",
+      "name": "Strikte Zeitbegrenzung (5–10 min)"
+    },
+    {
+      "kennung": "leitfrage",
+      "name": "Zuspitzung auf eine Leitfrage oder These"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Eine Gruppe braucht einen gemeinsamen fachlichen Startpunkt, ohne die Unterrichtszeit mit einem langen Vortrag zu füllen.",
+  "durchfuehrung": [
+    "Zentrale Leitfrage oder These an den Anfang stellen",
+    "Kernbegriffe oder Daten knapp präsentieren",
+    "Direkt in Arbeitsauftrag oder Austausch überleiten"
+  ],
+  "material": [
+    "1–3 Kernfolien oder Tafelbild"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 300,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Schüler-Impulsreferat als Diskussionsauftakt"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-1"
+  ],
+  "hinweis": "Immer mit einer aktivierenden Folgephase verbinden.",
+  "qualitaetsrisiko": [
+    "Ausweiten zum langen Monolog"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxistradition der Hochschul- und Erwachsenendidaktik; knappe Segmentierung entspricht Aufmerksamkeitsbefunden",
+      "quelle": "Meyer 1987; Mattes 2011",
+      "geltung": "Allgemeindidaktische Praxisempfehlung, keine isolierte Meta-Analyse"
+    }
+  ],
+  "plot": {
+    "x": 0.88,
+    "y": 0.55
+  }
+}

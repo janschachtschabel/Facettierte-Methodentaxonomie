@@ -1,0 +1,153 @@
+{
+  "status": "entwurf",
+  "kennung": "museumsgang",
+  "name": "Museumsgang (Gallery Walk)",
+  "kurzbeschreibung": "Gruppen präsentieren Arbeitsergebnisse an Wandstationen; die Lerngruppe wandert im Rundgang, gibt strukturiertes Feedback und sichert Kernaussagen.",
+  "alternativname": [
+    "Gallery Walk",
+    "Galeriegang",
+    "Vernissage",
+    "Marktplatz"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "kooperativ",
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Galeriemethode",
+      "url": "https://de.wikipedia.org/wiki/Galeriemethode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Museumsgang",
+      "url": "https://unterrichten.zum.de/wiki/Museumsgang",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "verstehen",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "exponate",
+      "name": "Sichtbare Arbeitsprodukte im Raum"
+    },
+    {
+      "kennung": "beobachtungsauftrag",
+      "name": "Konkreter Beobachtungs- oder Feedbackauftrag"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Rückkehr zur Auswertung der Kommentare"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Frontale Gruppenpräsentationen nacheinander kosten viel Zeit und ermüden die Zuhörenden.",
+  "durchfuehrung": [
+    "Plakate oder Produkte an den Wänden aufhängen",
+    "Beobachtungs- oder Klebezettel-Feedbackauftrag geben",
+    "In kleinen Gruppen von Station zu Station wandern (optional mit 1 Host pro Stand)",
+    "Rückmeldungen am eigenen Produkt auswerten und Erkenntnisse sichern"
+  ],
+  "material": [
+    "Ausgestellte Plakate/Produkte",
+    "Klebezettel und Stifte"
+  ],
+  "raum": "Raum mit freier Wand- oder Tischfläche",
+  "gruppeMin": 8,
+  "gruppeMax": 40,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "One Stay, Three Stray (eine Person erklärt am Stand)",
+    "Digitaler Gallery Walk"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-2"
+  ],
+  "hinweis": "Ohne gezielten Beobachtungs- oder Vergleichsauftrag verkommt der Rundgang zum Schlendern.",
+  "qualitaetsrisiko": [
+    "Oberflächliches Betrachten ohne vertiefende Rückfragen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Verbreitete Präsentations- und Feedbackform; einzeln kaum meta-analytisch geprüft",
+      "quelle": "Mattes 2011; Brüning & Saum 2009",
+      "geltung": "Deutschsprachige Unterrichtspraxis, Schule und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.45,
+    "y": 2.2
+  }
+}

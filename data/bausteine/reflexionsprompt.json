@@ -106,5 +106,9 @@
       "quelle": "Nückles et al. 2020",
       "geltung": "Ein Forschungsprogramm (16 Experimente), keine unabhängige Meta-Analyse"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.54,
+    "y": 1.95
+  }
 }

@@ -1,0 +1,150 @@
+{
+  "status": "entwurf",
+  "kennung": "concept-mapping",
+  "name": "Concept Mapping",
+  "kurzbeschreibung": "Lernende ordnen Fachbegriffe in einem hierarchischen Netz und beschriften jede Verbindungslinie präzise mit der fachlichen Beziehung.",
+  "alternativname": [
+    "Begriffsnetz",
+    "Concept Map",
+    "Wissensnetz"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Concept-Map",
+      "url": "https://de.wikipedia.org/wiki/Concept-Map",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Nesbit & Adesope (2006); Schroeder et al. (2018)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "verzoegert",
+    "aufgabenebene",
+    "formativ",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "knoten",
+      "name": "Zentrale Fachbegriffe als Knoten"
+    },
+    {
+      "kennung": "beschriftung",
+      "name": "Gerichtete, präzise beschriftete Pfeile (Propositionen)"
+    },
+    {
+      "kennung": "vergleich",
+      "name": "Vergleich mit Muster-Map oder Peer-Feedback"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Begriffe werden isoliert auswendig gelernt, ohne ihre kausalen oder logischen Zusammenhänge zu verstehen.",
+  "durchfuehrung": [
+    "Leitfrage und ggf. 8–15 Kernbegriffe vorgeben",
+    "Begriffe räumlich ordnen und mit gerichteten Pfeilen verbinden",
+    "Jeden Pfeil mit einem Verb/Beziehungswort beschriften",
+    "Maps im Tandem vergleichen und Fehlverknüpfungen klären"
+  ],
+  "material": [
+    "Papier/Plakat oder Concept-Map-Software",
+    "Begriffskarten"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "teamMin": 1,
+  "teamMax": 3,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Vorgegebene Begriffsliste für Novizen vs. freie Begriffsauswahl für Fortgeschrittene"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/41-8",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-3"
+  ],
+  "hinweis": "Erst die Beschriftung der Pfeile unterscheidet eine Concept Map fachlich von einer Mind Map.",
+  "qualitaetsrisiko": [
+    "Unbeschriftete Striche ohne präzise Aussage"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Concept Mapping zeigt konsistente mittlere Vorteile gegenüber reinem Lesen oder Zusammenfassen (g ≈ 0,58)",
+      "quelle": "Nesbit & Adesope 2006; Schroeder et al. 2018",
+      "geltung": "Schule und Hochschule, fachübergreifend, international; eigenes Erstellen wirkt stärker als bloßes Studieren"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.35
+  }
+}

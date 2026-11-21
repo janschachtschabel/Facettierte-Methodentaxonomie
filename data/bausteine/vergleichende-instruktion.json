@@ -116,5 +116,9 @@
       "quelle": "Sinha & Kapur 2021",
       "geltung": "Überwiegend Mathematik und Naturwissenschaften, Klasse 6 bis Hochschule; international"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.88,
+    "y": 2.25
+  }
 }

@@ -1,0 +1,156 @@
+{
+  "status": "entwurf",
+  "kennung": "szenario-technik",
+  "name": "Szenario-Technik",
+  "kurzbeschreibung": "Gruppen identifizieren zentrale Einflussfaktoren einer Zukunftsfrage und entwerfen begründete Best-Case-, Worst-Case- und Trendszenarien.",
+  "alternativname": [
+    "Szenariomethode",
+    "Zukunftsszenarien",
+    "Szenariotrichter"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "forschend",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Szenariotechnik",
+      "url": "https://de.wikipedia.org/wiki/Szenariotechnik",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Szenariotechnik",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert",
+    "simulation"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "faktoren",
+      "name": "Bestimmung von Schlüsselfaktoren"
+    },
+    {
+      "kennung": "trichter",
+      "name": "Ausarbeitung konträrer Zukunftsprojektionen"
+    },
+    {
+      "kennung": "konsequenzen",
+      "name": "Ableitung von Handlungsstrategien"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "problem": "Zukunftsfragen mit hoher Unsicherheit lassen sich nicht eindimensional prognostizieren.",
+  "durchfuehrung": [
+    "Gegenstand und Zeithorizont festlegen",
+    "Einflussfaktoren sammeln und Schlüsselfaktoren auswählen",
+    "Extremszenarien (Best-/Worst-Case) und Trendszenario ausformulieren",
+    "Szenarien präsentieren und Handlungsoptionen ableiten"
+  ],
+  "material": [
+    "Szenariotrichter-Vorlage",
+    "Faktenkarten",
+    "Plakate"
+  ],
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Störereignis-Karte mitten in der Erarbeitung einspielen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-1"
+  ],
+  "hinweis": "Besonders stark in BNE, Geografie, Politik, Wirtschaft und Ethik.",
+  "qualitaetsrisiko": [
+    "Reine Science-Fiction ohne Rückbindung an reale Einflussfaktoren"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Bewährte Methode der politischen Bildung und BNE; keine Meta-Analyse zur Lernwirksamkeit",
+      "quelle": "Weinert 2001; bpb Methodenkoffer",
+      "geltung": "Sekundarstufe II, Berufsbildung und Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.4,
+    "y": 2.4
+  }
+}

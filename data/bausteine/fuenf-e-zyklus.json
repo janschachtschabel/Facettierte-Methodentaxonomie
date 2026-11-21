@@ -1,0 +1,202 @@
+{
+  "status": "entwurf",
+  "kennung": "fuenf-e-zyklus",
+  "name": "5E-Lernzyklus (Engage–Explore–Explain–Elaborate–Evaluate)",
+  "kurzbeschreibung": "Fünfphasiger Kompositbaustein für naturwissenschaftliches und konzeptorientiertes Lernen vom Erkunden über die Klärung bis zur Anwendung und Prüfung.",
+  "alternativname": [
+    "BSCS 5E",
+    "5E Instructional Model",
+    "5E-Modell"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: BSCS 5E Instructional Model (EN)",
+      "url": "https://en.wikipedia.org/wiki/Biological_Sciences_Curriculum_Study#5E_Instructional_Model",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Bybee et al. (2006): The BSCS 5E Instructional Model",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "komposit": true,
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "problemloesen",
+    "anwendung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "engage",
+      "name": "Engage: Interesse und Vorwissen"
+    },
+    {
+      "kennung": "explore",
+      "name": "Explore: Eigenes Erkunden"
+    },
+    {
+      "kennung": "explain",
+      "name": "Explain: Konzeptklärung"
+    },
+    {
+      "kennung": "elaborate",
+      "name": "Elaborate: Transfer"
+    },
+    {
+      "kennung": "evaluate",
+      "name": "Evaluate: Lernstandsprüfung"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "engage",
+      "name": "Engage (Orientierung)",
+      "lernfunktion": [
+        "orientierung"
+      ],
+      "reichweite": "r1",
+      "pflicht": true
+    },
+    {
+      "kennung": "explore",
+      "name": "Explore (Erkunden)",
+      "lernfunktion": [
+        "problemloesen",
+        "verstehen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "explain",
+      "name": "Explain (Klären)",
+      "lernfunktion": [
+        "verstehen",
+        "erwerb"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "elaborate",
+      "name": "Elaborate (Transfer)",
+      "lernfunktion": [
+        "anwendung",
+        "problemloesen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "evaluate",
+      "name": "Evaluate (Diagnose)",
+      "lernfunktion": [
+        "diagnose"
+      ],
+      "reichweite": "r1",
+      "pflicht": true
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "problem": "Einzelne Experimente oder Erklärungen bleiben unverbunden, wenn Erkundung, Begriffsaufbau und Transfer nicht systematisch aufeinander folgen.",
+  "durchfuehrung": [
+    "Engage: Phänomen oder Frage weckt Interesse",
+    "Explore: Lernende erkunden das Phänomen angeleitet",
+    "Explain: Gemeinsame Fachbegriffe und Konzeptklärung",
+    "Elaborate: Anwendung auf eine neue Situation",
+    "Evaluate: Formatives Prüfen des Verständnisses"
+  ],
+  "material": [
+    "Abhängig von den eingesetzten Bausteinen in den 5 Slots"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "vorbereitungMin": 90,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-1"
+  ],
+  "hinweis": "Kompositbaustein: Die konkrete Wirkung hängt von den gewählten Bausteinen in den 5 Phasen-Slots ab.",
+  "qualitaetsrisiko": [
+    "Explain-Phase wird übersprungen oder zu früh vorgezogen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Gut dokumentiertes Rahmenmodell mit positiven Befunden für geleitetes naturwissenschaftliches Lernen",
+      "quelle": "Bybee et al. 2006; Lazonder & Harmsen 2016",
+      "geltung": "Naturwissenschaften, Schule, USA und international"
+    }
+  ]
+}

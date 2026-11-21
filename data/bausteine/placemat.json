@@ -1,0 +1,145 @@
+{
+  "status": "entwurf",
+  "kennung": "placemat",
+  "name": "Placemat-Methode",
+  "kurzbeschreibung": "Vier Lernende notieren zuerst einzeln ihre Gedanken auf je einem Randfeld eines Posters, vergleichen sie und formulieren gemeinsam ein Konsensergebnis in der Mitte.",
+  "alternativname": [
+    "Platzdeckchen-Methode",
+    "Placemat Activity"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Placemat",
+      "url": "https://de.wikipedia.org/wiki/Placemat",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Placemat",
+      "url": "https://unterrichten.zum.de/wiki/Placemat",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "einzelphase",
+      "name": "Stille Einzelarbeit im eigenen Randfeld"
+    },
+    {
+      "kennung": "rotation",
+      "name": "Gegenseitiges Lesen aller Felder"
+    },
+    {
+      "kennung": "konsens",
+      "name": "Gemeinsame Synthese im Mittelfeld"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "In Gruppenarbeiten dominieren einzelne Stimmen, bevor ruhigere Lernende eigene Ideen formulieren können.",
+  "durchfuehrung": [
+    "Plakat mit 4 Randfeldern und einem Mittelfeld auslegen",
+    "Alle notieren still im eigenen Feld (3–5 min)",
+    "Plakat drehen und Beiträge der anderen lesen",
+    "Im Mittelfeld die wichtigsten gemeinsamen Punkte aushandeln",
+    "Mittelfelder im Plenum vergleichen"
+  ],
+  "material": [
+    "A3- oder Flipchart-Papier je Vierergruppe",
+    "Stifte"
+  ],
+  "raum": "Gruppentische",
+  "gruppeMin": 6,
+  "gruppeMax": 36,
+  "teamMin": 3,
+  "teamMax": 4,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitale Placemat auf kollaborativem Whiteboard"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Macht individuelle Vorstellungen sichtbar, bevor der Gruppenkonsens entsteht.",
+  "qualitaetsrisiko": [
+    "Mittelfeld wird bloß durch eine Person ausgefüllt"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Strukturiertes kooperatives Lernen mit individueller Rechenschaft wirkt positiv auf Leistung (ES ≈ 0,54)",
+      "quelle": "Kyndt et al. 2013; Johnson, Johnson & Stanne 2000",
+      "geltung": "Kooperatives Lernen allgemein; für Placemat speziell keine eigene Meta-Analyse"
+    }
+  ],
+  "plot": {
+    "x": 0.58,
+    "y": 2.6
+  }
+}

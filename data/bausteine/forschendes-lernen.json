@@ -1,0 +1,178 @@
+{
+  "status": "entwurf",
+  "kennung": "forschendes-lernen",
+  "name": "Offenes Forschendes Lernen",
+  "kurzbeschreibung": "Lernende formulieren selbst eine Forschungsfrage, planen ein Untersuchungsdesign, erheben und analysieren Daten und präsentieren ihre Befunde.",
+  "alternativname": [
+    "Entdeckendes Lernen (offen)",
+    "Open Inquiry",
+    "Forschungszyklus"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Forschendes Lernen",
+      "url": "https://de.wikipedia.org/wiki/Forschendes_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Alfieri et al. (2011); Lazonder & Harmsen (2016)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-produkt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "konzept-gesichert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "eigene-frage",
+      "name": "Selbst entwickelte Forschungsfrage"
+    },
+    {
+      "kennung": "methode",
+      "name": "Eigenständige Datenerhebung und Auswertung"
+    },
+    {
+      "kennung": "dokumentation",
+      "name": "Nachvollziehbare Ergebnisdarstellung"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "sicherung",
+      "name": "Fachliche Einordnung",
+      "lernfunktion": [
+        "verstehen",
+        "metakognition"
+      ],
+      "reichweite": "r2",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 900,
+  "geeignetBeiVorwissen": [
+    "hoch"
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "problem": "Fortgeschrittene Lernende sollen den vollständigen wissenschaftlichen Erkenntnisprozess selbstverantwortlich durchlaufen.",
+  "durchfuehrung": [
+    "Phänomen erkunden und eigene Forschungsfrage eingrenzen",
+    "Untersuchungsplan entwerfen und prüfen",
+    "Daten erheben und systematisch auswerten",
+    "Befunde präsentieren und fachlich einordnen"
+  ],
+  "material": [
+    "Forschungstagebuch",
+    "Mess- oder Erhebungsinstrumente"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 30,
+  "teamMin": 1,
+  "teamMax": 4,
+  "vorbereitungMin": 60,
+  "technik": "t-geteilt",
+  "internet": true,
+  "variante": [
+    "Jugend-forscht-Projekt",
+    "Forschendes Lernen im Hochschulseminar"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-3"
+  ],
+  "hinweis": "Ohne Vorwissen und abschließende Sicherung klar unterlegen (Regel R-05 / R-06).",
+  "qualitaetsrisiko": [
+    "Überforderung bei Novizen",
+    "Fehlkonzepte bleiben unkorrigiert"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Ungeleitetes Entdecken schneidet im Mittel schlechter ab als explizite Instruktion (d ≈ −0,38) und geleitetes Forschen",
+      "quelle": "Alfieri et al. 2011; Lazonder & Harmsen 2016",
+      "geltung": "Schule und Hochschule, international; Risiko besonders hoch bei geringem Vorwissen"
+    }
+  ],
+  "plot": {
+    "x": 0.08,
+    "y": 2.35
+  }
+}

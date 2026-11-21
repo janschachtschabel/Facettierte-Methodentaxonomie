@@ -1,0 +1,155 @@
+{
+  "status": "entwurf",
+  "kennung": "rollenspiel",
+  "name": "Rollenspiel",
+  "kurzbeschreibung": "Lernende schlüpfen in definierte Rollen einer realitätsnahen Konflikt- oder Handlungssituation, agieren spontan im Spiel und werten Verhalten und Perspektiven danach aus.",
+  "alternativname": [
+    "Szenisches Rollenspiel",
+    "Simulationsgespräch"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "spiel-simulation",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Rollenspiel (Pädagogik)",
+      "url": "https://de.wikipedia.org/wiki/Rollenspiel_(P%25C3%25A4dagogik)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Rollenspiel",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gesellschaft",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "afb3",
+    "simulation"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rollen",
+      "name": "Ausgearbeitete Rollenkarten ohne fertiges Skript"
+    },
+    {
+      "kennung": "beobachtung",
+      "name": "Beobachtungsaufträge für Zuschauende"
+    },
+    {
+      "kennung": "entrollen",
+      "name": "Bewusstes Aussteigen aus der Rolle und Auswertung"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Kommunikatives Handeln und Perspektivenübernahme lassen sich rein theoretisch nur schwer üben.",
+  "durchfuehrung": [
+    "Situation, Rollenkarten und Beobachtungsaufträge klären",
+    "Kurze Einarbeitung in die Rollen (5–10 min)",
+    "Spielphase durchführen (5–15 min)",
+    "Bewusst entrollen („Ich bin wieder …“) und Verhalten sowie Perspektiven sachlich auswerten"
+  ],
+  "material": [
+    "Rollenkarten",
+    "Beobachtungsbögen"
+  ],
+  "raum": "Kleine Spielfläche im Raum",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 6,
+  "vorbereitungMin": 25,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Paralleles Rollenspiel in Kleingruppen (weniger Bühnenangst)",
+    "Forumtheater mit Stopp-und-Tausch"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/41-3"
+  ],
+  "hinweis": "Das bewusste Entrollen schützt Spielende davor, persönlich mit ihrer Rolle identifiziert zu werden.",
+  "qualitaetsrisiko": [
+    "Bloßstellen vor der Klasse oder fehlende Auswertung nach dem Spiel"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Standardmethode in Fremdsprachen-, Politik-, Ethik- und Berufsbildung; positive Einzelstudien zu Empathie und Gesprächsführung",
+      "quelle": "Flechsig 1996; bpb Methodenkoffer",
+      "geltung": "Alle Bildungsstufen, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.8
+  }
+}

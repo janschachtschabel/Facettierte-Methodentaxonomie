@@ -1,0 +1,145 @@
+{
+  "status": "entwurf",
+  "kennung": "lerntheke",
+  "name": "Lerntheke (Lernbuffet)",
+  "kurzbeschreibung": "Materialien und Übungsaufgaben in verschiedenen Niveaustufen und Zugängen liegen zentral bereit und werden nach Diagnose oder Wahl bearbeitet.",
+  "alternativname": [
+    "Lernbuffet",
+    "Aufgabentheke",
+    "Materialtheke"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "offen",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lerntheke",
+      "url": "https://de.wikipedia.org/wiki/Lerntheke",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-tempo",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "niveaus",
+      "name": "Klar gekennzeichnete Niveaustufen oder Schwerpunkte"
+    },
+    {
+      "kennung": "selbstkontrolle",
+      "name": "Zugängliche Lösungskontrolle"
+    },
+    {
+      "kennung": "sicherung",
+      "name": "Gemeinsame Schlussauswertung"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 90,
+  "problem": "Im Klassenraum soll ohne aufwendigen Stationsumbau nach Niveau und Bedarf differenziert geübt werden.",
+  "durchfuehrung": [
+    "Theke mit gekennzeichneten Aufgabenboxen und Lösungen bereitstellen",
+    "Lernende wählen passend zu Diagnose oder Selbsteinschätzung Aufgaben",
+    "Bearbeitung am eigenen Platz und Selbstkontrolle an der Lösungsstation",
+    "Kurze Sicherung typischer Fehler im Plenum"
+  ],
+  "material": [
+    "Gestufte Aufgabenkarten",
+    "Lösungsordner"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitale Lerntheke (Padlet / Lernplattform)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/113-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/310-1"
+  ],
+  "hinweis": "Weniger räumliche Unruhe als beim Stationenlernen.",
+  "qualitaetsrisiko": [
+    "Lernende wählen dauerhaft unter ihrem Niveau"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Verbreitete Differenzierungsform im deutschsprachigen Unterricht; keine eigenständige Meta-Analyse",
+      "quelle": "Mattes 2011",
+      "geltung": "Schule (Primar und Sek I), DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 1.45
+  }
+}

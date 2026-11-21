@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "brainstorming",
+  "name": "Brainstorming",
+  "kurzbeschreibung": "Schnelles, wertungsfreies Sammeln vielfältiger Ideen und Assoziationen zu einer offenen Frage mit anschließender gemeinsamer Strukturierung.",
+  "alternativname": [
+    "Ideensammlung",
+    "Ideensturm"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Brainstorming",
+      "url": "https://de.wikipedia.org/wiki/Brainstorming",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Brainstorming",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "verzoegert"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kritikverbot",
+      "name": "Keine Kritik während der Sammelphase"
+    },
+    {
+      "kennung": "sichtbarkeit",
+      "name": "Alle Beiträge sichtbar notieren"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Getrennte Bewertungs- und Clusterphase danach"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Zu Beginn einer Einheit oder Problemlösung sollen Vorwissen und erste Ideen rasch und hemmungsfrei gehoben werden.",
+  "durchfuehrung": [
+    "Fragestellung klar nennen und Regeln erinnern (Menge vor Kritik)",
+    "Beiträge 5 min lang unkommentiert sammeln und visualisieren",
+    "In einer zweiten Phase clustern, prüfen und weiterführen"
+  ],
+  "material": [
+    "Tafel, Flipchart oder digitale Pinnwand"
+  ],
+  "gruppeMin": 3,
+  "gruppeMax": 40,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kartenabfrage (still auf Karten schreiben, dann clustern)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Gruppen-Brainstorming leidet unter Produktionsblockade; kurzes stilles Vor-Notieren erhöht die Ideenzahl.",
+  "qualitaetsrisiko": [
+    "Dominanz einzelner Lautsprecher; unstrukturierte Stichwortsammlung ohne Weiterarbeit"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Nominales Einzel-Brainwriting erzeugt oft mehr originelle Ideen als mündliches Gruppen-Brainstorming (Produktionsblockade)",
+      "quelle": "Mullen, Johnson & Salas 1991",
+      "geltung": "Sozialpsychologie, überwiegend Hochschule/Labor; stilles Vor-Sammeln empfehlenswert"
+    }
+  ],
+  "plot": {
+    "x": 0.32,
+    "y": 1.7
+  }
+}

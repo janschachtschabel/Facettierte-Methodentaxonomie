@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "kompetenzraster-diagnose",
+  "name": "Diagnosebogen & Kompetenzraster-Check",
+  "kurzbeschreibung": "Lernende schätzen ihr Können vor oder während einer Einheit anhand konkreter Kompetenzstufen ein und prüfen ihre Einschätzung an kurzen Beispielaufgaben.",
+  "alternativname": [
+    "Checkliste mit Diagnoseaufgaben",
+    "Selbsteinschätzungsbogen",
+    "Lernstandscheck"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kompetenzraster",
+      "url": "https://de.wikipedia.org/wiki/Kompetenzraster",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Panadero, Brown & Strijbos (2016): Self-assessment",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "diagnostisch",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "metakognitiv",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien",
+      "name": "Konkrete „Ich kann“-Beschreibungen"
+    },
+    {
+      "kennung": "pruefaufgaben",
+      "name": "Mindestens eine Kurzaufgabe pro Zeile zur Selbstprüfung"
+    },
+    {
+      "kennung": "weiterarbeit",
+      "name": "Verweis auf passende Übungsmaterialien"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Reine Selbsteinschätzungen sind oft ungenau; Lernende brauchen konkrete Ankeraufgaben, um ihren Übungsbedarf zu erkennen.",
+  "durchfuehrung": [
+    "Diagnosebogen mit Kompetenzaussagen und je 1–2 Kurzaufgaben bearbeiten",
+    "Mit Lösungsblatt abgleichen und Ampelstatus je Kompetenz markieren",
+    "Passende Übungsbausteine aus Lerntheke oder Wochenplan auswählen"
+  ],
+  "material": [
+    "Diagnosebogen mit Musterlösung und Materialverweisen"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Online-Selbsttest mit automatischer Aufgabenempfehlung"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-4"
+  ],
+  "hinweis": "Die Kopplung an konkrete Aufgaben verhindert Fehleinschätzungen.",
+  "qualitaetsrisiko": [
+    "Reines Ankreuzen ohne Aufgabenprüfung und ohne anschließende Förderung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kriteriengeleitete Selbsteinschätzung mit Verankerung fördert Selbstregulation und Leistung leicht bis mittel",
+      "quelle": "Panadero, Brown & Strijbos 2016",
+      "geltung": "Schule und Hochschule, international"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 1.65
+  }
+}

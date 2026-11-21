@@ -1,0 +1,149 @@
+{
+  "status": "entwurf",
+  "kennung": "sokratisches-gespraech",
+  "name": "Sokratisches Gespräch",
+  "kurzbeschreibung": "Gemeinsames, entschleunigtes philosophisches Nachdenken im Kreis, das ausgehend von einem konkreten Beispiel Begriffe und Prinzipien durch präzises Nachfragen klärt.",
+  "alternativname": [
+    "Sokratisches Seminar",
+    "Socratic Seminar",
+    "Neosokratisches Gespräch"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Sokratisches Gespräch",
+      "url": "https://de.wikipedia.org/wiki/Sokratisches_Gespr%25C3%25A4ch",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Nelson (1922); Horster (1994)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "grundfrage",
+      "name": "Offene, nicht banal zu beantwortende Grundfrage"
+    },
+    {
+      "kennung": "beispiel",
+      "name": "Konkretes, nachvollziehbares Ausgangsbeispiel"
+    },
+    {
+      "kennung": "rechenschaft",
+      "name": "Prüfen von Voraussetzungen und Begriffen im Dialog"
+    }
+  ],
+  "dauerMin": 40,
+  "dauerMax": 90,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Zentrale Begriffe (z. B. Gerechtigkeit, Wahrheit, Kausalität) werden unreflektiert gebraucht, statt ihre Voraussetzungen zu prüfen.",
+  "durchfuehrung": [
+    "Grundfrage festlegen und konkretes Beispiel wählen",
+    "Gemeinsam Behauptungen prüfen, Begriffe klären und Widersprüche aufdecken",
+    "Zwischenergebnisse knapp festhalten",
+    "Gesprächsverlauf im Metagespräch reflektieren"
+  ],
+  "material": [
+    "Stuhlkreis",
+    "Flipchart für Zwischenkonsense"
+  ],
+  "raum": "Stuhlkreis ohne Tische",
+  "gruppeMin": 6,
+  "gruppeMax": 24,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Textbasiertes Socratic Seminar (Textpassage als Anker)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-2"
+  ],
+  "hinweis": "Leitung enthält sich eigener inhaltlicher Lösungen und achtet auf gegenseitiges Verstehen.",
+  "qualitaetsrisiko": [
+    "Abgleiten in unverbindliches Meinen ohne Begriffsarbeit"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Philosophisch-didaktische Tradition (Nelson/Heckmann); qualitative Fallstudien zur Diskursqualität",
+      "quelle": "Horster 1994",
+      "geltung": "Ethik, Philosophie, Sek II und Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.38,
+    "y": 2.9
+  }
+}

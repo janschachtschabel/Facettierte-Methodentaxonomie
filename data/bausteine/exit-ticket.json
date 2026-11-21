@@ -119,5 +119,9 @@
       "geltung": "Schule, überwiegend USA und Großbritannien",
       "umstritten": "Effektgröße strittig; die Methodik beider Synthesen wurde kritisiert"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.86,
+    "y": 1.15
+  }
 }

@@ -1,0 +1,166 @@
+{
+  "status": "entwurf",
+  "kennung": "werkstattunterricht",
+  "name": "Werkstattunterricht (Lernwerkstatt)",
+  "kurzbeschreibung": "Handlungsorientierte, thematisch gebündelte Lernumgebung mit vielfältigen Experimentier-, Gestaltungs- und Forschungsaufträgen rund um ein Oberthema.",
+  "alternativname": [
+    "Lernwerkstatt",
+    "Werkstattarbeit"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Werkstattunterricht",
+      "url": "https://de.wikipedia.org/wiki/Werkstattunterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-produkt",
+    "diff-tempo",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "auftraege",
+      "name": "Multimodale Werkstattaufträge zu einem Thema"
+    },
+    {
+      "kennung": "werkstattpass",
+      "name": "Werkstattpass zur Übersicht"
+    },
+    {
+      "kennung": "konferenz",
+      "name": "Gemeinsame Zwischen- und Abschlusskonferenzen"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "sicherung",
+      "name": "Werkstattkonferenz",
+      "lernfunktion": [
+        "verstehen",
+        "metakognition"
+      ],
+      "reichweite": "r1",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 600,
+  "problem": "Ein vielschichtiges Thema soll sinnlich-handelnd, forschend und kreativ über mehrere Zugänge erschlossen werden.",
+  "durchfuehrung": [
+    "Werkstattangebot und Pflicht-/Wahlaufträge vorstellen",
+    "Lernende arbeiten eigenständig an Aufträgen und dokumentieren im Werkstattpass",
+    "Zwischenkonferenzen zur fachlichen Klärung",
+    "Produkte ausstellen und Lernerträge gemeinsam sichern"
+  ],
+  "material": [
+    "Werkstattkisten/Materialien",
+    "Auftragskarten",
+    "Werkstattpass"
+  ],
+  "raum": "Klassenraum mit Arbeitsinseln",
+  "gruppeMin": 6,
+  "gruppeMax": 32,
+  "vorbereitungMin": 180,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Schreibwerkstatt",
+    "Geschichtswerkstatt",
+    "Naturwissenschaftliche Lernwerkstatt"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/42-10",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/113-2"
+  ],
+  "hinweis": "Regelmäßige Werkstattkonferenzen sichern das konzeptuelle Verständnis.",
+  "qualitaetsrisiko": [
+    "Hoher Vorbereitungsaufwand bei geringer konzeptueller Sicherung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Reformpädagogische Tradition (u. a. Reichen); kaum kontrollierte Meta-Analysen",
+      "quelle": "Reichen 1991; Lipowsky 2002",
+      "geltung": "Primarstufe und Sek I, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.3,
+    "y": 1.75
+  }
+}

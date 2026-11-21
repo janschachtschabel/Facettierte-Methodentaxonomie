@@ -150,5 +150,9 @@
       "geltung": "Schule und Hochschule, überwiegend Naturwissenschaften und Mathematik; international",
       "umstritten": "Ob geleitetes Forschen direkter Instruktion überlegen ist, bleibt strittig (de Jong et al. 2023; Sweller et al. 2024)"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.65
+  }
 }

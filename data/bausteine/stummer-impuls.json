@@ -1,0 +1,138 @@
+{
+  "status": "entwurf",
+  "kennung": "stummer-impuls",
+  "name": "Stummer Impuls (Provokation)",
+  "kurzbeschreibung": "Ein aussagekräftiges Bild, Objekt, Zitat oder Datenrätsel wird ohne Kommentar präsentiert und löst eigenständige Beobachtungen, Fragen und Hypothesen aus.",
+  "alternativname": [
+    "Stiller Impuls",
+    "Bildimpuls",
+    "Problemorientierter Einstieg"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "kreativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Stummer Impuls",
+      "url": "https://de.wikipedia.org/wiki/Stummer_Impuls",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "problem-erschlossen"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vieldeutigkeit",
+      "name": "Kognitiv anregender, nicht trivialer Impuls"
+    },
+    {
+      "kennung": "schweigen",
+      "name": "Aushalten von Stille und eigener Beobachtungszeit"
+    },
+    {
+      "kennung": "aufgreifen",
+      "name": "Sammeln von Beobachtungen und Fragen vor der Deutung"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Lehrkraftfragen zum Stundeneinstieg engen den Blick oft zu früh ein und verhindern eigene Fragen der Lernenden.",
+  "durchfuehrung": [
+    "Bild, Gegenstand, Karikatur oder widersprüchliche Grafik kommentarlos zeigen",
+    "Stille Beobachtungszeit geben (30–60 s)",
+    "Spontane Beobachtungen, Assoziationen und Fragen sammeln und zur Stundenfrage bündeln"
+  ],
+  "material": [
+    "Ausdrucksstarkes Bild, Realobjekt, Karikatur oder Diagramm"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 100,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Zwei kontrastierende Bilder nebeneinander"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-2"
+  ],
+  "hinweis": "Funktioniert nur mit einem inhaltlich starken, gut lesbaren Impuls.",
+  "qualitaetsrisiko": [
+    "Impuls bleibt rätselhaft ohne klare Überleitung ins Stundenthema"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Klassische Einstiegstechnik der allgemeinen Didaktik (u. a. Grell & Grell, Meyer)",
+      "quelle": "Meyer 1987; Mattes 2011",
+      "geltung": "Alle Bildungsstufen, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.38,
+    "y": 1.85
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "lernplakat",
+  "name": "Lernplakat & Posterpräsentation",
+  "kurzbeschreibung": "Kleingruppen verdichten ein Teilthema visuell-textlich auf einem Plakat und präsentieren oder verteidigen die Kernaussagen vor anderen Gruppen.",
+  "alternativname": [
+    "Plakatgestaltung",
+    "Poster-Session",
+    "Wandzeitung"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Plakat",
+      "url": "https://de.wikipedia.org/wiki/Plakat",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Lernplakat",
+      "url": "https://unterrichten.zum.de/wiki/Lernplakat",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien",
+      "name": "Klare inhaltliche und gestalterische Kriterien vorab"
+    },
+    {
+      "kennung": "verdichtung",
+      "name": "Stichpunkte und Visualisierung statt Fließtext"
+    },
+    {
+      "kennung": "sicherung",
+      "name": "Präsentation mit Rückfragen oder Museumsgang"
+    }
+  ],
+  "dauerMin": 35,
+  "dauerMax": 90,
+  "problem": "Arbeitsergebnisse von Gruppen bleiben oft unsichtbar oder erschöpfen sich in abgelesenen Textblättern.",
+  "durchfuehrung": [
+    "Inhaltliche Leitfragen und Plakatkriterien klären",
+    "Im Team erst Gliederung skizzieren, dann Plakat arbeitsteilig gestalten",
+    "Ergebnisse vorstellen (z. B. im Museumsgang) und Fragen beantworten"
+  ],
+  "material": [
+    "Flipchart-/Tonpapier",
+    "Dicke Marker",
+    "Bild-/Datenmaterial"
+  ],
+  "raum": "Gruppentische",
+  "gruppeMin": 4,
+  "gruppeMax": 36,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Wissenschaftliche Poster-Session (Sek II / Hochschule)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "hinweis": "Erst Inhalt skizzieren lassen, bevor Stifte und Papier ausgegeben werden.",
+  "qualitaetsrisiko": [
+    "80 % der Zeit fließt in Überschriften-Schönschrift statt Facharbeit"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Alltagsmethode in allen Schulformen; Wirksamkeit hängt an fachlicher Verdichtung und klaren Kriterien",
+      "quelle": "Mattes 2011",
+      "geltung": "Primar bis Hochschule, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.05
+  }
+}

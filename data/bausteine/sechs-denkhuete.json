@@ -1,0 +1,143 @@
+{
+  "status": "entwurf",
+  "kennung": "sechs-denkhuete",
+  "name": "Sechs Denkhüte (nach de Bono)",
+  "kurzbeschreibung": "Eine Gruppe analysiert ein Thema oder eine Entscheidung nacheinander durch sechs farblich codierte Perspektiven (Fakten, Gefühle, Risiken, Chancen, Kreativität, Steuerung).",
+  "alternativname": [
+    "Denkhüte",
+    "Six Thinking Hats",
+    "Hüte-Methode"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "kreativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Methode der sechs Denkhüte",
+      "url": "https://de.wikipedia.org/wiki/Methode_der_sechs_Denkh%25C3%25BCte",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "perspektiven",
+      "name": "Sechs klar definierte Denkmodi (Weiß, Rot, Schwarz, Gelb, Grün, Blau)"
+    },
+    {
+      "kennung": "parallel",
+      "name": "Alle denken gleichzeitig im selben Modus oder decken alle sechs ab"
+    },
+    {
+      "kennung": "synthese",
+      "name": "Blauer Hut bündelt Ergebnisse"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Diskussionen vermischen Fakten, Emotionen und Kritik gleichzeitig und drehen sich dadurch im Kreis.",
+  "durchfuehrung": [
+    "Die sechs Denkperspektiven kurz vorstellen",
+    "Fragestellung festlegen; Gruppe durchläuft die Hüte geordnet (oder arbeitet arbeitsteilig in 6 Kleingruppen)",
+    "Ergebnisse je Hut zusammentragen und unter dem blauen Hut eine begründete Entscheidung formulieren"
+  ],
+  "material": [
+    "Sechs farbige Rollenkarten"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 36,
+  "teamMin": 3,
+  "teamMax": 6,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kurzform mit 4 Hüten (Fakten, Chancen, Risiken, Ideen)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1"
+  ],
+  "hinweis": "Entlastet Teilnehmende, weil kritische oder emotionale Einwände klar gerahmt sind.",
+  "qualitaetsrisiko": [
+    "Klischeehaftes Rollenspiel ohne sachliche Substanz"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Verbreitete Kreativitäts- und Moderationsmethode; kaum belastbare Wirksamkeitsmeta-Analysen im Unterricht",
+      "quelle": "de Bono 1985",
+      "geltung": "Sekundarstufe, Berufsbildung, Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.54,
+    "y": 2.5
+  }
+}

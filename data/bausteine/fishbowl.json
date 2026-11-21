@@ -1,0 +1,145 @@
+{
+  "status": "entwurf",
+  "kennung": "fishbowl",
+  "name": "Fishbowl-Diskussion",
+  "kurzbeschreibung": "Ein kleiner Innenkreis diskutiert kontrovers, während der Außenkreis beobachtet und über einen freien Stuhl oder Antippen einwechseln kann.",
+  "alternativname": [
+    "Aquarium-Diskussion",
+    "Innen-Außenkreis-Diskussion"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Fishbowl (Diskussionsmethode)",
+      "url": "https://de.wikipedia.org/wiki/Fishbowl_(Diskussionsmethode)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Fishbowl",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kreise",
+      "name": "Kleiner Innenkreis (4–6 Stühle) und beobachtender Außenkreis"
+    },
+    {
+      "kennung": "wechselregel",
+      "name": "Klare Einwechselregel (freier Stuhl oder Antippen)"
+    },
+    {
+      "kennung": "beobachtung",
+      "name": "Beobachtungsaufträge für den Außenkreis"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "In großen Klassen oder Seminaren zerfasern Plenumsdiskussionen, oder es sprechen immer dieselben drei Personen.",
+  "durchfuehrung": [
+    "Innenkreis (z. B. 4 besetzte + 1 freier Stuhl) und Außenkreis stellen",
+    "Streitfrage und Beobachtungsaufträge für den Außenkreis klären",
+    "Innenkreis diskutiert; Außenkreis wechselt über den freien Stuhl ein",
+    "Gesprächsverlauf und inhaltliche Ergebnisse gemeinsam auswerten"
+  ],
+  "material": [
+    "Stuhlkreise",
+    "Beobachtungskarten"
+  ],
+  "raum": "Freie Fläche für zwei Stuhlkreise",
+  "gruppeMin": 12,
+  "gruppeMax": 45,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Geschlossene Fishbowl mit festen Experten und Publikumsfragen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-5",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-1"
+  ],
+  "hinweis": "Beobachtungsaufträge sichern die Aktivität des Außenkreises.",
+  "qualitaetsrisiko": [
+    "Außenkreis schaltet ab, wenn Einwechsel- oder Beobachtungsregeln fehlen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Standardmethode der politischen Bildung und Hochschuldidaktik; keine isolierte Meta-Analyse",
+      "quelle": "bpb Methodenkoffer; Mattes 2011",
+      "geltung": "Sekundarstufe, Hochschule, Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.55
+  }
+}

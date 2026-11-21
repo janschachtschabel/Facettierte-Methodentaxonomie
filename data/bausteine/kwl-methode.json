@@ -1,0 +1,142 @@
+{
+  "status": "entwurf",
+  "kennung": "kwl-methode",
+  "name": "K-W-L-Methode (Wissen – Wollen – Gelernt)",
+  "kurzbeschreibung": "Dreispaltiges Arbeitsraster, in dem Lernende vorab ihr Vorwissen (K) und ihre Fragen (W) sowie abschließend das Gelernte (L) festhalten.",
+  "alternativname": [
+    "KWL-Tabelle",
+    "Know-Want-Learned",
+    "W-W-G-Tabelle"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "forschend",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: KWL-Tabelle",
+      "url": "https://de.wikipedia.org/wiki/KWL-Tabelle",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Ogle (1986): K-W-L A Teaching Model",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "diagnostisch",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "metakognitiv",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorwissen",
+      "name": "Spalte K vor der Erarbeitung"
+    },
+    {
+      "kennung": "fragen",
+      "name": "Eigene Fragen in Spalte W"
+    },
+    {
+      "kennung": "bilanz",
+      "name": "Abgleich mit Spalte L am Ende"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Lernende starten ohne bewusste Anknüpfung an Vorwissen und überblicken am Ende ihren Lernzuwachs nicht.",
+  "durchfuehrung": [
+    "Dreispaltige Tabelle austeilen oder anlegen",
+    "Vor der Einheit Spalte K (Was ich weiß) und W (Was ich wissen will) füllen",
+    "Am Ende der Einheit Spalte L (Was ich gelernt habe) ergänzen und Fehlvorstellungen in K markieren"
+  ],
+  "material": [
+    "K-W-L-Raster auf Papier oder Tafel"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "K-W-L-H mit vierter Spalte „Wie finde ich es heraus?“"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-5",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Macht Lernzuwachs und korrigierte Alltagsvorstellungen direkt sichtbar.",
+  "qualitaetsrisiko": [
+    "Spalte L wird am Ende vergessen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Weit verbreitete Leseverständnis- und Aktivierungsstrategie; einzelne quasi-experimentelle Studien positiv",
+      "quelle": "Ogle 1986",
+      "geltung": "Primar- und Sekundarstufe, international"
+    }
+  ],
+  "plot": {
+    "x": 0.64,
+    "y": 1.9
+  }
+}

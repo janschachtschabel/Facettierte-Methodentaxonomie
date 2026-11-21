@@ -1,0 +1,180 @@
+{
+  "status": "entwurf",
+  "kennung": "planspiel",
+  "name": "Planspiel",
+  "kurzbeschreibung": "Mehrstufige, regelgeleitete Simulation komplexer politischer, wirtschaftlicher oder ökologischer Entscheidungsprozesse mit verschiedenen Interessengruppen und Auswertungsphase.",
+  "alternativname": [
+    "Simulationsspiel",
+    "Politisches Planspiel",
+    "Unternehmensplanspiel"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "spiel-simulation",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Planspiel",
+      "url": "https://de.wikipedia.org/wiki/Planspiel",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Planspiel",
+      "url": "https://www.bpb.de/lernen/angebote/planspiele/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "simulation"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "szenario",
+      "name": "Ausgearbeitetes Regelwerk und Ausgangsszenario"
+    },
+    {
+      "kennung": "interaktion",
+      "name": "Verhandlungs-, Entscheidungs- und Abstimmungsrunden"
+    },
+    {
+      "kennung": "debriefing",
+      "name": "Ausführliches Debriefing und Transfer in die Realität"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "debriefing",
+      "name": "Auswertung & Transfer",
+      "lernfunktion": [
+        "metakognition",
+        "verstehen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 600,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "problem": "Systemische Wechselwirkungen und politische/ökonomische Aushandlungsprozesse bleiben im Text oft abstrakt.",
+  "durchfuehrung": [
+    "Briefing: Szenario, Rollenprofile und Spielregeln einführen",
+    "Interessengruppen entwickeln Strategien und verhandeln in mehreren Runden",
+    "Beschlüsse fassen und Folgen simulieren",
+    "Debriefing: Entrollen, Systemdynamiken analysieren und mit der Realität vergleichen"
+  ],
+  "material": [
+    "Planspiel-Handbuch, Rollenprofile, Regelkarten"
+  ],
+  "raum": "Mehrere Gruppenarbeitsbereiche plus Plenum",
+  "gruppeMin": 12,
+  "gruppeMax": 40,
+  "teamMin": 3,
+  "teamMax": 6,
+  "vorbereitungMin": 120,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitales Unternehmens- oder Klimaplanspiel"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/36-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/42-9"
+  ],
+  "hinweis": "Das Debriefing ist der wichtigste Lernort des Planspiels – nie aus Zeitmangel kürzen.",
+  "qualitaetsrisiko": [
+    "Spielspaß ohne fachlichen Transfer beim fehlenden Debriefing"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Simulations- und Planspiele fördern Systemverständnis und Motivation, besonders bei sorgfältigem Debriefing",
+      "quelle": "Sitzmann 2011; Vlachopoulos & Makri 2017",
+      "geltung": "Sekundarstufe II, Berufsbildung und Hochschule, international"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 2.9
+  }
+}

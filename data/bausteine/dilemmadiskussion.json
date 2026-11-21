@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "dilemmadiskussion",
+  "name": "Dilemmadiskussion (Konstanzer Methode)",
+  "kurzbeschreibung": "Strukturierte Auseinandersetzung mit einer moralischen Konfliktgeschichte ohne einfache Lösung, in der Pro- und Contra-Argumente abgewogen und Werte reflektiert werden.",
+  "alternativname": [
+    "Konstanzer Methode der Dilemmadiskussion",
+    "KMDD",
+    "Moraldilemma"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Konstanzer Methode der Dilemmadiskussion",
+      "url": "https://de.wikipedia.org/wiki/Konstanzer_Methode_der_Dilemmadiskussion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Lind (2015): Moral ist lehrbar",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert",
+    "fall"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "dilemma",
+      "name": "Echte moralische Zwickmühle ohne eindeutige Lösung"
+    },
+    {
+      "kennung": "pingpong",
+      "name": "Ping-Pong-Regel (Rederecht an Gegenseite weitergeben)"
+    },
+    {
+      "kennung": "wuerdigung",
+      "name": "Benennung des überzeugendsten Gegenarguments"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Urteilskompetenz bei Wertekonflikten lässt sich nicht durch moralische Belehrung vermitteln.",
+  "durchfuehrung": [
+    "Dilemmageschichte vorstellen und kurze Klärungsfragen beantworten",
+    "Abstimmung und Kleingruppenbildung nach Pro/Contra zur Vorbereitung",
+    "Plenumsdiskussion nach Ping-Pong-Regel (Lernende rufen die Gegenseite auf)",
+    "Jede Seite benennt das stärkste Argument der Gegenseite; Schlussreflexion"
+  ],
+  "material": [
+    "Ausgearbeitete Dilemmageschichte"
+  ],
+  "gruppeMin": 10,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Philosophieren mit Kindern anhand kurzer Bilderbücher (Primarstufe)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/41-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4"
+  ],
+  "hinweis": "Lehrkraft bleibt inhaltlich zurückhaltend und schützt ein respektvolles Gesprächsklima.",
+  "qualitaetsrisiko": [
+    "Lehrkraft moralisiert oder löst das Dilemma vorschnell auf"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Wiederholte positive Effekte auf moralische Urteilskompetenz bei konsequenter Umsetzung der KMDD",
+      "quelle": "Lind 2015; Schlaefli, Rest & Thoma 1985",
+      "geltung": "Schule und Hochschule, DACH und USA; Effekt hängt an Moderationsqualität"
+    }
+  ],
+  "plot": {
+    "x": 0.45,
+    "y": 2.9
+  }
+}

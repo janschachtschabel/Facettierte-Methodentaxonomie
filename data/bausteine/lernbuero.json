@@ -1,0 +1,154 @@
+{
+  "status": "entwurf",
+  "kennung": "lernbuero",
+  "name": "Lernbüro mit Kompetenzrastern",
+  "kurzbeschreibung": "Dauerhaft eingerichtetes, kompetenzorientiertes Selbstlernformat mit transparenten Rastern, Lernbausteinen, Beratung und flexiblen Leistungsnachweisen.",
+  "alternativname": [
+    "Lernbüro",
+    "Kompetenzraster-Arbeit",
+    "Dalton-Stunde"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "offen",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernbüro",
+      "url": "https://de.wikipedia.org/wiki/Lernb%25C3%25BCro",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung",
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "mikro",
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "formativ",
+    "summativ",
+    "bn-kriterial",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "metakognitiv",
+    "afb1",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "raster",
+      "name": "Transparente Kompetenzraster mit „Ich kann“-Aussagen"
+    },
+    {
+      "kennung": "bausteine",
+      "name": "Zugeordnete Lernbausteine mit Checklisten"
+    },
+    {
+      "kennung": "coaching",
+      "name": "Regelmäßige Lernberatung und Gelingensnachweise"
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 900,
+  "problem": "Lernende sollen mittel- bis langfristig eigenverantwortlich an individuellen Kompetenzstufen arbeiten können.",
+  "durchfuehrung": [
+    "Standort im Kompetenzraster bestimmen und Wochenziel setzen",
+    "Passende Lernbausteine eigenständig oder im Tandem bearbeiten",
+    "Selbsttests durchführen und Lernberatung nutzen",
+    "Kompetenznachweis ablegen und nächsten Baustein wählen"
+  ],
+  "material": [
+    "Kompetenzraster",
+    "Lernbausteine",
+    "Logbuch",
+    "Diagnosetests"
+  ],
+  "raum": "Fach-Lernbüro mit ruhigen Einzel- und Partnerplätzen",
+  "gruppeMin": 8,
+  "gruppeMax": 32,
+  "vorbereitungMin": 180,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitales Lernbüro mit adaptivem Lernpfad"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/43-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/310-5"
+  ],
+  "hinweis": "Wird häufig mit kurzen gemeinsamen Input- oder Plenumsphasen kombiniert.",
+  "qualitaetsrisiko": [
+    "Lehrkraft wird zum Materialverwalter statt Lernbegleiter"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Schulentwicklungskonzept (u. a. Deutscher Schulpreis-Schulen); kontrollierte Wirksamkeitsstudien rar",
+      "quelle": "Müller 2012",
+      "geltung": "Sekundarstufe I/II, Deutschland"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 1.85
+  }
+}

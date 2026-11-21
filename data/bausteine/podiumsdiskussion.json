@@ -1,0 +1,145 @@
+{
+  "status": "entwurf",
+  "kennung": "podiumsdiskussion",
+  "name": "Podiumsdiskussion",
+  "kurzbeschreibung": "Ausgewählte Rollenvertreter oder Expertinnen diskutieren moderiert vor dem Plenum, das anschließend gezielt Fragen stellt und Positionen prüft.",
+  "alternativname": [
+    "Panel-Diskussion",
+    "Expertenrunde"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Podiumsdiskussion",
+      "url": "https://de.wikipedia.org/wiki/Podiumsdiskussion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Podiumsdiskussion",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rollen",
+      "name": "Klar umrissene Experten- oder Interessengruppenrollen"
+    },
+    {
+      "kennung": "moderation",
+      "name": "Neutrale Moderation durch Lernende"
+    },
+    {
+      "kennung": "publikum",
+      "name": "Aktive Publikums- und Journalistenrolle"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Vielfältige gesellschaftliche Interessenlagen zu einem Konflikt sollen mehrperspektivisch greifbar werden.",
+  "durchfuehrung": [
+    "Interessengruppen-Rollen, Moderation und Redaktions-/Publikumsrollen vergeben",
+    "Positionen in Teams vorbereiten (15–25 min)",
+    "Moderierte Podiumsdiskussion mit Publikumsfragen (20–30 min)",
+    "Aus den Rollen treten und Interessenkonflikte sachlich auswerten"
+  ],
+  "material": [
+    "Rollenkarten/Dossiers",
+    "Namensschilder"
+  ],
+  "gruppeMin": 10,
+  "gruppeMax": 60,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit realen externen Gästen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4"
+  ],
+  "hinweis": "Beraterteams hinter den Podiumspersonen binden das gesamte Plenum aktiv ein.",
+  "qualitaetsrisiko": [
+    "Publikum bleibt passiv, wenn keine Redaktions- oder Beraterrolle vergeben ist"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxismethode der politischen Bildung und Gesellschaftswissenschaften",
+      "quelle": "bpb Methodenkoffer",
+      "geltung": "Sekundarstufe I/II und Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.3
+  }
+}

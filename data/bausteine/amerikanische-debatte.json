@@ -1,0 +1,139 @@
+{
+  "status": "entwurf",
+  "kennung": "amerikanische-debatte",
+  "name": "Amerikanische Debatte",
+  "kurzbeschreibung": "Zwei größere Gruppen stehen sich gegenüber; abwechselnd tritt je eine Person aus Pro und Contra kurz ans Pult und bringt ein neues Argument oder entkräftet das vorherige.",
+  "alternativname": [
+    "Ping-Pong-Debatte",
+    "Wechseldebatte"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Amerikanische Debatte",
+      "url": "https://de.wikipedia.org/wiki/Amerikanische_Debatte",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Amerikanische Debatte",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abwechseln",
+      "name": "Streng abwechselnde Kurzbeiträge (max. 60 s)"
+    },
+    {
+      "kennung": "einbezug",
+      "name": "Jede Person spricht höchstens einmal pro Runde"
+    },
+    {
+      "kennung": "protokoll",
+      "name": "Sichtbares Mitschreiben der Hauptargumente"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "In einer ganzen Klasse soll möglichst vielen Lernenden ein kurzer, fairer Redeanteil zu einer Streitfrage ermöglicht werden.",
+  "durchfuehrung": [
+    "Klasse in Pro- und Contra-Team teilen; Argumente im Team sammeln (10 min)",
+    "Abwechselnd tritt je ein Teammitglied vor und trägt ein Argument vor (max. 1 min)",
+    "Gegenseite reagiert direkt mit einem Gegenargument",
+    "Hauptargumente an der Tafel ordnen und reflektieren"
+  ],
+  "material": [
+    "Zeitsignal",
+    "Tafel mit Pro-/Contra-Spalten"
+  ],
+  "gruppeMin": 10,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Joker-Karte für eine spontane Zwischenfrage"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-1"
+  ],
+  "hinweis": "Niedrigschwelliger als Jugend debattiert, weil die ganze Klasse unmittelbar eingebunden ist.",
+  "qualitaetsrisiko": [
+    "Aneinanderreihen vorbereiteter Zettel ohne Bezugnahme auf die Vorredner"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Methode der politischen und sprachlichen Bildung; keine isolierte Meta-Analyse",
+      "quelle": "bpb Methodenkoffer; Mattes 2011",
+      "geltung": "Sekundarstufe I/II, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.6,
+    "y": 2.65
+  }
+}

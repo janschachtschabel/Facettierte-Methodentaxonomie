@@ -1,0 +1,156 @@
+{
+  "status": "entwurf",
+  "kennung": "webquest",
+  "name": "WebQuest",
+  "kurzbeschreibung": "Strukturierte, aufgabenorientierte Internetrecherche entlang vorgeprüfter Online-Quellen hin zu einem konkreten Lernprodukt.",
+  "alternativname": [
+    "Internet-Lernpfad",
+    "Abenteuer-Recherche im Netz"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "forschend",
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: WebQuest",
+      "url": "https://de.wikipedia.org/wiki/WebQuest",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: WebQuest",
+      "url": "https://unterrichten.zum.de/wiki/WebQuest",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "erwerb",
+    "anwendung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "verzoegert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "aufgabe",
+      "name": "Authentische Aufgabenstellung"
+    },
+    {
+      "kennung": "quellen",
+      "name": "Vorgeprüfte, kuratierte Online-Quellen"
+    },
+    {
+      "kennung": "bewertungsraster",
+      "name": "Transparente Bewertungskriterien vorab"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "problem": "Freies Googeln überfordert Lernende, führt zu Zeitverlust und unzuverlässigen Quellen.",
+  "durchfuehrung": [
+    "Rahmengeschichte, Zielprodukt und Bewertungskriterien klären",
+    "Vorgegebene Quellen arbeitsteilig sichten und auswerten",
+    "Produkt erstellen (z. B. Dossier, Präsentation, Empfehlung)",
+    "Ergebnisse vorstellen und Quellenarbeit reflektieren"
+  ],
+  "material": [
+    "Digitale WebQuest-Seite mit geprüften Links",
+    "Bewertungsraster"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 90,
+  "technik": "t-geteilt",
+  "internet": true,
+  "variante": [
+    "Mini-WebQuest für eine Doppelstunde"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/25-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/310-4"
+  ],
+  "hinweis": "Links vor jedem Einsatz prüfen; ideal als Training für Quellenkritik.",
+  "qualitaetsrisiko": [
+    "Copy-Paste statt eigener Verarbeitung der Quellen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Vorwiegend Praxis- und Fallstudien; Wirksamkeit hängt an der Qualität der Transformationsaufgabe",
+      "quelle": "Dodge 1995; Moser 2008",
+      "geltung": "Sekundarstufe I/II und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.05
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "status": "entwurf",
+  "kennung": "one-minute-paper",
+  "name": "One-Minute-Paper",
+  "kurzbeschreibung": "Am Ende einer Sitzung beantworten alle in ein bis zwei Minuten schriftlich zwei Fragen: „Was war heute am wichtigsten?“ und „Welche Frage bleibt offen?“.",
+  "alternativname": [
+    "Ein-Minuten-Papier",
+    "Muddiest Point",
+    "Kurzbilanz"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "diagnose-feedback",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: One-Minute-Paper (EN)",
+      "url": "https://en.wikipedia.org/wiki/One-minute_paper",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Angelo & Cross (1993): Classroom Assessment Techniques",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "selbstregulationsebene",
+    "formativ",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "metakognitiv",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zwei-fragen",
+      "name": "Kernpunkt + unklarster Punkt (Muddiest Point)"
+    },
+    {
+      "kennung": "aufgreifen",
+      "name": "Sichtbares Aufgreifen der offenen Fragen zu Beginn der Folgestunde"
+    }
+  ],
+  "dauerMin": 3,
+  "dauerMax": 6,
+  "problem": "Lehrkräfte erfahren in großen Kursen nicht, welche Verständnisfragen nach der Sitzung offen geblieben sind.",
+  "durchfuehrung": [
+    "Zwei Leitfragen einblenden",
+    "Lernende antworten 2 min anonym oder namentlich auf Zettel/Formular",
+    "Lehrkraft sichtet die Zettel und klärt die häufigsten Fragen zu Beginn der nächsten Stunde"
+  ],
+  "material": [
+    "Karteikarten oder digitales Kurzformular"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 3,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Nur „Muddiest Point“ (Was war heute am unklarsten?)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-3"
+  ],
+  "hinweis": "Verliert sofort an Akzeptanz, wenn die offenen Fragen in der nächsten Stunde nicht aufgegriffen werden.",
+  "qualitaetsrisiko": [
+    "Zettel werden eingesammelt, aber nicht ausgewertet"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Weit verbreitete Classroom Assessment Technique in Hochschulen; kleine positive Effekte auf Verstehen und Kurszufriedenheit in Einzelstudien",
+      "quelle": "Angelo & Cross 1993; Stead 2005",
+      "geltung": "Hochschule und Sek II, international"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 1.85
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "blitzlicht",
+  "name": "Blitzlicht-Runde",
+  "kurzbeschreibung": "Schnelle, unkommentierte Reihum-Abfrage, bei der jede Person in ein bis zwei Sätzen ihren Eindruck, Lernstand oder eine Frage nennt.",
+  "alternativname": [
+    "Blitzlicht",
+    "Spotlicht",
+    "Check-in / Check-out"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "diskurs",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Blitzlicht (Methode)",
+      "url": "https://de.wikipedia.org/wiki/Blitzlicht_(Methode)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Blitzlicht",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "einstellungen",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kuerze",
+      "name": "Maximal 1–2 Sätze pro Person"
+    },
+    {
+      "kennung": "kommentarverbot",
+      "name": "Keine sofortige Diskussion der Einzelbeiträge"
+    },
+    {
+      "kennung": "impuls",
+      "name": "Präzise Satzergänzung oder Leitfrage"
+    }
+  ],
+  "dauerMin": 3,
+  "dauerMax": 10,
+  "problem": "Stimmung, offene Fragen oder ein erster Lernstand sollen von wirklich allen kurz hörbar werden.",
+  "durchfuehrung": [
+    "Präzise Blitzlicht-Frage oder Satzanfang nennen",
+    "Reihum äußert jede Person maximal 1–2 Sätze (ohne Kommentierung)",
+    "Wiederkehrende Punkte kurz bündeln"
+  ],
+  "material": [
+    "Kein Material nötig (optional Gesprächsstein)"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 30,
+  "vorbereitungMin": 2,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Ein-Wort-Blitzlicht bei großen Gruppen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-4"
+  ],
+  "hinweis": "Bei Gruppen über 25 Personen auf ein Wort oder eine Satzhälfte begrenzen.",
+  "qualitaetsrisiko": [
+    "Zieht sich in großen Gruppen und wird repetitiv"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Standard-Kurzmethode der Gruppenpädagogik und Erwachsenenbildung",
+      "quelle": "bpb Methodenkoffer; Meyer 1987",
+      "geltung": "Alle Bildungsstufen, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.3
+  }
+}

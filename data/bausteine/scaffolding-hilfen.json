@@ -1,0 +1,156 @@
+{
+  "status": "entwurf",
+  "kennung": "scaffolding-hilfen",
+  "name": "Gestufte Hilfen (Scaffolding-Karten)",
+  "kurzbeschreibung": "Bei anspruchsvollen Aufgaben greifen Lernende bedarfsgerecht auf mehrstufige, verdeckte Impuls- und Lösungshilfen zurück.",
+  "alternativname": [
+    "Gestufte Lernhilfen",
+    "Tippkarten",
+    "Hilfekarten",
+    "Scaffolding"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "instruktion",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Scaffolding",
+      "url": "https://de.wikipedia.org/wiki/Scaffolding",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Leisen (2010); Hänze et al. (2010): Gestufte Lernhilfen",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "makro",
+    "diff-prozess",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert"
+  ],
+  "interaktion": [
+    "partner",
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stufung",
+      "name": "Mindestens drei zunehmend konkrete Hilfestufen"
+    },
+    {
+      "kennung": "selbstabruf",
+      "name": "Bedarfsgerechter Abruf durch Lernende"
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Verknüpfung von Impuls und Rückseite mit Antwort"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "In heterogenen Klassen blockieren manche Lernende an Zwischenschritten, während andere keine Hilfe brauchen.",
+  "durchfuehrung": [
+    "Komplexe Aufgabe vorstellen und Hilfesystem erklären",
+    "Lernende arbeiten im Tandem oder allein und ziehen bei Bedarf Karte 1, 2 oder 3",
+    "Lösungen vergleichen und klären, welche Strategie geholfen hat"
+  ],
+  "material": [
+    "Aufgabenblatt",
+    "Gefaltete oder digitale gestufte Hilfekarten"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "teamMin": 1,
+  "teamMax": 2,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "QR-Code-Hilfekarten",
+    "Sprachsensible Formulierungshilfen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/28-4"
+  ],
+  "hinweis": "Hilfekarten sollten erst Verständnis- und Strategieimpulse, erst zuletzt Teillösungen geben.",
+  "qualitaetsrisiko": [
+    "Lernende lesen sofort alle Hilfen durch, ohne selbst zu denken"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Scaffolding fördert Problemlösen und naturwissenschaftliches Lernen mittelstark, besonders bei geringem Vorwissen",
+      "quelle": "Belland et al. 2017",
+      "geltung": "MINT, Schule und Hochschule, international"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.15
+  }
+}

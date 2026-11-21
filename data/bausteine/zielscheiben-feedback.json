@@ -1,0 +1,141 @@
+{
+  "status": "entwurf",
+  "kennung": "zielscheiben-feedback",
+  "name": "Zielscheiben-Feedback",
+  "kurzbeschreibung": "Schnelles, anonymes Unterrichts- oder Prozessfeedback: Lernende kleben Punkte in Segmente einer Zielscheibe (Mitte = volle Zustimmung, Rand = Verbesserungsbedarf).",
+  "alternativname": [
+    "Feedback-Zielscheibe",
+    "Dartscheibe-Evaluation"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "diagnose-feedback",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Zielscheiben-Evaluation",
+      "url": "https://de.wikipedia.org/wiki/Zielscheiben-Evaluation",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Zielscheibe",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "einstellungen",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "segmente",
+      "name": "4–6 klar formulierte Feedback-Dimensionen"
+    },
+    {
+      "kennung": "anonym",
+      "name": "Wahrung der Anonymität"
+    },
+    {
+      "kennung": "gespraech",
+      "name": "Kurzes Auswertungsgespräch über Konsequenzen"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Am Ende einer Einheit oder Gruppenphase soll zügig ein differenziertes Stimmungs- und Prozessbild eingeholt werden.",
+  "durchfuehrung": [
+    "Zielscheibe mit 4–6 Segmenten (z. B. Verständlichkeit, Tempo, Material, Zusammenarbeit) aushängen",
+    "Alle setzen je Segment anonym einen Klebepunkt oder Strich",
+    "Auffällige Muster kurz im Plenum besprechen und Konsequenzen vereinbaren"
+  ],
+  "material": [
+    "Flipchart mit Zielscheibe",
+    "Klebepunkte oder Stifte"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 50,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitale Zielscheibe (z. B. Oncoo)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2"
+  ],
+  "hinweis": "Misst Zufriedenheit und Prozesswahrnehmung, nicht den objektiven Lernerfolg.",
+  "qualitaetsrisiko": [
+    "Punktebild wird abfotografiert, ohne Konsequenzen abzuleiten"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Standardinstrument der Unterrichtsevaluation und Erwachsenenbildung",
+      "quelle": "Bastian et al. 2003; bpb Methodenkoffer",
+      "geltung": "Alle Bildungsstufen, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 1
+  }
+}

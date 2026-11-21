@@ -1,0 +1,160 @@
+{
+  "status": "entwurf",
+  "kennung": "peer-instruction",
+  "name": "Peer Instruction (nach Mazur)",
+  "kurzbeschreibung": "Nach einer konzeptuellen Abstimmungsfrage überzeugen Lernende sich paarweise von ihren Begründungen und stimmen erneut ab, bevor die Lehrkraft klärt.",
+  "alternativname": [
+    "Peer Instruction",
+    "ConceptTest-Methode"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "kooperativ",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Peer Instruction",
+      "url": "https://de.wikipedia.org/wiki/Peer_Instruction",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Crouch & Mazur (2001): American Journal of Physics",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "verstehen",
+    "diagnose"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "diagnostisch",
+    "fb-elaboriert"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "instrukteur",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "fehlvorstellungen-sichtbar",
+    "konzept-gesichert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "concepttest",
+      "name": "Konzeptuelle Frage mit typischen Fehlvorstellungen als Distraktoren"
+    },
+    {
+      "kennung": "abstimmung1",
+      "name": "Individuelle Erst-Abstimmung"
+    },
+    {
+      "kennung": "peerdiskussion",
+      "name": "Partnerdiskussion bei 30–70 % Trefferquote"
+    },
+    {
+      "kennung": "abstimmung2",
+      "name": "Zweit-Abstimmung und Klärung"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Fehlvorstellungen bleiben nach Erklärungen verborgen und werden erst in Prüfungen sichtbar.",
+  "durchfuehrung": [
+    "Konzeptfrage mit typischen Fehlkonzepten als Antwortoptionen stellen",
+    "Alle stimmen individuell ab (Karten oder Abstimmungstool)",
+    "Bei gemischtem Ergebnis (30–70 % richtig) 2–3 min im Tandem begründen",
+    "Erneut abstimmen und Ergebnis im Plenum fachlich klären"
+  ],
+  "material": [
+    "Ausgearbeitete Konzeptfragen",
+    "Abstimmungskarten oder digitales Voting-Tool"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 300,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 30,
+  "technik": "t-projektion",
+  "internet": false,
+  "variante": [
+    "Analog mit farbigen A/B/C/D-Karten statt digitalem Clicker"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/24-10"
+  ],
+  "hinweis": "Funktioniert auch in sehr großen Hörsälen; die Qualität der Konzeptfrage entscheidet.",
+  "qualitaetsrisiko": [
+    "Triviale Faktenfragen statt konzeptueller Fragen mit guten Distraktoren"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Wiederholte deutliche Zugewinne beim Konzeptverständnis gegenüber traditionellen Vorlesungen",
+      "quelle": "Crouch & Mazur 2001; Vickrey et al. 2015",
+      "geltung": "Überwiegend Hochschule MINT, international; auch in der gymnasialen Oberstufe erprobt"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 2.85
+  }
+}

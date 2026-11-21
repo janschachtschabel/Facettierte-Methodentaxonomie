@@ -1,0 +1,134 @@
+{
+  "status": "entwurf",
+  "kennung": "methode-66",
+  "name": "Methode 66 (Phillips 66)",
+  "kurzbeschreibung": "Große Gruppen teilen sich spontan in Sechsergruppen, die genau sechs Minuten eine eng gefasste Frage beraten und je ein Ergebnis ins Plenum liefern.",
+  "alternativname": [
+    "Phillips 66",
+    "66-Methode",
+    "Sechsergespräch"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kreativ",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Methode 66",
+      "url": "https://de.wikipedia.org/wiki/Methode_66",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "problem-erschlossen"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zeitbox",
+      "name": "Strikte 6-Minuten-Begrenzung"
+    },
+    {
+      "kennung": "sprecher",
+      "name": "Sofortige Bestimmung einer protokollierenden Person"
+    },
+    {
+      "kennung": "fokus",
+      "name": "Ein konkretes Kernergebnis je Gruppe"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 18,
+  "problem": "In sehr großen Lerngruppen oder Vorlesungen sollen binnen weniger Minuten fokussierte Fragen oder Vorschläge entstehen.",
+  "durchfuehrung": [
+    "Sechsergruppen bilden (z. B. drei Personen drehen sich zur Reihe dahinter)",
+    "1 min Sprecher bestimmen, 5 min eng gefasste Frage beraten",
+    "Sprecher melden jeweils ihr wichtigstes Ergebnis ans Plenum"
+  ],
+  "material": [
+    "1 Karteikarte pro Gruppe"
+  ],
+  "gruppeMin": 12,
+  "gruppeMax": 240,
+  "teamMin": 5,
+  "teamMax": 6,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Methode 44 (4 Personen, 4 Minuten)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/24-10",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1"
+  ],
+  "hinweis": "Funktioniert sogar im Hörsaal mit fester Bestuhlung.",
+  "qualitaetsrisiko": [
+    "Zu weite Fragestellung lässt sich in 6 Minuten nicht verdichten"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Klassische Großgruppenmethode der Hochschul- und Erwachsenenbildung",
+      "quelle": "Phillips 1948; Mattes 2011",
+      "geltung": "Hochschule, Erwachsenenbildung, Sek II"
+    }
+  ],
+  "plot": {
+    "x": 0.66,
+    "y": 2.55
+  }
+}

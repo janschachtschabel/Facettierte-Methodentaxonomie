@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "demonstrationsexperiment",
+  "name": "Demonstrationsexperiment",
+  "kurzbeschreibung": "Die Lehrkraft führt einen Versuch im Plenum vor, während die Lernenden strukturiert beobachten, protokollieren und deuten.",
+  "alternativname": [
+    "Lehrerdemonstration",
+    "Schauversuch",
+    "Demonstrationsversuch"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "instruktion",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Demonstrationsexperiment",
+      "url": "https://de.wikipedia.org/wiki/Demonstrationsexperiment",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "sichtbarkeit",
+      "name": "Gute Sichtbarkeit für alle"
+    },
+    {
+      "kennung": "beobachtungsauftrag",
+      "name": "Präziser Beobachtungsauftrag vorab"
+    },
+    {
+      "kennung": "trennung",
+      "name": "Trennung von Beobachtung und Deutung"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Ein Phänomen ist zu gefährlich, teuer oder komplex für Schülerexperimente, soll aber anschaulich erlebt werden.",
+  "durchfuehrung": [
+    "Fragestellung und Beobachtungsauftrag nennen",
+    "Versuch gut sichtbar durchführen",
+    "Beobachtungen zunächst wertfrei sammeln",
+    "Fachliche Deutung gemeinsam erarbeiten"
+  ],
+  "material": [
+    "Versuchsaufbau",
+    "Protokollbogen oder Tafel"
+  ],
+  "raum": "Fachraum oder Tisch mit Kamera/Projektion",
+  "gruppeMin": 4,
+  "gruppeMax": 100,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kombination mit schriftlicher Vorhersage (VBE)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-3"
+  ],
+  "hinweis": "Mit vorheriger Hypothesenbildung deutlich kognitiv aktivierender.",
+  "qualitaetsrisiko": [
+    "Effekthascherei ohne fachliche Durchdringung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Fachdidaktisches Standardverfahren in Naturwissenschaften; hohe Aktivierung erst mit Vorhersage und Deutungsauftrag",
+      "quelle": "Crouch et al. 2004",
+      "geltung": "Hochschulphysik und naturwissenschaftliche Fachdidaktik"
+    }
+  ],
+  "plot": {
+    "x": 0.84,
+    "y": 1.25
+  }
+}

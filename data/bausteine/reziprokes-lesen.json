@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "reziprokes-lesen",
+  "name": "Reziprokes Lehren und Lesen",
+  "kurzbeschreibung": "Kleingruppen erschließen anspruchsvolle Sachtexte abschnittsweise mithilfe vier fester Strategierollen: Zusammenfassen, Fragen stellen, Klären und Vorhersagen.",
+  "alternativname": [
+    "Reziprokes Lehren",
+    "Reciprocal Teaching",
+    "Lesekonferenz"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Reziprokes Lehren",
+      "url": "https://de.wikipedia.org/wiki/Reziprokes_Lehren",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Palincsar & Brown (1984); Rosenshine & Meister (1994)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "metakognitiv",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vier-strategien",
+      "name": "Vier Strategien: Klären, Fragen, Zusammenfassen, Vorhersagen"
+    },
+    {
+      "kennung": "rollenwechsel",
+      "name": "Rotierende Rollen je Textabschnitt"
+    },
+    {
+      "kennung": "modellierung",
+      "name": "Vorheriges Modellieren der Strategien"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Lernende lesen Fachtexte oberflächlich, ohne Verständnislücken zu bemerken oder Hauptaussagen zu verdichten.",
+  "durchfuehrung": [
+    "Die vier Strategien kurz modellieren",
+    "Text in Abschnitte gliedern und Vierergruppen bilden",
+    "Abschnitt lesen; jedes Gruppenmitglied führt seine Strategie-Rolle aus",
+    "Rollen rotieren für den nächsten Abschnitt",
+    "Kernaussagen und offene Fragen im Plenum sichern"
+  ],
+  "material": [
+    "Abschnittsweise nummerierter Fachtext",
+    "Rollenkarten"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 36,
+  "teamMin": 4,
+  "teamMax": 4,
+  "vorbereitungMin": 25,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Tandem-Variante mit je zwei Rollen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-4"
+  ],
+  "hinweis": "Braucht eine Einführung der vier Rollen, bevor die Gruppen eigenständig arbeiten.",
+  "qualitaetsrisiko": [
+    "Mechanisches Ablesen von Satzanfängen ohne echte Verständnisklärung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Deutliche Effekte auf Leseverständnis (Median ES ≈ 0,32 auf standardisierten Tests, deutlich höher bei lehrernahen Tests)",
+      "quelle": "Rosenshine & Meister 1994",
+      "geltung": "Schule (Primar und Sek I), USA; erfordert explizite Strategie-Einführung"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.85
+  }
+}

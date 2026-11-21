@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "partnerinterview",
+  "name": "Partnerinterview (Drei-Schritt-Interview)",
+  "kurzbeschreibung": "Zwei Personen befragen sich wechselseitig zu einem Thema und stellen anschließend die Position ihres Gegenübers in einer Vierergruppe vor.",
+  "alternativname": [
+    "Drei-Schritt-Interview",
+    "Three-Step Interview",
+    "Wechselseitiges Interview"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM-Unterrichten: Partnerinterview",
+      "url": "https://unterrichten.zum.de/wiki/Partnerinterview",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Kagan (1994): Cooperative Learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rollentausch",
+      "name": "Wechselseitige Interviewer-/Antwort-Rolle"
+    },
+    {
+      "kennung": "wiedergabe",
+      "name": "Vorstellen der Perspektive des Partners in der Gruppe"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Lernende hören einander in Diskussionen oberflächlich zu, weil sie nur an ihren eigenen nächsten Beitrag denken.",
+  "durchfuehrung": [
+    "Leitfragen ausgeben und Paare bilden",
+    "A interviewt B und macht Notizen (3 min)",
+    "Rollenwechsel: B interviewt A (3 min)",
+    "Zwei Paare bilden eine Vierergruppe; jeder stellt kurz die Antworten des Partners vor"
+  ],
+  "material": [
+    "2–3 Interviewfragen"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kennenlern-Interview zu Kursbeginn"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17"
+  ],
+  "hinweis": "Fördert aktives Zuhören durch die Verpflichtung zur späteren Wiedergabe.",
+  "qualitaetsrisiko": [
+    "Zu knappe Zeit führt zu oberflächlichem Abhaken"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Standardstruktur des kooperativen Lernens; einzeln kaum isoliert evaluiert",
+      "quelle": "Kagan 1994; Green & Green 2005",
+      "geltung": "Allgemeindidaktische Praxis, Schule und Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.64,
+    "y": 2.75
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "status": "entwurf",
+  "kennung": "standbild",
+  "name": "Standbild (Szenisches Spiel)",
+  "kurzbeschreibung": "Kleingruppen stellen Beziehungen, Konflikte oder literarische Szenen als eingefrorenes Körperbild dar, das von der Klasse interpretiert und weiterentwickelt wird.",
+  "alternativname": [
+    "Statuentheater",
+    "Freeze-Bild",
+    "Szenisches Standbild"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Standbild (Theaterpädagogik)",
+      "url": "https://de.wikipedia.org/wiki/Standbild_(Theaterp%25C3%25A4dagogik)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Standbild",
+      "url": "https://unterrichten.zum.de/wiki/Standbild",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt",
+    "udl"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "einfrieren",
+      "name": "Bewusste Körperhaltung, Blickrichtung und räumlicher Abstand"
+    },
+    {
+      "kennung": "deutung",
+      "name": "Erst genaue Beschreibung, dann Deutung durch Zuschauende"
+    },
+    {
+      "kennung": "dopplung",
+      "name": "Optionales Antippen für einen Gedanken-Satz der Figur"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Beziehungskonstellationen und Machtverhältnisse in Texten oder historischen Quellen werden rein verbal oft oberflächlich erfasst.",
+  "durchfuehrung": [
+    "Szene oder Begriff in Kleingruppen besprechen und als Standbild bauen",
+    "Standbild 15–30 s einfrieren; Publikum beschreibt zunächst sachlich Haltung und Distanz",
+    "Publikum deutet die Beziehungen; optional Figuren antippen für je einen inneren Gedanken",
+    "Rückbezug auf Textbelege oder Fachkonzept"
+  ],
+  "material": [
+    "Textvorlage oder Situation"
+  ],
+  "raum": "Freie Spielfläche",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 6,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Regisseur-Variante (eine Person formt die Figuren)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-3"
+  ],
+  "hinweis": "Niedrigschwelliger als freies Rollenspiel, weil niemand improvisiert sprechen muss.",
+  "qualitaetsrisiko": [
+    "Albernheit ohne ernsthafte Text- oder Quellenrückbindung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Kernmethode der szenischen Interpretation (Scheller) in Deutsch-, Geschichts- und Religionsdidaktik",
+      "quelle": "Scheller 2004",
+      "geltung": "Primar- und Sekundarstufe, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 2.35
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "status": "entwurf",
+  "kennung": "fehleranalyse",
+  "name": "Produktive Fehleranalyse (Fehlersuche)",
+  "kurzbeschreibung": "Lernende untersuchen absichtlich fehlerhafte Lösungsbeispiele oder typische Schülerfehler, erklären die Ursache des Fehlers und korrigieren ihn fachlich.",
+  "alternativname": [
+    "Fehlersuche",
+    "Fehlerhafte Lösungsbeispiele",
+    "Erroneous Examples",
+    "Lieblingsfehler"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "uebung",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Fehlerkultur",
+      "url": "https://de.wikipedia.org/wiki/Fehlerkultur",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Barbieri et al. (2023); Loibl & Leuders (2019)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "fehlvorstellungen-sichtbar",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "typischer-fehler",
+      "name": "Authentischer, verbreiteter Denkfehler"
+    },
+    {
+      "kennung": "erklaerung",
+      "name": "Begründung, warum der Fehler entsteht"
+    },
+    {
+      "kennung": "korrektur",
+      "name": "Fachlich korrekte Lösung im Kontrast"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Hartnäckige typische Fehler kehren trotz richtiger Beispiele immer wieder.",
+  "durchfuehrung": [
+    "Anonymisierte oder vorbereitete fehlerhafte Lösung präsentieren",
+    "Lernende markieren den Fehler und erklären, welcher Denkfehler dahintersteckt",
+    "Korrekte Lösung ausarbeiten und Merkregel formulieren"
+  ],
+  "material": [
+    "Fehlerhafte Lösungsbeispiele"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "teamMin": 1,
+  "teamMax": 2,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "„Mein Lieblingsfehler der Woche“ im Klassenverband"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-4"
+  ],
+  "hinweis": "Wirkt am stärksten ab mittlerem Vorwissen; Novizen brauchen zuvor korrekte Beispiele.",
+  "qualitaetsrisiko": [
+    "Bloßstellen einzelner Lernender statt anonymisierter Fehlerkultur"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Lernen aus fehlerhaften Lösungsbeispielen fördert Fehlererkennung und Konzeptverständnis, v. a. bei Lernenden mit Grundwissen",
+      "quelle": "Barbieri et al. 2023; Große & Renkl 2007",
+      "geltung": "Mathematik und MINT, Schule und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.76,
+    "y": 2.3
+  }
+}

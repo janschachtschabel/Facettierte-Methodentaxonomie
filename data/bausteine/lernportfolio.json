@@ -1,0 +1,168 @@
+{
+  "status": "entwurf",
+  "kennung": "lernportfolio",
+  "name": "Lernportfolio",
+  "kurzbeschreibung": "Systematische, über Wochen angelegte Sammlung ausgewählter Arbeitsprodukte, begleitet von kriteriengeleiteten Begründungen und Lernreflexionen.",
+  "alternativname": [
+    "Portfolio",
+    "Entwicklungsportfolio",
+    "E-Portfolio"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Portfolio (Pädagogik)",
+      "url": "https://de.wikipedia.org/wiki/Portfolio_(P%25C3%25A4dagogik)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Häcker (2007): Portfolio",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "metakognition",
+    "anwendung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "selbstregulationsebene",
+    "formativ",
+    "summativ",
+    "bn-individuell",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "metakognitiv",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "sammeln",
+      "name": "Kontinuierliches Sammeln von Arbeitsproben"
+    },
+    {
+      "kennung": "auswahl",
+      "name": "Begründete Auswahl durch die Lernenden"
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Reflexion von Lernfortschritt und Zielen"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "reflexion",
+      "name": "Zwischenreflexion",
+      "lernfunktion": [
+        "metakognition",
+        "diagnose"
+      ],
+      "reichweite": "r1",
+      "pflicht": false
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 900,
+  "problem": "Punktuelle Klassenarbeiten bilden Lernentwicklung, Überarbeitungsprozesse und Selbststeuerung kaum ab.",
+  "durchfuehrung": [
+    "Zweck, Pflicht-/Wahlbestandteile und Kriterien zu Beginn klären",
+    "Arbeitsprodukte über die Einheit hinweg sammeln und überarbeiten",
+    "Ausgewählte Belege mit Reflexionstexten kommentieren",
+    "Portfolio präsentieren und im Lernentwicklungsgespräch würdigen"
+  ],
+  "material": [
+    "Portfolio-Ordner oder E-Portfolio-Plattform",
+    "Kriterienraster"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "E-Portfolio (z. B. Mahara)",
+    "Präsentationsportfolio"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-5",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1"
+  ],
+  "hinweis": "Spannungsverhältnis zwischen ehrlicher Reflexion und Benotung transparent ansprechen.",
+  "qualitaetsrisiko": [
+    "Verkommt zur bloßen Sammelmappe ohne echte Auswahl und Reflexion"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Qualitative und quasi-experimentelle Befunde zu Selbstregulation und Motivation positiv; Wirksamkeit hängt stark an Begleitung",
+      "quelle": "Häcker 2007",
+      "geltung": "Schule und Hochschule, DACH und international"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 2.15
+  }
+}

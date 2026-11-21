@@ -1,0 +1,142 @@
+{
+  "status": "entwurf",
+  "kennung": "abc-liste",
+  "name": "ABC-Liste (nach Birkenbihl)",
+  "kurzbeschreibung": "Lernende notieren zu den Buchstaben A bis Z möglichst viele Begriffe und Assoziationen zu einem Thema, um Vorwissen zu aktivieren oder Wissen abzurufen.",
+  "alternativname": [
+    "ABC-Methode",
+    "Alphabet-Liste",
+    "Wissens-ABC"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "kreativ",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: ABC-Liste",
+      "url": "https://de.wikipedia.org/wiki/ABC-Liste",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: ABC-Liste",
+      "url": "https://unterrichten.zum.de/wiki/ABC-Liste",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "alphabet",
+      "name": "Buchstabenraster A–Z als Abrufhilfe"
+    },
+    {
+      "kennung": "zeitlimit",
+      "name": "Kurze Zeitbox (3–5 min)"
+    },
+    {
+      "kennung": "abgleich",
+      "name": "Austausch und Ergänzung neuer Begriffe"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Lernende kommen bei offenen Einstiegsfragen schwer ins Schreiben oder brauchen Abrufhinweise zum Wortschatz.",
+  "durchfuehrung": [
+    "Buchstaben A–Z senkrecht notieren und Thema nennen",
+    "3–5 min in beliebiger Reihenfolge passende Fachbegriffe eintragen",
+    "Im Tandem oder Plenum abgleichen und Begriffe fachlich einordnen"
+  ],
+  "material": [
+    "Papier oder ABC-Vorlage"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 2,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Vorher-Nachher-ABC in zwei Farben zur Sichtbarmachung des Lernzuwachses"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1"
+  ],
+  "hinweis": "Die Vorher-Nachher-Variante mit zwei Farben macht den eigenen Lernzuwachs unmittelbar erlebbar.",
+  "qualitaetsrisiko": [
+    "Bleibt beim oberflächlichen Begriffsraten ohne Bedeutungsklärung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Verbreitete Praxis- und Aktivierungsmethode im deutschsprachigen Raum; keine kontrollierte Meta-Analyse",
+      "quelle": "Birkenbihl 2001; Mattes 2011",
+      "geltung": "Alle Bildungsstufen, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 1.45
+  }
+}

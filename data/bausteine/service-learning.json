@@ -1,0 +1,170 @@
+{
+  "status": "entwurf",
+  "kennung": "service-learning",
+  "name": "Service Learning (Lernen durch Engagement)",
+  "kurzbeschreibung": "Lernende verbinden fachliches Lernen im Unterricht mit einem realen gemeinnützigen Engagementprojekt außerhalb der Schule und reflektieren ihre Erfahrungen systematisch.",
+  "alternativname": [
+    "Lernen durch Engagement",
+    "LdE",
+    "Service-Learning"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Service-Learning",
+      "url": "https://de.wikipedia.org/wiki/Service-Learning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Celio, Durlak & Dymnicki (2011): Meta-analysis of service-learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "selbstregulationsebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "bedarf",
+      "name": "Realer gesellschaftlicher Bedarf mit Praxispartner"
+    },
+    {
+      "kennung": "curriculum",
+      "name": "Explizite Anbindung an Fachinhalte"
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Kontinuierliche Reflexion des Engagements"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "reflexion",
+      "name": "Begleitende Reflexion",
+      "lernfunktion": [
+        "metakognition"
+      ],
+      "reichweite": "r1",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 270,
+  "dauerMax": 1800,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Unterricht wirkt lebensfern, und gesellschaftliches Engagement bleibt ohne fachliche Reflexion unverbunden.",
+  "durchfuehrung": [
+    "Bedarf im Umfeld erkunden und Praxispartner gewinnen",
+    "Projekt fachlich vorbereiten und planen",
+    "Engagement vor Ort umsetzen",
+    "Erfahrungen fachlich und persönlich reflektieren und öffentlich würdigen"
+  ],
+  "material": [
+    "Projektplan",
+    "Kooperationsabsprache",
+    "Reflexionsleitfaden"
+  ],
+  "raum": "Schule und außerschulischer Einsatzort",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 6,
+  "vorbereitungMin": 180,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Schulinterne Patenschaftsprojekte"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/35-6",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-2"
+  ],
+  "hinweis": "Ohne curriculare Verknüpfung bleibt es bloßes Ehrenamt ohne fachlichen Lernzuwachs.",
+  "qualitaetsrisiko": [
+    "Aktionismus ohne fachliche Vertiefung und Reflexion"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kleine bis mittlere positive Effekte auf Einstellungen, soziale Kompetenzen und Schulleistung (ES ≈ 0,27–0,43)",
+      "quelle": "Celio, Durlak & Dymnicki 2011",
+      "geltung": "Primar bis Hochschule, überwiegend USA; Qualität der Reflexion moderiert stark"
+    }
+  ],
+  "plot": {
+    "x": 0.24,
+    "y": 2.65
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "lerntempo-duett",
+  "name": "Lerntempo-Duett",
+  "kurzbeschreibung": "Lernende bearbeiten Aufgaben zunächst im eigenen Tempo und finden sich, sobald sie fertig sind, paarweise zum Abgleich und zur Vertiefung zusammen.",
+  "alternativname": [
+    "Lerntempoduett",
+    "Speed-Partnerabgleich"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lerntempoduett",
+      "url": "https://de.wikipedia.org/wiki/Lerntempoduett",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Lerntempoduett",
+      "url": "https://unterrichten.zum.de/wiki/Lerntempoduett",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "einzeltempo",
+      "name": "Individuelle Bearbeitungsphase"
+    },
+    {
+      "kennung": "signal",
+      "name": "Klares Zeichen für Bereitschaft (Aufstehen / Handzeichen)"
+    },
+    {
+      "kennung": "zusatzaufgabe",
+      "name": "Vertiefungsauftrag für schnelle Tandems"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Unterschiedliches Arbeitstempo erzeugt Leerlauf bei schnellen und Zeitdruck bei langsameren Lernenden.",
+  "durchfuehrung": [
+    "Aufgabe und optionalen Zusatzauftrag ausgeben",
+    "Jede Person arbeitet im eigenen Tempo",
+    "Wer fertig ist, gibt ein Zeichen und bildet ein Tandem mit der nächsten freien Person",
+    "Ergebnisse vergleichen, Differenzen klären und ggf. Vertiefungsaufgabe bearbeiten"
+  ],
+  "material": [
+    "Aufgabenblatt mit Vertiefungsteil"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 36,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit Musterlösung zur Selbstkontrolle nach dem Partnerabgleich"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/28-1"
+  ],
+  "hinweis": "Funktioniert besonders gut für Übungs- und Textanalysephasen.",
+  "qualitaetsrisiko": [
+    "Unruhe beim Partnerfinden ohne klare Raumregeln"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Verbreitete Methode des kooperativen Lernens im deutschsprachigen Raum (Brüning & Saum)",
+      "quelle": "Brüning & Saum 2009",
+      "geltung": "Praxisliteratur Sekundarstufe, keine isolierte Wirksamkeitsstudie"
+    }
+  ],
+  "plot": {
+    "x": 0.6,
+    "y": 2.5
+  }
+}

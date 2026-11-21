@@ -1,0 +1,150 @@
+{
+  "status": "entwurf",
+  "kennung": "verschachteltes-ueben",
+  "name": "Verschachteltes Üben (Interleaving)",
+  "kurzbeschreibung": "Verschiedene verwandte Aufgabentypen oder Verfahren werden bewusst gemischt statt blockweise geübt, sodass Lernende jeweils erst die passende Strategie erkennen müssen.",
+  "alternativname": [
+    "Interleaving",
+    "Gemischtes Üben",
+    "Interleaved Practice"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Interleaving (Lernmethode)",
+      "url": "https://de.wikipedia.org/wiki/Interleaving_(Lernmethode)",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Brunmair & Richter (2019); Rohrer et al. (2020)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "verschachtelt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "mischung",
+      "name": "Bewusste Durchmischung verwechselbarer Aufgabentypen"
+    },
+    {
+      "kennung": "strategieauswahl",
+      "name": "Kein Hinweis im Titel, welches Verfahren gilt"
+    },
+    {
+      "kennung": "rueckmeldung",
+      "name": "Klärung der Unterscheidungsmerkmale"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 40,
+  "problem": "Beim geblockten Üben erkennen Lernende das Verfahren nur an der Überschrift und scheitern in gemischten Klassenarbeiten.",
+  "durchfuehrung": [
+    "Grundverfahren zuvor jeweils einzeln einführen",
+    "Gemischtes Aufgabenblatt ohne Kapitelüberschriften bearbeiten lassen",
+    "Vor dem Rechnen/Lösen jeweils die Verfahrenswahl begründen",
+    "Verwechslungsfehler gezielt besprechen"
+  ],
+  "material": [
+    "Gemischte Übungsaufgaben mit Lösungsweg"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 25,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Gemischte Wochen-Rückblicksaufgaben"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/37-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-2"
+  ],
+  "hinweis": "Fühlt sich für Lernende zunächst anstrengender an („desirable difficulty“), steigert aber die spätere Unterscheidungsfähigkeit.",
+  "qualitaetsrisiko": [
+    "Zu früher Einsatz, bevor die Einzelverfahren überhaupt verstanden sind"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Positiver Gesamteffekt (g ≈ 0,42), besonders deutlich in Mathematik und bei visuell unterscheidbaren Kategorien",
+      "quelle": "Brunmair & Richter 2019; Rohrer et al. 2020",
+      "geltung": "Schule und Hochschule, international; Effekt variiert je nach Fachdomäne",
+      "umstritten": "Für Vokabeln und stark unähnliche Aufgaben deutlich schwächer"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 2
+  }
+}

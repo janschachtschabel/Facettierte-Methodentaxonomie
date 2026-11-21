@@ -1,0 +1,171 @@
+{
+  "status": "entwurf",
+  "kennung": "exkursion",
+  "name": "Exkursion (Außerschulischer Lernort)",
+  "kurzbeschreibung": "Geplante Erkundung eines realen außerschulischen Lernorts (Museum, Betrieb, Ökosystem, Gedenkstätte) mit gezielter Vorbereitung, Forschungsauftrag vor Ort und Auswertung.",
+  "alternativname": [
+    "Unterrichtsgang",
+    "Erkundung",
+    "Feldstudie",
+    "Außerschulischer Lernort"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "spiel-simulation",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Exkursion",
+      "url": "https://de.wikipedia.org/wiki/Exkursion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Außerschulischer Lernort",
+      "url": "https://de.wikipedia.org/wiki/Au%25C3%259Ferschulischer_Lernort",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "erwerb",
+    "anwendung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "udl"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorbereitung",
+      "name": "Inhaltliche Vorbereitung und Erkundungsfragen vorab"
+    },
+    {
+      "kennung": "auftrag",
+      "name": "Aktiver Beobachtungs-, Interview- oder Messauftrag vor Ort"
+    },
+    {
+      "kennung": "nachbereitung",
+      "name": "Systematische Auswertung und Sicherung im Unterricht"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "nachbereitung",
+      "name": "Auswertung & Sicherung",
+      "lernfunktion": [
+        "verstehen",
+        "metakognition"
+      ],
+      "reichweite": "r2",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 120,
+  "dauerMax": 480,
+  "problem": "Originale Objekte, Ökosysteme oder reale Arbeits- und Gesellschaftsorte lassen sich im Klassenzimmer nur unzureichend abbilden.",
+  "durchfuehrung": [
+    "Vorwissen aktivieren und konkrete Erkundungsfragen/Aufträge vorbereiten",
+    "Am Lernort in Teams beobachten, messen, dokumentieren oder Experten befragen",
+    "Ergebnisse im Unterricht zusammenführen, fachlich einordnen und reflektieren"
+  ],
+  "material": [
+    "Erkundungsbogen/Klemmbrett",
+    "Kamera oder Messgerät nach Bedarf"
+  ],
+  "raum": "Außerschulischer Lernort (Museum, Betrieb, Natur, Archiv)",
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 120,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Expertenbefragung vor Ort",
+    "Digitale Rallye (z. B. Actionbound)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/42-14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/36-4"
+  ],
+  "hinweis": "Ohne Vor- und Nachbereitung verpufft der Lerneffekt leicht im bloßen Ausflugserlebnis.",
+  "qualitaetsrisiko": [
+    "Passives Hinterherlaufen bei einer Führung ohne eigenen Auftrag"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Überblicksarbeiten zeigen positive Effekte auf Interesse und Verstehen, wenn Vor- und Nachbereitung systematisch eingebunden sind",
+      "quelle": "DeWitt & Storksdieck 2008",
+      "geltung": "Schule (Primar und Sek), überwiegend Naturwissenschaften/Museen"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.1
+  }
+}

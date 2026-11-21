@@ -1,0 +1,150 @@
+{
+  "status": "entwurf",
+  "kennung": "strukturlegetechnik",
+  "name": "Strukturlegetechnik",
+  "kurzbeschreibung": "Lernende legen vorgegebene Begriffs- und Pfeilkarten auf dem Tisch zu einem fachlichen Wirkungs- oder Begriffsgefüge zusammen und begründen ihre Anordnung.",
+  "alternativname": [
+    "Strukturlegen",
+    "Begriffe legen",
+    "SLT"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Strukturlegetechnik",
+      "url": "https://de.wikipedia.org/wiki/Strukturlegetechnik",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Strukturlegetechnik",
+      "url": "https://unterrichten.zum.de/wiki/Strukturlegetechnik",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "karten",
+      "name": "Bewegliche Begriffs- und Relationskarten"
+    },
+    {
+      "kennung": "aushandlung",
+      "name": "Begründetes Aushandeln der Anordnung im Team"
+    },
+    {
+      "kennung": "sicherung",
+      "name": "Festhalten und Vergleichen der gelegten Struktur"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Beim freien Zeichnen scheuen Lernende Korrekturen, während bewegliche Karten zum probeweisen Umordnen einladen.",
+  "durchfuehrung": [
+    "Kartenset (Begriffe + Relationspfeile wie „führt zu“, „ist Teil von“) austeilen",
+    "Im Tandem oder Kleinteam Anordnung legen, diskutieren und umbauen",
+    "Lösungen im Museumsgang oder mit Vorlage vergleichen und abfotografieren/übertragen"
+  ],
+  "material": [
+    "Zugeschnittene Begriffs- und Relationskarten je Gruppe"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 36,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit leeren Blankokarten für eigene Ergänzungen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/41-8",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-3"
+  ],
+  "hinweis": "Macht Fehlvorstellungen unmittelbar auf dem Tisch sichtbar.",
+  "qualitaetsrisiko": [
+    "Zu viele Karten (> 20) überfordern den Arbeitsplatz und das Arbeitsgedächtnis"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Entwickelt in der psychologischen Wissensdiagnostik (Scheele & Groeben); stützt aktive Relationsbildung",
+      "quelle": "Scheele & Groeben 1988; Wahl 2013",
+      "geltung": "Schule und Hochschule, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.58,
+    "y": 2.6
+  }
+}

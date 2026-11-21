@@ -127,5 +127,9 @@
       "quelle": "Schwartz, Chase, Oppezzo & Chin 2011",
       "geltung": "Klasse 8, USA"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.16,
+    "y": 2.55
+  }
 }

@@ -1,0 +1,147 @@
+{
+  "status": "entwurf",
+  "kennung": "laufdiktat",
+  "name": "Laufdiktat (Schleichdiktat)",
+  "kurzbeschreibung": "Lernende gehen zu im Raum ausgehängten Textabschnitten, merken sich kurze Sinnabschnitte, kehren zum Platz zurück, schreiben sie aus dem Gedächtnis auf und kontrollieren selbst.",
+  "alternativname": [
+    "Schleichdiktat",
+    "Wanddiktat",
+    "Partner-Laufdiktat"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Laufdiktat",
+      "url": "https://de.wikipedia.org/wiki/Laufdiktat",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Laufdiktat",
+      "url": "https://unterrichten.zum.de/wiki/Laufdiktat",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "psychomotorik",
+    "afb1"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abstand",
+      "name": "Räumliche Trennung von Vorlage und Schreibplatz"
+    },
+    {
+      "kennung": "merken",
+      "name": "Einprägen ganzer Wörter/Sinnabschnitte"
+    },
+    {
+      "kennung": "kontrolle",
+      "name": "Abschließende genaue Selbstkontrolle am Original"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Rechtschreib- und Fremdsprachenübungen im Sitzen sind eintönig und berücksichtigen unterschiedliche Merkspannen kaum.",
+  "durchfuehrung": [
+    "Textvorlagen gut verteilt im Raum oder Flur aufhängen",
+    "Lernende erlesen einen Abschnitt, gehen zum Platz und schreiben ihn aus dem Gedächtnis auf",
+    "Vorgang wiederholen bis der Text vollständig ist",
+    "Mit dem Originaltext genau vergleichen und Fehler gezielt berichtigen"
+  ],
+  "material": [
+    "Ausgehängte Textvorlagen (ggf. in 2–3 Niveaus)",
+    "Heft"
+  ],
+  "raum": "Klassenraum mit Laufwegen",
+  "gruppeMin": 4,
+  "gruppeMax": 32,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Partner-Laufdiktat (eine Person läuft und diktiert, die andere schreibt)"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-3"
+  ],
+  "hinweis": "Sehr beliebt in Primarstufe, Sek I und DaZ/Fremdsprachen.",
+  "qualitaetsrisiko": [
+    "Hektisches Rennen oder Buchstabe-für-Buchstabe-Laufen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Übungsmethode der Sprach- und Grundschuldidaktik; keine isolierte Meta-Analyse",
+      "quelle": "Mattes 2011; Grundschuldidaktik",
+      "geltung": "Primarstufe, Sek I, Fremdsprachen/DaZ, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 1.3
+  }
+}

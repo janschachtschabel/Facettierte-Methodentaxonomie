@@ -1,0 +1,170 @@
+{
+  "status": "entwurf",
+  "kennung": "freiarbeit",
+  "name": "Freiarbeit (offene Arbeitsphase)",
+  "kurzbeschreibung": "Lernende wählen innerhalb einer vorbereiteten Lernumgebung Thema, Material, Tempo und Sozialform weitgehend selbstbestimmt.",
+  "alternativname": [
+    "Freie Arbeit",
+    "Montessori-Freiarbeit"
+  ],
+  "piktogramm": "stationen",
+  "ansatz": [
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Freiarbeit",
+      "url": "https://de.wikipedia.org/wiki/Freiarbeit",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Peschel (2002): Offener Unterricht",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-prozess",
+    "diff-tempo",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "umgebung",
+      "name": "Vorbereitete Lernumgebung mit Selbstkontrollmaterial"
+    },
+    {
+      "kennung": "wahlfreiheit",
+      "name": "Echte Entscheidungsräume bei Thema/Tempo"
+    },
+    {
+      "kennung": "dokumentation",
+      "name": "Arbeitsdokumentation und Reflexion"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "sicherung",
+      "name": "Reflexion & Sicherung",
+      "lernfunktion": [
+        "metakognition",
+        "konsolidierung"
+      ],
+      "reichweite": "r1",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 360,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Interessen, Vorwissen und Lernwege einer Lerngruppe gehen so weit auseinander, dass Gleichschritt nicht trägt.",
+  "durchfuehrung": [
+    "Vorhaben kurz planen und dokumentieren",
+    "Eigenständig an gewähltem Material oder Projekt arbeiten",
+    "Lehrkraft beobachtet und berät punktuell",
+    "Arbeitsergebnisse präsentieren und Lernprozess auswerten"
+  ],
+  "material": [
+    "Vorbereitete Materialien mit Fehlerkontrolle",
+    "Arbeitsplan/Logbuch"
+  ],
+  "raum": "Vorbereiteter Klassenraum mit Materialregalen",
+  "gruppeMin": 5,
+  "gruppeMax": 30,
+  "vorbereitungMin": 120,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Gebundene Freiarbeit mit Rahmenvorgaben"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/113-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/311-6"
+  ],
+  "hinweis": "Braucht gezielte Sicherung und Beratung (Regel R-05), damit Leistungsschwächere nicht abgehängt werden.",
+  "qualitaetsrisiko": [
+    "Scheinaktivität ohne tiefere kognitive Verarbeitung",
+    "Schereneffekt bei schwacher Selbstregulation"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Befunde zu offenem Unterricht sind stark heterogen; Strukturierung und Qualität der Begleitung entscheiden",
+      "quelle": "Lipowsky 2002; Alfieri et al. 2011",
+      "geltung": "Primar- und Sekundarstufe; unstrukturierte Offenheit bei geringem Vorwissen riskant"
+    }
+  ],
+  "plot": {
+    "x": 0.14,
+    "y": 1.35
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "status": "entwurf",
+  "kennung": "zukunftswerkstatt",
+  "name": "Zukunftswerkstatt (nach Jungk)",
+  "kurzbeschreibung": "Partizipatives Großformat in drei klar getrennten Phasen: Kritikphase (Probleme sammeln), Fantasiephase (Utopien entwerfen) und Verwirklichungsphase (konkrete Projekte planen).",
+  "alternativname": [
+    "Zukunftswerkstatt",
+    "Future Workshop"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "spiel-simulation",
+    "kreativ",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Zukunftswerkstatt",
+      "url": "https://de.wikipedia.org/wiki/Zukunftswerkstatt",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Zukunftswerkstatt",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kritik",
+      "name": "Kritikphase: Missstände offen sammeln"
+    },
+    {
+      "kennung": "fantasie",
+      "name": "Fantasiephase: Lösungsutopien ohne Sachzwang"
+    },
+    {
+      "kennung": "verwirklichung",
+      "name": "Verwirklichungsphase: Realitätsprüfung und Aktionsplan"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "ideen",
+      "name": "Fantasie-Impuls",
+      "lernfunktion": [
+        "orientierung",
+        "problemloesen"
+      ],
+      "reichweite": "r1",
+      "pflicht": false
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 600,
+  "problem": "Gesellschaftliche oder schulische Zukunftsfragen erzeugen Ohnmachtsgefühle, wenn Kritik nicht in eigene Handlungsideen mündet.",
+  "durchfuehrung": [
+    "Vorbereitung und Themenklärung",
+    "1. Kritikphase: Ärger und Probleme sammeln und gewichten",
+    "2. Fantasiephase: Wunschbilder ohne „Ja, aber“ entwerfen",
+    "3. Verwirklichungsphase: realistische nächste Schritte und Projektpläne ausarbeiten"
+  ],
+  "material": [
+    "Moderationswand, Karten, Plakate, Klebepunkte"
+  ],
+  "raum": "Großer Raum mit Wandflächen",
+  "gruppeMin": 10,
+  "gruppeMax": 40,
+  "teamMin": 4,
+  "teamMax": 6,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kompakte Halbtags-Zukunftswerkstatt für Schulentwicklung / BNE"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-2"
+  ],
+  "hinweis": "Strenge Trennung der drei Phasen schützt die Fantasiephase vor vorschnellem Abwerten.",
+  "qualitaetsrisiko": [
+    "Verwirklichungsphase bleibt unverbindlich ohne reale Umsetzungsoption"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Partizipationsmethode nach Robert Jungk und Norbert Müllert; vorwiegend Praxis- und Evaluationsberichte",
+      "quelle": "Jungk & Müllert 1981; bpb Methodenkoffer",
+      "geltung": "Sekundarstufe, Jugend- und Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.22,
+    "y": 2.7
+  }
+}

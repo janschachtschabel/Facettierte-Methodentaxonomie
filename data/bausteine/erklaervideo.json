@@ -1,0 +1,143 @@
+{
+  "status": "entwurf",
+  "kennung": "erklaervideo",
+  "name": "Erklärvideo mit Leitfragen",
+  "kurzbeschreibung": "Kurzes, selbstgesteuert pausierbares Erklärvideo gekoppelt mit aktiven Beobachtungs- oder Verständnisaufgaben.",
+  "alternativname": [
+    "Lernvideo",
+    "Videogestützter Input",
+    "Instructional Video"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Erklärvideo",
+      "url": "https://de.wikipedia.org/wiki/Erkl%25C3%25A4rvideo",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Mayer (2021): Multimedia Learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "system",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "segmentierung",
+      "name": "Kurzes Video (max. 6–8 min) oder Stopppunkte"
+    },
+    {
+      "kennung": "leitfragen",
+      "name": "Verbindliche Leitfragen oder eingebettete Fragen"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Lernende benötigen Erklärungen in unterschiedlichem Tempo und mit Wiederholungsmöglichkeit.",
+  "durchfuehrung": [
+    "Leitfragen vor dem Ansehen klären",
+    "Video individuell oder im Tandem ansehen, pausieren und notieren",
+    "Verständnisfragen beantworten und offene Punkte im Plenum klären"
+  ],
+  "material": [
+    "Kurzes Erklärvideo",
+    "Leitfragenbogen oder interaktives H5P-Video"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 25,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "Interaktives H5P-Video mit Stopp-Fragen",
+    "Gemeinsame Sichtung per Beamer mit Stopppunkten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-1"
+  ],
+  "hinweis": "Ohne Leitfragen droht passives Konsumieren und Verstehensillusion.",
+  "qualitaetsrisiko": [
+    "Passives Durchlaufenlassen ohne eigene Verarbeitung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Videos mit aktiven Aufgaben und Segmentierung schneiden besser ab als unkommentiertes Ansehen",
+      "quelle": "Noetel et al. 2021",
+      "geltung": "Hochschule, international; Übertragung auf jüngere Schüler zu prüfen"
+    }
+  ],
+  "plot": {
+    "x": 0.84,
+    "y": 1.4
+  }
+}

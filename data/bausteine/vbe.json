@@ -136,5 +136,9 @@
       "quelle": "White & Gunstone 1992",
       "geltung": "Naturwissenschaften, Schule; keine Synthese"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.2
+  }
 }

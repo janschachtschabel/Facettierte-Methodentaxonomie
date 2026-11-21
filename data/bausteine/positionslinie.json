@@ -1,0 +1,142 @@
+{
+  "status": "entwurf",
+  "kennung": "positionslinie",
+  "name": "Positionslinie (Meinungsbarometer)",
+  "kurzbeschreibung": "Lernende ordnen sich entlang einer gedachten Linie zwischen zwei Polen („stimme voll zu“ – „lehne völlig ab“) ein und erläutern ihren Standpunkt im Gespräch.",
+  "alternativname": [
+    "Meinungslinie",
+    "Meinungsbarometer",
+    "Standortbestimmung im Raum"
+  ],
+  "piktogramm": "debatte",
+  "ansatz": [
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Positionslinie",
+      "url": "https://de.wikipedia.org/wiki/Positionslinie",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "bpb Methodenkoffer: Positionslinie",
+      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "quelltyp": "institution"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "problem-erschlossen"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "pole",
+      "name": "Klare, zugespitzte These mit zwei Polen"
+    },
+    {
+      "kennung": "begruendung",
+      "name": "Aufrufen verschiedener Positionen inkl. der Mitte"
+    },
+    {
+      "kennung": "faltung",
+      "name": "Optional: Falten der Linie zum Zweiergespräch der Gegenpole"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Vor einer Vertiefung soll das Meinungsspektrum abgestuft und ohne bloßes Schwarz-Weiß sichtbar werden.",
+  "durchfuehrung": [
+    "Zwei Pole im Raum markieren und These vorlesen",
+    "Alle stellen sich schweigend entsprechend ihrer Zustimmung auf der Linie auf",
+    "Einzelne Stimmen von den Polen und aus der Mitte befragen",
+    "Optional Linie falten, sodass Gegenpole kurz miteinander sprechen"
+  ],
+  "material": [
+    "Zwei Pol-Karten oder Kreppband"
+  ],
+  "raum": "Freie Linie im Raum",
+  "gruppeMin": 6,
+  "gruppeMax": 40,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Wiederholung am Ende der Stunde zur Sichtbarmachung von Meinungsänderungen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Das Falten der Linie bringt gegensätzliche Positionen direkt ins ruhige Zweiergespräch.",
+  "qualitaetsrisiko": [
+    "Unreflektiertes Ausweichen in die unverbindliche Mitte"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Standardmethode der politischen Bildung und Wertebildung",
+      "quelle": "bpb Methodenkoffer; Mattes 2011",
+      "geltung": "Sekundarstufe und Erwachsenenbildung, DACH"
+    }
+  ],
+  "plot": {
+    "x": 0.65,
+    "y": 2.2
+  }
+}
