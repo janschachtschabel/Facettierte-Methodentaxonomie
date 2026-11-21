@@ -5,7 +5,6 @@ import type {
   ArrangementNode,
   Baustein,
   CatalogBundle,
-  EinsatzNode,
   FmtSearch,
   ReplacementCandidate,
   WiederkehrNode
@@ -14,6 +13,7 @@ import { MethodPictogram } from './MethodPictogram.js';
 import { ProfileRadarSvg } from './ProfileRadarSvg.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
 import {
+  appendBlockToArrangement,
   getMainSequence,
   moveStep,
   removeStep,
@@ -72,30 +72,30 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
     setSwapTarget(null);
   };
 
-  const mainSteps = seq.teile.filter((t) => t.typ !== 'Wiederkehr');
-  const wkNode = seq.teile.find((t): t is WiederkehrNode => t.typ === 'Wiederkehr') || null;
-  const parBlockId =
-    arrangement.ablauf.typ === 'Parallel' && arrangement.ablauf.begleitend[0]?.typ === 'Einsatz'
-      ? arrangement.ablauf.begleitend[0].baustein
-      : '';
-  const parDuration =
-    arrangement.ablauf.typ === 'Parallel' && arrangement.ablauf.begleitend[0]?.typ === 'Einsatz'
-      ? arrangement.ablauf.begleitend[0].dauerMin ?? 20
-      : 20;
+  const mainSteps = seq.teile.filter((t) => t && t.typ !== 'Wiederkehr');
+  const wkNode = seq.teile.find((t): t is WiederkehrNode => Boolean(t) && t.typ === 'Wiederkehr') || null;
+  const parBegleitend =
+    arrangement.ablauf?.typ === 'Parallel' && Array.isArray(arrangement.ablauf.begleitend)
+      ? arrangement.ablauf.begleitend
+      : [];
+  const parBlockId = parBegleitend[0]?.typ === 'Einsatz' ? parBegleitend[0].baustein : '';
+  const parDuration = parBegleitend[0]?.typ === 'Einsatz' ? parBegleitend[0].dauerMin ?? 20 : 20;
 
   const stepIndexOf = (node: ArrangementNode) => seq.teile.indexOf(node);
 
-  const statesOfNode = (node: ArrangementNode): string[] => {
+  const statesOfNode = (node: ArrangementNode | undefined): string[] => {
+    if (!node || typeof node !== 'object') return [];
     if (node.typ === 'Einsatz') {
       const b = blocksById.get(node.baustein);
       if (!b) return [];
       if (b.komposit) {
-        return (node.belegung || []).flatMap((bel) => statesOfNode(bel.inhalt));
+        return (Array.isArray(node.belegung) ? node.belegung : []).flatMap((bel) => statesOfNode(bel?.inhalt));
       }
       return b.nachbedingung || [];
     }
     if (node.typ === 'Alternative') {
-      const sets = node.optionen.map((o) => new Set(statesOfNode(o)));
+      const opts = Array.isArray(node.optionen) ? node.optionen : [];
+      const sets = opts.map((o) => new Set(statesOfNode(o)));
       if (!sets.length) return [];
       return [...sets[0]].filter((z) => sets.every((s) => s.has(z)));
     }
@@ -197,7 +197,10 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
                         type="button"
                         className="btn btn-sm"
                         disabled={visIdx === 0}
-                        onClick={() => onChange(moveStep(arrangement, realIdx, realIdx - 1))}
+                        onClick={() => {
+                          const prevNode = mainSteps[visIdx - 1];
+                          if (prevNode) onChange(moveStep(arrangement, realIdx, stepIndexOf(prevNode)));
+                        }}
                         aria-label="Nach oben"
                       >
                         ↑
@@ -206,7 +209,10 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
                         type="button"
                         className="btn btn-sm"
                         disabled={visIdx === mainSteps.length - 1}
-                        onClick={() => onChange(moveStep(arrangement, realIdx, realIdx + 1))}
+                        onClick={() => {
+                          const nextNode = mainSteps[visIdx + 1];
+                          if (nextNode) onChange(moveStep(arrangement, realIdx, stepIndexOf(nextNode)));
+                        }}
                         aria-label="Nach unten"
                       >
                         ↓
@@ -331,8 +337,8 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
                   </div>
                 </div>
                 <div className="alt-branches">
-                  {node.optionen.map((opt, oi) => {
-                    const optId = opt.typ === 'Einsatz' ? opt.baustein : '';
+                  {(Array.isArray(node.optionen) ? node.optionen : []).map((opt, oi) => {
+                    const optId = opt?.typ === 'Einsatz' ? opt.baustein : '';
                     return (
                       <div key={oi} className="alt-branch">
                         <div style={{ fontFamily: 'var(--display)', fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
@@ -360,9 +366,19 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
             )}
 
             {node.typ === 'Verweis' && (
-              <article className="step-card">
-                <strong style={{ fontFamily: 'var(--display)' }}>↗ Verweis auf eingebundenes Arrangement:</strong>{' '}
-                <code>{node.arrangement}</code>
+              <article className="step-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                <div>
+                  <strong style={{ fontFamily: 'var(--display)' }}>↗ Verweis auf eingebundenes Arrangement:</strong>{' '}
+                  <code>{node.arrangement}</code>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={() => onChange(removeStep(arrangement, realIdx))}
+                  aria-label="Verweis entfernen"
+                >
+                  ✕
+                </button>
               </article>
             )}
 
@@ -390,37 +406,13 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
             + Schritt anfügen (Sequenz)
           </div>
           <select
+            aria-label="Schritt anfügen"
             style={{ width: '100%' }}
             defaultValue=""
             onChange={(e) => {
               const picked = blocksById.get(e.target.value);
               if (picked) {
-                onChange(
-                  {
-                    ...arrangement,
-                    ablauf:
-                      arrangement.ablauf.typ === 'Parallel'
-                        ? {
-                            ...arrangement.ablauf,
-                            haupt: {
-                              typ: 'Sequenz',
-                              teile: [
-                                ...(arrangement.ablauf.haupt.typ === 'Sequenz'
-                                  ? arrangement.ablauf.haupt.teile
-                                  : [arrangement.ablauf.haupt]),
-                                { typ: 'Einsatz', baustein: picked.kennung, dauerMin: picked.dauerMin } as EinsatzNode
-                              ]
-                            }
-                          }
-                        : {
-                            typ: 'Sequenz',
-                            teile: [
-                              ...(arrangement.ablauf.typ === 'Sequenz' ? arrangement.ablauf.teile : [arrangement.ablauf]),
-                              { typ: 'Einsatz', baustein: picked.kennung, dauerMin: picked.dauerMin } as EinsatzNode
-                            ]
-                          }
-                  }
-                );
+                onChange(appendBlockToArrangement(arrangement, picked));
                 e.target.value = '';
               }
             }}

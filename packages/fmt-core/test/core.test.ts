@@ -165,6 +165,11 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     expect(ids({ ansatz: 'kooperativ' })).toContain('gruppenpuzzle');
     expect(ids({ status: 'kuratiert' }).length).toBeGreaterThanOrEqual(22);
     expect(ids({ ohneKI: true })).not.toContain('ki-tutor');
+    expect(ids({ ohneKI: true })).not.toContain('ki-chat');
+    expect(ids({ ohneKI: true })).toContain('abrufquiz');
+    expect(ids({ ohneKI: true })).toContain('loesungsbeispiele');
+    expect(ids({ ohneKI: true })).toContain('projektmethode');
+    expect(ids({ ohneKI: true })).toContain('lerntagebuch');
     expect(ids({ maxTechnik: 't-keine' })).not.toContain('ki-tutor');
     expect(ids({ text: 'Einstieg' }).every((id) => D.bausteine.find((b) => b.kennung === id)!.lernfunktion.includes('orientierung'))).toBe(true);
 
@@ -206,5 +211,42 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     }
 
     expect(() => M.zuordnen({ bildungsstufe: 'klasse7' })).toThrow(/unbekannter Wert/);
+
+    const ohneKiMatch = M.zuordnen({ text: 'Sicherung ohne KI, 10 Minuten' });
+    expect(ohneKiMatch.modus).toBe('phase');
+    if (ohneKiMatch.modus === 'phase') {
+      expect(ohneKiMatch.vorschlaege.some((v) => v.baustein === 'abrufquiz')).toBe(true);
+      expect(ohneKiMatch.vorschlaege.some((v) => v.baustein === 'ki-tutor')).toBe(false);
+    }
+  });
+
+  it('safely handles malformed non-array fields and Verweis cycles without @id', () => {
+    const badSeq = {
+      typ: 'Arrangement',
+      name: 'Defekte Sequenz',
+      reichweite: 'r3',
+      ablauf: { typ: 'Sequenz', teile: 'not-array' }
+    } as unknown as Arrangement;
+    const res1 = V.validate(badSeq);
+    expect(res1.gueltig).toBe(false);
+    expect(res1.meldungen.some((m) => m.regel === 'R-00' && m.schwere === 'Fehler')).toBe(true);
+
+    // Cycle where neither root nor referenced arrangement has @id matching registry key
+    const cycRef: Arrangement = {
+      typ: 'Arrangement',
+      name: 'Ohne ID Zyklus',
+      reichweite: 'r2',
+      ablauf: { typ: 'Verweis', arrangement: 'urn:cyc-no-id' }
+    };
+    const rootNoId: Arrangement = {
+      typ: 'Arrangement',
+      name: 'Root ohne ID',
+      reichweite: 'r3',
+      ablauf: { typ: 'Verweis', arrangement: 'urn:cyc-no-id' }
+    };
+    const cycReg = new Map<string, Arrangement>([['urn:cyc-no-id', cycRef]]);
+    const res2 = V.validate(rootNoId, cycReg);
+    expect(res2.gueltig).toBe(false);
+    expect(res2.meldungen.some((m) => m.regel === 'R-12' && m.schwere === 'Fehler')).toBe(true);
   });
 });

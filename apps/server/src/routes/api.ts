@@ -134,7 +134,11 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!body || typeof body !== 'object' || Array.isArray(body) || body.typ !== 'Arrangement') {
       return reply.code(400).send({ fehler: 'Erwartet wird ein FMT-Arrangement-Objekt mit typ: "Arrangement".' });
     }
-    return store.validator.validate(body, store.exampleRegistry);
+    try {
+      return store.validator.validate(body, store.exampleRegistry);
+    } catch (e) {
+      return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiges Arrangement.' });
+    }
   });
 
   app.post('/api/v1/replacements', async (req, reply) => {

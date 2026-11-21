@@ -17,18 +17,66 @@ export interface ServerMeta {
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
+const REQUIRED_SCHEMES = ['reichweite', 'lernzustand', 'technikbedarf', 'lernfunktion', 'ansatz'];
+
 function isValidBundle(obj: unknown): obj is CatalogBundle {
-  if (!obj || typeof obj !== 'object') return false;
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
   const b = obj as Partial<CatalogBundle>;
-  return (
-    typeof b.versionHash === 'string' &&
-    b.versionHash.length > 0 &&
-    Array.isArray(b.bausteine) &&
-    b.bausteine.length > 0 &&
-    Array.isArray(b.schemes) &&
-    Array.isArray(b.facetten) &&
-    Array.isArray(b.ketten)
+  if (
+    typeof b.version !== 'string' ||
+    !b.version.length ||
+    typeof b.versionHash !== 'string' ||
+    !b.versionHash.length ||
+    !Array.isArray(b.bausteine) ||
+    b.bausteine.length === 0 ||
+    !Array.isArray(b.schemes) ||
+    !Array.isArray(b.facetten) ||
+    b.facetten.length === 0 ||
+    !Array.isArray(b.ketten) ||
+    b.ketten.length === 0 ||
+    !Array.isArray(b.beispiele)
+  ) {
+    return false;
+  }
+  const schemeMap = new Map(
+    b.schemes
+      .filter((s) => s && typeof s === 'object' && typeof s.id === 'string')
+      .map((s) => [s.id, s])
   );
+  for (const id of REQUIRED_SCHEMES) {
+    const s = schemeMap.get(id);
+    if (!s) return false;
+    const vals = Array.isArray(s.werte) ? s.werte : Array.isArray(s.gruppen) ? s.gruppen.flatMap((g) => g?.werte || []) : [];
+    if (!vals.length) return false;
+  }
+  return b.bausteine.every(
+    (m) =>
+      m &&
+      typeof m === 'object' &&
+      typeof m.kennung === 'string' &&
+      m.kennung.length > 0 &&
+      typeof m.name === 'string' &&
+      typeof m.reichweite === 'string' &&
+      Array.isArray(m.lernfunktion) &&
+      Array.isArray(m.evidenz)
+  );
+}
+
+const MEMORY_STORAGE: StorageLike = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {}
+};
+
+export function getSafeLocalStorage(): StorageLike {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage;
+    }
+  } catch {
+    // Privacy mode / restricted iframe SecurityError
+  }
+  return MEMORY_STORAGE;
 }
 
 export function readCachedBundle(storage: StorageLike): CatalogBundle | null {
@@ -68,7 +116,7 @@ export interface LoadCatalogResult {
 
 export async function loadCatalogWithCache(
   fetcher: FetchLike = (url, init) => fetch(url, init),
-  storage: StorageLike = window.localStorage,
+  storage: StorageLike = getSafeLocalStorage(),
   onUpdated?: (fresh: CatalogBundle, meta: ServerMeta) => void
 ): Promise<LoadCatalogResult> {
   const cached = readCachedBundle(storage);

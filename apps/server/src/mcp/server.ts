@@ -159,8 +159,12 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
       arrangement: z.record(z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
     },
     async ({ arrangement }) => {
-      const res = store.validator.validate(arrangement as unknown as Arrangement, store.exampleRegistry);
-      return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+      try {
+        const res = store.validator.validate(arrangement as unknown as Arrangement, store.exampleRegistry);
+        return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+      } catch (e) {
+        return textResult({ fehler: e instanceof Error ? e.message : 'Ungültiges Arrangement.' });
+      }
     }
   );
 

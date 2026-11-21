@@ -19,14 +19,13 @@ const fold = (s: string) =>
     .replace(/ß/g, 'ss');
 
 const AI_ROLES = new Set([
-  'werkzeug',
   'tutor',
-  'feedbackgeber',
   'dialogpartner',
   'simulationsrolle',
   'belehrbarer-agent',
   'antwortgeber'
 ]);
+const usesAi = (b: Baustein) => Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
 
 export function locate(arr: Arrangement, pfad: string): { holder: Record<string, unknown>; key: string | number } {
   const segs = pfad.split('/').filter(Boolean);
@@ -132,7 +131,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
         const g = bestGrade(b);
         if (!g || GRADE_ORDER.indexOf(g) > minIdx) return false;
       }
-      if (k.ohneKI && (b.rolle || []).some((r) => AI_ROLES.has(r))) return false;
+      if (k.ohneKI && usesAi(b)) return false;
       return true;
     });
 

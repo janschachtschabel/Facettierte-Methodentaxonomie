@@ -17,23 +17,51 @@ const defaultDuration = (b: Baustein) =>
   Math.max(b.dauerMin, Math.min(b.dauerMax, Math.round((b.dauerMin + b.dauerMax) / 2 / 5) * 5));
 
 export function getMainSequence(arr: Arrangement): { seq: SequenzNode; prefix: string } {
-  if (arr.ablauf.typ === 'Parallel') {
-    if (arr.ablauf.haupt.typ === 'Sequenz') return { seq: arr.ablauf.haupt, prefix: '/ablauf/haupt' };
-    return { seq: { typ: 'Sequenz', teile: [arr.ablauf.haupt] }, prefix: '/ablauf/haupt' };
+  if (!arr?.ablauf || typeof arr.ablauf !== 'object' || Array.isArray(arr.ablauf)) {
+    return { seq: { typ: 'Sequenz', teile: [] }, prefix: '/ablauf' };
   }
-  if (arr.ablauf.typ === 'Sequenz') return { seq: arr.ablauf, prefix: '/ablauf' };
+  if (arr.ablauf.typ === 'Parallel') {
+    const haupt = arr.ablauf.haupt;
+    if (!haupt || typeof haupt !== 'object') {
+      return { seq: { typ: 'Sequenz', teile: [] }, prefix: '/ablauf/haupt' };
+    }
+    if (haupt.typ === 'Sequenz') {
+      return {
+        seq: { typ: 'Sequenz', teile: Array.isArray(haupt.teile) ? haupt.teile : [] },
+        prefix: '/ablauf/haupt'
+      };
+    }
+    return { seq: { typ: 'Sequenz', teile: [haupt] }, prefix: '/ablauf/haupt' };
+  }
+  if (arr.ablauf.typ === 'Sequenz') {
+    return {
+      seq: { typ: 'Sequenz', teile: Array.isArray(arr.ablauf.teile) ? arr.ablauf.teile : [] },
+      prefix: '/ablauf'
+    };
+  }
   return { seq: { typ: 'Sequenz', teile: [arr.ablauf] }, prefix: '/ablauf' };
 }
 
 function withMainSequence(arr: Arrangement, updater: (teile: ArrangementNode[]) => ArrangementNode[]): Arrangement {
   const next = clone(arr);
-  if (next.ablauf.typ === 'Parallel') {
-    const cur = next.ablauf.haupt.typ === 'Sequenz' ? next.ablauf.haupt.teile : [next.ablauf.haupt];
+  if (next.ablauf?.typ === 'Parallel') {
+    const haupt = next.ablauf.haupt;
+    const cur =
+      haupt && haupt.typ === 'Sequenz'
+        ? Array.isArray(haupt.teile)
+          ? haupt.teile
+          : []
+        : haupt
+          ? [haupt]
+          : [];
     next.ablauf.haupt = { typ: 'Sequenz', teile: updater(cur) };
-  } else if (next.ablauf.typ === 'Sequenz') {
-    next.ablauf.teile = updater(next.ablauf.teile);
-  } else {
+    if (!Array.isArray(next.ablauf.begleitend)) next.ablauf.begleitend = [];
+  } else if (next.ablauf?.typ === 'Sequenz') {
+    next.ablauf.teile = updater(Array.isArray(next.ablauf.teile) ? next.ablauf.teile : []);
+  } else if (next.ablauf && typeof next.ablauf === 'object') {
     next.ablauf = { typ: 'Sequenz', teile: updater([next.ablauf]) };
+  } else {
+    next.ablauf = { typ: 'Sequenz', teile: updater([]) };
   }
   return next;
 }
@@ -316,6 +344,73 @@ export function replaceNodeAtPath(arr: Arrangement, pfad: string, baustein: stri
   return copy;
 }
 
+const VALID_NODE_TYPES = new Set(['Einsatz', 'Sequenz', 'Parallel', 'Wiederkehr', 'Alternative', 'Verweis']);
+
+function validateNodeStructure(node: unknown, pathLabel = '/ablauf', depth = 0): string | null {
+  if (depth > 32) return `${pathLabel}: Maximale Verschachtelungstiefe überschritten.`;
+  if (!node || typeof node !== 'object' || Array.isArray(node)) {
+    return `${pathLabel}: Knoten muss ein JSON-Objekt sein.`;
+  }
+  const n = node as Record<string, unknown>;
+  if (typeof n.typ !== 'string' || !VALID_NODE_TYPES.has(n.typ)) {
+    return `${pathLabel}: Ungültiger oder fehlender Knotentyp „${String(n.typ ?? '')}“.`;
+  }
+  switch (n.typ) {
+    case 'Einsatz':
+      if (typeof n.baustein !== 'string' || !n.baustein.trim()) {
+        return `${pathLabel}: Einsatz benötigt eine Baustein-Kennung.`;
+      }
+      if (n.belegung !== undefined) {
+        if (!Array.isArray(n.belegung)) return `${pathLabel}: Feld „belegung“ muss ein Array sein.`;
+        for (let i = 0; i < n.belegung.length; i++) {
+          const bel = n.belegung[i] as Record<string, unknown> | null;
+          if (!bel || typeof bel !== 'object' || typeof bel.slotKennung !== 'string') {
+            return `${pathLabel}/belegung/${i}: Ungültiger Slot-Eintrag.`;
+          }
+          const subErr = validateNodeStructure(bel.inhalt, `${pathLabel}/belegung/${bel.slotKennung}`, depth + 1);
+          if (subErr) return subErr;
+        }
+      }
+      return null;
+    case 'Sequenz':
+      if (!Array.isArray(n.teile)) return `${pathLabel}: Sequenz benötigt ein Array im Feld „teile“.`;
+      for (let i = 0; i < n.teile.length; i++) {
+        const subErr = validateNodeStructure(n.teile[i], `${pathLabel}/teile/${i}`, depth + 1);
+        if (subErr) return subErr;
+      }
+      return null;
+    case 'Parallel': {
+      const hErr = validateNodeStructure(n.haupt, `${pathLabel}/haupt`, depth + 1);
+      if (hErr) return hErr;
+      if (!Array.isArray(n.begleitend)) return `${pathLabel}: Parallel benötigt ein Array im Feld „begleitend“.`;
+      for (let i = 0; i < n.begleitend.length; i++) {
+        const subErr = validateNodeStructure(n.begleitend[i], `${pathLabel}/begleitend/${i}`, depth + 1);
+        if (subErr) return subErr;
+      }
+      return null;
+    }
+    case 'Wiederkehr':
+      if (typeof n.baustein !== 'string' || !n.baustein.trim()) {
+        return `${pathLabel}: Wiederkehr benötigt eine Baustein-Kennung.`;
+      }
+      return null;
+    case 'Alternative':
+      if (!Array.isArray(n.optionen)) return `${pathLabel}: Alternative benötigt ein Array im Feld „optionen“.`;
+      for (let i = 0; i < n.optionen.length; i++) {
+        const subErr = validateNodeStructure(n.optionen[i], `${pathLabel}/optionen/${i}`, depth + 1);
+        if (subErr) return subErr;
+      }
+      return null;
+    case 'Verweis':
+      if (typeof n.arrangement !== 'string' || !n.arrangement.trim()) {
+        return `${pathLabel}: Verweis benötigt eine Ziel-URI im Feld „arrangement“.`;
+      }
+      return null;
+    default:
+      return `${pathLabel}: Unbekannter Knotentyp.`;
+  }
+}
+
 export function importArrangementJson(
   raw: string
 ): { ok: true; arrangement: Arrangement } | { ok: false; fehler: string } {
@@ -324,8 +419,12 @@ export function importArrangementJson(
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { ok: false, fehler: 'JSON muss ein Objekt sein.' };
     }
-    if (parsed.typ !== 'Arrangement' || !parsed.ablauf || typeof parsed.ablauf !== 'object') {
-      return { ok: false, fehler: 'Erwartet wird ein FMT-Arrangement mit typ: "Arrangement" und Feld "ablauf".' };
+    if (parsed.typ !== 'Arrangement' || !parsed.ablauf || typeof parsed.ablauf !== 'object' || Array.isArray(parsed.ablauf)) {
+      return { ok: false, fehler: 'Erwartet wird ein FMT-Arrangement mit typ: "Arrangement" und Objekt im Feld "ablauf".' };
+    }
+    const structErr = validateNodeStructure(parsed.ablauf, '/ablauf');
+    if (structErr) {
+      return { ok: false, fehler: structErr };
     }
     return {
       ok: true,
@@ -336,7 +435,7 @@ export function importArrangementJson(
         name: parsed.name || 'Importiertes Arrangement',
         reichweite: parsed.reichweite || 'r3',
         zieltyp: parsed.zieltyp,
-        kontext: parsed.kontext || {},
+        kontext: parsed.kontext && typeof parsed.kontext === 'object' && !Array.isArray(parsed.kontext) ? parsed.kontext : {},
         ablauf: parsed.ablauf
       }
     };

@@ -11,6 +11,7 @@ export interface LlmOverride {
   apiKey?: string;
   model?: string;
   provider?: string;
+  baseUrl?: string;
 }
 
 export interface ResolvedLlmTarget {
@@ -23,22 +24,31 @@ export interface ResolvedLlmTarget {
 export class ByokValidationError extends Error {}
 
 export function resolveLlmTarget(config: ServerConfig, override?: LlmOverride): ResolvedLlmTarget | null {
+  if (override?.baseUrl && override.baseUrl.trim()) {
+    throw new ByokValidationError(
+      'Benutzerdefinierte LLM-URLs (baseUrl / X-LLM-Base-Url) werden aus Sicherheitsgründen (SSRF-Schutz) nicht über den Server geproxyt. Bitte einen freigegebenen Provider wählen.'
+    );
+  }
+
+  const rawProviderInput = override?.provider?.trim().toLowerCase() || '';
+  if (rawProviderInput && rawProviderInput !== 'server' && !(rawProviderInput in BYOK_PROVIDERS)) {
+    throw new ByokValidationError(
+      `Ungültiger BYOK-Provider. Erlaubt: server, ${Object.keys(BYOK_PROVIDERS).join(', ')}. Freie URLs werden aus Sicherheitsgründen nicht über den Server geproxyt.`
+    );
+  }
+
   const userKey = override?.apiKey?.trim() || '';
   if (userKey) {
     if (!config.llmAllowByok) {
       throw new ByokValidationError('BYOK-Modus ist auf diesem Server deaktiviert.');
     }
-    const rawProvider = (override?.provider || 'server').trim().toLowerCase();
+    const rawProvider = rawProviderInput || 'server';
     let baseUrl: string;
     if (rawProvider === 'server') {
       if (!config.llmBaseUrl) throw new ByokValidationError('Kein Server-LLM-Endpunkt konfiguriert.');
       baseUrl = config.llmBaseUrl;
-    } else if (rawProvider in BYOK_PROVIDERS) {
-      baseUrl = BYOK_PROVIDERS[rawProvider];
     } else {
-      throw new ByokValidationError(
-        `Ungültiger BYOK-Provider. Erlaubt: server, ${Object.keys(BYOK_PROVIDERS).join(', ')}. Freie URLs werden aus Sicherheitsgründen nicht über den Server geproxyt.`
-      );
+      baseUrl = BYOK_PROVIDERS[rawProvider];
     }
     const model = override?.model?.trim() || config.llmModel || 'gpt-4o-mini';
     return { baseUrl, model, apiKey: userKey, isByok: true };

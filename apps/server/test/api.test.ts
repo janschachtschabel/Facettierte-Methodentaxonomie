@@ -111,6 +111,15 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(val.statusCode).toBe(200);
     expect(val.json().gueltig).toBe(true);
 
+    const malformedVal = await app.inject({
+      method: 'POST',
+      url: '/api/v1/validate',
+      payload: { typ: 'Arrangement', name: 'Broken', reichweite: 'r3', ablauf: { typ: 'Sequenz', teile: 'not-array' } }
+    });
+    expect(malformedVal.statusCode).toBe(200);
+    expect(malformedVal.json().gueltig).toBe(false);
+    expect(malformedVal.json().meldungen.some((m: { regel: string }) => m.regel === 'R-00')).toBe(true);
+
     const rep = await app.inject({
       method: 'POST',
       url: '/api/v1/replacements',

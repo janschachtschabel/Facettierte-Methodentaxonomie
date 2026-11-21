@@ -203,6 +203,33 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(ssrf.statusCode).toBe(400);
     expect(ssrf.body).not.toContain('sk-user-secret-999');
 
+    const ssrfBaseUrlHeader = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/translate',
+      headers: {
+        'x-llm-api-key': 'sk-user-secret-999',
+        'x-llm-base-url': 'http://169.254.169.254/v1'
+      },
+      payload: { text: 'Einstieg 10 Minuten' }
+    });
+    expect(ssrfBaseUrlHeader.statusCode).toBe(400);
+    expect(ssrfBaseUrlHeader.body).not.toContain('sk-user-secret-999');
+
+    const ssrfProviderNoKey = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/translate',
+      headers: { 'x-llm-provider': 'http://localhost:11434/v1' },
+      payload: { text: 'Einstieg 10 Minuten' }
+    });
+    expect(ssrfProviderNoKey.statusCode).toBe(400);
+
+    const ssrfBodyBaseUrl = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/translate',
+      payload: { text: 'Einstieg 10 Minuten', baseUrl: 'http://169.254.169.254/v1' }
+    });
+    expect(ssrfBodyBaseUrl.statusCode).toBe(400);
+
     // Allowed BYOK provider 'server' uses server's configured mockBaseUrl with user's key and bypasses shared cache
     const before = mockCalls;
     const byok1 = await appNoKey.inject({

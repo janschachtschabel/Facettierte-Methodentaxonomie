@@ -84,6 +84,13 @@ describe('Modular Scenario Planner Tree Operations', () => {
     const wrongType = importArrangementJson(JSON.stringify({ typ: 'Baustein', name: 'x' }));
     expect(wrongType.ok).toBe(false);
 
+    expect(importArrangementJson(JSON.stringify({ typ: 'Arrangement', ablauf: [] })).ok).toBe(false);
+    expect(importArrangementJson(JSON.stringify({ typ: 'Arrangement', ablauf: {} })).ok).toBe(false);
+    expect(importArrangementJson(JSON.stringify({ typ: 'Arrangement', ablauf: { typ: 'Parallel' } })).ok).toBe(false);
+    expect(
+      importArrangementJson(JSON.stringify({ typ: 'Arrangement', ablauf: { typ: 'Sequenz', teile: 'not-array' } })).ok
+    ).toBe(false);
+
     const cyclic = importArrangementJson(
       JSON.stringify({
         '@id': BUNDLE.NS + 'cyc',

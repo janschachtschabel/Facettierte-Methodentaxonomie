@@ -13,12 +13,23 @@ import {
   type LlmOverride
 } from '../llm/client.js';
 
-function readByokHeaders(req: FastifyRequest): LlmOverride {
+function readByokHeaders(req: FastifyRequest, bodyObj?: Record<string, unknown> | null): LlmOverride {
   const h = req.headers;
+  const headerStr = (name: string) => {
+    const v = h[name];
+    return typeof v === 'string' ? v : Array.isArray(v) ? v[0] : undefined;
+  };
+  const bodyBaseUrl =
+    bodyObj && typeof bodyObj.baseUrl === 'string'
+      ? bodyObj.baseUrl
+      : bodyObj && typeof bodyObj.llmBaseUrl === 'string'
+        ? bodyObj.llmBaseUrl
+        : undefined;
   return {
-    apiKey: typeof h['x-llm-api-key'] === 'string' ? h['x-llm-api-key'] : undefined,
-    model: typeof h['x-llm-model'] === 'string' ? h['x-llm-model'] : undefined,
-    provider: typeof h['x-llm-provider'] === 'string' ? h['x-llm-provider'] : undefined
+    apiKey: headerStr('x-llm-api-key'),
+    model: headerStr('x-llm-model'),
+    provider: headerStr('x-llm-provider'),
+    baseUrl: headerStr('x-llm-base-url') || headerStr('x-llm-endpoint') || bodyBaseUrl
   };
 }
 
@@ -58,7 +69,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     let target;
     try {
-      target = resolveLlmTarget(config, readByokHeaders(req));
+      target = resolveLlmTarget(config, readByokHeaders(req, body as Record<string, unknown> | null));
     } catch (e) {
       if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
       throw e;
@@ -145,7 +156,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     let target;
     try {
-      target = resolveLlmTarget(config, readByokHeaders(req));
+      target = resolveLlmTarget(config, readByokHeaders(req, body as Record<string, unknown> | null));
     } catch (e) {
       if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
       throw e;
@@ -157,7 +168,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       });
     }
 
-    const pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
+    let pruefung;
+    try {
+      pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
+    } catch (e) {
+      return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiges Arrangement.' });
+    }
     const usedIds = [...collectUsedBlocks(body.arrangement.ablauf)];
     const catalogContext = usedIds
       .map((id) => store.blocksById.get(id))

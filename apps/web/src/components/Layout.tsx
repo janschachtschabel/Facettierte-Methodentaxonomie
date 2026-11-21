@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useCatalog } from '../data/CatalogContext.js';
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { bundle, fromCache, refreshNotice } = useCatalog();
+  const { bundle, error, fromCache, refreshNotice } = useCatalog();
   const [theme, setTheme] = useState<'auto' | 'light' | 'dark'>(() => {
     try {
       return (localStorage.getItem('fmt_theme') as 'auto' | 'light' | 'dark') || 'auto';
@@ -85,7 +85,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="wrap">{children}</main>
+      <main className="wrap">
+        {error && !bundle ? (
+          <div className="msg msg-err" role="alert" style={{ marginTop: 18 }}>
+            <strong>Katalog konnte nicht geladen werden:</strong> {error}
+          </div>
+        ) : (
+          children
+        )}
+      </main>
 
       <footer className="footer">
         <div className="wrap footer-inner">

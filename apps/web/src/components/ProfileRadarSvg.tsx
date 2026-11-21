@@ -37,7 +37,8 @@ export function facetIntensity(b: Baustein, f: FacetMeta): number {
   }
   if (f.feld === 'rolle') {
     const arr = (val as string[] | undefined) || [];
-    const hasAi = arr.some((x) => x !== 'ki-keine' && !['instrukteur', 'moderator', 'coach', 'ko-lernende'].includes(x));
+    const strictAi = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
+    const hasAi = Boolean(b.ki) || arr.some((x) => strictAi.has(x));
     return hasAi ? 1 : 0.45;
   }
   if (Array.isArray(val)) {

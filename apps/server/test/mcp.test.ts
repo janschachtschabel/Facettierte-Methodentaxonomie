@@ -100,6 +100,16 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const valJson = JSON.parse((valRes.content as Array<{ text: string }>)[0].text);
     expect(valJson.gueltig).toBe(true);
 
+    const badValRes = await client.callTool({
+      name: 'validate_arrangement',
+      arguments: {
+        arrangement: { typ: 'Arrangement', name: 'Kaputt', reichweite: 'r3', ablauf: { typ: 'Sequenz', teile: 'nope' } }
+      }
+    });
+    const badValJson = JSON.parse((badValRes.content as Array<{ text: string }>)[0].text);
+    expect(badValJson.gueltig).toBe(false);
+    expect(badValJson.meldungen.some((m: { regel: string }) => m.regel === 'R-00')).toBe(true);
+
     const repRes = await client.callTool({
       name: 'suggest_replacements',
       arguments: { arrangement: matchJson.arrangement, pfad: '/ablauf/teile/0' }
@@ -117,6 +127,24 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const parsed = JSON.parse((summary.contents[0] as { text: string }).text);
     expect(parsed.anzahl).toBe(100);
     expect(parsed.creator).toBe('Jan Schachtschabel');
+
+    // Verify CORS header survives reply.hijack() on /mcp
+    const corsRes = await fetch(new URL('/mcp', baseUrl), {
+      method: 'POST',
+      headers: {
+        Origin: 'https://example.org',
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream'
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 99,
+        method: 'initialize',
+        params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'cors-check', version: '1.0' } }
+      })
+    });
+    expect(corsRes.status).toBe(200);
+    expect(corsRes.headers.get('access-control-allow-origin')).toBeTruthy();
 
     const rules = await client.readResource({ uri: 'fmt://rules' });
     const parsedRules = JSON.parse((rules.contents[0] as { text: string }).text);

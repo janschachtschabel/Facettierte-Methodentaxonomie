@@ -18,19 +18,30 @@ function guidanceColor(b: Baustein): string {
 }
 
 export function TimelineBandSvg({ arrangement, blocksById, svgRef }: Props) {
-  const isPar = arrangement.ablauf.typ === 'Parallel';
-  const haupt: ArrangementNode = arrangement.ablauf.typ === 'Parallel' ? arrangement.ablauf.haupt : arrangement.ablauf;
-  const teile: ArrangementNode[] = haupt.typ === 'Sequenz' ? haupt.teile : [haupt];
+  const isPar = arrangement.ablauf?.typ === 'Parallel';
+  const haupt: ArrangementNode | undefined =
+    arrangement.ablauf?.typ === 'Parallel' ? arrangement.ablauf.haupt : arrangement.ablauf;
+  const teile: ArrangementNode[] =
+    haupt && haupt.typ === 'Sequenz'
+      ? Array.isArray(haupt.teile)
+        ? haupt.teile
+        : []
+      : haupt
+        ? [haupt]
+        : [];
 
   const items: Array<{ row: number; t0: number; t1: number; b: Baustein; label?: string }> = [];
   const wks: WiederkehrNode[] = [];
 
-  const lay = (node: ArrangementNode, t0: number, d: number) => {
+  const lay = (node: ArrangementNode | undefined, t0: number, d: number) => {
+    if (!node || typeof node !== 'object') return;
     if (node.typ === 'Einsatz') {
       const b = blocksById.get(node.baustein);
       if (!b) return;
       items.push({ row: Math.min(3, RANG[b.reichweite] || 2), t0, t1: t0 + d, b });
-      const kids = (node.belegung || []).map((x) => x.inhalt);
+      const kids = (Array.isArray(node.belegung) ? node.belegung : [])
+        .map((x) => x?.inhalt)
+        .filter((k): k is ArrangementNode => Boolean(k));
       const sum = kids.reduce((s, k) => s + (k.typ === 'Einsatz' ? k.dauerMin || 0 : 0), 0);
       const sc = sum > d && sum > 0 ? d / sum : 1;
       let t = t0;
@@ -40,22 +51,25 @@ export function TimelineBandSvg({ arrangement, blocksById, svgRef }: Props) {
         t += dd;
       });
     } else if (node.typ === 'Alternative') {
-      const first = node.optionen[0];
+      const opts = Array.isArray(node.optionen) ? node.optionen : [];
+      const first = opts[0];
       if (first) lay(first, t0, d);
     }
   };
 
   let t = 0;
   teile.forEach((node) => {
+    if (!node || typeof node !== 'object') return;
     if (node.typ === 'Wiederkehr') {
       wks.push(node);
       return;
     }
+    const opts = node.typ === 'Alternative' && Array.isArray(node.optionen) ? node.optionen : [];
     const dur =
       node.typ === 'Einsatz'
         ? node.dauerMin || 15
         : node.typ === 'Alternative'
-          ? Math.max(...node.optionen.map((o) => (o.typ === 'Einsatz' ? o.dauerMin || 15 : 15)))
+          ? Math.max(15, ...opts.map((o) => (o?.typ === 'Einsatz' ? o.dauerMin || 15 : 15)))
           : 20;
     lay(node, t, dur);
     t += dur;
@@ -127,7 +141,7 @@ export function TimelineBandSvg({ arrangement, blocksById, svgRef }: Props) {
 
           {isPar &&
             arrangement.ablauf.typ === 'Parallel' &&
-            arrangement.ablauf.begleitend.map((n, idx) => {
+            (Array.isArray(arrangement.ablauf.begleitend) ? arrangement.ablauf.begleitend : []).map((n, idx) => {
               if (n.typ !== 'Einsatz') return null;
               const b = blocksById.get(n.baustein);
               if (!b) return null;

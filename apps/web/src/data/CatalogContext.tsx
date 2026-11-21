@@ -13,7 +13,7 @@ import {
   type Scheme,
   type VocabValue
 } from '@fmt/core';
-import { loadCatalogWithCache, type ServerMeta } from './catalogCache.js';
+import { CACHE_KEY, getSafeLocalStorage, loadCatalogWithCache, type ServerMeta } from './catalogCache.js';
 
 export interface ByokSettings {
   apiKey: string;
@@ -83,7 +83,8 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    loadCatalogWithCache(undefined, window.localStorage, (fresh, freshMeta) => {
+    const storage = getSafeLocalStorage();
+    loadCatalogWithCache(undefined, storage, (fresh, freshMeta) => {
       if (!active) return;
       setBundle(fresh);
       setMeta(freshMeta);
@@ -111,41 +112,68 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const derived = useMemo(() => {
-    if (!bundle) {
-      return {
-        search: null,
-        validator: null,
-        matcher: null,
-        blocksById: new Map<string, Baustein>(),
-        exampleRegistry: new Map<string, Arrangement>(),
-        schemesMap: new Map<string, Scheme>(),
-        labelsMap: new Map<string, string>()
-      };
-    }
-    const data: FmtData = {
-      VERSION: bundle.version,
-      NS: bundle.NS,
-      creator: bundle.creator,
-      license: bundle.license,
-      schemes: bundle.schemes,
-      facetten: bundle.facetten,
-      ketten: bundle.ketten,
-      bausteine: bundle.bausteine,
-      beispiele: bundle.beispiele
+    const empty = {
+      search: null,
+      validator: null,
+      matcher: null,
+      blocksById: new Map<string, Baustein>(),
+      exampleRegistry: new Map<string, Arrangement>(),
+      schemesMap: new Map<string, Scheme>(),
+      labelsMap: new Map<string, string>(),
+      corrupted: false
     };
-    const validator = createValidator(data);
-    const search = createSearch(data, validator);
-    const matcher = createMatcher(data, validator);
-    const blocksById = new Map(bundle.bausteine.map((b) => [b.kennung, b]));
-    const exampleRegistry = new Map(bundle.beispiele.filter((e) => e['@id']).map((e) => [e['@id']!, e]));
-    const schemesMap = new Map(bundle.schemes.map((s) => [s.id, s]));
-    const labelsMap = new Map<string, string>();
-    for (const s of bundle.schemes) {
-      const vals = s.werte || (s.gruppen || []).flatMap((g) => g.werte);
-      for (const w of vals) labelsMap.set(`${s.id}:${w.id}`, w.label);
+    if (!bundle) return empty;
+    try {
+      const data: FmtData = {
+        VERSION: bundle.version,
+        NS: bundle.NS,
+        creator: bundle.creator,
+        license: bundle.license,
+        schemes: bundle.schemes,
+        facetten: bundle.facetten,
+        ketten: bundle.ketten,
+        bausteine: bundle.bausteine,
+        beispiele: bundle.beispiele
+      };
+      const validator = createValidator(data);
+      const search = createSearch(data, validator);
+      const matcher = createMatcher(data, validator);
+      const blocksById = new Map(bundle.bausteine.map((b) => [b.kennung, b]));
+      const exampleRegistry = new Map(bundle.beispiele.filter((e) => e['@id']).map((e) => [e['@id']!, e]));
+      const schemesMap = new Map(bundle.schemes.map((s) => [s.id, s]));
+      const labelsMap = new Map<string, string>();
+      for (const s of bundle.schemes) {
+        const vals = s.werte || (s.gruppen || []).flatMap((g) => g.werte);
+        for (const w of vals) labelsMap.set(`${s.id}:${w.id}`, w.label);
+      }
+      return { search, validator, matcher, blocksById, exampleRegistry, schemesMap, labelsMap, corrupted: false };
+    } catch {
+      return { ...empty, corrupted: true };
     }
-    return { search, validator, matcher, blocksById, exampleRegistry, schemesMap, labelsMap };
   }, [bundle]);
+
+  useEffect(() => {
+    if (!derived.corrupted) return;
+    const storage = getSafeLocalStorage();
+    try {
+      storage.removeItem(CACHE_KEY);
+    } catch {
+      // ignore
+    }
+    setBundle(null);
+    setLoading(true);
+    loadCatalogWithCache(undefined, storage)
+      .then((res) => {
+        setBundle(res.bundle);
+        setFromCache(false);
+        if (res.meta) setMeta(res.meta);
+        setLoading(false);
+      })
+      .catch((e: unknown) => {
+        setError(e instanceof Error ? e.message : 'Fehler beim Laden des Katalogs.');
+        setLoading(false);
+      });
+  }, [derived.corrupted]);
 
   const value: CatalogContextValue = {
     bundle,

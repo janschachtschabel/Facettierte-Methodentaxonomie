@@ -13,6 +13,11 @@ export function registerMcpHttpRoutes(app: FastifyInstance, store: CatalogStore)
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined
     });
+    // Copy Fastify headers (including @fastify/cors headers) to raw response before hijack
+    const fastifyHeaders = reply.getHeaders();
+    for (const [k, v] of Object.entries(fastifyHeaders)) {
+      if (v !== undefined) reply.raw.setHeader(k, v as string | number | readonly string[]);
+    }
     reply.hijack();
     try {
       await mcpServer.connect(transport);

@@ -39,8 +39,11 @@ export function createValidator(data: FmtData): FmtValidator {
   };
   const midDuration = (b: Baustein) => Math.round((b.dauerMin + b.dauerMax) / 2);
 
-  function rangOf(node: ArrangementNode | undefined, registry: Map<string, Arrangement>): number {
-    if (!node) return 0;
+  const MAX_DEPTH = 32;
+  const asArr = <T>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+
+  function rangOf(node: ArrangementNode | undefined, registry: Map<string, Arrangement>, depth = 0): number {
+    if (!node || typeof node !== 'object' || Array.isArray(node) || depth > MAX_DEPTH) return 0;
     switch (node.typ) {
       case 'Einsatz':
       case 'Wiederkehr': {
@@ -48,11 +51,14 @@ export function createValidator(data: FmtData): FmtValidator {
         return b ? rang.get(b.reichweite) || 0 : 0;
       }
       case 'Sequenz':
-        return Math.max(0, ...(node.teile || []).map((n) => rangOf(n, registry)));
+        return Math.max(0, ...asArr<ArrangementNode>(node.teile).map((n) => rangOf(n, registry, depth + 1)));
       case 'Parallel':
-        return Math.max(rangOf(node.haupt, registry), ...(node.begleitend || []).map((n) => rangOf(n, registry)));
+        return Math.max(
+          rangOf(node.haupt, registry, depth + 1),
+          ...asArr<ArrangementNode>(node.begleitend).map((n) => rangOf(n, registry, depth + 1))
+        );
       case 'Alternative':
-        return Math.max(0, ...(node.optionen || []).map((n) => rangOf(n, registry)));
+        return Math.max(0, ...asArr<ArrangementNode>(node.optionen).map((n) => rangOf(n, registry, depth + 1)));
       case 'Verweis': {
         const r = registry.get(node.arrangement);
         return r ? rang.get(r.reichweite) || 0 : 0;
@@ -68,8 +74,8 @@ export function createValidator(data: FmtData): FmtValidator {
       return acc;
     }, new Set<string>());
 
-  function functionsOf(node: ArrangementNode | undefined): Set<string> {
-    if (!node) return new Set();
+  function functionsOf(node: ArrangementNode | undefined, depth = 0): Set<string> {
+    if (!node || typeof node !== 'object' || Array.isArray(node) || depth > MAX_DEPTH) return new Set();
     switch (node.typ) {
       case 'Einsatz':
       case 'Wiederkehr': {
@@ -77,11 +83,14 @@ export function createValidator(data: FmtData): FmtValidator {
         return new Set(b ? b.lernfunktion : []);
       }
       case 'Sequenz':
-        return union((node.teile || []).map(functionsOf));
+        return union(asArr<ArrangementNode>(node.teile).map((n) => functionsOf(n, depth + 1)));
       case 'Parallel':
-        return union([functionsOf(node.haupt), ...(node.begleitend || []).map(functionsOf)]);
+        return union([
+          functionsOf(node.haupt, depth + 1),
+          ...asArr<ArrangementNode>(node.begleitend).map((n) => functionsOf(n, depth + 1))
+        ]);
       case 'Alternative':
-        return union((node.optionen || []).map(functionsOf));
+        return union(asArr<ArrangementNode>(node.optionen).map((n) => functionsOf(n, depth + 1)));
       default:
         return new Set();
     }
@@ -164,11 +173,11 @@ export function createValidator(data: FmtData): FmtValidator {
       });
     }
 
-    function walkEinsatz(node: EinsatzNode, pfad: string): number {
+    function walkEinsatz(node: EinsatzNode, pfad: string, depth: number): number {
       const b = bausteine.get(node.baustein);
       if (!b) {
         add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
-        return node.dauerMin || 0;
+        return typeof node.dauerMin === 'number' ? node.dauerMin : 0;
       }
       const r = rang.get(b.reichweite) || 0;
       if (r > arrRang) {
@@ -176,18 +185,26 @@ export function createValidator(data: FmtData): FmtValidator {
       }
       checkPre(b, pfad);
       const kern = new Set((b.kernkomponente || []).map((x) => x.kennung));
-      (node.weggelassen || [])
+      if (node.weggelassen != null && !Array.isArray(node.weggelassen)) {
+        add('R-00', 'Fehler', pfad, 'Feld „weggelassen“ muss ein Array sein.');
+      }
+      asArr<string>(node.weggelassen)
         .filter((x) => kern.has(x))
         .forEach((x) =>
           add('R-10', 'Fehler', pfad, `Kernkomponente „${x}“ weggelassen: Die Bezeichnung „${b.name}“ gilt nicht mehr.`)
         );
 
-      const dauer = node.dauerMin != null ? node.dauerMin : midDuration(b);
+      const dauer = typeof node.dauerMin === 'number' ? node.dauerMin : midDuration(b);
       if (dauer < b.dauerMin || dauer > b.dauerMax) {
         add('R-09', 'Warnung', pfad, `Dauer ${dauer} min liegt außerhalb des Rahmens von „${b.name}“ (${b.dauerMin}–${b.dauerMax} min).`);
       }
 
-      const belegung = node.belegung || [];
+      if (node.belegung != null && !Array.isArray(node.belegung)) {
+        add('R-00', 'Fehler', pfad, 'Feld „belegung“ muss ein Array sein.');
+      }
+      const belegung = asArr<{ slotKennung: string; inhalt: ArrangementNode }>(node.belegung).filter(
+        (x) => x && typeof x === 'object' && typeof x.slotKennung === 'string'
+      );
       const slots = b.slot || [];
       belegung
         .filter((x) => !slots.some((s) => s.kennung === x.slotKennung))
@@ -209,15 +226,15 @@ export function createValidator(data: FmtData): FmtValidator {
         const bel = filled(sl);
         if (!bel) return;
         const cp = `${pfad}/belegung/${sl.kennung}`;
-        const cr = rangOf(bel.inhalt, registry);
+        const cr = rangOf(bel.inhalt, registry, depth + 1);
         if (cr >= r || cr > (rang.get(sl.reichweite) || 0)) {
           add('R-01', 'Fehler', cp, `Slot „${sl.name}“ nimmt höchstens Reichweite ${sl.reichweite} auf; der Inhalt ist größer.`);
         }
-        const fs = functionsOf(bel.inhalt);
+        const fs = functionsOf(bel.inhalt, depth + 1);
         if (!sl.lernfunktion.some((fn) => fs.has(fn))) {
           add('R-02', 'Fehler', cp, `Inhalt passt nicht zur Funktion des Slots „${sl.name}“ (${sl.lernfunktion.join(', ')}).`);
         }
-        slotDauer += walk(bel.inhalt, cp);
+        slotDauer += walk(bel.inhalt, cp, depth + 1);
       };
 
       slots.filter((sl) => !sl.nachKernphase).forEach(walkSlot);
@@ -239,21 +256,34 @@ export function createValidator(data: FmtData): FmtValidator {
       return dauer;
     }
 
-    function walk(node: ArrangementNode | undefined, pfad: string): number {
-      if (!node || !node.typ) {
+    function walk(node: ArrangementNode | undefined, pfad: string, depth = 0): number {
+      if (depth > MAX_DEPTH) {
+        add('R-12', 'Fehler', pfad, 'Maximale Verschachtelungstiefe überschritten.');
+        return 0;
+      }
+      if (!node || typeof node !== 'object' || Array.isArray(node) || typeof node.typ !== 'string') {
         add('R-00', 'Fehler', pfad, 'Knoten ohne Typ.');
         return 0;
       }
       checkStep(node, pfad);
       switch (node.typ) {
         case 'Einsatz':
-          return walkEinsatz(node, pfad);
-        case 'Sequenz':
-          return (node.teile || []).reduce((sum, n, i) => sum + walk(n, `${pfad}/teile/${i}`), 0);
+          return walkEinsatz(node, pfad, depth);
+        case 'Sequenz': {
+          if (node.teile != null && !Array.isArray(node.teile)) {
+            add('R-00', 'Fehler', pfad, 'Sequenz erwartet ein Array im Feld „teile“.');
+            return 0;
+          }
+          return asArr<ArrangementNode>(node.teile).reduce((sum, n, i) => sum + walk(n, `${pfad}/teile/${i}`, depth + 1), 0);
+        }
         case 'Parallel': {
-          let d = walk(node.haupt, `${pfad}/haupt`);
-          (node.begleitend || []).forEach((n, i) => {
-            d += walk(n, `${pfad}/begleitend/${i}`);
+          let d = walk(node.haupt, `${pfad}/haupt`, depth + 1);
+          if (node.begleitend != null && !Array.isArray(node.begleitend)) {
+            add('R-00', 'Fehler', pfad, 'Parallel erwartet ein Array im Feld „begleitend“.');
+            return d;
+          }
+          asArr<ArrangementNode>(node.begleitend).forEach((n, i) => {
+            d += walk(n, `${pfad}/begleitend/${i}`, depth + 1);
           });
           return d;
         }
@@ -267,15 +297,19 @@ export function createValidator(data: FmtData): FmtValidator {
             add('R-01', 'Fehler', pfad, `„${b.name}“ hat größere Reichweite als das Arrangement.`);
           }
           checkPre(b, pfad);
-          const anzahl = node.anzahl || 1;
-          const einzel = node.dauerMin != null ? node.dauerMin : midDuration(b);
+          const anzahl = typeof node.anzahl === 'number' && node.anzahl > 0 ? node.anzahl : 1;
+          const einzel = typeof node.dauerMin === 'number' ? node.dauerMin : midDuration(b);
           st.wiederkehr.push({ anzahl, baustein: b.kennung });
           leafEffects(b, einzel, pfad);
           addClosure(st.zustand, b.nachbedingung || []);
           return einzel * anzahl;
         }
         case 'Alternative': {
-          const opts = node.optionen || [];
+          if (node.optionen != null && !Array.isArray(node.optionen)) {
+            add('R-00', 'Fehler', pfad, 'Alternative erwartet ein Array im Feld „optionen“.');
+            return 0;
+          }
+          const opts = asArr<ArrangementNode>(node.optionen);
           if (opts.length < 2) add('R-02', 'Warnung', pfad, 'Alternative mit weniger als zwei Optionen.');
           const start = {
             zustand: new Set(st.zustand),
@@ -291,7 +325,7 @@ export function createValidator(data: FmtData): FmtValidator {
             st.offen = start.offen;
             st.passiv = start.passiv;
             st.passivGemeldet = start.passivGemeldet;
-            maxD = Math.max(maxD, walk(o, `${pfad}/optionen/${i}`));
+            maxD = Math.max(maxD, walk(o, `${pfad}/optionen/${i}`, depth + 1));
             results.push(st.zustand);
             offen = offen || st.offen;
           });
@@ -302,20 +336,31 @@ export function createValidator(data: FmtData): FmtValidator {
           return maxD;
         }
         case 'Verweis': {
-          const ref = registry.get(node.arrangement);
+          const refKey = typeof node.arrangement === 'string' ? node.arrangement : '';
+          const ref = registry.get(refKey);
           if (!ref) {
-            add('R-12', 'Warnung', pfad, `Verweis auf „${node.arrangement}“ ist nicht auflösbar.`);
+            add('R-12', 'Warnung', pfad, `Verweis auf „${refKey}“ ist nicht auflösbar.`);
             return 0;
           }
-          if (_stack.includes(node.arrangement)) {
+          if (_stack.includes(refKey) || (ref['@id'] && _stack.includes(ref['@id'])) || _stack.length >= MAX_DEPTH) {
             add('R-12', 'Fehler', pfad, 'Zirkulärer Verweis.');
             return 0;
           }
           if ((rang.get(ref.reichweite) || 0) >= arrRang) {
             add('R-01', 'Fehler', pfad, 'Eingebundenes Arrangement muss kleinere Reichweite haben.');
           }
-          const sub = validate(ref, registry, [..._stack, arr['@id'] || '']);
-          if (!sub.gueltig) add('R-12', 'Warnung', pfad, `Eingebundenes Arrangement „${ref.name}“ enthält Fehler.`);
+          const nextStack = [
+            ..._stack,
+            ...(arr['@id'] ? [arr['@id']] : []),
+            refKey,
+            ...(ref['@id'] && ref['@id'] !== refKey ? [ref['@id']] : [])
+          ];
+          const sub = validate(ref, registry, nextStack);
+          if (sub.meldungen.some((m) => m.regel === 'R-12' && m.schwere === 'Fehler')) {
+            add('R-12', 'Fehler', pfad, 'Zirkulärer Verweis.');
+          } else if (!sub.gueltig) {
+            add('R-12', 'Warnung', pfad, `Eingebundenes Arrangement „${ref.name}“ enthält Fehler.`);
+          }
           addClosure(st.zustand, sub.endzustand);
           sub.wiederkehr.forEach((w) => st.wiederkehr.push(w));
           return sub.dauerMin;

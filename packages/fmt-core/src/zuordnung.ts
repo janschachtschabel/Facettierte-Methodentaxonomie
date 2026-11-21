@@ -22,9 +22,7 @@ const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const SLOT_CANDIDATES = 8;
 const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
 const AI_ROLES = new Set([
-  'werkzeug',
   'tutor',
-  'feedbackgeber',
   'dialogpartner',
   'simulationsrolle',
   'belehrbarer-agent',

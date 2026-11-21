@@ -84,6 +84,21 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     expect(res.fromCache).toBe(false);
     expect(res.bundle.bausteine.length).toBe(100);
     expect(JSON.parse(storage.getItem(CACHE_KEY)!).versionHash).toBe(BUNDLE.versionHash);
+
+    // Outdated schema (missing required schemes / stub blocks) must also fall back cleanly
+    const outdated = makeMemoryStorage({
+      [CACHE_KEY]: JSON.stringify({
+        version: '0.1.0',
+        versionHash: 'outdated-v0',
+        bausteine: [{}],
+        schemes: [],
+        facetten: [],
+        ketten: []
+      })
+    });
+    const resOutdated = await loadCatalogWithCache(fetcher, outdated);
+    expect(resOutdated.fromCache).toBe(false);
+    expect(resOutdated.bundle.bausteine.length).toBe(100);
   });
 
   it('filters 100 methods client-side in < 20ms including synonyms and ansatz', () => {
