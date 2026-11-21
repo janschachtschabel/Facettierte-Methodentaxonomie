@@ -1,0 +1,125 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { FastifyInstance } from 'fastify';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { buildApp } from '../src/app.js';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const DIST_DATA = path.join(ROOT, 'dist-data');
+
+describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
+  let app: FastifyInstance;
+  let client: Client;
+  let baseUrl: string;
+
+  beforeAll(async () => {
+    app = await buildApp({
+      distDataDir: DIST_DATA,
+      config: {
+        port: 0,
+        host: '127.0.0.1',
+        corsOrigin: '*',
+        llmBaseUrl: '',
+        llmModel: '',
+        llmApiKey: '',
+        llmAllowByok: true,
+        llmRateLimitPerMin: 100,
+        llmTimeoutMs: 5000,
+        llmCacheMax: 100,
+        llmCacheTtlMs: 60000
+      }
+    });
+    const addr = await app.listen({ port: 0, host: '127.0.0.1' });
+    baseUrl = addr;
+
+    const transport = new StreamableHTTPClientTransport(new URL('/mcp', baseUrl));
+    client = new Client({ name: 'fmt-test-client', version: '1.0.0' });
+    await client.connect(transport);
+  });
+
+  afterAll(async () => {
+    await client.close();
+    await app.close();
+  });
+
+  it('lists all 7 FMT tools, resources, and prompts', async () => {
+    const { tools } = await client.listTools();
+    const names = tools.map((t) => t.name).sort();
+    expect(names).toEqual([
+      'compare_methods',
+      'get_method',
+      'list_vocabularies',
+      'match_scenario',
+      'search_methods',
+      'suggest_replacements',
+      'validate_arrangement'
+    ]);
+
+    const { prompts } = await client.listPrompts();
+    expect(prompts.map((p) => p.name).sort()).toEqual(['audit_lesson_plan', 'design_learning_scenario']);
+
+    const { resources } = await client.listResources();
+    expect(resources.some((r) => r.uri === 'fmt://catalog/summary')).toBe(true);
+    expect(resources.some((r) => r.uri === 'fmt://rules')).toBe(true);
+  });
+
+  it('executes search_methods, get_method, compare_methods, match_scenario, validate_arrangement, suggest_replacements and list_vocabularies', async () => {
+    const searchRes = await client.callTool({
+      name: 'search_methods',
+      arguments: { text: 'jigsaw', limit: 5 }
+    });
+    const searchJson = JSON.parse((searchRes.content as Array<{ text: string }>)[0].text);
+    expect(searchJson.treffer[0].kennung).toBe('gruppenpuzzle');
+
+    const getRes = await client.callTool({ name: 'get_method', arguments: { kennung: 'abrufquiz' } });
+    const getJson = JSON.parse((getRes.content as Array<{ text: string }>)[0].text);
+    expect(getJson.kennung).toBe('abrufquiz');
+    expect(getJson.quellen.length).toBeGreaterThanOrEqual(1);
+
+    const cmpRes = await client.callTool({
+      name: 'compare_methods',
+      arguments: { methodeA: 'lehrervortrag', methodeB: 'vortrag-prompts' }
+    });
+    const cmpJson = JSON.parse((cmpRes.content as Array<{ text: string }>)[0].text);
+    expect(cmpJson.unterschiede.some((u: { facette: string }) => u.facette === 'engagement')).toBe(true);
+
+    const matchRes = await client.callTool({
+      name: 'match_scenario',
+      arguments: { zieltyp: 'konzeptaufbau', bildungsstufe: 'sek1', vorwissen: 'gering', zeitMin: 270 }
+    });
+    const matchJson = JSON.parse((matchRes.content as Array<{ text: string }>)[0].text);
+    expect(matchJson.modus).toBe('ablauf');
+    expect(matchJson.pruefung.gueltig).toBe(true);
+
+    const valRes = await client.callTool({
+      name: 'validate_arrangement',
+      arguments: { arrangement: matchJson.arrangement }
+    });
+    const valJson = JSON.parse((valRes.content as Array<{ text: string }>)[0].text);
+    expect(valJson.gueltig).toBe(true);
+
+    const repRes = await client.callTool({
+      name: 'suggest_replacements',
+      arguments: { arrangement: matchJson.arrangement, pfad: '/ablauf/teile/0' }
+    });
+    const repJson = JSON.parse((repRes.content as Array<{ text: string }>)[0].text);
+    expect(Array.isArray(repJson.kandidaten)).toBe(true);
+
+    const vocabRes = await client.callTool({ name: 'list_vocabularies', arguments: { scheme: 'ansatz' } });
+    const vocabJson = JSON.parse((vocabRes.content as Array<{ text: string }>)[0].text);
+    expect(vocabJson.werte.length).toBe(12);
+  });
+
+  it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {
+    const summary = await client.readResource({ uri: 'fmt://catalog/summary' });
+    const parsed = JSON.parse((summary.contents[0] as { text: string }).text);
+    expect(parsed.anzahl).toBe(100);
+    expect(parsed.creator).toBe('Jan Schachtschabel');
+
+    const rules = await client.readResource({ uri: 'fmt://rules' });
+    const parsedRules = JSON.parse((rules.contents[0] as { text: string }).text);
+    expect(parsedRules.regeln.length).toBe(13);
+  });
+});
