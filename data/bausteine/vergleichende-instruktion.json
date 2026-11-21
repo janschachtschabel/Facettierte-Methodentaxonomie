@@ -1,0 +1,120 @@
+{
+  "kennung": "vergleichende-instruktion",
+  "name": "Vergleichende Instruktion an Schülerlösungen",
+  "kurzbeschreibung": "Systematischer Vergleich von Schülerlösungen im Plenum mit gezielter Herleitung der kanonischen Lösung und ihrer Merkmale.",
+  "alternativname": [
+    "Konsolidierungsphase",
+    "Instruktion an Schülerlösungen"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Sinha & Kapur (2021): When problem solving followed by instruction works (RER)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "loesungsversuche"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vergleich",
+      "name": "Vergleich typischer Lösungsversuche"
+    },
+    {
+      "kennung": "kanonisch",
+      "name": "Kanonische Lösung im Kontrast"
+    },
+    {
+      "kennung": "merkmale",
+      "name": "Herausarbeiten der kritischen Merkmale"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Eigene Lösungsversuche bleiben folgenlos, wenn die anschließende Erklärung nicht an sie anknüpft.",
+  "durchfuehrung": [
+    "Typische Lösungsversuche auswählen und zeigen",
+    "Stärken und Grenzen jedes Versuchs herausarbeiten",
+    "Kanonische Lösung im Vergleich einführen",
+    "Kritische Merkmale festhalten"
+  ],
+  "material": [
+    "Lösungen der Lernenden aus der Generierungsphase"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-3"
+  ],
+  "hinweis": "Konsolidierungsphase von Productive Failure.",
+  "qualitaetsrisiko": [
+    "Lösungen werden nur aufgezählt, nicht verglichen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Problemlösen vor Instruktion: g ≈ 0,36 insgesamt, g ≈ 0,37–0,58 bei hoher Treue zu den PF-Prinzipien",
+      "quelle": "Sinha & Kapur 2021",
+      "geltung": "Überwiegend Mathematik und Naturwissenschaften, Klasse 6 bis Hochschule; international"
+    }
+  ]
+}

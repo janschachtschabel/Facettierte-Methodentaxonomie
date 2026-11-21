@@ -1,0 +1,157 @@
+{
+  "kennung": "productive-failure",
+  "name": "Productive Failure",
+  "kurzbeschreibung": "Zweiphasiger Kompositbaustein aus eigenständiger Generierungsphase vor Instruktion und anschließender vergleichender Konsolidierung.",
+  "alternativname": [
+    "Produktives Scheitern",
+    "PS-I",
+    "Problemlösen vor Instruktion"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Productive Failure (EN)",
+      "url": "https://en.wikipedia.org/wiki/Productive_failure",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Sinha & Kapur (2021): Review of Educational Research",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "komposit": true,
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "offen",
+    "explizit"
+  ],
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "generierung",
+      "name": "Generierungsphase mit reichhaltigem Problem"
+    },
+    {
+      "kennung": "konsolidierung",
+      "name": "Instruktion, die Lösungsversuche vergleicht"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "generierung",
+      "name": "Generierungsphase",
+      "lernfunktion": [
+        "problemloesen",
+        "verstehen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "konsolidierung",
+      "name": "Konsolidierungsphase",
+      "lernfunktion": [
+        "verstehen",
+        "konsolidierung"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    }
+  ],
+  "dauerMin": 60,
+  "dauerMax": 270,
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "problem": "Ein Konzept soll tief verstanden werden; frühe Erklärung verdeckt, was daran schwierig ist.",
+  "durchfuehrung": [
+    "Problem vor jeder Instruktion bearbeiten lassen",
+    "Lösungsversuche sammeln",
+    "Instruktion, die die Versuche vergleicht und die kanonische Lösung herleitet"
+  ],
+  "material": [
+    "Reichhaltiges Problem mit mehreren Lösungswegen"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "vorbereitungMin": 90,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/24-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2"
+  ],
+  "hinweis": "Konzeptuelles Wissen; genug Vorwissen für eigene Lösungsansätze. Für Klassen 2 bis 5 und für fachübergreifende Fähigkeiten nicht belegt.",
+  "qualitaetsrisiko": [
+    "Ohne Konsolidierung bleibt bloßes Scheitern"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "g ≈ 0,36 für konzeptuelles Wissen und Transfer; in Klasse 2 bis 5 und bei fachübergreifenden Fähigkeiten Vorteil für Instruktion zuerst",
+      "quelle": "Sinha & Kapur 2021",
+      "geltung": "Überwiegend Mathematik und Naturwissenschaften, Klasse 6 bis Hochschule; international"
+    }
+  ],
+  "plot": {
+    "x": 0.28,
+    "y": 2.35
+  }
+}

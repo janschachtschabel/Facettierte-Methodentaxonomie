@@ -1,0 +1,138 @@
+{
+  "kennung": "lehrervortrag",
+  "name": "Lehrervortrag (klassisch)",
+  "kurzbeschreibung": "Strukturierte, zeitlich segmentierte Darbietung neuer Inhalte durch die Lehrkraft im Plenum.",
+  "alternativname": [
+    "Frontalvortrag",
+    "Lehrerdarbietung",
+    "Vorlesung"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lehrervortrag",
+      "url": "https://de.wikipedia.org/wiki/Lehrervortrag",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Frontalunterricht",
+      "url": "https://de.wikipedia.org/wiki/Frontalunterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "verzoegert"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "struktur",
+      "name": "Klare Gliederung"
+    },
+    {
+      "kennung": "anbindung",
+      "name": "Anbindung an Vorwissen"
+    },
+    {
+      "kennung": "segmente",
+      "name": "Segmente von höchstens 10 bis 15 Minuten"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 45,
+  "problem": "Neues Wissen soll in kurzer Zeit an eine ganze Gruppe gelangen, die dazu wenig Vorwissen hat.",
+  "durchfuehrung": [
+    "Ziel und Gliederung nennen",
+    "An Vorwissen anknüpfen",
+    "In Abschnitten von höchstens 15 Minuten darbieten",
+    "Kernaussagen zusammenfassen"
+  ],
+  "material": [
+    "Tafel oder Projektion"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 300,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Erklärvideo",
+    "Kurzvortrag"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-1"
+  ],
+  "hinweis": "Effizient für Erwerb bei geringem Vorwissen; Aufmerksamkeit begrenzt.",
+  "qualitaetsrisiko": [
+    "Keine Diagnose",
+    "Illusion des Verstehens"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Reiner Vortrag schneidet gegen aktivierende Formate schlechter ab (Prüfungsleistung SMD ≈ 0,47)",
+      "quelle": "Freeman et al. 2014",
+      "geltung": "Hochschule, MINT; Übertragung auf die Schule ungeprüft"
+    }
+  ],
+  "plot": {
+    "x": 0.93,
+    "y": 0.18
+  }
+}

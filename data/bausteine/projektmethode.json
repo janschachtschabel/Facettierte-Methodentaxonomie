@@ -1,0 +1,193 @@
+{
+  "kennung": "projektmethode",
+  "name": "Projektmethode (Frey)",
+  "kurzbeschreibung": "Längerfristiges, selbstbestimmtes Vorhaben nach Frey mit gemeinsamer Planung, Fixpunkten, Metainteraktion und Produkt.",
+  "alternativname": [
+    "Projektunterricht",
+    "Projektarbeit",
+    "Project-based Learning"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Projektunterricht",
+      "url": "https://de.wikipedia.org/wiki/Projektunterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Projektmethode",
+      "url": "https://de.wikipedia.org/wiki/Projektmethode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-produkt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "formativ",
+    "summativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "initiative",
+      "name": "Initiative der Lernenden"
+    },
+    {
+      "kennung": "fixpunkte",
+      "name": "Fixpunkte"
+    },
+    {
+      "kennung": "metainteraktion",
+      "name": "Metainteraktion"
+    },
+    {
+      "kennung": "produkt",
+      "name": "Produkt"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "planung",
+      "name": "Projektplanung",
+      "lernfunktion": [
+        "orientierung",
+        "problemloesen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "fixpunkt",
+      "name": "Fixpunkt",
+      "lernfunktion": [
+        "diagnose",
+        "metakognition"
+      ],
+      "reichweite": "r1",
+      "pflicht": true
+    },
+    {
+      "kennung": "praesentation",
+      "name": "Präsentation",
+      "lernfunktion": [
+        "anwendung"
+      ],
+      "reichweite": "r2",
+      "pflicht": false,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 1800,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Wissen soll in einem selbst gewählten, größeren Vorhaben angewendet werden.",
+  "durchfuehrung": [
+    "Projektinitiative aufgreifen und Ziel vereinbaren",
+    "Aufgaben und Zeitplan festlegen",
+    "Durchführen, mit Fixpunkten zur Abstimmung",
+    "Produkt vorstellen",
+    "Prozess auswerten"
+  ],
+  "material": [
+    "Projektplan",
+    "Material je nach Vorhaben"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "vorbereitungMin": 180,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 3,
+  "teamMax": 5,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/35-3"
+  ],
+  "hinweis": "Setzt Vorwissen und Selbstregulation voraus.",
+  "qualitaetsrisiko": [
+    "Erwerbslücken",
+    "Aktivität ohne Lernertrag"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Projektbasiertes Lernen d ≈ 0,71 auf Leistung, mit Fach, Region und Dauer als Moderatoren",
+      "quelle": "Chen & Yang 2019",
+      "geltung": "International; Primärstudien heterogen. Befunde zu problembasiertem Lernen (Dochy et al. 2003) betreffen ein anderes Muster."
+    }
+  ],
+  "plot": {
+    "x": 0.12,
+    "y": 2.55
+  }
+}

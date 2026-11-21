@@ -1,0 +1,141 @@
+{
+  "kennung": "lerntagebuch",
+  "name": "Lerntagebuch mit Prompts",
+  "kurzbeschreibung": "Längerfristiges, durch kognitive und metakognitive Leitfragen gestütztes Lernjournal über eine Unterrichtsreihe.",
+  "alternativname": [
+    "Lernjournal",
+    "Learning Journal",
+    "Lernprotokoll"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lerntagebuch",
+      "url": "https://de.wikipedia.org/wiki/Lerntagebuch",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Nückles et al. (2020): Educational Psychology Review",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "prompts",
+      "name": "Kognitive und metakognitive Prompts"
+    },
+    {
+      "kennung": "regelmaessig",
+      "name": "Regelmäßige Einträge"
+    },
+    {
+      "kennung": "rueckmeldung",
+      "name": "Rückmeldung"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 60,
+  "problem": "Verstehen und Lernstrategien entwickeln sich über Wochen und bleiben ohne Aufzeichnung unsichtbar.",
+  "durchfuehrung": [
+    "Prompts und Rhythmus vereinbaren",
+    "Regelmäßig Einträge schreiben",
+    "Rückmeldung zu ausgewählten Einträgen geben",
+    "Einträge für die eigene Planung nutzen"
+  ],
+  "material": [
+    "Heft oder digitales Journal",
+    "Liste der Prompts"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Portfolio mit ausgewählten Arbeiten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/39-3"
+  ],
+  "hinweis": "Ohne Prompts geringe Qualität.",
+  "qualitaetsrisiko": [
+    "Ritualisierte Pflichteinträge"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Lerntagebuch mit kognitiven und metakognitiven Prompts fördert Lernerfolg",
+      "quelle": "Nückles et al. 2020",
+      "geltung": "Ein Forschungsprogramm (16 Experimente), keine unabhängige Meta-Analyse"
+    }
+  ],
+  "plot": {
+    "x": 0.3,
+    "y": 1.95
+  }
+}

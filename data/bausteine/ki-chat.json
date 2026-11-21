@@ -1,0 +1,104 @@
+{
+  "kennung": "ki-chat",
+  "name": "Ungeführter KI-Chat zur Aufgabenbearbeitung",
+  "kurzbeschreibung": "Kontrast-Baustein: ungeführtes Auslagern von Aufgaben an einen KI-Chatbot als Antwortgeber (erzeugt keinen verlässlichen Lernzustand).",
+  "alternativname": [
+    "Freie Chatbot-Nutzung",
+    "KI als Antwortmaschine"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Bastani et al. (2025): Generative AI without guardrails can harm learning (PNAS)",
+      "url": "https://doi.org/10.1073/pnas.2422633122",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "ki": true,
+  "lernfunktion": [
+    "problemloesen"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "antwortgeber"
+  ],
+  "aufgabe": [],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [],
+  "kernkomponente": [],
+  "dauerMin": 5,
+  "dauerMax": 30,
+  "problem": "Kein didaktisches Problem: beschreibt eine verbreitete Nutzung, die Lernen ersetzt statt stützt.",
+  "durchfuehrung": [
+    "Aufgabe eingeben",
+    "Antwort übernehmen"
+  ],
+  "material": [
+    "Endgerät",
+    "KI-Chat"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 0,
+  "technik": "t-einzeln",
+  "internet": true,
+  "kategorie": [],
+  "hinweis": "Kein didaktisches Muster; erzeugt keinen verlässlichen Lernzustand.",
+  "qualitaetsrisiko": [
+    "Leistungsillusion",
+    "Kognitives Auslagern"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Übungsleistung +48 %, Prüfungsleistung ohne KI −17 % gegenüber der Kontrollgruppe",
+      "quelle": "Bastani et al. 2025",
+      "geltung": "Mathematik, Sekundarstufe, Türkei"
+    }
+  ],
+  "plot": {
+    "x": 0.1,
+    "y": 0.45
+  }
+}

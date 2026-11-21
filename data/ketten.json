@@ -1,0 +1,234 @@
+[
+  {
+    "id": "konzeptaufbau",
+    "label": "Konzeptaufbau",
+    "zielart": [
+      "konzepte"
+    ],
+    "schritte": [
+      {
+        "id": "k1",
+        "label": "Vorwissen und Fehlvorstellungen sichtbar machen",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "fehlvorstellungen-sichtbar"
+      },
+      {
+        "id": "k2",
+        "label": "Konzept generieren oder darbieten und sichern",
+        "funktion": [
+          "verstehen"
+        ],
+        "ziel": "konzept-gesichert"
+      },
+      {
+        "id": "k3",
+        "label": "Konsolidieren",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "wissen-konsolidiert"
+      },
+      {
+        "id": "k4",
+        "label": "Transfer",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt"
+      },
+      {
+        "id": "k5",
+        "label": "Reflexion",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert"
+      }
+    ]
+  },
+  {
+    "id": "prozedur",
+    "label": "Prozedur / Fertigkeit",
+    "zielart": [
+      "prozeduren",
+      "psychomotorik"
+    ],
+    "relatedMatch": [
+      "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-4",
+      "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-5"
+    ],
+    "schritte": [
+      {
+        "id": "p1",
+        "label": "Vorwissen aktivieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert"
+      },
+      {
+        "id": "p2",
+        "label": "Modellieren und erklären",
+        "funktion": [
+          "erwerb"
+        ],
+        "ziel": "erstwissen-ungesichert"
+      },
+      {
+        "id": "p3",
+        "label": "Geleitete, dann selbstständige Übung",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "prozedur-gelaeufig"
+      },
+      {
+        "id": "p4",
+        "label": "Verteilt und verschachtelt wiederholen",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "wissen-konsolidiert"
+      }
+    ]
+  },
+  {
+    "id": "problemloesen",
+    "label": "Problemlösen / Transfer",
+    "relatedMatch": [
+      "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/33"
+    ],
+    "schritte": [
+      {
+        "id": "q1",
+        "label": "Problem erschließen",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen"
+      },
+      {
+        "id": "q2",
+        "label": "Lösungsversuche",
+        "funktion": [
+          "problemloesen"
+        ],
+        "ziel": "loesungsversuche"
+      },
+      {
+        "id": "q3",
+        "label": "Vergleich und Instruktion",
+        "funktion": [
+          "verstehen"
+        ],
+        "ziel": "konzept-gesichert"
+      },
+      {
+        "id": "q4",
+        "label": "Anwendung auf neue Fälle",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt"
+      }
+    ]
+  },
+  {
+    "id": "faktenwissen",
+    "label": "Faktenwissen",
+    "zielart": [
+      "fakten"
+    ],
+    "schritte": [
+      {
+        "id": "f1",
+        "label": "Vorwissen aktivieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert"
+      },
+      {
+        "id": "f2",
+        "label": "Erwerb",
+        "funktion": [
+          "erwerb"
+        ],
+        "ziel": "erstwissen-ungesichert"
+      },
+      {
+        "id": "f3",
+        "label": "Abrufen und verteilt wiederholen",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "wissen-konsolidiert"
+      },
+      {
+        "id": "f4",
+        "label": "Lernstand prüfen",
+        "funktion": [
+          "diagnose"
+        ],
+        "ziel": "lernstand-diagnostiziert"
+      }
+    ]
+  },
+  {
+    "id": "fuenf-e",
+    "label": "5E (Engage – Explore – Explain – Elaborate – Evaluate)",
+    "zielart": [
+      "konzepte"
+    ],
+    "closeMatch": [
+      "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-1"
+    ],
+    "schritte": [
+      {
+        "id": "e1",
+        "label": "Engage: Interesse wecken, Vorwissen aktivieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert"
+      },
+      {
+        "id": "e2",
+        "label": "Explore: eigenständig erkunden",
+        "funktion": [
+          "problemloesen"
+        ],
+        "ziel": "loesungsversuche"
+      },
+      {
+        "id": "e3",
+        "label": "Explain: Konzept klären und sichern",
+        "funktion": [
+          "verstehen"
+        ],
+        "ziel": "konzept-gesichert"
+      },
+      {
+        "id": "e4",
+        "label": "Elaborate: auf neue Situationen anwenden",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt"
+      },
+      {
+        "id": "e5",
+        "label": "Evaluate: Lernstand feststellen",
+        "funktion": [
+          "diagnose"
+        ],
+        "ziel": "lernstand-diagnostiziert"
+      }
+    ]
+  }
+]

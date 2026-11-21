@@ -1,0 +1,140 @@
+{
+  "kennung": "vbe",
+  "name": "Vorhersage–Beobachtung–Erklärung",
+  "kurzbeschreibung": "Lernende formulieren eine schriftliche Vorhersage, beobachten ein Phänomen und klären Abweichungen zu Alltagsvorstellungen.",
+  "alternativname": [
+    "Predict–Observe–Explain",
+    "POE"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Predict-Observe-Explain (EN)",
+      "url": "https://en.wikipedia.org/wiki/Predict-Observe-Explain",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "White & Gunstone (1992): Probing Understanding",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "fehlvorstellungen-sichtbar"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorhersage",
+      "name": "Schriftliche Vorhersage vor der Beobachtung"
+    },
+    {
+      "kennung": "beobachtung",
+      "name": "Beobachtung des Phänomens"
+    },
+    {
+      "kennung": "erklaerung",
+      "name": "Erklärung des Widerspruchs"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "austausch",
+      "name": "Austausch über Vorhersagen",
+      "lernfunktion": [
+        "orientierung",
+        "verstehen"
+      ],
+      "reichweite": "r1",
+      "pflicht": false
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Alltagsvorstellungen bleiben unbemerkt und überdauern die Instruktion.",
+  "durchfuehrung": [
+    "Situation vorstellen",
+    "Vorhersage mit Begründung schriftlich festhalten",
+    "Phänomen beobachten",
+    "Abweichung zwischen Vorhersage und Beobachtung erklären"
+  ],
+  "material": [
+    "Phänomen als Versuch, Video oder Simulation"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Demonstrationsversuch",
+    "Schülerversuch"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Macht Fehlvorstellungen sichtbar, bevor instruiert wird.",
+  "qualitaetsrisiko": [
+    "Vorhersage wird übersprungen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Theoretisch und in Einzelstudien gestützt",
+      "quelle": "White & Gunstone 1992",
+      "geltung": "Naturwissenschaften, Schule; keine Synthese"
+    }
+  ]
+}

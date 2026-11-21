@@ -1,0 +1,157 @@
+{
+  "kennung": "stationenlernen",
+  "name": "Offenes Stationenlernen",
+  "kurzbeschreibung": "Selbstgesteuertes Üben und Vertiefen an Pflicht- und Wahlstationen mit Laufzettel und Selbstkontrolle im eigenen Tempo.",
+  "alternativname": [
+    "Lernzirkel",
+    "Stationenarbeit",
+    "Lernen an Stationen"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "stationen",
+  "ansatz": [
+    "offen",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernen an Stationen",
+      "url": "https://de.wikipedia.org/wiki/Lernen_an_Stationen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "fakten",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "laufzettel",
+      "name": "Laufzettel"
+    },
+    {
+      "kennung": "selbstkontrolle",
+      "name": "Selbstkontrolle"
+    },
+    {
+      "kennung": "pflicht-wahl",
+      "name": "Pflicht- und Wahlstationen"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "station",
+      "name": "Station",
+      "lernfunktion": [
+        "konsolidierung",
+        "anwendung"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "problem": "Unterschiedliches Lerntempo macht gemeinsames Üben im Gleichschritt ineffizient.",
+  "durchfuehrung": [
+    "Stationen und Laufzettel erklären",
+    "Pflicht- und Wahlstationen in eigener Reihenfolge bearbeiten",
+    "An jeder Station selbst kontrollieren",
+    "Gemeinsam auswerten"
+  ],
+  "material": [
+    "Stationsmaterial mit Lösungen",
+    "Laufzettel"
+  ],
+  "raum": "Platz für Stationstische",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "vorbereitungMin": 180,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 1,
+  "teamMax": 2,
+  "variante": [
+    "Lerntheke"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/113-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/311-4"
+  ],
+  "hinweis": "Selbstregulation und klare Aufträge nötig.",
+  "qualitaetsrisiko": [
+    "Abarbeiten statt Durchdenken",
+    "Lehrkraft verwaltet statt zu diagnostizieren"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Wenig belastbare Wirkungsevidenz; Befunde zu offenen Lernformen heterogen",
+      "quelle": "Lipowsky 2002",
+      "geltung": "Deutschland, Grundschule; Übersichtsbeitrag"
+    }
+  ],
+  "plot": {
+    "x": 0.35,
+    "y": 0.95
+  }
+}

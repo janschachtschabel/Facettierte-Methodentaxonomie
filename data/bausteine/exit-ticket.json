@@ -1,0 +1,123 @@
+{
+  "kennung": "exit-ticket",
+  "name": "Exit-Ticket",
+  "kurzbeschreibung": "Kurze, individuelle Abschlussfrage am Stundenende zur raschen Lernstandsdiagnose für die Planung der Folgestunde.",
+  "alternativname": [
+    "Exit Slip",
+    "Ausgangsticket",
+    "Lernstandsticket"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Formatives Assessment",
+      "url": "https://de.wikipedia.org/wiki/Formatives_Assessment",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Kingston & Nash (2011): Formative assessment meta-analysis",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kernfrage",
+      "name": "Eine Kernfrage zum Stundenziel"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Auswertung vor der nächsten Stunde"
+    }
+  ],
+  "dauerMin": 3,
+  "dauerMax": 7,
+  "problem": "Am Stundenende ist unklar, wer das Ziel erreicht hat.",
+  "durchfuehrung": [
+    "Eine Kernfrage zum Stundenziel stellen",
+    "Alle antworten einzeln und schriftlich",
+    "Antworten vor der nächsten Stunde sichten",
+    "Die nächste Stunde danach ausrichten"
+  ],
+  "material": [
+    "Zettel oder digitales Formular"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "One-Minute-Paper"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-1"
+  ],
+  "hinweis": "Steuert die nächste Stunde.",
+  "qualitaetsrisiko": [
+    "Wird nicht ausgewertet"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Formative Diagnose wirkt positiv, vermutlich deutlich schwächer als früher berichtet (≈ 0,20 statt 0,40–0,70)",
+      "quelle": "Black & Wiliam 1998; Kingston & Nash 2011",
+      "geltung": "Schule, überwiegend USA und Großbritannien",
+      "umstritten": "Effektgröße strittig; die Methodik beider Synthesen wurde kritisiert"
+    }
+  ]
+}

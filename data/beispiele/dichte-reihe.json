@@ -1,0 +1,115 @@
+{
+  "@id": "https://w3id.org/fmt/beispiel/dichte-reihe",
+  "typ": "Arrangement",
+  "name": "Reihe „Dichte“, Klasse 7",
+  "reichweite": "r3",
+  "zieltyp": "konzeptaufbau",
+  "kontext": {
+    "stufe": "Sekundarstufe I, Klasse 7",
+    "bildungsstufe": "sek1",
+    "fach": "Physik",
+    "vorwissen": "gering",
+    "zeitbudgetMin": 270
+  },
+  "ablauf": {
+    "typ": "Parallel",
+    "haupt": {
+      "typ": "Sequenz",
+      "teile": [
+        {
+          "typ": "Einsatz",
+          "baustein": "vbe",
+          "dauerMin": 30,
+          "kettenschritt": "k1",
+          "belegung": [
+            {
+              "slotKennung": "austausch",
+              "inhalt": {
+                "typ": "Einsatz",
+                "baustein": "tps",
+                "dauerMin": 10
+              }
+            }
+          ]
+        },
+        {
+          "typ": "Einsatz",
+          "baustein": "productive-failure",
+          "dauerMin": 90,
+          "kettenschritt": "k2",
+          "belegung": [
+            {
+              "slotKennung": "generierung",
+              "inhalt": {
+                "typ": "Einsatz",
+                "baustein": "erfindungsaufgabe",
+                "dauerMin": 45
+              }
+            },
+            {
+              "slotKennung": "konsolidierung",
+              "inhalt": {
+                "typ": "Einsatz",
+                "baustein": "vergleichende-instruktion",
+                "dauerMin": 40
+              }
+            }
+          ]
+        },
+        {
+          "typ": "Alternative",
+          "kettenschritt": "k3",
+          "kriterium": "Beobachtung in der Vergleichsphase: Konzept noch unsicher oder bereits sicher",
+          "optionen": [
+            {
+              "typ": "Einsatz",
+              "baustein": "loesungsbeispiele",
+              "dauerMin": 30
+            },
+            {
+              "typ": "Einsatz",
+              "baustein": "ki-tutor",
+              "dauerMin": 30
+            }
+          ]
+        },
+        {
+          "typ": "Einsatz",
+          "baustein": "experiment",
+          "dauerMin": 55,
+          "kettenschritt": "k4",
+          "belegung": [
+            {
+              "slotKennung": "sicherung",
+              "inhalt": {
+                "typ": "Einsatz",
+                "baustein": "exit-ticket",
+                "dauerMin": 5
+              }
+            }
+          ]
+        },
+        {
+          "typ": "Einsatz",
+          "baustein": "reflexionsprompt",
+          "dauerMin": 10,
+          "kettenschritt": "k5"
+        },
+        {
+          "typ": "Wiederkehr",
+          "baustein": "abrufquiz",
+          "anzahl": 3,
+          "abstand": "P2D",
+          "dauerMin": 6
+        }
+      ]
+    },
+    "begleitend": [
+      {
+        "typ": "Einsatz",
+        "baustein": "lerntagebuch",
+        "dauerMin": 20
+      }
+    ]
+  }
+}

@@ -1,0 +1,1266 @@
+{
+  "schemes": [
+    {
+      "id": "reichweite",
+      "titel": "Reichweite",
+      "beschreibung": "Größe einer didaktischen Einheit; inklusive Hierarchie in Anlehnung an Baumgartner (2011): Interaktion, Szenario, Ensemble, Modul, Curriculum. Die Unterrichtsstunde ist keine eigene Stufe: Mit einem durchgehenden Szenario ist sie R2, aus mehreren Szenarien gebaut ein kleines Ensemble (R3).",
+      "werte": [
+        {
+          "id": "r1",
+          "label": "Interaktion",
+          "definition": "Sekunden bis Minuten",
+          "rang": 1
+        },
+        {
+          "id": "r2",
+          "label": "Szenario",
+          "definition": "Minuten bis eine Stunde",
+          "rang": 2,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/41",
+          "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/42"
+        },
+        {
+          "id": "r3",
+          "label": "Ensemble / Reihe",
+          "definition": "Stunden bis Wochen",
+          "rang": 3,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/43",
+          "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/42"
+        },
+        {
+          "id": "r4",
+          "label": "Modul / Kurs",
+          "definition": "Halbjahr bis Jahr",
+          "rang": 4,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/44"
+        },
+        {
+          "id": "r5",
+          "label": "Curriculum",
+          "definition": "Bildungsgang",
+          "rang": 5
+        }
+      ]
+    },
+    {
+      "id": "beschreibungsstufe",
+      "titel": "Beschreibungsstufe",
+      "beschreibung": "Abstraktionsgrad einer Beschreibung nach Baumgartner (2011).",
+      "werte": [
+        {
+          "id": "s1",
+          "label": "Praxisbeschreibung",
+          "definition": "Bericht über eine konkrete Durchführung",
+          "rang": 1
+        },
+        {
+          "id": "s2",
+          "label": "Muster",
+          "definition": "Benannte Methode mit Kontext, Problem, Lösung und Kernkomponenten",
+          "rang": 2
+        },
+        {
+          "id": "s3",
+          "label": "Modell / Profil",
+          "definition": "Abstrahiertes Bündel von Facettenwerten",
+          "rang": 3
+        },
+        {
+          "id": "s4",
+          "label": "Prinzip",
+          "definition": "Einzelner Facettenwert",
+          "rang": 4
+        },
+        {
+          "id": "s5",
+          "label": "Dimension",
+          "definition": "Facette",
+          "rang": 5
+        },
+        {
+          "id": "s6",
+          "label": "Kategorie",
+          "definition": "Domäne",
+          "rang": 6
+        }
+      ]
+    },
+    {
+      "id": "lernfunktion",
+      "titel": "Lernfunktion",
+      "beschreibung": "Primär adressierte Funktion im Lernprozess (Facette A1). Zielarten wie Einstellungen oder Motorik stehen in D1.",
+      "werte": [
+        {
+          "id": "orientierung",
+          "label": "Orientierung & Motivierung",
+          "definition": "Ziel klären, Vorwissen aktivieren, Interesse wecken",
+          "alt": [
+            "Einstieg",
+            "Aktivierung",
+            "Hinführung"
+          ],
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+          "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+        },
+        {
+          "id": "erwerb",
+          "label": "Erwerb",
+          "definition": "Neue Information aufnehmen",
+          "alt": [
+            "Darbietung",
+            "Instruktion",
+            "Input"
+          ],
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13"
+        },
+        {
+          "id": "verstehen",
+          "label": "Verstehen & Konzeptaufbau",
+          "definition": "Zusammenhänge aufbauen, ein Konzept durcharbeiten",
+          "alt": [
+            "Erarbeitung",
+            "Durcharbeiten"
+          ],
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+        },
+        {
+          "id": "problemloesen",
+          "label": "Problemlösen & Transfer",
+          "definition": "Wissen auf neuartige Probleme übertragen",
+          "alt": [
+            "Transfer"
+          ],
+          "broadMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+        },
+        {
+          "id": "konsolidierung",
+          "label": "Konsolidierung (Abruf, Üben)",
+          "definition": "Behalten und Geläufigkeit durch Abruf und Übung sichern",
+          "alt": [
+            "Übung",
+            "Festigung",
+            "Sicherung",
+            "Wiederholung"
+          ],
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+        },
+        {
+          "id": "anwendung",
+          "label": "Anwendung & Produktion",
+          "definition": "Wissen in bekannten Aufgabentypen nutzen, ein Produkt erstellen",
+          "alt": [
+            "Produktion",
+            "Gestaltung"
+          ],
+          "broadMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+          "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110"
+        },
+        {
+          "id": "metakognition",
+          "label": "Metakognition & Reflexion",
+          "definition": "Eigenes Lernen planen, überwachen und bewerten",
+          "alt": [
+            "Reflexion",
+            "Auswertung"
+          ],
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+        },
+        {
+          "id": "diagnose",
+          "label": "Diagnose (Lernstand sichtbar machen)",
+          "definition": "Lernstand für Lernende und Lehrkraft sichtbar machen",
+          "alt": [
+            "Formatives Assessment",
+            "Lernstandserhebung",
+            "Assessment"
+          ],
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+        }
+      ]
+    },
+    {
+      "id": "engagement",
+      "titel": "Engagementmodus",
+      "beschreibung": "Intendierter kognitiver Engagementmodus nach ICAP (Facette A2). Der Rang ordnet die Darstellung, nicht die Wirksamkeit.",
+      "werte": [
+        {
+          "id": "passiv",
+          "label": "passiv",
+          "definition": "Aufnehmen ohne weitere sichtbare Handlung (zuhören, lesen, zusehen)",
+          "rang": 0
+        },
+        {
+          "id": "aktiv",
+          "label": "aktiv",
+          "definition": "Material handhaben, ohne Neues zu erzeugen (markieren, abschreiben, wiederholen, auswählen)",
+          "rang": 1
+        },
+        {
+          "id": "konstruktiv",
+          "label": "konstruktiv",
+          "definition": "Äußerungen erzeugen, die über das Material hinausgehen (erklären, begründen, vergleichen, Fragen stellen)",
+          "rang": 2
+        },
+        {
+          "id": "interaktiv",
+          "label": "interaktiv",
+          "definition": "Im Dialog wechselseitig konstruktiv aufeinander aufbauen",
+          "rang": 3
+        }
+      ]
+    },
+    {
+      "id": "weltbezug",
+      "titel": "Weltbezug",
+      "beschreibung": "Worauf sich die Lernhandlung richtet (Facette A3).",
+      "werte": [
+        {
+          "id": "gegenstand",
+          "label": "Gegenstand & Material"
+        },
+        {
+          "id": "selbst",
+          "label": "Selbst"
+        },
+        {
+          "id": "andere",
+          "label": "Andere"
+        },
+        {
+          "id": "gesellschaft",
+          "label": "Gesellschaft"
+        }
+      ]
+    },
+    {
+      "id": "anleitung",
+      "titel": "Anleitungsgrad",
+      "beschreibung": "Menge expliziter Struktur und Information (Facette B1).",
+      "werte": [
+        {
+          "id": "explizit",
+          "label": "explizit-instruiert",
+          "definition": "Vollständige Information und Modellierung vor oder während der Bearbeitung",
+          "rang": 2,
+          "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31"
+        },
+        {
+          "id": "geleitet",
+          "label": "geleitet-entdeckend",
+          "definition": "Eigene Erarbeitung mit Hinweisen, Strukturhilfen oder Rückmeldung",
+          "rang": 1,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+        },
+        {
+          "id": "offen",
+          "label": "offen-entdeckend",
+          "definition": "Eigene Erarbeitung ohne inhaltliche Hilfen",
+          "rang": 0,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2"
+        }
+      ]
+    },
+    {
+      "id": "steuerungsdimension",
+      "titel": "Steuerungsdimension",
+      "beschreibung": "Entscheidungsdimensionen in Anlehnung an Peschel (2002: organisatorisch, methodisch, inhaltlich, sozial, persönlich). „Bewertung“ ist ergänzt, „persönliche Offenheit“ nicht übernommen (Facette B2).",
+      "werte": [
+        {
+          "id": "organisation",
+          "label": "Organisation",
+          "definition": "Zeit, Ort, Sozialform"
+        },
+        {
+          "id": "lernweg",
+          "label": "Lernweg",
+          "definition": "Vorgehen und Methode der Bearbeitung"
+        },
+        {
+          "id": "inhalt",
+          "label": "Inhalt",
+          "definition": "Thema und Lernstoff"
+        },
+        {
+          "id": "sozial",
+          "label": "Sozialbeziehung",
+          "definition": "Regeln, Zusammenarbeit, gemeinsame Vorhaben"
+        },
+        {
+          "id": "bewertung",
+          "label": "Bewertung",
+          "definition": "Kriterien und Urteil über die Leistung"
+        }
+      ]
+    },
+    {
+      "id": "steuerungstraeger",
+      "titel": "Steuerungsträger",
+      "beschreibung": "Wer eine Steuerungsdimension bestimmt.",
+      "werte": [
+        {
+          "id": "lehrkraft",
+          "label": "Lehrkraft"
+        },
+        {
+          "id": "geteilt",
+          "label": "geteilt"
+        },
+        {
+          "id": "lernende",
+          "label": "Lernende"
+        }
+      ]
+    },
+    {
+      "id": "adaptivitaet",
+      "titel": "Adaptivität",
+      "beschreibung": "Reaktion auf Lernunterschiede (Facette B3): wann angepasst wird, was angepasst wird und welche Zugangsoptionen bestehen.",
+      "gruppen": [
+        {
+          "id": "differenzierung",
+          "label": "Differenzierung",
+          "werte": [
+            {
+              "id": "uniform",
+              "label": "uniform",
+              "definition": "Gleiches Angebot für alle"
+            },
+            {
+              "id": "makro",
+              "label": "makro-adaptiv (vorab differenziert)",
+              "definition": "Vor der Durchführung nach Lernstand zugeteilte Aufgaben, Materialien oder Gruppen"
+            },
+            {
+              "id": "mikro",
+              "label": "mikro-adaptiv (Scaffolding & Fading)",
+              "definition": "Laufende Anpassung der Unterstützung in der Situation"
+            }
+          ]
+        },
+        {
+          "id": "zugang",
+          "label": "Zugangsoptionen",
+          "werte": [
+            {
+              "id": "udl",
+              "label": "Wahloptionen nach UDL",
+              "definition": "Vorab angebotene Wahl bei Darstellung, Handlung und Ausdruck, Engagement",
+              "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/28-3"
+            }
+          ]
+        },
+        {
+          "id": "diffgegenstand",
+          "label": "Angepasst wird",
+          "werte": [
+            {
+              "id": "diff-inhalt",
+              "label": "Inhalt",
+              "definition": "Niveau, Umfang oder Darstellung des Stoffs"
+            },
+            {
+              "id": "diff-prozess",
+              "label": "Prozess",
+              "definition": "Lernweg und Maß der Unterstützung"
+            },
+            {
+              "id": "diff-produkt",
+              "label": "Produkt",
+              "definition": "Form des Ergebnisses"
+            },
+            {
+              "id": "diff-tempo",
+              "label": "Tempo",
+              "definition": "Geschwindigkeit und Übungsumfang"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feedback",
+      "titel": "Feedback & Bewertung",
+      "beschreibung": "Quelle, Zeitpunkt, Ebene, Informationsgehalt, Funktion und Bezugsnorm von Rückmeldung (Facette B4).",
+      "gruppen": [
+        {
+          "id": "quelle",
+          "label": "Quelle",
+          "werte": [
+            {
+              "id": "fb-lehrkraft",
+              "label": "Lehrkraft"
+            },
+            {
+              "id": "peer",
+              "label": "Peer"
+            },
+            {
+              "id": "selbstkontrolle",
+              "label": "Selbst"
+            },
+            {
+              "id": "system",
+              "label": "System/KI"
+            }
+          ]
+        },
+        {
+          "id": "zeitpunkt",
+          "label": "Zeitpunkt",
+          "werte": [
+            {
+              "id": "unmittelbar",
+              "label": "unmittelbar"
+            },
+            {
+              "id": "verzoegert",
+              "label": "verzögert"
+            }
+          ]
+        },
+        {
+          "id": "ebene",
+          "label": "Ebene",
+          "werte": [
+            {
+              "id": "aufgabenebene",
+              "label": "Aufgabe"
+            },
+            {
+              "id": "prozessebene",
+              "label": "Prozess"
+            },
+            {
+              "id": "selbstregulationsebene",
+              "label": "Selbstregulation"
+            }
+          ]
+        },
+        {
+          "id": "informationsgehalt",
+          "label": "Informationsgehalt",
+          "werte": [
+            {
+              "id": "fb-kr",
+              "label": "richtig/falsch",
+              "definition": "Nur Auskunft, ob die Antwort stimmt"
+            },
+            {
+              "id": "fb-kcr",
+              "label": "korrekte Lösung",
+              "definition": "Mitteilung der richtigen Lösung"
+            },
+            {
+              "id": "fb-elaboriert",
+              "label": "elaboriert",
+              "definition": "Hinweise, Erklärungen oder Strategien zum Weiterarbeiten"
+            }
+          ]
+        },
+        {
+          "id": "funktion",
+          "label": "Funktion",
+          "werte": [
+            {
+              "id": "formativ",
+              "label": "formativ",
+              "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2"
+            },
+            {
+              "id": "summativ",
+              "label": "summativ"
+            },
+            {
+              "id": "diagnostisch",
+              "label": "diagnostisch",
+              "definition": "Standortbestimmung vor dem Lernen"
+            }
+          ]
+        },
+        {
+          "id": "bezugsnorm",
+          "label": "Bezugsnorm",
+          "werte": [
+            {
+              "id": "bn-kriterial",
+              "label": "kriterial",
+              "definition": "Vergleich mit einem sachlichen Kriterium"
+            },
+            {
+              "id": "bn-individuell",
+              "label": "individuell",
+              "definition": "Vergleich mit der eigenen früheren Leistung",
+              "alt": [
+                "ipsativ"
+              ]
+            },
+            {
+              "id": "bn-sozial",
+              "label": "sozial",
+              "definition": "Vergleich mit der Lerngruppe"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "interaktion",
+      "titel": "Interaktionsstruktur",
+      "beschreibung": "Wer mit wem, wie strukturiert (Facette C1).",
+      "werte": [
+        {
+          "id": "einzel",
+          "label": "Einzel"
+        },
+        {
+          "id": "partner",
+          "label": "Partner"
+        },
+        {
+          "id": "kleingruppe-unstrukturiert",
+          "label": "Kleingruppe unstrukturiert"
+        },
+        {
+          "id": "kleingruppe-kooperativ",
+          "label": "Kleingruppe kooperativ strukturiert",
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+        },
+        {
+          "id": "plenum-lehrergeleitet",
+          "label": "Plenum lehrergeleitet"
+        },
+        {
+          "id": "plenum-lernendengeleitet",
+          "label": "Plenum lernendengeleitet"
+        }
+      ]
+    },
+    {
+      "id": "repraesentation",
+      "titel": "Repräsentationsmodus",
+      "beschreibung": "Darstellungsform der Lernhandlung nach Bruner (Facette C2). Mehrere Formen werden als Mehrfachwert kodiert.",
+      "werte": [
+        {
+          "id": "enaktiv",
+          "label": "enaktiv",
+          "definition": "Handelnd am Gegenstand"
+        },
+        {
+          "id": "ikonisch",
+          "label": "ikonisch",
+          "definition": "Bild, Grafik, Modell, Video"
+        },
+        {
+          "id": "symbolisch",
+          "label": "symbolisch (Sprache, Schrift, Formel)",
+          "definition": "Gesprochene oder geschriebene Sprache, formale Notation"
+        }
+      ]
+    },
+    {
+      "id": "raumzeit",
+      "titel": "Raum-Zeit-Modus",
+      "beschreibung": "Ort und Synchronität, unabhängig vom Medium (Facette C3). Blended und Flipped sind Kompositionen, keine Werte.",
+      "gruppen": [
+        {
+          "id": "ort",
+          "label": "Ort",
+          "werte": [
+            {
+              "id": "praesenz",
+              "label": "Präsenz",
+              "definition": "Lernende und Lehrkraft am selben Ort"
+            },
+            {
+              "id": "distanz",
+              "label": "Distanz",
+              "definition": "Räumlich getrennt, digital oder analog (auch Hausaufgabe)"
+            }
+          ]
+        },
+        {
+          "id": "zeit",
+          "label": "Zeit",
+          "werte": [
+            {
+              "id": "synchron",
+              "label": "synchron",
+              "definition": "Gleichzeitig"
+            },
+            {
+              "id": "asynchron",
+              "label": "asynchron",
+              "definition": "Zeitversetzt, selbst getaktet"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "agentenrolle",
+      "titel": "Agentenrolle",
+      "beschreibung": "Rollen von Lehrkraft und technischen Agenten (Facette C4).",
+      "gruppen": [
+        {
+          "id": "lehrkraftrolle",
+          "label": "Lehrkraft",
+          "werte": [
+            {
+              "id": "instrukteur",
+              "label": "Instrukteur"
+            },
+            {
+              "id": "moderator",
+              "label": "Moderator"
+            },
+            {
+              "id": "coach",
+              "label": "Coach"
+            },
+            {
+              "id": "ko-lernende",
+              "label": "Ko-Lernende"
+            }
+          ]
+        },
+        {
+          "id": "ki-rolle",
+          "label": "KI/System",
+          "werte": [
+            {
+              "id": "ki-keine",
+              "label": "keine"
+            },
+            {
+              "id": "werkzeug",
+              "label": "Werkzeug"
+            },
+            {
+              "id": "tutor",
+              "label": "Tutor",
+              "definition": "Führt mit Hinweisen und Rückfragen, gibt keine Lösung aus"
+            },
+            {
+              "id": "feedbackgeber",
+              "label": "Feedbackgeber"
+            },
+            {
+              "id": "dialogpartner",
+              "label": "Dialogpartner"
+            },
+            {
+              "id": "simulationsrolle",
+              "label": "Simulationsrolle"
+            },
+            {
+              "id": "belehrbarer-agent",
+              "label": "Belehrbarer Agent",
+              "definition": "Lernende erklären dem Agenten den Stoff (Lernen durch Lehren)",
+              "alt": [
+                "Teachable Agent"
+              ]
+            },
+            {
+              "id": "antwortgeber",
+              "label": "Antwortgeber",
+              "definition": "Gibt Lösungen aus; die kognitive Arbeit wird ausgelagert"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aufgabenstruktur",
+      "titel": "Aufgabenstruktur",
+      "beschreibung": "Zielart, Anforderungsbereich, Problemstruktur, Kontext (Facette D1). Der Anforderungsbereich nennt die Spanne, die eine Methode typischerweise trägt; im Einzelfall entscheidet die Aufgabe.",
+      "gruppen": [
+        {
+          "id": "wissensart",
+          "label": "Zielart",
+          "werte": [
+            {
+              "id": "fakten",
+              "label": "Fakten"
+            },
+            {
+              "id": "konzepte",
+              "label": "Konzepte"
+            },
+            {
+              "id": "prozeduren",
+              "label": "Prozeduren"
+            },
+            {
+              "id": "metakognitiv",
+              "label": "metakognitiv"
+            },
+            {
+              "id": "einstellungen",
+              "label": "Einstellungen & Werte"
+            },
+            {
+              "id": "psychomotorik",
+              "label": "Motorische Fertigkeiten"
+            }
+          ]
+        },
+        {
+          "id": "anforderungsbereich",
+          "label": "Anforderungsbereich",
+          "werte": [
+            {
+              "id": "afb1",
+              "label": "AFB I Reproduzieren",
+              "definition": "Wiedergabe und direkte Anwendung in einem abgegrenzten, wiederholenden Zusammenhang"
+            },
+            {
+              "id": "afb2",
+              "label": "AFB II Zusammenhänge herstellen",
+              "definition": "Selbstständiges Auswählen, Anordnen und Verknüpfen bekannter Sachverhalte"
+            },
+            {
+              "id": "afb3",
+              "label": "AFB III Verallgemeinern und Reflektieren",
+              "definition": "Bearbeiten komplexer Gegebenheiten mit eigenen Lösungen, Begründungen, Wertungen"
+            }
+          ]
+        },
+        {
+          "id": "problemstruktur",
+          "label": "Problemstruktur",
+          "werte": [
+            {
+              "id": "wohlstrukturiert",
+              "label": "wohlstrukturiert"
+            },
+            {
+              "id": "schlecht-strukturiert",
+              "label": "schlecht strukturiert"
+            }
+          ]
+        },
+        {
+          "id": "aufgabenkontext",
+          "label": "Kontext",
+          "werte": [
+            {
+              "id": "abstrakt",
+              "label": "abstrakt"
+            },
+            {
+              "id": "fall",
+              "label": "Fall"
+            },
+            {
+              "id": "simulation",
+              "label": "Simulation"
+            },
+            {
+              "id": "authentisch",
+              "label": "authentisch"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sequenzlogik",
+      "titel": "Sequenzlogik",
+      "beschreibung": "Zeitliche Ordnung (Facette D2). Blockung und Verteilung sind bei R1- und R2-Bausteinen eine Anforderung an die Komposition; erfüllt werden sie durch den Operator Wiederkehr.",
+      "gruppen": [
+        {
+          "id": "reihenfolge",
+          "label": "Reihenfolge",
+          "werte": [
+            {
+              "id": "instruktion-vor-problem",
+              "label": "Instruktion vor Problem"
+            },
+            {
+              "id": "problem-vor-instruktion",
+              "label": "Problem vor Instruktion"
+            }
+          ]
+        },
+        {
+          "id": "blockung",
+          "label": "Blockung",
+          "werte": [
+            {
+              "id": "geblockt",
+              "label": "geblockt"
+            },
+            {
+              "id": "verschachtelt",
+              "label": "verschachtelt",
+              "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/37-4"
+            }
+          ]
+        },
+        {
+          "id": "verteilung",
+          "label": "Verteilung",
+          "werte": [
+            {
+              "id": "massiert",
+              "label": "massiert"
+            },
+            {
+              "id": "verteilt",
+              "label": "verteilt",
+              "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/37-5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lernzustand",
+      "titel": "Lernzustand",
+      "beschreibung": "Typen für Vor- und Nachbedingungen von Bausteinen. Ein Zustand kann schwächere Zustände implizieren.",
+      "werte": [
+        {
+          "id": "vorwissen-aktiviert",
+          "label": "Vorwissen aktiviert"
+        },
+        {
+          "id": "fehlvorstellungen-sichtbar",
+          "label": "Fehlvorstellungen sichtbar",
+          "impliziert": [
+            "vorwissen-aktiviert"
+          ]
+        },
+        {
+          "id": "problem-erschlossen",
+          "label": "Problem erschlossen"
+        },
+        {
+          "id": "loesungsversuche",
+          "label": "Eigene Lösungsversuche liegen vor",
+          "impliziert": [
+            "vorwissen-aktiviert"
+          ]
+        },
+        {
+          "id": "erstwissen-ungesichert",
+          "label": "Erstwissen erworben, ungesichert"
+        },
+        {
+          "id": "konzept-gesichert",
+          "label": "Konzept verstanden und gesichert",
+          "impliziert": [
+            "erstwissen-ungesichert"
+          ]
+        },
+        {
+          "id": "prozedur-gelaeufig",
+          "label": "Prozedur geläufig",
+          "impliziert": [
+            "erstwissen-ungesichert"
+          ]
+        },
+        {
+          "id": "wissen-konsolidiert",
+          "label": "Wissen konsolidiert",
+          "definition": "Durch Abruf oder Übung gefestigt; verteilte Wiederholung verlängert das Behalten",
+          "impliziert": [
+            "erstwissen-ungesichert"
+          ]
+        },
+        {
+          "id": "transfer-gezeigt",
+          "label": "Transfer gezeigt / Produkt erstellt"
+        },
+        {
+          "id": "lernstand-diagnostiziert",
+          "label": "Lernstand diagnostiziert"
+        },
+        {
+          "id": "lernen-reflektiert",
+          "label": "Eigenes Lernen reflektiert"
+        }
+      ]
+    },
+    {
+      "id": "kompositionsoperator",
+      "titel": "Kompositionsoperator",
+      "beschreibung": "Wie Bausteine kombiniert werden.",
+      "werte": [
+        {
+          "id": "sequenz",
+          "label": "Sequenz",
+          "definition": "Bausteine folgen nacheinander"
+        },
+        {
+          "id": "schachtelung",
+          "label": "Schachtelung",
+          "definition": "Ein Baustein füllt einen Slot eines Bausteins höherer Reichweite"
+        },
+        {
+          "id": "parallel",
+          "label": "Parallel",
+          "definition": "Ein Begleitstrang läuft neben dem Hauptablauf"
+        },
+        {
+          "id": "wiederkehr",
+          "label": "Wiederkehr",
+          "definition": "Ein Baustein kehrt verteilt mehrfach wieder",
+          "relatedMatch": "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/37-5"
+        },
+        {
+          "id": "alternative",
+          "label": "Alternative",
+          "definition": "Adaptive Verzweigung nach Diagnose oder Wahl"
+        },
+        {
+          "id": "verweis",
+          "label": "Verweis",
+          "definition": "Ein vollständiges Arrangement wird in eines höherer Reichweite eingebunden"
+        }
+      ]
+    },
+    {
+      "id": "vorwissen",
+      "titel": "Vorwissen",
+      "beschreibung": "Bedingungsraum: Vorwissen der Lerngruppe zum Zielgegenstand. Voraussetzungswissen steht in den Vorbedingungen.",
+      "werte": [
+        {
+          "id": "gering",
+          "label": "gering",
+          "rang": 0
+        },
+        {
+          "id": "mittel",
+          "label": "mittel",
+          "rang": 1
+        },
+        {
+          "id": "hoch",
+          "label": "hoch",
+          "rang": 2
+        }
+      ]
+    },
+    {
+      "id": "evidenzgrad",
+      "titel": "Evidenzgrad",
+      "beschreibung": "Güte der Evidenz für eine Aussage. Der Grad gilt für die genannte Geltung, nicht für jede Bildungsstufe.",
+      "werte": [
+        {
+          "id": "A",
+          "label": "A",
+          "definition": "Mindestens zwei unabhängige Synthesen (Meta-Analysen, systematische Reviews) mit gleichgerichtetem Befund"
+        },
+        {
+          "id": "B",
+          "label": "B",
+          "definition": "Eine Meta-Analyse, ein Forschungsprogramm mit mehreren kontrollierten Studien oder stark heterogene Befunde"
+        },
+        {
+          "id": "C",
+          "label": "C",
+          "definition": "Einzelne Studien oder theoretische Begründung, vorläufig"
+        }
+      ]
+    },
+    {
+      "id": "bildungsstufe",
+      "titel": "Bildungsstufe",
+      "beschreibung": "Bedingungsraum: Bildungsstufe der Lerngruppe. Abgleich mit dem OpenEduHub-Vokabular educationalContext über skos:closeMatch.",
+      "werte": [
+        {
+          "id": "primar",
+          "label": "Primarstufe",
+          "rang": 1,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/educationalContext/grundschule"
+        },
+        {
+          "id": "sek1",
+          "label": "Sekundarstufe I",
+          "rang": 2,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/educationalContext/sekundarstufe_1"
+        },
+        {
+          "id": "sek2",
+          "label": "Sekundarstufe II",
+          "rang": 3,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/educationalContext/sekundarstufe_2"
+        },
+        {
+          "id": "berufsbildung",
+          "label": "Berufliche Bildung",
+          "rang": 4,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/educationalContext/berufliche_bildung"
+        },
+        {
+          "id": "hochschule",
+          "label": "Hochschule",
+          "rang": 5,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/educationalContext/hochschule"
+        },
+        {
+          "id": "erwachsenenbildung",
+          "label": "Erwachsenenbildung",
+          "rang": 6,
+          "closeMatch": "http://w3id.org/openeduhub/vocabs/educationalContext/erwachsenenbildung"
+        }
+      ]
+    },
+    {
+      "id": "technikbedarf",
+      "titel": "Technikbedarf",
+      "beschreibung": "Bedingungsraum: Geräte, die die Methode mindestens braucht. Geordnet von wenig nach viel.",
+      "werte": [
+        {
+          "id": "t-keine",
+          "label": "keine Geräte",
+          "definition": "Tafel und Papier genügen",
+          "rang": 0
+        },
+        {
+          "id": "t-projektion",
+          "label": "Projektion",
+          "definition": "Ein Gerät der Lehrkraft mit Projektion",
+          "rang": 1
+        },
+        {
+          "id": "t-geteilt",
+          "label": "Geräte je Gruppe",
+          "definition": "Ein Endgerät je Tandem oder Gruppe",
+          "rang": 2
+        },
+        {
+          "id": "t-einzeln",
+          "label": "Gerät je Person",
+          "definition": "Ein Endgerät für jede lernende Person",
+          "rang": 3
+        }
+      ]
+    },
+    {
+      "id": "ansatz",
+      "titel": "Didaktischer Ansatz / Bereich",
+      "beschreibung": "Katalog-Einstieg nach didaktischen Traditionen und Praxisfeldern (ergänzend zu den 13 Facetten).",
+      "werte": [
+        {
+          "id": "instruktion",
+          "label": "Instruktion & Darbietung",
+          "definition": "Strukturierte Vermittlung, Modellierung und angeleitetes Üben"
+        },
+        {
+          "id": "kooperativ",
+          "label": "Kooperatives Lernen",
+          "definition": "Strukturierte Zusammenarbeit mit positiver Interdependenz und Verantwortlichkeit"
+        },
+        {
+          "id": "forschend",
+          "label": "Forschendes & problemorientiertes Lernen",
+          "definition": "Erkunden, Hypothesen prüfen, Probleme und authentische Fälle lösen"
+        },
+        {
+          "id": "offen",
+          "label": "Offener Unterricht & Freiarbeit",
+          "definition": "Lernendengesteuerte Arbeitsformen, Stationen, Projekte und Werkstattformate"
+        },
+        {
+          "id": "diskurs",
+          "label": "Diskurs & Debatte",
+          "definition": "Gesprächs-, Argumentations- und Perspektivenwechsel-Methoden"
+        },
+        {
+          "id": "kreativ",
+          "label": "Kreativität & Ideenfindung",
+          "definition": "Ideengenerierung, Assoziation und divergentes Denken"
+        },
+        {
+          "id": "visualisierung",
+          "label": "Visualisierung & Textarbeit",
+          "definition": "Begriffsnetze, Strukturierung, Lesestrategien und grafische Aufbereitung"
+        },
+        {
+          "id": "uebung",
+          "label": "Übung & Abruf",
+          "definition": "Konsolidierung, verteiltes und verschachteltes Üben sowie Abruftraining"
+        },
+        {
+          "id": "diagnose-feedback",
+          "label": "Diagnose & Feedback",
+          "definition": "Formatives Assessment, Lernstandsdiagnose und Rückmeldeverfahren"
+        },
+        {
+          "id": "reflexion",
+          "label": "Reflexion & Metakognition",
+          "definition": "Planung, Überwachung und Auswertung des eigenen Lernprozesses"
+        },
+        {
+          "id": "spiel-simulation",
+          "label": "Spiel, Rolle & Simulation",
+          "definition": "Handlungsorientierte Rollenspiele, Planspiele, Szenarien und Exkursionen"
+        },
+        {
+          "id": "digital-ki",
+          "label": "Digitales & KI-gestütztes Lernen",
+          "definition": "Digital unterstützte, hybride und KI-begleitete Lernarrangements"
+        }
+      ]
+    }
+  ],
+  "facetten": [
+    {
+      "id": "A1",
+      "inferenz": "hoch",
+      "domaene": "A",
+      "schema": "lernfunktion",
+      "feld": "lernfunktion",
+      "kurz": "Lernfunktion",
+      "name": "Lernfunktion",
+      "leitfrage": "Welche Funktion im Lernprozess wird primär adressiert?",
+      "fundierung": "KLI (Koedinger, Corbett & Perfetti 2012), Aebli (1983), Oser & Baeriswyl (2001), Laurillard (2012), Lehrfunktionen (Klauer & Leutner 2012); Motivierung nach der Selbstbestimmungstheorie (Ryan & Deci)",
+      "schliesst": "Sichtstruktur-Fixierung, Lehrendenperspektive, schwacher Zielbezug, fehlende Motivationsfunktion"
+    },
+    {
+      "id": "A2",
+      "inferenz": "mittel",
+      "domaene": "A",
+      "schema": "engagement",
+      "feld": "engagement",
+      "kurz": "Engagement",
+      "name": "Engagementmodus (intendiert)",
+      "leitfrage": "Welche kognitive Aktivität wird von Lernenden verlangt?",
+      "fundierung": "ICAP (Chi & Wylie 2014). Umstritten sind die feste Wirksamkeitsrangfolge und der Schluss vom sichtbaren Verhalten auf den Lernprozess (Thurn et al. 2023); die FMT nutzt nur die Kategorien.",
+      "schliesst": "Konflation von Lenkung und Aktivität"
+    },
+    {
+      "id": "A3",
+      "inferenz": "mittel",
+      "domaene": "A",
+      "schema": "weltbezug",
+      "feld": "weltbezug",
+      "kurz": "Weltbezug",
+      "name": "Weltbezug",
+      "leitfrage": "Worauf richtet sich die Lernhandlung?",
+      "fundierung": "Weltbezüge im Kategorialmodell von Baumgartner (2011)",
+      "schliesst": "Reflexive, biografische und gesellschaftsbezogene Methoden waren unscharf klassifiziert"
+    },
+    {
+      "id": "B1",
+      "inferenz": "mittel",
+      "domaene": "B",
+      "schema": "anleitung",
+      "feld": "anleitung",
+      "kurz": "Anleitung",
+      "name": "Anleitungsgrad",
+      "leitfrage": "Wie viel explizite Struktur und Information wird bereitgestellt?",
+      "fundierung": "Kirschner, Sweller & Clark (2006); Alfieri et al. (2011); Lazonder & Harmsen (2016). Das Verhältnis von Instruktion und geleitetem Forschen bleibt strittig (de Jong et al. 2023; Sweller et al. 2024).",
+      "schliesst": "Konflation von Lenkung und Aktivität, normative Aufladung von Offenheit"
+    },
+    {
+      "id": "B2",
+      "inferenz": "mittel",
+      "domaene": "B",
+      "schema": "steuerungsdimension",
+      "feld": "steuerung",
+      "kurz": "Steuerungsort",
+      "name": "Steuerungsort",
+      "leitfrage": "Wer bestimmt was? Je Dimension: Lehrkraft, geteilt oder Lernende.",
+      "fundierung": "In Anlehnung an die Öffnungsdimensionen nach Peschel (2002); „Bewertung“ ergänzt, „persönliche Offenheit“ nicht übernommen",
+      "schliesst": "„Offenheit“ als Pauschalurteil statt als Profil"
+    },
+    {
+      "id": "B3",
+      "inferenz": "mittel",
+      "domaene": "B",
+      "schema": "adaptivitaet",
+      "feld": "adaptivitaet",
+      "kurz": "Adaptivität",
+      "name": "Adaptivität",
+      "leitfrage": "Wie wird auf Lernunterschiede reagiert?",
+      "fundierung": "Corno & Snow; Hardy, Decristan & Klieme (2019); Expertise-Reversal (Tetzlaff et al. 2025). UDL (CAST) ist als Rahmen verbreitet, die Wirkungsevidenz ist dünn (King-Sears et al. 2023).",
+      "schliesst": "Differenzierung als Einzelmethode statt Querschnitt, fehlende Barrierefreiheit"
+    },
+    {
+      "id": "B4",
+      "inferenz": "niedrig",
+      "domaene": "B",
+      "schema": "feedback",
+      "feld": "feedback",
+      "kurz": "Feedback",
+      "name": "Feedback & Bewertung",
+      "leitfrage": "Woher kommt Rückmeldung, wann, worauf und wozu?",
+      "fundierung": "Hattie & Timperley (2007); Wisniewski, Zierer & Hattie (2020); Black & Wiliam (1998), Effektgröße strittig (Kingston & Nash 2011)",
+      "schliesst": "Bewertung von der Methode abgekoppelt (die Urteilsformen des Berliner Modells gingen verloren)"
+    },
+    {
+      "id": "C1",
+      "inferenz": "niedrig",
+      "domaene": "C",
+      "schema": "interaktion",
+      "feld": "interaktion",
+      "kurz": "Interaktion",
+      "name": "Interaktionsstruktur",
+      "leitfrage": "Wer interagiert mit wem, wie strukturiert?",
+      "fundierung": "Johnson & Johnson; Slavin (positive Interdependenz, individuelle Verantwortlichkeit); Kyndt et al. (2013)",
+      "schliesst": "Ebenenkonfusion: Sozialform stand neben Großform in einer Liste"
+    },
+    {
+      "id": "C2",
+      "inferenz": "niedrig",
+      "domaene": "C",
+      "schema": "repraesentation",
+      "feld": "repraesentation",
+      "kurz": "Repräsentation",
+      "name": "Repräsentationsmodus",
+      "leitfrage": "In welcher Form wird gearbeitet?",
+      "fundierung": "Bruner (E-I-S); Mayer (Multimedia-Lernen)",
+      "schliesst": "Medialität nur als Werkzeugfrage statt als Lernbedingung"
+    },
+    {
+      "id": "C3",
+      "inferenz": "niedrig",
+      "domaene": "C",
+      "schema": "raumzeit",
+      "feld": "raumzeit",
+      "kurz": "Raum-Zeit",
+      "name": "Raum-Zeit-Modus",
+      "leitfrage": "Wo und wann findet die Lernhandlung statt?",
+      "fundierung": "Trennung von Ort und Synchronität; Blended und Flipped entstehen erst durch Komposition",
+      "schliesst": "Digitallücke klassischer Systematiken"
+    },
+    {
+      "id": "C4",
+      "inferenz": "mittel",
+      "domaene": "C",
+      "schema": "agentenrolle",
+      "feld": "rolle",
+      "kurz": "Agentenrollen",
+      "name": "Agentenrollen",
+      "leitfrage": "Welche Rollen übernehmen Lehrkraft und technische Agenten?",
+      "fundierung": "Lehren I–III nach Baumgartner & Payr; Bastani et al. (2025); Kestin et al. (2025); Teachable Agents (Chase et al. 2009)",
+      "schliesst": "KI-Lücke, Risiko kognitiven Auslagerns"
+    },
+    {
+      "id": "D1",
+      "inferenz": "hoch",
+      "domaene": "D",
+      "schema": "aufgabenstruktur",
+      "feld": "aufgabe",
+      "kurz": "Aufgabe",
+      "name": "Aufgabenstruktur",
+      "leitfrage": "Welche Zielart, welcher Anforderungsbereich, welche Problemart, wie authentisch?",
+      "fundierung": "Anderson & Krathwohl (2001, Wissensdimension); Anforderungsbereiche der KMK-Bildungsstandards; Jonassen (2000)",
+      "schliesst": "Kontextblindheit, schwacher Zielbezug"
+    },
+    {
+      "id": "D2",
+      "inferenz": "niedrig",
+      "domaene": "D",
+      "schema": "sequenzlogik",
+      "feld": "sequenz",
+      "kurz": "Sequenz",
+      "name": "Sequenzlogik",
+      "leitfrage": "Wie ist die zeitliche Ordnung gebaut?",
+      "fundierung": "Cepeda et al. (2006); Rohrer & Taylor (2007); Sinha & Kapur (2021)",
+      "schliesst": "Statik: Methoden als Zustände statt als Abfolgen"
+    }
+  ]
+}

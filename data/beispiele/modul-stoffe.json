@@ -1,0 +1,52 @@
+{
+  "@id": "https://w3id.org/fmt/beispiel/modul-stoffe",
+  "typ": "Arrangement",
+  "name": "Modul „Stoffe und ihre Eigenschaften“",
+  "reichweite": "r4",
+  "kontext": {
+    "stufe": "Sekundarstufe I, Klasse 7",
+    "bildungsstufe": "sek1",
+    "fach": "Physik",
+    "vorwissen": "mittel",
+    "zeitbudgetMin": 900
+  },
+  "ablauf": {
+    "typ": "Sequenz",
+    "teile": [
+      {
+        "typ": "Verweis",
+        "arrangement": "https://w3id.org/fmt/beispiel/dichte-reihe"
+      },
+      {
+        "typ": "Einsatz",
+        "baustein": "projektmethode",
+        "dauerMin": 180,
+        "belegung": [
+          {
+            "slotKennung": "planung",
+            "inhalt": {
+              "typ": "Einsatz",
+              "baustein": "tps",
+              "dauerMin": 10
+            }
+          },
+          {
+            "slotKennung": "fixpunkt",
+            "inhalt": {
+              "typ": "Einsatz",
+              "baustein": "exit-ticket",
+              "dauerMin": 5
+            }
+          }
+        ]
+      },
+      {
+        "typ": "Wiederkehr",
+        "baustein": "abrufquiz",
+        "anzahl": 4,
+        "abstand": "P1W",
+        "dauerMin": 6
+      }
+    ]
+  }
+}

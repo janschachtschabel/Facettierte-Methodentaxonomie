@@ -1,0 +1,156 @@
+{
+  "kennung": "ki-tutor",
+  "name": "KI-Tutor mit sokratischen Leitplanken",
+  "kurzbeschreibung": "Dialogische Einzelübung mit einem KI-System, das über Leitplanken gestufte Hinweise und Rückfragen statt fertiger Lösungen gibt.",
+  "alternativname": [
+    "Sokratischer KI-Tutor",
+    "KI-Lernbegleiter"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Intelligentes tutorielles System",
+      "url": "https://de.wikipedia.org/wiki/Intelligentes_tutorielles_System",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Bastani et al. (2025): PNAS & Kestin et al. (2025): Scientific Reports",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "ki": true,
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "prozessebene",
+    "formativ",
+    "fb-elaboriert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "tutor",
+    "dialogpartner"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "keine-loesung",
+      "name": "Keine Lösungsausgabe"
+    },
+    {
+      "kennung": "hinweise",
+      "name": "Gestufte Hinweise"
+    },
+    {
+      "kennung": "rueckfragen",
+      "name": "Rückfragen"
+    },
+    {
+      "kennung": "verankerung",
+      "name": "Verankerung im Kursmaterial"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Beim Üben brauchen Einzelne sofortige Hinweise, die eine Lehrkraft nicht allen zugleich geben kann.",
+  "durchfuehrung": [
+    "Aufgabe und Kursmaterial im System hinterlegen",
+    "Lernende bearbeiten die Aufgabe im Dialog",
+    "Das System gibt gestufte Hinweise, keine Lösung",
+    "Ergebnis ohne KI überprüfen"
+  ],
+  "material": [
+    "Endgerät je Person",
+    "KI-System mit Leitplanken und hinterlegtem Kursmaterial"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 60,
+  "technik": "t-einzeln",
+  "internet": true,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/28-4"
+  ],
+  "hinweis": "Leitplanken und Einbettung durch die Lehrkraft nötig. Lernerfolg ohne KI-Zugang prüfen.",
+  "qualitaetsrisiko": [
+    "Kognitives Auslagern",
+    "Fachliche Fehler der KI"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Gut gestalteter KI-Tutor übertraf aktives Lernen im Präsenzkurs",
+      "quelle": "Kestin et al. 2025",
+      "geltung": "Hochschulphysik, N = 194, ein Standort"
+    },
+    {
+      "grad": "C",
+      "befund": "Tutor mit Leitplanken: Übungsleistung +127 %, in der Prüfung ohne KI kein Unterschied zur Kontrollgruppe",
+      "quelle": "Bastani et al. 2025",
+      "geltung": "Mathematik, Sekundarstufe, Türkei",
+      "umstritten": "Befundlage gemischt: Leistung mit Hilfe ist nicht Lernen"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.92
+  }
+}

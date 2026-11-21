@@ -1,0 +1,131 @@
+{
+  "kennung": "kugellager",
+  "name": "Kugellager",
+  "kurzbeschreibung": "Zwei konzentrische Gesprächskreise rotieren nach fester Zeit, sodass alle mehrfach mit wechselnden Partnern sprechen.",
+  "alternativname": [
+    "Karussellgespräch",
+    "Zwiebelschale",
+    "Doppelkreis",
+    "Inside-Outside Circle"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kugellagermethode",
+      "url": "https://de.wikipedia.org/wiki/Kugellagermethode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Baumgartner (2011): Taxonomie von Unterrichtsmethoden",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kreise",
+      "name": "Innen- und Außenkreis"
+    },
+    {
+      "kennung": "sprechzeit",
+      "name": "Feste Sprechzeiten"
+    },
+    {
+      "kennung": "rotation",
+      "name": "Rotation"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Alle sollen in kurzer Zeit mehrfach zu Wort kommen.",
+  "durchfuehrung": [
+    "Innen- und Außenkreis aufstellen",
+    "Impuls geben; Paare sprechen in fester Zeit",
+    "Ein Kreis rückt weiter",
+    "Zwei bis vier Runden"
+  ],
+  "material": [
+    "Gesprächsimpulse",
+    "Zeitsignal"
+  ],
+  "raum": "Freie Fläche für zwei Kreise",
+  "gruppeMin": 8,
+  "gruppeMax": 40,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 2,
+  "teamMax": 2,
+  "variante": [
+    "Speed-Dating in Reihen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/17",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2"
+  ],
+  "hinweis": "Klare Gesprächsimpulse nötig.",
+  "qualitaetsrisiko": [
+    "Wiederholung ohne Vertiefung"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Kaum methodenspezifische Evidenz; Baumgartners Beispiel für ein didaktisches Profil",
+      "quelle": "Baumgartner 2011",
+      "geltung": "Theoretische Einordnung, keine Wirksamkeitsstudie"
+    }
+  ],
+  "plot": {
+    "x": 0.7,
+    "y": 2.9
+  }
+}

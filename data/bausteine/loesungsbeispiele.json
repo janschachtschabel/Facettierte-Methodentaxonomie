@@ -1,0 +1,161 @@
+{
+  "kennung": "loesungsbeispiele",
+  "name": "Lösungsbeispiele mit Fading",
+  "kurzbeschreibung": "Novizen analysieren vollständig ausgearbeitete Lösungswege und übernehmen schrittweise ausgeblendete Teilschritte (Fading).",
+  "alternativname": [
+    "Worked Examples",
+    "Ausgearbeitete Lösungsbeispiele",
+    "Beispielbasiertes Lernen"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "instruktion",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lösungsbeispiel",
+      "url": "https://de.wikipedia.org/wiki/L%C3%B6sungsbeispiel",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Barbieri et al. (2023): Worked Examples Meta-Analysis",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vollstaendig",
+      "name": "Vollständige Lösung"
+    },
+    {
+      "kennung": "selbsterklaerung",
+      "name": "Selbsterklärung"
+    },
+    {
+      "kennung": "fading",
+      "name": "Schrittweises Ausblenden"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel"
+  ],
+  "problem": "Problemlösen überfordert Anfänger, weil die Suche nach dem Lösungsweg die Aufmerksamkeit bindet.",
+  "durchfuehrung": [
+    "Vollständig gelöstes Beispiel durcharbeiten",
+    "Lösungsschritte begründen",
+    "Beispiele mit ausgelassenen Schritten ergänzen",
+    "Aufgaben ohne Hilfe lösen"
+  ],
+  "material": [
+    "Beispielserie mit schrittweise ausgeblendeten Lösungsschritten"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 1,
+  "teamMax": 2,
+  "variante": [
+    "Fehlerhafte Lösungsbeispiele finden und korrigieren"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-3"
+  ],
+  "hinweis": "Novizen; kehrt sich bei Expertise um. Der Zusatznutzen von Selbsterklärungsprompts ist strittig.",
+  "qualitaetsrisiko": [
+    "Expertise-Reversal",
+    "Überfliegen ohne Prompts"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Lösungsbeispiele g ≈ 0,48 auf Mathematikleistung",
+      "quelle": "Barbieri et al. 2023",
+      "geltung": "Mathematik, Primarstufe bis Hochschule",
+      "umstritten": "Selbsterklärungsprompts wirkten dort als negativer Moderator; die Selbsterklärungsforschung findet positive Effekte (Bisra et al. 2018)"
+    },
+    {
+      "grad": "A",
+      "befund": "Expertise-Reversal: Der Vorteil starker Anleitung kehrt sich mit wachsendem Vorwissen um",
+      "quelle": "Kalyuga et al. 2003; Tetzlaff et al. 2025",
+      "geltung": "Schule und Hochschule, überwiegend MINT; international"
+    }
+  ],
+  "plot": {
+    "x": 0.95,
+    "y": 2.6
+  }
+}

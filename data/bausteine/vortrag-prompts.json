@@ -1,0 +1,140 @@
+{
+  "kennung": "vortrag-prompts",
+  "name": "Vortrag mit Selbsterklärungsprompts",
+  "kurzbeschreibung": "Segmentierter Vortrag, bei dem Lernende nach jedem Abschnitt Prinzipien in eigenen Worten erklären.",
+  "alternativname": [
+    "Vortrag mit Verstehensfragen",
+    "Interaktive Vorlesung"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Selbsterklärung",
+      "url": "https://de.wikipedia.org/wiki/Selbsterkl%C3%A4rung",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Bisra et al. (2018): Inducing Self-Explanation (Educational Psychology Review)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "segmentierung",
+      "name": "Segmentierung"
+    },
+    {
+      "kennung": "prompt",
+      "name": "Erklärprompt nach jedem Segment"
+    },
+    {
+      "kennung": "pruefung",
+      "name": "Kurze Verstehensprüfung"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Zuhören allein erzeugt die Illusion, verstanden zu haben.",
+  "durchfuehrung": [
+    "Stoff in Abschnitte teilen",
+    "Abschnitt darbieten",
+    "Erklärprompt stellen; alle antworten schriftlich oder im Tandem",
+    "Antworten stichprobenartig prüfen und Lücken klären"
+  ],
+  "material": [
+    "Vorbereitete Prompts",
+    "Tafel oder Projektion"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 300,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/24-3"
+  ],
+  "hinweis": "Wirksam über Altersstufen; Prompts müssen auf Prinzipien zielen.",
+  "qualitaetsrisiko": [
+    "Prompts werden zur Formalie"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Selbsterklärung g ≈ 0,55",
+      "quelle": "Bisra et al. 2018; Rittle-Johnson et al. 2017",
+      "geltung": "Schule und Hochschule, überwiegend Nordamerika; Rittle-Johnson et al.: Mathematik",
+      "umstritten": "In Verbindung mit Lösungsbeispielen in Mathematik negativer Moderator (Barbieri et al. 2023)"
+    }
+  ],
+  "plot": {
+    "x": 0.86,
+    "y": 2.05
+  }
+}

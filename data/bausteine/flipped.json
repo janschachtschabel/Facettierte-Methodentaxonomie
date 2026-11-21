@@ -1,0 +1,165 @@
+{
+  "kennung": "flipped",
+  "name": "Flipped Classroom",
+  "kurzbeschreibung": "Kompositbaustein: asynchroner Ersterwerb vorab, kurzer Abruf zu Beginn und aktivierende Anwendung in der Präsenzzeit.",
+  "alternativname": [
+    "Inverted Classroom",
+    "Umgedrehter Unterricht"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "stationen",
+  "ansatz": [
+    "digital-ki",
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Umgedrehter Unterricht",
+      "url": "https://de.wikipedia.org/wiki/Umgedrehter_Unterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "van Alten et al. (2019): Effects of flipping the classroom",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "komposit": true,
+  "lernfunktion": [
+    "erwerb",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "werkzeug"
+  ],
+  "aufgabe": [],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [],
+  "kernkomponente": [
+    {
+      "kennung": "vorbereitung",
+      "name": "Verbindliche Vorbereitung"
+    },
+    {
+      "kennung": "check",
+      "name": "Abruf vor der Präsenz"
+    },
+    {
+      "kennung": "aktive-praesenz",
+      "name": "Aktivierende Präsenzphase"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "vorbereitung",
+      "name": "Vorbereitung (asynchron)",
+      "lernfunktion": [
+        "erwerb"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "check",
+      "name": "Abruf zu Beginn",
+      "lernfunktion": [
+        "konsolidierung",
+        "diagnose"
+      ],
+      "reichweite": "r1",
+      "pflicht": true
+    },
+    {
+      "kennung": "praesenz",
+      "name": "Präsenzphase",
+      "lernfunktion": [
+        "anwendung",
+        "verstehen",
+        "problemloesen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 270,
+  "problem": "Präsenzzeit wird für Darbietung verbraucht, die auch allein aufgenommen werden könnte.",
+  "durchfuehrung": [
+    "Zu Hause mit Material und Leitfragen vorbereiten",
+    "Abruf zu Beginn der Präsenz",
+    "Präsenzzeit für Anwendung und Klärung nutzen"
+  ],
+  "material": [
+    "Vorbereitungsmaterial, etwa Video oder Text",
+    "Zugang zum Material außerhalb der Schule"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 300,
+  "vorbereitungMin": 120,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "In-Class Flip: Vorbereitung als Station im Unterricht"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/311-1"
+  ],
+  "hinweis": "Container: Wirkung hängt an den Bausteinen in den Slots.",
+  "qualitaetsrisiko": [
+    "Präsenz wiederholt den Vortrag"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "g ≈ 0,36, stark heterogen",
+      "quelle": "van Alten et al. 2019",
+      "geltung": "Überwiegend Hochschule; Sekundarstufe wenig vertreten"
+    }
+  ]
+}

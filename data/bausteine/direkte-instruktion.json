@@ -1,0 +1,197 @@
+{
+  "kennung": "direkte-instruktion",
+  "name": "Direkte Instruktion (explizite Instruktion)",
+  "kurzbeschreibung": "Kleinschrittiges Modellieren mit anschließendem geleitetem und selbstständigem Üben bei engem Feedback.",
+  "alternativname": [
+    "Explizite Instruktion",
+    "Explicit Instruction",
+    "Rosenshine-Prinzipien"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Direkte Instruktion",
+      "url": "https://de.wikipedia.org/wiki/Direkte_Instruktion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Rosenshine (2012): Principles of Instruction (American Educator)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "komposit": true,
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "fb-elaboriert",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kleine-schritte",
+      "name": "Kleine Schritte"
+    },
+    {
+      "kennung": "modellieren",
+      "name": "Modellieren"
+    },
+    {
+      "kennung": "gefuehrte-uebung",
+      "name": "Geleitete Übung mit hoher Erfolgsquote"
+    },
+    {
+      "kennung": "wiederholung",
+      "name": "Regelmäßige Wiederholung"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "modellieren",
+      "name": "Modellieren",
+      "lernfunktion": [
+        "erwerb",
+        "verstehen"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "gefuehrte-uebung",
+      "name": "Geleitete Übung",
+      "lernfunktion": [
+        "konsolidierung"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "selbststaendige-uebung",
+      "name": "Selbstständige Übung",
+      "lernfunktion": [
+        "konsolidierung",
+        "anwendung"
+      ],
+      "reichweite": "r2",
+      "pflicht": true
+    },
+    {
+      "kennung": "wiederholung",
+      "name": "Wiederholung",
+      "lernfunktion": [
+        "konsolidierung"
+      ],
+      "reichweite": "r1",
+      "pflicht": false
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 540,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel"
+  ],
+  "problem": "Novizen sollen ein hierarchisch aufgebautes Verfahren sicher erlernen.",
+  "durchfuehrung": [
+    "Kurz wiederholen",
+    "In kleinen Schritten vormachen und dabei laut denken",
+    "Geleitet üben mit hoher Erfolgsquote",
+    "Selbstständig üben",
+    "Regelmäßig wiederholen"
+  ],
+  "material": [
+    "Gestufte Übungsaufgaben"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Ich – Wir – Du"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-5"
+  ],
+  "hinweis": "Stark bei Novizen und hierarchisch aufgebautem Stoff. Nicht gleichzusetzen mit Engelmanns skriptbasierten „Direct Instruction“-Programmen.",
+  "qualitaetsrisiko": [
+    "Mechanisches Abarbeiten ohne Verstehensfragen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kleinschrittige Instruktion mit geleiteter Übung: gleichgerichtete Befunde der Prozess-Produkt-Forschung; eine Meta-Analyse liegt nur für die DI-Curricula vor",
+      "quelle": "Rosenshine 2012; Stockard et al. 2018",
+      "geltung": "Stockard et al. betrifft ausschließlich Engelmanns Direct-Instruction-Curricula (v. a. USA), nicht dieses Muster"
+    }
+  ],
+  "plot": {
+    "x": 0.8,
+    "y": 1.55
+  }
+}

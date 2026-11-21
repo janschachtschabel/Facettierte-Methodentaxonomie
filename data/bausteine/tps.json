@@ -1,0 +1,141 @@
+{
+  "kennung": "tps",
+  "name": "Think-Pair-Share",
+  "kurzbeschreibung": "Dreischritt aus individueller Denkzeit, strukturiertem Partneraustausch und exemplarischer Vorstellung im Plenum.",
+  "alternativname": [
+    "Ich–Du–Wir",
+    "Denken–Austauschen–Vorstellen"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Think-Pair-Share",
+      "url": "https://de.wikipedia.org/wiki/Think-Pair-Share",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Think-Pair-Share",
+      "url": "https://unterrichten.zum.de/wiki/Think-Pair-Share",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "denkzeit",
+      "name": "Individuelle Denkzeit"
+    },
+    {
+      "kennung": "austausch",
+      "name": "Verbindlicher Austausch"
+    },
+    {
+      "kennung": "rechenschaft",
+      "name": "Rechenschaft im Plenum"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Auf Fragen im Plenum antworten immer dieselben wenigen.",
+  "durchfuehrung": [
+    "Frage stellen; alle denken allein und notieren",
+    "Austausch zu zweit",
+    "Zufällig gewählte Tandems stellen vor"
+  ],
+  "material": [
+    "Eine anspruchsvolle Frage"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 300,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 2,
+  "teamMax": 2,
+  "variante": [
+    "Think – Pair – Square: zwei Tandems vergleichen",
+    "Placemat als schriftliche Form"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-7"
+  ],
+  "hinweis": "Braucht eine präzise, kognitiv anspruchsvolle Frage.",
+  "qualitaetsrisiko": [
+    "Partnerphase ohne Auftrag zerfällt"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Keine belastbare methodenspezifische Wirkungsevidenz; der Mechanismus (Denkzeit, Peer-Diskussion) ist durch Peer Instruction gestützt",
+      "quelle": "Crouch & Mazur 2001",
+      "geltung": "Hochschulphysik, ein Standort"
+    }
+  ],
+  "plot": {
+    "x": 0.66,
+    "y": 2.35
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "kennung": "abrufquiz",
+  "name": "Abrufquiz (ohne Notendruck)",
+  "kurzbeschreibung": "Kurzes, unbenotetes Abrufen von Wissen aus dem Gedächtnis mit unmittelbarer Rückmeldung zur Festigung.",
+  "alternativname": [
+    "Retrieval Practice",
+    "Abrufübung",
+    "Kurztest ohne Note",
+    "Low-Stakes-Quiz"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "quiz",
+  "ansatz": [
+    "uebung",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Testeffekt",
+      "url": "https://de.wikipedia.org/wiki/Testeffekt",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Yang et al. (2021): Testing boosts classroom learning (Psychological Bulletin)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "system",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "fb-kcr",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "feedbackgeber"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "verteilt",
+    "verschachtelt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abruf",
+      "name": "Abruf aus dem Gedächtnis"
+    },
+    {
+      "kennung": "niedrige-stakes",
+      "name": "Geringe Bewertungsrelevanz"
+    },
+    {
+      "kennung": "rueckmeldung",
+      "name": "Rückmeldung"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "problem": "Gelerntes wird schnell vergessen, und erneutes Lesen täuscht Sicherheit vor.",
+  "durchfuehrung": [
+    "Drei bis acht Fragen ohne Hilfsmittel beantworten",
+    "Lösungen vergleichen",
+    "Lücken notieren",
+    "Nach einigen Tagen mit gemischten Fragen wiederholen"
+  ],
+  "material": [
+    "Fragen auf Papier oder im Quizsystem"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Freier Abruf: alles aufschreiben, was noch präsent ist",
+    "Karteikarten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112-1"
+  ],
+  "hinweis": "Wirkt schon bei einmaligem Einsatz. Verteilte Wiederholung verbessert das Langzeitbehalten zusätzlich.",
+  "qualitaetsrisiko": [
+    "Wiedererkennen statt Abruf",
+    "Notendruck"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Testing-Effekt g ≈ 0,50–0,61; im regulären Unterricht g ≈ 0,50",
+      "quelle": "Rowland 2014; Adesope et al. 2017; Yang et al. 2021",
+      "geltung": "Labor und regulärer Unterricht, Schule und Hochschule; international"
+    },
+    {
+      "grad": "A",
+      "befund": "Verteilte Wiederholung verbessert das Behalten gegenüber massierter",
+      "quelle": "Cepeda et al. 2006; Dunlosky et al. 2013",
+      "geltung": "Überwiegend Labor und Hochschule, USA"
+    }
+  ],
+  "plot": {
+    "x": 0.9,
+    "y": 1.1
+  }
+}

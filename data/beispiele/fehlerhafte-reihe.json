@@ -1,0 +1,54 @@
+{
+  "@id": "https://w3id.org/fmt/beispiel/fehlerhafte-reihe",
+  "typ": "Arrangement",
+  "name": "Absichtlich fehlerhafte Reihe (Testfall)",
+  "reichweite": "r3",
+  "zieltyp": "konzeptaufbau",
+  "kontext": {
+    "vorwissen": "hoch",
+    "zeitbudgetMin": 90
+  },
+  "ablauf": {
+    "typ": "Sequenz",
+    "teile": [
+      {
+        "typ": "Einsatz",
+        "baustein": "lehrervortrag",
+        "dauerMin": 25
+      },
+      {
+        "typ": "Einsatz",
+        "baustein": "lehrervortrag",
+        "dauerMin": 20
+      },
+      {
+        "typ": "Einsatz",
+        "baustein": "loesungsbeispiele",
+        "dauerMin": 30
+      },
+      {
+        "typ": "Einsatz",
+        "baustein": "erfindungsaufgabe",
+        "dauerMin": 40
+      },
+      {
+        "typ": "Einsatz",
+        "baustein": "gruppenpuzzle",
+        "dauerMin": 60,
+        "weggelassen": [
+          "verantwortlichkeit"
+        ],
+        "belegung": [
+          {
+            "slotKennung": "sicherung",
+            "inhalt": {
+              "typ": "Einsatz",
+              "baustein": "projektmethode",
+              "dauerMin": 200
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

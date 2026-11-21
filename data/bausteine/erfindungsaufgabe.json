@@ -1,0 +1,131 @@
+{
+  "kennung": "erfindungsaufgabe",
+  "name": "Erfindungsaufgabe mit kontrastierenden Fällen",
+  "kurzbeschreibung": "Lernende entwickeln vor der Instruktion anhand kontrastierender Fälle eigene Lösungsansätze oder Kennzahlen.",
+  "alternativname": [
+    "Inventing with Contrasting Cases",
+    "Erfinden mit Kontrastfällen"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Schwartz et al. (2011): Practicing versus inventing with contrasting cases",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "problemloesen",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "verzoegert"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kontrastfaelle",
+      "name": "Kontrastierende Fälle"
+    },
+    {
+      "kennung": "kennzahl",
+      "name": "Auftrag, eine Kennzahl zu erfinden"
+    },
+    {
+      "kennung": "keine-loesung",
+      "name": "Keine Lösungsvorgabe"
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 50,
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "problem": "Eine fertig präsentierte Formel wird angewendet, ohne dass klar ist, welches Problem sie löst.",
+  "durchfuehrung": [
+    "Kontrastierende Fälle vorlegen",
+    "Auftrag geben: eine Kennzahl erfinden, die die Fälle ordnet",
+    "Gruppen entwickeln und prüfen Vorschläge",
+    "Vorschläge sichern, ohne sie zu bewerten"
+  ],
+  "material": [
+    "Vier bis sechs kontrastierende Fälle"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 2,
+  "teamMax": 4,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-3"
+  ],
+  "hinweis": "Für Dichte erprobt; braucht anschließende Instruktion.",
+  "qualitaetsrisiko": [
+    "Ohne Konsolidierung bleibt bloßes Scheitern"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Erfinden vor Instruktion förderte Transfer beim Konzept Dichte",
+      "quelle": "Schwartz, Chase, Oppezzo & Chin 2011",
+      "geltung": "Klasse 8, USA"
+    }
+  ]
+}

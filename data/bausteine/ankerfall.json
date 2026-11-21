@@ -1,0 +1,122 @@
+{
+  "kennung": "ankerfall",
+  "name": "Ankerfall (Problemaufriss)",
+  "kurzbeschreibung": "Ein reichhaltiger, authentischer Ausgangsfall strukturiert den Problemaufriss und leitet Arbeitsfragen für eine Einheit ab.",
+  "alternativname": [
+    "Anchored Instruction",
+    "Einstiegsfall",
+    "Problemaufriss"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Anchored Instruction",
+      "url": "https://de.wikipedia.org/wiki/Anchored_Instruction",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fall",
+      "name": "Reichhaltiger, authentischer Fall"
+    },
+    {
+      "kennung": "teilprobleme",
+      "name": "Teilprobleme gemeinsam identifizieren"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Ein komplexes Thema erscheint ohne erkennbaren Anlass und Zusammenhang.",
+  "durchfuehrung": [
+    "Fall präsentieren",
+    "Bekanntes und Offenes sammeln",
+    "Teilprobleme benennen und ordnen",
+    "Arbeitsfragen festlegen"
+  ],
+  "material": [
+    "Reichhaltiger Fall als Text, Video oder Datensatz"
+  ],
+  "gruppeMin": 5,
+  "gruppeMax": 35,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 3,
+  "teamMax": 5,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16-1"
+  ],
+  "hinweis": "Erschließt ein komplexes Problem, bevor gelöst wird.",
+  "qualitaetsrisiko": [
+    "Fall bleibt Dekoration"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Anchored Instruction in Einzelstudien wirksam",
+      "quelle": "Cognition and Technology Group at Vanderbilt 1990",
+      "geltung": "USA, Mathematik, Klasse 5 und 6"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "kennung": "reflexionsprompt",
+  "name": "Reflexionsprompt",
+  "kurzbeschreibung": "Gezielter kurzer Leitimpuls zur schriftlichen Reflexion von Lernstrategien, Schwierigkeiten oder Verständniswandel.",
+  "alternativname": [
+    "Reflexionsimpuls",
+    "Metakognitiver Prompt"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Metakognition",
+      "url": "https://de.wikipedia.org/wiki/Metakognition",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Nückles et al. (2020): Writing-to-learn prompts",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "prompt",
+      "name": "Prompt zu Strategie oder Konzeptänderung"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "problem": "Lernende bemerken nicht, wie sie gelernt haben und was sie ändern sollten.",
+  "durchfuehrung": [
+    "Konkreten Prompt zu Strategie oder Verständniswandel stellen",
+    "Einzeln schriftlich antworten",
+    "Freiwillig austauschen"
+  ],
+  "material": [
+    "Vorbereiteter Prompt"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 300,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-4",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-3"
+  ],
+  "hinweis": "Wirkt stärker mit konkreten Prompts.",
+  "qualitaetsrisiko": [
+    "Floskelantworten"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Prompts im Lerntagebuch fördern Lernstrategien und Lernerfolg",
+      "quelle": "Nückles et al. 2020",
+      "geltung": "Ein Forschungsprogramm (16 Experimente), keine unabhängige Meta-Analyse"
+    }
+  ]
+}

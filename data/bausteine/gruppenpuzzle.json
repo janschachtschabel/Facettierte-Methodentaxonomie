@@ -1,0 +1,165 @@
+{
+  "kennung": "gruppenpuzzle",
+  "name": "Gruppenpuzzle (Jigsaw)",
+  "kurzbeschreibung": "Kooperative Arbeitsteilung in Stamm- und Expertengruppen mit gegenseitiger Vermittlung und gemeinsamer Sicherung.",
+  "alternativname": [
+    "Jigsaw",
+    "Expertenpuzzle",
+    "Expertengruppen"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gruppenpuzzle",
+      "url": "https://de.wikipedia.org/wiki/Gruppenpuzzle",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "ZUM-Unterrichten: Gruppenpuzzle",
+      "url": "https://unterrichten.zum.de/wiki/Gruppenpuzzle",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "interdependenz",
+      "name": "Positive Interdependenz"
+    },
+    {
+      "kennung": "verantwortlichkeit",
+      "name": "Individuelle Verantwortlichkeit"
+    },
+    {
+      "kennung": "expertenmaterial",
+      "name": "Gleichwertiges Expertenmaterial"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "sicherung",
+      "name": "Sicherung",
+      "lernfunktion": [
+        "konsolidierung",
+        "diagnose"
+      ],
+      "reichweite": "r1",
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Ein umfangreicher, teilbarer Stoff soll erarbeitet werden, ohne dass Einzelne in der Gruppe untertauchen.",
+  "durchfuehrung": [
+    "Stammgruppen bilden und Teilthemen verteilen",
+    "Expertengruppen erarbeiten je ein Teilthema",
+    "Experten vermitteln in der Stammgruppe",
+    "Sicherung für alle, etwa als Einzeltest"
+  ],
+  "material": [
+    "Gleichwertiges Material je Teilthema",
+    "Gruppenplan"
+  ],
+  "raum": "Platz für Gruppentische",
+  "gruppeMin": 9,
+  "gruppeMax": 36,
+  "vorbereitungMin": 90,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 3,
+  "teamMax": 5,
+  "variante": [
+    "Partnerpuzzle",
+    "Jigsaw II mit Einzeltest und Gruppenwertung"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-6"
+  ],
+  "hinweis": "Zerlegbarer Stoff; ausreichende Lesekompetenz. Befunde speziell zum Jigsaw sind uneinheitlich.",
+  "qualitaetsrisiko": [
+    "Fehlwissen wird weitergegeben",
+    "Trittbrettfahren"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Kooperatives Lernen wirkt positiv auf Leistung (ES ≈ 0,54)",
+      "quelle": "Kyndt et al. 2013; Johnson, Johnson & Stanne 2000",
+      "geltung": "Kooperatives Lernen allgemein, Primar- bis Tertiärbereich"
+    },
+    {
+      "grad": "B",
+      "befund": "Jigsaw im Besonderen: inkonsistente Effekte, hohe Varianz zwischen den Studien",
+      "quelle": "Cochon Drouet et al. 2023",
+      "geltung": "Schule und Hochschule, international"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.72
+  }
+}

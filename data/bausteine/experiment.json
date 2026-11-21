@@ -1,0 +1,154 @@
+{
+  "kennung": "experiment",
+  "name": "Geleitetes Experiment in Kleingruppen",
+  "kurzbeschreibung": "Hypothesengeleitetes Schülerexperiment in Kleingruppen mit strukturierter Auswertung und Rückbezug auf das Fachkonzept.",
+  "alternativname": [
+    "Geleitetes Forschen",
+    "Guided Inquiry",
+    "Schülerexperiment"
+  ],
+  "status": "kuratiert",
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schülerexperiment",
+      "url": "https://de.wikipedia.org/wiki/Sch%C3%BClerexperiment",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Lazonder & Harmsen (2016): Meta-analysis of inquiry-based learning",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "konzept-gesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fragestellung",
+      "name": "Fragestellung"
+    },
+    {
+      "kennung": "hypothese",
+      "name": "Hypothese vor Durchführung"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Auswertung mit Rückbezug auf das Konzept"
+    }
+  ],
+  "slot": [
+    {
+      "kennung": "sicherung",
+      "name": "Sicherung",
+      "lernfunktion": [
+        "diagnose",
+        "konsolidierung"
+      ],
+      "reichweite": "r1",
+      "pflicht": false,
+      "nachKernphase": true
+    }
+  ],
+  "dauerMin": 30,
+  "dauerMax": 90,
+  "problem": "Ein Konzept bleibt träge, solange es nicht an einer eigenen Untersuchung geprüft wird.",
+  "durchfuehrung": [
+    "Fragestellung klären",
+    "Hypothese begründen",
+    "Versuch planen und durchführen",
+    "Auswerten und auf das Konzept zurückbeziehen"
+  ],
+  "material": [
+    "Versuchsmaterial je Gruppe",
+    "Protokollvorlage"
+  ],
+  "raum": "Fachraum oder geeignete Arbeitsplätze",
+  "gruppeMin": 6,
+  "gruppeMax": 32,
+  "vorbereitungMin": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "teamMin": 2,
+  "teamMax": 4,
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/19-3",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "hinweis": "Anleitung passend zum Kenntnisstand.",
+  "qualitaetsrisiko": [
+    "Kochbuch-Experiment ohne Denkanlass"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Geleitetes Forschen ist wirksamer als ungeleitetes",
+      "quelle": "Lazonder & Harmsen 2016; Alfieri et al. 2011",
+      "geltung": "Schule und Hochschule, überwiegend Naturwissenschaften und Mathematik; international",
+      "umstritten": "Ob geleitetes Forschen direkter Instruktion überlegen ist, bleibt strittig (de Jong et al. 2023; Sweller et al. 2024)"
+    }
+  ]
+}
