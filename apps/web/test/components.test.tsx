@@ -7,6 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { createSearch, createValidator, type Arrangement, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PartiturView } from '../src/components/PartiturView.js';
 import { TimelineBandSvg } from '../src/components/TimelineBandSvg.js';
+import { CatalogAnalytics } from '../src/components/CatalogAnalytics.js';
 import { createChainPreset, setRecurrence } from '../src/planner/arrangementOps.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -125,5 +126,20 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(svg).toBeTruthy();
     expect(svg!.innerHTML).not.toContain('NaN');
     expect(svg!.innerHTML).not.toContain('Infinity');
+  });
+
+  it('renders CatalogAnalytics live across all 200 methods without crashing', () => {
+    const valuesOf = (schemeId: string) => {
+      const s = BUNDLE.schemes.find((x) => x.id === schemeId);
+      return s?.werte || (s?.gruppen || []).flatMap((g) => g.werte) || [];
+    };
+    const { container } = render(
+      <MemoryRouter>
+        <CatalogAnalytics bundle={BUNDLE} valuesOf={valuesOf} labelOf={labelOf} />
+      </MemoryRouter>
+    );
+    expect(container.textContent).toContain('200');
+    expect(container.textContent).toContain('Abdeckungs-Heatmap');
+    expect(container.textContent).toContain('Schnittstellen-Abdeckung');
   });
 });

@@ -14,15 +14,9 @@
   ],
   "quellen": [
     {
-      "titel": "Wikipedia: Lerntempoduett",
-      "url": "https://de.wikipedia.org/wiki/Lerntempoduett",
+      "titel": "Wikipedia: Binnendifferenzierung",
+      "url": "https://de.wikipedia.org/wiki/Binnendifferenzierung",
       "quelltyp": "wikipedia",
-      "lizenz": "CC BY-SA 4.0"
-    },
-    {
-      "titel": "ZUM-Unterrichten: Lerntempoduett",
-      "url": "https://unterrichten.zum.de/wiki/Lerntempoduett",
-      "quelltyp": "oer",
       "lizenz": "CC BY-SA 4.0"
     }
   ],

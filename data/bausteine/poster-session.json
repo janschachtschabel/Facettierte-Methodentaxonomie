@@ -1,0 +1,140 @@
+{
+  "kennung": "poster-session",
+  "name": "Wissenschaftliche Poster-Session",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Ergebnisse einer Untersuchung werden prägnant als strukturiertes Poster (Fragestellung, Methode, Befund, Fazit) gestaltet und im Kurzvortrag verteidigt.",
+  "alternativname": [
+    "Poster-Präsentation",
+    "Forschungsposter"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Komplexe Arbeitsergebnisse müssen auf das Wesentliche verdichtet und in direkten Fachgesprächen begründet werden.",
+  "durchfuehrung": [
+    "Einheitliche Poster-Struktur (Frage, Methode, Ergebnis, Quellen) klären",
+    "Poster gestalten und 2-Minuten-Pitch vorbereiten",
+    "Parallele Poster-Session mit Rückfragen und Kriterienfeedback"
+  ],
+  "material": [
+    "Posterpapier oder digitale Vorlage",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "verdichtung",
+      "name": "Klare Struktur statt Fließtext-Tapete"
+    },
+    {
+      "kennung": "fachgespraech",
+      "name": "Aktive Rückfragen am Poster"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Überladene Textposter ohne visuelle Hierarchie"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Poster",
+      "url": "https://de.wikipedia.org/wiki/Poster",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1,
+    "y": 2.48
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

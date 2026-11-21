@@ -1,0 +1,142 @@
+{
+  "kennung": "pinnwandmoderation",
+  "name": "Pinnwandmoderation (Kartenabfrage)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Alle Teilnehmenden notieren Beiträge anonym oder offen auf Moderationskarten, die an der Pinnwand gemeinsam geclustert und weiterbearbeitet werden.",
+  "alternativname": [
+    "Metaplan-Technik",
+    "Kartenabfrage"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Im Plenum melden sich oft immer dieselben Personen; alle Stimmen sollen sichtbar und geordnet erfasst werden.",
+  "durchfuehrung": [
+    "Präzise Leitfrage und Kartenregeln (groß schreiben, 1 Gedanke/Karte) nennen",
+    "Stilles Beschriften durch alle Teilnehmenden",
+    "Karten einsammeln, vorlesen und thematisch an der Pinnwand clustern",
+    "Cluster benennen und Schwerpunkte gewichten"
+  ],
+  "material": [
+    "Moderationskarten",
+    "Pinnwand",
+    "Nadeln",
+    "Filzstifte"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "alle-karten",
+      "name": "Gleichzeitige schriftliche Beteiligung aller Lernenden"
+    },
+    {
+      "kennung": "clustern",
+      "name": "Sichtbares Ordnen zu Oberthemen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unleserliche oder zu lange Karten bremsen die Auswertung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Pinnwandmoderation",
+      "url": "https://de.wikipedia.org/wiki/Pinnwandmoderation",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.34,
+    "y": 1.94
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

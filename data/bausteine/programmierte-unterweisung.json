@@ -1,0 +1,140 @@
+{
+  "kennung": "programmierte-unterweisung",
+  "name": "Programmierter Unterricht",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "instruktion",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Selbsttaktende Lernsequenz in kleinen, verzweigten Lernschritten mit unmittelbarer Rückmeldung nach jeder Antwort.",
+  "alternativname": [
+    "Programmiertes Lernen",
+    "Lernprogramm"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 45,
+  "dauerMax": 180,
+  "problem": "Lernende benötigen individuell getaktete Kleinschritte mit sofortiger Fehlerkorrektur.",
+  "durchfuehrung": [
+    "Lernprogramm in kleine Informationseinheiten gliedern",
+    "Nach jeder Einheit sofortige Kontrollfrage bearbeiten",
+    "Unmittelbare Rückmeldung und ggf. Verzweigung nutzen",
+    "Lernergebnis im Plenum oder Test absichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-geteilt",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kleinschritte",
+      "name": "Kleine Lernschritte mit aktiver Antwort"
+    },
+    {
+      "kennung": "sofortfeedback",
+      "name": "Unmittelbare Rückmeldung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Monotonie und oberflächliches Durchklicken",
+    "Wenig geeignet für offene oder diskursive Lernziele"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Programmierter Unterricht",
+      "url": "https://de.wikipedia.org/wiki/Programmierter_Unterricht",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.88,
+    "y": 1.08
+  },
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

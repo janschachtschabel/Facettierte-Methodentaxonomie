@@ -1,0 +1,145 @@
+{
+  "kennung": "cooperatives-offenes-lernen",
+  "name": "Cooperatives Offenes Lernen (COOL)",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Fächerübergreifendes Arbeitskonzept mit schriftlichen Arbeitsaufträgen (Assignments), Wahlfreiheit in Tempo/Sozialform und verbindlichen Feedback-Schleifen.",
+  "alternativname": [
+    "COOL-Unterricht",
+    "Daltonplan-orientiertes Lernen"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 180,
+  "dauerMax": 900,
+  "problem": "Selbstständigkeit, Kooperation und Eigenverantwortung sollen systematisch in die Sekundarstufe und Berufsbildung integriert werden.",
+  "durchfuehrung": [
+    "Fächerübergreifendes Assignment mit Pflicht- und Wahlteilen ausgeben",
+    "Lernende planen Arbeitszeiten, Partner und Räume eigenverantwortlich",
+    "Lehrkräfte coachen individuell und führen Zwischenchecks durch",
+    "Abgabe, kriteriengeleitete Bewertung und Lernprozess-Reflexion"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 60,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "assignment",
+      "name": "Schriftlicher, klar terminierter Arbeitsauftrag"
+    },
+    {
+      "kennung": "coaching",
+      "name": "Verbindliche Lehrer-Coaching- und Feedback-Kontakte"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Aufschiebeverhalten bei schwacher Selbstregulation ohne Meilensteine"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Cooperatives Offenes Lernen",
+      "url": "https://de.wikipedia.org/wiki/Cooperatives_Offenes_Lernen",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.64,
+    "y": 2.28
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

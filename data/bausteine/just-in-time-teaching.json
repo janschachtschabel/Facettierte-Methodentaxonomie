@@ -1,0 +1,138 @@
+{
+  "kennung": "just-in-time-teaching",
+  "name": "Just-in-Time-Teaching (JiTT)",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback",
+    "digital-ki"
+  ],
+  "kurzbeschreibung": "Kurze digitale Vorbereitungsaufgaben vor der Stunde machen Fehlvorstellungen sichtbar, sodass die Präsenzstunde gezielt darauf aufbaut.",
+  "alternativname": [
+    "JiTT",
+    "Warm-Up-Diagnose vor der Stunde"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Die Lehrkraft erfährt sonst erst in der Klassenarbeit, welche Konzepte unverständlich geblieben sind.",
+  "durchfuehrung": [
+    "2–3 kurze konzeptuelle Warm-Up-Fragen vor der Stunde digital einholen",
+    "Antworten kurz vor Unterrichtsbeginn sichten und typische Fehlvorstellungen clustern",
+    "Präsenzstunde direkt mit anonymisierten Schülerantworten eröffnen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "prozessebene",
+    "fb-elaboriert",
+    "diagnostisch",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "praesenz",
+    "asynchron",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "fehlvorstellungen-sichtbar",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "adaption",
+      "name": "Tatsächliche Anpassung der Präsenzstunde an die Antworten"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Demotivation, wenn Antworten eingeholt, aber im Unterricht ignoriert werden"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Just-in-time-Teaching",
+      "url": "https://de.wikipedia.org/wiki/Just-in-time-Teaching",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.3,
+    "y": 2.48
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

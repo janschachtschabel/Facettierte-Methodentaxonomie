@@ -1,0 +1,145 @@
+{
+  "kennung": "open-space",
+  "name": "Open-Space-Konferenz",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "diskurs"
+  ],
+  "kurzbeschreibung": "Großgruppenformat, in dem Teilnehmende unter einem Leitmotto eigene Themen auf den Marktplatz einbringen und selbstorganisiert in Sessions bearbeiten.",
+  "alternativname": [
+    "Open Space Technology",
+    "OST"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 120,
+  "dauerMax": 360,
+  "problem": "Bei offenen, komplexen Themen mit hoher Beteiligungsvielfalt soll echte Eigeninitiative ermöglicht werden.",
+  "durchfuehrung": [
+    "Leitfrage und Open-Space-Prinzipien im Kreis einführen",
+    "Themenmarktplatz: Teilnehmende schlagen eigene Sessions vor",
+    "Parallele Arbeitsrunden mit Kurzprotokollen durchführen",
+    "Abschlussplenum zur Ergebnissicherung und Maßnahmenplanung"
+  ],
+  "material": [
+    "Themenwand",
+    "Zeit-Raum-Raster",
+    "Protokollbögen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 15,
+  "gruppeMax": 150,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 30,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung",
+    "orientierung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "marktplatz",
+      "name": "Selbstorganisierte Agenda-Erstellung"
+    },
+    {
+      "kennung": "dokumentation",
+      "name": "Verbindliche Ergebnisprotokolle je Session"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Unverbindlichkeit ohne klare Leitfrage und Ergebnissicherung (R-05)"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Open Space",
+      "url": "https://de.wikipedia.org/wiki/Open_Space",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.24,
+    "y": 2.72
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

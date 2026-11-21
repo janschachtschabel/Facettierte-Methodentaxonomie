@@ -1,0 +1,142 @@
+{
+  "kennung": "schnitzeljagd",
+  "name": "Lern-Schnitzeljagd (Rallye / EduBreakout)",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Teams lösen an aufeinanderfolgenden Stationen fachliche Rätsel, deren Lösungen den Hinweis oder Code für die nächste Station liefern.",
+  "alternativname": [
+    "Lernrallye",
+    "EduBreakout",
+    "Scavenger Hunt"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Wiederholung oder Orientierung an einem Lernort soll bewegt, kooperativ und hoch motivierend gestaltet werden.",
+  "durchfuehrung": [
+    "5–8 fachliche Rätselstationen mit eindeutigen Hinweisen vorbereiten",
+    "Teams starten zeitversetzt und dokumentieren Lösungswege",
+    "Zielcode knacken und fachliche Kernpunkte kurz gemeinsam auswerten"
+  ],
+  "material": [
+    "Stationskarten oder QR-Codes",
+    "Lösungsbogen"
+  ],
+  "raum": "Klassenraum, Schulgebäude oder Außengelände",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 30,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fachraetsel",
+      "name": "Rätsel erfordern echtes Fachwissen statt bloßem Raten"
+    },
+    {
+      "kennung": "sicherung",
+      "name": "Kurze inhaltliche Nachbesprechung am Ende"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hektisches Durchrennen auf Kosten des Verstehens"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schnitzeljagd",
+      "url": "https://de.wikipedia.org/wiki/Schnitzeljagd",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.12,
+    "y": 2.52
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

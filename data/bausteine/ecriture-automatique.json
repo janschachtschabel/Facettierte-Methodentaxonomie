@@ -1,0 +1,129 @@
+{
+  "kennung": "ecriture-automatique",
+  "name": "Automatisches Schreiben (Ideenfluss)",
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "visualisierung",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Kurzes, unkontrolliertes Niederschreiben spontaner Gedankenketten als künstlerisch-literarischer Einstieg oder Perspektivöffnung.",
+  "alternativname": [
+    "Écriture automatique"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "problem": "Im Literatur- oder Kunstunterricht sollen sprachliche Routinen aufgebrochen und kreative Bilder freigesetzt werden.",
+  "durchfuehrung": [
+    "Kurzes Zeitfenster (3–5 Min.) und Startwort geben",
+    "Ohne Korrektur oder Nachdenken durchschreiben",
+    "Spannende Wortbilder herausgreifen und literarisch weiterverarbeiten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "auswertung",
+      "name": "Gezieltes Weiterarbeiten mit ausgewählten Textstellen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Befremden ohne klare Einbettung in das Unterrichtsthema"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Écriture automatique",
+      "url": "https://de.wikipedia.org/wiki/%C3%89criture_automatique",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 1.88
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

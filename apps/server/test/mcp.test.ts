@@ -125,7 +125,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
   it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {
     const summary = await client.readResource({ uri: 'fmt://catalog/summary' });
     const parsed = JSON.parse((summary.contents[0] as { text: string }).text);
-    expect(parsed.anzahl).toBe(100);
+    expect(parsed.anzahl).toBe(200);
     expect(parsed.creator).toBe('Jan Schachtschabel');
 
     // Verify CORS header survives reply.hijack() on /mcp

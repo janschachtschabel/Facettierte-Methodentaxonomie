@@ -1,0 +1,145 @@
+{
+  "kennung": "herausforderung-projekt",
+  "name": "Herausforderung (Außerschulisches Großprojekt)",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "offen",
+    "spiel-simulation"
+  ],
+  "kurzbeschreibung": "Kleingruppen planen eigenverantwortlich ein mehrtägiges außerschulisches Vorhaben mit begrenztem Budget und reflektieren Selbstwirksamkeit.",
+  "alternativname": [
+    "Projekt Herausforderung",
+    "Expeditionslernen"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 480,
+  "dauerMax": 1800,
+  "problem": "Selbstständigkeit, Teamfähigkeit und Problemlösen unter realen Bedingungen sollen tiefgreifend erfahren werden.",
+  "durchfuehrung": [
+    "Team bilden und realistische Herausforderung definieren",
+    "Route, Budget, Sicherheit und Begleitung eigenständig planen",
+    "Mehrtägige Durchführung außerhalb der Schule",
+    "Ausführliche Rückschau und Präsentation vor Schulgemeinschaft"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 3,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 90,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "metakognition",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "eigenplanung",
+      "name": "Verbindliche Eigenplanung inkl. Sicherheitskonzept"
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Auswertungs- und Transferphase nach Rückkehr"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Überforderung ohne gründliche Vorbereitungs- und Begleitstruktur"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Herausforderung (Schulprojekt)",
+      "url": "https://de.wikipedia.org/wiki/Herausforderung_(Schulprojekt)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.16,
+    "y": 2.86
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

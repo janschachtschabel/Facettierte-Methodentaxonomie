@@ -4,12 +4,16 @@ import { useCatalog } from '../data/CatalogContext.js';
 import { PartiturView } from '../components/PartiturView.js';
 import { TimelineBandSvg } from '../components/TimelineBandSvg.js';
 import { ByokModal } from '../components/ByokModal.js';
+import { SimpleMarkdown } from '../components/SimpleMarkdown.js';
 import {
   appendBlockToArrangement,
+  collectUsedBlocks,
   createChainPreset,
+  exportArrangementHtmlHandout,
   exportArrangementMarkdown,
   importArrangementJson
 } from '../planner/arrangementOps.js';
+import { explainValidationMessage } from '../planner/validationHelpers.js';
 
 export function PlannerPage() {
   const {
@@ -29,7 +33,7 @@ export function PlannerPage() {
   } = useCatalog();
 
   const [arrangement, setArrangement] = useState<Arrangement | null>(null);
-  const [view, setView] = useState<'partitur' | 'zeitband'>('partitur');
+  const [showLiveBand, setShowLiveBand] = useState(true);
   const [scenarioText, setScenarioText] = useState(
     'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte'
   );
@@ -39,6 +43,7 @@ export function PlannerPage() {
 
   const [thema, setThema] = useState('Dichte von Stoffen');
   const [fach, setFach] = useState('Physik');
+  const [hinweise, setHinweise] = useState('');
   const [elaboration, setElaboration] = useState<string | null>(null);
   const [elabError, setElabError] = useState<string | null>(null);
 
@@ -68,6 +73,18 @@ export function PlannerPage() {
     if (!validator || !arrangement) return null;
     return validator.validate(arrangement, exampleRegistry);
   }, [validator, arrangement, exampleRegistry]);
+
+  const explainedMessages = useMemo(() => {
+    if (!validation || !arrangement || !bundle) return [];
+    return validation.meldungen.map((m) =>
+      explainValidationMessage(m, arrangement, blocksById, bundle, validation.dauerMin)
+    );
+  }, [validation, arrangement, blocksById, bundle]);
+
+  const usedBlocks = useMemo(() => {
+    if (!arrangement) return [];
+    return collectUsedBlocks(arrangement, blocksById);
+  }, [arrangement, blocksById]);
 
   if (!bundle || !validator || !search || !matcher || !arrangement || !validation) {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
@@ -132,7 +149,7 @@ export function PlannerPage() {
       const res = await fetch('/api/v1/assistant/elaborate', {
         method: 'POST',
         headers: byokHeaders(),
-        body: JSON.stringify({ arrangement, thema, fach })
+        body: JSON.stringify({ arrangement, thema, fach, hinweise: hinweise.trim() || undefined })
       });
       const json = await res.json();
       if (!res.ok) {
@@ -159,7 +176,13 @@ export function PlannerPage() {
 
   const exportSvg = () => {
     if (!svgRef.current) return;
-    const xml = new XMLSerializer().serializeToString(svgRef.current);
+    const cs = getComputedStyle(document.documentElement);
+    const vars = ['--dA', '--dB', '--dC', '--dD', '--paper', '--surface', '--ink', '--ink-2', '--rule', '--on-domain', '--display'];
+    let xml = new XMLSerializer().serializeToString(svgRef.current);
+    for (const v of vars) {
+      const resolved = cs.getPropertyValue(v).trim();
+      if (resolved) xml = xml.split(`var(${v})`).join(resolved);
+    }
     downloadFile('fmt-szenario-zeitband.svg', xml, 'image/svg+xml;charset=utf-8');
   };
 
@@ -172,9 +195,9 @@ export function PlannerPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' }}>
         <div>
           <h1>Modularer Szenario-Baukasten</h1>
-          <p className="muted" style={{ maxWidth: '72ch', marginTop: 4 }}>
-            Kombinieren Sie Methoden als modulare Bausteine mit Lernzustands-Schnittstellen, Slots, Begleitsträngen,
-            Wiederkehr und adaptiven Alternativen – sofort geprüft gegen alle 13 FMT-Regeln.
+          <p className="muted" style={{ maxWidth: '74ch', marginTop: 4 }}>
+            Kombinieren Sie Methoden als modulare Bausteine mit Lernzustands-Schnittstellen, verschachtelten Container-Slots (
+            <code>R3 ⊃ R2 ⊃ R1</code>), Begleitstrang, Wiederkehr und Alternativen – live visualisiert und geprüft gegen R-00 bis R-12.
           </p>
         </div>
         <div className="no-print" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -194,7 +217,7 @@ export function PlannerPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
           <h2 style={{ margin: 0, fontSize: 22 }}>1. Szenario beschreiben &amp; zuordnen</h2>
           <span className="status-badge">
-            {llmAvailable ? '✨ KI-Übersetzung verfügbar' : '⚡ Deterministischer Sofort-Modus (0 €)'}
+            {llmAvailable ? `✨ KI aktiv (${byok.model || meta?.llmModel || 'gpt-6-luna'})` : '⚡ Deterministischer Sofort-Modus (0 €)'}
           </span>
         </div>
 
@@ -243,7 +266,7 @@ export function PlannerPage() {
               Passende Bausteine für diese Phase (Anklicken zum Anfügen an die Partitur):
             </div>
             <ul className="chips">
-              {matchResult.vorschlaege.slice(0, 10).map((v) => (
+              {matchResult.vorschlaege.slice(0, 12).map((v) => (
                 <li key={v.baustein}>
                   <button
                     type="button"
@@ -262,7 +285,7 @@ export function PlannerPage() {
         )}
       </section>
 
-      {/* 2. Context & Preset Controls */}
+      {/* 2. Context, Granularity & Preset Controls */}
       <section className="filter-panel no-print" style={{ marginTop: 18 }}>
         <div className="filter-grid">
           <label>
@@ -280,6 +303,18 @@ export function PlannerPage() {
                   {k.label}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label>
+            Granularität / Rahmen (R-01)
+            <select
+              value={arrangement.reichweite}
+              onChange={(e) => setArrangement({ ...arrangement, reichweite: e.target.value })}
+            >
+              <option value="r2">R2 Einzelstunde / Szenario (nimmt R1–R2)</option>
+              <option value="r3">R3 Unterrichtsreihe / Ensemble (nimmt R1–R3)</option>
+              <option value="r4">R4 Modul / Kurs (nimmt R1–R4)</option>
             </select>
           </label>
 
@@ -341,6 +376,7 @@ export function PlannerPage() {
             <select
               defaultValue=""
               onChange={(e) => {
+                if (!e.target.value) return;
                 const found = bundle.beispiele.find((ex) => ex['@id']?.endsWith(e.target.value));
                 if (found) setArrangement(JSON.parse(JSON.stringify(found)) as Arrangement);
                 e.target.value = '';
@@ -358,48 +394,68 @@ export function PlannerPage() {
             </select>
           </label>
         </div>
+        <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
+          <strong>Hinweis zur Granularität:</strong> Eine Unterrichtsstunde ist <strong>R2</strong> (durchgehendes Szenario) oder ein kleines{' '}
+          <strong>R3-Ensemble</strong> (mehrere verbundene Szenarien). Größere Container-Bausteine (z. B. <em>Productive Failure R3</em>{' '}
+          oder <em>VBE R2</em>) nehmen Bausteine kleinerer Reichweite in ihren Slots auf.
+        </p>
       </section>
 
-      {/* 3. Didaktische Partitur / Zeitband Toggle */}
+      {/* 3. Live Combination Visualization (ALWAYS VISIBLE above editor) + Didaktische Partitur */}
       <section style={{ marginTop: 22 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <h2 style={{ margin: 0 }}>2. Didaktische Partitur: {arrangement.name}</h2>
-          <div className="no-print" style={{ display: 'flex', gap: 6 }}>
-            <button type="button" className="btn btn-sm" aria-pressed={view === 'partitur'} onClick={() => setView('partitur')}>
-              Modulare Partitur
+          <h2 style={{ margin: 0 }}>2. Live-Komposition &amp; Didaktische Partitur: {arrangement.name}</h2>
+          <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-sm" onClick={() => setShowLiveBand((s) => !s)}>
+              {showLiveBand ? '▲ Zeitband ausblenden' : '▼ Live-Zeitband einblenden'}
             </button>
-            <button type="button" className="btn btn-sm" aria-pressed={view === 'zeitband'} onClick={() => setView('zeitband')}>
-              Zeitband (SVG)
-            </button>
+            {showLiveBand && (
+              <button type="button" className="btn btn-sm" onClick={exportSvg}>
+                ⬇ Zeitband (SVG)
+              </button>
+            )}
           </div>
         </div>
 
-        {view === 'partitur' ? (
-          <PartiturView
-            arrangement={arrangement}
-            onChange={setArrangement}
-            bundle={bundle}
-            blocksById={blocksById}
-            search={search}
-            registry={exampleRegistry}
-            labelOf={labelOf}
-          />
-        ) : (
-          <div className="card" style={{ padding: 18, marginTop: 12 }}>
-            <TimelineBandSvg arrangement={arrangement} blocksById={blocksById} svgRef={svgRef} />
-            <div className="no-print" style={{ marginTop: 12 }}>
-              <button type="button" className="btn btn-sm" onClick={exportSvg}>
-                ⬇ Zeitband als SVG speichern
-              </button>
+        {showLiveBand && (
+          <div className="card" style={{ padding: 16, marginTop: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 15 }}>
+                Schachtelung &amp; Ablauf live (Granularität {arrangement.reichweite.toUpperCase()} · {validation.dauerMin} min
+                {arrangement.kontext?.zeitbudgetMin ? ` / ${arrangement.kontext.zeitbudgetMin} min Budget` : ''})
+              </strong>
+              <span
+                style={{
+                  fontFamily: 'var(--display)',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: validation.gueltig ? 'var(--dC)' : 'var(--err)'
+                }}
+              >
+                {validation.gueltig ? '✓ Formal gültig' : `✕ ${nErr} Prüffehler`}
+                {nWarn > 0 ? ` · ${nWarn} Warnungen` : ''}
+              </span>
             </div>
+            <TimelineBandSvg arrangement={arrangement} blocksById={blocksById} svgRef={svgRef} />
           </div>
         )}
+
+        <PartiturView
+          arrangement={arrangement}
+          onChange={setArrangement}
+          bundle={bundle}
+          blocksById={blocksById}
+          search={search}
+          registry={exampleRegistry}
+          labelOf={labelOf}
+          explainedMessages={explainedMessages}
+        />
       </section>
 
-      {/* 4. Live Validator & Export */}
+      {/* 4. Understandable Live Validator & Full Export / AI Lesson Description */}
       <section className="split-2" style={{ marginTop: 24 }}>
         <div className="card" style={{ padding: 18 }}>
-          <h2 style={{ fontSize: 22 }}>3. Live-Prüfung (Regeln R-00 bis R-12)</h2>
+          <h2 style={{ fontSize: 22 }}>3. Live-Prüfung (R-00 bis R-12) – verständlich eingeordnet</h2>
           <p
             style={{
               fontFamily: 'var(--display)',
@@ -413,18 +469,33 @@ export function PlannerPage() {
           </p>
 
           <ul className="msgs">
-            {validation.meldungen.length === 0 ? (
-              <li>Keine Fehler, keine Warnungen.</li>
+            {explainedMessages.length === 0 ? (
+              <li>Keine Fehler, keine Warnungen – alle Schnittstellen, Granularitäten und Zielzustände passen zusammen.</li>
             ) : (
-              validation.meldungen.map((m, i) => (
-                <li key={i} className={m.schwere === 'Fehler' ? 'err' : ''}>
-                  <span className="basis-tag">
-                    {m.regel} · {m.grundlage === 'formal' ? 'formal' : `[${m.grundlage}]`}
-                  </span>
-                  <strong>{m.schwere}:</strong> {m.meldung}{' '}
-                  <span className="muted" style={{ fontSize: 12.5 }}>
-                    ({m.pfad})
-                  </span>
+              explainedMessages.map((em, i) => (
+                <li key={i} className={em.raw.schwere === 'Fehler' ? 'err' : ''}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
+                    <div>
+                      <span className="basis-tag">
+                        {em.raw.regel} · {em.raw.grundlage === 'formal' ? 'formal' : `[${em.raw.grundlage}]`}
+                      </span>{' '}
+                      <strong>{em.location}:</strong> {em.raw.meldung}
+                    </div>
+                    {em.quickFix && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary no-print"
+                        onClick={() => setArrangement(em.quickFix!.apply(arrangement))}
+                      >
+                        ✦ {em.quickFix.label}
+                      </button>
+                    )}
+                  </div>
+                  <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
+                    <strong>Warum?</strong> {em.why}
+                    <br />
+                    <strong>Behebung:</strong> {em.howToFix}
+                  </div>
                 </li>
               ))
             )}
@@ -453,9 +524,14 @@ export function PlannerPage() {
           </details>
         </div>
 
-        {/* AI Elaboration & Export */}
+        {/* AI Full Lesson Description & Complete Export with Sources */}
         <div className="card" style={{ padding: 18 }}>
-          <h2 style={{ fontSize: 22 }}>4. Ausgestaltung &amp; Export</h2>
+          <h2 style={{ fontSize: 22 }}>4. Stundenbeschreibung, Quellen &amp; Export</h2>
+          <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
+            Exportiert den kompletten Ablauf inkl. Durchführungs­schritten, Materialien, Kernkomponenten und verifizierten Quellenangaben
+            aller {usedBlocks.length} eingesetzten Methoden – optional ergänzt um eine vollständige KI-Stundenbeschreibung.
+          </p>
+
           <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
             <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4 }}>
               Fach
@@ -466,23 +542,48 @@ export function PlannerPage() {
               <input type="text" value={thema} onChange={(e) => setThema(e.target.value)} />
             </label>
           </div>
+          <label
+            className="no-print"
+            style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}
+          >
+            Zusätzliche Hinweise für die KI (optional, z. B. Lerngruppe, Differenzierung)
+            <input
+              type="text"
+              value={hinweise}
+              onChange={(e) => setHinweise(e.target.value)}
+              placeholder="z. B. heterogene 7. Klasse, 2 Sprachanfänger, Fokus auf Alltagsbeispiele"
+            />
+          </label>
 
           <div className="no-print" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
             <button type="button" className="btn btn-primary" disabled={busyAi} onClick={runAiElaborate}>
-              ✨ {busyAi ? 'Erstelle Ausarbeitung…' : 'Fachlich ausformulieren (KI)'}
+              ✨ {busyAi ? 'Erstelle Stundenbeschreibung…' : 'Gesamte Stunde ausformulieren (KI)'}
             </button>
             <button
               type="button"
               className="btn btn-sm"
               onClick={() =>
                 downloadFile(
-                  'fmt-arrangement.md',
-                  exportArrangementMarkdown(arrangement, blocksById, validation),
+                  'fmt-stundenplan.md',
+                  exportArrangementMarkdown(arrangement, blocksById, validation, { fach, thema, kiAusarbeitung: elaboration }),
                   'text/markdown;charset=utf-8'
                 )
               }
             >
-              ⬇ Markdown
+              ⬇ Stundenplan (.md)
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() =>
+                downloadFile(
+                  'fmt-stundenhandout.html',
+                  exportArrangementHtmlHandout(arrangement, blocksById, validation, { fach, thema, kiAusarbeitung: elaboration }),
+                  'text/html;charset=utf-8'
+                )
+              }
+            >
+              ⬇ Handout (.html)
             </button>
             <button
               type="button"
@@ -502,11 +603,64 @@ export function PlannerPage() {
           )}
 
           {elaboration && (
-            <div style={{ marginTop: 12, padding: 12, background: 'var(--paper)', borderRadius: 6, border: '1px solid var(--rule)' }}>
-              <div style={{ fontFamily: 'var(--display)', fontWeight: 700, marginBottom: 6 }}>KI-Ausgestaltung (Entwurf)</div>
-              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'var(--text)', fontSize: 14.5, maxHeight: 380 }}>
-                {elaboration}
-              </pre>
+            <div
+              style={{
+                marginTop: 12,
+                padding: 16,
+                background: 'var(--paper)',
+                borderRadius: 8,
+                border: '1px solid var(--rule)',
+                maxHeight: 540,
+                overflowY: 'auto'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
+                  KI-Stundenbeschreibung ({fach} · {thema})
+                </strong>
+                <button
+                  type="button"
+                  className="btn btn-sm no-print"
+                  onClick={() =>
+                    downloadFile(
+                      'fmt-stundenbeschreibung-ki.md',
+                      exportArrangementMarkdown(arrangement, blocksById, validation, { fach, thema, kiAusarbeitung: elaboration }),
+                      'text/markdown;charset=utf-8'
+                    )
+                  }
+                >
+                  ⬇ inkl. Quellen speichern
+                </button>
+              </div>
+              <SimpleMarkdown content={elaboration} />
+            </div>
+          )}
+
+          {/* Always-visible verified source list for all used blocks */}
+          {usedBlocks.length > 0 && (
+            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
+              <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
+                Quellenangaben zu den {usedBlocks.length} verwendeten Methoden:
+              </div>
+              <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {usedBlocks.map((b) => (
+                  <li key={b.kennung}>
+                    <strong>{b.name}:</strong>{' '}
+                    {(b.quellen || []).map((q, qi) => (
+                      <span key={qi}>
+                        {qi > 0 && ' · '}
+                        {q.url ? (
+                          <a href={q.url} target="_blank" rel="noreferrer">
+                            {q.titel}
+                          </a>
+                        ) : (
+                          q.titel
+                        )}
+                      </span>
+                    ))}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

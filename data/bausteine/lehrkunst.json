@@ -1,0 +1,144 @@
+{
+  "kennung": "lehrkunst",
+  "name": "Lehrkunst (Exemplarisches Lehrstück)",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "instruktion",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Genetisch-exemplarische Unterrichtseinheit entlang eines historischen oder sachlichen Schlüsselproblems („Lehrstück“ nach Wagenschein/Berg).",
+  "alternativname": [
+    "Lehrstückunterricht",
+    "Genetisch-exemplarisches Lehren"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 180,
+  "dauerMax": 540,
+  "problem": "Stofffülle verhindert tiefes, nachhaltiges Verstehen grundlegender kultureller und wissenschaftlicher Einsichten.",
+  "durchfuehrung": [
+    "Prägnantes Urphänomen oder Schlüsselproblem inszenieren",
+    "Lernende entwickeln eigene Deutungen und Fragen",
+    "Gemeinsame schrittweise Rekonstruktion der Erkenntnis",
+    "Transfer und Einordnung in größere Zusammenhänge sichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 60,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "exemplarisch",
+      "name": "Exemplarisches Schlüsselproblem"
+    },
+    {
+      "kennung": "genetisch",
+      "name": "Genetischer Erkenntnisgang statt fertiger Formel"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hoher Vorbereitungsaufwand und Zeitbedarf",
+    "Verlust des roten Fadens ohne klare Dramaturgie"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lehrkunst",
+      "url": "https://de.wikipedia.org/wiki/Lehrkunst",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.05,
+    "y": 2.48
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

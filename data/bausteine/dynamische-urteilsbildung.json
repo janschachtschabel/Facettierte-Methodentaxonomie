@@ -1,0 +1,143 @@
+{
+  "kennung": "dynamische-urteilsbildung",
+  "name": "Dynamische Urteilsbildung",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Systematische Schrittfolge aus Wahrnehmen, Fragen, Abwägen von Wertmaßstäben und revidierbarer Urteilsfindung zu strittigen Fragen.",
+  "alternativname": [
+    "Urteilsbildung im Dialog"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 50,
+  "problem": "Spontane Bauchurteile sollen in reflektierte, kriteriengeleitete Sach- und Werturteile überführt werden.",
+  "durchfuehrung": [
+    "Fall oder Streitfrage sachlich beschreiben (ohne Wertung)",
+    "Zentrale Wertmaßstäbe und Betroffene identifizieren",
+    "Argumente für Handlungsoptionen im Dialog prüfen",
+    "Eigenes Urteil schriftlich begründen und mögliche Gegengründe benennen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 6,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "lernen-reflektiert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien",
+      "name": "Trennung von Sachanalyse und Wertmaßstäben"
+    },
+    {
+      "kennung": "revision",
+      "name": "Offenlegung von Gegenargumenten und Urteilsgrenzen"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Vermischung von Faktenebene und normativer Wertung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Dynamische Urteilsbildung",
+      "url": "https://de.wikipedia.org/wiki/Dynamische_Urteilsbildung",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.99,
+    "y": 2.66
+  },
+  "aufgabe": [
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

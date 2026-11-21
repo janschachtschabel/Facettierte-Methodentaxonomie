@@ -1,0 +1,133 @@
+{
+  "kennung": "bisoziation",
+  "name": "Bisoziation (Zufallswort-Verknüpfung)",
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Ein zufällig gewähltes Bild oder Wort wird zwangsweise mit der Lern- oder Problemfrage verknüpft, um ungewohnte Assoziationen auszulösen.",
+  "alternativname": [
+    "Reizwortanalyse",
+    "Zufallstechnik"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Für Schreibanlässe oder Ideenfindungen braucht die Gruppe einen schnellen Perspektivbruch.",
+  "durchfuehrung": [
+    "Problemstellung sichtbar notieren",
+    "Zufallsbegriff oder -bild ziehen und Merkmale sammeln",
+    "Merkmale auf das Ausgangsproblem übertragen",
+    "Brauchbare Impulse sichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "reizwort",
+      "name": "Echtes Zufallselement außerhalb des Themenfelds"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Beliebigkeit ohne anschließende fachliche Filterung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Bisoziation",
+      "url": "https://de.wikipedia.org/wiki/Bisoziation",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.74,
+    "y": 2.1
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

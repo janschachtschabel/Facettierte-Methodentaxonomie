@@ -1,0 +1,145 @@
+{
+  "kennung": "storyline-methode",
+  "name": "Storyline-Methode",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Fächerübergreifende Unterrichtsreihe entlang einer fortlaufenden Rahmenerzählung (Schauplatz, Figuren, Ereignisse), die durch Schlüsselfragen gesteuert wird.",
+  "alternativname": [
+    "Schottische Storyline-Methode",
+    "Geschichten-Unterricht"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 180,
+  "dauerMax": 600,
+  "problem": "Abstrakte Lehrplaninhalte sollen in einem motivierenden, sinnstiftenden narrativen Kontext erarbeitet werden.",
+  "durchfuehrung": [
+    "Schauplatz und Figuren gemeinsam entwickeln und visualisieren",
+    "Schlüsselfragen und überraschende Ereignisse einspielen",
+    "Fachinhalte zur Lösung der Storyline-Aufgaben erarbeiten",
+    "Abschlussereignis feiern und fachlichen Ertrag reflektieren"
+  ],
+  "material": [
+    "Wandfries",
+    "Figurenmaterial",
+    "Fachquellen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 60,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "schluesselfragen",
+      "name": "Lehrplanverankerte Schlüsselfragen als Motor"
+    },
+    {
+      "kennung": "fries",
+      "name": "Sichtbare Entwicklung von Schauplatz und Figuren"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Story-Elemente verdrängen die fachliche Sicherung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Storyline-Methode",
+      "url": "https://de.wikipedia.org/wiki/Storyline-Methode",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.86,
+    "y": 2.52
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "kennung": "supervision-gruppe",
+  "name": "Pädagogische Reflexionsgruppe (Supervision)",
+  "status": "entwurf",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Moderierte Gruppenreflexion beruflicher oder sozialer Lernsituationen zur Klärung von Rollen, Konflikten und professionellem Handeln.",
+  "alternativname": [
+    "Fallreflexion",
+    "Lern-Supervision"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "In Praxisphasen (z. B. Pflege, Sozialpädagogik, Lehramt) entstehen belastende oder ambivalente Situationen, die reflektiert werden müssen.",
+  "durchfuehrung": [
+    "Vertraulichkeit und Fokusfrage vereinbaren",
+    "Konkrete Situation schildern und Perspektiven erkunden",
+    "Handlungsalternativen und eigene Rolle klären",
+    "Konkrete Vorsätze für die nächste Praxisphase festhalten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 12,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "metakognition",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vertraulichkeit",
+      "name": "Geschützter, bewertungsfreier Reflexionsraum"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar",
+    "sek1"
+  ],
+  "qualitaetsrisiko": [
+    "Vermischung von Leistungsbenotung und offener Reflexion"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Supervision",
+      "url": "https://de.wikipedia.org/wiki/Supervision",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.74,
+    "y": 2.7
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -36,7 +36,7 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     const onUpdate = vi.fn();
     const res = await loadCatalogWithCache(fetcher, storage, onUpdate);
     expect(res.fromCache).toBe(true);
-    expect(res.bundle.bausteine.length).toBe(100);
+    expect(res.bundle.bausteine.length).toBe(200);
     await res.revalidated;
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(onUpdate).not.toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
 
     const res = await loadCatalogWithCache(fetcher, storage);
     expect(res.fromCache).toBe(false);
-    expect(res.bundle.bausteine.length).toBe(100);
+    expect(res.bundle.bausteine.length).toBe(200);
     expect(JSON.parse(storage.getItem(CACHE_KEY)!).versionHash).toBe(BUNDLE.versionHash);
 
     // Outdated schema (missing required schemes / stub blocks) must also fall back cleanly
@@ -98,10 +98,10 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     });
     const resOutdated = await loadCatalogWithCache(fetcher, outdated);
     expect(resOutdated.fromCache).toBe(false);
-    expect(resOutdated.bundle.bausteine.length).toBe(100);
+    expect(resOutdated.bundle.bausteine.length).toBe(200);
   });
 
-  it('filters 100 methods client-side in < 20ms including synonyms and ansatz', () => {
+  it('filters 200 methods client-side in < 20ms including synonyms and ansatz', () => {
     const data: FmtData = {
       VERSION: BUNDLE.version,
       NS: BUNDLE.NS,

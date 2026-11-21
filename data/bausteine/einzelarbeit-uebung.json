@@ -1,0 +1,139 @@
+{
+  "kennung": "einzelarbeit-uebung",
+  "name": "Strukturierte Einzelarbeit (Stillarbeit)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung"
+  ],
+  "kurzbeschreibung": "Ruhige, zeitlich begrenzte Einzelphase zur konzentrierten Verarbeitung, Textlektüre oder individuellen Übung mit Lösungskontrolle.",
+  "alternativname": [
+    "Stillarbeit",
+    "Einzelübung"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 20,
+  "problem": "Ohne ruhige individuelle Verarbeitungszeit fehlt die Grundlage für fruchtbare Gespräche und sicheres Üben.",
+  "durchfuehrung": [
+    "Klare Aufgabe, Zeitrahmen und Hilfs-/Kontrollmöglichkeit benennen",
+    "Störungsfreie Einzelarbeitsphase einhalten",
+    "Selbstkontrolle oder Übergang in Partnerabgleich sichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ruhe",
+      "name": "Geschützte individuelle Denk- und Übungszeit"
+    },
+    {
+      "kennung": "kontrolle",
+      "name": "Klare Rückmelde- oder Kontrollmöglichkeit"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unbemerkte Fehlkonzepte verfestigen sich ohne Kontrollschritt"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Einzelarbeit",
+      "url": "https://de.wikipedia.org/wiki/Einzelarbeit",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.62,
+    "y": 1.48
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

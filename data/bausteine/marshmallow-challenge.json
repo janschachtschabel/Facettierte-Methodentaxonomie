@@ -1,0 +1,138 @@
+{
+  "kennung": "marshmallow-challenge",
+  "name": "Marshmallow Challenge",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Teams bauen in 18 Minuten aus Spaghetti, Klebeband und Schnur den höchsten freistehenden Turm mit einem Marshmallow an der Spitze – Lehrstück für Prototyping.",
+  "alternativname": [
+    "Spaghetti-Turm-Challenge"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 20,
+  "dauerMax": 30,
+  "problem": "Bedeutung von frühem Testen (Prototyping), Teamrollen und Annahmenprüfung soll in 20 Minuten hautnah erlebt werden.",
+  "durchfuehrung": [
+    "Identische Materialpakete ausgeben und 18-Minuten-Timer starten",
+    "Teams planen, bauen und testen ihren Turm",
+    "Höhe messen und Vorgehensweisen (spätes vs. frühes Testen) auswerten"
+  ],
+  "material": [
+    "20 Spaghetti, 1m Klebeband, 1m Schnur, 1 Marshmallow je Team"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 6,
+  "gruppeMax": 40,
+  "teamMin": 3,
+  "teamMax": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zeitdruck",
+      "name": "Striktes 18-Minuten-Limit mit Messung am Ende"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Reflexion von Planungs- vs. Prototyping-Verhalten"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reiner Spaß-Wettbewerb ohne Lern-Transfer"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Marshmallow Challenge",
+      "url": "https://de.wikipedia.org/wiki/Marshmallow_Challenge",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.58,
+    "y": 2.88
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

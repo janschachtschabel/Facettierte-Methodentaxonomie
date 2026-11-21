@@ -1,0 +1,142 @@
+{
+  "kennung": "selbstorganisiertes-lernen",
+  "name": "Selbstorganisiertes Lernen (SOL)",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Systematisches Konzept (nach Herold/Landherr), das individuelle Lernplanung, Sandwich-Phasen, Advance Organizer und kooperative Sicherung verbindet.",
+  "alternativname": [
+    "SOL-Konzept",
+    "Selbstgesteuertes Lernen"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 90,
+  "dauerMax": 360,
+  "problem": "Lernende sollen schrittweise Verantwortung für Lernweg, Zeitplanung und Selbstkontrolle übernehmen.",
+  "durchfuehrung": [
+    "Strukturüberblick (Advance Organizer) und Lernziele klären",
+    "Individuelle Lernplanung und Sandwich-Wechsel aus Einzel- und Gruppenphasen",
+    "Regelmäßige Selbstkontrolle und kollegiale Lernberatung",
+    "Auswertung von Lernertrag und Lernstrategie"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 35,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "sandwich",
+      "name": "Rhythmisierter Wechsel aus Einzel- und Kooperationsphasen"
+    },
+    {
+      "kennung": "lernplanung",
+      "name": "Explizite Planung und Reflexion des eigenen Lernwegs"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Fehlende Einführung in Lernstrategien überfordert leistungsschwächere Lernende"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Selbstorganisiertes Lernen",
+      "url": "https://de.wikipedia.org/wiki/Selbstorganisiertes_Lernen",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.82,
+    "y": 2.34
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

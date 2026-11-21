@@ -1,0 +1,144 @@
+{
+  "kennung": "computerunterstuetztes-lernen",
+  "name": "Adaptives computerunterstütztes Üben (ITS)",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Digitale Übungsumgebung oder intelligentes Tutorsystem passt Aufgabenschwierigkeit und Hilfestufen laufend an den individuellen Lernstand an.",
+  "alternativname": [
+    "Computerunterstützter Unterricht",
+    "Intelligentes Tutorsystem"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Große Leistungsstreuung macht einheitliche Übungsblätter für viele Lernende entweder zu leicht oder zu schwer.",
+  "durchfuehrung": [
+    "Zielkompetenz und Systemzugang klären",
+    "Lernende üben individuell mit automatischer Rückmeldung und gestuften Hilfen",
+    "Lehrkraft wertet Fehlercluster aus und unterstützt gezielt"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Intelligente Tutorsysteme zeigen mittlere positive Effekte auf Lernleistung gegenüber regulärem Gruppenunterricht (g ≈ 0,42–0,66).",
+      "quelle": "Kulik & Fletcher 2016; Steenbergen-Hu & Cooper 2014",
+      "geltung": "Mathematik, Naturwissenschaften, Sekundarstufe & Hochschule",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität und Einbindung durch Lehrkräfte"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Computerunterstützter Unterricht",
+      "url": "https://de.wikipedia.org/wiki/Computerunterst%C3%BCtzter_Unterricht",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.5,
+    "y": 1.78
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "adaptivitaet",
+      "name": "Lernstandsabhängige Anpassung von Aufgaben und Hilfen"
+    },
+    {
+      "kennung": "lehrkraft-einbindung",
+      "name": "Auswertung der Fehlercluster durch die Lehrkraft"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Isoliertes Klicken ohne konzeptuelle Reflexion",
+    "Fehlende Einbindung der Diagnoseergebnisse in den weiteren Unterricht"
+  ]
+}

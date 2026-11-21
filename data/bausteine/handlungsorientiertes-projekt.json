@@ -1,0 +1,166 @@
+{
+  "kennung": "handlungsorientiertes-projekt",
+  "name": "Handlungsorientierter Unterricht (Vollständige Handlung)",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "offen"
+  ],
+  "kurzbeschreibung": "Lernende planen, erstellen und reflektieren ein ganzheitliches Handlungsprodukt mit realem Gebrauchswert in enger Verbindung von Kopf- und Handarbeit.",
+  "alternativname": [
+    "Handlungsorientierung",
+    "Vollständige Lernhandlung"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 135,
+  "dauerMax": 450,
+  "problem": "Theoretisches Wissen bleibt ohne konkrete Anwendung und sichtbares Handlungsprodukt oft träge.",
+  "durchfuehrung": [
+    "Authentische Handlungsaufgabe und Produktziel klären",
+    "Erforderliche Fachgrundlagen erarbeiten und Planung erstellen",
+    "Handlungsprodukt arbeitsteilig herstellen und testen",
+    "Produkt präsentieren und Fachbezug reflektieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "slot": [
+    {
+      "kennung": "planung",
+      "name": "Planungs- & Orientierungsphase",
+      "reichweite": "r2",
+      "lernfunktion": [
+        "orientierung",
+        "verstehen"
+      ],
+      "pflicht": false
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Fachliche Sicherung & Reflexion",
+      "reichweite": "r2",
+      "lernfunktion": [
+        "konsolidierung",
+        "metakognition"
+      ],
+      "pflicht": true,
+      "nachKernphase": true
+    }
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "handlungsprodukt",
+      "name": "Konkretes, vorzeigbares Handlungsprodukt"
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Verknüpfung von Handeln und fachlicher Begriffsbildung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Aktionismus ohne begriffliche Durchdringung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Handlungsorientierter Unterricht",
+      "url": "https://de.wikipedia.org/wiki/Handlungsorientierter_Unterricht",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 2.45
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

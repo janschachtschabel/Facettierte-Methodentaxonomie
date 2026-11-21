@@ -1,0 +1,141 @@
+{
+  "kennung": "referat",
+  "name": "Schülerreferat mit Leitfragen",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Lernende bereiten ein abgegrenztes Teilthema auf, präsentieren es kriteriengeleitet und aktivieren das Publikum durch Leitfragen.",
+  "alternativname": [
+    "Kurzreferat",
+    "Vortrag"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Teilthemen sollen eigenständig recherchiert, strukturiert und adressatengerecht vorgetragen werden.",
+  "durchfuehrung": [
+    "Thema, Kriterienraster und Zeitlimit klären",
+    "Leitfragen für das Publikum vorab formulieren",
+    "Vortrag strukturiert halten und visualisieren",
+    "Rückfragen klären und Kriterienfeedback geben"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "anwendung"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "publikumsauftrag",
+      "name": "Aktiver Zuhör- oder Leitfragenauftrag für die Klasse"
+    },
+    {
+      "kennung": "kriterien",
+      "name": "Klare Vortragskriterien und Zeitgrenze"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Passives Abschalten der Zuhörenden ohne Leitfragen",
+    "Unreflektiertes Ablesen ohne eigenes Verständnis"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Referat (Vortrag)",
+      "url": "https://de.wikipedia.org/wiki/Referat_(Vortrag)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.48,
+    "y": 0.78
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

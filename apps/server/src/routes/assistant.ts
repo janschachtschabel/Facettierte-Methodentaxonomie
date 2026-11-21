@@ -187,14 +187,20 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       .map((b) => ({
         kennung: b.kennung,
         name: b.name,
+        reichweite: b.reichweite,
+        kurzbeschreibung: b.kurzbeschreibung,
+        problem: b.problem,
         durchfuehrung: b.durchfuehrung,
+        material: b.material,
+        raum: b.raum,
         kernkomponente: b.kernkomponente.map((k) => k.name),
         qualitaetsrisiko: b.qualitaetsrisiko,
-        evidenz: b.evidenz
+        evidenz: b.evidenz,
+        quellen: b.quellen
       }));
 
     const cacheKey = hashKey([
-      'elaborate',
+      'elaborate-v2',
       store.bundle.versionHash,
       target.model,
       body.thema || '',
@@ -212,19 +218,22 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     const systemPrompt =
       'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-      'Deine Aufgabe ist es, ein bereits komponiertes und geprüftes Arrangement fachlich für Thema und Lerngruppe auszugestalten (konkrete Aufgabenideen, Übergänge, Moderationsimpulse, Zeitverteilung). ' +
+      'Deine Aufgabe ist es, ein bereits komponiertes und geprüftes Arrangement zu einer praxisfertigen Beschreibung der gesamten Unterrichtsstunde bzw. Unterrichtsreihe auszuarbeiten.\n' +
+      'AUFBAU (klares deutsches Markdown):\n' +
+      '1. **Kurzüberblick & Lernziele** (Fach, Thema, Zielgruppe, Gesamtdauer, Granularität/Reichweite)\n' +
+      '2. **Detaillierter Ablauf & Methodenanwendung** – Phase für Phase mit Zeitangaben, konkreten Aufgaben- und Moderationsimpulsen, Materialien und Übergängen. Wenn ein Baustein über Slots verschachtelt ist (z. B. R3-Container mit R2-/R1-Unterbausteinen), mache klar sichtbar, welche Methode Teil welchen Blocks ist. Berücksichtige auch Begleitstränge (Parallel) und verteilte Wiederkehr.\n' +
+      '3. **Kernkomponenten, Qualitätsrisiken & Prüferhinweise** – benenne die wichtigsten Kernkomponenten und etwaige offene Validator-Warnungen/Fehler ehrlich inkl. Grundlage.\n' +
+      '4. **Verwendete Methoden & Quellenverzeichnis** – liste alle eingesetzten Methoden mit ihren verifizierten Quellen-Titeln und Markdown-Links (`[Titel](URL)`) aus den übergebenen Katalogdaten auf.\n' +
       'STRENGE REGELN:\n' +
-      '- Erfinde KEINE neuen Unterrichtsmethoden oder Wirksamkeitsstudien außerhalb der übergebenen Bausteine.\n' +
-      '- Respektiere alle Kernkomponenten der gewählten Bausteine und benenne typische Qualitätsrisiken knapp.\n' +
-      '- Erwähne offene Validator-Warnungen oder Fehler ehrlich mit ihrer Grundlage.\n' +
-      '- Antworte auf Deutsch in klarem, praxisnahem Markdown.';
+      '- Erfinde KEINE neuen Unterrichtsmethoden, keine neuen Studien und KEINE URLs außerhalb der übergebenen Katalogdaten.\n' +
+      '- Evidenzbefunde immer nur mit ihrer Geltung und Gegenposition nennen.';
 
     const userPrompt =
       `AUSGESTALTUNG für Fach: ${body.fach || 'nicht angegeben'}, Thema: ${body.thema || 'nicht angegeben'}.\n` +
       (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
       `\nArrangement (JSON):\n${JSON.stringify(body.arrangement, null, 2)}\n\n` +
       `Prüfungsergebnis:\n${JSON.stringify(pruefung, null, 2)}\n\n` +
-      `Katalogdaten der verwendeten Bausteine:\n${JSON.stringify(catalogContext, null, 2)}`;
+      `Katalogdaten der verwendeten Bausteine (inkl. Durchführung, Material und verifizierten Quellen):\n${JSON.stringify(catalogContext, null, 2)}`;
 
     try {
       const ausarbeitung = await callChatCompletion(
@@ -235,7 +244,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         ],
         {
           jsonMode: false,
-          maxTokens: 1600,
+          maxTokens: 2400,
           timeoutMs: config.llmTimeoutMs,
           reasoningEffort: config.llmReasoningEffort
         }

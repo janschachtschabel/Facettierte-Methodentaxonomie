@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type {
   Arrangement,
@@ -27,6 +27,7 @@ import {
   updateStepDuration,
   wrapStepInAlternative
 } from '../planner/arrangementOps.js';
+import type { ExplainedValidationMessage } from '../planner/validationHelpers.js';
 
 interface Props {
   arrangement: Arrangement;
@@ -35,7 +36,40 @@ interface Props {
   blocksById: Map<string, Baustein>;
   search: FmtSearch;
   registry: Map<string, Arrangement>;
-  labelOf: (scheme: string, code: string) => string;
+  labelOf: (schemeId: string, code: string) => string;
+  explainedMessages?: ExplainedValidationMessage[];
+}
+
+const RANGE_LABELS: Record<string, string> = {
+  r1: 'R1 Interaktion',
+  r2: 'R2 Szenario',
+  r3: 'R3 Reihe / Container',
+  r4: 'R4 Modul / Kurs'
+};
+
+function rangeBadgeStyle(r: string): React.CSSProperties {
+  const bg =
+    r === 'r3' || r === 'r4'
+      ? 'var(--dD-soft)'
+      : r === 'r2'
+        ? 'var(--dA-soft)'
+        : 'var(--dC-soft)';
+  const border =
+    r === 'r3' || r === 'r4'
+      ? 'var(--dD)'
+      : r === 'r2'
+        ? 'var(--dA)'
+        : 'var(--dC)';
+  return {
+    fontFamily: 'var(--display)',
+    fontSize: 12,
+    fontWeight: 700,
+    padding: '2px 8px',
+    borderRadius: 999,
+    background: bg,
+    border: `1px solid ${border}`,
+    color: 'var(--ink)'
+  };
 }
 
 function guidanceClass(b?: Baustein): string {
@@ -47,7 +81,16 @@ function guidanceClass(b?: Baustein): string {
   return '';
 }
 
-export function PartiturView({ arrangement, onChange, bundle, blocksById, search, registry, labelOf }: Props) {
+export function PartiturView({
+  arrangement,
+  onChange,
+  bundle,
+  blocksById,
+  search,
+  registry,
+  labelOf,
+  explainedMessages = []
+}: Props) {
   const [swapTarget, setSwapTarget] = useState<{ pfad: string; candidates: ReplacementCandidate[] } | null>(null);
   const { seq, prefix } = getMainSequence(arrangement);
   const kette = arrangement.zieltyp ? bundle.ketten.find((k) => k.id === arrangement.zieltyp) : null;
@@ -127,18 +170,36 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
                   )
                 : sortedBlocks;
 
+              const stepMsgs = explainedMessages.filter((em) => em.stepIndex === realIdx);
+              const hasErr = stepMsgs.some((em) => em.raw.schwere === 'Fehler');
+              const usedSlotMin = (node.belegung || []).reduce(
+                (acc, bel) => acc + (bel.inhalt.typ === 'Einsatz' ? bel.inhalt.dauerMin || 0 : 0),
+                0
+              );
+
               return (
-                <article className={`step-card ${guidanceClass(b)}`}>
+                <article
+                  className={`step-card ${guidanceClass(b)}`}
+                  style={hasErr ? { borderColor: 'var(--err)', boxShadow: '0 0 0 1px var(--err)' } : undefined}
+                >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span className="range-badge">{visIdx + 1}</span>
                       {b && <MethodPictogram type={b.piktogramm} size={32} />}
                       <div>
-                        {chainStep && (
-                          <div style={{ fontFamily: 'var(--display)', fontSize: 12.5, fontWeight: 700, color: 'var(--ink-2)' }}>
-                            {chainStep.id.toUpperCase()} · {chainStep.label} (Ziel: {labelOf('lernzustand', chainStep.ziel)})
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+                          {b && <span style={rangeBadgeStyle(b.reichweite)}>{RANGE_LABELS[b.reichweite] || b.reichweite.toUpperCase()}</span>}
+                          {slots.length > 0 && (
+                            <span className="chip" style={{ fontSize: 11.5, padding: '1px 7px' }}>
+                              ▣ Container mit {slots.length} {slots.length === 1 ? 'Slot' : 'Slots'}
+                            </span>
+                          )}
+                          {chainStep && (
+                            <span style={{ fontFamily: 'var(--display)', fontSize: 12.5, fontWeight: 700, color: 'var(--ink-2)' }}>
+                              {chainStep.id.toUpperCase()} · {chainStep.label} (Ziel: {labelOf('lernzustand', chainStep.ziel)})
+                            </span>
+                          )}
+                        </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                           <select
                             aria-label={`Baustein für Schritt ${visIdx + 1}`}
@@ -270,45 +331,136 @@ export function PartiturView({ arrangement, onChange, bundle, blocksById, search
 
                   {/* Embedded Slot Pockets (R3 -> R2 -> R1) */}
                   {slots.length > 0 && b && (
-                    <div className="slot-pockets">
-                      {slots.map((sl) => {
-                        const bel = (node.belegung || []).find((x) => x.slotKennung === sl.kennung);
-                        const innerId = bel && bel.inhalt.typ === 'Einsatz' ? bel.inhalt.baustein : '';
-                        const parentR = rangMap.get(b.reichweite) ?? 3;
-                        const slotR = rangMap.get(sl.reichweite) ?? 2;
-                        const slotCands = sortedBlocks.filter(
-                          (c) =>
-                            (rangMap.get(c.reichweite) ?? 0) < parentR &&
-                            (rangMap.get(c.reichweite) ?? 0) <= slotR &&
-                            c.lernfunktion.some((f) => sl.lernfunktion.includes(f))
-                        );
-                        return (
-                          <div key={sl.kennung} className="slot-pocket">
-                            <div style={{ fontFamily: 'var(--display)', fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
-                              Slot „{sl.name}“{' '}
-                              <span className="muted">
-                                (bis {sl.reichweite.toUpperCase()}
-                                {sl.pflicht ? ', Pflicht' : ', optional'})
-                              </span>
-                            </div>
-                            <select
-                              style={{ width: '100%' }}
-                              value={innerId}
-                              onChange={(e) => {
-                                const chosen = e.target.value ? blocksById.get(e.target.value) || null : null;
-                                onChange(setSlotBlock(arrangement, realIdx, sl.kennung, chosen));
+                    <div
+                      className="slot-pockets"
+                      style={{
+                        marginTop: 12,
+                        padding: 12,
+                        background: 'var(--paper)',
+                        border: '1px dashed var(--dD)',
+                        borderRadius: 8
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: 8,
+                          flexWrap: 'wrap',
+                          marginBottom: 8,
+                          fontFamily: 'var(--display)',
+                          fontSize: 13
+                        }}
+                      >
+                        <strong>
+                          ▣ Teil-Blöcke innerhalb von „{b.name}“ ({b.reichweite.toUpperCase()} nimmt kleinere Reichweiten auf)
+                        </strong>
+                        <span className="muted">
+                          Slot-Dauer: {usedSlotMin} / {node.dauerMin ?? b.dauerMin} min
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 10 }}>
+                        {slots.map((sl) => {
+                          const bel = (node.belegung || []).find((x) => x.slotKennung === sl.kennung);
+                          const innerId = bel && bel.inhalt.typ === 'Einsatz' ? bel.inhalt.baustein : '';
+                          const innerBlock = innerId ? blocksById.get(innerId) : undefined;
+                          const parentR = rangMap.get(b.reichweite) ?? 3;
+                          const slotR = rangMap.get(sl.reichweite) ?? 2;
+                          const slotCands = sortedBlocks.filter(
+                            (c) =>
+                              (rangMap.get(c.reichweite) ?? 0) < parentR &&
+                              (rangMap.get(c.reichweite) ?? 0) <= slotR &&
+                              c.lernfunktion.some((f) => sl.lernfunktion.includes(f))
+                          );
+                          return (
+                            <div
+                              key={sl.kennung}
+                              className="slot-pocket"
+                              style={{
+                                background: 'var(--surface)',
+                                border: `1px solid ${!innerId && sl.pflicht ? 'var(--dB)' : 'var(--rule)'}`,
+                                borderLeft: `3px solid ${innerBlock ? 'var(--dC)' : sl.pflicht ? 'var(--dB)' : 'var(--rule)'}`,
+                                borderRadius: 6,
+                                padding: 10
                               }}
                             >
-                              <option value="">– Slot leer –</option>
-                              {slotCands.map((c) => (
-                                <option key={c.kennung} value={c.kennung}>
-                                  {c.name} ({c.reichweite.toUpperCase()})
-                                </option>
-                              ))}
-                            </select>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                <span style={{ fontFamily: 'var(--display)', fontSize: 13, fontWeight: 700 }}>
+                                  ↳ Teil von {b.name.replace(/ \(.*\)$/, '')}: Slot „{sl.name}“
+                                </span>
+                                <span style={{ fontFamily: 'var(--display)', fontSize: 11.5, color: sl.pflicht ? 'var(--dB)' : 'var(--ink-2)' }}>
+                                  max. {sl.reichweite.toUpperCase()} · {sl.pflicht ? 'Pflicht' : 'optional'}
+                                </span>
+                              </div>
+                              <select
+                                aria-label={`Slot ${sl.name} in ${b.name}`}
+                                style={{ width: '100%' }}
+                                value={innerId}
+                                onChange={(e) => {
+                                  const chosen = e.target.value ? blocksById.get(e.target.value) || null : null;
+                                  onChange(setSlotBlock(arrangement, realIdx, sl.kennung, chosen));
+                                }}
+                              >
+                                <option value="">– Slot leer –</option>
+                                {slotCands.map((c) => (
+                                  <option key={c.kennung} value={c.kennung}>
+                                    {c.name} ({c.reichweite.toUpperCase()})
+                                  </option>
+                                ))}
+                              </select>
+                              {innerBlock && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, fontSize: 12.5 }}>
+                                  <span className="muted">
+                                    {RANGE_LABELS[innerBlock.reichweite] || innerBlock.reichweite.toUpperCase()} ·{' '}
+                                    {bel && bel.inhalt.typ === 'Einsatz' ? bel.inhalt.dauerMin ?? innerBlock.dauerMin : innerBlock.dauerMin} min
+                                  </span>
+                                  <Link to={`/methoden/${innerBlock.kennung}`}>Details ↗</Link>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Inline Plain-German Validation Messages + 1-Click Fixes */}
+                  {stepMsgs.length > 0 && (
+                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {stepMsgs.map((em, mi) => (
+                        <div
+                          key={mi}
+                          style={{
+                            padding: '8px 10px',
+                            borderRadius: 6,
+                            fontSize: 13.5,
+                            background: em.raw.schwere === 'Fehler' ? 'var(--dD-soft)' : 'var(--dB-soft)',
+                            borderLeft: `4px solid ${em.raw.schwere === 'Fehler' ? 'var(--err)' : 'var(--dB)'}`
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <div>
+                              <span className="basis-tag">
+                                {em.raw.regel} · {em.raw.grundlage === 'formal' ? 'formal' : `[${em.raw.grundlage}]`}
+                              </span>{' '}
+                              <strong>{em.raw.schwere}:</strong> {em.raw.meldung}
+                            </div>
+                            {em.quickFix && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-primary"
+                                onClick={() => onChange(em.quickFix!.apply(arrangement))}
+                              >
+                                ✦ {em.quickFix.label}
+                              </button>
+                            )}
                           </div>
-                        );
-                      })}
+                          <div className="muted" style={{ fontSize: 12.5, marginTop: 3 }}>
+                            <strong>Hinweis:</strong> {em.howToFix}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </article>

@@ -14,15 +14,9 @@
   ],
   "quellen": [
     {
-      "titel": "Wikipedia: Standbild (Theaterpädagogik)",
-      "url": "https://de.wikipedia.org/wiki/Standbild_(Theaterp%25C3%25A4dagogik)",
+      "titel": "Wikipedia: Standbild",
+      "url": "https://de.wikipedia.org/wiki/Standbild",
       "quelltyp": "wikipedia",
-      "lizenz": "CC BY-SA 4.0"
-    },
-    {
-      "titel": "ZUM-Unterrichten: Standbild",
-      "url": "https://unterrichten.zum.de/wiki/Standbild",
-      "quelltyp": "oer",
       "lizenz": "CC BY-SA 4.0"
     }
   ],

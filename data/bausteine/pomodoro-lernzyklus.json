@@ -1,0 +1,139 @@
+{
+  "kennung": "pomodoro-lernzyklus",
+  "name": "Pomodoro-Lernzyklus (Fokus-Intervalle)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Selbstregulationsstruktur aus kurzen, ablenkungsfreien Fokusblöcken (z. B. 20–25 Min.) mit definiertem Teilziel und bewusster 5-Minuten-Pause.",
+  "alternativname": [
+    "Pomodoro-Technik",
+    "Fokus-Sprint"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 25,
+  "dauerMax": 60,
+  "problem": "In längeren Einzel- oder Projektphasen brechen Konzentration und Zeitgefühl häufig ein.",
+  "durchfuehrung": [
+    "Konkretes Teilziel für den Intervallblock schriftlich festlegen",
+    "20–25 Minuten störungsfrei arbeiten (sichtbarer Timer)",
+    "5 Minuten echte Bewegungspause und kurzes Abhaken des Teilziels"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "teilziel",
+      "name": "Klares Teilziel vor Start des Timers"
+    },
+    {
+      "kennung": "pause",
+      "name": "Verbindliche kurze Erholungspause"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unterbricht tiefe Flow-Phasen, wenn zu starr gehandhabt"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Pomodoro-Technik",
+      "url": "https://de.wikipedia.org/wiki/Pomodoro-Technik",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.38,
+    "y": 1.34
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

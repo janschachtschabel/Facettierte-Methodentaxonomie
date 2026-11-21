@@ -82,6 +82,22 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   const bestGrade = (b: Baustein): EvidenceGrade | null =>
     GRADE_ORDER.find((g) => (b.evidenz || []).some((e) => e.grad === g)) || null;
 
+  const haystackById = new Map<string, string>(
+    data.bausteine.map((b) => [
+      b.kennung,
+      fold(
+        [
+          b.name,
+          b.kennung,
+          b.kurzbeschreibung || '',
+          ...(b.alternativname || []),
+          ...(b.variante || []),
+          ...b.lernfunktion.map((f) => functionWords.get(f) || '')
+        ].join(' ')
+      )
+    ])
+  );
+
   function suche(k: SearchCriteria = {}): Baustein[] {
     const words = k.text ? fold(k.text).split(/\s+/).filter(Boolean) : [];
     const have = k.vorhanden !== undefined ? closure(list(k.vorhanden)) : null;
@@ -92,16 +108,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
 
     const hits = data.bausteine.filter((b) => {
       if (words.length) {
-        const hay = fold(
-          [
-            b.name,
-            b.kennung,
-            b.kurzbeschreibung || '',
-            ...(b.alternativname || []),
-            ...(b.variante || []),
-            ...b.lernfunktion.map((f) => functionWords.get(f) || '')
-          ].join(' ')
-        );
+        const hay = haystackById.get(b.kennung) || '';
         if (!words.every((w) => hay.includes(w))) return false;
       }
       for (const f of facetFields) {

@@ -1,0 +1,142 @@
+{
+  "kennung": "jenaplan-kreis",
+  "name": "Jenaplan-Rhythmisierung (Gespräch, Spiel, Arbeit, Feier)",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Reformpädagogische Wochen- und Tagesstruktur im Wechsel der vier Grundformen Gesprächskreis, Arbeit, Spiel und gemeinsamer Abschlussfeier.",
+  "alternativname": [
+    "Jenaplan-Unterricht",
+    "Wochenkreis"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 90,
+  "dauerMax": 450,
+  "problem": "Unterricht soll soziales Miteinander, eigenständige Gruppenarbeit und gemeinsame Wertschätzung ausbalancieren.",
+  "durchfuehrung": [
+    "Wochen- oder Tagesbeginn im Gesprächskreis (Orientierung)",
+    "Individuelle und kooperative Gruppenarbeit an Lernaufgaben",
+    "Lernspiel oder Bewegungsphase als Ausgleich",
+    "Gemeinsame Präsentation und Würdigung von Ergebnissen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 30,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vier-formen",
+      "name": "Ausgewogener Wechsel der vier Grundformen"
+    },
+    {
+      "kennung": "stammgruppe",
+      "name": "Verlässliche soziale Lerngemeinschaft"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Fehlende fachsystematische Tiefe ohne begleitende Kurse"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Jenaplan",
+      "url": "https://de.wikipedia.org/wiki/Jenaplan",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.66,
+    "y": 2.4
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

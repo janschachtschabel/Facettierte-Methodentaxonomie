@@ -1,0 +1,132 @@
+{
+  "kennung": "eselsbruecken-mnemonik",
+  "name": "Mnemotechnik & Eselsbrücken entwickeln",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Lernende konstruieren eigene Akronyme, Merkverse oder Bildassoziationen, um schwer merkbare Fakten und Ausnahmeregeln dauerhaft abrufbar zu machen.",
+  "alternativname": [
+    "Eselsbrücken",
+    "Schlüsselwortmethode"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Willkürliche Fakten, Vokabeln oder Ausnahmeregeln gehen ohne semantische Anker schnell verloren.",
+  "durchfuehrung": [
+    "Schwer merkbaren Merkstoff präzise eingrenzen",
+    "Eigene Eselsbrücke, Akronym oder Schlüsselwortbild erfinden",
+    "Merkhilfe am realen Abruf testen und im Partnercheck vergleichen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "eigenkonstruktion",
+      "name": "Selbst entwickelte oder verstandene Verknüpfung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Merkhilfe wird gemerkt, die eigentliche Fachbedeutung aber vergessen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Mnemotechnik",
+      "url": "https://de.wikipedia.org/wiki/Mnemotechnik",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.32,
+    "y": 1.92
+  },
+  "aufgabe": [
+    "fakten",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

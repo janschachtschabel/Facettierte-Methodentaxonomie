@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
+import { createSearch, createValidator, type Arrangement, type CatalogBundle, type FmtData } from '@fmt/core';
 import {
   appendBlockToArrangement,
+  collectUsedBlocks,
   createChainPreset,
+  exportArrangementHtmlHandout,
   exportArrangementMarkdown,
   importArrangementJson,
   moveStep,
@@ -17,6 +19,7 @@ import {
   unwrapAlternative,
   wrapStepInAlternative
 } from '../src/planner/arrangementOps.js';
+import { explainValidationMessage } from '../src/planner/validationHelpers.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
@@ -114,5 +117,41 @@ describe('Modular Scenario Planner Tree Operations', () => {
     const md = exportArrangementMarkdown(arr, BLOCKS, VALIDATOR.validate(arr, REGISTRY));
     expect(md).toContain('# ');
     expect(md).toContain('CC BY 4.0');
+  });
+
+  it('exports full lesson Markdown & HTML handout with method steps, sources and KI elaboration, and produces 1-click validation fixes', () => {
+    const preset = createChainPreset('konzeptaufbau', BUNDLE);
+    const used = collectUsedBlocks(preset, BLOCKS);
+    expect(used.length).toBeGreaterThanOrEqual(5);
+
+    const val = VALIDATOR.validate(preset, REGISTRY);
+    const md = exportArrangementMarkdown(preset, BLOCKS, val, {
+      fach: 'Physik',
+      thema: 'Dichte',
+      kiAusarbeitung: '## Stundenverlauf\nKonkrete Anwendung der Methoden.'
+    });
+    expect(md).toContain('Quellenverzeichnis zu den verwendeten Methoden');
+    expect(md).toContain('Durchführung:');
+    expect(md).toContain('https://');
+    expect(md).toContain('Konkrete Anwendung der Methoden.');
+
+    const html = exportArrangementHtmlHandout(preset, BLOCKS, val, { fach: 'Physik', thema: 'Dichte' });
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('Quellenverzeichnis');
+
+    // Broken R-01 + R-03 arrangement gets plain-German explanation & working 1-click fix
+    const broken: Arrangement = {
+      typ: 'Arrangement',
+      name: 'Zu kleiner Rahmen',
+      reichweite: 'r2',
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: 'productive-failure', dauerMin: 90 }] }
+    };
+    const bVal = VALIDATOR.validate(broken, REGISTRY);
+    const r01 = bVal.meldungen.find((m) => m.regel === 'R-01')!;
+    const explained = explainValidationMessage(r01, broken, BLOCKS, BUNDLE, bVal.dauerMin);
+    expect(explained.location).toContain('Schritt 1');
+    expect(explained.quickFix).toBeDefined();
+    const fixed = explained.quickFix!.apply(broken);
+    expect(fixed.reichweite).toBe('r3');
   });
 });

@@ -1,0 +1,146 @@
+{
+  "kennung": "ki-simulationsdialog",
+  "name": "KI-Simulationsdialog (Historische / Fachliche Rolle)",
+  "status": "entwurf",
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "spiel-simulation"
+  ],
+  "kurzbeschreibung": "Ein auf Leitplanken eingestellter Chatbot übernimmt eine historische, literarische oder berufliche Gesprächsrolle; Lernende führen ein quellenkritisches Interview.",
+  "alternativname": [
+    "KI-Rollenspiel",
+    "Historisches KI-Interview"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Authentische Beratungs-, Patienten- oder Perspektivgespräche lassen sich im Klassenraum nur begrenzt mit allen gleichzeitig üben.",
+  "durchfuehrung": [
+    "Gesprächsleitfaden und Fachkriterien vorab ohne KI entwickeln",
+    "Simulationsdialog mit klar instruierter KI-Rolle durchführen",
+    "Transkript kritisch auf Anachronismen, Lücken und eigene Gesprächsführung auswerten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-geteilt",
+  "internet": true,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "simulationsrolle"
+  ],
+  "ki": true,
+  "vorbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "systemprompt",
+      "name": "Klare Rollenbegrenzung und kein Ausgeben fertiger Lösungen"
+    },
+    {
+      "kennung": "kritik",
+      "name": "Quellenkritische Auswertung des Dialogs ohne KI"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Verwechslung einer KI-Simulation mit historischer oder fachlicher Wahrheit"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Erste Pilotstudien berichten hohe Aktivierung bei Rollenspiel-Simulatoren; Lernerfolg muss ohne KI geprüft werden.",
+      "quelle": "Bastani et al. 2025; Kestin et al. 2025",
+      "geltung": "Sekundarstufe II, Berufsbildung und Hochschule",
+      "umstritten": "Gefahr von Halluzinationen und Stereotypen in historischen Rollen"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Chatbot",
+      "url": "https://de.wikipedia.org/wiki/Chatbot",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 2.74
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

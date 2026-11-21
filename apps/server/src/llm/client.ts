@@ -98,9 +98,10 @@ export function buildChatCompletionBody(
   };
 
   if (isOpenAiReasoningSeries(target.model)) {
-    // OpenAI GPT-5, GPT-6 & o-series require max_completion_tokens and reject non-default temperature
-    const requested = opts.maxTokens ?? 1200;
-    body.max_completion_tokens = Math.max(requested, opts.jsonMode ? 1000 : 2400);
+    // OpenAI GPT-5, GPT-6 & o-series count reasoning + output tokens together in max_completion_tokens
+    // and reject non-default temperature; give generous headroom so reasoning never starves output.
+    const requested = opts.maxTokens ?? 1600;
+    body.max_completion_tokens = Math.max(requested, opts.jsonMode ? 2000 : 6000);
     if (supportsReasoningEffort(target.model)) {
       body.reasoning_effort = opts.reasoningEffort || 'low';
     }
@@ -144,11 +145,16 @@ export async function callChatCompletion(
       throw new Error(`LLM-Anfrage fehlgeschlagen (HTTP ${res.status})${detail}`);
     }
     const data = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{ finish_reason?: string; message?: { content?: string } }>;
     };
-    const content = data.choices?.[0]?.message?.content;
+    const choice = data.choices?.[0];
+    const content = choice?.message?.content;
     if (!content || typeof content !== 'string') {
-      throw new Error('Leere LLM-Antwort.');
+      throw new Error(
+        choice?.finish_reason === 'length'
+          ? 'LLM-Ausgabe wurde wegen Token-Limit abgeschnitten (bitte kürzeren Umfang wählen).'
+          : 'Leere LLM-Antwort.'
+      );
     }
     return content;
   } finally {

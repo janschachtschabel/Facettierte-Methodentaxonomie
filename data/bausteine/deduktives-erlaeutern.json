@@ -1,0 +1,139 @@
+{
+  "kennung": "deduktives-erlaeutern",
+  "name": "Deduktive Regelvermittlung",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Allgemeines Prinzip oder Regel wird zuerst klar formuliert und anschließend systematisch auf konkrete Anwendungsfälle übertragen.",
+  "alternativname": [
+    "Deduktives Verfahren",
+    "Regel-Beispiel-Methode"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Eine klare Regel oder Definition soll zeitökonomisch eingeführt und unmittelbar korrekt angewendet werden.",
+  "durchfuehrung": [
+    "Regel oder Gesetzmäßigkeit präzise formulieren",
+    "Typisches Beispiel und Gegenbeispiel erläutern",
+    "Lernende wenden Regel auf gestufte Fälle an",
+    "Grenz- und Sonderfälle gemeinsam prüfen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "regel-klar",
+      "name": "Eindeutige Formulierung der Regel vor der Übung"
+    },
+    {
+      "kennung": "gegenbeispiel",
+      "name": "Abgrenzung über Gegenbeispiele"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Träges Regelwissen ohne tieferes Begriffsverständnis"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Deduktiv",
+      "url": "https://de.wikipedia.org/wiki/Deduktiv",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.78,
+    "y": 1.54
+  },
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

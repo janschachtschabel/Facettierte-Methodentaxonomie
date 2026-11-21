@@ -1,0 +1,146 @@
+{
+  "kennung": "mystery-methode",
+  "name": "Mystery-Methode",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Kleingruppen lösen eine rätselhafte Leitfrage, indem sie ungeordnete Informationskärtchen sortieren, verknüpfen und ein Wirkungsnetz legen.",
+  "alternativname": [
+    "Mystery",
+    "Vernetztes Denken mit Kärtchen"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 35,
+  "dauerMax": 60,
+  "problem": "Mehrdimensionale Ursache-Wirkungs-Zusammenhänge (z. B. Globalisierung, Ökologie) sollen selbst erschlossen werden.",
+  "durchfuehrung": [
+    "Spannende Einstiegsgeschichte und rätselhafte Leitfrage präsentieren",
+    "Kärtchensatz (20–30 Fakten/Zitate) in Kleingruppen lesen und ordnen",
+    "Zusammenhänge als Wirkungsnetz auf Plakat legen und begründen",
+    "Lösungen vergleichen und Reflexion des eigenen Vorgehens sichern"
+  ],
+  "material": [
+    "Mystery-Kärtchensätze",
+    "Plakatpapier",
+    "Stifte"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 4,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 25,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "leitfrage",
+      "name": "Zugespitze, mehrdeutige Rätselfrage"
+    },
+    {
+      "kennung": "vernetzung",
+      "name": "Sichtbares Legen und Begründen von Kausalketten"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reines Sortieren ohne tieferes Begründen der Pfeile/Verbindungen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Mystery-Methode",
+      "url": "https://de.wikipedia.org/wiki/Mystery-Methode",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.92,
+    "y": 2.78
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "kennung": "ki-prompt-werkstatt",
+  "name": "KI-Prompt-Werkstatt & Output-Kritik",
+  "status": "entwurf",
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Lernende formulieren präzise Fach-Prompts für ein Sprachmodell, prüfen dessen Ausgaben systematisch auf Fehler/Halluzinationen und überarbeiten selbstständig ohne KI.",
+  "alternativname": [
+    "Prompt-Labor",
+    "Kritische KI-Prüfung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 25,
+  "dauerMax": 45,
+  "problem": "Unreflektiertes Kopieren von KI-Ausgaben verhindert eigenes Lernen und verbreitet unbemerkte Fachfehler.",
+  "durchfuehrung": [
+    "Eigenes Fachwissen/Kriterien vor dem ersten Prompt notieren",
+    "Prompt iterativ schärfen und KI-Antwort dokumentieren",
+    "KI-Ausgabe anhand verlässlicher Fachquellen faktisch und logisch prüfen",
+    "Eigene korrigierte Endfassung ohne KI verfassen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-geteilt",
+  "internet": true,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "dialogpartner"
+  ],
+  "ki": true,
+  "vorbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "quellenpruefung",
+      "name": "Verbindlicher Faktencheck der KI-Ausgabe gegen Primärquellen"
+    },
+    {
+      "kennung": "eigenfassung",
+      "name": "Eigenständige Endfassung ohne KI-Copy-Paste"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Kognitives Auslagern, wenn der eigene Prüf- und Schreibschritt entfällt (Bastani et al. 2025)"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Kritisches Prüfen von KI-Fehlern erfordert fachliches Vorwissen; Leistung mit KI zählt nicht als Lernen ohne KI.",
+      "quelle": "Bastani et al. 2025",
+      "geltung": "Sekundarstufe und Hochschule",
+      "umstritten": "Empirische Langzeitstudien zur Prompt-Kompetenz stehen aus"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Prompt Engineering",
+      "url": "https://de.wikipedia.org/wiki/Prompt_Engineering",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.96,
+    "y": 2.4
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

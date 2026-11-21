@@ -1,0 +1,139 @@
+{
+  "kennung": "drei-schritt-interview",
+  "name": "Drei-Schritt-Interview",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "kurzbeschreibung": "In Vierergruppen interviewen sich erst je zwei Partner wechselseitig und stellen danach die Sicht des Gegenübers in der Gruppe vor.",
+  "alternativname": [
+    "Three-Step-Interview",
+    "Dreischritt-Interview"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Aktives Zuhören und Perspektivübernahme sollen verbindlich für alle Teilnehmenden gesichert werden.",
+  "durchfuehrung": [
+    "Schritt 1: A interviewt B zu einer Leitfrage, C interviewt D",
+    "Schritt 2: Rollenwechsel – B interviewt A, D interviewt C",
+    "Schritt 3: Im Quartett berichtet jede Person die Antworten ihres Gegenübers"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "teamMin": 4,
+  "teamMax": 4,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fremdbericht",
+      "name": "Berichten aus Perspektive der Partnerperson"
+    },
+    {
+      "kennung": "rollenwechsel",
+      "name": "Symmetrischer Rollenwechsel mit Zeitlimit"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Abkürzen zu bloßem Nacherzählen der eigenen Meinung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Teil der strukturierten kooperativen Verfahren (Kagan), deren positive Effekte bei Interdependenz und Verantwortlichkeit meta-analytisch gestützt sind.",
+      "quelle": "Kyndt et al. 2013",
+      "geltung": "Schule und Erwachsenenbildung",
+      "umstritten": "Einzelmethode selten isoliert geprüft"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Drei-Schritt-Interview",
+      "url": "https://de.wikipedia.org/wiki/Drei-Schritt-Interview",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.24,
+    "y": 2.82
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

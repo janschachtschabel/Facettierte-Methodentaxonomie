@@ -1,0 +1,140 @@
+{
+  "kennung": "markt-der-moeglichkeiten",
+  "name": "Markt der Möglichkeiten",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Themenstände präsentieren Ergebnisse, Projekte oder Perspektiven gleichzeitig; Teilnehmende zirkulieren frei und tauschen sich direkt aus.",
+  "alternativname": [
+    "Info-Markt",
+    "Messe-Methode"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 75,
+  "problem": "Viele parallele Gruppenergebnisse sollen lebendig und ohne endlose Frontalpräsentationen geteilt werden.",
+  "durchfuehrung": [
+    "Jede Gruppe gestaltet einen übersichtlichen Marktstand",
+    "Standbetreuung und Besuchende wechseln im Halbzeit-Rhythmus",
+    "Besuchende nutzen Leitfragen oder Feedback-Karten",
+    "Kurze gemeinsame Auswertung der wichtigsten Entdeckungen"
+  ],
+  "material": [
+    "Plakate",
+    "Tische oder Stellwände",
+    "Feedback-Karten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 10,
+  "gruppeMax": 120,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "standwechsel",
+      "name": "Verbindlicher Wechsel zwischen Präsentieren und Besuchen"
+    },
+    {
+      "kennung": "sicherungsauftrag",
+      "name": "Konkreter Erkundungsauftrag für Besuchende"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unverbindliches Schlendern ohne Ergebnissicherung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Markt der Möglichkeiten",
+      "url": "https://de.wikipedia.org/wiki/Markt_der_M%C3%B6glichkeiten",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.88,
+    "y": 2.68
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

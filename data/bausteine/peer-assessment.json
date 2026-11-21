@@ -1,0 +1,142 @@
+{
+  "kennung": "peer-assessment",
+  "name": "Kriteriengeleitetes Peer Assessment",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Lernende begutachten Arbeitsergebnisse von Mitschüler:innen anhand klarer Qualitätskriterien und geben konkrete Überarbeitungshinweise.",
+  "alternativname": [
+    "Peer-Bewertung",
+    "Schüler-Begutachtung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Lehrkräfte können nicht jedes Zwischenprodukt sofort ausführlich kommentieren; zudem schärft Bewerten das eigene Qualitätsverständnis.",
+  "durchfuehrung": [
+    "Bewertungskriterien gemeinsam am Musterbeispiel kalibrieren",
+    "Peer-Produkte kriteriengeleitet prüfen und konkret kommentieren",
+    "Eigene Arbeit auf Basis des Feedbacks überarbeiten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kalibrierung",
+      "name": "Klare Kriterien und gemeinsame Einübung am Beispiel"
+    },
+    {
+      "kennung": "ueberarbeitung",
+      "name": "Verbindliche Überarbeitungszeit nach dem Feedback"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unpräzises oder sozial gefärbtes Urteil ohne vorheriges Kriterientraining",
+    "Ausbleibender Lerneffekt, wenn keine Überarbeitungszeit nach dem Feedback folgt"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kriteriengeleitetes Peer Assessment zeigt positive Effekte auf Lernleistung (g ≈ 0,31), besonders mit Training und Rubrics.",
+      "quelle": "Double et al. 2020",
+      "geltung": "Schule und Hochschule",
+      "umstritten": "Ohne Kriterientraining häufig ungenau oder rein sozial gefärbt"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Peer Assessment",
+      "url": "https://de.wikipedia.org/wiki/Peer_Assessment",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.1,
+    "y": 2.64
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

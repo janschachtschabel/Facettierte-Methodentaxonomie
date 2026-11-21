@@ -1,0 +1,142 @@
+{
+  "kennung": "entdeckendes-lernen",
+  "name": "Geleitet-entdeckendes Lernen",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend"
+  ],
+  "kurzbeschreibung": "Lernende erkunden ein vorbereitetes Problem- oder Materialfeld eigenständig mit gezielten Hinweisen, Strukturhilfen und abschließender Systematisierung.",
+  "alternativname": [
+    "Guided Discovery",
+    "Angeleitetes Entdecken"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Eigene Erkenntnisprozesse sollen gefördert werden, ohne Novizen durch unangeleitetes Suchen zu überfordern.",
+  "durchfuehrung": [
+    "Klares Erkundungsproblem und strukturiertes Material bereitstellen",
+    "Eigenständige Erprobung mit gestuften Hinweisen (Scaffolds) begleiten",
+    "Entdeckungen im Plenum vergleichen und prüfen",
+    "Zentrale Erkenntnis explizit festhalten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 25,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "scaffolds",
+      "name": "Passende Strukturhilfen und Rückmeldung während der Erkundung"
+    },
+    {
+      "kennung": "systematisierung",
+      "name": "Explizite Sicherung der entdeckten Regel/Struktur"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Ohne Anleitung sinkt die Wirksamkeit deutlich unter explizite Instruktion (Alfieri et al. 2011)"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Geleitet-entdeckendes Lernen mit Hilfen übertrifft sowohl unangeleitetes Entdecken als auch reinen Vortrag (d ≈ 0,30).",
+      "quelle": "Alfieri et al. 2011; Lazonder & Harmsen 2016",
+      "geltung": "Schule und Hochschule, insb. MINT",
+      "umstritten": "Abgrenzung zu direkter Instruktion bei geringem Vorwissen (Sweller et al. 2024)"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Entdeckendes Lernen",
+      "url": "https://de.wikipedia.org/wiki/Entdeckendes_Lernen",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.96,
+    "y": 2.38
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "kennung": "jeux-dramatiques",
+  "name": "Jeux Dramatiques (Ausdrucksspiel)",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Nonverbales, wertfreies Ausdrucksspiel mit Tüchern und Requisiten zu Geschichten oder Themen ohne Publikumskritik – Fokus auf eigenem Erleben.",
+  "alternativname": [
+    "Ausdrucksspiel nach Chancerel"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Texte, Gefühle oder historische Perspektiven sollen ganzheitlich und frei von Leistungsdruck erlebt werden.",
+  "durchfuehrung": [
+    "Thema oder Geschichte einführen; Spielräume und Requisiten einrichten",
+    "Freie Rollenwahl und stilles Spiel ohne Zuschauerbewertung",
+    "Rückkehr in den Kreis und freiwilliger Austausch über das Erlebte"
+  ],
+  "material": [
+    "Tücher",
+    "Stühle/Requisiten"
+  ],
+  "raum": "Freier Raum / Aula",
+  "gruppeMin": 6,
+  "gruppeMax": 24,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ohne-wertung",
+      "name": "Kein Vorspielen vor kritischem Publikum"
+    },
+    {
+      "kennung": "ausstieg",
+      "name": "Bewusstes Ablegen der Rolle vor der Reflexion"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Fehlende fachliche Verknüpfung, wenn der Transfer ausbleibt"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Jeux Dramatiques",
+      "url": "https://de.wikipedia.org/wiki/Jeux_Dramatiques",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.48
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

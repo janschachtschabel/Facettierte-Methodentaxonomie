@@ -1,0 +1,140 @@
+{
+  "kennung": "induktives-entdecken",
+  "name": "Induktive Beispielreihe",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "instruktion",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Aus sorgfältig kontrastierten Einzelbeispielen erschließen Lernende eigenständig die zugrunde liegende Regel oder Struktur.",
+  "alternativname": [
+    "Induktives Verfahren",
+    "Beispiel-Regel-Methode"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Regeln sollen nicht nur auswendig gelernt, sondern als Muster aus konkreten Fällen selbst entdeckt werden.",
+  "durchfuehrung": [
+    "Gezielte Sammlung aus Positiv- und Negativbeispielen vorlegen",
+    "Gemeinsamkeiten und Unterschiede in Partnerarbeit untersuchen",
+    "Hypothese zur Regel formulieren",
+    "Regel an neuen Testfällen überprüfen und präzisieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kontrast",
+      "name": "Kontrastierung von Positiv- und Negativbeispielen"
+    },
+    {
+      "kennung": "pruefung",
+      "name": "Explizite Überprüfung der abgeleiteten Regel"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Fehlerhafte Verallgemeinerung bleibt unkorrigiert ohne Abschluss-Sicherung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Induktion (Denken)",
+      "url": "https://de.wikipedia.org/wiki/Induktion_(Denken)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.12,
+    "y": 2.34
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt",
+    "massiert"
+  ]
+}

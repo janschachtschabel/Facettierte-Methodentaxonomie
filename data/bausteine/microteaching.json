@@ -1,0 +1,145 @@
+{
+  "kennung": "microteaching",
+  "name": "Microteaching",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "kooperativ",
+    "diagnose-feedback"
+  ],
+  "kurzbeschreibung": "Kurze, fokussierte Lehr- oder Präsentationssequenz (5–10 Min.) vor kleiner Gruppe mit kriteriengeleitetem Feedback und direkter Wiederholung.",
+  "alternativname": [
+    "Mikro-Lehrprobe",
+    "Kurzlehrprobe mit Feedback"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Komplexe kommunikative oder didaktische Handlungen sollen in geschütztem Rahmen gezielt trainiert werden.",
+  "durchfuehrung": [
+    "Ein enges Beobachtungskriterium festlegen",
+    "Kurzsequenz (5–10 Min.) durchführen",
+    "Kriteriengeleitetes, konkretes Peer- und Coach-Feedback geben",
+    "Verbesserte Kurzsequenz (Re-Teach) erneut erproben"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 12,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fokus",
+      "name": "Reduktion auf ein klar beobachtbares Zielmerkmal"
+    },
+    {
+      "kennung": "reteach",
+      "name": "Zweiter Durchgang nach Feedback"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Überfrachtetes Globalfeedback statt fokussierter Rückmeldung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Microteaching zählt zu den gut belegten Trainingsformaten in der Lehrer- und Präsentationsbildung.",
+      "quelle": "Hattie 2009; Allen & Ryan 1969",
+      "geltung": "Hochschule, Lehramts- und Berufsbildung",
+      "umstritten": "Transfer in komplexe Alltagsklassen erfordert weitere Begleitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Microteaching",
+      "url": "https://de.wikipedia.org/wiki/Microteaching",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.28,
+    "y": 2.66
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "kennung": "lehrgang",
+  "name": "Lehrgang",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Systematisch aufbauende Folge angeleiteter Lerneinheiten zum schrittweisen Aufbau eines Wissens- oder Kompetenzgebiets.",
+  "alternativname": [
+    "Kursunterricht",
+    "Systematischer Lehrgang"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 135,
+  "dauerMax": 450,
+  "problem": "Komplexe Grundlagen müssen geordnet, lückenlos und kumulativ vermittelt werden.",
+  "durchfuehrung": [
+    "Lernziele und Struktur des Lehrgangs transparent machen",
+    "Teilmodule in logischer Progression instruieren",
+    "Jeden Abschnitt durch geleitete Übung festigen",
+    "Zwischenstand diagnostizieren und Übergang sichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "prozedur-gelaeufig"
+  ],
+  "slot": [
+    {
+      "kennung": "einstieg",
+      "name": "Orientierungsphase",
+      "reichweite": "r2",
+      "lernfunktion": [
+        "orientierung",
+        "diagnose"
+      ],
+      "pflicht": false
+    },
+    {
+      "kennung": "sicherung",
+      "name": "Abschlusssicherung",
+      "reichweite": "r2",
+      "lernfunktion": [
+        "konsolidierung",
+        "diagnose"
+      ],
+      "pflicht": false,
+      "nachKernphase": true
+    }
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "progression",
+      "name": "Sachlogische Progression"
+    },
+    {
+      "kennung": "uebungsphasen",
+      "name": "Eingebettete Übungs- und Sicherungsphasen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hohe Passivität bei zu langen Instruktionsblöcken",
+    "Unter- oder Überforderung bei heterogenem Tempo"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lehrgang",
+      "url": "https://de.wikipedia.org/wiki/Lehrgang",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.82,
+    "y": 1.45
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

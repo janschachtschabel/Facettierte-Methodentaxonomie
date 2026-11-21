@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FMT_RULES } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
+import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
 
 const DOMAINS = [
   { id: 'A', name: ['Lernprozess'], color: 'var(--dA)', soft: 'var(--dA-soft)' },
@@ -12,11 +13,98 @@ const DOMAINS = [
 ];
 
 const QMODS = [
-  { id: 'Q1', name: 'Kernkomponenten', text: 'Jeder Baustein deklariert unverzichtbare Kernkomponenten (Regel R-10). Fehlt eine, gilt die Bezeichnung nicht mehr.', basis: 'Implementationsforschung (Durlak & DuPre 2008)' },
-  { id: 'Q2', name: 'Bedingungsraum', text: 'Vorwissen, Bildungsstufe, Zeitbudget, Gruppe, Technik. Verhindert kontextblinde Wirkungsrankings (Regel R-06).', basis: 'Expertise-Reversal (Kalyuga et al. 2003; Tetzlaff et al. 2025)' },
-  { id: 'Q3', name: 'Qualitätsschicht', text: 'Trennt Design (Plan) von Durchführung (Klassenführung, Unterstützung, kognitive Aktivierung) und nennt Qualitätsrisiken.', basis: 'Praetorius et al. (2018)' },
-  { id: 'Q4', name: 'Evidenzschicht', text: 'Befunde mit Evidenzgrad A bis C, Quelle, Geltungsbereich und Gegenposition. Grad A verlangt ≥ 2 unabhängige Synthesen.', basis: 'Meta-analytische Synthesen' },
-  { id: 'Q5', name: 'Komposition', text: '11 Lernzustände als Schnittstellen, Slots für Schachtelung, 6 Operatoren, 13 Regeln, 5-Stufen-Zuordnung, SKOS & JSON-LD.', basis: 'Oser & Baeriswyl; Loibl et al. (2024); W3C SKOS/JSON-LD' }
+  {
+    id: 'Q1',
+    name: 'Kernkomponenten',
+    text: 'Jeder Baustein deklariert unverzichtbare Kernkomponenten (Regel R-10). Fehlt eine, gilt die Bezeichnung nicht mehr.',
+    basis: 'Implementationsforschung (Durlak & DuPre 2008)',
+    closes: 'Implementationsblindheit (N1)'
+  },
+  {
+    id: 'Q2',
+    name: 'Bedingungsraum',
+    text: 'Vorwissen, Bildungsstufe, Zeitbudget, Gruppe, Technik. Verhindert kontextblinde Wirkungsrankings (Regel R-06).',
+    basis: 'Expertise-Reversal (Kalyuga et al. 2003; Tetzlaff et al. 2025)',
+    closes: 'Kontextblindheit (M3)'
+  },
+  {
+    id: 'Q3',
+    name: 'Qualitätsschicht',
+    text: 'Trennt Design (Plan) von Durchführung (Klassenführung, Unterstützung, kognitive Aktivierung) und nennt Qualitätsrisiken.',
+    basis: 'Praetorius et al. (2018)',
+    closes: 'Sichtstruktur-Fixierung'
+  },
+  {
+    id: 'Q4',
+    name: 'Evidenzschicht',
+    text: 'Befunde mit Evidenzgrad A bis C, Quelle, Geltungsbereich und Gegenposition. Grad A verlangt ≥ 2 unabhängige Synthesen.',
+    basis: 'Meta-analytische Synthesen',
+    closes: 'Evidenz ohne Gütegrad (N4)'
+  },
+  {
+    id: 'Q5',
+    name: 'Komposition',
+    text: '11 Lernzustände als Schnittstellen, Slots für Schachtelung, 6 Operatoren, 13 Regeln, 5-Stufen-Zuordnung, SKOS & JSON-LD.',
+    basis: 'Oser & Baeriswyl (2001); Loibl et al. (2024); W3C SKOS/JSON-LD',
+    closes: 'Fehlende Kompositionslogik & Maschinenlesbarkeit (N7, N8)'
+  }
+];
+
+const AXIS_EXAMPLES: Record<string, [string, string, string]> = {
+  r1: ['3-minütiges Murmelgespräch zu Beginn der Biologiestunde', 'Think-Pair-Share · Exit-Ticket · Abrufquiz', 'A1 Orientierung, A2 interaktiv, C1 Partner'],
+  r2: ['45-minütiges Gruppenpuzzle zur Energieversorgung in 8b', 'Gruppenpuzzle · Lösungsbeispiele · VBE', 'A1 Verstehen, B1 geleitet, C1 kooperativ'],
+  r3: ['6-stündige Physikreihe „Dichte von Stoffen“ (VBE → PF → Üben)', 'Productive Failure · Projektmethode · Stationenlernen', 'Kette Konzeptaufbau (K1–K5), D2 Problem vor Instruktion'],
+  r4: ['Halbjahres-Modul „Ökosysteme“ mit begleitendem Lernportfolio', 'Blended Learning · COOL · Produktives Lernen', 'C3 Präsenz + Distanz, B2 geteilte Steuerung'],
+  r5: ['Kompetenzorientiertes Kerncurriculum Sekundarstufe I', 'Curriculare Leitlinien / Bildungsgang-Architektur', 'Verknüpfung mehrerer Module (R4) über Jahrgänge']
+};
+
+const INFER_TEXT: Record<string, string> = {
+  niedrig: 'niedrig-inferent, direkt am Plan ablesbar',
+  mittel: 'mittel-inferent, braucht Kodierregeln und Ankerbeispiele',
+  hoch: 'hoch-inferent, fachdidaktische Einschätzung über die Absicht des Designs'
+};
+
+const MATCH_STAGES = [
+  ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', 'Zieltyp, Lernfunktion, gewünschter Lernzustand', 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
+  ['2 Rahmen', 'Was ist praktisch möglich?', 'Zeit, Gruppengröße, Technik, Ort, Vorbereitung, ohne KI/Internet', 'schließt aus', 'formal'],
+  ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
+  ['4 Passung', 'Für wen passt es?', 'Vorwissen (Expertise-Reversal), Bildungsstufe', 'warnt', 'Tetzlaff et al. 2025; Sinha & Kapur 2021'],
+  ['5 Auswahl', 'Welcher der verbleibenden?', 'Ohne Warnung → Evidenzgrad → Hauptfunktion → Vorbereitung', 'ordnet (Lehrkraft entscheidet)', 'Setzung']
+];
+
+const LLM_BOUNDARY = [
+  ['Bausteine filtern, Anschluss prüfen, Rangfolge bilden', 'Nein – deterministischer Code (< 1 ms)'],
+  ['Ablauf entlang einer Funktionskette zusammensetzen & prüfen', 'Nein – deterministischer Prüfer (R-00..R-12)'],
+  ['Freitext in Kriterien übersetzen', 'Optional – Regeln lesen explizite Angaben, LLM versteht Umschreibungen (Schema-geprüft)'],
+  ['Geprüften Ablauf fachlich für Thema & Lerngruppe ausformulieren', 'Ja – konkrete Aufgaben, Übergänge, Moderation & Quellen'],
+  ['Neue Methoden erfassen & kodieren', 'Als Entwurf mit menschlicher Prüfung']
+];
+
+const GAP_MATRIX_HEADERS = ['Sicht vs. Tiefe', 'Granularität', 'Lenkung ≠ Aktivität', 'Steuerung (B2)', 'Adaptivität', 'Bewertung', 'KI-Rollen', 'Komposition', 'Evidenzgrad', 'Maschinenlesbar'];
+const GAP_MATRIX_ROWS: Array<{ name: string; vals: string[]; fmt?: boolean }> = [
+  { name: 'Meyer (1987)', vals: ['○', '●', '○', '◐', '○', '○', '○', '○', '○', '○'] },
+  { name: 'Flechsig (1996)', vals: ['◐', '◐', '○', '◐', '○', '○', '○', '○', '○', '○'] },
+  { name: 'Aebli (1983)', vals: ['●', '○', '◐', '○', '○', '○', '○', '◐', '○', '○'] },
+  { name: 'Oser & Baeriswyl (2001)', vals: ['●', '◐', '◐', '○', '○', '○', '○', '●', '◐', '○'] },
+  { name: 'Baumgartner (2011)', vals: ['◐', '●', '◐', '◐', '◐', '◐', '○', '○', '○', '○'] },
+  { name: 'Mühlhausen (2023)', vals: ['●', '◐', '◐', '◐', '◐', '◐', '○', '○', '◐', '○'] },
+  { name: 'IMS Learning Design', vals: ['○', '●', '○', '○', '◐', '◐', '○', '●', '○', '●'] },
+  { name: 'FMT (dieses Modell)', vals: ['●', '●', '●', '●', '●', '●', '●', '●', '●', '●'], fmt: true }
+];
+
+const EVIDENCE_TABLE: Array<[string, string, string, 'A' | 'B' | 'C']> = [
+  ['B1 offen-entdeckend ohne Unterstützung', 'schlechter als explizite Instruktion, d ≈ −0,38 (Alfieri et al. 2011)', 'besonders bei geringem Vorwissen', 'A'],
+  ['B1 geleitet-entdeckend', 'besser als andere Formen, d ≈ 0,30 (Alfieri et al. 2011; Lazonder & Harmsen 2016)', 'Anleitung passend zum Kenntnisstand; Verhältnis zu DI strittig', 'A'],
+  ['A1 Konsolidierung über Abruf', 'Testing-Effekt g ≈ 0,50–0,61 (Rowland 2014; Yang et al. 2021)', 'robust über Alter und Material; wirkt schon einmalig', 'A'],
+  ['D2 verteilt statt massiert', 'robuster Behaltensvorteil (Cepeda et al. 2006)', 'Abstand skaliert mit dem Behaltensintervall', 'A'],
+  ['D1 Novizen mit Lösungsbeispielen', 'g ≈ 0,48 in Mathematik (Barbieri et al. 2023); Umkehr bei Expertise (Tetzlaff et al. 2025)', 'Fading als Übergang entscheidend', 'A'],
+  ['A2 konstruktiv durch Selbsterklärung', 'g ≈ 0,55 (Bisra et al. 2018)', 'Prompts auf Prinzipien gerichtet', 'A'],
+  ['C1 kooperativ strukturiert', 'ES ≈ 0,54 auf Leistung (Kyndt et al. 2013)', 'erfordert Interdependenz und individuelle Verantwortlichkeit', 'A'],
+  ['B4 Feedback', 'd ≈ 0,48, stark heterogen (Wisniewski, Zierer & Hattie 2020)', 'Informationsgehalt entscheidet (elaboriert > bloße Verstärkung)', 'B'],
+  ['B4 formative Diagnose', 'positiv, Größe strittig: ≈ 0,20 (Kingston & Nash 2011)', 'wirkt nur, wenn die Diagnose den weiteren Unterricht steuert', 'B'],
+  ['D2 Problem vor Instruktion (PF)', 'g ≈ 0,36; bis 0,58 bei hoher Treue (Sinha & Kapur 2021)', 'konzeptuelles Wissen; nicht für Klasse 2–5', 'B'],
+  ['C4 KI als Antwortgeber', 'Übung +48 %, Prüfung ohne KI −17 % (Bastani et al. 2025)', 'ohne Leitplanken; Leistung mit KI ≠ Lernen ohne KI', 'C'],
+  ['C4 KI als Tutor mit Leitplanken', 'gemischt (Kestin et al. 2025; Bastani et al. 2025)', 'Design entscheidend; Prüfung ohne KI maßgeblich', 'C']
 ];
 
 const OBSOLETE = [
@@ -24,8 +112,19 @@ const OBSOLETE = [
   ['Lernpyramide mit festen Behaltensquoten (10 %, 20 %, 90 %)', 'Die Prozentwerte gehen auf keine belastbare Studie zurück.', 'Subramony et al. 2014'],
   ['Sichtbare Aktivität = kognitive Aktivierung', 'Verhalten zeigt tiefes Verarbeiten nicht zuverlässig an.', 'Thurn et al. 2023; Praetorius et al. 2018'],
   ['Entdecken ohne Anleitung ist überlegen', 'Ohne Unterstützung im Mittel schlechter als explizite Instruktion (d ≈ −0,38).', 'Alfieri et al. 2011'],
+  ['„Direkte Instruktion“ ist als Ganzes belegt', 'Die große Synthese gilt Engelmanns ausgearbeiteten Programmen, nicht jedem Frontalunterricht.', 'Stockard et al. 2018'],
   ['Leistung mit KI = Lernen', 'Bessere Übungsleistung mit ungeführter KI kann Prüfung ohne KI verschlechtern (−17 %).', 'Bastani et al. 2025'],
   ['ChatGPT-Meta-Analyse (g ≈ 0,87)', 'Die vielzitierte Synthese wurde am 22. April 2026 zurückgezogen.', 'Wang & Fan 2025; Rückzugsvermerk 2026']
+];
+
+const ROADMAP = [
+  ['Kodierhandbuch', 'Definition, prototypisches Ankerbeispiel und Grenzfall für jeden Facettenwert und Lernzustand.'],
+  ['Crosswalks', 'OEH-Vokabular angebunden; Abgleich mit Baumgartners 26 Dimensionen und AMB (DINI AG KIM) ausbauen.'],
+  ['Abdeckungstest (> 130 Methoden)', 'Mit diesem 200-Methoden-Katalog erreicht; laufende Kuratierung der Ersterfassungen.'],
+  ['Reliabilität (κ ≥ 0,70)', 'Zwei unabhängige Kodierende prüfen Übereinstimmung je Facette und für Vor-/Nachbedingungen.'],
+  ['Regeln kalibrieren', 'Validator an von Fachleuten bewerteten Unterrichtsreihen prüfen (Treffer vs. Fehlalarme).'],
+  ['Fachdidaktisches Delphi', 'Fachgebundene Funktionsketten und Lernzustände (MINT, Sprachen, Gesellschaftswissenschaften) ergänzen.'],
+  ['Evidenz laufend pflegen', 'Geltung, Gegenposition und Prüfdatum je Befund pflegen; KI-Befunde jährlich prüfen.']
 ];
 
 const C = 280;
@@ -43,30 +142,67 @@ function sectorPath(r0: number, r1: number, a0: number, a1: number) {
   return `M${x0} ${y0}A${r1} ${r1} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 ${large} 0 ${x3} ${y3}Z`;
 }
 
+function OperatorGlyph({ id }: { id: string }) {
+  const box = (x: number, y: number, w: number, h: number, fill: string, key: string) => (
+    <rect key={key} x={x} y={y} width={w} height={h} rx={3} fill={fill} stroke="var(--ink)" strokeWidth={1} />
+  );
+  return (
+    <svg viewBox="0 0 132 46" aria-hidden="true" style={{ width: 132, height: 46, display: 'block', marginBottom: 8 }}>
+      {id === 'sequenz' && (
+        <>
+          {box(2, 14, 36, 18, 'var(--dA-soft)', 's1')}
+          {box(48, 14, 36, 18, 'var(--dA-soft)', 's2')}
+          {box(94, 14, 36, 18, 'var(--dA-soft)', 's3')}
+        </>
+      )}
+      {id === 'schachtelung' && (
+        <>
+          {box(2, 4, 128, 38, 'var(--dC-soft)', 'c1')}
+          {box(12, 16, 46, 18, 'var(--surface)', 'c2')}
+          {box(66, 16, 46, 18, 'var(--surface)', 'c3')}
+        </>
+      )}
+      {id === 'parallel' && (
+        <>
+          {box(2, 6, 128, 16, 'var(--dA-soft)', 'p1')}
+          {box(2, 28, 128, 10, 'var(--dD-soft)', 'p2')}
+        </>
+      )}
+      {id === 'wiederkehr' && (
+        <>
+          {box(2, 14, 128, 18, 'var(--surface)', 'w0')}
+          {[20, 58, 96].map((x) => box(x, 18, 14, 10, 'var(--dB)', `w${x}`))}
+        </>
+      )}
+      {id === 'alternative' && (
+        <>
+          {box(2, 14, 30, 18, 'var(--dA-soft)', 'a1')}
+          {box(52, 2, 36, 16, 'var(--dC-soft)', 'a2')}
+          {box(52, 28, 36, 16, 'var(--dC-soft)', 'a3')}
+          <path d="M32 23 L52 10 M32 23 L52 36" stroke="var(--ink)" fill="none" />
+          {box(100, 14, 30, 18, 'var(--dA-soft)', 'a4')}
+        </>
+      )}
+      {id === 'verweis' && (
+        <>
+          {box(2, 4, 128, 38, 'var(--surface)', 'v1')}
+          {box(10, 12, 56, 22, 'var(--dD-soft)', 'v2')}
+          <path d="M74 23 h40 m-8 -6 l8 6 l-8 6" stroke="var(--ink)" fill="none" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export function SystematikPage() {
   const { bundle, valuesOf, labelOf } = useCatalog();
   const [selectedId, setSelectedId] = useState('A2');
-  const [plotFilter, setPlotFilter] = useState('');
-  const [hoveredPlot, setHoveredPlot] = useState<string | null>(null);
 
   if (!bundle) return <div className="page-section">Lade Systematik…</div>;
 
   const step = 360 / bundle.facetten.length;
   const selectedFacet = bundle.facetten.find((f) => f.id === selectedId);
   const selectedQ = QMODS.find((q) => q.id === selectedId);
-
-  const plotBlocks = bundle.bausteine.filter((b) => {
-    if (!b.plot) return false;
-    if (plotFilter && !b.ansatz.includes(plotFilter)) return false;
-    return true;
-  });
-
-  const L = 92;
-  const Rt = 730;
-  const T = 26;
-  const B = 410;
-  const xs = (v: number) => Rt - v * (Rt - L);
-  const ys = (v: number) => B - (v / 3) * (B - T - 30) - 15;
 
   const domainArcs: Array<{ d: (typeof DOMAINS)[number]; a0: number; a1: number }> = [];
   let start = 0;
@@ -76,19 +212,23 @@ export function SystematikPage() {
     start += n * step;
   });
 
+  const reichweiten = valuesOf('reichweite');
+  const lernzustaende = valuesOf('lernzustand');
+
   return (
     <div className="page-section">
-      {/* Hero with Interactive Facet Compass */}
+      {/* 1. Hero + Interactive Facet Compass */}
       <div className="split-2" style={{ alignItems: 'center' }}>
         <div>
           <h1>Eine Karte der Unterrichtsmethoden</h1>
           <p className="muted" style={{ fontFamily: 'var(--display)', fontSize: 20, marginTop: 6 }}>
             Facettierte Methodentaxonomie (FMT) · Version {bundle.version} · CC BY 4.0 Jan Schachtschabel
           </p>
-          <p style={{ fontSize: 18 }}>
-            Wirksamkeit hängt an Merkmalen unter Bedingungen, nicht an Methodennamen. Die FMT beschreibt deshalb jede der{' '}
-            <strong>{bundle.bausteine.length} Methoden</strong> als Profil über <strong>13 getrennt kodierte Facetten</strong> in
-            vier Domänen – geordnet auf zwei Achsen (Reichweite &amp; Beschreibungsstufe) und kombinierbar über sechs Operatoren.
+          <p style={{ fontSize: 17.5 }}>
+            Bestehende Methodensammlungen ordnen nach Einzelkriterien oder nach Methodennamen – Wirksamkeitsbefunde hängen jedoch an{' '}
+            <strong>Merkmalen unter Bedingungen</strong>. Die FMT beschreibt deshalb jede der{' '}
+            <strong>{bundle.bausteine.length} Methoden</strong> als Profil aus <strong>13 getrennt kodierten Facetten</strong> in vier
+            Domänen, geordnet auf zwei Achsen und kombinierbar über sechs Operatoren.
           </p>
 
           <div
@@ -101,7 +241,7 @@ export function SystematikPage() {
             {selectedFacet ? (
               <>
                 <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, color: 'var(--ink-2)' }}>
-                  {selectedFacet.id} · Domäne {selectedFacet.domaene} · Kodierung: {selectedFacet.inferenz}-inferent
+                  {selectedFacet.id} · Domäne {selectedFacet.domaene} · {INFER_TEXT[selectedFacet.inferenz] || selectedFacet.inferenz}
                 </div>
                 <h3 style={{ marginTop: 4 }}>{selectedFacet.name}</h3>
                 <p style={{ marginBottom: 8 }}>{selectedFacet.leitfrage}</p>
@@ -115,8 +255,14 @@ export function SystematikPage() {
                 <p style={{ fontSize: 14, marginBottom: 4 }}>
                   <strong>Fundierung:</strong> {selectedFacet.fundierung}
                 </p>
-                <p style={{ fontSize: 14, marginBottom: 0 }}>
+                <p style={{ fontSize: 14, marginBottom: 4 }}>
                   <strong>Schließt Lücke:</strong> {selectedFacet.schliesst}
+                </p>
+                <p className="muted" style={{ fontSize: 13, marginBottom: 0 }}>
+                  SKOS-Vokabular:{' '}
+                  <a href={`/vocabs/${selectedFacet.schema}.ttl`} target="_blank" rel="noreferrer">
+                    {bundle.NS}vocab/{selectedFacet.schema}/
+                  </a>
                 </p>
               </>
             ) : selectedQ ? (
@@ -126,8 +272,11 @@ export function SystematikPage() {
                 </div>
                 <h3 style={{ marginTop: 4 }}>{selectedQ.name}</h3>
                 <p>{selectedQ.text}</p>
-                <p style={{ fontSize: 14, marginBottom: 0 }}>
+                <p style={{ fontSize: 14, marginBottom: 4 }}>
                   <strong>Fundierung:</strong> {selectedQ.basis}
+                </p>
+                <p style={{ fontSize: 14, marginBottom: 0 }}>
+                  <strong>Schließt:</strong> {selectedQ.closes}
                 </p>
               </>
             ) : null}
@@ -200,12 +349,7 @@ export function SystematikPage() {
                     }
                   }}
                 >
-                  <path
-                    d={sectorPath(136, 238, a0, a1)}
-                    fill={on ? d.color : d.soft}
-                    stroke="var(--paper)"
-                    strokeWidth={2}
-                  />
+                  <path d={sectorPath(136, 238, a0, a1)} fill={on ? d.color : d.soft} stroke="var(--paper)" strokeWidth={2} />
                   <text
                     x={tx}
                     y={ty}
@@ -234,162 +378,234 @@ export function SystematikPage() {
             </text>
           </svg>
           <p className="muted" style={{ textAlign: 'center', fontSize: 13.5 }}>
-            Facette im Kompass antippen für Leitfrage, Vokabular und Fundierung
+            Der Kreis kennt keine Rangfolge: Facette antippen für Leitfrage, Werte &amp; Fundierung
           </p>
         </div>
       </div>
 
-      {/* 100-Method Scatter Plot: Lenkung vs. Aktivität */}
-      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Lenkung ist nicht Aktivität ({plotBlocks.length} Methoden im Raum)</h2>
-        <p className="muted" style={{ maxWidth: '72ch' }}>
-          Anleitungsgrad (B1) und Engagementmodus (A2) sind getrennt. Starke Anleitung kann hoch konstruktiv sein (oben links),
-          während offene Formen ohne Struktur in die Gefahrenzone unten rechts abrutschen können. Punkt anklicken öffnet das Methodenprofil.
+      {/* 2. Begründung & 5 Anforderungen */}
+      <section style={{ marginTop: 40, paddingTop: 30, borderTop: '1px solid var(--rule)' }}>
+        <h2>Warum eine Facettierte Methodentaxonomie? (Begründung &amp; 5 Anforderungen)</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Klassische Systematiken ordnen Verschiedenes: Meyer (1987) nach Umfang, Flechsig (1996) nach 20 Modellen, Aebli (1983) nach
+          Grundformen, Oser &amp; Baeriswyl (2001) nach Choreografie und Basismodellen, Baumgartner (2011) nach Größe und Abstraktion.
+          Gleichzeitig zeigt die empirische Bildungsforschung, dass nicht der <em>Methodenname</em> wirkt, sondern <strong>Merkmale unter
+          Bedingungen</strong> (z. B. Anleitungsgrad bei geringem Vorwissen, Informationsgehalt des Feedbacks, Strukturierung in Gruppen).
         </p>
-
-        <div style={{ margin: '12px 0' }}>
-          <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            Ansatz hervorheben:
-            <select value={plotFilter} onChange={(e) => setPlotFilter(e.target.value)}>
-              <option value="">Alle {bundle.bausteine.filter((b) => b.plot).length} Methoden</option>
-              {valuesOf('ansatz').map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="card" style={{ padding: 16 }}>
-          <svg viewBox="0 0 760 470" style={{ width: '100%', maxWidth: 880, display: 'block', margin: '0 auto' }}>
-            {['passiv', 'aktiv', 'konstruktiv', 'interaktiv'].map((band, i) => {
-              const y0 = Math.max(T, ys(i + 0.5));
-              const y1 = Math.min(B, ys(i - 0.5));
-              return (
-                <g key={band}>
-                  <rect x={L} y={y0} width={Rt - L} height={y1 - y0} fill={i % 2 ? 'var(--paper)' : 'transparent'} />
-                  <text x={L - 10} y={ys(i) + 5} textAnchor="end" fontSize={14} fill="var(--ink-2)" fontFamily="var(--display)">
-                    {band}
-                  </text>
-                </g>
-              );
-            })}
-            <line x1={L} y1={B} x2={Rt} y2={B} stroke="var(--ink)" strokeWidth={1.2} />
-            <line x1={L} y1={T} x2={L} y2={B} stroke="var(--ink)" strokeWidth={1.2} />
-            <line x1={(L + Rt) / 2} y1={T} x2={(L + Rt) / 2} y2={B} stroke="var(--rule)" strokeDasharray="4 4" />
-            <text x={L} y={B + 22} fontSize={14} fill="var(--ink-2)" fontFamily="var(--display)">
-              explizit-instruiert
-            </text>
-            <text x={(L + Rt) / 2} y={B + 22} textAnchor="middle" fontSize={14} fill="var(--ink-2)" fontFamily="var(--display)">
-              geleitet
-            </text>
-            <text x={Rt} y={B + 22} textAnchor="end" fontSize={14} fill="var(--ink-2)" fontFamily="var(--display)">
-              offen-entdeckend
-            </text>
-            <text x={(L + Rt) / 2} y={B + 46} textAnchor="middle" fontSize={15} fontWeight={700} fill="var(--ink)" fontFamily="var(--display)">
-              B1 Anleitungsgrad
-            </text>
-            <text
-              x={18}
-              y={(T + B) / 2}
-              textAnchor="middle"
-              fontSize={15}
-              fontWeight={700}
-              fill="var(--ink)"
-              fontFamily="var(--display)"
-              transform={`rotate(-90 18 ${(T + B) / 2})`}
-            >
-              A2 Engagementmodus
-            </text>
-            <text x={Rt - 8} y={B - 10} textAnchor="end" fontSize={13} fontStyle="italic" fill="var(--dD)">
-              offen und passiv: Gefahrenzone
-            </text>
-
-            {plotBlocks.map((b) => {
-              const cx = xs(b.plot!.x);
-              const cy = ys(b.plot!.y);
-              const isHov = hoveredPlot === b.kennung;
-              return (
-                <Link key={b.kennung} to={`/methoden/${b.kennung}`}>
-                  <g
-                    onMouseEnter={() => setHoveredPlot(b.kennung)}
-                    onMouseLeave={() => setHoveredPlot(null)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={isHov ? 8.5 : 5.5}
-                      fill={b.ki ? 'var(--paper)' : b.status === 'kuratiert' ? 'var(--dA)' : 'var(--dC)'}
-                      stroke="var(--ink)"
-                      strokeWidth={b.ki ? 2.4 : 1}
-                      opacity={hoveredPlot && !isHov ? 0.55 : 0.95}
-                    />
-                    <title>{`${b.name} (${b.reichweite.toUpperCase()})`}</title>
-                    {(isHov || plotFilter !== '') && (
-                      <text
-                        x={cx > 560 ? cx - 10 : cx + 10}
-                        y={cy + 4}
-                        textAnchor={cx > 560 ? 'end' : 'start'}
-                        fontSize={12.5}
-                        fontWeight={isHov ? 700 : 500}
-                        fill="var(--ink)"
-                        fontFamily="var(--display)"
-                      >
-                        {b.name.replace(/ \(.*\)$/, '')}
-                      </text>
-                    )}
-                  </g>
-                </Link>
-              );
-            })}
-          </svg>
-          <p className="muted" style={{ fontSize: 13.5, textAlign: 'center', margin: '8px 0 0' }}>
-            Blau = Kuratierter Kern (22) · Grün = Ersterfassung (78) · Ring = KI-Beteiligung · Hover für Name, Klick für Detailprofil
-          </p>
-        </div>
-      </section>
-
-      {/* Two Axes & Three Layers */}
-      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Zwei Achsen, drei Ebenen &amp; sechs Operatoren</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginBottom: 20 }}>
-          <div className="card" style={{ padding: 16, borderTop: '4px solid var(--dA)' }}>
-            <h3>1. Design (Plan)</h3>
-            <p className="muted" style={{ fontSize: 14.5, margin: 0 }}>
-              Hier klassifiziert die FMT: 13 Facetten, Schnittstellen und Kernkomponenten beschreiben das Angebot.
-            </p>
-          </div>
-          <div className="card" style={{ padding: 16, borderTop: '4px solid var(--dB)' }}>
-            <h3>2. Durchführung</h3>
-            <p className="muted" style={{ fontSize: 14.5, margin: 0 }}>
-              Unterrichtsqualität im Klassenraum (Klassenführung, Unterstützung, kognitive Aktivierung, Fachlichkeit).
-            </p>
-          </div>
-          <div className="card" style={{ padding: 16, borderTop: '4px solid var(--dC)' }}>
-            <h3>3. Nutzung &amp; Wirkung</h3>
-            <p className="muted" style={{ fontSize: 14.5, margin: 0 }}>
-              Was Lernende kognitiv tun und was es bewirkt – belegt in der Evidenzschicht, stets unter Bedingungen.
-            </p>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-          {valuesOf('kompositionsoperator').map((op) => (
-            <div key={op.id} className="card" style={{ padding: 14 }}>
-              <strong style={{ fontFamily: 'var(--display)', fontSize: 17 }}>{op.label}</strong>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginTop: 14 }}>
+          {[
+            ['1. Facetten statt Baum', 'Merkmale getrennt erfassen statt starrer Einordnung an genau einen Baumort (Broughton 2006).'],
+            ['2. Plan ≠ Durchführung', 'Den Plan einer Methode (Design) klar von der Klassenraum-Qualität und der Wirkung trennen.'],
+            ['3. Evidenz mit Geltung', 'Befunde an Merkmale binden und stets Grad (A–C), Geltungsbereich und Gegenposition nennen.'],
+            ['4. Kombinierbarkeit', 'Methoden als Bausteine mit Vor-/Nachbedingungen von der Phase bis zur Unterrichtsreihe verbinden.'],
+            ['5. Maschinenlesbar', 'Alle Daten als SKOS, JSON-LD, JSON Schema & MCP aus einer offenen Quelle (CC BY 4.0) ausliefern.']
+          ].map(([title, desc]) => (
+            <div key={title} className="card" style={{ padding: 14 }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>{title}</strong>
               <p className="muted" style={{ fontSize: 14, margin: '4px 0 0' }}>
-                {op.definition}
+                {desc}
               </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 13 Composition Rules */}
+      {/* 3. Zwei Achsen (R x S Matrix) & Drei Ebenen */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Zwei Achsen (Reichweite × Beschreibungsstufe) &amp; drei Ebenen</h2>
+        <p style={{ maxWidth: '78ch' }}>
+          In Anlehnung an Baumgartner (2011) trennt die FMT die <strong>Reichweite (R1–R5)</strong> – wie groß eine didaktische Einheit
+          ist – von der <strong>Beschreibungsstufe (S1–S6)</strong> – wie abstrakt sie beschrieben wird. Die{' '}
+          <strong>Unterrichtsstunde</strong> ist keine eigene Stufe: Besteht sie aus einem durchgehenden Szenario, ist sie{' '}
+          <strong>R2</strong>; verbindet sie mehrere Szenarien, ist sie ein kleines <strong>R3-Ensemble</strong>.
+        </p>
+
+        <div className="scroll">
+          <table style={{ minWidth: 820 }}>
+            <thead>
+              <tr>
+                <th>Reichweite (Granularität)</th>
+                <th>S1 Praxisbeschreibung</th>
+                <th>S2 Muster (Datenbank-Einheit)</th>
+                <th>S3 Modell / Profil</th>
+                <th>S4 Prinzip</th>
+                <th>S5 Dimension</th>
+                <th>S6 Kategorie</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reichweiten.map((r, idx) => {
+                const ex = AXIS_EXAMPLES[r.id] || ['–', '–', '–'];
+                return (
+                  <tr key={r.id}>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <strong style={{ fontFamily: 'var(--display)' }}>
+                        {r.id.toUpperCase()} {r.label}
+                      </strong>
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        {r.definition}
+                      </div>
+                    </td>
+                    <td style={{ background: 'var(--surface)' }}>{ex[0]}</td>
+                    <td style={{ background: 'var(--surface)', fontWeight: 600 }}>{ex[1]}</td>
+                    <td style={{ background: 'var(--surface)' }}>{ex[2]}</td>
+                    {idx === 0 && (
+                      <>
+                        <td rowSpan={reichweiten.length} style={{ background: 'var(--dA-soft)', borderLeft: '1px solid var(--rule)' }}>
+                          Einzelne Facettenwerte, z. B. <em>geleitet-entdeckend</em> oder <em>verteilt</em>
+                        </td>
+                        <td rowSpan={reichweiten.length} style={{ background: 'var(--dA-soft)', borderLeft: '1px solid var(--rule)' }}>
+                          Die 13 Facetten – gültig auf jeder Reichweite
+                        </td>
+                        <td rowSpan={reichweiten.length} style={{ background: 'var(--dA-soft)', borderLeft: '1px solid var(--rule)' }}>
+                          4 Domänen: A Lernprozess, B Steuerung, C Interaktion, D Gegenstand &amp; Zeit
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginTop: 18 }}>
+          <div className="card" style={{ padding: 16, borderTop: '4px solid var(--dA)' }}>
+            <h3>1. Design (Plan)</h3>
+            <p className="muted" style={{ fontSize: 14.5, margin: 0 }}>
+              Die Methode als Plan. Hier klassifiziert die Taxonomie: 13 Facetten, Schnittstellen und Kernkomponenten beschreiben das Angebot.
+            </p>
+          </div>
+          <div className="card" style={{ padding: 16, borderTop: '4px solid var(--dB)' }}>
+            <h3>2. Durchführung</h3>
+            <p className="muted" style={{ fontSize: 14.5, margin: 0 }}>
+              Die Methode im Klassenraum. Hier urteilt die Unterrichtsqualität: Klassenführung, Unterstützung, kognitive Aktivierung, Fachlichkeit.
+            </p>
+          </div>
+          <div className="card" style={{ padding: 16, borderTop: '4px solid var(--dC)' }}>
+            <h3>3. Nutzung &amp; Wirkung</h3>
+            <p className="muted" style={{ fontSize: 14.5, margin: 0 }}>
+              Was Lernende kognitiv tun und was es bewirkt. Hier belegt die Evidenzschicht – stets unter Bedingungen und ohne Hilfe gemessen.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Bausteine kombinieren: 6 Operatoren mit SVG-Symbolen + 11 Lernzustände */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Bausteine kombinieren: 6 Operatoren, Slots &amp; 11 Lernzustände</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Jede Methode ist ein Baustein mit Schnittstelle: <strong>Vorbedingungen</strong> nennen, welcher Lernzustand vorliegen muss;{' '}
+          <strong>Nachbedingungen</strong>, welcher danach erreicht ist. Größere Bausteine (R2/R3) besitzen <strong>Slots</strong>, die
+          Bausteine kleinerer Reichweite aufnehmen (Schachtelung: <code>R3 ⊃ R2 ⊃ R1</code>). Sechs Operatoren verbinden Bausteine auf
+          jeder Reichweite:
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginTop: 14 }}>
+          {valuesOf('kompositionsoperator').map((op) => (
+            <div key={op.id} className="card" style={{ padding: 16 }}>
+              <OperatorGlyph id={op.id} />
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 18 }}>{op.label}</strong>
+              <p className="muted" style={{ fontSize: 14.5, margin: '4px 0 0' }}>
+                {op.definition}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="card" style={{ padding: 16, marginTop: 18 }}>
+          <h3 style={{ marginBottom: 6 }}>Die 11 Lernzustände als Schnittstelle</h3>
+          <p className="muted" style={{ fontSize: 14.5, marginBottom: 10 }}>
+            Die Zustände modellieren grobes Zwischenwissen zwischen Phasen (Loibl et al. 2024; Koedinger et al. 2012). Stärkere Zustände
+            implizieren schwächere (z. B. impliziert <em>Konzept verstanden und gesichert</em> → <em>Erstwissen erworben</em>).{' '}
+            <strong>Wichtig:</strong> Hilfe zählt nicht als Lernen – ein ungeführter KI-Antwortgeber erzeugt keinen Lernzustand.
+          </p>
+          <ul className="chips">
+            {lernzustaende.map((z) => (
+              <li key={z.id} className="chip chip-c" title={z.impliziert?.length ? `Impliziert: ${z.impliziert.map((x) => labelOf('lernzustand', x)).join(', ')}` : undefined}>
+                {z.label}
+                {z.impliziert?.length ? ` (⊃ ${z.impliziert.map((x) => labelOf('lernzustand', x)).join(', ')})` : ''}
+              </li>
+            ))}
+          </ul>
+          <div style={{ marginTop: 12 }}>
+            <Link to="/planer" className="btn btn-primary btn-sm">
+              Im Szenario-Baukasten ausprobieren →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. 5 Stufen der Zuordnung & Rolle des Sprachmodells */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Zuordnung in 5 Stufen &amp; Rolle des Sprachmodells</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Auswahl und Prüfung bleiben vollständig in Daten und Regeln – sie arbeiten deterministisch in &lt; 1 ms ohne Sprachmodell. Ein
+          optionales Sprachmodell übersetzt lediglich freien Text ins Anfrage-Schema (Schema-validiert) und gestaltet geprüfte Abläufe
+          fachlich aus.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Stufe</th>
+                <th>Leitfrage</th>
+                <th>Geprüfte Merkmale</th>
+                <th>Wirkung</th>
+                <th>Grundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MATCH_STAGES.map(([s, q, m, w, g]) => (
+                <tr key={s}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700, whiteSpace: 'nowrap' }}>{s}</td>
+                  <td>{q}</td>
+                  <td>{m}</td>
+                  <td><strong>{w}</strong></td>
+                  <td className="muted">{g}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="scroll" style={{ marginTop: 14 }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Teilaufgabe</th>
+                <th>Sprachmodell nötig?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {LLM_BOUNDARY.map(([task, need]) => (
+                <tr key={task}>
+                  <td><strong>{task}</strong></td>
+                  <td>{need}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 6. Live Catalog Analytics Dashboard (200 Methods) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Auswertungen &amp; Verortung des Katalogs ({bundle.bausteine.length} Methoden live)</h2>
+        <p className="muted" style={{ maxWidth: '76ch', marginBottom: 18 }}>
+          Alle Grafiken werden live aus dem aktuellen Katalog berechnet. Klicks auf Punkte, Heatmap-Zellen oder Balken führen direkt zu den
+          passenden Methoden im Katalog.
+        </p>
+        <CatalogAnalytics bundle={bundle} valuesOf={valuesOf} labelOf={labelOf} />
+      </section>
+
+      {/* 7. Die 13 Kompositionsregeln */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
         <h2>Die 13 Kompositionsregeln (R-00 bis R-12)</h2>
+        <p className="muted" style={{ maxWidth: '74ch' }}>
+          Jede Regel weist ihre Grundlage aus: <code>formal</code> (Daten-/Strukturkonsistenz), <code>[E]</code> (empirisch belegt),{' '}
+          <code>[S]</code> (theoretisch gefolgert) oder <code>[A]</code> (didaktische Setzung). Der Prüfer filtert Pläne – er ersetzt kein
+          didaktisches Qualitätsurteil.
+        </p>
         <div className="scroll">
           <table>
             <thead>
@@ -403,7 +619,7 @@ export function SystematikPage() {
             <tbody>
               {FMT_RULES.map((r) => (
                 <tr key={r.id}>
-                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{r.id}</td>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700, whiteSpace: 'nowrap' }}>{r.id}</td>
                   <td>{r.prueft}</td>
                   <td>{r.schwere}</td>
                   <td>
@@ -417,9 +633,81 @@ export function SystematikPage() {
         </div>
       </section>
 
-      {/* Obsolete Myths & Limits */}
+      {/* 8. Lückenmatrix */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Überholt, aber im Umlauf &amp; Grenzen der FMT</h2>
+        <h2>Welche Lücken bestehender Systematiken geschlossen werden</h2>
+        <p className="muted" style={{ maxWidth: '74ch' }}>
+          Vergleichende Einschätzung (keine empirische Kodierung): ● erfüllt · ◐ teilweise · ○ fehlt. Für die FMT gilt „erfüllt“
+          strukturell; die Befüllung und Reliabilitätsprüfung der Evidenzschicht ist laufende Arbeit.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Systematik</th>
+                {GAP_MATRIX_HEADERS.map((h) => (
+                  <th key={h} style={{ textAlign: 'center', fontSize: 13 }}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {GAP_MATRIX_ROWS.map((row) => (
+                <tr key={row.name} style={row.fmt ? { borderTop: '2px solid var(--ink)', fontWeight: 700 } : undefined}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700, whiteSpace: 'nowrap' }}>{row.name}</td>
+                  {row.vals.map((v, i) => (
+                    <td
+                      key={i}
+                      style={{
+                        textAlign: 'center',
+                        fontSize: 16,
+                        background: v === '●' ? 'var(--dC-soft)' : v === '◐' ? 'var(--dB-soft)' : 'transparent'
+                      }}
+                    >
+                      {v}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 9. Evidenz, Überholt, Roadmap & Grenzen */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Was die Evidenz trägt &amp; was überholt ist</h2>
+        <p className="muted" style={{ maxWidth: '74ch' }}>
+          Befunde hängen an Facettenwerten unter Bedingungen, nicht an Methodennamen. <EvidenceBadge grade="A" /> konsistent über ≥ 2
+          Meta-Analysen · <EvidenceBadge grade="B" /> eine Meta-Analyse oder heterogen · <EvidenceBadge grade="C" /> Einzelstudien / vorläufig.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Facettenmerkmal</th>
+                <th>Empirischer Befund</th>
+                <th>Geltung &amp; Vorbehalt</th>
+                <th>Grad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {EVIDENCE_TABLE.map(([feat, finding, scope, g]) => (
+                <tr key={feat}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{feat}</td>
+                  <td>{finding}</td>
+                  <td className="muted">{scope}</td>
+                  <td>
+                    <EvidenceBadge grade={g} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style={{ marginTop: 28 }}>Überholt, aber im Umlauf</h3>
         <div className="scroll">
           <table>
             <thead>
@@ -432,9 +720,7 @@ export function SystematikPage() {
             <tbody>
               {OBSOLETE.map(([claim, status, ref]) => (
                 <tr key={claim}>
-                  <td>
-                    <strong>{claim}</strong>
-                  </td>
+                  <td><strong>{claim}</strong></td>
                   <td>{status}</td>
                   <td className="muted">{ref}</td>
                 </tr>
@@ -442,17 +728,29 @@ export function SystematikPage() {
             </tbody>
           </table>
         </div>
-        <div className="card" style={{ padding: 16, marginTop: 18 }}>
-          <h3>Grenzen &amp; Offenlegung</h3>
-          <p style={{ fontSize: 15 }}>
-            Die FMT ist ein prüfbares Beschreibungsmodell, kein fertiges Bewertungsinstrument: Kodierübereinstimmung (κ ≥ 0,70),
-            Kalibrierung der Regeln und fachdidaktische Vertiefungen stehen aus. Evidenzgrade{' '}
-            <EvidenceBadge grade="A" /> <EvidenceBadge grade="B" /> <EvidenceBadge grade="C" /> gelten stets nur für ihre genannte
-            Geltung; neu ergänzte Bausteine im 100er-Katalog tragen transparent den Status <em>Ersterfassung</em>.
-          </p>
-          <p className="muted" style={{ fontSize: 14, marginBottom: 0 }}>
-            Reichweiten: {valuesOf('reichweite').map((r) => `${r.id.toUpperCase()} ${labelOf('reichweite', r.id)}`).join(' · ')}
-          </p>
+
+        <div className="split-2" style={{ marginTop: 24 }}>
+          <div className="card" style={{ padding: 18 }}>
+            <h3>Vom Entwurf zum Vokabular (Prüfschritte)</h3>
+            <ol style={{ paddingLeft: 20, margin: '8px 0 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {ROADMAP.map(([title, desc]) => (
+                <li key={title} style={{ fontSize: 14.5 }}>
+                  <strong style={{ fontFamily: 'var(--display)' }}>{title}:</strong> {desc}
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="card" style={{ padding: 18 }}>
+            <h3>Grenzen &amp; Offenlegung</h3>
+            <ul style={{ paddingLeft: 18, margin: '8px 0 0', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <li>Die FMT ist ein prüfbares Beschreibungsmodell, kein empirisch geeichtes Bewertungsinstrument (Kodierübereinstimmung κ ≥ 0,70 steht aus).</li>
+              <li>Lernfunktion und Engagementmodus beschreiben das <em>Angebot</em>, nicht den garantierten kognitiven Prozess im Klassenraum.</li>
+              <li>Formaler Austausch (<code>ersatz()</code>) sichert Regelkonformität, nicht automatisch gleiche Wirkung (Loibl et al. 2024).</li>
+              <li>Die meisten Synthesen stammen aus den USA und der Hochschule; Übertragbarkeit auf deutsche Schulen ist im Einzelfall zu prüfen.</li>
+              <li>KI-Evidenz ist jung und instabil; Leistung <em>mit</em> KI zählt nie als Beleg für Lernen <em>ohne</em> KI.</li>
+              <li>Alle neu ergänzten Bausteine im 200er-Katalog tragen transparent den Status <em>Ersterfassung</em>.</li>
+            </ul>
+          </div>
         </div>
       </section>
     </div>

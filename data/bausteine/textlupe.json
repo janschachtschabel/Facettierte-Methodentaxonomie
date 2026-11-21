@@ -15,15 +15,9 @@
   ],
   "quellen": [
     {
-      "titel": "Wikipedia: Textlupe",
-      "url": "https://de.wikipedia.org/wiki/Textlupe",
+      "titel": "Wikipedia: Peer Assessment (Textfeedback)",
+      "url": "https://de.wikipedia.org/wiki/Peer_Assessment",
       "quelltyp": "wikipedia",
-      "lizenz": "CC BY-SA 4.0"
-    },
-    {
-      "titel": "ZUM-Unterrichten: Textlupe",
-      "url": "https://unterrichten.zum.de/wiki/Textlupe",
-      "quelltyp": "oer",
       "lizenz": "CC BY-SA 4.0"
     }
   ],

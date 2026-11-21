@@ -1,0 +1,136 @@
+{
+  "kennung": "galeriemethode",
+  "name": "Galeriemethode (Skizzen-Galerie)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Einzeln gezeichnete Lösungsskizzen werden aufgehängt, gemeinsam betrachtet und danach in einer zweiten Zeichenrunde unter Nutzung der Peer-Ideen verfeinert.",
+  "alternativname": [
+    "Galerie-Kreativmethode",
+    "Skizzen-Iteration"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 25,
+  "dauerMax": 45,
+  "problem": "Visuelle und gestalterische Entwürfe profitieren enorm vom strukturierten Abgleich mit anderen Lösungswegen.",
+  "durchfuehrung": [
+    "Phase 1: Jede Person erstellt erste Lösungsskizze",
+    "Galerie-Phase: Alle Skizzen aufhängen und kommentierend sichten",
+    "Phase 2: Eigene Skizze mit fremden Inspirationen gezielt verbessern",
+    "Beste Konzepte im Plenum vorstellen"
+  ],
+  "material": [
+    "Zeichenblätter",
+    "Klebeband/Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "iteration",
+      "name": "Zweite Überarbeitungsrunde nach dem Galerie-Rundgang"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hemmschwelle beim Zeichnen ohne Hinweis „Skizze statt Kunstwerk“"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Galeriemethode",
+      "url": "https://de.wikipedia.org/wiki/Galeriemethode",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.9,
+    "y": 2.54
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

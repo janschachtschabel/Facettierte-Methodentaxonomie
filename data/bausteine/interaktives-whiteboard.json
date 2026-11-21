@@ -1,0 +1,137 @@
+{
+  "kennung": "interaktives-whiteboard",
+  "name": "Kollaboratives Digitales Whiteboard",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Lernende sammeln, ordnen und kommentieren gleichzeitig Ideen, Skizzen, Quellen und Diagramme auf einer geteilten digitalen Arbeitsfläche.",
+  "alternativname": [
+    "Digitales Board",
+    "Online-Pinnwand"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Parallele Gruppenarbeit (auch hybrid oder in Distanz) braucht einen gemeinsamen visuellen Arbeitsraum mit dauerhafter Sicherung.",
+  "durchfuehrung": [
+    "Board mit klaren Zonen/Frames für jede Gruppe vorbereiten",
+    "Parallele Bearbeitung mit Zeitlimit",
+    "Gemeinsame Rundschau, Verknüpfung und Export als Ergebnissicherung"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-geteilt",
+  "internet": true,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorstrukturierung",
+      "name": "Vorstrukturierte Arbeitszonen verhindern Chaos auf dem Board"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Visuelles Durcheinander und Ablenkung durch Formatieren"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Interaktives Whiteboard",
+      "url": "https://de.wikipedia.org/wiki/Interaktives_Whiteboard",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.18,
+    "y": 2.32
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

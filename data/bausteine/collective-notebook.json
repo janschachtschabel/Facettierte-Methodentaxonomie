@@ -1,0 +1,141 @@
+{
+  "kennung": "collective-notebook",
+  "name": "Collective-Notebook-Methode",
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "kreativ",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Ein gemeinsames Notizbuch oder digitales Dokument wandert über mehrere Tage durch die Gruppe; alle ergänzen schrittweise Ideen und Kommentare.",
+  "alternativname": [
+    "Wandernotizbuch",
+    "Ideen-Tagebuch"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 60,
+  "dauerMax": 240,
+  "problem": "Stille Denker:innen brauchen Bedenkzeit über mehrere Tage statt schnellem Zuruf im Plenum.",
+  "durchfuehrung": [
+    "Leitfrage und Hintergrund vorne im Notizbuch festhalten",
+    "Notizbuch rotiert über vereinbarten Zeitraum durch alle Teilnehmenden",
+    "Beiträge werden kommentiert und weiterentwickelt",
+    "Gemeinsame Auswertung und Synthese im Abschlussplenum"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zeitspanne",
+      "name": "Asynchrone Reifungszeit über mehrere Tage"
+    },
+    {
+      "kennung": "synthese",
+      "name": "Gemeinsame Schlussauswertung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Stocken der Weitergabe ohne klaren Zeitplan"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Collective-Notebook",
+      "url": "https://de.wikipedia.org/wiki/Collective-Notebook",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 2.32
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

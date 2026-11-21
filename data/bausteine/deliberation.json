@@ -1,0 +1,143 @@
+{
+  "kennung": "deliberation",
+  "name": "Deliberative Beratung (Bürgerrat im Unterricht)",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs"
+  ],
+  "kurzbeschreibung": "Ausgeloste Kleingruppen prüfen sachliche Pro-/Contra-Dossiers zu einer gesellschaftlichen Streitfrage und erarbeiten eine begründete Empfehlung.",
+  "alternativname": [
+    "Schul-Bürgerrat",
+    "Deliberatives Forum"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Polarisierende Debatten sollen von bloßem Schlagabtausch hin zu abwägender, begründeter Urteilsbildung geführt werden.",
+  "durchfuehrung": [
+    "Ausgewogene Fakten- und Perspektiven-Dossiers einführen",
+    "In gelosten Kleingruppen Argumente, Werte und Folgen abwägen",
+    "Gemeinsame Handlungsempfehlung mit Minderheitenvotum formulieren",
+    "Empfehlungen im Plenum vergleichen und begründen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 10,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 25,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "dossier",
+      "name": "Ausgewogene Sachgrundlage vor der Beratung"
+    },
+    {
+      "kennung": "abwaegung",
+      "name": "Begründete Empfehlung statt bloßer Abstimmung"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Einseitige Materialien verzerren den Beratungsprozess"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Deliberation",
+      "url": "https://de.wikipedia.org/wiki/Deliberation",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.9,
+    "y": 2.84
+  },
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

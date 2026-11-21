@@ -155,17 +155,17 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
     }
   });
 
-  it('covers 100 German teaching methods across all 12 didactic approaches, all 11 learning states, and free sources', () => {
+  it('covers 200 German teaching methods across all 12 didactic approaches, all 11 learning states, and free sources', () => {
     const bundle = readJson<CatalogBundle>('catalog.bundle.json');
-    expect(bundle.bausteine.length).toBe(100);
+    expect(bundle.bausteine.length).toBe(200);
 
     const ids = new Set(bundle.bausteine.map((b) => b.kennung));
-    expect(ids.size).toBe(100);
+    expect(ids.size).toBe(200);
 
     const kuratiert = bundle.bausteine.filter((b) => b.status === 'kuratiert');
     const entwurf = bundle.bausteine.filter((b) => b.status === 'entwurf');
     expect(kuratiert.length).toBe(22);
-    expect(entwurf.length).toBe(78);
+    expect(entwurf.length).toBe(178);
 
     // Every one of the 12 didactic approaches has >= 4 methods
     const ansatzScheme = bundle.schemes.find((s) => s.id === 'ansatz')!;

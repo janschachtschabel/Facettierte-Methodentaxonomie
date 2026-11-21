@@ -13,15 +13,9 @@
   ],
   "quellen": [
     {
-      "titel": "Wikipedia: Think-Pair-Share",
-      "url": "https://de.wikipedia.org/wiki/Think-Pair-Share",
+      "titel": "Wikipedia: Think-pair-share",
+      "url": "https://de.wikipedia.org/wiki/Think-pair-share",
       "quelltyp": "wikipedia",
-      "lizenz": "CC BY-SA 4.0"
-    },
-    {
-      "titel": "ZUM-Unterrichten: Think-Pair-Share",
-      "url": "https://unterrichten.zum.de/wiki/Think-Pair-Share",
-      "quelltyp": "oer",
       "lizenz": "CC BY-SA 4.0"
     }
   ],

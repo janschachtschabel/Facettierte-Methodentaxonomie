@@ -1,0 +1,136 @@
+{
+  "kennung": "freewriting",
+  "name": "Freewriting (Freies Schreiben)",
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "kreativ",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Lernende schreiben 5–10 Minuten ohne Absetzen und ohne Zensur alle Gedanken zu einem Impuls auf, um Schreibblockaden zu lösen und Vorwissen zu heben.",
+  "alternativname": [
+    "Freies Assoziationsschreiben",
+    "Schnellschreiben"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Schreibhemmungen oder innere Zensur blockieren den Einstieg in komplexe Themen und Schreibprozesse.",
+  "durchfuehrung": [
+    "Offenen Schreibimpuls und kurze Zeit (5–8 Min.) vorgeben",
+    "Stift bleibt in Bewegung – Rechtschreibung zunächst ignorieren",
+    "Lernende markieren 2–3 eigene Schlüsselgedanken für die Weiterarbeit"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ohne-zensur",
+      "name": "Bewertungsfreie Schreibphase mit festem Zeitlimit"
+    },
+    {
+      "kennung": "auswahl",
+      "name": "Anschließendes Markieren brauchbarer Kerngedanken"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unstrukturierter Text ohne Weiterverarbeitung verpufft"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Freewriting",
+      "url": "https://de.wikipedia.org/wiki/Freewriting",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.52,
+    "y": 1.98
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

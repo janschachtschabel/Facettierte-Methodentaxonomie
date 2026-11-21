@@ -1,0 +1,144 @@
+{
+  "kennung": "barcamp",
+  "name": "Barcamp (Unkonferenz)",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Offene Konferenzform mit gemeinsamer Sessionplanung am Beginn, kurzen Impuls- und Diskussionsrunden auf Augenhöhe und kollektiver Dokumentation.",
+  "alternativname": [
+    "Unkonferenz",
+    "EduCamp"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 90,
+  "dauerMax": 300,
+  "problem": "Wissen und Fragen innerhalb einer heterogenen Lerngruppe sollen auf Augenhöhe statt einseitig geteilt werden.",
+  "durchfuehrung": [
+    "Kurze Vorstellungsrunde (z. B. 3 Hashtags)",
+    "Session-Pitches sammeln und auf Raum-Zeit-Raster verteilen",
+    "Parallele 30–45-Minuten-Sessions mit gemeinsamem Pad/Protokoll",
+    "Gemeinsame Abschlussrunde"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 12,
+  "gruppeMax": 120,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 25,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "sessionplanung",
+      "name": "Partizipative Sessionplanung vor Ort"
+    },
+    {
+      "kennung": "dokumentation",
+      "name": "Offene Ergebnisdokumentation"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Geringe fachliche Tiefe bei rein anekdotischen Sessions"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Barcamp",
+      "url": "https://de.wikipedia.org/wiki/Barcamp",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.34,
+    "y": 2.66
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

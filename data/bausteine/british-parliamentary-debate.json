@@ -1,0 +1,143 @@
+{
+  "kennung": "british-parliamentary-debate",
+  "name": "British Parliamentary Style Debatte",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs"
+  ],
+  "kurzbeschreibung": "Sportlich-strukturiertes Debattierformat mit vier Zweierteams (eröffnende/ergänzende Regierung und Opposition), Zwischenfragen und Jury-Feedback.",
+  "alternativname": [
+    "BPS-Debatte",
+    "Parlamentarisches Debattieren"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 40,
+  "dauerMax": 60,
+  "problem": "Argumentationsqualität, strategisches Zuhören und Perspektivwechsel sollen unter klaren Spielregeln geschärft werden.",
+  "durchfuehrung": [
+    "Streitfrage (Antrag) und vier Zweierteams zulosen",
+    "Kurze Vorbereitungszeit (15 Min.) für Argumente und Gegenargumente",
+    "Feste Redezeiten (je 3–5 Min.) inkl. Zwischenfragen (Points of Information)",
+    "Kriteriengeleitete Auswertung von Argumentation und Struktur"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vier-teams",
+      "name": "Vier klar definierte Teamrollen mit festen Redezeiten"
+    },
+    {
+      "kennung": "zwischenfragen",
+      "name": "Strukturierte Zwischenfragen zur direkten Auseinandersetzung"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Rhetorik überlagert sachliche Richtigkeit ohne Nachbesprechung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: British Parliamentary Style",
+      "url": "https://de.wikipedia.org/wiki/British_Parliamentary_Style",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.06,
+    "y": 2.94
+  },
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

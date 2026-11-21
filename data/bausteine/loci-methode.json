@@ -1,0 +1,135 @@
+{
+  "kennung": "loci-methode",
+  "name": "Loci-Methode (Gedächtnispalast)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Lerninhalte oder Reihenfolgen werden als bildhafte Vorstellungen an vertraute Stationen eines bekannten Weges oder Raumes geknüpft.",
+  "alternativname": [
+    "Gedächtnispalast",
+    "Routenmethode"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Umfangreiche Faktenlisten oder Vortragsgliederungen sollen zuverlässig in fester Reihenfolge gemerkt werden.",
+  "durchfuehrung": [
+    "Bekannte Route mit 5–10 klaren Stationen festlegen",
+    "Jeden Lernpunkt in ein prägnantes Bild übersetzen und an einer Station platzieren",
+    "Route im Kopf abgehen und Begriffe ohne Vorlage abrufen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "routenanker",
+      "name": "Stabile räumliche Ankerpunkte mit lebendiger Verbildlichung"
+    },
+    {
+      "kennung": "abruf",
+      "name": "Aktives gedankliches Ablaufen der Route"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Sichert Faktenabruf, ersetzt aber kein konzeptuelles Verstehen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Loci-Methode",
+      "url": "https://de.wikipedia.org/wiki/Loci-Methode",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.4,
+    "y": 1.98
+  },
+  "aufgabe": [
+    "fakten",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ]
+}

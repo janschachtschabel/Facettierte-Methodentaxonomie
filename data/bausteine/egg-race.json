@@ -1,0 +1,145 @@
+{
+  "kennung": "egg-race",
+  "name": "Egg-Race (Konstruktionswettbewerb)",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "spiel-simulation"
+  ],
+  "kurzbeschreibung": "Teams lösen ein naturwissenschaftlich-technisches Konstruktionsproblem mit begrenztem Material unter Zeitdruck und testen ihre Prototypen live.",
+  "alternativname": [
+    "Konstruktionsaufgabe",
+    "Tüftel-Wettbewerb"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 35,
+  "dauerMax": 75,
+  "problem": "Naturwissenschaftliche Prinzipien sollen durch eigenes Konstruieren, Scheitern und Nachbessern erfahrbar werden.",
+  "durchfuehrung": [
+    "Konstruktionsziel, Materialpaket und Bewertungskriterien vorstellen",
+    "Planen, Bauen und Testen im Team",
+    "Öffentlicher Praxistest aller Prototypen",
+    "Physikalische/technische Prinzipien der Erfolgs- und Fehlerfaktoren sichern"
+  ],
+  "material": [
+    "Einheitliche Materialpakete",
+    "Messgeräte/Stoppuhr"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 4,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "praxistest",
+      "name": "Objektiver Funktionstest des Prototyps"
+    },
+    {
+      "kennung": "fachauswertung",
+      "name": "Explizite Sicherung der zugrunde liegenden Fachprinzipien"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reines Basteln ohne fachliche Auswertung (R-05 beachten!)"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Egg-Race",
+      "url": "https://de.wikipedia.org/wiki/Egg-Race",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.64
+  },
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt",
+    "massiert"
+  ]
+}

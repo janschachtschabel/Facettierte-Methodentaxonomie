@@ -1,0 +1,141 @@
+{
+  "kennung": "schneeball-verfahren",
+  "name": "Schneeball-Verfahren (Pyramidenmethode)",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "kurzbeschreibung": "Ideen werden erst einzeln notiert, dann in Zweier-, Vierer- und Achtergruppen schrittweise verdichtet und priorisiert.",
+  "alternativname": [
+    "Pyramidenmethode",
+    "1-2-4-Alle",
+    "Schneeballmethode"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Große Gruppen sollen demokratisch und ohne Dominanz einzelner Stimmen zu konsensfähigen Ergebnissen kommen.",
+  "durchfuehrung": [
+    "Einzelphase: Jede Person formuliert eigene Punkte",
+    "Paarphase: Ergebnisse abgleichen und auf Kernpunkte einigen",
+    "Vierer-/Achterphase: Gruppen zusammenlegen und priorisieren",
+    "Plenum: Verdichtete Spitzenpunkte präsentieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "orientierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stufung",
+      "name": "Stufenweise Verdopplung der Gruppengröße"
+    },
+    {
+      "kennung": "selektion",
+      "name": "Klare Einigungs- oder Auswahlregel je Stufe"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Wiederholungsschleifen und Ermüdung bei zu vielen Stufen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schneeball-Verfahren",
+      "url": "https://de.wikipedia.org/wiki/Schneeball-Verfahren",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.18,
+    "y": 2.74
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

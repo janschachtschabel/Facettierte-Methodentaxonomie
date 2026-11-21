@@ -1,0 +1,139 @@
+{
+  "kennung": "aktives-zuhoeren",
+  "name": "Aktives Zuhören & Paraphrasieren",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Gesprächsübung, bei der die zuhörende Person Kernaussagen in eigenen Worten wiedergibt und rückfragt, bevor sie selbst Stellung bezieht.",
+  "alternativname": [
+    "Paraphrasieren",
+    "Kontrollierter Dialog"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 8,
+  "dauerMax": 20,
+  "problem": "In Diskussionen reden Lernende oft aneinander vorbei, weil sie während des Zuhörens schon die eigene Erwiderung planen.",
+  "durchfuehrung": [
+    "Person A spricht 2 Minuten zu einer Frage",
+    "Person B fasst Kernpunkte wertfrei zusammen („Habe ich dich richtig verstanden…?“)",
+    "Erst nach Zustimmung von A wechselt das Rederecht",
+    "Kurze Reflexion über Verständlichkeit und Zuhören"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 3,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "paraphrase",
+      "name": "Verbindliche Paraphrase vor eigener Stellungnahme"
+    },
+    {
+      "kennung": "freigabe",
+      "name": "Bestätigung durch die sprechende Person"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Künstlich wirkendes Nachplappern statt sinngetreuem Zusammenfassen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Aktives Zuhören",
+      "url": "https://de.wikipedia.org/wiki/Aktives_Zuh%C3%B6ren",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.38,
+    "y": 2.62
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

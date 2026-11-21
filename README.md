@@ -1,6 +1,6 @@
 # Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, API & MCP-Server
 
-Eine offene, maschinenlesbare **Datenbank für 100 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
+Eine offene, maschinenlesbare **Datenbank für 200 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
 
 - **Autor (Inhalte, Taxonomie & Grafiken):** Jan Schachtschabel
 - **Inhalts- & Datenlizenz:** [CC BY 4.0](LICENSE-CONTENT.md) (`https://creativecommons.org/licenses/by/4.0/`)
@@ -10,10 +10,11 @@ Eine offene, maschinenlesbare **Datenbank für 100 Unterrichtsmethoden** im deut
 
 ## Funktionsumfang
 
-- **Methodenkatalog (100 Methoden):** 22 kuratierte Kernbausteine + 78 breit gestreute Ersterfassungen aus 12 didaktischen Bereichen (Instruktion, Kooperatives Lernen, Forschendes & problemorientiertes Lernen, Offener Unterricht, Diskurs/Debatte, Kreativität, Visualisierung/Textarbeit, Übung/Abruf, Diagnose/Feedback, Reflexion, Spiel/Simulation, Digital & KI) – jeweils mit 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Profilgrafik und freien Quellenangaben.
+- **Methodenkatalog (200 Methoden):** 22 kuratierte Kernbausteine + 178 breit gestreute Ersterfassungen aus 12 didaktischen Bereichen (Instruktion, Kooperatives Lernen, Forschendes & problemorientiertes Lernen, Offener Unterricht, Diskurs/Debatte, Kreativität, Visualisierung/Textarbeit, Übung/Abruf, Diagnose/Feedback, Reflexion, Spiel/Simulation, Digital & KI) – jeweils mit 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Profilgrafik und **live HTTP-geprüften freien Quellenangaben** (`npm run check:links`).
+- **Vollständige FMT-Systematik & Live-Auswertungen:** Interaktiver 13-Facetten-Kompass, R×S-Matrix (Reichweite × Beschreibungsstufe), 6 Operator-Grafiken, 11 Lernzustände, 5 Stufen der Zuordnung, Lückenmatrix, Evidenztabelle, B1×A2-Streudiagramm, Reichweite×Lernfunktion-Heatmap, Ansätze×Evidenz-Balken und Schnittstellen-Abdeckung.
 - **Extrem schnell durch Caching:** Build-Zeit-Bundle mit SHA-256-Hash, In-Memory-Server-Store mit `ETag`/`304`, sofortiger Browser-Cache mit Hintergrund-Abgleich gegen `/api/v1/meta` (Facettenfilter, Vergleich & Baukasten laufen in < 5 ms lokal im Browser).
-- **Modularer Szenario-Baukasten („Didaktische Partitur“):** Verschachtelte Modul-Karten (`R3 → R2 → R1`), Lernzustands-Verbinder zwischen Phasen, 1-Klick-Ersatzkandidaten (`ersatz()`), Begleitstrang (*Parallel*), verteilte *Wiederkehr*, adaptive *Alternative*, umschaltbares **Zeitband-SVG**, Live-Prüfung gegen **R-00 bis R-12** (mit Grundlagen-Ausweis `formal`, `[E]`, `[S]`, `[A]`) sowie Export als Druck/PDF, Markdown, SVG und JSON-LD.
-- **Günstiger Hybrid-KI-Assistent (optional):** Suche, 5-Stufen-Zuordnung und Validierung arbeiten deterministisch in < 1 ms **ohne Sprachmodell**. Optional übersetzt ein beliebiges OpenAI-kompatibles Modell (`LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`) Freitext ins Anfrage-Schema (mit LRU-Cache und Regel-Fallback) und gestaltet geprüfte Arrangements fachlich aus.
+- **Modularer Szenario-Baukasten („Didaktische Partitur“ + Live-Zeitband):** Dauerhaft sichtbare Live-Schachtelungsgrafik (`Begleitend`, `R3`, `R2`, `R1`), klare Granularitäts- & Container-Slot-Darstellung, verständliche Inline-Prüfmeldungen (`R-00` bis `R-12`) mit 1-Klick-Lösungsvorschlägen sowie vollständiger Stunden-Export (Markdown, druckfertiges HTML-Handout, SVG, JSON-LD) inkl. Methodenanwendung und verlinktem Quellenverzeichnis.
+- **Günstiger Hybrid-KI-Assistent (optional):** Suche, 5-Stufen-Zuordnung und Validierung arbeiten deterministisch in < 1 ms **ohne Sprachmodell**. Optional übersetzt ein OpenAI-kompatibles Modell (Standard: OpenAI `gpt-6-luna` mit automatischer Unterstützung der GPT-5-/GPT-6-Parameter `max_completion_tokens` & `reasoning_effort`, liest `LLM_API_KEY` oder OS-`OPENAI_API_KEY` bzw. `.env`) Freitext ins Anfrage-Schema und formuliert geprüfte Arrangements zu einer vollständigen Stundenbeschreibung inkl. Quellenverzeichnis aus.
 - **MCP-Server & Linked Data:** Remote-MCP (`/mcp` via Streamable HTTP) + lokaler `stdio`-Start, REST-API (`/api/v1/*` + v0.7.0-Aliase), 24 SKOS-Vokabulare (`.ttl`), JSON-LD, JSON Schema und kanonische `w3id.org/fmt/`-Content-Negotiation.
 
 ---

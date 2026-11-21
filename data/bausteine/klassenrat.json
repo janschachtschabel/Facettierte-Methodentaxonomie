@@ -1,0 +1,137 @@
+{
+  "kennung": "klassenrat",
+  "name": "Klassenrat",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "offen",
+    "diskurs"
+  ],
+  "kurzbeschreibung": "Regelmäßiges demokratisches Selbstverwaltungsgremium der Lerngruppe mit rotierender Moderation, Tagesordnung, Beschlüssen und Rückblick.",
+  "alternativname": [
+    "Schülerparlament der Klasse",
+    "Demokratischer Kreis"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 25,
+  "dauerMax": 45,
+  "problem": "Konflikte, gemeinsame Regeln und Vorhaben der Klasse sollen demokratisch und verantwortungsvoll ausgehandelt werden.",
+  "durchfuehrung": [
+    "Gesammelte Anliegen aus dem Klassenrats-Briefkasten sichten",
+    "Rotierende Moderation, Zeit- und Protokollführung bestimmen",
+    "Anliegen strukturiert beraten und verbindliche Beschlüsse fassen",
+    "Umsetzung früherer Beschlüsse überprüfen"
+  ],
+  "material": [
+    "Anliegen-Wand",
+    "Klassenrats-Protokollbuch"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "metakognition",
+    "problemloesen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "regelmaessigkeit",
+      "name": "Fester, verlässlicher Termin im Stundenplan"
+    },
+    {
+      "kennung": "rollen",
+      "name": "Rotierende Schülerrollen und verbindliche Beschlusskontrolle"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Abgleiten in ein „Meckerforum“ ohne Lösungsorientierung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Klassenrat",
+      "url": "https://de.wikipedia.org/wiki/Klassenrat",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 2.74
+  },
+  "aufgabe": [
+    "einstellungen",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

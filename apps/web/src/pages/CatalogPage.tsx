@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import type { EvidenceGrade, SearchCriteria } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
@@ -19,10 +19,30 @@ export function CatalogPage() {
     queueBlockForPlanner
   } = useCatalog();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [showExpert, setShowExpert] = useState(false);
-  const [filters, setFilters] = useState<SearchCriteria>({});
+  const [filters, setFilters] = useState<SearchCriteria>(() => {
+    const init: Record<string, unknown> = {};
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe'] as const;
+    for (const k of keys) {
+      const v = searchParams.get(k);
+      if (v) init[k] = k === 'maxDauer' ? Number(v) : v;
+    }
+    return init as SearchCriteria;
+  });
+
+  useEffect(() => {
+    if (![...searchParams.keys()].length) return;
+    const next: Record<string, unknown> = {};
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe'] as const;
+    for (const k of keys) {
+      const v = searchParams.get(k);
+      if (v) next[k] = k === 'maxDauer' ? Number(v) : v;
+    }
+    if (Object.keys(next).length) setFilters(next as SearchCriteria);
+  }, [searchParams]);
 
   const setFilter = (key: string, val: unknown) => {
     setFilters((prev) => {

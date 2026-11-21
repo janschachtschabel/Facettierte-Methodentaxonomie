@@ -1,0 +1,135 @@
+{
+  "kennung": "clustering-schreiben",
+  "name": "Clustering (Assoziationsnetz)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "kreativ",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Vom eingekreisten Kernbegriff aus entstehen freie, verzweigte Wortketten, um Vorwissen, Assoziationen und Schreibideen visuell freizulegen.",
+  "alternativname": [
+    "Wort-Cluster",
+    "Assoziations-Cluster"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Vorwissen und persönliche Zugänge zu einem neuen Thema sollen ohne strenge Hierarchie schnell sichtbar werden.",
+  "durchfuehrung": [
+    "Kernbegriff in die Blattmitte schreiben und einkreisen",
+    "Spontane Assoziationsketten in alle Richtungen verbinden",
+    "Cluster nach Mustern sichten und Schwerpunkte markieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "assoziation",
+      "name": "Unzensiertes Sammeln in verzweigten Ketten"
+    },
+    {
+      "kennung": "fokussierung",
+      "name": "Auswahl eines Clusters für den nächsten Schritt"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Verwechslung mit einer sachlogisch geprüften Concept-Map"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Cluster (Kreatives Schreiben)",
+      "url": "https://de.wikipedia.org/wiki/Cluster_(Kreatives_Schreiben)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.8,
+    "y": 2.02
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

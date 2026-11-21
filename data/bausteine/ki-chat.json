@@ -13,9 +13,10 @@
   ],
   "quellen": [
     {
-      "titel": "Bastani et al. (2025): Generative AI without guardrails can harm learning (PNAS)",
-      "url": "https://doi.org/10.1073/pnas.2422633122",
-      "quelltyp": "fachliteratur"
+      "titel": "Bastani et al. (2025): Generative AI without guardrails can harm learning (Preprint / arXiv)",
+      "url": "https://arxiv.org/abs/2407.01850",
+      "quelltyp": "fachliteratur",
+      "lizenz": "CC BY 4.0"
     }
   ],
   "reichweite": "r1",

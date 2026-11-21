@@ -1,0 +1,140 @@
+{
+  "kennung": "gruppenarbeit-klassisch",
+  "name": "Arbeitsteilige Gruppenarbeit",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Kleingruppen bearbeiten unterschiedliche Teilaspekte eines Gesamtthemas mit klaren Rollen und führen ihre Ergebnisse anschließend zusammen.",
+  "alternativname": [
+    "Gruppenarbeit",
+    "Arbeitsteilige Kleingruppen"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 25,
+  "dauerMax": 60,
+  "problem": "Ein breites Thema soll arbeitsteilig in überschaubarer Zeit vertieft und gemeinsam zusammengefügt werden.",
+  "durchfuehrung": [
+    "Klare Teilaufträge, Rollen (Zeit, Protokoll, Präsentation) und Zeitrahmen vorgeben",
+    "Materialgestützte Bearbeitung in den Kleingruppen",
+    "Ergebnisse sichtbar zusammenführen und vernetzen",
+    "Gesamtzusammenhang im Plenum sichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rollen",
+      "name": "Verbindliche Rollen und individuelle Verantwortung"
+    },
+    {
+      "kennung": "synthese",
+      "name": "Zusammenführung der Teilergebnisse zum Ganzen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Trittbrettfahren ohne individuelle Verantwortlichkeit",
+    "Inselwissen, wenn Ergebnisse nicht vernetzt werden"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Strukturierte kooperative Gruppenarbeit zeigt konsistent mittlere positive Effekte auf Leistung (ES ≈ 0,54).",
+      "quelle": "Kyndt et al. 2013; Johnson & Johnson 2009",
+      "geltung": "Schule und Hochschule",
+      "umstritten": "Unstrukturierte Gruppenarbeit bleibt oft wirkungslos"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gruppenarbeit (Didaktik)",
+      "url": "https://de.wikipedia.org/wiki/Gruppenarbeit_(Didaktik)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.02,
+    "y": 2.58
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

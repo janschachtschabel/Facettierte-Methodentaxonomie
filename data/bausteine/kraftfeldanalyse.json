@@ -1,0 +1,145 @@
+{
+  "kennung": "kraftfeldanalyse",
+  "name": "Kraftfeldanalyse (nach Lewin)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "forschend",
+    "diskurs"
+  ],
+  "kurzbeschreibung": "Fördernde und hemmende Kräfte einer Veränderung oder Entscheidung werden grafisch gegenübergestellt und in ihrer Stärke gewichtet.",
+  "alternativname": [
+    "Force Field Analysis",
+    "Kräftefeldanalyse"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Veränderungsprozesse oder gesellschaftliche Konflikte sollen differenziert auf Triebkräfte und Widerstände hin analysiert werden.",
+  "durchfuehrung": [
+    "Ausgangs- und Zielzustand in der Mitte notieren",
+    "Treibende Kräfte (links) und hemmende Kräfte (rechts) sammeln",
+    "Stärke jeder Kraft (1–5) bewerten und als Pfeillänge darstellen",
+    "Ansatzpunkte ableiten: Welche Hemmnisse lassen sich abbauen?"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "gewichtung",
+      "name": "Bewertung der relativen Stärke beider Kraftseiten"
+    },
+    {
+      "kennung": "hebel",
+      "name": "Ableitung realistischer Handlungshebel"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Subjektive Bewertung ohne sachliche Belege"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kraftfeldanalyse",
+      "url": "https://de.wikipedia.org/wiki/Kraftfeldanalyse",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.08,
+    "y": 2.18
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -15,14 +15,14 @@
   ],
   "quellen": [
     {
-      "titel": "Wikipedia: Blitzlicht (Methode)",
-      "url": "https://de.wikipedia.org/wiki/Blitzlicht_(Methode)",
+      "titel": "Wikipedia: Blitzlicht-Methode",
+      "url": "https://de.wikipedia.org/wiki/Blitzlicht-Methode",
       "quelltyp": "wikipedia",
       "lizenz": "CC BY-SA 4.0"
     },
     {
-      "titel": "bpb Methodenkoffer: Blitzlicht",
-      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "titel": "Bundeszentrale für politische Bildung (bpb): Lernen & Methoden",
+      "url": "https://www.bpb.de/lernen/",
       "quelltyp": "institution"
     }
   ],

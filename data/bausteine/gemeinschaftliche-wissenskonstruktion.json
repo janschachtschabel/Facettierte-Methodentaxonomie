@@ -1,0 +1,144 @@
+{
+  "kennung": "gemeinschaftliche-wissenskonstruktion",
+  "name": "Gemeinsame Wissenskonstruktion (Knowledge Building)",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Lerngemeinschaft entwickelt über mehrere Sitzungen hinweg kollektiv verbesserbare Erklärungen, Wikis oder Wissensartefakte zu echten Fragen.",
+  "alternativname": [
+    "Knowledge Building",
+    "CSCL-Wissenskonstruktion"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 120,
+  "dauerMax": 360,
+  "problem": "Wissen soll nicht isoliert reproduziert, sondern als gemeinschaftlich verfeinerbares Produkt entstehen.",
+  "durchfuehrung": [
+    "Echte Leitfragen der Lerngruppe sammeln",
+    "Erste Erklärungsentwürfe in geteiltem Wissensraum verfassen",
+    "Wechselseitiges Kommentieren, Belegen und Überarbeiten",
+    "Wissensstand gemeinsam synthetisieren und kritisch prüfen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-geteilt",
+  "internet": true,
+  "vorbereitungMin": 30,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "artefakt",
+      "name": "Gemeinsam fortgeschriebenes Wissensartefakt"
+    },
+    {
+      "kennung": "revision",
+      "name": "Evidenzbasierte Überarbeitung durch Peers"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Verflachung zu nebeneinanderstehenden Einzeltexten ohne Bezugnahme"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gemeinsame Wissenskonstruktion",
+      "url": "https://de.wikipedia.org/wiki/Gemeinsame_Wissenskonstruktion",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.86
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

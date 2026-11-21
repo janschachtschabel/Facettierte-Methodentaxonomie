@@ -1,0 +1,133 @@
+{
+  "kennung": "erlebnispaedagogik",
+  "name": "Erlebnispädagogische Kooperationsaufgabe",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Handlungsorientierte Team-Herausforderung (z. B. Säurefluss, Spinnennetz), die nur durch gemeinsame Kommunikation, Planung und Vertrauen lösbar ist.",
+  "alternativname": [
+    "Kooperationsspiel",
+    "Team-Challenge"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 45,
+  "dauerMax": 120,
+  "problem": "Teamkommunikation, Rollenklärung und gegenseitiges Vertrauen sollen unmittelbar erfahrbar und reflektierbar werden.",
+  "durchfuehrung": [
+    "Sicherheitsregeln und Gruppenaufgabe klar stellen",
+    "Planungs- und Durchführungsphase ohne Eingriff der Leitung",
+    "Strukturierte Auswertung (Was half, was blockierte?) und Alltagstransfer"
+  ],
+  "material": [
+    "Seile, Matten oder einfache Hilfsmittel"
+  ],
+  "raum": "Turnhalle oder Außengelände",
+  "gruppeMin": 8,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "transfer",
+      "name": "Gezielte Reflexion und Übertragung in den Gruppenalltag"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Bleibt ohne Reflexion ein isoliertes Spaßspiel"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Erlebnispädagogik",
+      "url": "https://de.wikipedia.org/wiki/Erlebnisp%C3%A4dagogik",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.66,
+    "y": 2.86
+  },
+  "aufgabe": [
+    "einstellungen",
+    "metakognitiv",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

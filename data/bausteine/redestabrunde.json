@@ -1,0 +1,137 @@
+{
+  "kennung": "redestabrunde",
+  "name": "Redestabrunde (Talking Stick)",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Im Sitzkreis spricht ausschließlich die Person, die den Redestab hält; alle anderen hören ohne Unterbrechung und Bewertung zu.",
+  "alternativname": [
+    "Talking Stick",
+    "Redestein-Kreis"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Sensible Themen oder unruhige Gruppen brauchen geschützte Redezeit ohne Unterbrechungen.",
+  "durchfuehrung": [
+    "Gesprächsfrage und Regeln (Zuhören, Passen erlaubt) vereinbaren",
+    "Redestab im Kreis weitergeben",
+    "Jede Person teilt ungestört ihre Perspektive",
+    "Kurze gemeinsame Bündelung zentraler Beobachtungen"
+  ],
+  "material": [
+    "Redestab oder Gegenstand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 5,
+  "gruppeMax": 28,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "unterbrechungsfrei",
+      "name": "Striktes Nicht-Unterbrechen während des Sprechens"
+    },
+    {
+      "kennung": "freiwilligkeit",
+      "name": "Möglichkeit zum Weitergeben (Passen)"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Längen bei großen Gruppen ohne grobe Zeitrichtlinie"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Redestabrunde",
+      "url": "https://de.wikipedia.org/wiki/Redestabrunde",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.16,
+    "y": 1.72
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

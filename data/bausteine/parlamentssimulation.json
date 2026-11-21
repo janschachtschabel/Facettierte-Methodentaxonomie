@@ -1,0 +1,147 @@
+{
+  "kennung": "parlamentssimulation",
+  "name": "Parlamentssimulation",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs",
+    "spiel-simulation"
+  ],
+  "kurzbeschreibung": "Lernende durchlaufen als Fraktionen, Ausschüsse und Präsidium ein reales Gesetzgebungsverfahren vom Antrag bis zur Schlussabstimmung.",
+  "alternativname": [
+    "Gesetzgebungssimulation",
+    "Planspiel Parlament"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 135,
+  "dauerMax": 360,
+  "problem": "Demokratische Entscheidungsprozesse und Kompromissbildung bleiben im Lehrbuch oft abstrakt.",
+  "durchfuehrung": [
+    "Fraktionen und Ausschüsse bilden, Gesetzentwurf einführen",
+    "Ausschussberatungen und Änderungsanträge aushandeln",
+    "Plenardebatte nach Geschäftsordnung und Schlussabstimmung",
+    "Ausstieg aus den Rollen und Analyse realer Politikprozesse"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 16,
+  "gruppeMax": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "geschaeftsordnung",
+      "name": "Verbindliche parlamentarische Verfahrensregeln"
+    },
+    {
+      "kennung": "debriefing",
+      "name": "Gründliches Debriefing und Vergleich mit der Realität"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Rollenkonflikte bleiben ohne sauber moderierten Ausstieg hängen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Parlamentssimulation",
+      "url": "https://de.wikipedia.org/wiki/Parlamentssimulation",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.76,
+    "y": 2.9
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

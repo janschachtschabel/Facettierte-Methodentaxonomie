@@ -42,7 +42,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     llmReasoningEffort: (env.LLM_REASONING_EFFORT || 'low').trim() || 'low',
     llmAllowByok: env.LLM_ALLOW_BYOK !== 'false',
     llmRateLimitPerMin: Number(env.LLM_RATE_LIMIT_PER_MIN) || 20,
-    llmTimeoutMs: Number(env.LLM_TIMEOUT_MS) || 45000,
+    llmTimeoutMs: Number(env.LLM_TIMEOUT_MS) || 90000,
     llmCacheMax: Number(env.LLM_CACHE_MAX) || 500,
     llmCacheTtlMs: Number(env.LLM_CACHE_TTL_MS) || 3600000
   };

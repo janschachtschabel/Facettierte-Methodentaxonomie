@@ -1,0 +1,132 @@
+{
+  "kennung": "gruppenbildung-zufall",
+  "name": "Methodische Gruppenbildung (Zufalls- & Kriterien-Matching)",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Kurzes, transparentes Verfahren (Karten, Puzzleteile, Themenschwerpunkte), um leistungsheterogene oder themenbezogene Gruppen zügig zu bilden.",
+  "alternativname": [
+    "Gruppeneinteilung",
+    "Zufallsgruppen"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 2,
+  "dauerMax": 6,
+  "problem": "Feste Cliquen oder langwierige Gruppenfindung bremsen Kooperation und schließen Lernende aus.",
+  "durchfuehrung": [
+    "Passendes Zuordnungskriterium (Zufall, Themeninteresse oder Heterogenität) wählen",
+    "Karten/Symbole austeilen und Gruppenplätze markieren",
+    "Direkt mit kurzem Warm-up oder Rollenvergabe starten"
+  ],
+  "material": [
+    "Symbol- oder Themenkarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 6,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "orientierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "andere"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "transparenz",
+      "name": "Transparentes, wertschätzendes Zuordnungsverfahren"
+    },
+    {
+      "kennung": "zeitlimit",
+      "name": "Zügiger Übergang in die Arbeitsphase"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unpassende Zufallskonstellationen bei Konflikten ohne Nachsteuerung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gruppenbildungsmethoden",
+      "url": "https://de.wikipedia.org/wiki/Gruppenbildungsmethoden",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.66,
+    "y": 1.15
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

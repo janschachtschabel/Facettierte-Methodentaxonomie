@@ -1,0 +1,148 @@
+{
+  "kennung": "lernwerkstatt",
+  "name": "Lernwerkstatt",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Vorbereitete, materialreiche Lernumgebung für eigenaktives Forschen, Ausprobieren und Dokumentieren auf unterschiedlichen Niveaustufen.",
+  "alternativname": [
+    "Schulische Lernwerkstatt",
+    "Forschungswerkstatt"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 90,
+  "dauerMax": 300,
+  "problem": "Heterogene Lerngruppen brauchen handlungsorientierte, differenzierte Materialien zum forschenden Entdecken.",
+  "durchfuehrung": [
+    "Werkstattangebot und Arbeitsregeln gemeinsam erschließen",
+    "Lernende wählen Forschungsfragen oder Aufgabenangebote",
+    "Eigenständige Dokumentation von Beobachtungen und Ergebnissen",
+    "Werkstatt-Reflexion und Austausch der Erkenntnisse"
+  ],
+  "material": [
+    "Vorbereitete Materialstationen",
+    "Forschungsheft"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "udl",
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "umgebung",
+      "name": "Didaktisch strukturierte, materialreiche Umgebung"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Begleitende Dokumentation und Reflexion"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Oberflächliches Ausprobieren ohne begriffliche Sicherung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernwerkstatt",
+      "url": "https://de.wikipedia.org/wiki/Lernwerkstatt",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 2.18
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

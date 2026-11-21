@@ -1,0 +1,134 @@
+{
+  "kennung": "kriteriales-rubric",
+  "name": "Bewertungsraster (Rubric-Selbsteinschätzung)",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Stufenweise beschriebene Qualitätskriterien (Rubric) machen Erwartungen vorab transparent und steuern Selbst- und Fremdeinschätzung.",
+  "alternativname": [
+    "Kriterienraster",
+    "Bewertungsmatrix"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Unklare Bewertungsmaßstäbe verunsichern Lernende und verhindern gezieltes Verbessern.",
+  "durchfuehrung": [
+    "Rubric mit 3–4 Qualitätsstufen vor der Arbeitsphase besprechen",
+    "Zwischenstand eigenständig im Raster verorten",
+    "Nächsten konkreten Entwicklungsschritt markieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorab",
+      "name": "Transparenz des Rasters bereits vor der Aufgabenbearbeitung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Abhaken von Checklisten statt echtem Qualitätsverständnis"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia (en): Rubric (academic)",
+      "url": "https://en.wikipedia.org/wiki/Rubric_(academic)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.46,
+    "y": 1.96
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

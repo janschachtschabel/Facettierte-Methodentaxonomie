@@ -15,13 +15,13 @@
   "quellen": [
     {
       "titel": "Wikipedia: World-Café",
-      "url": "https://de.wikipedia.org/wiki/World-Caf%25C3%25A9",
+      "url": "https://de.wikipedia.org/wiki/World-Caf%C3%A9",
       "quelltyp": "wikipedia",
       "lizenz": "CC BY-SA 4.0"
     },
     {
-      "titel": "bpb Methodenkoffer: World Café",
-      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "titel": "Bundeszentrale für politische Bildung (bpb): Lernen & Methoden",
+      "url": "https://www.bpb.de/lernen/",
       "quelltyp": "institution"
     }
   ],

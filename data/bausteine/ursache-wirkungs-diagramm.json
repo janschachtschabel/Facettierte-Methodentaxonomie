@@ -1,0 +1,140 @@
+{
+  "kennung": "ursache-wirkungs-diagramm",
+  "name": "Ursache-Wirkungs-Diagramm (Ishikawa / Fischgräte)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "forschend",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Ein Problem wird am „Fischkopf“ notiert; Haupt- und Nebenursachen werden systematisch an Kategorien-Gräten gesammelt und gewichtet.",
+  "alternativname": [
+    "Ishikawa-Diagramm",
+    "Fischgrätendiagramm"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Bei komplexen Problemen werden häufig nur offensichtliche Symptome statt tieferer Hauptursachen benannt.",
+  "durchfuehrung": [
+    "Zielproblem rechts präzise benennen",
+    "4–6 Hauptkategorien als Gräten festlegen",
+    "In Gruppen Haupt- und Teilursachen per „Warum?“-Frage zuordnen",
+    "Wichtigste Schlüsselursachen markieren und prüfen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kategorien",
+      "name": "Systematische Ursachenkategorien"
+    },
+    {
+      "kennung": "vertiefung",
+      "name": "Nachfragen nach tieferen Teilursachen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Oberflächliche Stichwortsammlung ohne Ursache-Wirkungs-Prüfung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Ursache-Wirkungs-Diagramm",
+      "url": "https://de.wikipedia.org/wiki/Ursache-Wirkungs-Diagramm",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.22,
+    "y": 2.24
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

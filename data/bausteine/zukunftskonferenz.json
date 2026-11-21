@@ -1,0 +1,143 @@
+{
+  "kennung": "zukunftskonferenz",
+  "name": "Zukunftskonferenz (Future Search)",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs",
+    "offen"
+  ],
+  "kurzbeschreibung": "Mehrphasige Großgruppenkonferenz, die Vergangenheit, Gegenwartstrends, Wunschzukunft und gemeinsame Handlungsschritte aller Beteiligten verbindet.",
+  "alternativname": [
+    "Future Search",
+    "Zukunftskonferenz nach Weisbord"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 180,
+  "dauerMax": 480,
+  "problem": "Unterschiedliche Interessengruppen sollen eine gemeinsame Basis und konkrete Zukunftsprojekte erarbeiten.",
+  "durchfuehrung": [
+    "Zeitleiste der Vergangenheit gemeinsam rekonstruieren",
+    "Gegenwartstrends als Mindmap analysieren",
+    "Zukunftsszenarien kreativ darstellen",
+    "Gemeinsame Schnittmenge („Common Ground“) festlegen und Aktionspläne starten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 16,
+  "gruppeMax": 80,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
+  ],
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "common-ground",
+      "name": "Fokus auf gemeinsame Schnittmenge statt Konfliktverhärtung"
+    },
+    {
+      "kennung": "zeitboegen",
+      "name": "Verbindung von Vergangenheit, Gegenwart und Zukunft"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Ausblenden realer Macht- und Interessenkonflikte"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Zukunftskonferenz",
+      "url": "https://de.wikipedia.org/wiki/Zukunftskonferenz",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.6,
+    "y": 2.76
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

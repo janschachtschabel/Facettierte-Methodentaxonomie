@@ -1,0 +1,138 @@
+{
+  "kennung": "nominal-group-technique",
+  "name": "Nominal-Group-Technique (NGT)",
+  "status": "entwurf",
+  "piktogramm": "diskurs",
+  "ansatz": [
+    "diskurs",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Strukturiertes Gruppenverfahren: Stille Einzelideen, reihum Sammeln ohne Diskussion, Klären und anschließendes gewichtetes Punktevoting.",
+  "alternativname": [
+    "Nominale Gruppentechnik",
+    "NGT-Priorisierung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Dominante Vielredner verzerren Gruppendiskussionen und verhindern ausgewogene Priorisierungen.",
+  "durchfuehrung": [
+    "5 Minuten stille Einzelarbeit zur Fragestellung",
+    "Reihum nennt jede Person je eine Idee (ohne Bewertung)",
+    "Verständnisfragen klären und Dopplungen zusammenfassen",
+    "Geheime oder offene Punktvergabe zur Priorisierung"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 5,
+  "gruppeMax": 25,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "problem-erschlossen"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stillphase",
+      "name": "Stille Einzelgenerierung vor dem Austausch"
+    },
+    {
+      "kennung": "gewichtung",
+      "name": "Strukturierte, gleichberechtigte Priorisierung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Vorzeitiges Ausdiskutieren während der Sammelrunde"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Nominal-Group-Technique",
+      "url": "https://de.wikipedia.org/wiki/Nominal-Group-Technique",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.26,
+    "y": 2.46
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

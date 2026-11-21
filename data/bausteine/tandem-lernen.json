@@ -1,0 +1,141 @@
+{
+  "kennung": "tandem-lernen",
+  "name": "Tandem-Sprachlernen",
+  "status": "entwurf",
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Zwei Lernende mit unterschiedlichen Erstsprachen oder Stärken unterstützen sich wechselseitig zu gleichen Zeitanteilen beim authentischen Sprechen.",
+  "alternativname": [
+    "Sprachtandem",
+    "Lern-Tandem"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 60,
+  "problem": "Authentische Sprach- oder Fachpraxis kommt im Großplenum kaum zustande.",
+  "durchfuehrung": [
+    "Gemeinsames Gesprächsthema und Feedback-Wunsch klären",
+    "Erste Hälfte konsequent in Zielsprache/Rolle A arbeiten",
+    "Zweite Hälfte konsequent in Zielsprache/Rolle B wechseln",
+    "Neue Begriffe und Korrekturen kurz notieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 40,
+  "teamMin": 2,
+  "teamMax": 2,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "reziprozitaet",
+      "name": "Gegenseitigkeit (50/50-Zeitaufteilung)"
+    },
+    {
+      "kennung": "autonomie",
+      "name": "Eigene Lernziele und vereinbarte Korrekturregeln"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Ausweichen in die stärkere gemeinsame Sprache"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Tandem (Sprachlernmethode)",
+      "url": "https://de.wikipedia.org/wiki/Tandem_(Sprachlernmethode)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 2.78
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

@@ -444,21 +444,59 @@ export function importArrangementJson(
   }
 }
 
+export interface ExportOptions {
+  fach?: string;
+  thema?: string;
+  kiAusarbeitung?: string | null;
+}
+
+export function collectUsedBlocks(arr: Arrangement, blocksById: Map<string, Baustein>): Baustein[] {
+  const seen = new Set<string>();
+  const ordered: Baustein[] = [];
+  const visit = (node: ArrangementNode | undefined) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.typ === 'Einsatz' || node.typ === 'Wiederkehr') {
+      if (!seen.has(node.baustein)) {
+        seen.add(node.baustein);
+        const b = blocksById.get(node.baustein);
+        if (b) ordered.push(b);
+      }
+      if (node.typ === 'Einsatz' && Array.isArray(node.belegung)) {
+        node.belegung.forEach((bel) => visit(bel.inhalt));
+      }
+    } else if (node.typ === 'Sequenz' && Array.isArray(node.teile)) {
+      node.teile.forEach(visit);
+    } else if (node.typ === 'Parallel') {
+      visit(node.haupt);
+      if (Array.isArray(node.begleitend)) node.begleitend.forEach(visit);
+    } else if (node.typ === 'Alternative' && Array.isArray(node.optionen)) {
+      node.optionen.forEach(visit);
+    }
+  };
+  visit(arr.ablauf);
+  return ordered;
+}
+
 export function exportArrangementMarkdown(
   arr: Arrangement,
   blocksById: Map<string, Baustein>,
-  validation: ValidationResult
+  validation: ValidationResult,
+  options: ExportOptions = {}
 ): string {
   const { seq } = getMainSequence(arr);
+  const usedBlocks = collectUsedBlocks(arr, blocksById);
+  const title = options.thema ? `${arr.name} – ${options.thema}` : arr.name;
   const lines: string[] = [
-    `# ${arr.name}`,
+    `# ${title}`,
     '',
-    `- **Reichweite:** ${arr.reichweite.toUpperCase()}`,
-    `- **Zieltyp:** ${arr.zieltyp || 'Freier Ablauf'}`,
+    ...(options.fach ? [`- **Fach:** ${options.fach}`] : []),
+    ...(options.thema ? [`- **Thema:** ${options.thema}`] : []),
+    `- **Granularität / Reichweite:** ${arr.reichweite.toUpperCase()}`,
+    `- **Zieltyp / Kette:** ${arr.zieltyp || 'Freier Ablauf'}`,
     `- **Gesamtdauer:** ${validation.dauerMin} min${arr.kontext?.zeitbudgetMin ? ` (Budget: ${arr.kontext.zeitbudgetMin} min)` : ''}`,
-    `- **Prüfstatus:** ${validation.gueltig ? 'Gültig' : 'Ungültig'} (${validation.meldungen.filter((m) => m.schwere === 'Fehler').length} Fehler, ${validation.meldungen.filter((m) => m.schwere === 'Warnung').length} Warnungen)`,
+    `- **Prüfstatus (R-00..R-12):** ${validation.gueltig ? 'Gültig' : 'Ungültig'} (${validation.meldungen.filter((m) => m.schwere === 'Fehler').length} Fehler, ${validation.meldungen.filter((m) => m.schwere === 'Warnung').length} Warnungen)`,
     '',
-    '## Ablauf'
+    '## 1. Strukturierter Phasenablauf'
   ];
 
   if (!seq.teile.length) {
@@ -467,20 +505,28 @@ export function exportArrangementMarkdown(
     seq.teile.forEach((node, idx) => {
       if (node.typ === 'Einsatz') {
         const b = blocksById.get(node.baustein);
-        lines.push(`${idx + 1}. **${b?.name || node.baustein}** (${node.dauerMin ?? '?'} min)`);
+        lines.push(`${idx + 1}. **${b?.name || node.baustein}** [${(b?.reichweite || '').toUpperCase()}] (${node.dauerMin ?? '?'} min)`);
+        if (b?.kurzbeschreibung) lines.push(`   _${b.kurzbeschreibung}_`);
         (node.belegung || []).forEach((bel) => {
-          const inner = bel.inhalt.typ === 'Einsatz' ? blocksById.get(bel.inhalt.baustein)?.name || bel.inhalt.baustein : bel.inhalt.typ;
-          lines.push(`   - Slot \`${bel.slotKennung}\`: ${inner}`);
+          const sl = b?.slot?.find((s) => s.kennung === bel.slotKennung);
+          const innerB = bel.inhalt.typ === 'Einsatz' ? blocksById.get(bel.inhalt.baustein) : undefined;
+          const innerName = innerB?.name || (bel.inhalt.typ === 'Einsatz' ? bel.inhalt.baustein : bel.inhalt.typ);
+          const innerMin = bel.inhalt.typ === 'Einsatz' ? bel.inhalt.dauerMin : undefined;
+          lines.push(
+            `   - **Eingebetteter Block (Slot „${sl?.name || bel.slotKennung}“):** ${innerName}${innerB ? ` [${innerB.reichweite.toUpperCase()}]` : ''}${innerMin ? ` (${innerMin} min)` : ''}`
+          );
         });
       } else if (node.typ === 'Alternative') {
-        lines.push(`${idx + 1}. **Alternative** (${node.kriterium || 'Verzweigung'})`);
+        lines.push(`${idx + 1}. **Adaptive Alternative** (${node.kriterium || 'Verzweigung'})`);
         node.optionen.forEach((opt, oi) => {
           const name = opt.typ === 'Einsatz' ? blocksById.get(opt.baustein)?.name || opt.baustein : opt.typ;
           lines.push(`   - Option ${oi + 1}: ${name}`);
         });
       } else if (node.typ === 'Wiederkehr') {
         const b = blocksById.get(node.baustein);
-        lines.push(`${idx + 1}. **Wiederkehr:** ${b?.name || node.baustein} (${node.anzahl}×, Abstand ${node.abstand || 'P2D'}, je ${node.dauerMin ?? '?'} min)`);
+        lines.push(
+          `${idx + 1}. **Verteilte Wiederkehr:** ${b?.name || node.baustein} (${node.anzahl}×, Abstand ${node.abstand || 'P2D'}, je ${node.dauerMin ?? '?'} min)`
+        );
       } else if (node.typ === 'Verweis') {
         lines.push(`${idx + 1}. **Verweis:** ${node.arrangement}`);
       }
@@ -488,13 +534,41 @@ export function exportArrangementMarkdown(
   }
 
   if (arr.ablauf.typ === 'Parallel' && arr.ablauf.begleitend.length) {
-    lines.push('', '## Begleitstrang (Parallel)');
+    lines.push('', '### Begleitstrang (Parallel)');
     arr.ablauf.begleitend.forEach((n) => {
       if (n.typ === 'Einsatz') {
         const b = blocksById.get(n.baustein);
-        lines.push(`- **${b?.name || n.baustein}** (${n.dauerMin ?? '?'} min)`);
+        lines.push(`- **${b?.name || n.baustein}** (${n.dauerMin ?? '?'} min)${b?.kurzbeschreibung ? ` – ${b.kurzbeschreibung}` : ''}`);
       }
     });
+  }
+
+  if (options.kiAusarbeitung && options.kiAusarbeitung.trim()) {
+    lines.push('', '## 2. Ausformulierte Stunden- / Reihenbeschreibung (KI-Entwurf)', '', options.kiAusarbeitung.trim());
+  }
+
+  if (usedBlocks.length) {
+    lines.push('', `## ${options.kiAusarbeitung ? '3' : '2'}. Eingesetzte Methoden & Durchführungshinweise`);
+    for (const b of usedBlocks) {
+      lines.push('', `### ${b.name} (${b.reichweite.toUpperCase()}, ${b.dauerMin}–${b.dauerMax} min)`);
+      lines.push(b.kurzbeschreibung);
+      if (b.durchfuehrung.length) {
+        lines.push('**Durchführung:**');
+        b.durchfuehrung.forEach((s, i) => lines.push(`${i + 1}. ${s}`));
+      }
+      if (b.material?.length) lines.push(`- **Material:** ${b.material.join(', ')}`);
+      if (b.kernkomponente?.length) {
+        lines.push(`- **Kernkomponenten (R-10):** ${b.kernkomponente.map((k) => k.name).join('; ')}`);
+      }
+      if (b.qualitaetsrisiko?.length) {
+        lines.push(`- **Qualitätsrisiken:** ${b.qualitaetsrisiko.join('; ')}`);
+      }
+      if (b.evidenz?.length) {
+        b.evidenz.forEach((ev) => {
+          lines.push(`- **Evidenz (Grad ${ev.grad}):** ${ev.befund} (${ev.quelle}; Geltung: ${ev.geltung})`);
+        });
+      }
+    }
   }
 
   if (validation.meldungen.length) {
@@ -504,10 +578,76 @@ export function exportArrangementMarkdown(
     });
   }
 
+  if (usedBlocks.length) {
+    lines.push('', '## Quellenverzeichnis zu den verwendeten Methoden');
+    const seenUrls = new Set<string>();
+    for (const b of usedBlocks) {
+      for (const q of b.quellen || []) {
+        const key = `${b.kennung}:${q.url || q.titel}`;
+        if (seenUrls.has(key)) continue;
+        seenUrls.add(key);
+        const link = q.url ? `[${q.titel}](${q.url})` : q.titel;
+        lines.push(`- **${b.name}:** ${link}${q.lizenz ? ` (${q.lizenz})` : ''}`);
+      }
+    }
+  }
+
   lines.push(
     '',
     '---',
     '_Erstellt mit der Facettierten Methodentaxonomie (FMT), Jan Schachtschabel, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)._'
   );
   return lines.join('\n');
+}
+
+const escHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+export function exportArrangementHtmlHandout(
+  arr: Arrangement,
+  blocksById: Map<string, Baustein>,
+  validation: ValidationResult,
+  options: ExportOptions = {}
+): string {
+  const md = exportArrangementMarkdown(arr, blocksById, validation, options);
+  const htmlBody = md
+    .split('\n')
+    .map((line) => {
+      if (line.startsWith('### ')) return `<h3>${escHtml(line.slice(4))}</h3>`;
+      if (line.startsWith('## ')) return `<h2>${escHtml(line.slice(3))}</h2>`;
+      if (line.startsWith('# ')) return `<h1>${escHtml(line.slice(2))}</h1>`;
+      if (line === '---') return '<hr />';
+      if (!line.trim()) return '';
+      const formatted = escHtml(line)
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/_([^_]+)_/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+      if (/^\s*[-*]\s+/.test(line)) return `<li>${formatted.replace(/^\s*[-*]\s+/, '')}</li>`;
+      if (/^\s*\d+\.\s+/.test(line)) return `<li>${formatted.replace(/^\s*\d+\.\s+/, '')}</li>`;
+      return `<p>${formatted}</p>`;
+    })
+    .join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>${escHtml(options.thema ? `${arr.name} – ${options.thema}` : arr.name)}</title>
+  <style>
+    body { font-family: Georgia, serif; color: #14212E; background: #fff; max-width: 820px; margin: 32px auto; padding: 0 24px; line-height: 1.6; }
+    h1, h2, h3 { font-family: "Barlow Semi Condensed", Arial, sans-serif; color: #14212E; margin-top: 1.4em; }
+    h1 { border-bottom: 2px solid #2C5D8A; padding-bottom: 8px; }
+    h2 { border-bottom: 1px solid #C6D0C9; padding-bottom: 4px; color: #2C5D8A; }
+    li { margin: 4px 0; }
+    a { color: #2C5D8A; }
+    code { background: #EEF2EE; padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+    hr { border: none; border-top: 1px solid #C6D0C9; margin: 24px 0; }
+    @media print { body { margin: 0; } }
+  </style>
+</head>
+<body>
+${htmlBody}
+</body>
+</html>`;
 }

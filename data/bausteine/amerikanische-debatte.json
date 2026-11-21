@@ -13,14 +13,14 @@
   ],
   "quellen": [
     {
-      "titel": "Wikipedia: Amerikanische Debatte",
-      "url": "https://de.wikipedia.org/wiki/Amerikanische_Debatte",
+      "titel": "Wikipedia: Debatte",
+      "url": "https://de.wikipedia.org/wiki/Debatte",
       "quelltyp": "wikipedia",
       "lizenz": "CC BY-SA 4.0"
     },
     {
-      "titel": "bpb Methodenkoffer: Amerikanische Debatte",
-      "url": "https://www.bpb.de/lernen/angebote/methodenkoffer/",
+      "titel": "Bundeszentrale für politische Bildung (bpb): Lernen & Methoden",
+      "url": "https://www.bpb.de/lernen/",
       "quelltyp": "institution"
     }
   ],

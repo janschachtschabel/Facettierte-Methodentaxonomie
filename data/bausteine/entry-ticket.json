@@ -1,0 +1,132 @@
+{
+  "kennung": "entry-ticket",
+  "name": "Entry-Ticket (Eingangsdiagnose)",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback"
+  ],
+  "kurzbeschreibung": "1–3 sehr kurze Einstiegsfragen auf Karte oder digital zu Stundenbeginn prüfen Vorwissen und Hausaufgabenverständnis in 3 Minuten.",
+  "alternativname": [
+    "Eingangskarte",
+    "Warm-up-Check"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 3,
+  "dauerMax": 7,
+  "problem": "Zu Beginn einer Stunde bleibt sonst unklar, worauf die Lerngruppe tatsächlich aufbauen kann.",
+  "durchfuehrung": [
+    "1–3 präzise Diagnosefragen zu Beginn stellen",
+    "Alle beantworten einzeln und anonym/namentlich in 3 Minuten",
+    "Schnellsichtung nutzen, um Einstiegstempo oder Gruppenzuteilung anzupassen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "orientierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "diagnostisch",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "konsequenz",
+      "name": "Unmittelbare Nutzung für die Steuerung der Stunde"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Wird als unangekündigter Benotungstest missverstanden"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Diagnostik",
+      "url": "https://de.wikipedia.org/wiki/Diagnostik",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.7,
+    "y": 1.68
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

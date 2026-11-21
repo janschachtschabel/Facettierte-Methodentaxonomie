@@ -1,0 +1,138 @@
+{
+  "kennung": "uebung-variation",
+  "name": "Operatives & variierendes Üben",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung"
+  ],
+  "kurzbeschreibung": "Aufgabenserien variieren gezielt einzelne Parameter („Was passiert, wenn…?“) statt bloßem Drill, um Flexibilität und Mustererkennung aufzubauen.",
+  "alternativname": [
+    "Produktives Üben",
+    "Variationsübung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Mechanisches Wiederholen identischer Aufgabentypen führt zu brüchiger Routine ohne Verständnis.",
+  "durchfuehrung": [
+    "Grundaufgabe sicher beherrschen",
+    "Systematisch einzelne Bedingungen oder Zahlen variieren",
+    "Auswirkungen vorhersagen, berechnen und Muster begründen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "variation",
+      "name": "Systematische Variation statt reinem Wiederholungsdrill"
+    },
+    {
+      "kennung": "muster",
+      "name": "Explizites Verbalisieren erkannter Zusammenhänge"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Überforderung, wenn die Basisprozedur noch nicht ansatzweise sitzt"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Übung",
+      "url": "https://de.wikipedia.org/wiki/%C3%9Cbung",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.48,
+    "y": 2.08
+  },
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt",
+    "verteilt"
+  ]
+}

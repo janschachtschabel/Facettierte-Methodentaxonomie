@@ -1,0 +1,139 @@
+{
+  "kennung": "tafelbild-entwicklung",
+  "name": "Gemeinsames Struktur-Tafelbild",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Zentrale Begriffe, Beziehungen und Beispiele werden im Unterrichtsgespräch schrittweise zu einer klaren, logisch gegliederten visuellen Übersicht aufgebaut.",
+  "alternativname": [
+    "Entwickelndes Tafelbild",
+    "Strukturskizze"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Mündliche Erarbeitungen bleiben flüchtig, wenn kein klar strukturiertes visuelles Gerüst entsteht.",
+  "durchfuehrung": [
+    "Grundstruktur (z. B. Gegenüberstellung, Prozess, Schema) anlegen",
+    "Schülerbeiträge gezielt einordnen, verdichten und mit Pfeilen verbinden",
+    "Lernende ergänzen eigenes Beispiel oder kurze Zusammenfassung im Heft"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "relational",
+      "name": "Visuelle Beziehungen statt reiner Textwüste"
+    },
+    {
+      "kennung": "eigenanteil",
+      "name": "Aktiver Verarbeitungsanteil beim Übernehmen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Mechanisches Abschreiben ohne Mitdenken"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Tafelbild (Unterricht)",
+      "url": "https://de.wikipedia.org/wiki/Tafelbild_(Unterricht)",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.74,
+    "y": 1.38
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

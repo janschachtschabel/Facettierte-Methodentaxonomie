@@ -1,0 +1,138 @@
+{
+  "kennung": "cornell-methode",
+  "name": "Cornell-Methode (Strukturierte Mitschrift)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "uebung",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Dreigeteiltes Notizblatt (Notizen rechts, Schlüsselwörter/Abruffragen links, kurze Zusammenfassung unten) verbindet Mitschreiben mit aktivem Abruf.",
+  "alternativname": [
+    "Cornell-Notizen",
+    "Cornell Notes"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Unstrukturierte Mitschriften werden selten wiederholt und fördern meist nur passives Abschreiben.",
+  "durchfuehrung": [
+    "Blatt in Notizspalte (rechts), Stichwort-/Fragenspalte (links) und Fazitzeile (unten) teilen",
+    "Während Input/Lektüre Kernpunkte rechts notieren",
+    "Danach links eigene Abruffragen und unten eine 2-Satz-Zusammenfassung schreiben",
+    "Später rechte Spalte abdecken und anhand der Fragen links abrufen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 60,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fragen-spalte",
+      "name": "Eigene Abruffragen in der Randspalte"
+    },
+    {
+      "kennung": "abdecken",
+      "name": "Aktiver Selbsttest durch Abdecken der Notizen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Bleibt ohne spätere Abrufphase nur eine hübsche Mitschrift"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia (en): Cornell Notes",
+      "url": "https://en.wikipedia.org/wiki/Cornell_Notes",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.44,
+    "y": 2.18
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

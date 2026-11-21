@@ -1,0 +1,143 @@
+{
+  "kennung": "netzplantechnik-projekt",
+  "name": "Netzplantechnik (Projekt- & Ablaufplanung)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "forschend",
+    "visualisierung"
+  ],
+  "kurzbeschreibung": "Arbeitspakete eines Projekts werden mit Dauern, Abhängigkeiten und kritischem Pfad als grafischer Ablaufplan strukturiert.",
+  "alternativname": [
+    "Projekt-Netzplan",
+    "Meilensteinplanung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 50,
+  "problem": "In komplexen Projekten werden Abhängigkeiten und Zeitpuffer häufig unterschätzt.",
+  "durchfuehrung": [
+    "Arbeitspakete und geschätzte Dauern sammeln",
+    "Vorgänger-Nachfolger-Beziehungen festlegen",
+    "Ablaufgrafik zeichnen und kritischen Pfad markieren",
+    "Verantwortlichkeiten und Meilensteine zuordnen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abhaengigkeiten",
+      "name": "Explizite Abbildung von Abhängigkeiten und Zeitdauern"
+    },
+    {
+      "kennung": "kritischer-pfad",
+      "name": "Identifikation zeitkritischer Schritte"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Übertriebener Formalismus bei kleinen Schulprojekten"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Netzplantechnik",
+      "url": "https://de.wikipedia.org/wiki/Netzplantechnik",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.36,
+    "y": 2.12
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

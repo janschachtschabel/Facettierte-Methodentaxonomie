@@ -1,0 +1,148 @@
+{
+  "kennung": "produktives-lernen",
+  "name": "Produktives Lernen in der Praxis",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Individuelles Lernen an realen Praxisplätzen außerhalb der Schule, systematisch verknüpft mit fachlicher Auswertung und Beratung in der Lerngruppe.",
+  "alternativname": [
+    "Praxislernen",
+    "Lernen am Praxisplatz"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 240,
+  "dauerMax": 900,
+  "problem": "Schulmüde oder praxisorientierte Lernende brauchen reale gesellschaftliche Aufgaben als Lernanlass.",
+  "durchfuehrung": [
+    "Eigenen Praxisplatz suchen und individuelle Lernfragen vereinbaren",
+    "Regelmäßige Mitarbeit am Praxisplatz dokumentieren",
+    "Praxiserfahrungen in der schulischen Auswertungsgruppe fachlich vernetzen",
+    "Bildungsbericht erstellen und beraten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 60,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "praesenz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "praxisplatz",
+      "name": "Realer außerschulischer Praxisplatz"
+    },
+    {
+      "kennung": "vernetzung",
+      "name": "Regelmäßige fachliche Auswertung in der Schule"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Auseinanderfallen von Praxistätigkeit und schulischen Fachzielen"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Produktives Lernen",
+      "url": "https://de.wikipedia.org/wiki/Produktives_Lernen",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.54
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

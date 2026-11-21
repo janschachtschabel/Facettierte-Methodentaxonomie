@@ -1,0 +1,141 @@
+{
+  "kennung": "feynman-methode",
+  "name": "Feynman-Methode (Einfach erklären & Lücken finden)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Lernende erklären ein komplexes Konzept ohne Fachjargon so einfach, dass es ein Kind verstehen würde – Verständnisbrüche werden gezielt nachgearbeitet.",
+  "alternativname": [
+    "Feynman-Technik",
+    "Erklären in eigenen Worten"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Die „Kompetenzillusion“ beim bloßen Wiederlesen verdeckt unbemerkte Verständnislücken.",
+  "durchfuehrung": [
+    "Konzept aus dem Gedächtnis in einfacher Sprache schriftlich oder mündlich erklären",
+    "Stellen markieren, an denen es stockt oder nur Fachwörter wiederholt werden",
+    "Genau diese Lücken in den Unterlagen klären",
+    "Erklärung noch einmal straff und mit Beispiel formulieren"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ohne-vorlage",
+      "name": "Freies Erklären ohne Ablesen"
+    },
+    {
+      "kennung": "lueckenarbeit",
+      "name": "Gezieltes Nacharbeiten aufgedeckter Lücken"
+    }
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kombiniert Selbsterklärung (g ≈ 0,55, Bisra et al. 2018) und Abrufpraxis (g ≈ 0,50, Yang et al. 2021).",
+      "quelle": "Bisra et al. 2018; Fiorella & Mayer 2013",
+      "geltung": "Sekundarstufe und Hochschule",
+      "umstritten": "Ohne Korrektur können Fehlvorstellungen unentdeckt bleiben"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia (en): Learning by teaching",
+      "url": "https://en.wikipedia.org/wiki/Learning_by_teaching",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.24,
+    "y": 2.34
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "qualitaetsrisiko": [
+    "Unentdeckte Fehlkonzepte, wenn keine Rückkopplung mit Fachquelle oder Peer erfolgt",
+    "Verkürzung auf bloßes Nacherzählen von Stichworten"
+  ]
+}

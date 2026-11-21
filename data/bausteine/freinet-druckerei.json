@@ -1,0 +1,143 @@
+{
+  "kennung": "freinet-druckerei",
+  "name": "Freier Text & Klassenzeitung (Freinet)",
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "offen",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Lernende verfassen authentische Texte zu eigenen Themen, überarbeiten sie in der Textkonferenz und veröffentlichen sie für echte Leser:innen.",
+  "alternativname": [
+    "Schuldruckerei",
+    "Freinet-Textarbeit",
+    "Klassenzeitung"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 90,
+  "dauerMax": 240,
+  "problem": "Schreiben „für die Schublade“ motiviert wenig und führt selten zu sorgfältiger Textüberarbeitung.",
+  "durchfuehrung": [
+    "Freies Schreiben zu selbst gewählten Themen oder Anlässen",
+    "Textauswahl und wertschätzende sprachliche Überarbeitung in der Gruppe",
+    "Gestaltung und Druck/Veröffentlichung in der Klassenzeitung",
+    "Rückmeldungen der Leserschaft aufgreifen"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "publikation",
+      "name": "Echte Veröffentlichung für ein reales Publikum"
+    },
+    {
+      "kennung": "ueberarbeitung",
+      "name": "Gemeinsame sprachliche Beratung vor dem Druck"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Vernachlässigung gezielter Rechtschreib-/Textsortenarbeit ohne Beratung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Didaktisch breit etablierte Praxisform; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an Strukturierung und kognitiver Aktivierung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von Aufgabenqualität, Anleitung und Sicherung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schuldruckerei",
+      "url": "https://de.wikipedia.org/wiki/Schuldruckerei",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.38
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

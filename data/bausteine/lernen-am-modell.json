@@ -1,0 +1,145 @@
+{
+  "kennung": "lernen-am-modell",
+  "name": "Lernen am Modell (Cognitive Apprenticeship)",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Die Lehrkraft oder Expert:innen machen Denk- und Handlungsprozesse explizit vor, coachen die Nachahmung und blenden Hilfen schrittweise aus.",
+  "alternativname": [
+    "Modelllernen",
+    "Cognitive Apprenticeship",
+    "Modeling-Coaching-Fading"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Komplexe kognitive Strategien (z. B. Textanalyse, Beweisen) sind für Novizen unsichtbar.",
+  "durchfuehrung": [
+    "Expert:in modelliert Vorgehen inkl. Entscheidungsgründen laut",
+    "Lernende erproben analoge Aufgabe mit Coaching",
+    "Hilfestellungen schrittweise ausblenden (Fading)",
+    "Lernende artikulieren und reflektieren eigene Strategie"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Tafel oder Pinnwand"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "modeling",
+      "name": "Sichtbares Modellieren der Denkschritte"
+    },
+    {
+      "kennung": "fading",
+      "name": "Schrittweises Ausblenden der Hilfen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reines Vormachen ohne Lautes Denken bleibt unverstanden",
+    "Fehlendes Fading erzeugt Abhängigkeit"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kognitives Modellieren mit Scaffolding und Fading zeigt positive Effekte auf Strategieerwerb und Problemlösen.",
+      "quelle": "Bandura 1977; Collins et al. 1989; van de Pol et al. 2010",
+      "geltung": "Schule und Hochschule, insb. Schreiben und MINT",
+      "umstritten": "Hoher Diagnosebedarf beim rechtzeitigen Fading"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernen am Modell",
+      "url": "https://de.wikipedia.org/wiki/Lernen_am_Modell",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.56,
+    "y": 2.08
+  },
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

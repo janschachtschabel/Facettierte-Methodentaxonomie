@@ -1,0 +1,140 @@
+{
+  "kennung": "stegreiftheater",
+  "name": "Stegreiftheater (Improvisationsszene)",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Spontanes szenisches Ausgestalten einer Konflikt-, Alltags- oder historischen Situation ohne festes Skript zur Förderung von Sprachfluss und Empathie.",
+  "alternativname": [
+    "Improvisationstheater",
+    "Spontanspiel"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Spontane Kommunikation (z. B. Fremdsprache, Konfliktlösung) lässt sich nicht allein schriftlich üben.",
+  "durchfuehrung": [
+    "Ausgangssituation, Rollen und klaren Startimpuls vorgeben",
+    "Kurze Spielsequenz (2–4 Min.) improvisieren; Freeze-Stopp möglich",
+    "Beobachtungen zu Sprache, Argumenten und Verhalten auswerten"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "spielrahmen",
+      "name": "Wertschätzender, geschützter Spielraum ohne Blamagerisiko"
+    },
+    {
+      "kennung": "reflexion",
+      "name": "Auswertung nach dem Spiel"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hemmungen bei schüchternen Lernenden ohne freiwillige Rollenwahl"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Stegreiftheater",
+      "url": "https://de.wikipedia.org/wiki/Stegreiftheater",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.82
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

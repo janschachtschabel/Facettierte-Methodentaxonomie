@@ -1,0 +1,139 @@
+{
+  "kennung": "gamification",
+  "name": "Gamification im Unterricht",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Spieltypische Designelemente (Quests, Fortschrittsbalken, kooperative Boss-Aufgaben, direktes Feedback) rahmen eine Übungs- oder Projektphase motivierend ein.",
+  "alternativname": [
+    "Spielifizierung",
+    "Lern-Quest"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 45,
+  "dauerMax": 240,
+  "problem": "Längere Übungs- und Wiederholungsstrecken verlieren rasch an Durchhaltevermögen.",
+  "durchfuehrung": [
+    "Klar definierte Fachziele in gestufte Aufgaben („Quests“) übersetzen",
+    "Fortschritt sichtbar und unmittelbar rückmeldefähig gestalten",
+    "Kooperative Meilensteine statt reiner Ranglisten einsetzen",
+    "Fachlichen Lernzuwachs am Ende unabhängig vom Spielrahmen sichern"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 35,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "system",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zielkopplung",
+      "name": "Spielmechanik unterstützt das Fachziel statt es zu verdrängen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Verdrängung intrinsischer Motivation durch oberflächliche Punktejagd"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Gamification zeigt kleine bis mittlere positive Effekte auf Motivation und Lernleistung (g ≈ 0,46), stark abhängig vom Design.",
+      "quelle": "Sailer & Homner 2020",
+      "geltung": "Schule und Hochschule",
+      "umstritten": "Neuigkeitseffekt lässt nach; Ranglisten können schwächere Lernende demotivieren"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gamification",
+      "url": "https://de.wikipedia.org/wiki/Gamification",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.26,
+    "y": 1.66
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

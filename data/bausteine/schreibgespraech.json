@@ -16,14 +16,8 @@
   "quellen": [
     {
       "titel": "Wikipedia: Schreibgespräch",
-      "url": "https://de.wikipedia.org/wiki/Schreibgespr%25C3%25A4ch",
+      "url": "https://de.wikipedia.org/wiki/Schreibgespr%C3%A4ch",
       "quelltyp": "wikipedia",
-      "lizenz": "CC BY-SA 4.0"
-    },
-    {
-      "titel": "ZUM-Unterrichten: Schreibgespräch",
-      "url": "https://unterrichten.zum.de/wiki/Schreibgespr%25C3%25A4ch",
-      "quelltyp": "oer",
       "lizenz": "CC BY-SA 4.0"
     }
   ],

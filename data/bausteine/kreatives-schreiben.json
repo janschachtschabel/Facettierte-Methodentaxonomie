@@ -1,0 +1,135 @@
+{
+  "kennung": "kreatives-schreiben",
+  "name": "Kreatives Schreiben nach Schreibimpuls",
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "visualisierung",
+    "kreativ"
+  ],
+  "kurzbeschreibung": "Lernende verarbeiten Fachinhalte oder literarische Stoffe in produktiven Textformen (Brief, Tagebucheintrag, Perspektivwechsel, Dialog).",
+  "alternativname": [
+    "Produktionsorientiertes Schreiben",
+    "Perspektivschreiben"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Reine Sachtextanalyse aktiviert oft wenig Empathie und eigenständige Verarbeitung.",
+  "durchfuehrung": [
+    "Klaren Schreibimpuls, Textsorte und fachliche Kriterien vorgeben",
+    "Stille Schreibphase (ggf. mit Formulierungshilfen)",
+    "Vorlesen in Kleingruppen und fachliche Prüfung der Perspektive"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "udl",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fachkriterien",
+      "name": "Klare fachliche Kriterien neben gestalterischer Freiheit"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reine Fantasiegeschichte ohne fachliche Durchdringung"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kreatives Schreiben",
+      "url": "https://de.wikipedia.org/wiki/Kreatives_Schreiben",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 2.26
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}

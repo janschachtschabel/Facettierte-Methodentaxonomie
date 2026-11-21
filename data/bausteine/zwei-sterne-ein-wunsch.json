@@ -1,0 +1,134 @@
+{
+  "kennung": "zwei-sterne-ein-wunsch",
+  "name": "Two Stars and a Wish (Kriterienfeedback)",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback",
+    "kooperativ"
+  ],
+  "kurzbeschreibung": "Wertschätzende, lernförderliche Rückmeldeform: Zwei konkrete gelungene Aspekte (Sterne) und ein gezielter Verbesserungsvorschlag (Wunsch).",
+  "alternativname": [
+    "Zwei Sterne und ein Wunsch",
+    "2+1-Feedback"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Peer-Feedback gerät ohne Struktur oft zu pauschal („war gut“) oder zu verletzend.",
+  "durchfuehrung": [
+    "Qualitätskriterien für das Produkt kurz erinnern",
+    "Partner benennt zwei spezifische Stärken (Sterne)",
+    "Partner formuliert einen umsetzbaren nächsten Schritt (Wunsch)"
+  ],
+  "material": [
+    "Arbeitsblätter",
+    "Moderationskarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "spezifisch",
+      "name": "Begründung an konkreten Merkmalen statt allgemeinem Lob"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Floskelhafte „Sterne“ ohne fachlichen Gehalt"
+  ],
+  "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes Verfahren; spezifische Meta-Analysen zum Einzelformat fehlen, Wirksamkeit hängt an klarer Aufgabenstellung und Sicherung.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul- und Hochschulunterricht",
+      "umstritten": "Wirkung stark abhängig von fachlicher Einbettung und Nachbereitung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Rückkopplung",
+      "url": "https://de.wikipedia.org/wiki/R%C3%BCckkopplung",
+      "lizenz": "CC BY-SA 4.0",
+      "quelltyp": "wikipedia"
+    }
+  ],
+  "plot": {
+    "x": 1.28,
+    "y": 2.54
+  },
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ]
+}
