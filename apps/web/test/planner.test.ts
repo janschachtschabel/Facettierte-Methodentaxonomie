@@ -31,6 +31,7 @@ import {
   detectMaterialTypeForBlock,
   extractSubjectAndTopic
 } from '../src/planner/scenarioModel.js';
+import { markdownToHtml, renderInlineMarkdownHtml } from '../src/planner/markdownMath.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../src/planner/lmsExport.js';
 import {
   deleteSavedScenario,
@@ -339,5 +340,46 @@ describe('Modular Scenario Planner Tree Operations', () => {
     }
     expect(importScenarioProjectJson('{broken').ok).toBe(false);
     expect(deleteSavedScenario(saved.id, storage).length).toBe(0);
+  });
+
+  it('renders GFM Markdown tables, rules, blockquotes, KaTeX formulas (UI & MathML print) and escapes XSS safely', () => {
+    const sample = [
+      '## Auswertung & Formeln',
+      '',
+      'Die Dichte berechnet sich als $\\rho = \\frac{m}{V}$ (Preisbeispiel: $5 und $10 bleiben Text).',
+      '',
+      '$$E = m \\cdot c^2$$',
+      '',
+      '---',
+      '',
+      '| Methode | Risiko | Maßnahme |',
+      '|---|---|---|',
+      '| **Placemat** | Dominanz | Stille Einzelarbeit |',
+      '',
+      '> Hinweis: *Quellen* prüfen und `<script>alert(1)</script>` ignorieren.',
+      '',
+      '- [x] Hypothese aufgestellt',
+      '- [ ] Messung dokumentiert'
+    ].join('\n');
+
+    const uiHtml = markdownToHtml(sample, { mathOutput: 'htmlAndMathml' });
+    expect(uiHtml).toContain('<table><thead><tr><th>Methode</th><th>Risiko</th><th>Maßnahme</th></tr></thead>');
+    expect(uiHtml).toContain('<strong>Placemat</strong>');
+    expect(uiHtml).toContain('<hr />');
+    expect(uiHtml).toContain('<blockquote>');
+    expect(uiHtml).toContain('katex');
+    expect(uiHtml).toContain('<math');
+    expect(uiHtml).toContain('☑');
+    expect(uiHtml).toContain('☐');
+    expect(uiHtml).not.toContain('<script>');
+    expect(uiHtml).toContain('$5 und $10');
+
+    const printHtml = markdownToHtml('Formel: \\(a^2 + b^2 = c^2\\)', { mathOutput: 'mathml' });
+    expect(printHtml).toContain('<math');
+    expect(printHtml).not.toContain('katex-html');
+
+    const inline = renderInlineMarkdownHtml('Berechne $\\rho = \\frac{m}{V}$ mit **Waage**', 'htmlAndMathml');
+    expect(inline).toContain('katex');
+    expect(inline).toContain('<strong>Waage</strong>');
   });
 });

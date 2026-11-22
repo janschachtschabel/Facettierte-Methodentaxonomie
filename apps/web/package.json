@@ -12,12 +12,14 @@
     "@fmt/core": "1.0.0",
     "@fontsource/barlow-semi-condensed": "^5.1.0",
     "@fontsource/literata": "^5.1.0",
+    "katex": "^0.19.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5"
   },
   "devDependencies": {
     "@testing-library/react": "^16.2.0",
+    "@types/katex": "^0.16.8",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",

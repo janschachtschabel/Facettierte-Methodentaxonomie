@@ -586,6 +586,125 @@ code {
   font-size: 0.9em;
 }
 
+/* Rich Markdown + KaTeX view */
+.md-view {
+  font-size: 14.8px;
+  line-height: 1.58;
+  color: var(--ink);
+}
+.md-view h1,
+.md-view h2,
+.md-view h3,
+.md-view h4,
+.md-view h5 {
+  font-family: var(--display);
+  margin: 16px 0 6px;
+  line-height: 1.25;
+}
+.md-view h1 {
+  font-size: 21px;
+  border-bottom: 2px solid var(--dA);
+  padding-bottom: 4px;
+}
+.md-view h2 {
+  font-size: 18.5px;
+  color: var(--dA);
+  border-bottom: 1px solid var(--grid);
+  padding-bottom: 3px;
+}
+.md-view h3 {
+  font-size: 16.5px;
+  color: var(--ink);
+}
+.md-view h4,
+.md-view h5 {
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.md-view p {
+  margin: 7px 0;
+}
+.md-view ul,
+.md-view ol {
+  padding-left: 22px;
+  margin: 6px 0 10px;
+}
+.md-view li {
+  margin-bottom: 4px;
+}
+.md-view .md-task-item {
+  list-style: none;
+  margin-left: -16px;
+}
+.md-view .md-checkbox {
+  font-family: var(--display);
+  color: var(--dA);
+  margin-right: 4px;
+}
+.md-view hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 18px 0;
+}
+.md-view blockquote {
+  margin: 10px 0;
+  padding: 8px 14px;
+  border-left: 3.5px solid var(--dA);
+  background: var(--surface-2);
+  border-radius: 0 6px 6px 0;
+  color: var(--ink-2);
+}
+.md-view blockquote p:first-child {
+  margin-top: 0;
+}
+.md-view blockquote p:last-child {
+  margin-bottom: 0;
+}
+.md-view pre {
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-size: 13px;
+  margin: 10px 0;
+}
+.md-view code {
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.md-view pre code {
+  background: none;
+  padding: 0;
+}
+.md-view .md-table-wrap {
+  overflow-x: auto;
+  margin: 12px 0;
+}
+.md-view table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.md-view th,
+.md-view td {
+  border: 1px solid var(--rule);
+  padding: 7px 9px;
+  text-align: left;
+  vertical-align: top;
+}
+.md-view th {
+  background: var(--surface-2);
+  font-family: var(--display);
+  font-weight: 700;
+}
+.md-view .math-display {
+  margin: 12px 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
 /* Footer */
 .footer {
   margin-top: 56px;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { scoreDifferentiationMatrix, type Arrangement, type Baustein, type ValidationResult } from '@fmt/core';
-import { SimpleMarkdown } from './SimpleMarkdown.js';
+import { InlineMarkdown, SimpleMarkdown } from './SimpleMarkdown.js';
 import { WloOerCards } from './WloOerCards.js';
 import { DifferentiationMatrixPanel } from './DifferentiationMatrixPanel.js';
 import {
@@ -1016,7 +1016,7 @@ export function ScenarioStudioPanel({
                           onChange={(e) => updateThematicCell(tr.key, 'methodProcedure', e.target.value)}
                         />
                       ) : (
-                        tr.methodProcedure
+                        <InlineMarkdown text={tr.methodProcedure} />
                       )}
                     </td>
                     <td style={{ background: 'color-mix(in srgb, var(--dA-soft) 18%, transparent)', fontSize: 12.5 }}>
@@ -1028,7 +1028,7 @@ export function ScenarioStudioPanel({
                           onChange={(e) => updateThematicCell(tr.key, 'teacherAction', e.target.value)}
                         />
                       ) : (
-                        tr.teacherAction
+                        <InlineMarkdown text={tr.teacherAction} />
                       )}
                     </td>
                     <td>
@@ -1040,7 +1040,7 @@ export function ScenarioStudioPanel({
                           onChange={(e) => updateThematicCell(tr.key, 'learnerAction', e.target.value)}
                         />
                       ) : (
-                        tr.learnerAction
+                        <InlineMarkdown text={tr.learnerAction} />
                       )}
                     </td>
                     {activeGroups.length > 0 && (
@@ -1061,8 +1061,10 @@ export function ScenarioStudioPanel({
                                     value={val}
                                     onChange={(e) => updateThematicGroupCell(tr.key, g.id, e.target.value)}
                                   />
+                                ) : val ? (
+                                  <InlineMarkdown text={val} />
                                 ) : (
-                                  val || '–'
+                                  '–'
                                 )}
                               </div>
                             );
@@ -1079,7 +1081,9 @@ export function ScenarioStudioPanel({
                           onChange={(e) => updateThematicCell(tr.key, 'materialsAndOer', e.target.value)}
                         />
                       ) : (
-                        <div style={{ fontSize: 12.5 }}>{tr.materialsAndOer}</div>
+                        <div style={{ fontSize: 12.5 }}>
+                          <InlineMarkdown text={tr.materialsAndOer} />
+                        </div>
                       )}
                       {scRow && scRow.generatedMaterials.length > 0 && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>

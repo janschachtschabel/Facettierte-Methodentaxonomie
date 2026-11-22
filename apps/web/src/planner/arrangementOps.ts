@@ -10,6 +10,7 @@ import {
   type ValidationResult,
   type WiederkehrNode
 } from '@fmt/core';
+import { escHtml, markdownToHtml } from './markdownMath.js';
 
 const clone = <T>(o: T): T => JSON.parse(JSON.stringify(o)) as T;
 
@@ -887,93 +888,10 @@ export function exportArrangementMarkdown(
   return lines.join('\n');
 }
 
-const escHtml = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
 function markdownToCleanHtml(md: string): string {
-  const fmtInline = (s: string) =>
-    escHtml(s)
-      .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/_([^_]+)_/g, '<em>$1</em>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>');
-
-  const rawLines = md.split('\n');
-  const htmlParts: string[] = [];
-  let inUl = false;
-  let inOl = false;
-
-  const closeLists = () => {
-    if (inUl) {
-      htmlParts.push('</ul>');
-      inUl = false;
-    }
-    if (inOl) {
-      htmlParts.push('</ol>');
-      inOl = false;
-    }
-  };
-
-  for (let i = 0; i < rawLines.length; i++) {
-    const line = rawLines[i];
-    if (line.startsWith('|') && i + 1 < rawLines.length && /^\|[\s:-]+\|/.test(rawLines[i + 1])) {
-      closeLists();
-      const headers = line.slice(1, -1).split('|').map((c) => c.trim());
-      i += 2;
-      const bodyRows: string[][] = [];
-      while (i < rawLines.length && rawLines[i].startsWith('|')) {
-        bodyRows.push(rawLines[i].slice(1, -1).split('|').map((c) => c.trim()));
-        i++;
-      }
-      i--;
-      htmlParts.push(
-        `<table><thead><tr>${headers.map((h) => `<th>${fmtInline(h)}</th>`).join('')}</tr></thead><tbody>${bodyRows
-          .map((r) => `<tr>${r.map((c) => `<td>${fmtInline(c)}</td>`).join('')}</tr>`)
-          .join('')}</tbody></table>`
-      );
-      continue;
-    }
-    if (line.startsWith('### ')) {
-      closeLists();
-      htmlParts.push(`<h3>${fmtInline(line.slice(4))}</h3>`);
-    } else if (line.startsWith('## ')) {
-      closeLists();
-      htmlParts.push(`<h2>${fmtInline(line.slice(3))}</h2>`);
-    } else if (line.startsWith('# ')) {
-      closeLists();
-      htmlParts.push(`<h1>${fmtInline(line.slice(2))}</h1>`);
-    } else if (line === '---') {
-      closeLists();
-      htmlParts.push('<hr />');
-    } else if (!line.trim()) {
-      closeLists();
-    } else if (/^\s*[-*]\s+/.test(line)) {
-      if (inOl) {
-        htmlParts.push('</ol>');
-        inOl = false;
-      }
-      if (!inUl) {
-        htmlParts.push('<ul>');
-        inUl = true;
-      }
-      htmlParts.push(`<li>${fmtInline(line.replace(/^\s*[-*]\s+/, ''))}</li>`);
-    } else if (/^\s*\d+\.\s+/.test(line)) {
-      if (inUl) {
-        htmlParts.push('</ul>');
-        inUl = false;
-      }
-      if (!inOl) {
-        htmlParts.push('<ol>');
-        inOl = true;
-      }
-      htmlParts.push(`<li>${fmtInline(line.replace(/^\s*\d+\.\s+/, ''))}</li>`);
-    } else {
-      closeLists();
-      htmlParts.push(`<p>${fmtInline(line)}</p>`);
-    }
-  }
-  closeLists();
-  return htmlParts.join('\n');
+  // Use native MathML output in standalone print/PDF/Word documents so formulas render
+  // offline in every modern browser & Word/LibreOffice without external font files.
+  return markdownToHtml(md, { mathOutput: 'mathml' });
 }
 
 export function exportArrangementHtmlHandout(
@@ -1027,6 +945,12 @@ export function exportArrangementHtmlHandout(
     li { margin: 3px 0; }
     a { color: #2C5D8A; text-decoration: underline; }
     code { background: #EEF2EE; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #F5F7F5; border: 1px solid #C6D0C9; border-radius: 5px; padding: 10px 12px; overflow-x: auto; font-size: 9pt; }
+    pre code { background: none; padding: 0; }
+    blockquote { margin: 10px 0; padding: 8px 14px; border-left: 3px solid #2C5D8A; background: #F5F8FA; color: #243442; }
+    .math-display { margin: 10px 0; text-align: center; overflow-x: auto; }
+    .math-inline math { font-size: 1.04em; }
+    .md-task-item { list-style: none; margin-left: -14px; }
     hr { border: none; border-top: 1px solid #C6D0C9; margin: 18px 0; }
     @media print {
       body { margin: 0; padding: 0; max-width: none; }
