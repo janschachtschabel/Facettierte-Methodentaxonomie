@@ -142,7 +142,7 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 
 | Variable | Standardwert | Beschreibung |
 |---|---|---|
-| `FMT_IMAGE` | `janschachtschabel/fmt-methodendatenbank:latest` | Zu verwendendes Container-Image (alternativ `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest`). |
+| `FMT_IMAGE` | `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` | Zu verwendendes Container-Image (GHCR Standard; optional eigenes Docker-Hub-Image). |
 | `TRAEFIK_NETWORK` | `fmt-methodendatenbank-web` | Name des Docker-Standardnetzes (wird automatisch angelegt/mitbenutzt, kein `external: true`). |
 | `TRAEFIK_ENTRYPOINT` | `websecure` | Name des HTTPS-Entrypoints im Hostinger-Traefik. |
 | `TRAEFIK_CERTRESOLVER` | `letsencrypt` | Name des ACME-/TLS-Certresolvers im Hostinger-Traefik. |
