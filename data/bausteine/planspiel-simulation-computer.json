@@ -1,0 +1,142 @@
+{
+  "kennung": "planspiel-simulation-computer",
+  "name": "Computersimulation & Virtuelles Labor",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "forschend",
+    "spiel-simulation"
+  ],
+  "kurzbeschreibung": "Interaktive digitale Simulation (z. B. PhET, Ökosystem-, Wirtschaftsmodell), in der Lernende Parameter gezielt variieren, Hypothesen testen und Daten auswerten.",
+  "alternativname": [
+    "Virtuelles Experiment",
+    "Interaktive Simulation"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Viele reale Experimente (Atomphysik, Klimamodelle, Makroökonomie) sind im Klassenraum zu gefährlich, zu teuer oder zu langsam.",
+  "durchfuehrung": [
+    "Forschungsfrage und Hypothese vor dem ersten Klick festhalten",
+    "Systematisch jeweils eine Variable im Modell variieren",
+    "Messreihen dokumentieren und Zusammenhang formulieren",
+    "Modellgrenzen gegenüber der Realität kritisch reflektieren"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-geteilt",
+  "internet": true,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14"
+  ],
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "werkzeug"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "wohlstrukturiert",
+    "simulation"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "verschachtelt",
+    "massiert"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "hypothese",
+      "name": "Gezieltes Hypothesentesten statt wahllosem Regler-Schieben"
+    },
+    {
+      "kennung": "modellkritik",
+      "name": "Reflexion der Grenzen des Simulationsmodells"
+    }
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Interaktive Computersimulationen fördern konzeptuelles Verständnis in den Naturwissenschaften, besonders mit klarer Anleitung.",
+      "quelle": "Rutten et al. 2012; D’Angelo et al. 2014",
+      "geltung": "Sekundarstufe und Hochschule, MINT",
+      "umstritten": "Unangeleitetes Ausprobieren führt oft zu oberflächlichem Klicken"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Computersimulation",
+      "url": "https://de.wikipedia.org/wiki/Computersimulation",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.28
+  }
+}

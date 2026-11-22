@@ -1,0 +1,148 @@
+{
+  "kennung": "ki-lernbegleiter-adaptiv",
+  "name": "Adaptiver KI-Übungsbegleiter (mit Mastery-Check ohne KI)",
+  "status": "entwurf",
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "diagnose-feedback",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Ein mit sokratischen Leitplanken konfigurierter KI-Tutor gibt schrittweise Hinweise statt Komplettlösungen; der Lernerfolg wird anschließend zwingend ohne KI geprüft.",
+  "alternativname": [
+    "KI-Mastery-Tutor",
+    "Sokratischer KI-Coach"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Individuelle Rückfragen während der Übung übersteigen im Klassenraum oft die Kapazität einer einzelnen Lehrkraft.",
+  "durchfuehrung": [
+    "KI-System mit strikten Leitplanken (keine fertigen Lösungen, nur Hinweise) starten",
+    "Lernende lösen Übungsaufgaben mit gestuften KI-Rückfragen",
+    "Verbindlicher 5-Minuten-Abschlusscheck vollständig OHNE KI zur Diagnose"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "tutor"
+  ],
+  "ki": true,
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "leitplanken",
+      "name": "Kein Ausgeben von Komplettlösungen durch die KI"
+    },
+    {
+      "kennung": "ohne-ki-check",
+      "name": "Verbindliche Lernstandsüberprüfung ohne KI-Zugang"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Scheinkompetenz durch KI-Abhängigkeit, wenn der KI-freie Check entfällt (Bastani et al. 2025)"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Erste Feldstudien zeigen Potenzial leitplankengesteuerter KI-Tutoren, aber nur der Test ohne KI belegt echtes Lernen.",
+      "quelle": "Kestin et al. 2025; Bastani et al. 2025",
+      "geltung": "Sekundarstufe und Hochschule, MINT",
+      "umstritten": "Langfristige Transferwirkungen noch ungeprüft"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Intelligentes tutorielles System",
+      "url": "https://de.wikipedia.org/wiki/Intelligentes_tutorielles_System",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.38
+  }
+}

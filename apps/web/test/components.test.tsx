@@ -128,7 +128,7 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(svg!.innerHTML).not.toContain('Infinity');
   });
 
-  it('renders CatalogAnalytics live across all 200 methods without crashing', () => {
+  it('renders CatalogAnalytics live across all 225 methods with all dots inside the SVG plot bounds', () => {
     const valuesOf = (schemeId: string) => {
       const s = BUNDLE.schemes.find((x) => x.id === schemeId);
       return s?.werte || (s?.gruppen || []).flatMap((g) => g.werte) || [];
@@ -138,8 +138,18 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
         <CatalogAnalytics bundle={BUNDLE} valuesOf={valuesOf} labelOf={labelOf} />
       </MemoryRouter>
     );
-    expect(container.textContent).toContain('200');
+    expect(container.textContent).toContain('225');
     expect(container.textContent).toContain('Abdeckungs-Heatmap');
     expect(container.textContent).toContain('Schnittstellen-Abdeckung');
+    const circles = [...container.querySelectorAll('svg circle')];
+    expect(circles.length).toBeGreaterThan(200);
+    for (const c of circles) {
+      const cx = Number(c.getAttribute('cx'));
+      const cy = Number(c.getAttribute('cy'));
+      expect(cx).toBeGreaterThanOrEqual(96);
+      expect(cx).toBeLessThanOrEqual(736);
+      expect(cy).toBeGreaterThanOrEqual(26);
+      expect(cy).toBeLessThanOrEqual(410);
+    }
   });
 });

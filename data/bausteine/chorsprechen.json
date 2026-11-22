@@ -1,0 +1,134 @@
+{
+  "kennung": "chorsprechen",
+  "name": "Chorsprechen & Strukturierte Nachsprechübung",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Gemeinsames, rhythmisches Nachsprechen neuer Fachbegriffe, Formeln oder Fremdsprachen-Sätze im Klassenchor – hemmungsfrei und mit 100 % Sprechzeit.",
+  "alternativname": [
+    "Chorisches Sprechen",
+    "Choral Response"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 3,
+  "dauerMax": 8,
+  "problem": "Neue Fremdsprachenlaute oder komplexe Fachbegriffe werden im Einzelaufruf nur selten und oft gehemmt ausgesprochen.",
+  "durchfuehrung": [
+    "Begriff oder Satz deutlich vorsprechen und visuell zeigen",
+    "Auf klares Handzeichen spricht die gesamte Gruppe gemeinsam nach",
+    "In Tempo, Lautstärke oder Halbklassen-Wechsel variieren"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "psychomotorik",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "signal",
+      "name": "Eindeutiges Einsatzsignal für simultanes Sprechen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Einzelne Fehler gehen im Chor unter ohne kurze Stichproben"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Aussprache",
+      "url": "https://de.wikipedia.org/wiki/Aussprache",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.92,
+    "y": 2.48
+  }
+}

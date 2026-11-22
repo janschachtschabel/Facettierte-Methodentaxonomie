@@ -1,0 +1,138 @@
+{
+  "kennung": "gebundene-musik-rhythmus",
+  "name": "Bodypercussion & Rhythmische Erarbeitung",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Rhythmische Muster werden gemeinsam über Klatschen, Schnipsen und Stampfen direkt am Körper eingeübt, geschichtet und musikalisch variiert.",
+  "alternativname": [
+    "Bodypercussion",
+    "Rhythmus-Warm-up"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Rhythmus, Koordination und gemeinsames Timing bleiben über bloße Notentheorie unzugänglich.",
+  "durchfuehrung": [
+    "Grundpuls gemeinsam stabilisieren",
+    "Kurze Rhythmusbausteine im Call-and-Response einüben",
+    "Gruppen schichten mehrstimmige Patterns übereinander",
+    "Kurze Reflexion oder Übertragung auf Notation"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Musik- oder Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb1",
+    "wohlstrukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "call-response",
+      "name": "Direktes Nachahmen im gemeinsamen Grundpuls"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Abbruch der Konzentration bei zu schnellem Tempo"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Bodypercussion",
+      "url": "https://de.wikipedia.org/wiki/Bodypercussion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.84,
+    "y": 2.55
+  }
+}

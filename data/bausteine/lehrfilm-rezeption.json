@@ -1,0 +1,135 @@
+{
+  "kennung": "lehrfilm-rezeption",
+  "name": "Lehrfilm / Dokumentation mit Beobachtungsauftrag",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Gezielter Einsatz eines kurzen Lehr- oder Dokumentarfilms mit vorab verteilten arbeitsteiligen Beobachtungsfragen und anschließender Auswertung.",
+  "alternativname": [
+    "Unterrichtsfilm",
+    "Filmrezeption"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 40,
+  "problem": "Historische Quellen, fremde Lebenswelten oder unsichtbare Prozesse lassen sich im Klassenraum nicht direkt beobachten.",
+  "durchfuehrung": [
+    "Knappe arbeitsteilige Beobachtungsfragen vor Filmstart ausgeben",
+    "Film ggf. an Schlüsselstellen kurz pausieren",
+    "Beobachtungen zusammentragen und fachlich einordnen"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-projektion",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "orientierung"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "beobachtungsauftrag",
+      "name": "Konkreter Beobachtungsauftrag gegen bloßes Berieseln"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reine Passivität (> 20 min löst Regel R-08 aus) ohne Stopps und Auswertung"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lehrfilm",
+      "url": "https://de.wikipedia.org/wiki/Lehrfilm",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.84,
+    "y": 0.48
+  }
+}

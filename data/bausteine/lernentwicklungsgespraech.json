@@ -1,0 +1,139 @@
+{
+  "kennung": "lernentwicklungsgespraech",
+  "name": "Lernentwicklungsgespräch & Zielvereinbarung",
+  "status": "entwurf",
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Strukturiertes Einzel- oder Kleingruppengespräch über Lernstand, Stärken und nächste verbindliche Lernziele auf Basis von Arbeitsproben.",
+  "alternativname": [
+    "Bilanz- und Zielgespräch",
+    "Lernberatung"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Ziffernnoten allein erklären nicht, woran ein Lernender konkret als Nächstes arbeiten sollte.",
+  "durchfuehrung": [
+    "Lernende bereiten Selbsteinschätzung und 2 Arbeitsproben vor",
+    "Stärken und Entwicklungspotenziale dialogisch abgleichen",
+    "1–2 konkrete, überprüfbare Lernziele und Unterstützungsmaßnahmen vereinbaren",
+    "Vereinbarung schriftlich festhalten und nach 4–6 Wochen prüfen"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 4,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "selbstkontrolle",
+    "verzoegert",
+    "selbstregulationsebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zielvereinbarung",
+      "name": "Verbindliche, überprüfbare nächste Schritte statt bloßem Rückblick"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hoher Zeitbedarf pro Schüler:in erfordert gute Organisation im Klassenverband"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Diagnostik",
+      "url": "https://de.wikipedia.org/wiki/Diagnostik",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.72
+  }
+}

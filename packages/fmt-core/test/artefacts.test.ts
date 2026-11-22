@@ -155,17 +155,17 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
     }
   });
 
-  it('covers 200 German teaching methods across all 12 didactic approaches, all 11 learning states, and free sources', () => {
+  it('covers 225 German teaching methods across all 12 didactic approaches, all 11 learning states, and free sources', () => {
     const bundle = readJson<CatalogBundle>('catalog.bundle.json');
-    expect(bundle.bausteine.length).toBe(200);
+    expect(bundle.bausteine.length).toBe(225);
 
     const ids = new Set(bundle.bausteine.map((b) => b.kennung));
-    expect(ids.size).toBe(200);
+    expect(ids.size).toBe(225);
 
     const kuratiert = bundle.bausteine.filter((b) => b.status === 'kuratiert');
     const entwurf = bundle.bausteine.filter((b) => b.status === 'entwurf');
     expect(kuratiert.length).toBe(22);
-    expect(entwurf.length).toBe(178);
+    expect(entwurf.length).toBe(203);
 
     // Every one of the 12 didactic approaches has >= 4 methods
     const ansatzScheme = bundle.schemes.find((s) => s.id === 'ansatz')!;
@@ -188,9 +188,13 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
           expect(q.url, `${b.kennung}: ${q.titel} needs https URL`).toMatch(/^https:\/\//);
         }
       }
-      // Every method without komposit has plot coordinates
+      // Every method without komposit has plot coordinates strictly inside [0..1] x [0..3]
       if (!b.komposit) {
         expect(b.plot, `${b.kennung} needs plot coordinates`).toBeDefined();
+        expect(b.plot!.x, `${b.kennung} plot.x out of [0,1]`).toBeGreaterThanOrEqual(0);
+        expect(b.plot!.x, `${b.kennung} plot.x out of [0,1]`).toBeLessThanOrEqual(1);
+        expect(b.plot!.y, `${b.kennung} plot.y out of [0,3]`).toBeGreaterThanOrEqual(0);
+        expect(b.plot!.y, `${b.kennung} plot.y out of [0,3]`).toBeLessThanOrEqual(3);
       }
     }
   });

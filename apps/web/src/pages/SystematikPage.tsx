@@ -410,14 +410,38 @@ export function SystematikPage() {
         </div>
       </section>
 
-      {/* 3. Zwei Achsen (R x S Matrix) & Drei Ebenen */}
+      {/* 3. Granularitätsebenen (R1-R5), Zwei Achsen (R x S Matrix) & Drei Ebenen */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Zwei Achsen (Reichweite × Beschreibungsstufe) &amp; drei Ebenen</h2>
+        <h2>Granularitätsebenen (R1–R5), zwei Achsen &amp; drei Ebenen</h2>
         <p style={{ maxWidth: '78ch' }}>
-          In Anlehnung an Baumgartner (2011) trennt die FMT die <strong>Reichweite (R1–R5)</strong> – wie groß eine didaktische Einheit
-          ist – von der <strong>Beschreibungsstufe (S1–S6)</strong> – wie abstrakt sie beschrieben wird. Die{' '}
-          <strong>Unterrichtsstunde</strong> ist keine eigene Stufe: Besteht sie aus einem durchgehenden Szenario, ist sie{' '}
-          <strong>R2</strong>; verbindet sie mehrere Szenarien, ist sie ein kleines <strong>R3-Ensemble</strong>.
+          In der Praxis werden Methoden ganz unterschiedlicher Größe nebeneinander genannt – vom 5-minütigen <em>Exit-Ticket</em> bis zur
+          mehrwöchigen <em>Projektmethode</em>. In Anlehnung an Baumgartner (2011) trennt die FMT deshalb die{' '}
+          <strong>Granularität / Reichweite (R1–R5)</strong> von der <strong>Beschreibungsstufe (S1–S6)</strong>. Größere Einheiten
+          können über <strong>Slots</strong> gezielt kleinere Einheiten aufnehmen (<code>R4 ⊃ R3 ⊃ R2 ⊃ R1</code>, geprüft durch Regel{' '}
+          <code>R-01</code>).
+        </p>
+
+        {/* Visual Granularity Ladder */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(195px, 1fr))', gap: 10, margin: '16px 0 22px' }}>
+          {[
+            ['R1 Interaktion', 'Sekunden bis ~15 min', 'var(--dC)', 'var(--dC-soft)', 'Kleinster Baustein innerhalb einer Phase (z. B. Think-Pair-Share, Abrufquiz, Exit-Ticket). Passt in Slots von R2 und R3.'],
+            ['R2 Szenario', '~15 bis 60 min', 'var(--dA)', 'var(--dA-soft)', 'Durchgehende Unterrichtsphase oder Einzelstunde (z. B. Gruppenpuzzle, Lösungsbeispiele, VBE). Kann R1-Slots enthalten.'],
+            ['R3 Ensemble / Reihe', 'Stunden bis Wochen', 'var(--dD)', 'var(--dD-soft)', 'Verbindet mehrere Szenarien zu einer mehrstündigen Sequenz (z. B. Productive Failure, Projektmethode, Stationenlernen).'],
+            ['R4 Modul / Kurs', 'Wochen bis Halbjahr', 'var(--dB)', 'var(--dB-soft)', 'Rahmt ganze Themenblöcke oder Kurse inkl. Präsenz-/Distanzphasen (z. B. Blended Learning, Daltonplan, Epochenunterricht).'],
+            ['R5 Curriculum', 'Bildungsgang / Jahrgänge', 'var(--ink)', 'var(--surface)', 'Übergeordnete Bildungs- und Lehrplanebene (Rahmen für mehrere R4-Module; keine Einzelmethode im Katalog).']
+          ].map(([title, span, col, bg, desc]) => (
+            <div key={title} className="card" style={{ padding: 13, borderTop: `4px solid ${col}`, background: bg }}>
+              <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>{title}</div>
+              <div style={{ fontFamily: 'var(--display)', fontSize: 12.5, color: 'var(--ink-2)', marginBottom: 6 }}>{span}</div>
+              <p style={{ fontSize: 13.5, margin: 0 }}>{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="card" style={{ padding: '10px 14px', fontSize: 14.5, maxWidth: 'none', borderLeft: '4px solid var(--dA)' }}>
+          <strong>Wo liegt die klassische Unterrichtsstunde (45–90 min)?</strong> Sie ist bewusst keine eigene Stufe: Besteht die Stunde aus
+          einem durchgehenden Verfahren (z. B. ein Gruppenpuzzle), entspricht sie <strong>R2</strong>. Verbindet sie mehrere eigenständige
+          Szenarien (z. B. Einstieg → Erarbeitung → Sicherung), ist sie ein kleines <strong>R3-Ensemble</strong>.
         </p>
 
         <div className="scroll">

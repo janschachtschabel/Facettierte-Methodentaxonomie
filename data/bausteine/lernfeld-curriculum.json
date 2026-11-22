@@ -1,0 +1,144 @@
+{
+  "kennung": "lernfeld-curriculum",
+  "name": "Lernfeldorientiertes Unterrichtsmodul",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "offen"
+  ],
+  "kurzbeschreibung": "Berufsbildendes Modul, das Fachinhalte entlang realer beruflicher Handlungsfelder und authentischer Lernsituationen integriert.",
+  "alternativname": [
+    "Lernfeld-Konzept",
+    "Lernsituations-Modul"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 480,
+  "dauerMax": 1800,
+  "problem": "Getrennte Fächerlogik erschwert den Transfer von Fachwissen auf komplexe berufliche Geschäfts- und Arbeitsprozesse.",
+  "durchfuehrung": [
+    "Authentische berufliche Lernsituation als Rahmenauftrag einführen",
+    "Lernende analysieren Anforderungen und planen Arbeitspakete",
+    "Fachtheorie bedarfsorientiert erarbeiten und im Handlungsprodukt anwenden",
+    "Kompetenzstand kriteriengeleitet diagnostizieren und reflektieren"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 90,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen",
+    "anwendung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "lernsituation",
+      "name": "Verankerung an realer beruflicher Handlungssituation"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Verlust fachlicher Systematik ohne explizite Zwischensicherungen"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lernfeld",
+      "url": "https://de.wikipedia.org/wiki/Lernfeld",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.32
+  }
+}

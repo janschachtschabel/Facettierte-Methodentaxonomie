@@ -394,11 +394,28 @@ export function PlannerPage() {
             </select>
           </label>
         </div>
-        <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
-          <strong>Hinweis zur Granularität:</strong> Eine Unterrichtsstunde ist <strong>R2</strong> (durchgehendes Szenario) oder ein kleines{' '}
-          <strong>R3-Ensemble</strong> (mehrere verbundene Szenarien). Größere Container-Bausteine (z. B. <em>Productive Failure R3</em>{' '}
-          oder <em>VBE R2</em>) nehmen Bausteine kleinerer Reichweite in ihren Slots auf.
-        </p>
+        <details style={{ marginTop: 10 }}>
+          <summary style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, cursor: 'pointer', color: 'var(--dA)' }}>
+            ? Was bedeuten die Granularitätsebenen R1 bis R4 im Baukasten?
+          </summary>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 8, marginTop: 8, fontSize: 13 }}>
+            <div style={{ padding: 8, borderRadius: 6, background: 'var(--dC-soft)' }}>
+              <strong>R1 Interaktion (2–15 min):</strong> Einzelimpuls wie Think-Pair-Share, Abrufquiz oder Exit-Ticket. Passt direkt in Slots von R2/R3.
+            </div>
+            <div style={{ padding: 8, borderRadius: 6, background: 'var(--dA-soft)' }}>
+              <strong>R2 Szenario (15–60 min):</strong> Durchgehende Phase oder Einzelstunde (z. B. Gruppenpuzzle, VBE, Lösungsbeispiele).
+            </div>
+            <div style={{ padding: 8, borderRadius: 6, background: 'var(--dD-soft)' }}>
+              <strong>R3 Reihe / Ensemble (Stunden–Wochen):</strong> Verbindet mehrere Szenarien oder Container-Bausteine (z. B. Productive Failure, Projekt).
+            </div>
+            <div style={{ padding: 8, borderRadius: 6, background: 'var(--dB-soft)' }}>
+              <strong>R4 Modul / Kurs (Wochen–Halbjahr):</strong> Übergeordneter Rahmen für komplette Kurse (z. B. Blended Learning, Daltonplan).
+            </div>
+          </div>
+          <p className="muted" style={{ fontSize: 12.5, margin: '6px 0 0' }}>
+            Regel <code>R-01</code> prüft, dass jeder Baustein in den gewählten Rahmen passt und eingebettete Slot-Methoden kleiner sind als ihr Container (<code>R4 ⊃ R3 ⊃ R2 ⊃ R1</code>).
+          </p>
+        </details>
       </section>
 
       {/* 3. Live Combination Visualization (ALWAYS VISIBLE above editor) + Didaktische Partitur */}

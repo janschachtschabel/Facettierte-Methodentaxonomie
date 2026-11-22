@@ -1,0 +1,144 @@
+{
+  "kennung": "epochenunterricht",
+  "name": "Epochenunterricht",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Gebündelte, mehrwöchige tägliche Vertiefung eines einzigen Fach- oder Themengebiets (z. B. 3–4 Wochen am Stück) zur Vermeidung des 45-Minuten-Fächerwechsels.",
+  "alternativname": [
+    "Blockunterricht",
+    "Epochenmodul"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 600,
+  "dauerMax": 1800,
+  "problem": "Zerstückelte Einzelstunden verhindern vertieftes Eintauchen und kontinuierliche Arbeit an größeren Zusammenhängen.",
+  "durchfuehrung": [
+    "Epochenthema, Kernfragen und Epochenheft-Kriterien einführen",
+    "Tägliche vertiefte Arbeitsphasen mit klarer Rhythmisierung durchführen",
+    "Regelmäßige Rückblicke und Zwischensicherungen einbauen",
+    "Epochenabschluss mit Dokumentation und Lernstandsprüfung"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 90,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "erwerb",
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "konzept-gesichert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "buendelung",
+      "name": "Kontinuierliche tägliche Arbeit über mehrere Wochen"
+    },
+    {
+      "kennung": "wiederholung",
+      "name": "Spätere Wiederaufnahme gegen Vergessenskurve (R-07)"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Lange Pausen bis zur nächsten Epoche begünstigen Vergessen ohne verteilte Auffrischung"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Epochenunterricht",
+      "url": "https://de.wikipedia.org/wiki/Epochenunterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 1.92
+  }
+}

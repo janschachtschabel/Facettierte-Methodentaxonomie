@@ -1,0 +1,137 @@
+{
+  "kennung": "differenzielles-lernen",
+  "name": "Differenzielles Lernen (Bewegungsvariation nach Schöllhorn)",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "uebung",
+    "forschend"
+  ],
+  "kurzbeschreibung": "Statt starrer Wiederholung derselben Idealbewegung variieren Lernende bewusst Parameter (Tempo, Rhythmus, Ausgangslage), um selbstorganisiert stabile Bewegungsmuster aufzubauen.",
+  "alternativname": [
+    "Differenzielles Bewegungslernen"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Monotones Einschleifen einer einzigen Soll-Technik überträgt sich schlecht auf variable Spiel- und Praxissituationen.",
+  "durchfuehrung": [
+    "Zielbewegung kurz ohne starres Fehlerverbot einführen",
+    "Bei jedem Versuch gezielt ein Bewegungsmerkmal variieren",
+    "Lernende beobachten Unterschiede im eigenen Bewegungsgefühl",
+    "Transfer in offene Spiel- oder Anwendungssituation prüfen"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Sporthalle, Musikraum oder Werkstatt",
+  "gruppeMin": 2,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-1"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb2",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "verschachtelt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "variation",
+      "name": "Gezielte Variation ohne identische Wiederholung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Überforderung bei sicherheitskritischen Bewegungen ohne Grundabsicherung"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Meta-Analyse zeigt kleine bis mittlere Vorteile von differenziellem gegenüber klassischem Wiederholungslernen im Bewegungserwerb.",
+      "quelle": "Tassignon et al. 2021",
+      "geltung": "Sport- und Bewegungsunterricht, Jugend & Erwachsene",
+      "umstritten": "Studienqualität und optimale Variationsbreite teils heterogen"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Differenzielles Lernen",
+      "url": "https://de.wikipedia.org/wiki/Differenzielles_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 1.72
+  }
+}

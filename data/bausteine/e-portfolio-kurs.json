@@ -1,0 +1,153 @@
+{
+  "kennung": "e-portfolio-kurs",
+  "name": "Digitales E-Portfolio mit Peer-Kommentaren",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "reflexion",
+    "diagnose-feedback"
+  ],
+  "kurzbeschreibung": "Multimediale digitale Lernmappe über eine gesamte Reihe oder ein Halbjahr mit Arbeitsartefakten, Lernreflexionen und gegenseitigen Peer-Kommentaren.",
+  "alternativname": [
+    "E-Portfolio",
+    "Digitales Lernportfolio"
+  ],
+  "reichweite": "r3",
+  "dauerMin": 90,
+  "dauerMax": 360,
+  "problem": "Lernprozesse über mehrere Wochen und multimediale Produkte (Audio, Video, Code, Texte) gehen in Papierheften verloren.",
+  "durchfuehrung": [
+    "Struktur, Pflichtartefakte und Datenschutzregeln des E-Portfolios klären",
+    "Lernende dokumentieren fortlaufend Zwischenstände und Reflexionen",
+    "Peers kommentieren ausgewählte Einträge kriteriengeleitet",
+    "Abschlussauswahl (Präsentations-Portfolio) bewerten und reflektieren"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 30,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/110"
+  ],
+  "lernfunktion": [
+    "metakognition",
+    "diagnose",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "udl",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "selbstregulationsebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "lernen-reflektiert",
+    "lernstand-diagnostiziert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "reflexionsanteil",
+      "name": "Lernreflexion neben reiner Artefaktsammlung"
+    },
+    {
+      "kennung": "feedbackschleifen",
+      "name": "Verbindliche Zwischenrückmeldungen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Technischer Mehraufwand überlagert inhaltliche Reflexion"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: E-Portfolio",
+      "url": "https://de.wikipedia.org/wiki/E-Portfolio",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.44
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "kennung": "dual-praxismodul",
+  "name": "Begleitetes Praxis- & Reflexionsmodul (Praktikum)",
+  "status": "entwurf",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "offen",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Längere Praxisphase an einem realen Arbeits- oder Lernort, gerahmt durch Vorbereitung, Beobachtungsaufträge, Praxisberatung und Theorie-Reflexion.",
+  "alternativname": [
+    "Schulpraktikum",
+    "Praxismodul"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 600,
+  "dauerMax": 2400,
+  "problem": "Praxiserfahrungen führen erst durch systematische Vorbereitung, Begleitung und theoretische Reflexion zu nachhaltigem Lernen.",
+  "durchfuehrung": [
+    "Beobachtungs- und Lernziele vor Praxisbeginn klären",
+    "Regelmäßige Praxisdokumentation (Logbuch) führen",
+    "Zwischengespräch / Beratung zur Standortdiagnose",
+    "Theoriegeleiteter Praktikumsbericht und Abschlusskolloquium"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 60,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "selbst"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "praesenz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "metakognitiv",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "theorie-praxis",
+      "name": "Systematische Rückbindung der Praxis an fachliche Konzepte"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Unreflektiertes Mitlaufen ohne Lernauftrag"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Praktikum",
+      "url": "https://de.wikipedia.org/wiki/Praktikum",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.28,
+    "y": 2.36
+  }
+}

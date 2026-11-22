@@ -34,12 +34,13 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
 
   const hoveredBlock = hoveredPlot ? blocks.find((b) => b.kennung === hoveredPlot) || null : null;
 
-  const L = 92;
-  const Rt = 730;
+  const L = 96;
+  const Rt = 736;
   const T = 26;
   const B = 410;
-  const xs = (v: number) => Rt - v * (Rt - L);
-  const ys = (v: number) => B - (v / 3) * (B - T - 30) - 15;
+  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+  const xs = (v: number) => clamp(Rt - clamp(v, 0, 1) * (Rt - L), L + 12, Rt - 12);
+  const ys = (v: number) => clamp(B - (clamp(v, 0, 3) / 3) * (B - T - 30) - 15, T + 12, B - 12);
 
   // Heatmap: Reichweite (R1..R4) x Lernfunktion (8)
   const reichweiten = valuesOf('reichweite').filter((r) => r.id !== 'r5');

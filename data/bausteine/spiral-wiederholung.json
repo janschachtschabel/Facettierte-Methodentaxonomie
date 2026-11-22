@@ -1,0 +1,136 @@
+{
+  "kennung": "spiral-wiederholung",
+  "name": "Spiraliges Wiederholungs-Warm-up (Cumulative Review)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "diagnose-feedback"
+  ],
+  "kurzbeschreibung": "Regelmäßiger 5-Minuten-Stundenstart mischt gezielt 1 Frage von gestern, 1 von letzter Woche und 1 aus dem letzten Monat (verschachtelt & verteilt).",
+  "alternativname": [
+    "Cumulative Review",
+    "Spiral-Warm-up"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 8,
+  "problem": "Abgeschlossene Themen geraten im laufenden Schuljahr rasch in Vergessenheit, wenn immer nur der Stoff von gestern geübt wird.",
+  "durchfuehrung": [
+    "3–4 kurze gemischte Aufgaben aus verschiedenen zurückliegenden Zeiträumen zeigen",
+    "Alle lösen still aus dem Gedächtnis (ohne Heft)",
+    "Lösungswege knapp abgleichen und erkannte Lücken markieren"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "selbstkontrolle",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "mischung",
+      "name": "Bewusste zeitliche und thematische Durchmischung"
+    }
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Kombiniert Abrufpraxis (Yang et al. 2021), Verteilung (Cepeda et al. 2006) und Verschachtelung (Brunmair & Richter 2019).",
+      "quelle": "Cepeda et al. 2006; Yang et al. 2021; Brunmair & Richter 2019",
+      "geltung": "Schule und Hochschule, insb. Mathematik, Sprachen & MINT",
+      "umstritten": "Zu schwere gemischte Aufgaben zu Beginn können frustrieren"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Spiralcurriculum",
+      "url": "https://de.wikipedia.org/wiki/Spiralcurriculum",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.84,
+    "y": 1.64
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "kennung": "freies-stoebern-leseecke",
+  "name": "Freie Lesezeit (Sustained Silent Reading)",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen"
+  ],
+  "kurzbeschreibung": "Fest verankerte, ruhige Lesezeit mit selbst gewählten Büchern oder Sachtexten ohne sofortige Abfrage – fördert Lesemotivation und Lesemenge.",
+  "alternativname": [
+    "Stille Lesezeit",
+    "Sustained Silent Reading",
+    "Freies Lesen"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Pflichtlektüre mit ständiger Kontrolle dämpft oft die eigene Leselust und verhindert regelmäßige Lesevolumen.",
+  "durchfuehrung": [
+    "Breites Text- und Buchangebot nach Interesse bereitstellen",
+    "10–15 Minuten ungestörtes stilles Lesen (Lehrkraft liest mit)",
+    "Gelegentlicher freiwilliger kurzer Buchtipp im Anschluss"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 2,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "udl",
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "afb1",
+    "wohlstrukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "buchwahl",
+      "name": "Freie Textwahl auf passendem Niveau"
+    },
+    {
+      "kennung": "vorbild",
+      "name": "Ruhige Atmosphäre ohne parallele Leistungsprüfung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Schwache Lesende wählen unpassende Texte oder blättern nur durch ohne Lesebegleitung"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Leseförderung",
+      "url": "https://de.wikipedia.org/wiki/Lesef%C3%B6rderung",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.14,
+    "y": 0.95
+  }
+}

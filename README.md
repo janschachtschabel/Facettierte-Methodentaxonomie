@@ -1,6 +1,6 @@
 # Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, API & MCP-Server
 
-Eine offene, maschinenlesbare **Datenbank für 200 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
+Eine offene, maschinenlesbare **Datenbank für 225 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
 
 - **Autor (Inhalte, Taxonomie & Grafiken):** Jan Schachtschabel
 - **Inhalts- & Datenlizenz:** [CC BY 4.0](LICENSE-CONTENT.md) (`https://creativecommons.org/licenses/by/4.0/`)
@@ -10,7 +10,7 @@ Eine offene, maschinenlesbare **Datenbank für 200 Unterrichtsmethoden** im deut
 
 ## Funktionsumfang
 
-- **Methodenkatalog (200 Methoden):** 22 kuratierte Kernbausteine + 178 breit gestreute Ersterfassungen aus 12 didaktischen Bereichen (Instruktion, Kooperatives Lernen, Forschendes & problemorientiertes Lernen, Offener Unterricht, Diskurs/Debatte, Kreativität, Visualisierung/Textarbeit, Übung/Abruf, Diagnose/Feedback, Reflexion, Spiel/Simulation, Digital & KI) – jeweils mit 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Profilgrafik und **live HTTP-geprüften freien Quellenangaben** (`npm run check:links`).
+- **Methodenkatalog (225 Methoden):** 22 kuratierte Kernbausteine + 203 breit gestreute Ersterfassungen über alle 12 didaktischen Bereiche, alle Granularitätsebenen (`R1`–`R4`) und alle Aufgaben-/Lernzielarten (inkl. Psychomotorik, Simulationen, verschachteltes/verteiltes Üben und rezeptive Kontrastformate) – jeweils mit 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Profilgrafik und **live HTTP-geprüften freien Quellenangaben** (`npm run check:links`).
 - **Vollständige FMT-Systematik & Live-Auswertungen:** Interaktiver 13-Facetten-Kompass, R×S-Matrix (Reichweite × Beschreibungsstufe), 6 Operator-Grafiken, 11 Lernzustände, 5 Stufen der Zuordnung, Lückenmatrix, Evidenztabelle, B1×A2-Streudiagramm, Reichweite×Lernfunktion-Heatmap, Ansätze×Evidenz-Balken und Schnittstellen-Abdeckung.
 - **Extrem schnell durch Caching:** Build-Zeit-Bundle mit SHA-256-Hash, In-Memory-Server-Store mit `ETag`/`304`, sofortiger Browser-Cache mit Hintergrund-Abgleich gegen `/api/v1/meta` (Facettenfilter, Vergleich & Baukasten laufen in < 5 ms lokal im Browser).
 - **Modularer Szenario-Baukasten („Didaktische Partitur“ + Live-Zeitband):** Dauerhaft sichtbare Live-Schachtelungsgrafik (`Begleitend`, `R3`, `R2`, `R1`), klare Granularitäts- & Container-Slot-Darstellung, verständliche Inline-Prüfmeldungen (`R-00` bis `R-12`) mit 1-Klick-Lösungsvorschlägen sowie vollständiger Stunden-Export (Markdown, druckfertiges HTML-Handout, SVG, JSON-LD) inkl. Methodenanwendung und verlinktem Quellenverzeichnis.

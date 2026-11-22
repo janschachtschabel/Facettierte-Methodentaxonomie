@@ -1,0 +1,135 @@
+{
+  "kennung": "flashcard-spaced-repetition",
+  "name": "Digitales Spaced-Repetition-Training (Anki / Leitner)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "digital-ki"
+  ],
+  "kurzbeschreibung": "Algorithmisch getaktete digitale Karteikarten wiederholen Fakten, Vokabeln und Konzepte genau vor dem Vergessen – verschachtelt über Themen hinweg.",
+  "alternativname": [
+    "Spaced Repetition",
+    "Anki-Training"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Einmaliges Pauken vor Prüfungen führt zu raschem Vergessen nach wenigen Tagen.",
+  "durchfuehrung": [
+    "Präzise Frage-Antwort-Karten (ggf. selbst erstellt) ins Deck aufnehmen",
+    "Täglich 5–10 Minuten aktiv abrufen vor dem Aufdecken",
+    "Schwierigkeit ehrlich einstufen, sodass der Algorithmus Abstände skaliert"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 100,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "praesenz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abstand",
+      "name": "Wachsende Wiederholungsabstände über Wochen"
+    },
+    {
+      "kennung": "abruf",
+      "name": "Echter aktiver Abruf vor dem Anzeigen der Lösung"
+    }
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Verteilte Abrufpraxis erzeugt große, robuste Langzeit-Behaltenseffekte über alle Altersstufen.",
+      "quelle": "Cepeda et al. 2006; Rowland 2014; Yang et al. 2021",
+      "geltung": "Schule, Studium, Berufsbildung",
+      "umstritten": "Ohne Verständnisfragen droht isoliertes Faktenlernen"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Spaced Repetition",
+      "url": "https://de.wikipedia.org/wiki/Spaced_Repetition",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.8,
+    "y": 1.48
+  }
+}

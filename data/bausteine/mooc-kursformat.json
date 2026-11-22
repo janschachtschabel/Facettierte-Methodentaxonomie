@@ -1,0 +1,144 @@
+{
+  "kennung": "mooc-kursformat",
+  "name": "Offener Online-Kurs (MOOC / Selbstlernkurs)",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "offen"
+  ],
+  "kurzbeschreibung": "Modularer, zeit- und ortsunabhängiger Online-Kurs aus kurzen Erklärvideos, automatisierten Selbsttests, Diskussionsforen und Peer-Aufgaben.",
+  "alternativname": [
+    "MOOC",
+    "Online-Selbstlernmodul"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 300,
+  "dauerMax": 1800,
+  "problem": "Große oder räumlich verteilte Lerngruppen sollen asynchron auf hochwertige Materialien und Selbsttests zugreifen können.",
+  "durchfuehrung": [
+    "Kurs in klare Wochenmodule mit Lernzielen gliedern",
+    "Kurze Video-/Text-Inputs mit unmittelbaren Abruf-Quizzes kombinieren",
+    "Asynchronen Austausch in moderierten Foren anregen",
+    "Abschlussdiagnose oder Zertifikatsaufgabe auswerten"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 500,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 120,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "aktivierung",
+      "name": "Eingebettete Selbsttests statt reiner Videostreams"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Hohe Abbruchquoten ohne soziale Einbindung und verbindliche Meilensteine"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Massive Open Online Course",
+      "url": "https://de.wikipedia.org/wiki/Massive_Open_Online_Course",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 1.38
+  }
+}

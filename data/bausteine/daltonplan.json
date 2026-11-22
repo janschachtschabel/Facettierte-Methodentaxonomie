@@ -1,0 +1,145 @@
+{
+  "kennung": "daltonplan",
+  "name": "Daltonplan-Lernorganisation",
+  "status": "entwurf",
+  "piktogramm": "offen",
+  "ansatz": [
+    "offen",
+    "reflexion"
+  ],
+  "kurzbeschreibung": "Schul- und Kursstruktur aus Lernpensen (Assignments), freien Lernbüro-Zeiten, Fachräumen und verbindlichen Planungs- und Rückmeldegesprächen.",
+  "alternativname": [
+    "Dalton-System",
+    "Daltonstunden"
+  ],
+  "reichweite": "r4",
+  "dauerMin": 360,
+  "dauerMax": 1800,
+  "problem": "Lernende benötigen systematische Räume für Selbstorganisation, ohne auf fachliche Begleitung zu verzichten.",
+  "durchfuehrung": [
+    "Mehrwöchige Pensenpläne (Assignments) mit klaren Standards ausgeben",
+    "Lernende wählen in Dalton-Zeiten Fachraum, Lehrkraft und Sozialform",
+    "Lernfortschritt im Dalton-Logbuch dokumentieren und diagnostizieren",
+    "Abschlussreflexion und Leistungsnachweis durchführen"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 90,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/14-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "anwendung",
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "udl",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "metakognitiv",
+    "afb2",
+    "afb3",
+    "wohlstrukturiert",
+    "fall"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "freiheit-verantwortung",
+      "name": "Balance aus freier Zeit-/Raumwahl und verbindlichen Pensen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Überforderung schwächerer Selbstregulierer ohne enges Coaching"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Daltonplan",
+      "url": "https://de.wikipedia.org/wiki/Daltonplan",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 2.22
+  }
+}

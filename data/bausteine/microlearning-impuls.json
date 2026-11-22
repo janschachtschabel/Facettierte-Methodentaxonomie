@@ -1,0 +1,134 @@
+{
+  "kennung": "microlearning-impuls",
+  "name": "Microlearning-Impuls (Lernnugget)",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Fokussierte, 3–7-minütige digitale Lerneinheit zu genau einem Konzept oder einer Fertigkeit, unmittelbar gekoppelt mit einer kurzen Kontrollaufgabe.",
+  "alternativname": [
+    "Mikrolernen",
+    "Learning Nugget"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 3,
+  "dauerMax": 8,
+  "problem": "Lange Informationsblöcke überlasten das Arbeitsgedächtnis und lassen sich schwer zwischendurch auffrischen.",
+  "durchfuehrung": [
+    "Genau ein eng umrissenes Lernziel definieren",
+    "Kompakten Erklärimpuls (Text, Grafik oder 3-Min.-Clip) bereitstellen",
+    "Unmittelbare 1- bis 2-Fragen-Anwendung zur Sicherung anschließen"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 100,
+  "technik": "t-einzeln",
+  "internet": true,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "distanz",
+    "praesenz",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fokussierung",
+      "name": "Beschränkung auf genau ein Lernziel plus Aktivitätsfrage"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Fragmentiertes Häppchenwissen ohne Vernetzung im Gesamtkontext"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Mikrolernen",
+      "url": "https://de.wikipedia.org/wiki/Mikrolernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.85,
+    "y": 1.24
+  }
+}

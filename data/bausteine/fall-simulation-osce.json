@@ -1,0 +1,145 @@
+{
+  "kennung": "fall-simulation-osce",
+  "name": "Simulationsstation / OSCE-Praxischeck",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "spiel-simulation",
+    "diagnose-feedback"
+  ],
+  "kurzbeschreibung": "Standardisierte Kurzsimulation einer realen Berufs- oder Gesprächssituation (5–10 Min.) mit Beobachtungs-Checkliste und unmittelbarem Kriterienfeedback.",
+  "alternativname": [
+    "OSCE-Station",
+    "Standardisierte Praxissimulation"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 25,
+  "dauerMax": 50,
+  "problem": "Handlungskompetenz (Beratung, Erste Hilfe, Kundengespräch, Labor) lässt sich durch reine Papierklausuren nicht valide überprüfen.",
+  "durchfuehrung": [
+    "Standardisiertes Fallszenario und Beobachtungsbogen bereitstellen",
+    "Lernende handeln in Echtzeit an der Simulationsstation",
+    "Beobachtende protokollieren klar definierte Handlungskriterien",
+    "Unmittelbares, konstruktives Debriefing und ggf. zweiter Durchgang"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 3,
+  "gruppeMax": 24,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 25,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/112",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "diagnose",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "psychomotorik",
+    "afb3",
+    "wohlstrukturiert",
+    "simulation"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "checkliste",
+      "name": "Objektive, vorab bekannte Beobachtungskriterien"
+    },
+    {
+      "kennung": "debriefing",
+      "name": "Strukturierte Rückmeldung unmittelbar nach der Station"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia (en): Objective structured clinical examination",
+      "url": "https://en.wikipedia.org/wiki/Objective_structured_clinical_examination",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 2.68
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "kennung": "vier-stufen-methode",
+  "name": "Vier-Stufen-Methode (Unterweisung)",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "uebung"
+  ],
+  "kurzbeschreibung": "Klassische berufspädagogische Fertigkeitsvermittlung in vier Stufen: Vorbereiten, Vormachen & Erklären, Nachmachen & Erklären lassen, selbstständiges Üben.",
+  "alternativname": [
+    "4-Stufen-Methode",
+    "Arbeitsunterweisung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Praktische, handwerkliche oder labortechnische Fertigkeiten müssen sicher, fehlerarm und begründet erlernt werden.",
+  "durchfuehrung": [
+    "Stufe 1: Arbeitsplatz, Ziel und Sicherheitsregeln klären",
+    "Stufe 2: Ausbilder:in macht langsam vor und erklärt Was/Wie/Warum",
+    "Stufe 3: Lernende machen nach und verbalisieren jeden Schritt",
+    "Stufe 4: Selbstständiges Üben mit Kontrolle und Feedback"
+  ],
+  "material": [
+    "Werkzeug / Laborgerät",
+    "Unterweisungsleitfaden"
+  ],
+  "raum": "Werkstatt, Labor oder Fachraum",
+  "gruppeMin": 1,
+  "gruppeMax": 12,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "verbalisieren",
+      "name": "Lernende erklären das „Warum“ beim Nachmachen"
+    },
+    {
+      "kennung": "ueben",
+      "name": "Kontrollierte eigene Übungsphase"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Reines Nachahmen ohne Verständnis bei Auslassen der Begründung"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Vier-Stufen-Methode",
+      "url": "https://de.wikipedia.org/wiki/Vier-Stufen-Methode",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.88,
+    "y": 1.52
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "kennung": "stationstraining-bewegung",
+  "name": "Zirkel- & Bewegungstraining (Motorische Stationen)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "spiel-simulation"
+  ],
+  "kurzbeschreibung": "Zeitlich getakteter Durchlauf durch differenzierte Bewegungs- oder Fertigkeitsstationen mit unmittelbarer Selbst- und Partnerkorrektur.",
+  "alternativname": [
+    "Zirkeltraining",
+    "Bewegungsstationen"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Hohe aktive Bewegungs- und Übungszeit für alle Lernenden gleichzeitig ist im Frontalbetrieb kaum erreichbar.",
+  "durchfuehrung": [
+    "Stationen mit klaren Aufgabenkarten und Sicherheitsregeln aufbauen",
+    "Kurze Demonstration der Ausführungsqualität",
+    "Getaktete Übungs- und Wechselintervalle in Kleingruppen",
+    "Gemeinsame Auswertung von Belastung und Technik"
+  ],
+  "material": [
+    "Stationskarten",
+    "Sport-/Übungsgeräte",
+    "Timer"
+  ],
+  "raum": "Sporthalle oder Fachraum",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb1",
+    "wohlstrukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "taktung",
+      "name": "Klare Belastungs- und Wechselzeiten mit Ausführungsfokus"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Unsaubere Technik unter Zeitdruck ohne Korrekturschleife"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Praxisform zur Schließung unterrepräsentierter FMT-Dimensionen; spezifische Meta-Analysen fehlen.",
+      "quelle": "Meyer 1987; Mühlhausen 2023",
+      "geltung": "Deutschsprachiger Schul-, Berufs- und Hochschulbereich",
+      "umstritten": "Wirkung stark abhängig von Strukturierung, Feedback und fachlicher Einbettung"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Zirkeltraining",
+      "url": "https://de.wikipedia.org/wiki/Zirkeltraining",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.18
+  }
+}

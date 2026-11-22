@@ -1,0 +1,133 @@
+{
+  "kennung": "vorlesung-klassisch",
+  "name": "Vorlesung (Akademischer Überblicksvortrag)",
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "kurzbeschreibung": "Zusammenhängender, systematischer Fachvortrag für größere Gruppen zur raschen Übersicht über ein Themenfeld – als Kontrast- und Basiselement mit R-08-Bewusstsein.",
+  "alternativname": [
+    "Fachvorlesung",
+    "Überblicksvortrag"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 30,
+  "dauerMax": 90,
+  "problem": "Große Gruppen benötigen einen geordneten, wissenschaftlich präzisen Überblick über komplexe Strukturen und Forschungsstände.",
+  "durchfuehrung": [
+    "Gliederung und Leitfragen voranstellen",
+    "Systematische Darstellung mit Beispielen und visuellen Folien",
+    "Kurze Verständnisfragen oder Anschlussaufgaben zur Nachbereitung setzen"
+  ],
+  "material": [
+    "Arbeitsmaterial",
+    "Kriterienbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 10,
+  "gruppeMax": 300,
+  "technik": "t-projektion",
+  "internet": false,
+  "vorbereitungMin": 45,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31"
+  ],
+  "lernfunktion": [
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "fakten",
+    "afb1",
+    "wohlstrukturiert",
+    "abstrakt"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "massiert"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "struktur",
+      "name": "Klare rote Linie und explizite Gliederung"
+    }
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
+  ],
+  "qualitaetsrisiko": [
+    "Sinkende Aufmerksamkeit nach ~20 Minuten ohne aktivierende Unterbrechung (Regel R-08; Freeman et al. 2014)"
+  ],
+  "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Reine Vorlesungen schneiden in MINT-Hochschulkursen im Mittel schwächer ab als aktivierende Formate (g ≈ −0,47).",
+      "quelle": "Freeman et al. 2014",
+      "geltung": "Hochschule, MINT-Fächer",
+      "umstritten": "Gut strukturierte Kurzinputs mit aktivierenden Elementen wirken deutlich besser"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Vorlesung",
+      "url": "https://de.wikipedia.org/wiki/Vorlesung",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.94,
+    "y": 0.22
+  }
+}
