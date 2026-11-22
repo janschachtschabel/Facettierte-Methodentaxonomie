@@ -2,18 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { FMT_GUARDRAILS, type Arrangement, type MatchResult } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { PartiturView } from '../components/PartiturView.js';
+import { VerlaufsplanView } from '../components/VerlaufsplanView.js';
+import { ScenarioStudioPanel, type StudioTab } from '../components/ScenarioStudioPanel.js';
 import { TimelineBandSvg } from '../components/TimelineBandSvg.js';
 import { ByokModal } from '../components/ByokModal.js';
-import { SimpleMarkdown } from '../components/SimpleMarkdown.js';
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
-  createChainPreset,
-  exportArrangementHtmlHandout,
-  exportArrangementMarkdown,
-  importArrangementJson
+  createChainPreset
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
+import {
+  buildScenarioRows,
+  DEFAULT_LEARNER_GROUPS,
+  type LearnerGroup,
+  type OerResource,
+  type StepDiffSuggestion
+} from '../planner/scenarioModel.js';
 
 export function PlannerPage() {
   const {
@@ -34,6 +39,9 @@ export function PlannerPage() {
 
   const [arrangement, setArrangement] = useState<Arrangement | null>(null);
   const [showLiveBand, setShowLiveBand] = useState(true);
+  const [viewMode, setViewMode] = useState<'partitur' | 'verlaufsplan'>('partitur');
+  const [studioTab, setStudioTab] = useState<StudioTab>('export');
+  const [focusedStepKey, setFocusedStepKey] = useState<string | null>(null);
   const [scenarioText, setScenarioText] = useState(
     'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte'
   );
@@ -44,13 +52,13 @@ export function PlannerPage() {
   const [thema, setThema] = useState('Dichte von Stoffen');
   const [fach, setFach] = useState('Physik');
   const [hinweise, setHinweise] = useState('');
-  const [elaboration, setElaboration] = useState<string | null>(null);
-  const [elabError, setElabError] = useState<string | null>(null);
+  const [groups, setGroups] = useState<LearnerGroup[]>(DEFAULT_LEARNER_GROUPS);
+  const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
+  const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
 
-  const [importText, setImportText] = useState('');
-  const [importError, setImportError] = useState<string | null>(null);
   const [byokOpen, setByokOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const studioRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!bundle) return;
@@ -85,6 +93,18 @@ export function PlannerPage() {
     if (!arrangement) return [];
     return collectUsedBlocks(arrangement, blocksById);
   }, [arrangement, blocksById]);
+
+  const scenarioRows = useMemo(() => {
+    if (!arrangement || !bundle) return [];
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    return buildScenarioRows(arrangement, bundle, blocksById, labelOf, groups, aiDiffByStep, oerByStep, baseUrl);
+  }, [arrangement, bundle, blocksById, labelOf, groups, aiDiffByStep, oerByStep]);
+
+  const jumpToStudio = (tab: StudioTab, stepKey: string) => {
+    setFocusedStepKey(stepKey);
+    setStudioTab(tab);
+    studioRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   if (!bundle || !validator || !search || !matcher || !arrangement || !validation) {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
@@ -137,28 +157,6 @@ export function PlannerPage() {
       );
     } catch {
       runDeterministicMatch();
-    } finally {
-      setBusyAi(false);
-    }
-  };
-
-  const runAiElaborate = async () => {
-    setBusyAi(true);
-    setElabError(null);
-    try {
-      const res = await fetch('/api/v1/assistant/elaborate', {
-        method: 'POST',
-        headers: byokHeaders(),
-        body: JSON.stringify({ arrangement, thema, fach, hinweise: hinweise.trim() || undefined })
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setElabError(json.fehler || 'Ausgestaltung fehlgeschlagen.');
-        return;
-      }
-      setElaboration(String(json.ausarbeitung));
-    } catch (e) {
-      setElabError(e instanceof Error ? e.message : 'Netzwerkfehler');
     } finally {
       setBusyAi(false);
     }
@@ -423,6 +421,20 @@ export function PlannerPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0 }}>2. Live-Komposition &amp; Didaktische Partitur: {arrangement.name}</h2>
           <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className={`btn btn-sm ${viewMode === 'partitur' ? 'btn-primary' : ''}`}
+              onClick={() => setViewMode('partitur')}
+            >
+              🧩 Partitur-Editor
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${viewMode === 'verlaufsplan' ? 'btn-primary' : ''}`}
+              onClick={() => setViewMode('verlaufsplan')}
+            >
+              📋 Verlaufsplan (IMS-LD)
+            </button>
             <button type="button" className="btn btn-sm" onClick={() => setShowLiveBand((s) => !s)}>
               {showLiveBand ? '▲ Zeitband ausblenden' : '▼ Live-Zeitband einblenden'}
             </button>
@@ -457,16 +469,26 @@ export function PlannerPage() {
           </div>
         )}
 
-        <PartiturView
-          arrangement={arrangement}
-          onChange={setArrangement}
-          bundle={bundle}
-          blocksById={blocksById}
-          search={search}
-          registry={exampleRegistry}
-          labelOf={labelOf}
-          explainedMessages={explainedMessages}
-        />
+        {viewMode === 'partitur' ? (
+          <PartiturView
+            arrangement={arrangement}
+            onChange={setArrangement}
+            bundle={bundle}
+            blocksById={blocksById}
+            search={search}
+            registry={exampleRegistry}
+            labelOf={labelOf}
+            explainedMessages={explainedMessages}
+            onOpenOerForStep={(k) => jumpToStudio('oer', k)}
+            onOpenMaterialForStep={(k) => jumpToStudio('material', k)}
+          />
+        ) : (
+          <VerlaufsplanView
+            rows={scenarioRows}
+            onOpenOerForStep={(k) => jumpToStudio('oer', k)}
+            onOpenMaterialForStep={(k) => jumpToStudio('material', k)}
+          />
+        )}
       </section>
 
       {/* 4. Understandable Live Validator & Full Export / AI Lesson Description */}
@@ -541,176 +563,34 @@ export function PlannerPage() {
           </details>
         </div>
 
-        {/* AI Full Lesson Description & Complete Export with Sources */}
-        <div className="card" style={{ padding: 18 }}>
-          <h2 style={{ fontSize: 22 }}>4. Stundenbeschreibung, Quellen &amp; Export</h2>
-          <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-            Exportiert den kompletten Ablauf inkl. Durchführungs­schritten, Materialien, Kernkomponenten und verifizierten Quellenangaben
-            aller {usedBlocks.length} eingesetzten Methoden – optional ergänzt um eine vollständige KI-Stundenbeschreibung.
-          </p>
-
-          <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              Fach
-              <input type="text" value={fach} onChange={(e) => setFach(e.target.value)} />
-            </label>
-            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              Thema
-              <input type="text" value={thema} onChange={(e) => setThema(e.target.value)} />
-            </label>
-          </div>
-          <label
-            className="no-print"
-            style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}
-          >
-            Zusätzliche Hinweise für die KI (optional, z. B. Lerngruppe, Differenzierung)
-            <input
-              type="text"
-              value={hinweise}
-              onChange={(e) => setHinweise(e.target.value)}
-              placeholder="z. B. heterogene 7. Klasse, 2 Sprachanfänger, Fokus auf Alltagsbeispiele"
-            />
-          </label>
-
-          <div className="no-print" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            <button type="button" className="btn btn-primary" disabled={busyAi} onClick={runAiElaborate}>
-              ✨ {busyAi ? 'Erstelle Stundenbeschreibung…' : 'Gesamte Stunde ausformulieren (KI)'}
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() =>
-                downloadFile(
-                  'fmt-stundenplan.md',
-                  exportArrangementMarkdown(arrangement, blocksById, validation, { fach, thema, kiAusarbeitung: elaboration }),
-                  'text/markdown;charset=utf-8'
-                )
-              }
-            >
-              ⬇ Stundenplan (.md)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() =>
-                downloadFile(
-                  'fmt-stundenhandout.html',
-                  exportArrangementHtmlHandout(arrangement, blocksById, validation, { fach, thema, kiAusarbeitung: elaboration }),
-                  'text/html;charset=utf-8'
-                )
-              }
-            >
-              ⬇ Handout (.html)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() =>
-                downloadFile('fmt-arrangement.jsonld', JSON.stringify(arrangement, null, 2), 'application/ld+json')
-              }
-            >
-              ⬇ JSON-LD
-            </button>
-          </div>
-
-          {elabError && (
-            <div className="msgs">
-              <li className="err">{elabError}</li>
-            </div>
-          )}
-
-          {elaboration && (
-            <div
-              style={{
-                marginTop: 12,
-                padding: 16,
-                background: 'var(--paper)',
-                borderRadius: 8,
-                border: '1px solid var(--rule)',
-                maxHeight: 540,
-                overflowY: 'auto'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
-                  KI-Stundenbeschreibung ({fach} · {thema})
-                </strong>
-                <button
-                  type="button"
-                  className="btn btn-sm no-print"
-                  onClick={() =>
-                    downloadFile(
-                      'fmt-stundenbeschreibung-ki.md',
-                      exportArrangementMarkdown(arrangement, blocksById, validation, { fach, thema, kiAusarbeitung: elaboration }),
-                      'text/markdown;charset=utf-8'
-                    )
-                  }
-                >
-                  ⬇ inkl. Quellen speichern
-                </button>
-              </div>
-              <SimpleMarkdown content={elaboration} />
-            </div>
-          )}
-
-          {/* Always-visible verified source list for all used blocks */}
-          {usedBlocks.length > 0 && (
-            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
-              <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
-                Quellenangaben zu den {usedBlocks.length} verwendeten Methoden:
-              </div>
-              <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {usedBlocks.map((b) => (
-                  <li key={b.kennung}>
-                    <strong>{b.name}:</strong>{' '}
-                    {(b.quellen || []).map((q, qi) => (
-                      <span key={qi}>
-                        {qi > 0 && ' · '}
-                        {q.url ? (
-                          <a href={q.url} target="_blank" rel="noreferrer">
-                            {q.titel}
-                          </a>
-                        ) : (
-                          q.titel
-                        )}
-                      </span>
-                    ))}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <details className="no-print" style={{ marginTop: 16 }}>
-            <summary style={{ fontFamily: 'var(--display)', fontWeight: 600, cursor: 'pointer' }}>
-              JSON-LD anzeigen oder importieren
-            </summary>
-            <pre style={{ maxHeight: 220 }}>{JSON.stringify(arrangement, null, 2)}</pre>
-            <textarea
-              rows={3}
-              style={{ width: '100%', marginTop: 8 }}
-              placeholder="Eigenes FMT-Arrangement (JSON-LD) hier einfügen…"
-              value={importText}
-              onChange={(e) => setImportText(e.target.value)}
-            />
-            {importError && <p style={{ color: 'var(--err)', fontSize: 13.5 }}>{importError}</p>}
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ marginTop: 6 }}
-              onClick={() => {
-                const res = importArrangementJson(importText);
-                if (!res.ok) setImportError(res.fehler);
-                else {
-                  setImportError(null);
-                  setArrangement(res.arrangement);
-                  setImportText('');
-                }
-              }}
-            >
-              JSON-LD importieren
-            </button>
-          </details>
+        {/* Scenario Studio: Differentiation, WLO OER, Material Generator & LMS Exports */}
+        <div ref={studioRef}>
+          <ScenarioStudioPanel
+            activeTab={studioTab}
+            onTabChange={setStudioTab}
+            focusedStepKey={focusedStepKey}
+            arrangement={arrangement}
+            onArrangementChange={setArrangement}
+            blocksById={blocksById}
+            usedBlocks={usedBlocks}
+            validation={validation}
+            scenarioRows={scenarioRows}
+            labelOf={labelOf}
+            fach={fach}
+            thema={thema}
+            hinweise={hinweise}
+            onFachChange={setFach}
+            onThemaChange={setThema}
+            onHinweiseChange={setHinweise}
+            groups={groups}
+            onGroupsChange={setGroups}
+            aiDiffByStep={aiDiffByStep}
+            onAiDiffChange={setAiDiffByStep}
+            oerByStep={oerByStep}
+            onOerByStepChange={setOerByStep}
+            byokHeaders={byokHeaders}
+            llmAvailable={llmAvailable}
+          />
         </div>
       </section>
 

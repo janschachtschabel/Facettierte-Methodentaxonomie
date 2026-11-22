@@ -14,6 +14,7 @@ import { ProfileRadarSvg } from './ProfileRadarSvg.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
 import {
   appendBlockToArrangement,
+  fitContainerDurationToSlots,
   getMainSequence,
   moveStep,
   removeStep,
@@ -23,6 +24,8 @@ import {
   setSlotBlock,
   unwrapAlternative,
   updateAlternativeOption,
+  updateAlternativeOptionDuration,
+  updateSlotDuration,
   updateStepBlock,
   updateStepDuration,
   wrapStepInAlternative
@@ -38,6 +41,8 @@ interface Props {
   registry: Map<string, Arrangement>;
   labelOf: (schemeId: string, code: string) => string;
   explainedMessages?: ExplainedValidationMessage[];
+  onOpenOerForStep?: (stepKey: string) => void;
+  onOpenMaterialForStep?: (stepKey: string) => void;
 }
 
 const RANGE_LABELS: Record<string, string> = {
@@ -89,7 +94,9 @@ export function PartiturView({
   search,
   registry,
   labelOf,
-  explainedMessages = []
+  explainedMessages = [],
+  onOpenOerForStep,
+  onOpenMaterialForStep
 }: Props) {
   const [swapTarget, setSwapTarget] = useState<{ pfad: string; candidates: ReplacementCandidate[] } | null>(null);
   const { seq, prefix } = getMainSequence(arrangement);
@@ -222,17 +229,42 @@ export function PartiturView({
                             <input
                               type="number"
                               min={0}
-                              style={{ width: 68 }}
+                              style={{ width: 64 }}
                               value={node.dauerMin ?? b?.dauerMin ?? 15}
                               onChange={(e) => onChange(updateStepDuration(arrangement, realIdx, Number(e.target.value) || 0))}
                             />
                             min
                           </label>
+                          {b && (
+                            <span className="muted" style={{ fontSize: 12, fontFamily: 'var(--display)' }} title="Katalog-Orientierungswert (frei anpassbar)">
+                              (Richtwert {b.dauerMin}–{b.dauerMax} min)
+                            </span>
+                          )}
                           {b && <EvidenceBadge grade={search.bestGrade(b)} />}
                           {b && (
                             <Link to={`/methoden/${b.kennung}`} className="btn btn-sm btn-ghost">
                               Profil ↗
                             </Link>
+                          )}
+                          {onOpenOerForStep && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-ghost"
+                              title="Freie OER-Materialien (WirLernenOnline) für diese Phase suchen"
+                              onClick={() => onOpenOerForStep(`step-${realIdx}`)}
+                            >
+                              🌐 OER
+                            </button>
+                          )}
+                          {onOpenMaterialForStep && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-ghost"
+                              title="Passendes Unterrichtsmaterial für diese Methode generieren"
+                              onClick={() => onOpenMaterialForStep(`step-${realIdx}`)}
+                            >
+                              📝 Material
+                            </button>
                           )}
                         </div>
                       </div>
@@ -356,15 +388,30 @@ export function PartiturView({
                         <strong>
                           ▣ Teil-Blöcke innerhalb von „{b.name}“ ({b.reichweite.toUpperCase()} nimmt kleinere Reichweiten auf)
                         </strong>
-                        <span className="muted">
-                          Slot-Dauer: {usedSlotMin} / {node.dauerMin ?? b.dauerMin} min
-                        </span>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span className="muted">
+                            Slot-Dauer: {usedSlotMin} / {node.dauerMin ?? b.dauerMin} min
+                          </span>
+                          {usedSlotMin > (node.dauerMin ?? b.dauerMin) && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-primary"
+                              onClick={() => onChange(fitContainerDurationToSlots(arrangement, realIdx))}
+                            >
+                              ⏱ Container auf {usedSlotMin} min anpassen
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 10 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
                         {slots.map((sl) => {
                           const bel = (node.belegung || []).find((x) => x.slotKennung === sl.kennung);
                           const innerId = bel && bel.inhalt.typ === 'Einsatz' ? bel.inhalt.baustein : '';
                           const innerBlock = innerId ? blocksById.get(innerId) : undefined;
+                          const innerDur =
+                            bel && bel.inhalt.typ === 'Einsatz'
+                              ? bel.inhalt.dauerMin ?? innerBlock?.dauerMin ?? 10
+                              : innerBlock?.dauerMin ?? 10;
                           const parentR = rangMap.get(b.reichweite) ?? 3;
                           const slotR = rangMap.get(sl.reichweite) ?? 2;
                           const slotCands = sortedBlocks.filter(
@@ -410,12 +457,24 @@ export function PartiturView({
                                 ))}
                               </select>
                               {innerBlock && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, fontSize: 12.5 }}>
-                                  <span className="muted">
-                                    {RANGE_LABELS[innerBlock.reichweite] || innerBlock.reichweite.toUpperCase()} ·{' '}
-                                    {bel && bel.inhalt.typ === 'Einsatz' ? bel.inhalt.dauerMin ?? innerBlock.dauerMin : innerBlock.dauerMin} min
-                                  </span>
-                                  <Link to={`/methoden/${innerBlock.kennung}`}>Details ↗</Link>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 6, fontSize: 12.5 }}>
+                                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'var(--display)', fontWeight: 600 }}>
+                                    <input
+                                      type="number"
+                                      min={0}
+                                      aria-label={`Dauer für Slot ${sl.name}`}
+                                      style={{ width: 58, padding: '2px 5px' }}
+                                      value={innerDur}
+                                      onChange={(e) =>
+                                        onChange(updateSlotDuration(arrangement, realIdx, sl.kennung, Number(e.target.value) || 0, true))
+                                      }
+                                    />
+                                    min
+                                    <span className="muted" style={{ fontWeight: 400 }}>
+                                      (Richtwert {innerBlock.dauerMin}–{innerBlock.dauerMax})
+                                    </span>
+                                  </label>
+                                  <Link to={`/methoden/${innerBlock.kennung}`}>Profil ↗</Link>
                                 </div>
                               )}
                             </div>
@@ -491,6 +550,8 @@ export function PartiturView({
                 <div className="alt-branches">
                   {(Array.isArray(node.optionen) ? node.optionen : []).map((opt, oi) => {
                     const optId = opt?.typ === 'Einsatz' ? opt.baustein : '';
+                    const optB = optId ? blocksById.get(optId) : undefined;
+                    const optDur = opt?.typ === 'Einsatz' ? opt.dauerMin ?? optB?.dauerMin ?? 15 : 15;
                     return (
                       <div key={oi} className="alt-branch">
                         <div style={{ fontFamily: 'var(--display)', fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
@@ -510,6 +571,23 @@ export function PartiturView({
                             </option>
                           ))}
                         </select>
+                        {optB && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, fontSize: 12.5 }}>
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'var(--display)' }}>
+                              <input
+                                type="number"
+                                min={0}
+                                style={{ width: 58, padding: '2px 5px' }}
+                                value={optDur}
+                                onChange={(e) =>
+                                  onChange(updateAlternativeOptionDuration(arrangement, realIdx, oi, Number(e.target.value) || 0))
+                                }
+                              />
+                              min <span className="muted">({optB.dauerMin}–{optB.dauerMax})</span>
+                            </label>
+                            <Link to={`/methoden/${optB.kennung}`}>Profil ↗</Link>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -582,7 +660,7 @@ export function PartiturView({
           <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
             ═ Begleitstrang (Parallel)
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <select
               style={{ flex: 1 }}
               value={parBlockId}
@@ -597,6 +675,18 @@ export function PartiturView({
                   </option>
                 ))}
             </select>
+            {parBlockId && (
+              <input
+                type="number"
+                min={0}
+                title="Dauer Begleitstrang (min)"
+                style={{ width: 64 }}
+                value={parDuration}
+                onChange={(e) =>
+                  onChange(setParallelBlock(arrangement, blocksById.get(parBlockId) || null, Math.max(0, Number(e.target.value) || 0)))
+                }
+              />
+            )}
           </div>
         </div>
 

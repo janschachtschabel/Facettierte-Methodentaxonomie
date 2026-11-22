@@ -236,10 +236,78 @@ export function setSlotBlock(arr: Arrangement, stepIndex: number, slotKennung: s
     const cur = copy[stepIndex];
     if (!cur || cur.typ !== 'Einsatz') return copy;
     const rest = (cur.belegung || []).filter((b) => b.slotKennung !== slotKennung);
+    const otherSlotMin = rest.reduce((s, x) => s + (x.inhalt.typ === 'Einsatz' ? x.inhalt.dauerMin || 0 : 0), 0);
+    let slotDur = block ? defaultDuration(block) : 0;
+    if (block && typeof cur.dauerMin === 'number' && cur.dauerMin > otherSlotMin) {
+      const remaining = cur.dauerMin - otherSlotMin;
+      if (remaining >= block.dauerMin && remaining < slotDur) {
+        slotDur = remaining;
+      }
+    }
     const nextBel = block
-      ? [...rest, { slotKennung, inhalt: { typ: 'Einsatz' as const, baustein: block.kennung, dauerMin: defaultDuration(block) } }]
+      ? [...rest, { slotKennung, inhalt: { typ: 'Einsatz' as const, baustein: block.kennung, dauerMin: slotDur } }]
       : rest;
-    copy[stepIndex] = { ...cur, belegung: nextBel.length ? nextBel : undefined };
+    const totalSlotMin = nextBel.reduce((s, x) => s + (x.inhalt.typ === 'Einsatz' ? x.inhalt.dauerMin || 0 : 0), 0);
+    const nextParentDur = typeof cur.dauerMin === 'number' ? Math.max(cur.dauerMin, totalSlotMin) : totalSlotMin;
+    copy[stepIndex] = { ...cur, dauerMin: nextParentDur, belegung: nextBel.length ? nextBel : undefined };
+    return copy;
+  });
+}
+
+export function updateSlotDuration(
+  arr: Arrangement,
+  stepIndex: number,
+  slotKennung: string,
+  dauerMin: number,
+  autoFitParent = false
+): Arrangement {
+  return withMainSequence(arr, (teile) => {
+    const copy = [...teile];
+    const cur = copy[stepIndex];
+    if (!cur || cur.typ !== 'Einsatz' || !Array.isArray(cur.belegung)) return copy;
+    const safeMin = Math.max(0, dauerMin);
+    const nextBel = cur.belegung.map((b) =>
+      b.slotKennung === slotKennung && b.inhalt.typ === 'Einsatz'
+        ? { ...b, inhalt: { ...b.inhalt, dauerMin: safeMin } }
+        : b
+    );
+    const sum = nextBel.reduce((s, x) => s + (x.inhalt.typ === 'Einsatz' ? x.inhalt.dauerMin || 0 : 0), 0);
+    copy[stepIndex] = {
+      ...cur,
+      ...(autoFitParent && typeof cur.dauerMin === 'number' && sum > cur.dauerMin ? { dauerMin: sum } : {}),
+      belegung: nextBel
+    };
+    return copy;
+  });
+}
+
+export function fitContainerDurationToSlots(arr: Arrangement, stepIndex: number): Arrangement {
+  return withMainSequence(arr, (teile) => {
+    const copy = [...teile];
+    const cur = copy[stepIndex];
+    if (!cur || cur.typ !== 'Einsatz' || !Array.isArray(cur.belegung)) return copy;
+    const sum = cur.belegung.reduce((s, x) => s + (x.inhalt.typ === 'Einsatz' ? x.inhalt.dauerMin || 0 : 0), 0);
+    if (sum > 0) copy[stepIndex] = { ...cur, dauerMin: sum };
+    return copy;
+  });
+}
+
+export function updateAlternativeOptionDuration(
+  arr: Arrangement,
+  stepIndex: number,
+  optionIndex: number,
+  dauerMin: number
+): Arrangement {
+  return withMainSequence(arr, (teile) => {
+    const copy = [...teile];
+    const cur = copy[stepIndex];
+    if (!cur || cur.typ !== 'Alternative') return copy;
+    const opts = [...cur.optionen];
+    const target = opts[optionIndex];
+    if (target && target.typ === 'Einsatz') {
+      opts[optionIndex] = { ...target, dauerMin: Math.max(0, dauerMin) };
+    }
+    copy[stepIndex] = { ...cur, optionen: opts };
     return copy;
   });
 }
@@ -448,6 +516,19 @@ export interface ExportOptions {
   fach?: string;
   thema?: string;
   kiAusarbeitung?: string | null;
+  scenarioRows?: Array<{
+    orderLabel: string;
+    phaseLabel: string;
+    durationMin: number;
+    methodName: string;
+    methodRange: string;
+    methodUrl: string;
+    teacherRole: string;
+    learnerRole: string;
+    socialForm: string;
+    differentiation: Array<{ groupLabel: string; measure: string }>;
+    oerResources: Array<{ title: string; url: string; license?: string | null }>;
+  }>;
 }
 
 export function collectUsedBlocks(arr: Arrangement, blocksById: Map<string, Baustein>): Baustein[] {
@@ -543,6 +624,24 @@ export function exportArrangementMarkdown(
     });
   }
 
+  if (options.scenarioRows && options.scenarioRows.length) {
+    lines.push('', '### Verlaufsplan (IMS-LD Akteur- & Differenzierungstabelle)', '');
+    lines.push('| # | Phase | Zeit | FMT-Methode (Datenbank) | Rolle Lehrkraft | Rolle Lernende | Binnendifferenzierung & OER |');
+    lines.push('|---|---|---:|---|---|---|---|');
+    const cleanCell = (s: string) => s.replace(/\|/g, '/').replace(/\n/g, ' ');
+    for (const r of options.scenarioRows) {
+      const mLink = r.methodUrl.startsWith('http')
+        ? `[${cleanCell(r.methodName)} (${r.methodRange})](${r.methodUrl})`
+        : `${cleanCell(r.methodName)} (${r.methodRange})`;
+      const diffTxt = r.differentiation.map((d) => `**${cleanCell(d.groupLabel)}:** ${cleanCell(d.measure)}`).join(' · ');
+      const oerTxt = r.oerResources.map((o) => `[OER: ${cleanCell(o.title)}](${o.url})`).join(' · ');
+      const extra = [diffTxt, oerTxt].filter(Boolean).join(' · ') || '–';
+      lines.push(
+        `| ${cleanCell(r.orderLabel)} | ${cleanCell(r.phaseLabel)} | ${r.durationMin} min | ${mLink} | ${cleanCell(r.teacherRole)} | ${cleanCell(r.learnerRole)} | ${extra} |`
+      );
+    }
+  }
+
   if (options.kiAusarbeitung && options.kiAusarbeitung.trim()) {
     lines.push('', '## 2. Ausformulierte Stunden- / Reihenbeschreibung (KI-Entwurf)', '', options.kiAusarbeitung.trim());
   }
@@ -610,24 +709,52 @@ export function exportArrangementHtmlHandout(
   options: ExportOptions = {}
 ): string {
   const md = exportArrangementMarkdown(arr, blocksById, validation, options);
-  const htmlBody = md
-    .split('\n')
-    .map((line) => {
-      if (line.startsWith('### ')) return `<h3>${escHtml(line.slice(4))}</h3>`;
-      if (line.startsWith('## ')) return `<h2>${escHtml(line.slice(3))}</h2>`;
-      if (line.startsWith('# ')) return `<h1>${escHtml(line.slice(2))}</h1>`;
-      if (line === '---') return '<hr />';
-      if (!line.trim()) return '';
-      const formatted = escHtml(line)
-        .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/_([^_]+)_/g, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>');
-      if (/^\s*[-*]\s+/.test(line)) return `<li>${formatted.replace(/^\s*[-*]\s+/, '')}</li>`;
-      if (/^\s*\d+\.\s+/.test(line)) return `<li>${formatted.replace(/^\s*\d+\.\s+/, '')}</li>`;
-      return `<p>${formatted}</p>`;
-    })
-    .join('\n');
+  const fmtInline = (s: string) =>
+    escHtml(s)
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/_([^_]+)_/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  const rawLines = md.split('\n');
+  const htmlParts: string[] = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i];
+    if (line.startsWith('|') && i + 1 < rawLines.length && /^\|[\s:-]+\|/.test(rawLines[i + 1])) {
+      const headers = line.slice(1, -1).split('|').map((c) => c.trim());
+      i += 2;
+      const bodyRows: string[][] = [];
+      while (i < rawLines.length && rawLines[i].startsWith('|')) {
+        bodyRows.push(rawLines[i].slice(1, -1).split('|').map((c) => c.trim()));
+        i++;
+      }
+      i--;
+      htmlParts.push(
+        `<table><thead><tr>${headers.map((h) => `<th>${fmtInline(h)}</th>`).join('')}</tr></thead><tbody>${bodyRows
+          .map((r) => `<tr>${r.map((c) => `<td>${fmtInline(c)}</td>`).join('')}</tr>`)
+          .join('')}</tbody></table>`
+      );
+      continue;
+    }
+    if (line.startsWith('### ')) {
+      htmlParts.push(`<h3>${escHtml(line.slice(4))}</h3>`);
+    } else if (line.startsWith('## ')) {
+      htmlParts.push(`<h2>${escHtml(line.slice(3))}</h2>`);
+    } else if (line.startsWith('# ')) {
+      htmlParts.push(`<h1>${escHtml(line.slice(2))}</h1>`);
+    } else if (line === '---') {
+      htmlParts.push('<hr />');
+    } else if (!line.trim()) {
+      continue;
+    } else if (/^\s*[-*]\s+/.test(line)) {
+      htmlParts.push(`<li>${fmtInline(line.replace(/^\s*[-*]\s+/, ''))}</li>`);
+    } else if (/^\s*\d+\.\s+/.test(line)) {
+      htmlParts.push(`<li>${fmtInline(line.replace(/^\s*\d+\.\s+/, ''))}</li>`);
+    } else {
+      htmlParts.push(`<p>${fmtInline(line)}</p>`);
+    }
+  }
+  const htmlBody = htmlParts.join('\n');
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -635,15 +762,18 @@ export function exportArrangementHtmlHandout(
   <meta charset="utf-8" />
   <title>${escHtml(options.thema ? `${arr.name} – ${options.thema}` : arr.name)}</title>
   <style>
-    body { font-family: Georgia, serif; color: #14212E; background: #fff; max-width: 820px; margin: 32px auto; padding: 0 24px; line-height: 1.6; }
+    body { font-family: Georgia, serif; color: #14212E; background: #fff; max-width: 960px; margin: 32px auto; padding: 0 24px; line-height: 1.55; }
     h1, h2, h3 { font-family: "Barlow Semi Condensed", Arial, sans-serif; color: #14212E; margin-top: 1.4em; }
     h1 { border-bottom: 2px solid #2C5D8A; padding-bottom: 8px; }
     h2 { border-bottom: 1px solid #C6D0C9; padding-bottom: 4px; color: #2C5D8A; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9em; }
+    th, td { border: 1px solid #C6D0C9; padding: 7px 9px; text-align: left; vertical-align: top; }
+    th { background: #EEF2EE; font-family: "Barlow Semi Condensed", Arial, sans-serif; }
     li { margin: 4px 0; }
     a { color: #2C5D8A; }
     code { background: #EEF2EE; padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
     hr { border: none; border-top: 1px solid #C6D0C9; margin: 24px 0; }
-    @media print { body { margin: 0; } }
+    @media print { body { margin: 0; max-width: none; } }
   </style>
 </head>
 <body>

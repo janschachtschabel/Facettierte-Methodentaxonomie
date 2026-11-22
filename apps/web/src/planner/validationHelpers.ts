@@ -7,9 +7,12 @@ import {
   type ValidationMessage
 } from '@fmt/core';
 import {
+  fitContainerDurationToSlots,
   getMainSequence,
   setRecurrence,
-  setSlotBlock
+  setSlotBlock,
+  updateSlotDuration,
+  updateStepDuration
 } from './arrangementOps.js';
 
 export interface ExplainedValidationMessage {
@@ -103,7 +106,7 @@ export function explainValidationMessage(
     }
   } else if (msg.pfad.includes('/begleitend/')) {
     location = 'Begleitstrang (Parallel)';
-  } else if (msg.pfad === '/kontext/zeitbudgetMin') {
+  } else if (msg.pfad === '/kontext' || msg.pfad === '/kontext/zeitbudgetMin') {
     location = 'Zeitbudget';
   } else if (msg.pfad === '/zieltyp') {
     location = 'Zieltyp / Funktionskette';
@@ -166,6 +169,11 @@ export function explainValidationMessage(
             }
           };
         }
+      } else if (arrangement.zieltyp) {
+        quickFix = {
+          label: 'Auf „Freier Ablauf“ (ohne Kette) umstellen',
+          apply: (a) => ({ ...a, zieltyp: undefined })
+        };
       }
       break;
     }
@@ -201,12 +209,50 @@ export function explainValidationMessage(
       howToFix = 'Unterbrechen Sie lange passive Vortragsphasen (> 20 min) durch eine kurze aktive/konstruktive Interaktion (z. B. Think-Pair-Share oder Murmelgruppe).';
       break;
     case 'R-09': {
-      howToFix = 'Passen Sie die Minutenzahlen einzelner Schritte oder das Gesamt-Zeitbudget oben an.';
-      if (msg.pfad === '/kontext/zeitbudgetMin' && totalDauerMin > 0) {
+      howToFix =
+        'Zeitangaben im Katalog sind Orientierungswerte. Passen Sie Minuten direkt im Schritt bzw. Slot an oder erweitern Sie das Zeitbudget.';
+      if ((msg.pfad === '/kontext' || msg.pfad === '/kontext/zeitbudgetMin') && totalDauerMin > 0) {
         quickFix = {
           label: `Zeitbudget auf ${totalDauerMin} min anpassen`,
           apply: (a) => ({ ...a, kontext: { ...a.kontext, zeitbudgetMin: totalDauerMin } })
         };
+      } else if (stepIndex !== null && msg.meldung.startsWith('Slots brauchen')) {
+        const targetIdx = stepIndex;
+        const mSlot = msg.meldung.match(/Slots brauchen (\d+) min/);
+        const needed = mSlot ? Number(mSlot[1]) : 0;
+        quickFix = {
+          label: needed > 0 ? `Container auf ${needed} min anpassen` : 'Container-Zeit an Slots anpassen',
+          apply: (a) => fitContainerDurationToSlots(a, targetIdx)
+        };
+      } else if (stepIndex !== null) {
+        const node = seq.teile[stepIndex];
+        if (node?.typ === 'Einsatz') {
+          if (slotKennung) {
+            const bel = (node.belegung || []).find((x) => x.slotKennung === slotKennung);
+            const innerB = bel?.inhalt.typ === 'Einsatz' ? blocksById.get(bel.inhalt.baustein) : undefined;
+            if (innerB && bel?.inhalt.typ === 'Einsatz') {
+              const cur = bel.inhalt.dauerMin ?? innerB.dauerMin;
+              const clamped = Math.max(innerB.dauerMin, Math.min(innerB.dauerMax, cur));
+              const targetIdx = stepIndex;
+              const targetSlot = slotKennung;
+              quickFix = {
+                label: `Slot auf Richtwert (${clamped} min) setzen`,
+                apply: (a) => updateSlotDuration(a, targetIdx, targetSlot, clamped, true)
+              };
+            }
+          } else {
+            const b = blocksById.get(node.baustein);
+            if (b) {
+              const cur = node.dauerMin ?? b.dauerMin;
+              const clamped = Math.max(b.dauerMin, Math.min(b.dauerMax, cur));
+              const targetIdx = stepIndex;
+              quickFix = {
+                label: `Auf Richtwert (${clamped} min) setzen`,
+                apply: (a) => updateStepDuration(a, targetIdx, clamped)
+              };
+            }
+          }
+        }
       }
       break;
     }

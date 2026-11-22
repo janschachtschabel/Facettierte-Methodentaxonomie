@@ -10,6 +10,7 @@ import { loadConfig, type ServerConfig } from './config.js';
 import { registerApiRoutes } from './routes/api.js';
 import { registerLinkedDataRoutes } from './routes/linked-data.js';
 import { registerAssistantRoutes } from './routes/assistant.js';
+import { registerOerRoutes } from './routes/oer.js';
 import { registerMcpHttpRoutes } from './mcp/http.js';
 
 export interface BuildAppOptions {
@@ -45,6 +46,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerApiRoutes(app, store, config);
   registerLinkedDataRoutes(app, store);
   registerAssistantRoutes(app, store, config);
+  registerOerRoutes(app, config);
   registerMcpHttpRoutes(app, store);
 
   const webDir = options.webDistDir;

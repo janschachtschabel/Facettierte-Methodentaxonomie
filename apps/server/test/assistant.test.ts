@@ -36,6 +36,16 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
         let content = '';
         if (userText.includes('AUSGESTALTUNG') || parsed.messages?.[0]?.content?.includes('ausgestalten')) {
           content = '## Konkrete Ausgestaltung\nNutzen Sie die Bausteine genau wie geprüft.';
+        } else if (userText.includes('MATERIALTYP:')) {
+          content = '# Gestuftes Arbeitsblatt\n## Aufgaben\n1. Basisaufgabe\n2. Vertiefungsaufgabe';
+        } else if (parsed.messages?.[0]?.content?.includes('Binnendifferenzierung')) {
+          content = JSON.stringify({
+            phasen: {
+              'step-0': [
+                { groupId: 'basis', groupLabel: 'Basis', measure: 'Satzstarter und Rechenbeispiel bereitstellen.' }
+              ]
+            }
+          });
         } else if (mockBehavior === 'bad-json') {
           content = 'Das ist kein JSON!';
         } else if (mockBehavior === 'hallucinated-enum') {
@@ -307,5 +317,43 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(lastMockBody?.max_tokens).toBeUndefined();
     expect(lastMockBody?.temperature).toBeUndefined();
     expect(lastMockBody?.reasoning_effort).toBe('low');
+  });
+
+  it('supports AI differentiation, classroom material generation, and WLO OER input validation', async () => {
+    mockBehavior = 'valid';
+    const diffRes = await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/differentiate',
+      payload: {
+        fach: 'Mathematik',
+        thema: 'Bruchrechnen',
+        gruppen: [{ id: 'basis', label: 'Basis', profile: 'Geringes Vorwissen' }],
+        phases: [{ key: 'step-0', phaseLabel: 'P1', methodId: 'loesungsbeispiele', durationMin: 25 }]
+      }
+    });
+    expect(diffRes.statusCode).toBe(200);
+    expect(diffRes.json().vorschlaege['step-0'][0].measure).toContain('Satzstarter');
+
+    const matRes = await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/material',
+      payload: {
+        baustein: 'loesungsbeispiele',
+        fach: 'Mathematik',
+        thema: 'Bruchrechnen',
+        materialTyp: 'arbeitsblatt',
+        gruppen: [{ label: 'Basis', profile: 'Geringes Vorwissen' }]
+      }
+    });
+    expect(matRes.statusCode).toBe(200);
+    expect(matRes.json().material).toContain('Gestuftes Arbeitsblatt');
+
+    // WLO search rejects empty query with clean 400
+    const badWlo = await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/oer/wlo-search',
+      payload: {}
+    });
+    expect(badWlo.statusCode).toBe(400);
   });
 });

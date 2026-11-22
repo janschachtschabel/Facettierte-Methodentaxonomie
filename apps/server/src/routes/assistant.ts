@@ -50,6 +50,11 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
   const validateAnfrage = ajv.compile(store.anfrageSchemaObj);
   const translateCache = new LruTtlCache<{ anfrage: MatchRequest }>(config.llmCacheMax, config.llmCacheTtlMs);
   const elaborateCache = new LruTtlCache<string>(config.llmCacheMax, config.llmCacheTtlMs);
+  const diffCache = new LruTtlCache<Record<string, Array<{ groupId: string; groupLabel: string; measure: string }>>>(
+    config.llmCacheMax,
+    config.llmCacheTtlMs
+  );
+  const materialCache = new LruTtlCache<string>(config.llmCacheMax, config.llmCacheTtlMs);
 
   const hashKey = (parts: unknown[]) =>
     crypto.createHash('sha256').update(JSON.stringify(parts)).digest('hex');
@@ -168,6 +173,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       thema?: string;
       fach?: string;
       hinweise?: string;
+      differenzierung?: unknown;
+      oerRessourcen?: unknown;
     } | null;
 
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
@@ -214,12 +221,14 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       }));
 
     const cacheKey = hashKey([
-      'elaborate-v2',
+      'elaborate-v3',
       store.bundle.versionHash,
       target.model,
       body.thema || '',
       body.fach || '',
       body.hinweise || '',
+      body.differenzierung || null,
+      body.oerRessourcen || null,
       body.arrangement
     ]);
 
@@ -245,6 +254,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     const userPrompt =
       `AUSGESTALTUNG für Fach: ${body.fach || 'nicht angegeben'}, Thema: ${body.thema || 'nicht angegeben'}.\n` +
       (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+      (body.differenzierung ? `\nBinnendifferenzierung / Lerngruppen:\n${JSON.stringify(body.differenzierung, null, 2)}\n` : '') +
+      (body.oerRessourcen ? `\nVerknüpfte WLO/OER-Ressourcen:\n${JSON.stringify(body.oerRessourcen, null, 2)}\n` : '') +
       `\nArrangement (JSON):\n${JSON.stringify(body.arrangement, null, 2)}\n\n` +
       `Prüfungsergebnis:\n${JSON.stringify(pruefung, null, 2)}\n\n` +
       `Katalogdaten der verwendeten Bausteine (inkl. Durchführung, Material und verifizierten Quellen):\n${JSON.stringify(catalogContext, null, 2)}`;
@@ -268,6 +279,233 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     } catch (e) {
       return reply.code(502).send({
         fehler: e instanceof Error ? e.message : 'LLM-Ausgestaltung fehlgeschlagen.'
+      });
+    }
+  });
+
+  app.post('/api/v1/assistant/differentiate', { config: rateLimitConfig }, async (req, reply) => {
+    const body = req.body as {
+      phases?: Array<{ key: string; phaseLabel: string; methodId: string; durationMin: number }>;
+      gruppen?: Array<{ id: string; label: string; profile: string }>;
+      fach?: string;
+      thema?: string;
+      bildungsstufe?: string;
+      hinweise?: string;
+    } | null;
+
+    const phases = Array.isArray(body?.phases) ? body!.phases.slice(0, 20) : [];
+    const gruppen = Array.isArray(body?.gruppen) ? body!.gruppen.slice(0, 6) : [];
+    if (!phases.length || !gruppen.length) {
+      return reply.code(400).send({ fehler: 'Bitte Phasen und mindestens eine Lerngruppe übergeben.' });
+    }
+
+    let target;
+    try {
+      target = resolveLlmTarget(config, readByokHeaders(req, body as Record<string, unknown> | null));
+    } catch (e) {
+      if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
+      throw e;
+    }
+
+    if (!target) {
+      return reply.code(503).send({
+        fehler: 'Für KI-Binnendifferenzierung ist kein LLM-API-Key konfiguriert. Die regelbasierten FMT-Hinweise stehen weiterhin direkt zur Verfügung.'
+      });
+    }
+
+    const enrichedPhases = phases.map((p) => {
+      const b = store.blocksById.get(p.methodId);
+      return {
+        key: p.key,
+        phaseLabel: p.phaseLabel,
+        durationMin: p.durationMin,
+        methodId: p.methodId,
+        methodName: b?.name || p.methodId,
+        anleitung: b?.anleitung || [],
+        adaptivitaet: b?.adaptivitaet || [],
+        durchfuehrung: b?.durchfuehrung || [],
+        variante: b?.variante || [],
+        qualitaetsrisiko: b?.qualitaetsrisiko || []
+      };
+    });
+
+    const cacheKey = hashKey([
+      'diff-v1',
+      store.bundle.versionHash,
+      target.model,
+      body?.fach || '',
+      body?.thema || '',
+      body?.bildungsstufe || '',
+      body?.hinweise || '',
+      gruppen,
+      enrichedPhases.map((p) => [p.key, p.methodId, p.durationMin])
+    ]);
+
+    if (!target.isByok) {
+      const cached = diffCache.get(cacheKey);
+      if (cached) {
+        return reply.send({ gecacht: true, vorschlaege: cached, leitplanken: FMT_GUARDRAILS });
+      }
+    }
+
+    const systemPrompt =
+      'Du bist ein Experte für Binnendifferenzierung und die Facettierte Methodentaxonomie (FMT). ' +
+      'Erstelle für jede übergebene Unterrichtsphase und jede Lerngruppe eine knappe, konkret umsetzbare Differenzierungsmaßnahme (1–2 Sätze) passend zur jeweiligen FMT-Methode, zum Fach und zum Thema.\n' +
+      'Antworte AUSSCHLIESSLICH mit gültigem JSON im Format:\n' +
+      '{ "phasen": { "<phase.key>": [ { "groupId": "<group.id>", "groupLabel": "<group.label>", "measure": "<konkrete Maßnahme>" } ] } }\n' +
+      'Verwende exakt die übergebenen phase.key- und group.id-Werte. Erfinde keine neuen Methoden.';
+
+    const userPrompt =
+      `Fach: ${body?.fach || 'nicht angegeben'}, Thema: ${body?.thema || 'nicht angegeben'}, Bildungsstufe: ${body?.bildungsstufe || 'nicht angegeben'}.\n` +
+      (body?.hinweise ? `Hinweise: ${body.hinweise}\n` : '') +
+      `\nLerngruppen:\n${JSON.stringify(gruppen, null, 2)}\n\n` +
+      `Unterrichtsphasen mit FMT-Methoden:\n${JSON.stringify(enrichedPhases, null, 2)}`;
+
+    try {
+      const raw = await callChatCompletion(
+        target,
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        {
+          jsonMode: true,
+          maxTokens: 1800,
+          timeoutMs: config.llmTimeoutMs,
+          reasoningEffort: config.llmReasoningEffort
+        }
+      );
+      const parsed = extractJsonObject(raw) as {
+        phasen?: Record<string, Array<{ groupId?: string; groupLabel?: string; measure?: string }>>;
+      } | null;
+      if (!parsed?.phasen || typeof parsed.phasen !== 'object') {
+        return reply.code(502).send({ fehler: 'KI-Differenzierung enthielt kein gültiges JSON-Format.' });
+      }
+      const clean: Record<string, Array<{ groupId: string; groupLabel: string; measure: string }>> = {};
+      for (const p of phases) {
+        const list = Array.isArray(parsed.phasen[p.key]) ? parsed.phasen[p.key] : [];
+        clean[p.key] = list
+          .filter((x) => x && typeof x.measure === 'string' && x.measure.trim())
+          .map((x) => {
+            const g = gruppen.find((gr) => gr.id === x.groupId);
+            return {
+              groupId: g?.id || String(x.groupId || 'gruppe'),
+              groupLabel: g?.label || String(x.groupLabel || 'Lerngruppe'),
+              measure: x.measure!.trim()
+            };
+          });
+      }
+      if (!target.isByok) diffCache.set(cacheKey, clean);
+      return reply.send({ gecacht: false, vorschlaege: clean, leitplanken: FMT_GUARDRAILS });
+    } catch (e) {
+      return reply.code(502).send({
+        fehler: e instanceof Error ? e.message : 'KI-Differenzierung fehlgeschlagen.'
+      });
+    }
+  });
+
+  app.post('/api/v1/assistant/material', { config: rateLimitConfig }, async (req, reply) => {
+    const body = req.body as {
+      baustein?: string;
+      phaseLabel?: string;
+      dauerMin?: number;
+      fach?: string;
+      thema?: string;
+      bildungsstufe?: string;
+      materialTyp?: string;
+      gruppen?: Array<{ label: string; profile: string }>;
+      hinweise?: string;
+    } | null;
+
+    const methodId = typeof body?.baustein === 'string' ? body.baustein.trim() : '';
+    const block = store.blocksById.get(methodId);
+    if (!block) {
+      return reply.code(400).send({ fehler: 'Bitte einen gültigen FMT-Methodenbaustein auswählen.' });
+    }
+
+    let target;
+    try {
+      target = resolveLlmTarget(config, readByokHeaders(req, body as Record<string, unknown> | null));
+    } catch (e) {
+      if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
+      throw e;
+    }
+
+    if (!target) {
+      return reply.code(503).send({
+        fehler: 'Für den KI-Materialgenerator ist kein LLM-API-Key konfiguriert (optional BYOK im Browser hinterlegen).'
+      });
+    }
+
+    const materialTyp = body?.materialTyp || 'arbeitsblatt';
+    const cacheKey = hashKey([
+      'material-v1',
+      store.bundle.versionHash,
+      target.model,
+      methodId,
+      materialTyp,
+      body?.fach || '',
+      body?.thema || '',
+      body?.bildungsstufe || '',
+      body?.dauerMin || block.dauerMin,
+      body?.gruppen || [],
+      body?.hinweise || ''
+    ]);
+
+    if (!target.isByok) {
+      const cached = materialCache.get(cacheKey);
+      if (cached) {
+        return reply.send({ gecacht: true, material: cached, baustein: block.name, leitplanken: FMT_GUARDRAILS });
+      }
+    }
+
+    const systemPrompt =
+      'Du erstellst direkt im Unterricht einsetzbares, druckfertiges Lehrmaterial (klares deutsches Markdown) auf Basis einer konkreten FMT-Unterrichtsmethode.\n' +
+      'STRUKTUR:\n' +
+      '1. **Kopfzeile** (Titel, Fach, Thema, Methode, Zeitrahmen)\n' +
+      '2. **Klare Arbeitsaufträge / Inhalt** – exakt passend zur gewählten FMT-Methode und deren Durchführungsschritten\n' +
+      '3. **Binnendifferenzierung** – sofern Lerngruppen übergeben wurden, kennzeichne Hilfen (★ Basis / Satzstarter) und Erweiterungen (★★★ Vertiefung)\n' +
+      '4. **Erwartungshorizont / Lehrkraft-Hinweise** (kurze Musterlösungen & typische Fehlvorstellungen)\n' +
+      'Erfinde keine falschen Quellen-URLs.';
+
+    const userPrompt =
+      `MATERIALTYP: ${materialTyp}\n` +
+      `Fach: ${body?.fach || 'nicht angegeben'} · Thema: ${body?.thema || 'nicht angegeben'} · Bildungsstufe: ${body?.bildungsstufe || 'Sekundarstufe I'}\n` +
+      `Phase: ${body?.phaseLabel || 'Unterrichtsphase'} · Dauer: ${body?.dauerMin || block.dauerMin} min\n` +
+      (body?.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+      (body?.gruppen?.length ? `\nAktive Lerngruppen für Differenzierung:\n${JSON.stringify(body.gruppen, null, 2)}\n` : '') +
+      `\nFMT-Methode:\n${JSON.stringify(
+        {
+          name: block.name,
+          kurzbeschreibung: block.kurzbeschreibung,
+          durchfuehrung: block.durchfuehrung,
+          material: block.material,
+          kernkomponente: block.kernkomponente.map((k) => k.name),
+          qualitaetsrisiko: block.qualitaetsrisiko
+        },
+        null,
+        2
+      )}`;
+
+    try {
+      const material = await callChatCompletion(
+        target,
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        {
+          jsonMode: false,
+          maxTokens: 2200,
+          timeoutMs: config.llmTimeoutMs,
+          reasoningEffort: config.llmReasoningEffort
+        }
+      );
+      if (!target.isByok) materialCache.set(cacheKey, material);
+      return reply.send({ gecacht: false, material, baustein: block.name, leitplanken: FMT_GUARDRAILS });
+    } catch (e) {
+      return reply.code(502).send({
+        fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.'
       });
     }
   });

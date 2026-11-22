@@ -9,6 +9,7 @@ import {
   createChainPreset,
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
+  fitContainerDurationToSlots,
   importArrangementJson,
   moveStep,
   removeStep,
@@ -17,9 +18,17 @@ import {
   setRecurrence,
   setSlotBlock,
   unwrapAlternative,
+  updateSlotDuration,
   wrapStepInAlternative
 } from '../src/planner/arrangementOps.js';
 import { explainValidationMessage } from '../src/planner/validationHelpers.js';
+import {
+  buildNeutralLearningScenario,
+  buildScenarioRows,
+  DEFAULT_LEARNER_GROUPS,
+  detectMaterialTypeForBlock
+} from '../src/planner/scenarioModel.js';
+import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../src/planner/lmsExport.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
@@ -153,5 +162,94 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(explained.quickFix).toBeDefined();
     const fixed = explained.quickFix!.apply(broken);
     expect(fixed.reichweite).toBe('r3');
+  });
+
+  it('supports flexible slot durations, R-09 auto-fit quick fixes, IMS-LD scenario model, and .imscc / Moodle XML exports', () => {
+    let arr = createChainPreset('konzeptaufbau', BUNDLE);
+    // Edit slot duration directly inside VBE (step 0) and auto-fit container
+    arr = updateSlotDuration(arr, 0, 'austausch', 35, true);
+    const haupt = arr.ablauf.typ === 'Parallel' ? arr.ablauf.haupt : arr.ablauf;
+    expect(haupt.typ === 'Sequenz' && haupt.teile[0].typ === 'Einsatz' && haupt.teile[0].dauerMin).toBeGreaterThanOrEqual(35);
+
+    // Budget warning on /kontext produces a working 1-click R-09 quick fix
+    const tight: Arrangement = { ...arr, kontext: { ...arr.kontext, zeitbudgetMin: 100 } };
+    const tVal = VALIDATOR.validate(tight, REGISTRY);
+    const r09Budget = tVal.meldungen.find((m) => m.regel === 'R-09' && m.pfad === '/kontext');
+    expect(r09Budget).toBeDefined();
+    const expBudget = explainValidationMessage(r09Budget!, tight, BLOCKS, BUNDLE, tVal.dauerMin);
+    expect(expBudget.quickFix).toBeDefined();
+    expect(expBudget.quickFix!.apply(tight).kontext?.zeitbudgetMin).toBe(tVal.dauerMin);
+
+    // Fit container duration helper
+    arr = fitContainerDurationToSlots(arr, 1);
+    const val = VALIDATOR.validate(arr, REGISTRY);
+
+    const labelOf = (schemeId: string, code: string) => {
+      const s = BUNDLE.schemes.find((x) => x.id === schemeId);
+      const vals = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
+      return vals.find((w) => w.id === code)?.label || code;
+    };
+
+    const rows = buildScenarioRows(
+      arr,
+      BUNDLE,
+      BLOCKS,
+      labelOf,
+      DEFAULT_LEARNER_GROUPS,
+      {},
+      {
+        'step-0': [
+          {
+            id: 'wlo-1',
+            title: 'Dichte verstehen – Interaktive Simulation',
+            description: 'Freies OER-Material',
+            url: 'https://wirlernenonline.de/dichte-sim',
+            license: 'CC_BY',
+            source: 'wlo'
+          }
+        ]
+      },
+      'https://fmt.example.org'
+    );
+    expect(rows.length).toBeGreaterThanOrEqual(7);
+    expect(rows[0].methodUrl).toBe('https://fmt.example.org/methoden/vbe');
+    expect(rows[0].differentiation.length).toBe(3);
+    expect(rows[0].oerResources.length).toBe(1);
+    expect(detectMaterialTypeForBlock(BLOCKS.get('vbe'))).toBe('versuchsanleitung');
+    expect(detectMaterialTypeForBlock(BLOCKS.get('abrufquiz'))).toBe('quiz');
+
+    const scenario = buildNeutralLearningScenario(arr, rows, DEFAULT_LEARNER_GROUPS, {
+      fach: 'Physik',
+      thema: 'Dichte',
+      totalDurationMin: val.dauerMin,
+      labelOf
+    });
+    expect(scenario['@type']).toBe('NeutralLearningScenario');
+    expect(scenario.learning_sequences[0].phases[0].fmt_method.database_url).toContain('/methoden/vbe');
+
+    // IMS Common Cartridge (.imscc) ZIP starts with PK signature and embeds imsmanifest.xml + WLO webLink
+    const zipBytes = exportScenarioToImscc(scenario, rows);
+    expect(zipBytes[0]).toBe(0x50); // 'P'
+    expect(zipBytes[1]).toBe(0x4b); // 'K'
+    const zipText = new TextDecoder().decode(zipBytes);
+    expect(zipText).toContain('imsmanifest.xml');
+    expect(zipText).toContain('fmt_scenario_imsld.json');
+    expect(zipText).toContain('https://wirlernenonline.de/dichte-sim');
+    expect(zipText).toContain('https://fmt.example.org/methoden/vbe');
+
+    // Moodle XML backup export contains FMT method pages & OER URL activity
+    const moodleXml = exportScenarioToMoodleXml(scenario, rows);
+    expect(moodleXml).toContain('<moodle_backup>');
+    expect(moodleXml).toContain('https://wirlernenonline.de/dichte-sim');
+    expect(moodleXml).toContain('Vorhersage');
+
+    // HTML handout renders IMS-LD Verlaufsplan table cleanly
+    const html = exportArrangementHtmlHandout(arr, BLOCKS, val, {
+      fach: 'Physik',
+      thema: 'Dichte',
+      scenarioRows: rows
+    });
+    expect(html).toContain('<table><thead><tr><th>#</th>');
+    expect(html).toContain('https://wirlernenonline.de/dichte-sim');
   });
 });
