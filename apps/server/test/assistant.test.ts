@@ -35,8 +35,22 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
         lastMockBody = parsed;
         const userText = String(parsed.messages?.[1]?.content || '');
         let content = '';
-        if (userText.includes('AUSGESTALTUNG') || parsed.messages?.[0]?.content?.includes('ausgestalten')) {
-          content = '## Konkrete Ausgestaltung\nNutzen Sie die Bausteine genau wie geprüft.';
+        if (
+          userText.includes('AUSGESTALTUNG') ||
+          String(parsed.messages?.[0]?.content || '').includes('thematischeTabelle')
+        ) {
+          content = JSON.stringify({
+            thematischeTabelle: [
+              {
+                key: 'step-0',
+                teacherAction: 'Leitet die Erarbeitung am Thema an.',
+                learnerAction: 'Erarbeiten das Thema strukturiert.',
+                groupAdaptations: { basis: 'Satzstarter nutzen.' },
+                materialsAndOer: 'Arbeitsblatt + WLO-OER'
+              }
+            ],
+            ausarbeitung: '## Konkrete Ausgestaltung\nNutzen Sie die Bausteine genau wie geprüft.'
+          });
         } else if (userText.includes('MATERIALTYP:')) {
           content = '# Gestuftes Arbeitsblatt\n## Aufgaben\n1. Basisaufgabe\n2. Vertiefungsaufgabe';
         } else if (parsed.messages?.[0]?.content?.includes('Binnendifferenzierung')) {

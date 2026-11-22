@@ -1,23 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { Arrangement, Baustein, ValidationResult } from '@fmt/core';
+import { scoreDifferentiationMatrix, type Arrangement, type Baustein, type ValidationResult } from '@fmt/core';
 import { SimpleMarkdown } from './SimpleMarkdown.js';
 import { WloOerCards } from './WloOerCards.js';
+import { DifferentiationMatrixPanel } from './DifferentiationMatrixPanel.js';
 import {
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
   exportArrangementWordDoc,
-  exportMarkdownToPrintableHtml,
-  importArrangementJson
+  exportMarkdownToPrintableHtml
 } from '../planner/arrangementOps.js';
 import {
+  buildDefaultThematicRows,
   buildNeutralLearningScenario,
   detectMaterialTypeForBlock,
+  getOerWwwUrl,
   MATERIAL_TYPES,
+  type GeneratedMaterialItem,
   type LearnerGroup,
   type OerResource,
   type ScenarioPhaseRow,
-  type StepDiffSuggestion
+  type StepDiffSuggestion,
+  type SubgroupMethodMap,
+  type ThematicPhaseRow
 } from '../planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../planner/lmsExport.js';
 import { printHtmlDocument } from '../planner/scenarioStorage.js';
@@ -30,7 +35,7 @@ interface Props {
   onResourceTabChange: (tab: StudioTab) => void;
   focusedStepKey: string | null;
   arrangement: Arrangement;
-  onArrangementChange: (next: Arrangement) => void;
+  allBlocks: Baustein[];
   blocksById: Map<string, Baustein>;
   usedBlocks: Baustein[];
   validation: ValidationResult;
@@ -38,6 +43,8 @@ interface Props {
   labelOf: (schemeId: string, code: string) => string;
   fach: string;
   thema: string;
+  didaktischerAnsatz: string;
+  lehrkraefteInfo: string;
   lernziele: string;
   problemstellung: string;
   hinweise: string;
@@ -48,8 +55,15 @@ interface Props {
   onGroupsChange: (next: LearnerGroup[]) => void;
   aiDiffByStep: Record<string, StepDiffSuggestion[]>;
   onAiDiffChange: (next: Record<string, StepDiffSuggestion[]>) => void;
+  onEditDiffMeasure: (stepKey: string, groupId: string, groupLabel: string, measure: string) => void;
+  subgroupMethods: SubgroupMethodMap;
+  onSubgroupMethodChange: (stepKey: string, groupId: string, methodId: string | null) => void;
   oerByStep: Record<string, OerResource[]>;
   onOerByStepChange: (next: Record<string, OerResource[]>) => void;
+  generatedMaterials: GeneratedMaterialItem[];
+  onGeneratedMaterialsChange: (next: GeneratedMaterialItem[]) => void;
+  thematicRows: ThematicPhaseRow[] | null;
+  onThematicRowsChange: (next: ThematicPhaseRow[] | null) => void;
   elaboration: string | null;
   onElaborationChange: (next: string | null) => void;
   onPrintPdf: () => void;
@@ -66,7 +80,7 @@ export function ScenarioStudioPanel({
   onResourceTabChange,
   focusedStepKey,
   arrangement,
-  onArrangementChange,
+  allBlocks,
   blocksById,
   usedBlocks,
   validation,
@@ -74,6 +88,8 @@ export function ScenarioStudioPanel({
   labelOf,
   fach,
   thema,
+  didaktischerAnsatz,
+  lehrkraefteInfo,
   lernziele,
   problemstellung,
   hinweise,
@@ -84,8 +100,15 @@ export function ScenarioStudioPanel({
   onGroupsChange,
   aiDiffByStep,
   onAiDiffChange,
+  onEditDiffMeasure,
+  subgroupMethods,
+  onSubgroupMethodChange,
   oerByStep,
   onOerByStepChange,
+  generatedMaterials,
+  onGeneratedMaterialsChange,
+  thematicRows,
+  onThematicRowsChange,
   elaboration,
   onElaborationChange,
   onPrintPdf,
@@ -98,12 +121,10 @@ export function ScenarioStudioPanel({
   // Full AI elaboration state
   const [busyElab, setBusyElab] = useState(false);
   const [elabError, setElabError] = useState<string | null>(null);
-  const [importText, setImportText] = useState('');
-  const [importError, setImportError] = useState<string | null>(null);
+  const [editingTable, setEditingTable] = useState(false);
+  const [editingText, setEditingText] = useState(false);
 
   // Differentiation state
-  const [newGroupLabel, setNewGroupLabel] = useState('');
-  const [newGroupProfile, setNewGroupProfile] = useState('');
   const [busyDiff, setBusyDiff] = useState(false);
   const [diffError, setDiffError] = useState<string | null>(null);
 
@@ -113,7 +134,8 @@ export function ScenarioStudioPanel({
   const [matNotes, setMatNotes] = useState<string>('');
   const [busyMat, setBusyMat] = useState(false);
   const [matError, setMatError] = useState<string | null>(null);
-  const [generatedMaterial, setGeneratedMaterial] = useState<{ title: string; content: string } | null>(null);
+  const [draftMaterial, setDraftMaterial] = useState<{ title: string; materialType: string; content: string } | null>(null);
+  const [editingDraftMat, setEditingDraftMat] = useState(false);
 
   useEffect(() => {
     if (focusedStepKey) setMatStepKey(focusedStepKey);
@@ -124,6 +146,23 @@ export function ScenarioStudioPanel({
       setMatStepKey(scenarioRows[0].key);
     }
   }, [scenarioRows, matStepKey]);
+
+  const effectiveThematicRows = useMemo(() => {
+    const defaults = buildDefaultThematicRows(scenarioRows, groups, fach, thema);
+    if (!thematicRows || !thematicRows.length) return defaults;
+    const byKey = new Map(thematicRows.map((r) => [r.key, r]));
+    return defaults.map((d) => {
+      const saved = byKey.get(d.key);
+      if (!saved) return d;
+      return {
+        ...d,
+        teacherAction: saved.teacherAction || d.teacherAction,
+        learnerAction: saved.learnerAction || d.learnerAction,
+        groupAdaptations: { ...d.groupAdaptations, ...(saved.groupAdaptations || {}) },
+        materialsAndOer: saved.materialsAndOer || d.materialsAndOer
+      };
+    });
+  }, [scenarioRows, groups, fach, thema, thematicRows]);
 
   const downloadFile = (filename: string, content: string | Uint8Array, mime: string) => {
     const payload = typeof content === 'string' ? content : new Uint8Array(content);
@@ -136,28 +175,95 @@ export function ScenarioStudioPanel({
     URL.revokeObjectURL(url);
   };
 
+  const totalLearners = groups.filter((g) => g.active).reduce((s, g) => s + (g.count || 0), 0);
+
   const buildScenario = () =>
     buildNeutralLearningScenario(arrangement, scenarioRows, groups, {
       fach,
       thema,
+      didaktischerAnsatz,
+      lehrkraefteInfo,
+      totalLearners: totalLearners || undefined,
+      thematicRows: effectiveThematicRows,
       totalDurationMin: validation.dauerMin,
       labelOf
     });
 
-  const exportOpts = () => ({
-    fach,
-    thema,
-    lernziele,
-    problemstellung,
-    kiAusarbeitung: elaboration,
-    timelineSvg: getTimelineSvg(),
-    scenarioRows
-  });
+  const exportOpts = (includeMachineReadableInMd = false) => {
+    const sc = buildScenario();
+    const machineJson = JSON.stringify(sc, null, 2);
+    return {
+      fach,
+      thema,
+      didaktischerAnsatz,
+      lehrkraefteInfo,
+      lernziele,
+      problemstellung,
+      kiAusarbeitung: elaboration,
+      timelineSvg: getTimelineSvg(),
+      groups,
+      thematicRows: effectiveThematicRows,
+      generatedMaterials,
+      scenarioRows,
+      machineReadableJson: machineJson,
+      includeMachineReadableInMd
+    };
+  };
 
   const runAiElaborate = async () => {
     setBusyElab(true);
     setElabError(null);
     try {
+      const activeGroups = groups.filter((g) => g.active);
+      const diffPayload = activeGroups.map((g) => {
+        const mRes = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 });
+        return {
+          id: g.id,
+          gruppe: g.label,
+          profil: g.profile,
+          anzahl: g.count,
+          matrixMassnahmen: mRes.topRecommendations.map((r) => `${r.name} (+${r.score})`)
+        };
+      });
+
+      const oerPayload = scenarioRows.flatMap((r) =>
+        r.oerResources.map((o) => ({
+          stepKey: r.key,
+          titel: o.title,
+          wwwurl: getOerWwwUrl(o),
+          url: getOerWwwUrl(o),
+          lizenz: o.license || null,
+          notiz: o.note || undefined
+        }))
+      );
+
+      const matPayload = generatedMaterials.map((m) => ({
+        stepKey: m.stepKey,
+        titel: m.title,
+        typ: m.materialType,
+        kurzinhalt: m.content.slice(0, 320)
+      }));
+
+      const phasenPayload = scenarioRows.map((r) => ({
+        key: r.key,
+        orderLabel: r.orderLabel,
+        phaseLabel: r.phaseLabel,
+        durationMin: r.durationMin,
+        methodId: r.methodId,
+        methodName: r.methodName,
+        subgroupMethods: Object.fromEntries(
+          Object.entries(r.subgroupMethods).map(([gid, sm]) => [gid, { methodId: sm.methodId, methodName: sm.methodName }])
+        )
+      }));
+
+      const akteureSummary = [
+        lehrkraefteInfo || '1 Lehrkraft',
+        totalLearners ? `${totalLearners} Lernende gesamt` : '',
+        activeGroups.map((g) => `${g.label}${g.count ? ` (${g.count})` : ''}`).join(', ')
+      ]
+        .filter(Boolean)
+        .join(' · ');
+
       const res = await fetch('/api/v1/assistant/elaborate', {
         method: 'POST',
         headers: byokHeaders(),
@@ -165,17 +271,24 @@ export function ScenarioStudioPanel({
           arrangement,
           thema,
           fach,
+          didaktischerAnsatz: didaktischerAnsatz || undefined,
+          akteure: akteureSummary || undefined,
           lernziele: lernziele.trim() || undefined,
           problemstellung: problemstellung.trim() || undefined,
           hinweise: hinweise.trim() || undefined,
-          differenzierung: groups.filter((g) => g.active).map((g) => ({ gruppe: g.label, profil: g.profile })),
-          oerRessourcen: Object.values(oerByStep).flat().map((o) => ({ titel: o.title, url: o.url }))
+          differenzierung: diffPayload,
+          oerRessourcen: oerPayload,
+          materialien: matPayload,
+          phasen: phasenPayload
         })
       });
       const json = await res.json();
       if (!res.ok) {
         setElabError(json.fehler || 'Ausgestaltung fehlgeschlagen.');
         return;
+      }
+      if (Array.isArray(json.thematischeTabelle) && json.thematischeTabelle.length > 0) {
+        onThematicRowsChange(json.thematischeTabelle as ThematicPhaseRow[]);
       }
       onElaborationChange(String(json.ausarbeitung));
     } catch (e) {
@@ -200,7 +313,16 @@ export function ScenarioStudioPanel({
             ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
             : 'Sekundarstufe I',
           hinweise: hinweise.trim() || undefined,
-          gruppen: activeGroups.map((g) => ({ id: g.id, label: g.label, profile: g.profile })),
+          gruppen: activeGroups.map((g) => {
+            const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 });
+            return {
+              id: g.id,
+              label: g.label,
+              profile: g.profile,
+              count: g.count,
+              matrixMeasures: scored.topRecommendations.map((r) => `${r.name} (+${r.score})`)
+            };
+          }),
           phases: scenarioRows.map((r) => ({
             key: r.key,
             phaseLabel: r.phaseLabel,
@@ -236,6 +358,7 @@ export function ScenarioStudioPanel({
     setMatError(null);
     const effType = matType === 'auto' ? detectMaterialTypeForBlock(row.block) : matType;
     try {
+      const activeGroups = groups.filter((g) => g.active);
       const res = await fetch('/api/v1/assistant/material', {
         method: 'POST',
         headers: byokHeaders(),
@@ -249,7 +372,15 @@ export function ScenarioStudioPanel({
             ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
             : 'Sekundarstufe I',
           materialTyp: effType,
-          gruppen: groups.filter((g) => g.active).map((g) => ({ label: g.label, profile: g.profile })),
+          gruppen: activeGroups.map((g) => {
+            const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 4 });
+            return {
+              label: g.label,
+              profile: g.profile,
+              count: g.count,
+              matrixMeasures: scored.topRecommendations.map((x) => x.name)
+            };
+          }),
           hinweise: matNotes.trim() || hinweise.trim() || undefined
         })
       });
@@ -258,10 +389,12 @@ export function ScenarioStudioPanel({
         setMatError(json.fehler || 'Materialgenerierung fehlgeschlagen.');
         return;
       }
-      setGeneratedMaterial({
+      setDraftMaterial({
         title: `${row.methodName} – ${MATERIAL_TYPES.find((t) => t.id === effType)?.label || effType}`,
+        materialType: effType,
         content: String(json.material)
       });
+      setEditingDraftMat(false);
     } catch (e) {
       setMatError(e instanceof Error ? e.message : 'Netzwerkfehler');
     } finally {
@@ -269,12 +402,42 @@ export function ScenarioStudioPanel({
     }
   };
 
+  const attachDraftMaterialToPhase = () => {
+    if (!draftMaterial) return;
+    const item: GeneratedMaterialItem = {
+      id: `mat-${Date.now()}`,
+      stepKey: matStepKey,
+      title: draftMaterial.title,
+      materialType: draftMaterial.materialType,
+      content: draftMaterial.content,
+      createdAt: new Date().toISOString()
+    };
+    onGeneratedMaterialsChange([...generatedMaterials, item]);
+  };
+
+  const updateThematicCell = (
+    key: string,
+    field: 'teacherAction' | 'learnerAction' | 'materialsAndOer',
+    value: string
+  ) => {
+    const next = effectiveThematicRows.map((r) => (r.key === key ? { ...r, [field]: value } : r));
+    onThematicRowsChange(next);
+  };
+
+  const updateThematicGroupCell = (key: string, groupId: string, value: string) => {
+    const next = effectiveThematicRows.map((r) =>
+      r.key === key ? { ...r, groupAdaptations: { ...r.groupAdaptations, [groupId]: value } } : r
+    );
+    onThematicRowsChange(next);
+  };
+
   const totalAttachedOer = Object.values(oerByStep).reduce((s, list) => s + list.length, 0);
   const selectedMatRow = scenarioRows.find((r) => r.key === matStepKey);
   const autoDetectedType = detectMaterialTypeForBlock(selectedMatRow?.block);
+  const activeGroups = groups.filter((g) => g.active);
 
   // =========================================================================
-  // MODE 1 (STEP 3): OER-KACHELN, BINNENDIFFERENZIERUNG & MATERIALGENERATOR
+  // MODE 1 (STEP 3): WLO-OER-SUCHE, KI-MATERIALAUFTRAG & DIFFERENZIERUNGSMATRIX
   // =========================================================================
   if (mode === 'resources') {
     return (
@@ -295,21 +458,21 @@ export function ScenarioStudioPanel({
             className={`btn btn-sm ${activeResourceTab === 'oer' ? 'btn-primary' : ''}`}
             onClick={() => onResourceTabChange('oer')}
           >
-            🌐 WLO / OER-Kacheln {totalAttachedOer > 0 ? `(${totalAttachedOer} verknüpft)` : ''}
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm ${activeResourceTab === 'diff' ? 'btn-primary' : ''}`}
-            onClick={() => onResourceTabChange('diff')}
-          >
-            ⚖ Binnendifferenzierung ({groups.filter((g) => g.active).length} Gruppen)
+            🌐 WLO / OER finden &amp; zuordnen {totalAttachedOer > 0 ? `(${totalAttachedOer})` : ''}
           </button>
           <button
             type="button"
             className={`btn btn-sm ${activeResourceTab === 'material' ? 'btn-primary' : ''}`}
             onClick={() => onResourceTabChange('material')}
           >
-            📝 KI-Materialgenerator (Arbeitsblatt / Quiz / Karten)
+            📝 Material per KI erstellen {generatedMaterials.length > 0 ? `(${generatedMaterials.length} angehängt)` : ''}
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${activeResourceTab === 'diff' ? 'btn-primary' : ''}`}
+            onClick={() => onResourceTabChange('diff')}
+          >
+            ⚖ Binnendifferenzierungsmatrix ({activeGroups.length} Gruppen)
           </button>
         </div>
 
@@ -326,140 +489,32 @@ export function ScenarioStudioPanel({
         )}
 
         {activeResourceTab === 'diff' && (
-          <div>
-            <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-              Jede aktive Teilgruppe erscheint als eigene <strong>Spalte in der Rollen-Verlaufstabelle</strong> (Schritt 2), im PDF-Entwurf und im LMS-Export.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10, marginBottom: 14 }}>
-              {groups.map((g) => (
-                <div
-                  key={g.id}
-                  style={{
-                    padding: 12,
-                    borderRadius: 8,
-                    background: g.active ? 'var(--paper)' : 'transparent',
-                    border: `1px solid ${g.active ? 'var(--dA)' : 'var(--grid)'}`,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: 8
-                  }}
-                >
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', flex: 1 }}>
-                    <input
-                      type="checkbox"
-                      checked={g.active}
-                      onChange={(e) =>
-                        onGroupsChange(groups.map((x) => (x.id === g.id ? { ...x, active: e.target.checked } : x)))
-                      }
-                    />
-                    <span>
-                      <strong style={{ fontFamily: 'var(--display)' }}>{g.label}</strong>
-                      <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
-                        {g.profile}
-                      </div>
-                    </span>
-                  </label>
-                  {g.focus === 'custom' && (
-                    <button
-                      type="button"
-                      className="btn btn-sm"
-                      onClick={() => onGroupsChange(groups.filter((x) => x.id !== g.id))}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-              <input
-                type="text"
-                style={{ flex: '1 1 180px' }}
-                placeholder="Eigene Teilgruppe (z. B. DaZ / LRS / ADHS)"
-                value={newGroupLabel}
-                onChange={(e) => setNewGroupLabel(e.target.value)}
-              />
-              <input
-                type="text"
-                style={{ flex: '2 1 260px' }}
-                placeholder="Förderbedarf / Unterstützungsfokus"
-                value={newGroupProfile}
-                onChange={(e) => setNewGroupProfile(e.target.value)}
-              />
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={() => {
-                  if (!newGroupLabel.trim()) return;
-                  onGroupsChange([
-                    ...groups,
-                    {
-                      id: `custom-${Date.now()}`,
-                      label: newGroupLabel.trim(),
-                      profile: newGroupProfile.trim() || 'Individuelle Unterstützung',
-                      focus: 'custom',
-                      active: true
-                    }
-                  ]);
-                  setNewGroupLabel('');
-                  setNewGroupProfile('');
-                }}
-              >
-                + Teilgruppe hinzufügen
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={busyDiff || !llmAvailable}
-                onClick={runAiDifferentiate}
-              >
-                ✨ {busyDiff ? 'Generiere Differenzierung…' : 'Themenspezifische Differenzierung mit KI erzeugen'}
-              </button>
-              {Object.keys(aiDiffByStep).length > 0 && (
-                <button type="button" className="btn btn-sm" onClick={() => onAiDiffChange({})}>
-                  Auf FMT-Regelhinweise zurücksetzen
-                </button>
-              )}
-            </div>
-
-            {diffError && (
-              <div className="msgs">
-                <li className="err">{diffError}</li>
-              </div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10 }}>
-              {scenarioRows.map((r) => (
-                <div key={r.key} style={{ padding: 12, borderRadius: 8, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
-                  <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14.5, marginBottom: 6 }}>
-                    {r.orderLabel} · {r.methodName} ({r.durationMin} min)
-                  </div>
-                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
-                    {r.differentiation.map((d, di) => (
-                      <li key={di} style={{ marginBottom: 4 }}>
-                        <strong>{d.groupLabel}:</strong> {d.measure}{' '}
-                        <span className="muted" style={{ fontSize: 11.5 }}>
-                          [{d.source === 'ki' ? 'KI' : 'FMT'}]
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
+          <DifferentiationMatrixPanel
+            groups={groups}
+            onGroupsChange={onGroupsChange}
+            scenarioRows={scenarioRows}
+            allBlocks={allBlocks}
+            subgroupMethods={subgroupMethods}
+            onSubgroupMethodChange={onSubgroupMethodChange}
+            aiDiffByStep={aiDiffByStep}
+            onAiDiffChange={onAiDiffChange}
+            onEditDiffMeasure={onEditDiffMeasure}
+            onRunAiDifferentiate={() => void runAiDifferentiate()}
+            busyDiff={busyDiff}
+            diffError={diffError}
+            llmAvailable={llmAvailable}
+          />
         )}
 
         {activeResourceTab === 'material' && (
           <div>
-            <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-              Erstellt druckfertiges Unterrichtsmaterial (Arbeitsblatt, Quiz, Checkliste, Karten) passend zur gewählten FMT-Methode und deinen Lerngruppen.
+            <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
+              📝 Materialauftrag an die KI (Arbeitsblatt, Quiz, Checkliste, Karten)
+            </strong>
+            <p className="muted" style={{ fontSize: 13.5, margin: '3px 0 12px' }}>
+              Erzeugt konkretes, druckfertiges Unterrichtsmaterial passend zur FMT-Methode, deinem Thema und der
+              Binnendifferenzierungsmatrix. Du kannst den Entwurf bearbeiten und direkt an die Phase anhängen – dann
+              bezieht sich der fertige Unterrichtsentwurf (Schritt 4) ausdrücklich darauf.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10, marginBottom: 10 }}>
@@ -488,12 +543,12 @@ export function ScenarioStudioPanel({
             </div>
 
             <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
-              Zusatzwunsch fürs Material (optional)
+              Auftrag / Zusatzwunsch fürs Material (optional)
               <input
                 type="text"
                 value={matNotes}
                 onChange={(e) => setMatNotes(e.target.value)}
-                placeholder="z. B. 4 gestufte Aufgaben mit Alltagsbezug, inkl. Selbstkontroll-Lösung"
+                placeholder="z. B. 4 gestufte Aufgaben mit Alltagsbezug, Satzstarter für Basisgruppe, inkl. Musterlösung"
               />
             </label>
 
@@ -501,9 +556,9 @@ export function ScenarioStudioPanel({
               type="button"
               className="btn btn-primary"
               disabled={busyMat || !llmAvailable || !selectedMatRow}
-              onClick={runMaterialGen}
+              onClick={() => void runMaterialGen()}
             >
-              📝 {busyMat ? 'Generiere Material…' : 'Unterrichtsmaterial generieren (KI)'}
+              📝 {busyMat ? 'Generiere Material…' : 'Material per KI erstellen'}
             </button>
 
             {matError && (
@@ -512,51 +567,105 @@ export function ScenarioStudioPanel({
               </div>
             )}
 
-            {generatedMaterial && (
+            {draftMaterial && (
               <div
                 style={{
                   marginTop: 14,
                   padding: 18,
                   background: 'var(--paper)',
                   borderRadius: 8,
-                  border: '1px solid var(--rule)'
+                  border: '1px solid var(--dA)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-                  <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>{generatedMaterial.title}</strong>
+                  <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>{draftMaterial.title}</strong>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-primary"
-                      onClick={() =>
-                        printHtmlDocument(exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content))
-                      }
-                    >
-                      🖨 Als PDF drucken
+                    <button type="button" className="btn btn-sm btn-primary" onClick={attachDraftMaterialToPhase}>
+                      ✓ An gewählte Phase anhängen (für Schritt 4)
+                    </button>
+                    <button type="button" className="btn btn-sm" onClick={() => setEditingDraftMat((s) => !s)}>
+                      {editingDraftMat ? '👁 Vorschau' : '✏ Bearbeiten'}
                     </button>
                     <button
                       type="button"
                       className="btn btn-sm"
                       onClick={() =>
-                        downloadFile(
-                          'fmt-material.html',
-                          exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content),
-                          'text/html;charset=utf-8'
-                        )
+                        printHtmlDocument(exportMarkdownToPrintableHtml(draftMaterial.title, draftMaterial.content))
                       }
                     >
-                      ⬇ Handout (.html)
+                      🖨 PDF
                     </button>
                     <button
                       type="button"
                       className="btn btn-sm"
-                      onClick={() => downloadFile('fmt-material.md', generatedMaterial.content, 'text/markdown;charset=utf-8')}
+                      onClick={() => downloadFile('fmt-material.md', draftMaterial.content, 'text/markdown;charset=utf-8')}
                     >
-                      ⬇ Markdown (.md)
+                      ⬇ .md
                     </button>
                   </div>
                 </div>
-                <SimpleMarkdown content={generatedMaterial.content} />
+                {editingDraftMat ? (
+                  <textarea
+                    rows={14}
+                    style={{ width: '100%', fontFamily: 'var(--mono)', fontSize: 13 }}
+                    value={draftMaterial.content}
+                    onChange={(e) => setDraftMaterial({ ...draftMaterial, content: e.target.value })}
+                  />
+                ) : (
+                  <SimpleMarkdown content={draftMaterial.content} />
+                )}
+              </div>
+            )}
+
+            {generatedMaterials.length > 0 && (
+              <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+                <strong style={{ fontFamily: 'var(--display)', fontSize: 15 }}>
+                  ✓ An dieses Szenario angehängte KI-Materialien ({generatedMaterials.length}):
+                </strong>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+                  {generatedMaterials.map((m) => {
+                    const row = scenarioRows.find((r) => r.key === m.stepKey);
+                    return (
+                      <div
+                        key={m.id}
+                        style={{
+                          padding: 10,
+                          borderRadius: 6,
+                          background: 'var(--paper)',
+                          border: '1px solid var(--dC)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: 10,
+                          flexWrap: 'wrap'
+                        }}
+                      >
+                        <div>
+                          <strong style={{ fontFamily: 'var(--display)' }}>{m.title}</strong>
+                          <div className="muted" style={{ fontSize: 12 }}>
+                            Phase: {row ? `${row.orderLabel} · ${row.methodName}` : m.stepKey}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            onClick={() => printHtmlDocument(exportMarkdownToPrintableHtml(m.title, m.content))}
+                          >
+                            🖨 PDF
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            onClick={() => onGeneratedMaterialsChange(generatedMaterials.filter((x) => x.id !== m.id))}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -566,9 +675,10 @@ export function ScenarioStudioPanel({
   }
 
   // =========================================================================
-  // MODE 2 (STEP 4): VOLLBREITER UNTERRICHTSENTWURF, QUELLEN & EXPORTE
+  // MODE 2 (STEP 4): FERTIGES THEMATISCHES SZENARIO (TABELLE + TEXT + EXPORT)
   // =========================================================================
-  const standardMarkdown = exportArrangementMarkdown(arrangement, blocksById, validation, exportOpts());
+  const standardMarkdownWithJson = exportArrangementMarkdown(arrangement, blocksById, validation, exportOpts(true));
+  const machineReadablePreview = JSON.stringify(buildScenario(), null, 2);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -576,15 +686,21 @@ export function ScenarioStudioPanel({
       <div className="card no-print" style={{ padding: 20, borderTop: '3px solid var(--dA)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: 23 }}>Fertiger Unterrichtsentwurf &amp; Export</h2>
+            <h2 style={{ margin: 0, fontSize: 23 }}>4. Fertiges thematisches Unterrichtsszenario &amp; Export</h2>
             <p className="muted" style={{ margin: '4px 0 0', fontSize: 14.5 }}>
-              {fach || 'Fach'} · {thema || arrangement.name} · {validation.dauerMin} min · {usedBlocks.length} verlinkte FMT-Methoden
+              {fach || 'Fach'} · {thema || arrangement.name} · {validation.dauerMin} min · {usedBlocks.length} FMT-Methoden
               {totalAttachedOer > 0 ? ` · ${totalAttachedOer} WLO-OER` : ''}
+              {generatedMaterials.length > 0 ? ` · ${generatedMaterials.length} KI-Materialien` : ''}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-primary" disabled={busyElab} onClick={runAiElaborate}>
-              ✨ {busyElab ? 'Formuliere Entwurf…' : elaboration ? 'KI-Entwurf neu ausformulieren' : 'Vollständigen Entwurf ausformulieren (KI)'}
+            <button type="button" className="btn btn-primary" disabled={busyElab} onClick={() => void runAiElaborate()}>
+              ✨{' '}
+              {busyElab
+                ? 'Arbeite Tabelle & Entwurf aus…'
+                : elaboration
+                  ? 'Thematische Tabelle & Entwurf neu ausarbeiten (KI)'
+                  : 'Thematische Tabelle & Entwurf ausarbeiten (KI)'}
             </button>
             <button type="button" className="btn btn-primary" onClick={onPrintPdf}>
               🖨 Als PDF drucken / speichern
@@ -593,7 +709,7 @@ export function ScenarioStudioPanel({
         </div>
 
         {/* Quick Metadata inline polish */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, marginTop: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginTop: 14 }}>
           <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
             Fach
             <input type="text" value={fach} onChange={(e) => onFachChange(e.target.value)} />
@@ -603,7 +719,7 @@ export function ScenarioStudioPanel({
             <input type="text" value={thema} onChange={(e) => onThemaChange(e.target.value)} />
           </label>
           <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            Zusatzhinweise für KI-Entwurf
+            Zusatzhinweise für thematische Ausarbeitung
             <input
               type="text"
               value={hinweise}
@@ -613,13 +729,17 @@ export function ScenarioStudioPanel({
           </label>
         </div>
 
-        {/* Grouped Export Buttons */}
+        {/* Grouped Export Buttons (Table + Text + Machine-Readable!) */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
           <button
             type="button"
             className="btn btn-sm"
             onClick={() =>
-              downloadFile('fmt-unterrichtsentwurf.doc', exportArrangementWordDoc(arrangement, blocksById, validation, exportOpts()), 'application/msword;charset=utf-8')
+              downloadFile(
+                'fmt-unterrichtsentwurf.doc',
+                exportArrangementWordDoc(arrangement, blocksById, validation, exportOpts(false)),
+                'application/msword;charset=utf-8'
+              )
             }
           >
             ⬇ Word / LibreOffice (.doc)
@@ -627,18 +747,24 @@ export function ScenarioStudioPanel({
           <button
             type="button"
             className="btn btn-sm"
+            title="Enthält Zeitband-SVG, thematische Tabelle, Text, WLO-OER-wwwurl und eingebettetes JSON-LD"
             onClick={() =>
-              downloadFile('fmt-unterrichtsentwurf.html', exportArrangementHtmlHandout(arrangement, blocksById, validation, exportOpts()), 'text/html;charset=utf-8')
+              downloadFile(
+                'fmt-unterrichtsentwurf.html',
+                exportArrangementHtmlHandout(arrangement, blocksById, validation, exportOpts(false)),
+                'text/html;charset=utf-8'
+              )
             }
           >
-            ⬇ Handout (.html)
+            ⬇ Handout + JSON-LD (.html)
           </button>
           <button
             type="button"
             className="btn btn-sm"
-            onClick={() => downloadFile('fmt-unterrichtsentwurf.md', standardMarkdown, 'text/markdown;charset=utf-8')}
+            title="Enthält thematische Tabelle, Text, WLO-OER-wwwurl und maschinenlesbare IMS-LD JSON-Repräsentation"
+            onClick={() => downloadFile('fmt-unterrichtsentwurf.md', standardMarkdownWithJson, 'text/markdown;charset=utf-8')}
           >
-            ⬇ Markdown (.md)
+            ⬇ Markdown inkl. Tabelle &amp; JSON (.md)
           </button>
           <button
             type="button"
@@ -665,17 +791,16 @@ export function ScenarioStudioPanel({
             type="button"
             className="btn btn-sm"
             onClick={() => {
-              const sc = buildScenario();
-              downloadFile('fmt-imsld-szenario.json', JSON.stringify(sc, null, 2), 'application/json;charset=utf-8');
+              downloadFile('fmt-imsld-szenario.json', machineReadablePreview, 'application/json;charset=utf-8');
             }}
           >
-            ⬇ IMS-LD (.json)
+            ⬇ Maschinenlesbar IMS-LD (.json)
           </button>
           <button type="button" className="btn btn-sm" onClick={onSaveBrowser}>
-            💾 Im Browser speichern
+            💾 Speichern
           </button>
           <button type="button" className="btn btn-sm" onClick={onDownloadProject}>
-            ⬇ Projektdatei (.fmt.json)
+            ⬇ Projekt (.fmt.json)
           </button>
         </div>
 
@@ -686,30 +811,233 @@ export function ScenarioStudioPanel({
         )}
       </div>
 
-      {/* FULL-WIDTH Prominent Draft Preview */}
+      {/* SECTION A: THEMATISCHE VERLAUFSTABELLE (angepasst auf Fach, Thema, Materialien & WLO-OER!) */}
+      <section className="card" style={{ padding: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 18 }}>
+                📋 Thematischer Verlaufsplan: {fach ? `${fach} – ` : ''}{thema || arrangement.name}
+              </strong>
+              <span className="status-badge" style={{ borderColor: 'var(--dC)', color: 'var(--dC)' }}>
+                {thematicRows ? 'Thematisch angepasst' : 'Vorbelegt aus FMT + Matrix + OER'}
+              </span>
+            </div>
+            <p className="muted" style={{ fontSize: 13.5, margin: '3px 0 0' }}>
+              Zeigt die konkrete Anwendung jeder FMT-Methode auf dein Thema – inklusive Teilgruppen-Anpassungen,
+              erstellter Materialien und WLO-OER-Links (<strong>mit wwwurl</strong>). Jede Zelle ist anpassbar.
+            </p>
+          </div>
+          <div className="no-print" style={{ display: 'flex', gap: 6 }}>
+            <button type="button" className="btn btn-sm" onClick={() => setEditingTable((s) => !s)}>
+              {editingTable ? '✓ Bearbeitung beenden' : '✏ Tabelle direkt bearbeiten'}
+            </button>
+            {thematicRows && (
+              <button type="button" className="btn btn-sm btn-ghost" onClick={() => onThematicRowsChange(null)}>
+                ↺ Zurücksetzen
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="scroll">
+          <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ width: 34 }}>#</th>
+                <th style={{ width: '16%' }}>Phase &amp; FMT-Methode</th>
+                <th style={{ width: 64 }}>Zeit</th>
+                <th style={{ width: '19%', background: 'color-mix(in srgb, var(--dA-soft) 55%, var(--surface))' }}>
+                  👩‍🏫 {lehrkraefteInfo || 'Lehrkraft'} (am Thema)
+                </th>
+                <th style={{ width: '19%' }}>👥 Lernende (am Thema)</th>
+                {activeGroups.length > 0 && (
+                  <th style={{ width: '21%', background: 'color-mix(in srgb, var(--dB-soft) 45%, var(--surface))' }}>
+                    ⚖ Binnendifferenzierung / Teilgruppen
+                  </th>
+                )}
+                <th style={{ width: '19%' }}>🌐 Materialien &amp; WLO-OER (wwwurl)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {effectiveThematicRows.map((tr) => {
+                const scRow = scenarioRows.find((r) => r.key === tr.key);
+                return (
+                  <tr key={tr.key}>
+                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{tr.orderLabel}</td>
+                    <td>
+                      <div className="muted" style={{ fontSize: 12 }}>{tr.phaseLabel}</div>
+                      <Link to={`/methoden/${tr.methodId}`} style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                        {tr.methodName}
+                      </Link>
+                      {scRow && Object.keys(scRow.subgroupMethods).length > 0 && (
+                        <div style={{ marginTop: 4, fontSize: 11.5, color: 'var(--dD)' }}>
+                          {Object.entries(scRow.subgroupMethods).map(([gid, sm]) => {
+                            const g = groups.find((x) => x.id === gid);
+                            return (
+                              <div key={gid}>
+                                🔀 {g?.label.split(' ')[0] || gid}:{' '}
+                                <Link to={`/methoden/${sm.methodId}`}>{sm.methodName}</Link>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ whiteSpace: 'nowrap', fontFamily: 'var(--display)', fontWeight: 700 }}>{tr.durationMin} min</td>
+                    <td style={{ background: 'color-mix(in srgb, var(--dA-soft) 18%, transparent)' }}>
+                      {editingTable ? (
+                        <textarea
+                          rows={3}
+                          style={{ width: '100%', fontSize: 12.5 }}
+                          value={tr.teacherAction}
+                          onChange={(e) => updateThematicCell(tr.key, 'teacherAction', e.target.value)}
+                        />
+                      ) : (
+                        tr.teacherAction
+                      )}
+                    </td>
+                    <td>
+                      {editingTable ? (
+                        <textarea
+                          rows={3}
+                          style={{ width: '100%', fontSize: 12.5 }}
+                          value={tr.learnerAction}
+                          onChange={(e) => updateThematicCell(tr.key, 'learnerAction', e.target.value)}
+                        />
+                      ) : (
+                        tr.learnerAction
+                      )}
+                    </td>
+                    {activeGroups.length > 0 && (
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {activeGroups.map((g) => {
+                            const val = tr.groupAdaptations[g.id] || '';
+                            return (
+                              <div key={g.id} style={{ fontSize: 12.5 }}>
+                                <strong style={{ fontFamily: 'var(--display)' }}>
+                                  {g.label}
+                                  {g.count ? ` (${g.count})` : ''}:
+                                </strong>{' '}
+                                {editingTable ? (
+                                  <textarea
+                                    rows={2}
+                                    style={{ width: '100%', fontSize: 12, marginTop: 2 }}
+                                    value={val}
+                                    onChange={(e) => updateThematicGroupCell(tr.key, g.id, e.target.value)}
+                                  />
+                                ) : (
+                                  val || '–'
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </td>
+                    )}
+                    <td>
+                      {editingTable ? (
+                        <textarea
+                          rows={3}
+                          style={{ width: '100%', fontSize: 12.5 }}
+                          value={tr.materialsAndOer}
+                          onChange={(e) => updateThematicCell(tr.key, 'materialsAndOer', e.target.value)}
+                        />
+                      ) : (
+                        <div style={{ fontSize: 12.5 }}>{tr.materialsAndOer}</div>
+                      )}
+                      {scRow && scRow.oerResources.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+                          {scRow.oerResources.map((o) => {
+                            const href = getOerWwwUrl(o);
+                            return (
+                              <div
+                                key={o.id}
+                                style={{
+                                  padding: '4px 6px',
+                                  borderRadius: 5,
+                                  background: 'var(--paper)',
+                                  border: '1px solid var(--dA)',
+                                  fontSize: 11.5
+                                }}
+                              >
+                                <a href={href} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
+                                  🌐 {o.title} ↗
+                                </a>
+                                <div style={{ fontFamily: 'var(--mono)', fontSize: 10.5, wordBreak: 'break-all', color: 'var(--ink-2)' }}>
+                                  {href}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* SECTION B: AUSFORMULIERTER UNTERRICHTSENTWURF (TEXT – EDITIERBAR) */}
       <article className="card" style={{ padding: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 14, paddingBottom: 10, borderBottom: '1px solid var(--grid)' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 10,
+            flexWrap: 'wrap',
+            marginBottom: 14,
+            paddingBottom: 10,
+            borderBottom: '1px solid var(--grid)'
+          }}
+        >
           <div>
             <span className="status-badge" style={{ marginBottom: 4 }}>
-              {elaboration ? '✨ KI-ausformulierter Unterrichtsentwurf' : '📋 Strukturierter FMT-Entwurf (sofort druckbereit)'}
+              {elaboration ? '✨ Ausformulierter Unterrichtsentwurf (mit Material- & OER-Bezug)' : '📄 Strukturierter Textentwurf'}
             </span>
             <h3 style={{ margin: '4px 0 0', fontSize: 20 }}>
               {thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name}
             </h3>
           </div>
-          {!elaboration && (
-            <span className="muted" style={{ fontSize: 13 }}>
-              Tipp: Klicke oben auf <strong>„Vollständigen Entwurf ausformulieren (KI)“</strong> für ausformulierte Impulse &amp; Übergänge.
-            </span>
-          )}
+          <div className="no-print" style={{ display: 'flex', gap: 6 }}>
+            {elaboration && (
+              <button type="button" className="btn btn-sm" onClick={() => setEditingText((s) => !s)}>
+                {editingText ? '👁 Leseansicht' : '✏ Entwurfstext bearbeiten'}
+              </button>
+            )}
+          </div>
         </div>
 
         {elaboration ? (
-          <SimpleMarkdown content={elaboration} />
+          editingText ? (
+            <textarea
+              rows={20}
+              style={{ width: '100%', fontFamily: 'var(--mono)', fontSize: 13.5 }}
+              value={elaboration}
+              onChange={(e) => onElaborationChange(e.target.value)}
+            />
+          ) : (
+            <SimpleMarkdown content={elaboration} />
+          )
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {(lernziele.trim() || problemstellung.trim()) && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {(lernziele.trim() || problemstellung.trim() || didaktischerAnsatz) && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+                {didaktischerAnsatz && (
+                  <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
+                    <strong style={{ fontFamily: 'var(--display)' }}>Didaktischer Ansatz &amp; Akteure</strong>
+                    <p style={{ margin: '6px 0 0', fontSize: 14 }}>
+                      {didaktischerAnsatz}
+                      {lehrkraefteInfo ? ` · ${lehrkraefteInfo}` : ''}
+                      {totalLearners ? ` · ${totalLearners} Lernende` : ''}
+                    </p>
+                  </div>
+                )}
                 {lernziele.trim() && (
                   <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
                     <strong style={{ fontFamily: 'var(--display)' }}>Lernziele</strong>
@@ -724,72 +1052,41 @@ export function ScenarioStudioPanel({
                 )}
               </div>
             )}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {scenarioRows.map((r) => (
-                <div
-                  key={r.key}
-                  style={{
-                    padding: 14,
-                    borderRadius: 8,
-                    background: 'var(--paper)',
-                    border: '1px solid var(--grid)',
-                    borderLeft: `4px solid ${r.isNestedSlot ? 'var(--dD)' : 'var(--dA)'}`
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <div>
-                      <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
-                        {r.orderLabel} · {r.phaseLabel}:{' '}
-                        <Link to={`/methoden/${r.methodId}`}>{r.methodName}</Link>
-                      </strong>
-                    </div>
-                    <span className="chip">{r.durationMin} min</span>
-                  </div>
-                  {r.block?.kurzbeschreibung && (
-                    <p style={{ margin: '6px 0', fontSize: 14 }}>{r.block.kurzbeschreibung}</p>
-                  )}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8, fontSize: 13.5, marginTop: 6 }}>
-                    <div>
-                      <strong>👩‍🏫 Lehrkraft:</strong> {r.teacherRole}
-                    </div>
-                    <div>
-                      <strong>👥 Lernende:</strong> {r.learnerRole}
-                    </div>
-                  </div>
-                  {r.block?.durchfuehrung?.length ? (
-                    <ol style={{ margin: '8px 0 0', paddingLeft: 20, fontSize: 13.5 }}>
-                      {r.block.durchfuehrung.map((step, si) => (
-                        <li key={si}>{step}</li>
-                      ))}
-                    </ol>
-                  ) : null}
-                  {r.differentiation.length > 0 && (
-                    <div style={{ marginTop: 8, fontSize: 13 }}>
-                      <strong>⚖ Differenzierung:</strong>{' '}
-                      {r.differentiation.map((d) => `${d.groupLabel}: ${d.measure}`).join(' · ')}
-                    </div>
-                  )}
-                  {r.oerResources.length > 0 && (
-                    <div style={{ marginTop: 6, fontSize: 13 }}>
-                      <strong>🌐 OER:</strong>{' '}
-                      {r.oerResources.map((o, oi) => (
-                        <span key={o.id}>
-                          {oi > 0 && ' · '}
-                          <a href={o.url} target="_blank" rel="noreferrer">
-                            {o.title}
-                          </a>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <p className="muted" style={{ margin: 0, fontSize: 14 }}>
+              Klicke oben auf <strong>„✨ Thematische Tabelle &amp; Entwurf ausarbeiten (KI)“</strong>, um sowohl die
+              Verlaufstabelle als auch einen voll ausformulierten Unterrichtsentwurf mit konkreten Arbeitsimpulsen,
+              Übergängen und direkter Einbindung deiner WLO-OER-Ressourcen &amp; Materialien zu generieren.
+            </p>
           </div>
         )}
 
-        {/* Always-visible verified source list for all used blocks */}
+        {/* Always-visible verified WLO-OER & FMT source directories */}
+        {totalAttachedOer > 0 && (
+          <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+            <h4 style={{ margin: '0 0 8px', fontFamily: 'var(--display)', fontSize: 15.5 }}>
+              🌐 Verknüpfte WLO / OER-Ressourcen (inkl. wwwurl) ({totalAttachedOer})
+            </h4>
+            <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {scenarioRows.flatMap((r) =>
+                r.oerResources.map((o) => {
+                  const href = getOerWwwUrl(o);
+                  return (
+                    <li key={`${r.key}-${o.id}`}>
+                      <strong>{r.orderLabel} ({r.methodName}):</strong>{' '}
+                      <a href={href} target="_blank" rel="noreferrer">
+                        {o.title}
+                      </a>{' '}
+                      — <code style={{ fontSize: 12 }}>{href}</code>
+                      {o.license ? <span className="muted"> ({o.license})</span> : null}
+                      {o.note ? <span className="muted"> · {o.note}</span> : null}
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </div>
+        )}
+
         {usedBlocks.length > 0 && (
           <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
             <h4 style={{ margin: '0 0 8px', fontFamily: 'var(--display)', fontSize: 15.5 }}>
@@ -798,68 +1095,42 @@ export function ScenarioStudioPanel({
             <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
               {usedBlocks.map((b) => (
                 <li key={b.kennung}>
-                  <Link to={`/methoden/${b.kennung}`}>
-                    <strong>{b.name}</strong>
+                  <Link to={`/methoden/${b.kennung}`} style={{ fontWeight: 700 }}>
+                    {b.name}
                   </Link>
-                  :{' '}
-                  {(b.quellen || []).map((q, qi) => (
-                    <span key={qi}>
-                      {qi > 0 && ' · '}
-                      {q.url ? (
-                        <a href={q.url} target="_blank" rel="noreferrer">
-                          {q.titel}
-                        </a>
-                      ) : (
-                        q.titel
-                      )}
-                    </span>
-                  ))}
+                  {b.quellen?.length ? (
+                    <>
+                      {' — '}
+                      {b.quellen.map((q, qi) => (
+                        <span key={qi}>
+                          {qi > 0 && ' · '}
+                          {q.url ? (
+                            <a href={q.url} target="_blank" rel="noreferrer">
+                              {q.titel}
+                            </a>
+                          ) : (
+                            q.titel
+                          )}
+                        </span>
+                      ))}
+                    </>
+                  ) : null}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Technical JSON-LD drawer cleanly tucked at the bottom */}
-        <details className="no-print" style={{ marginTop: 18 }}>
-          <summary style={{ fontFamily: 'var(--display)', fontWeight: 600, cursor: 'pointer', fontSize: 13.5 }}>
-            Technischer Export / Import (FMT JSON-LD)
+        {/* SECTION C: MASCHINENLESBARE REPRÄSENTATION */}
+        <details className="no-print" style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+          <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 15, cursor: 'pointer', color: 'var(--dA)' }}>
+            {'{}'} Maschinenlesbare Repräsentation (IMS-LD NeutralLearningScenario &amp; FMT JSON-LD)
           </summary>
-          <div style={{ marginTop: 8 }}>
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ marginBottom: 8 }}
-              onClick={() => downloadFile('fmt-arrangement.jsonld', JSON.stringify(arrangement, null, 2), 'application/ld+json')}
-            >
-              ⬇ FMT JSON-LD herunterladen
-            </button>
-            <pre style={{ maxHeight: 200 }}>{JSON.stringify(arrangement, null, 2)}</pre>
-            <textarea
-              rows={3}
-              style={{ width: '100%', marginTop: 8 }}
-              placeholder="Eigenes FMT-Arrangement (JSON-LD) hier einfügen…"
-              value={importText}
-              onChange={(e) => setImportText(e.target.value)}
-            />
-            {importError && <p style={{ color: 'var(--err)', fontSize: 13.5 }}>{importError}</p>}
-            <button
-              type="button"
-              className="btn btn-sm"
-              style={{ marginTop: 6 }}
-              onClick={() => {
-                const res = importArrangementJson(importText);
-                if (!res.ok) setImportError(res.fehler);
-                else {
-                  setImportError(null);
-                  onArrangementChange(res.arrangement);
-                  setImportText('');
-                }
-              }}
-            >
-              JSON-LD importieren
-            </button>
-          </div>
+          <p className="muted" style={{ fontSize: 13, margin: '6px 0 8px' }}>
+            Wird automatisch im HTML-Handout als <code>&lt;script type=&quot;application/ld+json&quot;&gt;</code>, im Markdown-Export,
+            im IMS Common Cartridge (<code>.imscc</code>) und als eigenständige <code>.json</code>-Datei mitgeliefert.
+          </p>
+          <pre style={{ maxHeight: 320 }}>{machineReadablePreview}</pre>
         </details>
       </article>
     </div>

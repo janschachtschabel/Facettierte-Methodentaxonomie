@@ -2,7 +2,14 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { createValidator, createSearch, createMatcher, FMT_RULES } from '../src/index.js';
+import {
+  createValidator,
+  createSearch,
+  createMatcher,
+  FMT_RULES,
+  scoreDifferentiationMatrix,
+  suggestAlternativeMethodsForGroup
+} from '../src/index.js';
 import type { Arrangement } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -248,5 +255,27 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     const res2 = V.validate(rootNoId, cycReg);
     expect(res2.gueltig).toBe(false);
     expect(res2.meldungen.some((m) => m.regel === 'R-12' && m.schwere === 'Fehler')).toBe(true);
+  });
+
+  it('scores Binnendifferenzierungsmatrix personas deterministically, suggests subgroup alternative methods, and recognizes ansatz in free text', () => {
+    const langRes = scoreDifferentiationMatrix({ personaId: 'languageAndCulture', limit: 8 });
+    expect(langRes.selectedCount).toBeGreaterThan(20);
+    expect(langRes.topRecommendations.length).toBeGreaterThanOrEqual(5);
+    expect(langRes.topRecommendations[0].score).toBeGreaterThan(10);
+    expect(langRes.didacticProfile.preferredGuidance).toBe('explizit');
+    expect(langRes.didacticProfile.needsLanguageSupport).toBe(true);
+    expect(langRes.avoidMeasures.length).toBeGreaterThan(0);
+
+    const highRes = scoreDifferentiationMatrix({ personaId: 'highPerforming', limit: 8 });
+    expect(highRes.didacticProfile.preferredGuidance).toBe('offen');
+    expect(highRes.didacticProfile.benefitsFromEnrichment).toBe(true);
+
+    const openBlock = D.bausteine.find((b) => b.kennung === 'erfindungsaufgabe');
+    const alts = suggestAlternativeMethodsForGroup(langRes, openBlock, D.bausteine, 5);
+    expect(alts.length).toBeGreaterThan(0);
+    expect(alts.every((a) => a.kennung !== 'erfindungsaufgabe')).toBe(true);
+
+    const ansatzMatch = M.zuordnen({ text: 'Problemorientiertes Lernen Physik Klasse 8 Konzept verstehen, 135 Minuten' });
+    expect(ansatzMatch.kriterien.ansatz).toEqual(['forschend']);
   });
 });

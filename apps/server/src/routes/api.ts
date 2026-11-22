@@ -1,5 +1,12 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import type { Arrangement, MatchRequest, SearchCriteria } from '@fmt/core';
+import {
+  DIFF_MATRIX_PERSONAS,
+  scoreDifferentiationMatrix,
+  suggestAlternativeMethodsForGroup,
+  type Arrangement,
+  type MatchRequest,
+  type SearchCriteria
+} from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 
@@ -160,6 +167,31 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     } catch (e) {
       return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiger Pfad.' });
     }
+  });
+
+  app.post('/api/v1/differentiation/score', async (req) => {
+    const body = (req.body || {}) as {
+      personaId?: string;
+      selectedValues?: Record<string, string>;
+      minScore?: number;
+      limit?: number;
+      baustein?: string;
+    };
+    const scoreResult = scoreDifferentiationMatrix({
+      personaId: body.personaId,
+      selectedValues: body.selectedValues,
+      minScore: body.minScore,
+      limit: body.limit
+    });
+    const currentBlock = body.baustein ? store.blocksById.get(body.baustein) : undefined;
+    const alternativeMethoden = currentBlock
+      ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5)
+      : [];
+    return {
+      ...scoreResult,
+      alternativeMethoden,
+      personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
+    };
   });
 
   // Backwards-compatible FMT v0.7.0 German API aliases

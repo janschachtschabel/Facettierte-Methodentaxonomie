@@ -47,7 +47,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerLinkedDataRoutes(app, store);
   registerAssistantRoutes(app, store, config);
   registerOerRoutes(app, config);
-  registerMcpHttpRoutes(app, store);
+  registerMcpHttpRoutes(app, store, config);
 
   const webDir = options.webDistDir;
   if (webDir && fs.existsSync(path.join(webDir, 'index.html'))) {

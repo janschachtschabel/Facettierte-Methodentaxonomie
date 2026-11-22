@@ -1,6 +1,13 @@
 import type { Arrangement } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
-import type { LearnerGroup, OerResource, StepDiffSuggestion } from './scenarioModel.js';
+import type {
+  GeneratedMaterialItem,
+  LearnerGroup,
+  OerResource,
+  StepDiffSuggestion,
+  SubgroupMethodMap,
+  ThematicPhaseRow
+} from './scenarioModel.js';
 
 export const SAVED_SCENARIOS_KEY = 'fmt_saved_scenarios_v1';
 
@@ -11,10 +18,17 @@ export interface SavedScenario {
   fach: string;
   thema: string;
   hinweise: string;
+  lernziele?: string;
+  problemstellung?: string;
+  didaktischerAnsatz?: string;
+  lehrkraefteInfo?: string;
   arrangement: Arrangement;
   groups: LearnerGroup[];
   aiDiffByStep: Record<string, StepDiffSuggestion[]>;
   oerByStep: Record<string, OerResource[]>;
+  subgroupMethods?: SubgroupMethodMap;
+  generatedMaterials?: GeneratedMaterialItem[];
+  thematicRows?: ThematicPhaseRow[] | null;
   elaboration: string | null;
 }
 
@@ -147,6 +161,10 @@ export function importScenarioProjectJson(
         fach: typeof parsed.fach === 'string' ? parsed.fach : typeof meta.subject === 'string' ? meta.subject : undefined,
         thema: typeof parsed.thema === 'string' ? parsed.thema : typeof meta.topic === 'string' ? meta.topic : undefined,
         hinweise: typeof parsed.hinweise === 'string' ? parsed.hinweise : undefined,
+        lernziele: typeof parsed.lernziele === 'string' ? parsed.lernziele : undefined,
+        problemstellung: typeof parsed.problemstellung === 'string' ? parsed.problemstellung : undefined,
+        didaktischerAnsatz: typeof parsed.didaktischerAnsatz === 'string' ? parsed.didaktischerAnsatz : undefined,
+        lehrkraefteInfo: typeof parsed.lehrkraefteInfo === 'string' ? parsed.lehrkraefteInfo : undefined,
         groups: Array.isArray(parsed.groups) ? (parsed.groups as LearnerGroup[]) : undefined,
         aiDiffByStep:
           parsed.aiDiffByStep && typeof parsed.aiDiffByStep === 'object' && !Array.isArray(parsed.aiDiffByStep)
@@ -156,6 +174,14 @@ export function importScenarioProjectJson(
           parsed.oerByStep && typeof parsed.oerByStep === 'object' && !Array.isArray(parsed.oerByStep)
             ? (parsed.oerByStep as Record<string, OerResource[]>)
             : undefined,
+        subgroupMethods:
+          parsed.subgroupMethods && typeof parsed.subgroupMethods === 'object' && !Array.isArray(parsed.subgroupMethods)
+            ? (parsed.subgroupMethods as SubgroupMethodMap)
+            : undefined,
+        generatedMaterials: Array.isArray(parsed.generatedMaterials)
+          ? (parsed.generatedMaterials as GeneratedMaterialItem[])
+          : undefined,
+        thematicRows: Array.isArray(parsed.thematicRows) ? (parsed.thematicRows as ThematicPhaseRow[]) : null,
         elaboration: typeof parsed.elaboration === 'string' ? parsed.elaboration : null,
         arrangement: checked.arrangement
       }

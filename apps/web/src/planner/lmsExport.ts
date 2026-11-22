@@ -126,13 +126,13 @@ function buildPhaseHtmlPage(row: ScenarioPhaseRow, scenarioTitle: string): strin
     : '';
 
   const oerHtml = row.oerResources.length
-    ? `<h2>Verknüpfte OER-Materialien (WirLernenOnline)</h2><ul>${row.oerResources
-        .map(
-          (o) =>
-            `<li><a href="${escHtml(o.url)}" target="_blank" rel="noreferrer">${escHtml(o.title)}</a>${
-              o.license ? ` (${escHtml(o.license)})` : ''
-            }${o.description ? ` – ${escHtml(o.description)}` : ''}</li>`
-        )
+    ? `<h2>Verknüpfte OER-Materialien (WirLernenOnline – inkl. wwwurl)</h2><ul>${row.oerResources
+        .map((o) => {
+          const href = o.wwwurl || o.url;
+          return `<li><a href="${escHtml(href)}" target="_blank" rel="noreferrer">${escHtml(o.title)}</a> (<code>${escHtml(href)}</code>)${
+            o.license ? ` · ${escHtml(o.license)}` : ''
+          }${o.note ? ` – ${escHtml(o.note)}` : o.description ? ` – ${escHtml(o.description)}` : ''}</li>`;
+        })
         .join('')}</ul>`
     : '';
 
@@ -209,12 +209,13 @@ export function exportScenarioToImscc(
       const linkItemId = `item_oer_${idx + 1}_${oi + 1}`;
       const linkResId = `res_oer_${idx + 1}_${oi + 1}`;
       const linkHref = `web_resources/oer_${idx + 1}_${oi + 1}.xml`;
+      const href = oer.wwwurl || oer.url;
       files.push({
         path: linkHref,
         content: `<?xml version="1.0" encoding="UTF-8"?>
 <webLink xmlns="http://www.imsglobal.org/xsd/imsccv1p3/imswl_v1p3">
   <title>${escXml(oer.title)}</title>
-  <url href="${escXml(oer.url)}" target="_blank"/>
+  <url href="${escXml(href)}" target="_blank"/>
 </webLink>`
       });
       childLinks += `\n          <item identifier="${linkItemId}" identifierref="${linkResId}"><title>OER: ${escXml(oer.title)}</title></item>`;
@@ -301,12 +302,13 @@ export function exportScenarioToMoodleXml(
     actId++;
 
     row.oerResources.forEach((oer) => {
+      const href = oer.wwwurl || oer.url;
       activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="url" contextid="${actId + 1000}">
       <url id="${actId}">
         <name>${escXml(`OER: ${oer.title}`)}</name>
-        <intro>${escXml(oer.description || '')}</intro>
+        <intro>${escXml(oer.note || oer.description || '')}</intro>
         <introformat>1</introformat>
-        <externalurl>${escXml(oer.url)}</externalurl>
+        <externalurl>${escXml(href)}</externalurl>
         <timemodified>${now}</timemodified>
       </url>
       <sectionid>1</sectionid>

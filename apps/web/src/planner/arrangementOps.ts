@@ -515,11 +515,30 @@ export function importArrangementJson(
 export interface ExportOptions {
   fach?: string;
   thema?: string;
+  didaktischerAnsatz?: string;
+  lehrkraefteInfo?: string;
   lernziele?: string;
   problemstellung?: string;
   kiAusarbeitung?: string | null;
   timelineSvg?: string | null;
+  machineReadableJson?: string | null;
+  includeMachineReadableInMd?: boolean;
+  groups?: Array<{ id: string; label: string; count?: number; active: boolean }>;
+  thematicRows?: Array<{
+    key: string;
+    orderLabel: string;
+    phaseLabel: string;
+    durationMin: number;
+    methodId: string;
+    methodName: string;
+    teacherAction: string;
+    learnerAction: string;
+    groupAdaptations: Record<string, string>;
+    materialsAndOer: string;
+  }>;
+  generatedMaterials?: Array<{ stepKey: string; title: string; materialType: string; content: string }>;
   scenarioRows?: Array<{
+    key?: string;
     orderLabel: string;
     phaseLabel: string;
     durationMin: number;
@@ -530,7 +549,8 @@ export interface ExportOptions {
     learnerRole: string;
     socialForm: string;
     differentiation: Array<{ groupLabel: string; measure: string }>;
-    oerResources: Array<{ title: string; url: string; license?: string | null }>;
+    subgroupMethods?: Record<string, { methodId: string; methodName: string; methodUrl: string }>;
+    oerResources: Array<{ title: string; url: string; wwwurl?: string; license?: string | null; note?: string }>;
   }>;
 }
 
@@ -575,6 +595,16 @@ export function exportArrangementMarkdown(
     '',
     ...(options.fach ? [`- **Fach:** ${options.fach}`] : []),
     ...(options.thema ? [`- **Thema:** ${options.thema}`] : []),
+    ...(options.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${options.didaktischerAnsatz}`] : []),
+    ...(options.lehrkraefteInfo ? [`- **Lehrkraft / Begleitung:** ${options.lehrkraefteInfo}`] : []),
+    ...(options.groups?.filter((g) => g.active).length
+      ? [
+          `- **Lerngruppen:** ${options.groups
+            .filter((g) => g.active)
+            .map((g) => `${g.label}${g.count ? ` (${g.count} Pers.)` : ''}`)
+            .join(' · ')}`
+        ]
+      : []),
     `- **Granularität / Reichweite:** ${arr.reichweite.toUpperCase()}`,
     `- **Zieltyp / Kette:** ${arr.zieltyp || 'Freier Ablauf'}`,
     `- **Gesamtdauer:** ${validation.dauerMin} min${arr.kontext?.zeitbudgetMin ? ` (Budget: ${arr.kontext.zeitbudgetMin} min)` : ''}`,
@@ -582,7 +612,7 @@ export function exportArrangementMarkdown(
     ...(options.lernziele?.trim() ? ['', '## Lernziele', '', options.lernziele.trim()] : []),
     ...(options.problemstellung?.trim() ? ['', '## Didaktische Ausgangslage / Problemstellung', '', options.problemstellung.trim()] : []),
     '',
-    '## 1. Strukturierter Phasenablauf'
+    '## 1. Thematischer Verlaufsplan & Methodenanwendung'
   ];
 
   if (!seq.teile.length) {
@@ -629,9 +659,56 @@ export function exportArrangementMarkdown(
     });
   }
 
-  if (options.scenarioRows && options.scenarioRows.length) {
+  if (options.thematicRows && options.thematicRows.length) {
+    const activeGroups = (options.groups || []).filter((g) => g.active);
+    const cleanCell = (s: string) => s.replace(/\|/g, '/').replace(/\n/g, ' ');
+    lines.push('', '### Thematische Verlaufstabelle (auf Thema, Rollen, Binnendifferenzierung & OER angepasst)', '');
+    const headers = [
+      '#',
+      'Phase & FMT-Methode',
+      'Zeit',
+      'Lehrkraft',
+      'Lernende',
+      ...(activeGroups.length ? ['Binnendifferenzierung / Teilgruppen'] : []),
+      'Materialien & WLO-OER (inkl. wwwurl)'
+    ];
+    lines.push(`| ${headers.join(' | ')} |`);
+    lines.push(`|${headers.map((_, i) => (i === 2 ? '---:' : '---')).join('|')}|`);
+    for (const tr of options.thematicRows) {
+      const scRow = options.scenarioRows?.find((sr) => sr.key === tr.key || sr.orderLabel === tr.orderLabel);
+      const mLink = scRow?.methodUrl?.startsWith('http')
+        ? `[${cleanCell(tr.methodName)}](${scRow.methodUrl})`
+        : cleanCell(tr.methodName);
+      const diffTxt = activeGroups
+        .map((g) => {
+          const val = tr.groupAdaptations[g.id] || tr.groupAdaptations[g.label];
+          return val ? `**${cleanCell(g.label)}:** ${cleanCell(val)}` : '';
+        })
+        .filter(Boolean)
+        .join(' · ');
+      const oerLinks = (scRow?.oerResources || [])
+        .map((o) => {
+          const href = o.wwwurl || o.url;
+          return `[${cleanCell(o.title)}](${href}) (\`${href}\`)`;
+        })
+        .join(' · ');
+      const matCell = oerLinks
+        ? `${cleanCell(tr.materialsAndOer)} · ${oerLinks}`
+        : cleanCell(tr.materialsAndOer);
+      const cols = [
+        cleanCell(tr.orderLabel),
+        `${cleanCell(tr.phaseLabel)} – ${mLink}`,
+        `${tr.durationMin} min`,
+        cleanCell(tr.teacherAction),
+        cleanCell(tr.learnerAction),
+        ...(activeGroups.length ? [diffTxt || '–'] : []),
+        matCell || '–'
+      ];
+      lines.push(`| ${cols.join(' | ')} |`);
+    }
+  } else if (options.scenarioRows && options.scenarioRows.length) {
     lines.push('', '### Verlaufsplan (IMS-LD Akteur- & Differenzierungstabelle)', '');
-    lines.push('| # | Phase | Zeit | FMT-Methode (Datenbank) | Rolle Lehrkraft | Rolle Lernende | Binnendifferenzierung & OER |');
+    lines.push('| # | Phase | Zeit | FMT-Methode (Datenbank) | Rolle Lehrkraft | Rolle Lernende | Binnendifferenzierung & OER (wwwurl) |');
     lines.push('|---|---|---:|---|---|---|---|');
     const cleanCell = (s: string) => s.replace(/\|/g, '/').replace(/\n/g, ' ');
     for (const r of options.scenarioRows) {
@@ -639,7 +716,12 @@ export function exportArrangementMarkdown(
         ? `[${cleanCell(r.methodName)} (${r.methodRange})](${r.methodUrl})`
         : `${cleanCell(r.methodName)} (${r.methodRange})`;
       const diffTxt = r.differentiation.map((d) => `**${cleanCell(d.groupLabel)}:** ${cleanCell(d.measure)}`).join(' · ');
-      const oerTxt = r.oerResources.map((o) => `[OER: ${cleanCell(o.title)}](${o.url})`).join(' · ');
+      const oerTxt = r.oerResources
+        .map((o) => {
+          const href = o.wwwurl || o.url;
+          return `[OER: ${cleanCell(o.title)}](${href}) (${href})`;
+        })
+        .join(' · ');
       const extra = [diffTxt, oerTxt].filter(Boolean).join(' · ') || '–';
       lines.push(
         `| ${cleanCell(r.orderLabel)} | ${cleanCell(r.phaseLabel)} | ${r.durationMin} min | ${mLink} | ${cleanCell(r.teacherRole)} | ${cleanCell(r.learnerRole)} | ${extra} |`
@@ -648,7 +730,28 @@ export function exportArrangementMarkdown(
   }
 
   if (options.kiAusarbeitung && options.kiAusarbeitung.trim()) {
-    lines.push('', '## 2. Ausformulierte Stunden- / Reihenbeschreibung (KI-Entwurf)', '', options.kiAusarbeitung.trim());
+    lines.push('', '## 2. Ausformulierte Stunden- / Reihenbeschreibung', '', options.kiAusarbeitung.trim());
+  }
+
+  if (options.generatedMaterials && options.generatedMaterials.length) {
+    lines.push('', '## Erstellte Unterrichtsmaterialien');
+    for (const mat of options.generatedMaterials) {
+      lines.push('', `### ${mat.title}`, '', mat.content.trim());
+    }
+  }
+
+  // Dedicated WLO-OER directory with explicit wwwurl for every attached resource
+  const allOers = (options.scenarioRows || []).flatMap((r) =>
+    r.oerResources.map((o) => ({ phase: `${r.orderLabel} ${r.phaseLabel}`, ...o }))
+  );
+  if (allOers.length) {
+    lines.push('', '## Verknüpfte OER-Ressourcen (WirLernenOnline – inkl. wwwurl)');
+    for (const o of allOers) {
+      const href = o.wwwurl || o.url;
+      lines.push(
+        `- **${o.phase}:** [${o.title}](${href}) – wwwurl: \`${href}\`${o.license ? ` (${o.license})` : ''}${o.note ? ` · _${o.note}_` : ''}`
+      );
+    }
   }
 
   if (usedBlocks.length) {
@@ -694,6 +797,10 @@ export function exportArrangementMarkdown(
         lines.push(`- **${b.name}:** ${link}${q.lizenz ? ` (${q.lizenz})` : ''}`);
       }
     }
+  }
+
+  if (options.includeMachineReadableInMd && options.machineReadableJson) {
+    lines.push('', '## Maschinenlesbare Repräsentation (IMS-LD / FMT JSON-LD)', '', '```json', options.machineReadableJson, '```');
   }
 
   lines.push(
@@ -805,12 +912,16 @@ export function exportArrangementHtmlHandout(
   const svgSection = options.timelineSvg
     ? `<section class="svg-box"><h2>Visuelles Zeitband &amp; Schachtelung</h2>${options.timelineSvg}</section>`
     : '';
+  const jsonLdScript = options.machineReadableJson
+    ? `<script type="application/ld+json">${options.machineReadableJson.replace(/<\/script/gi, '<\\/script')}</script>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <title>${escHtml(title)}</title>
+  ${jsonLdScript}
   <style>
     @page { size: A4; margin: 16mm 14mm; }
     * { box-sizing: border-box; }

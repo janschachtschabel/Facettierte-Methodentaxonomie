@@ -250,20 +250,10 @@ export function PartiturView({
                             <button
                               type="button"
                               className="btn btn-sm btn-ghost"
-                              title="Freie OER-Materialien (WirLernenOnline) für diese Phase suchen"
+                              title="In Schritt 3 wechseln: WLO-OER suchen oder Material per KI erstellen"
                               onClick={() => onOpenOerForStep(`step-${realIdx}`)}
                             >
-                              🌐 OER
-                            </button>
-                          )}
-                          {onOpenMaterialForStep && (
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-ghost"
-                              title="Passendes Unterrichtsmaterial für diese Methode generieren"
-                              onClick={() => onOpenMaterialForStep(`step-${realIdx}`)}
-                            >
-                              📝 Material
+                              🌐 OER / Material →
                             </button>
                           )}
                         </div>

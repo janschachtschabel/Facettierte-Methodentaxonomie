@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { FMT_GUARDRAILS, type Arrangement, type MatchRequest } from '@fmt/core';
+import { FMT_GUARDRAILS, type Arrangement, type MatchRequest, type ValidationResult } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { LruTtlCache } from '../llm/cache.js';
@@ -12,6 +12,72 @@ import {
   resolveLlmTarget,
   type LlmOverride
 } from '../llm/client.js';
+
+export interface ThematicTableRow {
+  key: string;
+  orderLabel: string;
+  phaseLabel: string;
+  durationMin: number;
+  methodId: string;
+  methodName: string;
+  teacherAction: string;
+  learnerAction: string;
+  groupAdaptations: Record<string, string>;
+  materialsAndOer: string;
+}
+
+export interface ElaboratePayload {
+  arrangement: Arrangement;
+  thema?: string;
+  fach?: string;
+  didaktischerAnsatz?: string;
+  akteure?: string;
+  hinweise?: string;
+  lernziele?: string;
+  problemstellung?: string;
+  differenzierung?: Array<{
+    id?: string;
+    gruppe: string;
+    profil?: string;
+    anzahl?: number;
+    matrixMassnahmen?: string[];
+  }>;
+  oerRessourcen?: Array<{
+    stepKey?: string;
+    titel: string;
+    wwwurl?: string;
+    url?: string;
+    lizenz?: string | null;
+    notiz?: string;
+  }>;
+  materialien?: Array<{
+    stepKey?: string;
+    titel: string;
+    typ?: string;
+    kurzinhalt?: string;
+  }>;
+  phasen?: Array<{
+    key: string;
+    orderLabel: string;
+    phaseLabel: string;
+    durationMin: number;
+    methodId: string;
+    methodName: string;
+    subgroupMethods?: Record<string, { methodId: string; methodName: string }>;
+  }>;
+}
+
+export interface MaterialPayload {
+  baustein: string;
+  phaseLabel?: string;
+  dauerMin?: number;
+  fach?: string;
+  thema?: string;
+  bildungsstufe?: string;
+  materialTyp?: string;
+  gruppen?: Array<{ label: string; profile: string; count?: number; matrixMeasures?: string[] }>;
+  hinweise?: string;
+}
 
 function readByokHeaders(req: FastifyRequest, bodyObj?: Record<string, unknown> | null): LlmOverride {
   const h = req.headers;
@@ -45,19 +111,404 @@ function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> 
   return out;
 }
 
+export function buildDeterministicThematicTable(
+  store: CatalogStore,
+  payload: ElaboratePayload
+): ThematicTableRow[] {
+  const thema = payload.thema?.trim() || payload.arrangement.name;
+  const fach = payload.fach?.trim() || '';
+  const topicTag = fach ? `${fach} – ${thema}` : thema;
+  const groups = payload.differenzierung || [];
+  const oers = payload.oerRessourcen || [];
+  const mats = payload.materialien || [];
+
+  const phaseList: NonNullable<ElaboratePayload['phasen']> = payload.phasen?.length
+    ? payload.phasen
+    : [...collectUsedBlocks(payload.arrangement.ablauf)].map((id, i) => {
+        const b = store.blocksById.get(id);
+        return {
+          key: `step-${i}`,
+          orderLabel: String(i + 1),
+          phaseLabel: `Phase ${i + 1}`,
+          durationMin: b?.dauerMin ?? 15,
+          methodId: id,
+          methodName: b?.name || id
+        };
+      });
+
+  return phaseList.map((p) => {
+    const b = store.blocksById.get(p.methodId);
+    const stepOers = oers.filter((o) => !o.stepKey || o.stepKey === p.key);
+    const stepMats = mats.filter((m) => !m.stepKey || m.stepKey === p.key);
+    const firstStep = b?.durchfuehrung?.[0] || 'Phase einführen und Arbeitsauftrag transparent machen.';
+    const learnerSteps = (b?.durchfuehrung || []).slice(1, 3).join(' ');
+
+    const groupAdaptations: Record<string, string> = {};
+    for (const g of groups) {
+      const gKey = g.id || g.gruppe;
+      const alt = p.subgroupMethods?.[gKey];
+      if (alt) {
+        groupAdaptations[gKey] = `Alternative Methode: ${alt.methodName} zum Thema „${thema}“ (${g.profil || 'Teilgruppe'}).`;
+      } else if (g.matrixMassnahmen?.length) {
+        groupAdaptations[gKey] = `Zu „${thema}“: ${g.matrixMassnahmen.slice(0, 2).join('; ')}.`;
+      } else {
+        groupAdaptations[gKey] = `Anpassung zu „${thema}“: ${g.profil || 'gemäß Leistungsprofil'}.`;
+      }
+    }
+
+    const matParts: string[] = [];
+    if (stepMats.length) {
+      matParts.push(stepMats.map((m) => `Material: ${m.titel}`).join(' · '));
+    }
+    if (stepOers.length) {
+      matParts.push(
+        stepOers
+          .map((o) => {
+            const href = o.wwwurl || o.url || '';
+            return `WLO-OER: ${o.titel}${href ? ` (${href})` : ''}`;
+          })
+          .join(' · ')
+      );
+    }
+    if (!matParts.length && b?.material?.length) {
+      matParts.push(b.material.slice(0, 3).join(', '));
+    }
+
+    return {
+      key: p.key,
+      orderLabel: p.orderLabel,
+      phaseLabel: p.phaseLabel,
+      durationMin: p.durationMin,
+      methodId: p.methodId,
+      methodName: p.methodName,
+      teacherAction: `Leitet „${p.methodName}“ zu ${topicTag} an: ${firstStep}`,
+      learnerAction: `Erarbeiten ${topicTag} mittels ${p.methodName}: ${learnerSteps || b?.kurzbeschreibung || 'Aufgabenbearbeitung und Sicherung.'}`,
+      groupAdaptations,
+      materialsAndOer: matParts.join(' | ') || 'Standardmaterial'
+    };
+  });
+}
+
+const sharedElaborateCache = new LruTtlCache<{ ausarbeitung: string; thematischeTabelle: ThematicTableRow[] }>(
+  120,
+  30 * 60 * 1000
+);
+const sharedMaterialCache = new LruTtlCache<string>(120, 30 * 60 * 1000);
+
+const hashKey = (parts: unknown[]) =>
+  crypto.createHash('sha256').update(JSON.stringify(parts)).digest('hex');
+
+export async function elaborateScenarioCore(
+  store: CatalogStore,
+  config: ServerConfig,
+  override: LlmOverride,
+  body: ElaboratePayload
+): Promise<{
+  quelle: 'llm' | 'deterministisch';
+  gecacht: boolean;
+  pruefung: ValidationResult;
+  ausarbeitung: string;
+  thematischeTabelle: ThematicTableRow[];
+}> {
+  const pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
+  const usedIds = [...collectUsedBlocks(body.arrangement.ablauf)];
+  // Include any subgroup alternative methods too
+  for (const p of body.phasen || []) {
+    for (const sub of Object.values(p.subgroupMethods || {})) {
+      if (sub?.methodId && !usedIds.includes(sub.methodId)) usedIds.push(sub.methodId);
+    }
+  }
+  const catalogContext = usedIds
+    .map((id) => store.blocksById.get(id))
+    .filter((b): b is NonNullable<typeof b> => Boolean(b))
+    .map((b) => ({
+      kennung: b.kennung,
+      name: b.name,
+      reichweite: b.reichweite,
+      kurzbeschreibung: b.kurzbeschreibung,
+      problem: b.problem,
+      durchfuehrung: b.durchfuehrung,
+      material: b.material,
+      raum: b.raum,
+      kernkomponente: b.kernkomponente.map((k) => k.name),
+      qualitaetsrisiko: b.qualitaetsrisiko,
+      evidenz: b.evidenz,
+      quellen: b.quellen
+    }));
+
+  const fallbackTable = buildDeterministicThematicTable(store, body);
+  const target = resolveLlmTarget(config, override);
+  if (!target) {
+    const mdLines = [
+      `# Unterrichtsentwurf: ${body.fach ? `${body.fach} – ` : ''}${body.thema || body.arrangement.name}`,
+      '',
+      `- **Gesamtdauer:** ${pruefung.dauerMin} min · **Prüfstatus:** ${pruefung.gueltig ? 'Gültig' : 'Prüfhinweise offen'}`,
+      ...(body.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${body.didaktischerAnsatz}`] : []),
+      ...(body.akteure ? [`- **Akteure / Lerngruppe:** ${body.akteure}`] : []),
+      ...(body.lernziele ? ['', '## Lernziele', body.lernziele] : []),
+      '',
+      '## Thematischer Ablauf',
+      ...fallbackTable.map(
+        (r) =>
+          `### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Lehrkraft:** ${r.teacherAction}\n- **Lernende:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
+      )
+    ];
+    return {
+      quelle: 'deterministisch',
+      gecacht: false,
+      pruefung,
+      ausarbeitung: mdLines.join('\n'),
+      thematischeTabelle: fallbackTable
+    };
+  }
+
+  const cacheKey = hashKey([
+    'elaborate-v5',
+    store.bundle.versionHash,
+    target.model,
+    body.thema || '',
+    body.fach || '',
+    body.didaktischerAnsatz || '',
+    body.akteure || '',
+    body.lernziele || '',
+    body.problemstellung || '',
+    body.hinweise || '',
+    body.differenzierung || null,
+    body.oerRessourcen || null,
+    body.materialien || null,
+    body.phasen || null,
+    body.arrangement
+  ]);
+
+  if (!target.isByok) {
+    const cached = sharedElaborateCache.get(cacheKey);
+    if (cached) {
+      return { quelle: 'llm', gecacht: true, pruefung, ...cached };
+    }
+  }
+
+  const systemPrompt =
+    'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
+    'Erstelle auf Basis des geprüften FMT-Arrangements, des Themas, der Lerngruppen/Differenzierungsmatrix, der verknüpften WLO-OER-Ressourcen (inkl. wwwurl) und erstellten Materialien einen praxisfertigen, thematisch konkretisierten Unterrichtsentwurf.\n' +
+    'ANTWORTE AUSSCHLIESSLICH als gültiges JSON-Objekt mit exakt diesen zwei Feldern:\n' +
+    '{\n' +
+    '  "thematischeTabelle": [\n' +
+    '    {\n' +
+    '      "key": "<exakter phase.key>",\n' +
+    '      "teacherAction": "<konkrete thematische Lehrkrafthandlung inkl. Impuls/Moderation (2-3 Sätze)>",\n' +
+    '      "learnerAction": "<konkrete thematische Aktivität der Lernenden mit Bezug aufs Thema (2-3 Sätze)>",\n' +
+    '      "groupAdaptations": { "<groupId>": "<konkrete thematische Anpassung oder alternative Methode für diese Teilgruppe>" },\n' +
+    '      "materialsAndOer": "<konkreter Bezug auf zugeordnete Materialien & WLO-OER inkl. vollständiger wwwurl>"\n' +
+    '    }\n' +
+    '  ],\n' +
+    '  "ausarbeitung": "<ausführliches, klares deutsches Markdown mit: 1. Kurzüberblick, Lernziele, didaktischer Ansatz & Akteure; 2. Thematische Durchführungsbeschreibung Phase für Phase mit konkreten Aufgaben-/Moderationsimpulsen, Übergängen, Material- & WLO-OER-Einbindung (immer mit vollständiger wwwurl als Markdown-Link); 3. Binnendifferenzierung & ggf. parallele Teilgruppen-Methoden; 4. Kernkomponenten, Qualitätsrisiken & verifiziertes Quellenverzeichnis aus den Katalogdaten>"\n' +
+    '}\n' +
+    'STRENGE REGELN:\n' +
+    '- Beziehe zugeordnete WLO-OER-Inhalte (immer mit ihrer exakten wwwurl!) und erstellte Materialien aktiv in die jeweiligen Phasen ein.\n' +
+    '- Erfinde KEINE neuen Methoden, keine neuen Studien und KEINE URLs außerhalb der übergebenen Katalog- und WLO-Daten.\n' +
+    '- Evidenzbefunde immer nur mit ihrer Geltung und Gegenposition nennen.';
+
+  const userPrompt =
+    `FACH: ${body.fach || 'nicht angegeben'} · THEMA: ${body.thema || 'nicht angegeben'}\n` +
+    (body.didaktischerAnsatz ? `Didaktischer Ansatz: ${body.didaktischerAnsatz}\n` : '') +
+    (body.akteure ? `Akteure / Personenanzahl: ${body.akteure}\n` : '') +
+    (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
+    (body.problemstellung ? `Didaktische Ausgangslage / Problemstellung:\n${body.problemstellung}\n` : '') +
+    (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+    (body.differenzierung?.length
+      ? `\nLerngruppen & Binnendifferenzierungsmatrix:\n${JSON.stringify(body.differenzierung, null, 2)}\n`
+      : '') +
+    (body.oerRessourcen?.length
+      ? `\nZugeordnete WLO-OER-Ressourcen (inkl. wwwurl – zwingend einbinden!):\n${JSON.stringify(body.oerRessourcen, null, 2)}\n`
+      : '') +
+    (body.materialien?.length
+      ? `\nErstellte/zugeordnete Unterrichtsmaterialien:\n${JSON.stringify(body.materialien, null, 2)}\n`
+      : '') +
+    `\nPhasenstruktur (exakte Keys verwenden):\n${JSON.stringify(
+      fallbackTable.map((r) => ({
+        key: r.key,
+        orderLabel: r.orderLabel,
+        phaseLabel: r.phaseLabel,
+        durationMin: r.durationMin,
+        methodId: r.methodId,
+        methodName: r.methodName,
+        subgroupMethods: body.phasen?.find((p) => p.key === r.key)?.subgroupMethods
+      })),
+      null,
+      2
+    )}\n\n` +
+    `Prüfungsergebnis:\n${JSON.stringify(pruefung, null, 2)}\n\n` +
+    `Katalogdaten der verwendeten Bausteine (inkl. Durchführung, Material und verifizierten Quellen):\n${JSON.stringify(catalogContext, null, 2)}`;
+
+  const raw = await callChatCompletion(
+    target,
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ],
+    {
+      jsonMode: true,
+      maxTokens: 3200,
+      timeoutMs: config.llmTimeoutMs,
+      reasoningEffort: config.llmReasoningEffort
+    }
+  );
+
+  const parsed = extractJsonObject(raw) as {
+    thematischeTabelle?: Array<{
+      key?: string;
+      teacherAction?: string;
+      learnerAction?: string;
+      groupAdaptations?: Record<string, string>;
+      materialsAndOer?: string;
+    }>;
+    ausarbeitung?: string;
+  } | null;
+
+  const llmRows = Array.isArray(parsed?.thematischeTabelle) ? parsed!.thematischeTabelle : [];
+  const mergedTable: ThematicTableRow[] = fallbackTable.map((baseRow) => {
+    const match = llmRows.find((r) => r && r.key === baseRow.key);
+    if (!match) return baseRow;
+    const mergedGroups: Record<string, string> = { ...baseRow.groupAdaptations };
+    if (match.groupAdaptations && typeof match.groupAdaptations === 'object') {
+      for (const [gk, gv] of Object.entries(match.groupAdaptations)) {
+        if (typeof gv === 'string' && gv.trim()) mergedGroups[gk] = gv.trim();
+      }
+    }
+    return {
+      ...baseRow,
+      teacherAction: typeof match.teacherAction === 'string' && match.teacherAction.trim() ? match.teacherAction.trim() : baseRow.teacherAction,
+      learnerAction: typeof match.learnerAction === 'string' && match.learnerAction.trim() ? match.learnerAction.trim() : baseRow.learnerAction,
+      groupAdaptations: mergedGroups,
+      materialsAndOer:
+        typeof match.materialsAndOer === 'string' && match.materialsAndOer.trim()
+          ? match.materialsAndOer.trim()
+          : baseRow.materialsAndOer
+    };
+  });
+
+  const ausarbeitung =
+    typeof parsed?.ausarbeitung === 'string' && parsed.ausarbeitung.trim()
+      ? parsed.ausarbeitung.trim()
+      : raw.trim();
+
+  const result = { ausarbeitung, thematischeTabelle: mergedTable };
+  if (!target.isByok) sharedElaborateCache.set(cacheKey, result);
+  return { quelle: 'llm', gecacht: false, pruefung, ...result };
+}
+
+export async function generateMaterialCore(
+  store: CatalogStore,
+  config: ServerConfig,
+  override: LlmOverride,
+  body: MaterialPayload
+): Promise<{ quelle: 'llm' | 'deterministisch'; gecacht: boolean; material: string; baustein: string }> {
+  const methodId = (body.baustein || '').trim();
+  const block = store.blocksById.get(methodId);
+  if (!block) {
+    throw new Error('Bitte einen gültigen FMT-Methodenbaustein auswählen.');
+  }
+
+  const materialTyp = body.materialTyp || 'arbeitsblatt';
+  const target = resolveLlmTarget(config, override);
+  if (!target) {
+    const template = [
+      `# ${block.name} – ${materialTyp} (${body.fach || 'Unterricht'}: ${body.thema || 'Thema'})`,
+      '',
+      `- **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${body.dauerMin || block.dauerMin} min · **Stufe:** ${body.bildungsstufe || 'Sekundarstufe I'}`,
+      '',
+      '## Arbeitsauftrag (auf Basis FMT-Methode)',
+      ...(block.durchfuehrung || []).map((s, i) => `${i + 1}. ${s}`),
+      '',
+      ...(body.gruppen?.length
+        ? [
+            '## Binnendifferenzierung',
+            ...body.gruppen.map(
+              (g) => `- **${g.label}${g.count ? ` (${g.count} Pers.)` : ''}:** ${g.matrixMeasures?.slice(0, 2).join('; ') || g.profile}`
+            )
+          ]
+        : []),
+      '',
+      '## Kernkomponenten & Hinweise für die Lehrkraft',
+      ...(block.kernkomponente || []).map((k) => `- ${k.name}`)
+    ].join('\n');
+    return { quelle: 'deterministisch', gecacht: false, material: template, baustein: block.name };
+  }
+
+  const cacheKey = hashKey([
+    'material-v2',
+    store.bundle.versionHash,
+    target.model,
+    methodId,
+    materialTyp,
+    body.fach || '',
+    body.thema || '',
+    body.bildungsstufe || '',
+    body.dauerMin || block.dauerMin,
+    body.gruppen || [],
+    body.hinweise || ''
+  ]);
+
+  if (!target.isByok) {
+    const cached = sharedMaterialCache.get(cacheKey);
+    if (cached) {
+      return { quelle: 'llm', gecacht: true, material: cached, baustein: block.name };
+    }
+  }
+
+  const systemPrompt =
+    'Du erstellst direkt im Unterricht einsetzbares, druckfertiges Lehrmaterial (klares deutsches Markdown) auf Basis einer konkreten FMT-Unterrichtsmethode.\n' +
+    'STRUKTUR:\n' +
+    '1. **Kopfzeile** (Titel, Fach, Thema, Methode, Zeitrahmen)\n' +
+    '2. **Klare Arbeitsaufträge / Inhalt** – exakt passend zur gewählten FMT-Methode und deren Durchführungsschritten\n' +
+    '3. **Binnendifferenzierung** – sofern Lerngruppen und Matrix-Maßnahmen übergeben wurden, kennzeichne Hilfen (★ Basis / Satzstarter) und Erweiterungen (★★★ Vertiefung)\n' +
+    '4. **Erwartungshorizont / Lehrkraft-Hinweise** (kurze Musterlösungen & typische Fehlvorstellungen)\n' +
+    'Erfinde keine falschen Quellen-URLs.';
+
+  const userPrompt =
+    `MATERIALTYP: ${materialTyp}\n` +
+    `Fach: ${body.fach || 'nicht angegeben'} · Thema: ${body.thema || 'nicht angegeben'} · Bildungsstufe: ${body.bildungsstufe || 'Sekundarstufe I'}\n` +
+    `Phase: ${body.phaseLabel || 'Unterrichtsphase'} · Dauer: ${body.dauerMin || block.dauerMin} min\n` +
+    (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+    (body.gruppen?.length ? `\nAktive Lerngruppen & Binnendifferenzierung:\n${JSON.stringify(body.gruppen, null, 2)}\n` : '') +
+    `\nFMT-Methode:\n${JSON.stringify(
+      {
+        name: block.name,
+        kurzbeschreibung: block.kurzbeschreibung,
+        durchfuehrung: block.durchfuehrung,
+        material: block.material,
+        kernkomponente: block.kernkomponente.map((k) => k.name),
+        qualitaetsrisiko: block.qualitaetsrisiko
+      },
+      null,
+      2
+    )}`;
+
+  const material = await callChatCompletion(
+    target,
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ],
+    {
+      jsonMode: false,
+      maxTokens: 2200,
+      timeoutMs: config.llmTimeoutMs,
+      reasoningEffort: config.llmReasoningEffort
+    }
+  );
+  if (!target.isByok) sharedMaterialCache.set(cacheKey, material);
+  return { quelle: 'llm', gecacht: false, material, baustein: block.name };
+}
+
 export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
   const ajv = new Ajv2020({ strict: false, validateFormats: false, allErrors: true });
   const validateAnfrage = ajv.compile(store.anfrageSchemaObj);
   const translateCache = new LruTtlCache<{ anfrage: MatchRequest }>(config.llmCacheMax, config.llmCacheTtlMs);
-  const elaborateCache = new LruTtlCache<string>(config.llmCacheMax, config.llmCacheTtlMs);
   const diffCache = new LruTtlCache<Record<string, Array<{ groupId: string; groupLabel: string; measure: string }>>>(
     config.llmCacheMax,
     config.llmCacheTtlMs
   );
-  const materialCache = new LruTtlCache<string>(config.llmCacheMax, config.llmCacheTtlMs);
-
-  const hashKey = (parts: unknown[]) =>
-    crypto.createHash('sha256').update(JSON.stringify(parts)).digest('hex');
 
   const rateLimitConfig = {
     rateLimit: {
@@ -117,13 +568,13 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       'Verwende NUR erlaubte Enum-Codes aus dem Schema. Setze das Feld "text" NICHT.\n' +
       'Wichtige Zuordnungsregeln:\n' +
       '- Wenn eine ganze Stunde, Doppelstunde (90 min), Einzelstunde (45 min) oder Unterrichtsreihe beschrieben wird, setze "modus": "ablauf" und wähle den passendsten "zieltyp":\n' +
-      '  • "prozedur" für Rechen-/Übungs-/Verfahrenskompetenzen (z. B. Bruchrechnen, Gleichungen, Rechtschreibung, handwerkliche/sportliche Abläufe)\n' +
-      '  • "konzeptaufbau" für Begriffs- und Systemverständnis (z. B. Fotosynthese, Demokratie, Wirtschaftskreislauf)\n' +
+      '  • "prozedur" für Rechen-/Übungs-/Verfahrenskompetenzen (z. B. Bruchrechnen, Gleichungen, Rechtschreibung)\n' +
+      '  • "konzeptaufbau" für Begriffs- und Systemverständnis (z. B. Fotosynthese, Demokratie, Dichte)\n' +
       '  • "problemloesen" für offene Anwendungs-/Transferprobleme\n' +
       '  • "faktenwissen" für Vokabeln, Begriffslisten, Merkwissen\n' +
       '  • "fuenf-e" für forschend-entdeckende naturwissenschaftliche Einheiten\n' +
-      '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose, Warm-up), setze "modus": "phase" und die passende "lernfunktion".\n' +
-      '- Leite naheliegende Werte aus dem schulischen Kontext ab (z. B. Bruchrechnen -> bildungsstufe "sek1", Einzelstunde -> zeitMin 45, Doppelstunde -> zeitMin 90), lass aber wirklich unbekannte Rahmenbedingungen weg.\n\n' +
+      '- Wenn ein didaktischer Ansatz erwähnt wird (z. B. problemorientiertes Lernen -> ["forschend"], kooperatives Lernen -> ["kooperativ"], direkte Instruktion -> ["instruktion"]), setze das Array "ansatz".\n' +
+      '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose), setze "modus": "phase" und die passende "lernfunktion".\n\n' +
       `Schema:\n${store.anfrageSchemaJson}`;
 
     try {
@@ -168,24 +619,15 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
   });
 
   app.post('/api/v1/assistant/elaborate', { config: rateLimitConfig }, async (req, reply) => {
-    const body = req.body as {
-      arrangement?: Arrangement;
-      thema?: string;
-      fach?: string;
-      hinweise?: string;
-      lernziele?: string;
-      problemstellung?: string;
-      differenzierung?: unknown;
-      oerRessourcen?: unknown;
-    } | null;
-
+    const body = req.body as Partial<ElaboratePayload> | null;
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
       return reply.code(400).send({ fehler: 'Bitte ein gültiges FMT-Arrangement übergeben.' });
     }
 
+    const override = readByokHeaders(req, body as Record<string, unknown> | null);
     let target;
     try {
-      target = resolveLlmTarget(config, readByokHeaders(req, body as Record<string, unknown> | null));
+      target = resolveLlmTarget(config, override);
     } catch (e) {
       if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
       throw e;
@@ -197,91 +639,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       });
     }
 
-    let pruefung;
     try {
-      pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
-    } catch (e) {
-      return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiges Arrangement.' });
-    }
-    const usedIds = [...collectUsedBlocks(body.arrangement.ablauf)];
-    const catalogContext = usedIds
-      .map((id) => store.blocksById.get(id))
-      .filter((b): b is NonNullable<typeof b> => Boolean(b))
-      .map((b) => ({
-        kennung: b.kennung,
-        name: b.name,
-        reichweite: b.reichweite,
-        kurzbeschreibung: b.kurzbeschreibung,
-        problem: b.problem,
-        durchfuehrung: b.durchfuehrung,
-        material: b.material,
-        raum: b.raum,
-        kernkomponente: b.kernkomponente.map((k) => k.name),
-        qualitaetsrisiko: b.qualitaetsrisiko,
-        evidenz: b.evidenz,
-        quellen: b.quellen
-      }));
-
-    const cacheKey = hashKey([
-      'elaborate-v4',
-      store.bundle.versionHash,
-      target.model,
-      body.thema || '',
-      body.fach || '',
-      body.lernziele || '',
-      body.problemstellung || '',
-      body.hinweise || '',
-      body.differenzierung || null,
-      body.oerRessourcen || null,
-      body.arrangement
-    ]);
-
-    if (!target.isByok) {
-      const cached = elaborateCache.get(cacheKey);
-      if (cached) {
-        return reply.send({ gecacht: true, pruefung, ausarbeitung: cached, leitplanken: FMT_GUARDRAILS });
-      }
-    }
-
-    const systemPrompt =
-      'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-      'Deine Aufgabe ist es, ein bereits komponiertes und geprüftes Arrangement zu einer praxisfertigen Beschreibung der gesamten Unterrichtsstunde bzw. Unterrichtsreihe auszuarbeiten.\n' +
-      'AUFBAU (klares deutsches Markdown):\n' +
-      '1. **Kurzüberblick & Lernziele** (Fach, Thema, Zielgruppe, Gesamtdauer, Granularität/Reichweite)\n' +
-      '2. **Detaillierter Ablauf & Methodenanwendung** – Phase für Phase mit Zeitangaben, konkreten Aufgaben- und Moderationsimpulsen, Materialien und Übergängen. Wenn ein Baustein über Slots verschachtelt ist (z. B. R3-Container mit R2-/R1-Unterbausteinen), mache klar sichtbar, welche Methode Teil welchen Blocks ist. Berücksichtige auch Begleitstränge (Parallel) und verteilte Wiederkehr.\n' +
-      '3. **Kernkomponenten, Qualitätsrisiken & Prüferhinweise** – benenne die wichtigsten Kernkomponenten und etwaige offene Validator-Warnungen/Fehler ehrlich inkl. Grundlage.\n' +
-      '4. **Verwendete Methoden & Quellenverzeichnis** – liste alle eingesetzten Methoden mit ihren verifizierten Quellen-Titeln und Markdown-Links (`[Titel](URL)`) aus den übergebenen Katalogdaten auf.\n' +
-      'STRENGE REGELN:\n' +
-      '- Erfinde KEINE neuen Unterrichtsmethoden, keine neuen Studien und KEINE URLs außerhalb der übergebenen Katalogdaten.\n' +
-      '- Evidenzbefunde immer nur mit ihrer Geltung und Gegenposition nennen.';
-
-    const userPrompt =
-      `AUSGESTALTUNG für Fach: ${body.fach || 'nicht angegeben'}, Thema: ${body.thema || 'nicht angegeben'}.\n` +
-      (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
-      (body.problemstellung ? `Didaktische Ausgangslage / Problemstellung:\n${body.problemstellung}\n` : '') +
-      (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
-      (body.differenzierung ? `\nBinnendifferenzierung / Lerngruppen:\n${JSON.stringify(body.differenzierung, null, 2)}\n` : '') +
-      (body.oerRessourcen ? `\nVerknüpfte WLO/OER-Ressourcen:\n${JSON.stringify(body.oerRessourcen, null, 2)}\n` : '') +
-      `\nArrangement (JSON):\n${JSON.stringify(body.arrangement, null, 2)}\n\n` +
-      `Prüfungsergebnis:\n${JSON.stringify(pruefung, null, 2)}\n\n` +
-      `Katalogdaten der verwendeten Bausteine (inkl. Durchführung, Material und verifizierten Quellen):\n${JSON.stringify(catalogContext, null, 2)}`;
-
-    try {
-      const ausarbeitung = await callChatCompletion(
-        target,
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        {
-          jsonMode: false,
-          maxTokens: 2400,
-          timeoutMs: config.llmTimeoutMs,
-          reasoningEffort: config.llmReasoningEffort
-        }
-      );
-      if (!target.isByok) elaborateCache.set(cacheKey, ausarbeitung);
-      return reply.send({ gecacht: false, pruefung, ausarbeitung, leitplanken: FMT_GUARDRAILS });
+      const res = await elaborateScenarioCore(store, config, override, body as ElaboratePayload);
+      return reply.send({ ...res, leitplanken: FMT_GUARDRAILS });
     } catch (e) {
       return reply.code(502).send({
         fehler: e instanceof Error ? e.message : 'LLM-Ausgestaltung fehlgeschlagen.'
@@ -292,7 +652,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
   app.post('/api/v1/assistant/differentiate', { config: rateLimitConfig }, async (req, reply) => {
     const body = req.body as {
       phases?: Array<{ key: string; phaseLabel: string; methodId: string; durationMin: number }>;
-      gruppen?: Array<{ id: string; label: string; profile: string }>;
+      gruppen?: Array<{ id: string; label: string; profile: string; count?: number; matrixMeasures?: string[] }>;
       fach?: string;
       thema?: string;
       bildungsstufe?: string;
@@ -315,7 +675,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     if (!target) {
       return reply.code(503).send({
-        fehler: 'Für KI-Binnendifferenzierung ist kein LLM-API-Key konfiguriert. Die regelbasierten FMT-Hinweise stehen weiterhin direkt zur Verfügung.'
+        fehler: 'Für KI-Binnendifferenzierung ist kein LLM-API-Key konfiguriert. Die Binnendifferenzierungsmatrix steht weiterhin direkt zur Verfügung.'
       });
     }
 
@@ -330,13 +690,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         anleitung: b?.anleitung || [],
         adaptivitaet: b?.adaptivitaet || [],
         durchfuehrung: b?.durchfuehrung || [],
-        variante: b?.variante || [],
-        qualitaetsrisiko: b?.qualitaetsrisiko || []
+        variante: b?.variante || []
       };
     });
 
     const cacheKey = hashKey([
-      'diff-v1',
+      'diff-v2',
       store.bundle.versionHash,
       target.model,
       body?.fach || '',
@@ -355,8 +714,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     }
 
     const systemPrompt =
-      'Du bist ein Experte für Binnendifferenzierung und die Facettierte Methodentaxonomie (FMT). ' +
-      'Erstelle für jede übergebene Unterrichtsphase und jede Lerngruppe eine knappe, konkret umsetzbare Differenzierungsmaßnahme (1–2 Sätze) passend zur jeweiligen FMT-Methode, zum Fach und zum Thema.\n' +
+      'Du bist ein Experte für Binnendifferenzierung (Binnendifferenzierungsmatrix) und die Facettierte Methodentaxonomie (FMT). ' +
+      'Erstelle für jede übergebene Unterrichtsphase und jede Lerngruppe eine knappe, konkret umsetzbare, themenspezifische Differenzierungsmaßnahme (1–2 Sätze) unter Berücksichtigung der berechneten Matrix-Empfehlungen und Gruppengröße.\n' +
       'Antworte AUSSCHLIESSLICH mit gültigem JSON im Format:\n' +
       '{ "phasen": { "<phase.key>": [ { "groupId": "<group.id>", "groupLabel": "<group.label>", "measure": "<konkrete Maßnahme>" } ] } }\n' +
       'Verwende exakt die übergebenen phase.key- und group.id-Werte. Erfinde keine neuen Methoden.';
@@ -364,7 +723,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     const userPrompt =
       `Fach: ${body?.fach || 'nicht angegeben'}, Thema: ${body?.thema || 'nicht angegeben'}, Bildungsstufe: ${body?.bildungsstufe || 'nicht angegeben'}.\n` +
       (body?.hinweise ? `Hinweise: ${body.hinweise}\n` : '') +
-      `\nLerngruppen:\n${JSON.stringify(gruppen, null, 2)}\n\n` +
+      `\nLerngruppen inkl. Matrix-Top-Empfehlungen:\n${JSON.stringify(gruppen, null, 2)}\n\n` +
       `Unterrichtsphasen mit FMT-Methoden:\n${JSON.stringify(enrichedPhases, null, 2)}`;
 
     try {
@@ -411,27 +770,16 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
   });
 
   app.post('/api/v1/assistant/material', { config: rateLimitConfig }, async (req, reply) => {
-    const body = req.body as {
-      baustein?: string;
-      phaseLabel?: string;
-      dauerMin?: number;
-      fach?: string;
-      thema?: string;
-      bildungsstufe?: string;
-      materialTyp?: string;
-      gruppen?: Array<{ label: string; profile: string }>;
-      hinweise?: string;
-    } | null;
-
+    const body = req.body as Partial<MaterialPayload> | null;
     const methodId = typeof body?.baustein === 'string' ? body.baustein.trim() : '';
-    const block = store.blocksById.get(methodId);
-    if (!block) {
+    if (!store.blocksById.has(methodId)) {
       return reply.code(400).send({ fehler: 'Bitte einen gültigen FMT-Methodenbaustein auswählen.' });
     }
 
+    const override = readByokHeaders(req, body as Record<string, unknown> | null);
     let target;
     try {
-      target = resolveLlmTarget(config, readByokHeaders(req, body as Record<string, unknown> | null));
+      target = resolveLlmTarget(config, override);
     } catch (e) {
       if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
       throw e;
@@ -443,72 +791,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       });
     }
 
-    const materialTyp = body?.materialTyp || 'arbeitsblatt';
-    const cacheKey = hashKey([
-      'material-v1',
-      store.bundle.versionHash,
-      target.model,
-      methodId,
-      materialTyp,
-      body?.fach || '',
-      body?.thema || '',
-      body?.bildungsstufe || '',
-      body?.dauerMin || block.dauerMin,
-      body?.gruppen || [],
-      body?.hinweise || ''
-    ]);
-
-    if (!target.isByok) {
-      const cached = materialCache.get(cacheKey);
-      if (cached) {
-        return reply.send({ gecacht: true, material: cached, baustein: block.name, leitplanken: FMT_GUARDRAILS });
-      }
-    }
-
-    const systemPrompt =
-      'Du erstellst direkt im Unterricht einsetzbares, druckfertiges Lehrmaterial (klares deutsches Markdown) auf Basis einer konkreten FMT-Unterrichtsmethode.\n' +
-      'STRUKTUR:\n' +
-      '1. **Kopfzeile** (Titel, Fach, Thema, Methode, Zeitrahmen)\n' +
-      '2. **Klare Arbeitsaufträge / Inhalt** – exakt passend zur gewählten FMT-Methode und deren Durchführungsschritten\n' +
-      '3. **Binnendifferenzierung** – sofern Lerngruppen übergeben wurden, kennzeichne Hilfen (★ Basis / Satzstarter) und Erweiterungen (★★★ Vertiefung)\n' +
-      '4. **Erwartungshorizont / Lehrkraft-Hinweise** (kurze Musterlösungen & typische Fehlvorstellungen)\n' +
-      'Erfinde keine falschen Quellen-URLs.';
-
-    const userPrompt =
-      `MATERIALTYP: ${materialTyp}\n` +
-      `Fach: ${body?.fach || 'nicht angegeben'} · Thema: ${body?.thema || 'nicht angegeben'} · Bildungsstufe: ${body?.bildungsstufe || 'Sekundarstufe I'}\n` +
-      `Phase: ${body?.phaseLabel || 'Unterrichtsphase'} · Dauer: ${body?.dauerMin || block.dauerMin} min\n` +
-      (body?.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
-      (body?.gruppen?.length ? `\nAktive Lerngruppen für Differenzierung:\n${JSON.stringify(body.gruppen, null, 2)}\n` : '') +
-      `\nFMT-Methode:\n${JSON.stringify(
-        {
-          name: block.name,
-          kurzbeschreibung: block.kurzbeschreibung,
-          durchfuehrung: block.durchfuehrung,
-          material: block.material,
-          kernkomponente: block.kernkomponente.map((k) => k.name),
-          qualitaetsrisiko: block.qualitaetsrisiko
-        },
-        null,
-        2
-      )}`;
-
     try {
-      const material = await callChatCompletion(
-        target,
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        {
-          jsonMode: false,
-          maxTokens: 2200,
-          timeoutMs: config.llmTimeoutMs,
-          reasoningEffort: config.llmReasoningEffort
-        }
-      );
-      if (!target.isByok) materialCache.set(cacheKey, material);
-      return reply.send({ gecacht: false, material, baustein: block.name, leitplanken: FMT_GUARDRAILS });
+      const res = await generateMaterialCore(store, config, override, body as MaterialPayload);
+      return reply.send({ ...res, leitplanken: FMT_GUARDRAILS });
     } catch (e) {
       return reply.code(502).send({
         fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.'

@@ -7,7 +7,12 @@ export interface OerItem {
   id: string;
   title: string;
   description: string;
+  /** Primary target URL (always prefers ccm:wwwurl from WLO) */
   url: string;
+  /** Explicit WLO ccm:wwwurl field (direct link to the educational resource) */
+  wwwurl: string;
+  /** Permalink to the WLO Prod metadata/render view */
+  wloRenderUrl: string | null;
   previewUrl: string | null;
   license: string | null;
   resourceType: string | null;
@@ -16,8 +21,27 @@ export interface OerItem {
   source: 'wlo';
 }
 
-const WLO_ENDPOINT =
-  'https://redaktion.openeduhub.net/edu-sharing/rest/search/v1/queries/-home-/mds_oeh/ngsearch';
+export interface WloSearchParams {
+  query: string;
+  fach?: string;
+  bildungsstufe?: string;
+  inhaltstyp?: string;
+  nurOffeneLizenz?: boolean;
+  maxItems?: number;
+}
+
+export interface WloSearchResponse {
+  quelle: 'wlo';
+  instanz: string;
+  gecacht: boolean;
+  suchbegriff: string;
+  hinweis?: string;
+  anzahl: number;
+  ergebnisse: OerItem[];
+}
+
+export const WLO_PROD_ORIGIN = 'https://redaktion.openeduhub.net';
+const WLO_ENDPOINT = `${WLO_PROD_ORIGIN}/edu-sharing/rest/search/v1/queries/-home-/mds_oeh/ngsearch`;
 
 const STAGE_TO_WLO_CONTEXT: Record<string, string> = {
   primar: 'http://w3id.org/openeduhub/vocabs/educationalContext/grundschule',
@@ -79,7 +103,6 @@ const CONTENT_TYPE_TO_LRT_URI: Record<string, string> = {
 };
 
 // Guard against edu-sharing Trap #2.8 ("Ein Rahmenwort ruiniert eine Anfrage"):
-// Strip German articles/prepositions from ngsearchword before querying edu-sharing.
 const DE_STOPWORDS = new Set([
   'der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines',
   'und', 'oder', 'von', 'vom', 'zu', 'zum', 'zur', 'im', 'in', 'am', 'an', 'auf', 'mit', 'fuer',
@@ -135,21 +158,23 @@ export function normalizeWloNodes(nodes: WloNode[]): OerItem[] {
     const props = n.properties || {};
     const id = n.ref?.id || '';
     const title = firstProp(props, 'cclom:title', 'cm:title', 'cm:name') || n.name || '';
-    const url =
-      firstProp(props, 'ccm:wwwurl', 'cclom:location') ||
-      (id ? `https://redaktion.openeduhub.net/edu-sharing/components/render/${id}` : '');
-    if (!title || !url || !/^https?:\/\//i.test(url) || seenUrls.has(url)) continue;
-    seenUrls.add(url);
+    const wloRenderUrl = id ? `${WLO_PROD_ORIGIN}/edu-sharing/components/render/${id}` : null;
+    const rawWwwUrl = firstProp(props, 'ccm:wwwurl', 'cclom:location');
+    const wwwurl = /^https?:\/\//i.test(rawWwwUrl) ? rawWwwUrl : wloRenderUrl || '';
+    if (!title || !wwwurl || !/^https?:\/\//i.test(wwwurl) || seenUrls.has(wwwurl)) continue;
+    seenUrls.add(wwwurl);
     const description = firstProp(props, 'cclom:general_description', 'cm:description').slice(0, 320);
     const license = firstProp(props, 'ccm:commonlicense_key_DISPLAYNAME', 'ccm:commonlicense_key') || null;
     const resourceType = firstProp(props, 'ccm:oeh_lrt_aggregated_DISPLAYNAME', 'ccm:oeh_lrt_aggregated') || null;
     const educationalContext = (props['ccm:educationalcontext_DISPLAYNAME'] || props['ccm:educationalcontext'] || []).slice(0, 3);
     const keywords = (props['cclom:general_keyword'] || []).slice(0, 6);
     out.push({
-      id: id || crypto.createHash('sha1').update(url).digest('hex').slice(0, 12),
+      id: id || crypto.createHash('sha1').update(wwwurl).digest('hex').slice(0, 12),
       title,
       description,
-      url,
+      url: wwwurl,
+      wwwurl,
+      wloRenderUrl,
       previewUrl: n.preview?.url && /^https?:\/\//i.test(n.preview.url) ? n.preview.url : null,
       license,
       resourceType,
@@ -160,6 +185,8 @@ export function normalizeWloNodes(nodes: WloNode[]): OerItem[] {
   }
   return out;
 }
+
+const wloCache = new LruTtlCache<{ items: OerItem[]; hinweis?: string }>(300, 10 * 60 * 1000);
 
 async function queryEduSharing(
   criteria: Array<{ property: string; values: string[] }>,
@@ -177,7 +204,7 @@ async function queryEduSharing(
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'User-Agent': 'FMT-Methodendatenbank/1.4'
+      'User-Agent': 'FMT-Methodendatenbank/1.5'
     },
     body: JSON.stringify({ criteria }),
     signal
@@ -189,9 +216,94 @@ async function queryEduSharing(
   return normalizeWloNodes(Array.isArray(data.nodes) ? data.nodes : []);
 }
 
-export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
-  const cache = new LruTtlCache<{ items: OerItem[]; hinweis?: string }>(250, 10 * 60 * 1000);
+export async function searchWloOer(params: WloSearchParams): Promise<WloSearchResponse> {
+  const rawQuery = (params.query || '').trim();
+  const fach = (params.fach || '').trim();
+  const bildungsstufe = (params.bildungsstufe || '').trim();
+  const inhaltstyp = (params.inhaltstyp || '').trim().toLowerCase();
+  const nurOffeneLizenz = Boolean(params.nurOffeneLizenz);
+  const maxItems = Math.max(1, Math.min(15, Number(params.maxItems) || 6));
 
+  const cleanWord = sanitizeWloSearchWord(rawQuery || fach);
+  if (!cleanWord) {
+    throw new Error('Bitte Suchbegriff oder Thema für die WLO-OER-Suche angeben.');
+  }
+
+  const fachUri = resolveFachUri(fach);
+  const ctxUri = STAGE_TO_WLO_CONTEXT[bildungsstufe] || null;
+  const lrtUri = CONTENT_TYPE_TO_LRT_URI[inhaltstyp] || null;
+
+  const cacheKey = crypto
+    .createHash('sha256')
+    .update(JSON.stringify([cleanWord.toLowerCase(), fachUri, ctxUri, lrtUri, nurOffeneLizenz, maxItems]))
+    .digest('hex');
+
+  const cached = wloCache.get(cacheKey);
+  if (cached) {
+    return {
+      quelle: 'wlo',
+      instanz: WLO_PROD_ORIGIN,
+      gecacht: true,
+      suchbegriff: cleanWord,
+      hinweis: cached.hinweis,
+      anzahl: cached.items.length,
+      ergebnisse: cached.items
+    };
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 9000);
+  try {
+    const buildCriteria = (useLrt: boolean, useCtx: boolean, useFach: boolean) => {
+      const c: Array<{ property: string; values: string[] }> = [{ property: 'ngsearchword', values: [cleanWord] }];
+      if (useFach && fachUri) c.push({ property: 'virtual:taxonid', values: [fachUri] });
+      if (useCtx && ctxUri) c.push({ property: 'ccm:educationalcontext', values: [ctxUri] });
+      if (useLrt && lrtUri) c.push({ property: 'ccm:oeh_lrt_aggregated', values: [lrtUri] });
+      if (nurOffeneLizenz) {
+        c.push({ property: 'ccm:commonlicense_key', values: ['CC_0', 'CC_BY', 'CC_BY_SA', 'PDM'] });
+      }
+      return c;
+    };
+
+    let hinweis: string | undefined;
+    let items = await queryEduSharing(buildCriteria(true, true, true), maxItems, controller.signal);
+
+    // Progressive relaxation if strict URI combination yields 0 hits
+    if (items.length === 0 && (lrtUri || ctxUri || fachUri)) {
+      items = await queryEduSharing(buildCriteria(false, true, true), maxItems, controller.signal);
+      if (items.length > 0 && lrtUri) {
+        hinweis = 'Filter „Medientyp“ wurde für mehr Treffer gelockert.';
+      }
+    }
+    if (items.length === 0 && (ctxUri || fachUri)) {
+      items = await queryEduSharing(buildCriteria(false, false, true), maxItems, controller.signal);
+      if (items.length > 0) {
+        hinweis = 'Bildungsstufen-Filter wurde für mehr Treffer gelockert.';
+      }
+    }
+    if (items.length === 0 && fachUri) {
+      items = await queryEduSharing(buildCriteria(false, false, false), maxItems, controller.signal);
+      if (items.length > 0) {
+        hinweis = 'Fach- und Stufenfilter wurden gelockert (offene Stichwortsuche in WLO Prod).';
+      }
+    }
+
+    wloCache.set(cacheKey, { items, hinweis });
+    return {
+      quelle: 'wlo',
+      instanz: WLO_PROD_ORIGIN,
+      gecacht: false,
+      suchbegriff: cleanWord,
+      hinweis,
+      anzahl: items.length,
+      ergebnisse: items
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
   app.post(
     '/api/v1/oer/wlo-search',
     {
@@ -203,89 +315,22 @@ export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
       }
     },
     async (req, reply) => {
-      const body = req.body as {
-        query?: string;
-        fach?: string;
-        bildungsstufe?: string;
-        inhaltstyp?: string;
-        maxItems?: number;
-      } | null;
-
+      const body = req.body as Partial<WloSearchParams> | null;
       const rawQuery = typeof body?.query === 'string' ? body.query.trim() : '';
       const fach = typeof body?.fach === 'string' ? body.fach.trim() : '';
-      const bildungsstufe = typeof body?.bildungsstufe === 'string' ? body.bildungsstufe.trim() : '';
-      const inhaltstyp = typeof body?.inhaltstyp === 'string' ? body.inhaltstyp.trim().toLowerCase() : '';
-      const maxItems = Math.max(1, Math.min(12, Number(body?.maxItems) || 6));
-
-      const cleanWord = sanitizeWloSearchWord(rawQuery || fach);
-      if (!cleanWord) {
+      if (!rawQuery && !fach) {
         return reply.code(400).send({ fehler: 'Bitte Suchbegriff oder Thema für die WLO-OER-Suche angeben.' });
       }
-
-      const fachUri = resolveFachUri(fach);
-      const ctxUri = STAGE_TO_WLO_CONTEXT[bildungsstufe] || null;
-      const lrtUri = CONTENT_TYPE_TO_LRT_URI[inhaltstyp] || null;
-
-      const cacheKey = crypto
-        .createHash('sha256')
-        .update(JSON.stringify([cleanWord.toLowerCase(), fachUri, ctxUri, lrtUri, maxItems]))
-        .digest('hex');
-
-      const cached = cache.get(cacheKey);
-      if (cached) {
-        return reply.send({
-          quelle: 'wlo',
-          gecacht: true,
-          suchbegriff: cleanWord,
-          hinweis: cached.hinweis,
-          anzahl: cached.items.length,
-          ergebnisse: cached.items
-        });
-      }
-
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 9000);
       try {
-        const buildCriteria = (useLrt: boolean, useCtx: boolean, useFach: boolean) => {
-          const c: Array<{ property: string; values: string[] }> = [{ property: 'ngsearchword', values: [cleanWord] }];
-          if (useFach && fachUri) c.push({ property: 'virtual:taxonid', values: [fachUri] });
-          if (useCtx && ctxUri) c.push({ property: 'ccm:educationalcontext', values: [ctxUri] });
-          if (useLrt && lrtUri) c.push({ property: 'ccm:oeh_lrt_aggregated', values: [lrtUri] });
-          return c;
-        };
-
-        let hinweis: string | undefined;
-        let items = await queryEduSharing(buildCriteria(true, true, true), maxItems, controller.signal);
-
-        // Progressive relaxation if strict URI combination yields 0 hits
-        if (items.length === 0 && (lrtUri || ctxUri || fachUri)) {
-          items = await queryEduSharing(buildCriteria(false, true, true), maxItems, controller.signal);
-          if (items.length > 0 && lrtUri) {
-            hinweis = 'Filter „Inhaltstyp“ wurde für mehr Treffer gelockert.';
-          }
-        }
-        if (items.length === 0 && (ctxUri || fachUri)) {
-          items = await queryEduSharing(buildCriteria(false, false, true), maxItems, controller.signal);
-          if (items.length > 0) {
-            hinweis = 'Bildungsstufen-Filter wurde für mehr Treffer gelockert.';
-          }
-        }
-        if (items.length === 0 && fachUri) {
-          items = await queryEduSharing(buildCriteria(false, false, false), maxItems, controller.signal);
-          if (items.length > 0) {
-            hinweis = 'Fach- und Stufenfilter wurden gelockert (offene Stichwortsuche).';
-          }
-        }
-
-        cache.set(cacheKey, { items, hinweis });
-        return reply.send({
-          quelle: 'wlo',
-          gecacht: false,
-          suchbegriff: cleanWord,
-          hinweis,
-          anzahl: items.length,
-          ergebnisse: items
+        const result = await searchWloOer({
+          query: rawQuery,
+          fach,
+          bildungsstufe: typeof body?.bildungsstufe === 'string' ? body.bildungsstufe : undefined,
+          inhaltstyp: typeof body?.inhaltstyp === 'string' ? body.inhaltstyp : undefined,
+          nurOffeneLizenz: Boolean(body?.nurOffeneLizenz),
+          maxItems: typeof body?.maxItems === 'number' ? body.maxItems : 9
         });
+        return reply.send(result);
       } catch (e) {
         return reply.code(502).send({
           fehler:
@@ -293,8 +338,6 @@ export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
               ? 'Zeitüberschreitung bei der WirLernenOnline-Suche (9 s).'
               : `WirLernenOnline-Suche derzeit nicht verfügbar (${e instanceof Error ? e.message : 'Netzwerkfehler'}).`
         });
-      } finally {
-        clearTimeout(timer);
       }
     }
   );

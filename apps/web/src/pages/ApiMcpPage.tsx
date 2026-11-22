@@ -54,15 +54,20 @@ export function ApiMcpPage() {
         </div>
 
         <div className="card" style={{ padding: 18 }}>
-          <h2>Verfügbare MCP-Tools &amp; Resources</h2>
+          <h2>Verfügbare MCP-Tools &amp; Resources (12 Tools)</h2>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
             <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden</li>
             <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen</li>
             <li><code>compare_methods</code> – Facette-für-Facette-Differenzvergleich</li>
-            <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung (Phase oder Ablauf)</li>
+            <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung inkl. didaktischem Ansatz</li>
             <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen</li>
             <li><code>suggest_replacements</code> – Formal gültige Ersatzkandidaten an einem Knotenpfad</li>
-            <li><code>list_vocabularies</code> – Kontrollierte Codes &amp; Funktionsketten</li>
+            <li><code>list_vocabularies</code> – Kontrollierte Codes, Funktionsketten &amp; Differenzierungs-Personas</li>
+            <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code></li>
+            <li><code>score_differentiation_matrix</code> – Binnendifferenzierungsmatrix (−2..+2 Punkte) &amp; alternative Teilgruppen-Methoden</li>
+            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan (Tabelle, Matrix, WLO-OER mit <code>wwwurl</code> &amp; JSON-LD)</li>
+            <li><code>elaborate_scenario</code> – Thematische Verlaufstabelle + ausformulierter Unterrichtsentwurf</li>
+            <li><code>generate_phase_material</code> – Druckfertiges Unterrichtsmaterial zu einer FMT-Methode</li>
           </ul>
           <p style={{ fontSize: 14 }} className="muted">
             <strong>Resources:</strong> <code>fmt://catalog/summary</code> · <code>fmt://method/{'{kennung}'}</code> ·{' '}
@@ -115,7 +120,23 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/elaborate</code></td>
-                <td>Fachliche Ausgestaltung eines geprüften Arrangements unter 4 Leitplanken</td>
+                <td>Thematische Verlaufstabelle + ausformulierter Unterrichtsentwurf unter 4 Leitplanken</td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/assistant/differentiate</code></td>
+                <td>KI-Verfeinerung der Binnendifferenzierungsmatrix für alle Phasen</td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/assistant/material</code></td>
+                <td>KI-Materialgenerator (Arbeitsblatt, Quiz, Checkliste, Karten)</td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/oer/wlo-search</code></td>
+                <td>Live-OER-Suche auf WirLernenOnline Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code></td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/differentiation/score</code></td>
+                <td>Deterministische Binnendifferenzierungsmatrix (−2..+2 Punkte, 115 Variablen × 172 Maßnahmen)</td>
               </tr>
             </tbody>
           </table>

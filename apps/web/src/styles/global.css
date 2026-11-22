@@ -63,9 +63,10 @@ p {
 }
 
 .wrap {
-  max-width: 1220px;
+  max-width: 1680px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 22px;
+  padding: 0 28px;
 }
 
 /* Header & Navigation */

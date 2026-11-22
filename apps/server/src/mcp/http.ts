@@ -1,15 +1,16 @@
 import type { FastifyInstance } from 'fastify';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { CatalogStore } from '../catalog-store.js';
+import type { ServerConfig } from '../config.js';
 import { createFmtMcpServer } from './server.js';
 
-export function registerMcpHttpRoutes(app: FastifyInstance, store: CatalogStore) {
+export function registerMcpHttpRoutes(app: FastifyInstance, store: CatalogStore, config?: ServerConfig) {
   // Stateless Streamable HTTP MCP endpoint: safe across restarts, scalable, zero session memory leaks
   app.all('/mcp', async (req, reply) => {
     if (req.method !== 'POST' && req.method !== 'GET' && req.method !== 'DELETE') {
       return reply.code(405).send({ fehler: 'Methode nicht erlaubt.' });
     }
-    const mcpServer = createFmtMcpServer(store);
+    const mcpServer = createFmtMcpServer(store, config);
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined
     });

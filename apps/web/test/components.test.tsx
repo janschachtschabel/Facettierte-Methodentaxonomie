@@ -167,14 +167,18 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(c2.querySelector('svg')).toBeTruthy();
 
     const preset = createChainPreset('konzeptaufbau', BUNDLE);
-    const rows = buildScenarioRows(preset, BUNDLE, BLOCKS, labelOf, DEFAULT_LEARNER_GROUPS, {}, {});
+    const subMethods = { 'step-0': { basis: 'loesungsbeispiele' } };
+    const rows = buildScenarioRows(preset, BUNDLE, BLOCKS, labelOf, DEFAULT_LEARNER_GROUPS, {}, {}, '', subMethods);
     const { container: c3 } = render(
       <MemoryRouter>
         <VerlaufsplanView
           rows={rows}
           groups={DEFAULT_LEARNER_GROUPS}
-          onOpenOerForStep={() => {}}
-          onOpenMaterialForStep={() => {}}
+          allBlocks={BUNDLE.bausteine}
+          subgroupMethods={subMethods}
+          onSubgroupMethodChange={() => {}}
+          onEditDiffMeasure={() => {}}
+          onOpenResourcesForStep={() => {}}
         />
       </MemoryRouter>
     );
@@ -182,5 +186,12 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(c3.textContent).toContain('Basisunterstützung');
     expect(c3.textContent).toContain('Vertiefung');
     expect(c3.textContent).toContain('Szenario (R2)');
+    expect(c3.textContent).toContain('Parallele Methode');
+
+    // Verify TimelineBandSvg renders parallel subgroup swimlane when subgroupMethods is populated
+    const { container: c4 } = render(
+      <TimelineBandSvg arrangement={preset} blocksById={BLOCKS} groups={DEFAULT_LEARNER_GROUPS} subgroupMethods={subMethods} />
+    );
+    expect(c4.textContent).toContain('Parallele Schwimmlinie');
   });
 });

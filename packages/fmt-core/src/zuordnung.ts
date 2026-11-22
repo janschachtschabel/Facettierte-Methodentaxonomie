@@ -109,6 +109,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(group('aufgabenstruktur', 'wissensart'))
     },
     {
+      feld: 'ansatz',
+      typ: 'codes',
+      stufe: 1,
+      bedeutung: 'Bevorzugter didaktischer Ansatz / Lernform (z. B. problemorientiert, kooperativ, forschend)',
+      werte: opts(values(scheme('ansatz')))
+    },
+    {
       feld: 'lernfunktion',
       typ: 'codes',
       stufe: 1,
@@ -247,6 +254,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen/, () => 'fakten'],
+    ['ansatz', /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*/, () => ['forschend']],
+    ['ansatz', /kooperativ\w*|gruppenarbeit|partnerarbeit|peer-?learning/, () => ['kooperativ']],
+    ['ansatz', /direkte?\s+instruktion|lehrervortrag|explizit\w*\s+instruktion/, () => ['instruktion']],
+    ['ansatz', /offene\w*\s+unterricht|freiarbeit|stationen|werkstatt|projektbasiert\w*|projektarbeit/, () => ['offen']],
+    ['ansatz', /spielerisch\w*|gamification|planspiel|rollenspiel|simulation/, () => ['spiel-simulation']],
+    ['ansatz', /debatt\w*|diskurs\w*|diskussion/, () => ['diskurs']],
     ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|ablauf/, () => 'ablauf']
   ];
 
@@ -309,9 +322,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   function rankOf(b: Baustein, a: MatchRequest, wantedFunctions: string[], extra = 0): number[] {
     const g = bestGrade(b);
+    const wantedAnsatz = list(a.ansatz);
+    const ansatzPenalty =
+      wantedAnsatz.length === 0 ? 0 : wantedAnsatz.some((code) => (b.ansatz || []).includes(code)) ? 0 : 1;
     return [
       extra,
       passung(b, a).length ? 1 : 0,
+      ansatzPenalty,
       g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length,
       b.status === 'kuratiert' ? 0 : 1,
       wantedFunctions.length ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1 : 0,

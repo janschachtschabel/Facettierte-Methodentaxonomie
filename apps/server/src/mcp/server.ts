@@ -1,9 +1,26 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { FMT_GUARDRAILS, FMT_RULES, type Arrangement, type MatchRequest, type SearchCriteria } from '@fmt/core';
+import {
+  DIFF_MATRIX_PERSONAS,
+  FMT_GUARDRAILS,
+  FMT_RULES,
+  scoreDifferentiationMatrix,
+  suggestAlternativeMethodsForGroup,
+  type Arrangement,
+  type MatchRequest,
+  type SearchCriteria
+} from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
+import { loadConfig, type ServerConfig } from '../config.js';
+import { searchWloOer } from '../routes/oer.js';
+import {
+  buildDeterministicThematicTable,
+  elaborateScenarioCore,
+  generateMaterialCore
+} from '../routes/assistant.js';
 
-export function createFmtMcpServer(store: CatalogStore): McpServer {
+export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): McpServer {
+  const effectiveConfig = config ?? loadConfig();
   const server = new McpServer({
     name: 'fmt-methodendatenbank',
     version: store.bundle.version
@@ -122,12 +139,13 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
   // 4. match_scenario
   server.tool(
     'match_scenario',
-    'Deterministische 5-Stufen-Zuordnung für eine Phase oder eine geprüfte modulare Unterrichtsreihe (ohne Halluzinationen, <1 ms).',
+    'Deterministische 5-Stufen-Zuordnung für eine Phase oder eine geprüfte modulare Unterrichtsreihe inkl. didaktischem Ansatz (ohne Halluzinationen, <1 ms).',
     {
       text: z.string().optional(),
       modus: z.enum(['phase', 'ablauf']).optional(),
       zieltyp: z.string().optional(),
       zielart: z.string().optional(),
+      ansatz: z.union([z.string(), z.array(z.string())]).optional().describe('Didaktischer Ansatz, z. B. "forschend", "kooperativ", "instruktion"'),
       lernfunktion: z.union([z.string(), z.array(z.string())]).optional(),
       liefert: z.union([z.string(), z.array(z.string())]).optional(),
       zeitMin: z.number().int().min(0).optional(),
@@ -193,7 +211,7 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
   // 7. list_vocabularies
   server.tool(
     'list_vocabularies',
-    'Listet alle FMT-Vokabulare, Funktionsketten und Anfragefelder oder die erlaubten Codes eines einzelnen Schemas auf.',
+    'Listet alle FMT-Vokabulare, Funktionsketten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
     {
       scheme: z.string().optional().describe('Optional: Schema-ID wie "lernfunktion", "ansatz", "lernzustand", "bildungsstufe"')
     },
@@ -216,8 +234,243 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
       return textResult({
         schemes: store.bundle.schemes.map((s) => ({ id: s.id, titel: s.titel })),
         ketten: store.bundle.ketten.map((k) => ({ id: k.id, label: k.label, zielart: k.zielart })),
+        differenzierungsPersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
         anfrageFelder: store.matcher.felder()
       });
+    }
+  );
+
+  // 8. search_wlo_oer (WLO Prod instance, always returning wwwurl!)
+  server.tool(
+    'search_wlo_oer',
+    'Sucht freie Bildungsmaterialien (OER) live auf der WirLernenOnline-Produktionsinstanz (redaktion.openeduhub.net) mit offiziellen Fach-, Bildungsstufen- und Medientyp-URIs. Liefert für jeden Treffer explizit die wwwurl.',
+    {
+      query: z.string().describe('Suchbegriff oder Thema (z. B. "Bruchrechnen", "Dichte", "Fotosynthese")'),
+      fach: z.string().optional().describe('Fachname (z. B. "Mathematik", "Physik", "Biologie", "Deutsch")'),
+      bildungsstufe: z.enum(['primar', 'sek1', 'sek2', 'berufsbildung', 'hochschule', 'erwachsenenbildung']).optional(),
+      inhaltstyp: z
+        .enum(['arbeitsblatt', 'uebung', 'video', 'interaktiv', 'experiment', 'quiz', 'rollenspiel', 'fallstudie', 'handout', 'lernspiel'])
+        .optional(),
+      nurOffeneLizenz: z.boolean().optional().default(false),
+      maxItems: z.number().int().min(1).max(15).optional().default(6)
+    },
+    async (args) => {
+      try {
+        const res = await searchWloOer(args);
+        return textResult(res);
+      } catch (e) {
+        return textResult({ fehler: e instanceof Error ? e.message : 'WLO-OER-Suche fehlgeschlagen.' });
+      }
+    }
+  );
+
+  // 9. score_differentiation_matrix
+  server.tool(
+    'score_differentiation_matrix',
+    'Berechnet deterministische Binnendifferenzierungs-Empfehlungen über die Punkte-Matrix (-2 bis +2 über 115 Anpassungsvariablen × 172 Maßnahmen). Optional wird bei Angabe eines FMT-Bausteins geprüft, welche alternativen FMT-Methoden für diese Teilgruppe besser passen.',
+    {
+      personaId: z
+        .enum(['languageAndCulture', 'average', 'highPerforming', 'foerderLernen', 'foerderEmSoz'])
+        .optional()
+        .describe('Vordefinierte Schüler-Persona'),
+      selectedValues: z
+        .record(z.string())
+        .optional()
+        .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"})'),
+      minScore: z.number().int().optional(),
+      limit: z.number().int().min(1).max(40).optional().default(12),
+      baustein: z.string().optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen')
+    },
+    async ({ personaId, selectedValues, minScore, limit, baustein }) => {
+      const scoreResult = scoreDifferentiationMatrix({ personaId, selectedValues, minScore, limit });
+      const currentBlock = baustein ? store.blocksById.get(baustein) : undefined;
+      const alternativeMethoden = currentBlock
+        ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5)
+        : [];
+      return textResult({
+        ...scoreResult,
+        alternativeMethoden,
+        verfuegbarePersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
+      });
+    }
+  );
+
+  // 10. build_scenario_plan (End-to-end IMS-LD + thematic table + optional WLO OER + differentiation matrix)
+  server.tool(
+    'build_scenario_plan',
+    'Komponiert ein vollständiges, geprüftes Lehr- und Lernszenario inkl. FMT-Methodenablauf, Binnendifferenzierungsmatrix-Empfehlungen pro Teilgruppe, optionaler WLO-OER-Suche (mit wwwurl), thematischer Tabelle, Markdown-Entwurf und maschinenlesbarem JSON-LD.',
+    {
+      text: z.string().describe('Beschreibung des Unterrichtsvorhabens'),
+      fach: z.string().optional(),
+      thema: z.string().optional(),
+      lernziele: z.string().optional(),
+      didaktischerAnsatz: z.string().optional(),
+      ansatz: z.union([z.string(), z.array(z.string())]).optional(),
+      zeitMin: z.number().int().min(10).optional(),
+      gruppe: z.number().int().min(1).optional(),
+      bildungsstufe: z.string().optional(),
+      vorwissen: z.string().optional(),
+      includeWloOer: z.boolean().optional().default(true).describe('Ob automatisch passende WLO-OER-Materialien (mit wwwurl) gesucht werden sollen'),
+      gruppen: z
+        .array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            count: z.number().int().min(1).optional(),
+            personaId: z.string().optional(),
+            profile: z.string().optional()
+          })
+        )
+        .optional()
+    },
+    async (args) => {
+      const matchReq: MatchRequest = {
+        text: args.text,
+        modus: 'ablauf',
+        ansatz: args.ansatz,
+        zeitMin: args.zeitMin,
+        gruppe: args.gruppe,
+        bildungsstufe: args.bildungsstufe,
+        vorwissen: args.vorwissen
+      };
+      const matched = store.matcher.zuordnen(matchReq);
+      if (matched.modus !== 'ablauf' || !matched.arrangement) {
+        return textResult({ fehler: 'Konnte keinen vollständigen Ablauf zuordnen.', ergebnis: matched });
+      }
+
+      const activeGroups =
+        args.gruppen && args.gruppen.length
+          ? args.gruppen
+          : [
+              { id: 'basis', label: 'Basisunterstützung & Sprachsensibel', personaId: 'languageAndCulture' },
+              { id: 'regel', label: 'Regelniveau', personaId: 'average' },
+              { id: 'vertiefung', label: 'Vertiefung & Leistungsstark', personaId: 'highPerforming' }
+            ];
+
+      const groupMatrices = activeGroups.map((g) => {
+        const scored = scoreDifferentiationMatrix({ personaId: g.personaId || 'average', limit: 6 });
+        return {
+          ...g,
+          matrixTop: scored.topRecommendations.slice(0, 4).map((r) => `${r.name} (+${r.score})`),
+          didacticProfile: scored.didacticProfile
+        };
+      });
+
+      let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];
+      if (args.includeWloOer && (args.thema || args.fach)) {
+        try {
+          const wlo = await searchWloOer({
+            query: args.thema || args.fach || args.text,
+            fach: args.fach,
+            bildungsstufe: args.bildungsstufe,
+            maxItems: 5
+          });
+          oerHits = wlo.ergebnisse.map((o) => ({
+            titel: o.title,
+            wwwurl: o.wwwurl,
+            wloRenderUrl: o.wloRenderUrl,
+            lizenz: o.license,
+            medientyp: o.resourceType
+          }));
+        } catch {
+          // Graceful fallback if WLO network unreachable
+        }
+      }
+
+      const thematicTable = buildDeterministicThematicTable(store, {
+        arrangement: matched.arrangement,
+        fach: args.fach,
+        thema: args.thema || args.text,
+        didaktischerAnsatz: args.didaktischerAnsatz,
+        lernziele: args.lernziele,
+        differenzierung: groupMatrices.map((g) => ({
+          id: g.id,
+          gruppe: g.label,
+          profil: g.profile || g.didacticProfile.summary,
+          anzahl: g.count,
+          matrixMassnahmen: g.matrixTop
+        })),
+        oerRessourcen: oerHits.map((o) => ({ titel: o.titel, wwwurl: o.wwwurl, lizenz: o.lizenz }))
+      });
+
+      return textResult({
+        fach: args.fach || null,
+        thema: args.thema || null,
+        pruefung: matched.pruefung,
+        lerngruppenUndMatrix: groupMatrices,
+        wloOerRessourcen: oerHits,
+        thematischeTabelle: thematicTable,
+        maschinenlesbar: {
+          '@type': 'FmtScenarioPlan',
+          license: store.bundle.license,
+          arrangement: matched.arrangement
+        },
+        leitplanken: FMT_GUARDRAILS
+      });
+    }
+  );
+
+  // 11. elaborate_scenario
+  server.tool(
+    'elaborate_scenario',
+    'Erstellt eine thematisch angepasste Verlaufstabelle + ausformulierten Unterrichtsentwurf inkl. WLO-OER (wwwurl) und Differenzierung (per Server-LLM oder deterministischem Fallback).',
+    {
+      arrangement: z.record(z.unknown()).describe('FMT-Arrangement JSON-LD'),
+      fach: z.string().optional(),
+      thema: z.string().optional(),
+      didaktischerAnsatz: z.string().optional(),
+      akteure: z.string().optional(),
+      lernziele: z.string().optional(),
+      problemstellung: z.string().optional(),
+      hinweise: z.string().optional(),
+      oerRessourcen: z
+        .array(z.object({ stepKey: z.string().optional(), titel: z.string(), wwwurl: z.string() }))
+        .optional()
+    },
+    async (args) => {
+      try {
+        const res = await elaborateScenarioCore(store, effectiveConfig, {}, {
+          arrangement: args.arrangement as unknown as Arrangement,
+          fach: args.fach,
+          thema: args.thema,
+          didaktischerAnsatz: args.didaktischerAnsatz,
+          akteure: args.akteure,
+          lernziele: args.lernziele,
+          problemstellung: args.problemstellung,
+          hinweise: args.hinweise,
+          oerRessourcen: args.oerRessourcen
+        });
+        return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+      } catch (e) {
+        return textResult({ fehler: e instanceof Error ? e.message : 'Ausarbeitung fehlgeschlagen.' });
+      }
+    }
+  );
+
+  // 12. generate_phase_material
+  server.tool(
+    'generate_phase_material',
+    'Erstellt druckfertiges Unterrichtsmaterial (Arbeitsblatt, Quiz, Checkliste, Versuchsanleitung, Diskussionskarten) passend zu einer FMT-Methode und einem Thema.',
+    {
+      baustein: z.string().describe('FMT-Methodenkennung, z. B. "loesungsbeispiele" oder "abrufquiz"'),
+      fach: z.string().optional(),
+      thema: z.string().optional(),
+      bildungsstufe: z.string().optional(),
+      phaseLabel: z.string().optional(),
+      dauerMin: z.number().int().min(1).optional(),
+      materialTyp: z
+        .enum(['arbeitsblatt', 'infoblatt', 'quiz', 'checkliste', 'versuchsanleitung', 'diskussionskarten', 'glossar'])
+        .optional()
+        .default('arbeitsblatt'),
+      hinweise: z.string().optional()
+    },
+    async (args) => {
+      try {
+        const res = await generateMaterialCore(store, effectiveConfig, {}, args);
+        return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+      } catch (e) {
+        return textResult({ fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.' });
+      }
     }
   );
 
@@ -310,7 +563,7 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
   // Prompts
   server.prompt(
     'design_learning_scenario',
-    'Leitet einen KI-Agent an, ein Lehr-/Lernszenario deterministisch über FMT-Tools zu komponieren, zu prüfen und unter den 4 FMT-Leitplanken auszugestalten.',
+    'Leitet einen KI-Agent an, ein Lehr-/Lernszenario deterministisch über FMT-Tools inkl. Binnendifferenzierungsmatrix & WLO-OER zu komponieren.',
     {
       szenario: z.string().describe('Beschreibung von Thema, Bildungsstufe, Zeit, Gruppengröße und Ziel')
     },
@@ -323,11 +576,11 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
             text:
               `Plane ein modulares Lehr-/Lernszenario für folgende Anfrage:\n\n"${szenario}"\n\n` +
               `Vorgehen:\n` +
-              `1. Nutze zuerst \`list_vocabularies\` bzw. \`match_scenario\`, um Kriterien in das FMT-Schema zu übersetzen und einen geprüften Ablauf oder passende Bausteine zu erhalten.\n` +
-              `2. Rufe \`get_method\` für die gewählten Bausteine auf und prüfe bei Anpassungen immer mit \`validate_arrangement\`.\n` +
-              `3. Beachte zwingend die vier FMT-Leitplanken:\n` +
-              FMT_GUARDRAILS.map((g, i) => `   ${i + 1}. ${g}`).join('\n') +
-              `\n4. Erfinde keine Methoden oder Wirksamkeitsbelege außerhalb des Katalogs und nenne bei Evidenz immer Grad, Quelle und Geltung.`
+              `1. Nutze \`build_scenario_plan\` oder \`match_scenario\`, um einen geprüften FMT-Ablauf zu erzeugen.\n` +
+              `2. Nutze \`score_differentiation_matrix\` für die Teilgruppen-Differenzierung und \`search_wlo_oer\` für passende freie Bildungsmaterialien (immer mit wwwurl).\n` +
+              `3. Prüfe Anpassungen mit \`validate_arrangement\` und erzeuge bei Bedarf mit \`elaborate_scenario\` und \`generate_phase_material\` den thematischen Endentwurf.\n` +
+              `4. Beachte zwingend die vier FMT-Leitplanken:\n` +
+              FMT_GUARDRAILS.map((g, i) => `   ${i + 1}. ${g}`).join('\n')
           }
         }
       ]

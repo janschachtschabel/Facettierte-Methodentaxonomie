@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FMT_GUARDRAILS, type Arrangement, type MatchRequest, type MatchResult } from '@fmt/core';
+import {
+  DIFF_MATRIX_PERSONAS,
+  FMT_GUARDRAILS,
+  type Arrangement,
+  type MatchRequest,
+  type MatchResult
+} from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { PartiturView } from '../components/PartiturView.js';
 import { VerlaufsplanView } from '../components/VerlaufsplanView.js';
@@ -14,11 +20,16 @@ import {
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
 import {
+  buildDefaultThematicRows,
+  buildNeutralLearningScenario,
   buildScenarioRows,
   DEFAULT_LEARNER_GROUPS,
+  type GeneratedMaterialItem,
   type LearnerGroup,
   type OerResource,
-  type StepDiffSuggestion
+  type StepDiffSuggestion,
+  type SubgroupMethodMap,
+  type ThematicPhaseRow
 } from '../planner/scenarioModel.js';
 import {
   deleteSavedScenario,
@@ -32,12 +43,24 @@ import {
 
 type PlannerStep = 1 | 2 | 3 | 4;
 
+const DIDACTIC_APPROACH_OPTIONS: Array<{ code: string; label: string }> = [
+  { code: 'forschend', label: 'Problemorientiertes / forschendes Lernen' },
+  { code: 'kooperativ', label: 'Kooperatives Lernen' },
+  { code: 'instruktion', label: 'Direkte Instruktion & Darbietung' },
+  { code: 'offen', label: 'Projekt- & offenes Lernen' },
+  { code: 'diskurs', label: 'Diskursives / argumentatives Lernen' },
+  { code: 'spiel-simulation', label: 'Spielerisches / simulationsbasiertes Lernen' },
+  { code: 'digital-ki', label: 'Digitales & KI-gestütztes Lernen' },
+  { code: 'reflexion', label: 'Selbstgesteuertes / reflexives Lernen' }
+];
+
 interface StarterPreset {
   id: string;
   label: string;
   fach: string;
   thema: string;
   text: string;
+  ansatz: string[];
   lernziele: string;
   problemstellung: string;
   bildungsstufe: string;
@@ -53,8 +76,11 @@ const STARTER_PRESETS: StarterPreset[] = [
     fach: 'Mathematik',
     thema: 'Addition und Subtraktion von Brüchen',
     text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
-    lernziele: '1. Gleichnamige und ungleichnamige Brüche sicher addieren\n2. Rechenschritte begründen und typische Fehler (Nenner addieren) erkennen',
-    problemstellung: 'Viele Lernende addieren Zähler und Nenner getrennt; schrittweise Lösungsbeispiele mit Fading beugen diesem Fehlkonzept vor.',
+    ansatz: ['instruktion', 'uebung'],
+    lernziele:
+      '1. Gleichnamige und ungleichnamige Brüche sicher addieren\n2. Rechenschritte begründen und typische Fehler (Nenner addieren) erkennen',
+    problemstellung:
+      'Viele Lernende addieren Zähler und Nenner getrennt; schrittweise Lösungsbeispiele mit Fading beugen diesem Fehlkonzept vor.',
     bildungsstufe: 'sek1',
     vorwissen: 'gering',
     zeitMin: 90,
@@ -66,8 +92,11 @@ const STARTER_PRESETS: StarterPreset[] = [
     fach: 'Physik',
     thema: 'Dichte von Stoffen',
     text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
-    lernziele: '1. Masse und Volumen als unabhängige Größen unterscheiden\n2. Dichte als Stoffkonstante berechnen und auf Schwimmen/Sinken anwenden',
-    problemstellung: 'Fehlvorstellung „schwere Dinge sinken immer“ – Vorhersage-Beobachtung-Erklärung macht das Alltagskonzept sichtbar.',
+    ansatz: ['forschend'],
+    lernziele:
+      '1. Masse und Volumen als unabhängige Größen unterscheiden\n2. Dichte als Stoffkonstante berechnen und auf Schwimmen/Sinken anwenden',
+    problemstellung:
+      'Fehlvorstellung „schwere Dinge sinken immer“ – Vorhersage-Beobachtung-Erklärung macht das Alltagskonzept sichtbar.',
     bildungsstufe: 'sek1',
     vorwissen: 'gering',
     zeitMin: 270,
@@ -79,7 +108,9 @@ const STARTER_PRESETS: StarterPreset[] = [
     fach: 'Biologie',
     thema: 'Ökosystem Wald & Nahrungsnetze',
     text: 'Biologie Klasse 8 forschend 5E Ökosystem Wald, 135 Minuten, mittleres Vorwissen',
-    lernziele: '1. Produzenten, Konsumenten und Destruenten in Nahrungsnetzen vernetzen\n2. Folgen von Störungen im Ökosystem hypothesengeleitet untersuchen',
+    ansatz: ['forschend', 'kooperativ'],
+    lernziele:
+      '1. Produzenten, Konsumenten und Destruenten in Nahrungsnetzen vernetzen\n2. Folgen von Störungen im Ökosystem hypothesengeleitet untersuchen',
     problemstellung: 'Abstrakte Stoffkreisläufe bleiben oft träges Wissen ohne eigene Erkundungs- und Erklärungsphase.',
     bildungsstufe: 'sek1',
     vorwissen: 'mittel',
@@ -92,8 +123,10 @@ const STARTER_PRESETS: StarterPreset[] = [
     fach: 'Deutsch',
     thema: 'Überzeugend argumentieren & Debatte',
     text: 'Deutsch Sekundarstufe I Doppelstunde 90 Minuten Argumentation und Problemlösen, mittleres Vorwissen',
+    ansatz: ['diskurs', 'kooperativ'],
     lernziele: '1. These, Argument und Beispiel klar strukturieren\n2. Gegenargumente fair aufgreifen und entkräften',
-    problemstellung: 'Meinungen werden häufig ohne Beleg geäußert; strukturierte Austausch- und Vergleichsphasen schärfen die Argumentationsqualität.',
+    problemstellung:
+      'Meinungen werden häufig ohne Beleg geäußert; strukturierte Austausch- und Vergleichsphasen schärfen die Argumentationsqualität.',
     bildungsstufe: 'sek1',
     vorwissen: 'mittel',
     zeitMin: 90,
@@ -105,8 +138,11 @@ const STARTER_PRESETS: StarterPreset[] = [
     fach: 'Politik',
     thema: 'Gewaltenteilung & Demokratie',
     text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen',
-    lernziele: '1. Legislative, Exekutive und Judikative sicher zuordnen\n2. Kontrollmechanismen an einem aktuellen Fallbeispiel erläutern',
-    problemstellung: 'Institutionenkunde wirkt trocken, wenn Fachbegriffe nicht aktiv abgerufen und an konkreten Fällen gesichert werden.',
+    ansatz: ['kooperativ'],
+    lernziele:
+      '1. Legislative, Exekutive und Judikative sicher zuordnen\n2. Kontrollmechanismen an einem aktuellen Fallbeispiel erläutern',
+    problemstellung:
+      'Institutionenkunde wirkt trocken, wenn Fachbegriffe nicht aktiv abgerufen und an konkreten Fällen gesichert werden.',
     bildungsstufe: 'sek1',
     vorwissen: 'gering',
     zeitMin: 135,
@@ -147,9 +183,12 @@ export function PlannerPage() {
   const [busyAi, setBusyAi] = useState(false);
   const [listening, setListening] = useState(false);
 
-  // Optional structured context fields (inspired by Lernpfadeditor, directly processed!)
+  // Optional structured context fields (aligned with Lernpfadeditor & directly wired to Matcher, Matrix, WLO & KI!)
   const [fach, setFach] = useState('Physik');
   const [thema, setThema] = useState('Dichte von Stoffen');
+  const [ansatzCodes, setAnsatzCodes] = useState<string[]>(['forschend']);
+  const [customAnsatzText, setCustomAnsatzText] = useState('');
+  const [lehrkraefteInfo, setLehrkraefteInfo] = useState('1 Lehrkraft');
   const [lernziele, setLernziele] = useState('');
   const [problemstellung, setProblemstellung] = useState('');
   const [hinweise, setHinweise] = useState('');
@@ -161,7 +200,10 @@ export function PlannerPage() {
 
   const [groups, setGroups] = useState<LearnerGroup[]>(DEFAULT_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
+  const [subgroupMethods, setSubgroupMethods] = useState<SubgroupMethodMap>({});
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
+  const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterialItem[]>([]);
+  const [thematicRows, setThematicRows] = useState<ThematicPhaseRow[] | null>(null);
   const [elaboration, setElaboration] = useState<string | null>(null);
 
   const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>(() => loadSavedScenarios());
@@ -218,8 +260,27 @@ export function PlannerPage() {
   const scenarioRows = useMemo(() => {
     if (!arrangement || !bundle) return [];
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    return buildScenarioRows(arrangement, bundle, blocksById, labelOf, groups, aiDiffByStep, oerByStep, baseUrl);
-  }, [arrangement, bundle, blocksById, labelOf, groups, aiDiffByStep, oerByStep]);
+    return buildScenarioRows(
+      arrangement,
+      bundle,
+      blocksById,
+      labelOf,
+      groups,
+      aiDiffByStep,
+      oerByStep,
+      baseUrl,
+      subgroupMethods,
+      generatedMaterials
+    );
+  }, [arrangement, bundle, blocksById, labelOf, groups, aiDiffByStep, oerByStep, subgroupMethods, generatedMaterials]);
+
+  const didaktischerAnsatzLabel = useMemo(() => {
+    const labels = ansatzCodes.map(
+      (c) => DIDACTIC_APPROACH_OPTIONS.find((x) => x.code === c)?.label || labelOf('ansatz', c)
+    );
+    if (customAnsatzText.trim()) labels.push(customAnsatzText.trim());
+    return labels.join(', ');
+  }, [ansatzCodes, customAnsatzText, labelOf]);
 
   if (!bundle || !validator || !search || !matcher || !arrangement || !validation) {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
@@ -235,10 +296,37 @@ export function PlannerPage() {
     return h;
   };
 
-  // Combine optional structured fields cleanly into a MatchRequest for deterministic matching
+  const toggleAnsatzCode = (code: string) => {
+    setAnsatzCodes((prev) => (prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]));
+  };
+
+  const handleSubgroupMethodChange = (stepKey: string, groupId: string, methodId: string | null) => {
+    setSubgroupMethods((prev) => {
+      const nextStep = { ...(prev[stepKey] || {}) };
+      if (!methodId) delete nextStep[groupId];
+      else nextStep[groupId] = methodId;
+      return { ...prev, [stepKey]: nextStep };
+    });
+  };
+
+  const handleEditDiffMeasure = (stepKey: string, groupId: string, groupLabel: string, measure: string) => {
+    setAiDiffByStep((prev) => {
+      const row = scenarioRows.find((r) => r.key === stepKey);
+      const baseList = prev[stepKey]?.length ? [...prev[stepKey]] : row ? [...row.differentiation] : [];
+      const exists = baseList.some((d) => d.groupId === groupId);
+      const updated: StepDiffSuggestion[] = exists
+        ? baseList.map((d) => (d.groupId === groupId ? { ...d, measure, source: 'manuell' } : d))
+        : [...baseList, { groupId, groupLabel, measure, source: 'manuell' }];
+      return { ...prev, [stepKey]: updated };
+    });
+  };
+
   const buildStructuredMatchRequest = (): MatchRequest => {
     const req: MatchRequest = { text: scenarioText };
-    if (gruppeSize && Number(gruppeSize) > 0) req.gruppe = Number(gruppeSize);
+    if (ansatzCodes.length) req.ansatz = ansatzCodes;
+    const sumGroupCounts = groups.filter((g) => g.active).reduce((s, g) => s + (g.count || 0), 0);
+    const effGroup = Number(gruppeSize) || sumGroupCounts;
+    if (effGroup > 0) req.gruppe = effGroup;
     if (maxTechnik) req.maxTechnik = maxTechnik;
     if (ohneInternet) req.ohneInternet = true;
     if (ohneKI) req.ohneKI = true;
@@ -246,13 +334,14 @@ export function PlannerPage() {
     return req;
   };
 
-  // Enrich free-text prompt with optional structured fields when calling AI translate
   const buildEnrichedAiText = (): string => {
     const extras: string[] = [];
     if (fach.trim()) extras.push(`Fach: ${fach.trim()}`);
     if (thema.trim()) extras.push(`Thema: ${thema.trim()}`);
+    if (didaktischerAnsatzLabel) extras.push(`Didaktischer Ansatz: ${didaktischerAnsatzLabel}`);
+    if (lehrkraefteInfo.trim()) extras.push(`Lehrkräfte/Begleitung: ${lehrkraefteInfo.trim()}`);
     if (lernziele.trim()) extras.push(`Lernziele: ${lernziele.trim()}`);
-    if (gruppeSize && Number(gruppeSize) > 0) extras.push(`Gruppengröße: ${gruppeSize} Lernende`);
+    if (gruppeSize && Number(gruppeSize) > 0) extras.push(`Klassengröße: ${gruppeSize} Lernende`);
     if (maxTechnik) extras.push(`Technik höchstens: ${labelOf('technikbedarf', maxTechnik)}`);
     if (ohneInternet) extras.push('ohne Internet');
     if (ohneKI) extras.push('ohne KI');
@@ -264,6 +353,7 @@ export function PlannerPage() {
     setFach(p.fach);
     setThema(p.thema);
     setScenarioText(p.text);
+    setAnsatzCodes(p.ansatz);
     setLernziele(p.lernziele);
     setProblemstellung(p.problemstellung);
     const preset = createChainPreset(p.chain, bundle);
@@ -274,6 +364,7 @@ export function PlannerPage() {
       zeitbudgetMin: p.zeitMin
     };
     setArrangement(preset);
+    setThematicRows(null);
     setElaboration(null);
     setMatchNotice(`Starter-Vorlage „${p.label}“ geladen. Du kannst direkt zu Schritt 2 wechseln oder die Felder anpassen.`);
   };
@@ -284,6 +375,7 @@ export function PlannerPage() {
     setMatchResult(res);
     if (res.modus === 'ablauf' && res.arrangement) {
       setArrangement(res.arrangement);
+      setThematicRows(null);
       setMatchNotice(`Deterministisch in <1 ms komponiert (${res.kette?.label}).`);
       setStep(2);
     } else if (res.modus === 'phase') {
@@ -308,6 +400,7 @@ export function PlannerPage() {
       setMatchResult(json.ergebnis as MatchResult);
       if (json.ergebnis?.modus === 'ablauf' && json.ergebnis?.arrangement) {
         setArrangement(json.ergebnis.arrangement as Arrangement);
+        setThematicRows(null);
         setStep(2);
       }
       setMatchNotice(
@@ -394,14 +487,30 @@ export function PlannerPage() {
   };
 
   const handlePrintPdf = () => {
+    const effThematic = thematicRows?.length ? thematicRows : buildDefaultThematicRows(scenarioRows, groups, fach, thema);
+    const sc = buildNeutralLearningScenario(arrangement, scenarioRows, groups, {
+      fach,
+      thema,
+      didaktischerAnsatz: didaktischerAnsatzLabel,
+      lehrkraefteInfo,
+      thematicRows: effThematic,
+      totalDurationMin: validation.dauerMin,
+      labelOf
+    });
     const html = exportArrangementHtmlHandout(arrangement, blocksById, validation, {
       fach,
       thema,
+      didaktischerAnsatz: didaktischerAnsatzLabel,
+      lehrkraefteInfo,
       lernziele,
       problemstellung,
       kiAusarbeitung: elaboration,
       timelineSvg: resolveTimelineSvgString(),
-      scenarioRows
+      groups,
+      thematicRows: effThematic,
+      generatedMaterials,
+      scenarioRows,
+      machineReadableJson: JSON.stringify(sc, null, 2)
     });
     printHtmlDocument(html);
   };
@@ -414,10 +523,17 @@ export function PlannerPage() {
       fach,
       thema,
       hinweise,
+      lernziele,
+      problemstellung,
+      didaktischerAnsatz: didaktischerAnsatzLabel,
+      lehrkraefteInfo,
       arrangement,
       groups,
       aiDiffByStep,
       oerByStep,
+      subgroupMethods,
+      generatedMaterials,
+      thematicRows,
       elaboration
     });
     setActiveSavedId(saved.id);
@@ -431,9 +547,15 @@ export function PlannerPage() {
     setFach(sc.fach);
     setThema(sc.thema);
     setHinweise(sc.hinweise);
+    if (sc.lernziele !== undefined) setLernziele(sc.lernziele);
+    if (sc.problemstellung !== undefined) setProblemstellung(sc.problemstellung);
+    if (sc.lehrkraefteInfo !== undefined) setLehrkraefteInfo(sc.lehrkraefteInfo);
     setGroups(sc.groups?.length ? sc.groups : DEFAULT_LEARNER_GROUPS);
     setAiDiffByStep(sc.aiDiffByStep || {});
     setOerByStep(sc.oerByStep || {});
+    setSubgroupMethods(sc.subgroupMethods || {});
+    setGeneratedMaterials(sc.generatedMaterials || []);
+    setThematicRows(sc.thematicRows || null);
     setElaboration(sc.elaboration || null);
     setActiveSavedId(sc.id);
     setShowSavedDrawer(false);
@@ -449,10 +571,17 @@ export function PlannerPage() {
       fach,
       thema,
       hinweise,
+      lernziele,
+      problemstellung,
+      didaktischerAnsatz: didaktischerAnsatzLabel,
+      lehrkraefteInfo,
       arrangement,
       groups,
       aiDiffByStep,
       oerByStep,
+      subgroupMethods,
+      generatedMaterials,
+      thematicRows,
       elaboration
     });
     const slug = (thema || arrangement.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'szenario';
@@ -471,9 +600,15 @@ export function PlannerPage() {
       if (p.fach) setFach(p.fach);
       if (p.thema) setThema(p.thema);
       if (p.hinweise !== undefined) setHinweise(p.hinweise);
+      if (p.lernziele !== undefined) setLernziele(p.lernziele);
+      if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
+      if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
       if (p.groups?.length) setGroups(p.groups);
       if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
       if (p.oerByStep) setOerByStep(p.oerByStep);
+      if (p.subgroupMethods) setSubgroupMethods(p.subgroupMethods);
+      if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
+      if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
       if (p.elaboration !== undefined) setElaboration(p.elaboration);
       setActiveSavedId(null);
       setStep(2);
@@ -620,27 +755,27 @@ export function PlannerPage() {
           marginTop: 14,
           padding: 8,
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: 8
         }}
       >
         {(
           [
-            { id: 1 as const, label: '1. Szenario & Kontext', sub: 'Beschreibung, Ziele & Rahmen' },
+            { id: 1 as const, label: '1. Szenario & Kontext', sub: 'Beschreibung, Ansatz, Akteure & Rahmen' },
             {
               id: 2 as const,
-              label: `2. Ablauf & Rollen (${scenarioRows.length})`,
-              sub: 'Verlaufstabelle, Bausteine & Prüfung'
+              label: `2. Methodisches Konzept (${scenarioRows.length})`,
+              sub: 'FMT-Rollen, Bausteine, Schwimmlinien & Prüfer'
             },
             {
               id: 3 as const,
-              label: `3. OER, Differenzierung & Material`,
-              sub: `${groups.filter((g) => g.active).length} Gruppen · ${totalAttachedOer} WLO-OER`
+              label: `3. WLO-OER, Material & Matrix`,
+              sub: `${totalAttachedOer} WLO-OER · ${generatedMaterials.length} KI-Mat. · ${groups.filter((g) => g.active).length} Gruppen`
             },
             {
               id: 4 as const,
-              label: '4. Entwurf & Export',
-              sub: elaboration ? 'KI-Entwurf bereit · PDF/Word/LMS' : 'PDF, Word, Moodle & .imscc'
+              label: '4. Thematisches Szenario & Export',
+              sub: elaboration ? 'Thematische Tabelle + Text bereit' : 'Tabelle, Text, PDF/Word/LMS & JSON'
             }
           ] as const
         ).map((s) => {
@@ -685,7 +820,8 @@ export function PlannerPage() {
             </div>
 
             <p className="muted" style={{ fontSize: 14, marginTop: 0, marginBottom: 10 }}>
-              Beschreibe dein Vorhaben in eigenen Worten – oder wähle eine Starter-Vorlage bzw. klappe unten die gezielten Rahmen-Felder auf.
+              Beschreibe dein Vorhaben in eigenen Worten – oder wähle eine Starter-Vorlage bzw. klappe unten die gezielten
+              didaktischen Felder (Ansatz, Akteure, Klassengröße, Technik) auf.
             </p>
 
             <textarea
@@ -693,11 +829,11 @@ export function PlannerPage() {
               style={{ width: '100%' }}
               value={scenarioText}
               onChange={(e) => setScenarioText(e.target.value)}
-              placeholder="z. B. Mathematik Bruchrechnen Doppelstunde Klasse 6, heterogene Gruppe, 90 Minuten, ohne Geräte"
+              placeholder="z. B. Mathematik Bruchrechnen Doppelstunde Klasse 6, problemorientiertes Lernen, 26 Lernende, 90 Minuten"
             />
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-              <button type="button" className="btn btn-primary" disabled={busyAi} onClick={runAiTranslate}>
+              <button type="button" className="btn btn-primary" disabled={busyAi} onClick={() => void runAiTranslate()}>
                 ✨ {busyAi ? 'Analysiere Szenario…' : 'Mit KI verstehen & Ablauf bauen'}
               </button>
               <button type="button" className="btn" onClick={runDeterministicMatch}>
@@ -707,7 +843,7 @@ export function PlannerPage() {
                 {listening ? '🔴 Aufnahme läuft…' : '🎤 Diktieren'}
               </button>
               <button type="button" className="btn btn-sm btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => setStep(2)}>
-                Weiter zu Schritt 2 (Ablauf) →
+                Weiter zu Schritt 2 (Methodisches Konzept) →
               </button>
             </div>
 
@@ -775,10 +911,10 @@ export function PlannerPage() {
             </div>
           </div>
 
-          {/* Optional Expandable Structured Inputs (inspired by Lernpfadeditor, directly processed!) */}
+          {/* Optional Expandable Structured Inputs (Lernpfadeditor-aligned: Didaktischer Ansatz, Akteure & Personenanzahl, Technik) */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              ⚙ Optional: Didaktische Details, Lerngruppe &amp; Technik verfeinern (fließen direkt in Planung, KI &amp; WLO ein)
+              ⚙ Optional: Didaktischer Ansatz, Akteure, Lerngruppe &amp; Technik verfeinern (fließen direkt in Planung, Matrix, KI &amp; WLO ein)
             </summary>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 14 }}>
@@ -868,7 +1004,37 @@ export function PlannerPage() {
                   </label>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10, marginTop: 10 }}>
+                {/* Didaktische Ansätze (Lernpfadeditor-inspiriert: Verb + Lernen!) */}
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, marginBottom: 6 }}>
+                    Didaktischer Ansatz / Lernform (steuert Methoden-Ranking &amp; KI direkt):
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {DIDACTIC_APPROACH_OPTIONS.map((opt) => {
+                      const active = ansatzCodes.includes(opt.code);
+                      return (
+                        <button
+                          key={opt.code}
+                          type="button"
+                          className={`btn btn-sm ${active ? 'btn-primary' : ''}`}
+                          onClick={() => toggleAnsatzCode(opt.code)}
+                        >
+                          {active ? '✓ ' : '+ '}
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <input
+                    type="text"
+                    style={{ width: '100%', marginTop: 8, fontSize: 13.5 }}
+                    value={customAnsatzText}
+                    onChange={(e) => setCustomAnsatzText(e.target.value)}
+                    placeholder="Optional eigener didaktischer Ansatz (z. B. handlungsorientiertes Lernen, forschend-entdeckendes Lernen, Service Learning)"
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10, marginTop: 12 }}>
                   <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     Lernziele (optional)
                     <textarea
@@ -890,16 +1056,96 @@ export function PlannerPage() {
                 </div>
               </div>
 
-              {/* Group B: Technik, Raum & Gruppengröße (directly used by Matcher!) */}
+              {/* Group B: Akteure & Personenanzahl */}
               <div style={{ paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  2. Rahmenbedingungen (Raum, Technik &amp; Klassengröße – filtert Methoden direkt)
+                  2. Akteure, Personenanzahl &amp; Schülerteilgruppen (mit Binnendifferenzierungsmatrix-Persona)
                 </strong>
                 <div className="filter-grid" style={{ marginTop: 8 }}>
                   <label>
-                    Klassengröße (Personen)
+                    Gesamt-Klassengröße (Personen)
                     <input type="number" min={1} max={300} value={gruppeSize} onChange={(e) => setGruppeSize(e.target.value)} />
                   </label>
+                  <label>
+                    Lehrkraft / Begleitpersonen
+                    <input
+                      type="text"
+                      value={lehrkraefteInfo}
+                      onChange={(e) => setLehrkraefteInfo(e.target.value)}
+                      placeholder="z. B. 1 Lehrkraft, Co-Teaching + Sonderpädagogik"
+                    />
+                  </label>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: 8, marginTop: 10 }}>
+                  {groups.map((g) => (
+                    <div
+                      key={g.id}
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: 6,
+                        background: g.active ? 'var(--dA-soft)' : 'var(--paper)',
+                        border: '1px solid var(--grid)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 6
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--display)', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={g.active}
+                            onChange={(e) =>
+                              setGroups(groups.map((x) => (x.id === g.id ? { ...x, active: e.target.checked } : x)))
+                            }
+                          />
+                          {g.label}
+                        </label>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={200}
+                            style={{ width: 54, padding: '2px 5px', fontSize: 12 }}
+                            value={g.count ?? ''}
+                            placeholder="Anz."
+                            onChange={(e) =>
+                              setGroups(
+                                groups.map((x) =>
+                                  x.id === g.id ? { ...x, count: e.target.value ? Number(e.target.value) : undefined } : x
+                                )
+                              )
+                            }
+                          />
+                          Pers.
+                        </span>
+                      </div>
+                      <select
+                        style={{ fontSize: 12, padding: '3px 6px' }}
+                        value={g.personaId || ''}
+                        onChange={(e) =>
+                          setGroups(groups.map((x) => (x.id === g.id ? { ...x, personaId: e.target.value || undefined } : x)))
+                        }
+                      >
+                        <option value="">Ohne Matrix-Persona</option>
+                        {DIFF_MATRIX_PERSONAS.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            Matrix: {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Group C: Technik & Raum */}
+              <div style={{ paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
+                <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+                  3. Rahmenbedingungen (Raum &amp; Technik – filtert Methoden direkt)
+                </strong>
+                <div className="filter-grid" style={{ marginTop: 8 }}>
                   <label>
                     Verfügbare Technik (max.)
                     <select value={maxTechnik} onChange={(e) => setMaxTechnik(e.target.value)}>
@@ -936,52 +1182,16 @@ export function PlannerPage() {
                   </label>
                 </div>
               </div>
-
-              {/* Group C: Active Learner Groups */}
-              <div style={{ paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
-                <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  3. Aktive Schülerteilgruppen (für Rollentabelle &amp; Binnendifferenzierung)
-                </strong>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
-                  {groups.map((g) => (
-                    <label
-                      key={g.id}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        padding: '6px 10px',
-                        borderRadius: 6,
-                        background: g.active ? 'var(--dA-soft)' : 'var(--paper)',
-                        border: '1px solid var(--grid)',
-                        fontFamily: 'var(--display)',
-                        fontSize: 13.5,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={g.active}
-                        onChange={(e) =>
-                          setGroups(groups.map((x) => (x.id === g.id ? { ...x, active: e.target.checked } : x)))
-                        }
-                      />
-                      {g.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
           </details>
         </section>
       )}
 
       {/* =================================================================== */}
-      {/* SCHRITT 2: ABLAUF, ROLLEN-VERLAUFSTABELLE, PARTITUR & LIVE-PRÜFUNG  */}
+      {/* SCHRITT 2: METHODISCHES KONZEPT, ROLLEN, PARTITUR & LIVE-PRÜFUNG    */}
       {/* =================================================================== */}
       {step === 2 && (
         <section style={{ marginTop: 16 }}>
-          {/* Clean Top Toolbar for Step 2 */}
           <div className="card no-print" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <button
@@ -989,7 +1199,7 @@ export function PlannerPage() {
                 className={`btn btn-sm ${viewMode === 'verlaufsplan' ? 'btn-primary' : ''}`}
                 onClick={() => setViewMode('verlaufsplan')}
               >
-                📋 Rollen-Verlaufstabelle (Akteure)
+                📋 Methodisches Konzept (Rollen)
               </button>
               <button
                 type="button"
@@ -1022,12 +1232,11 @@ export function PlannerPage() {
                 {nWarn > 0 ? ` · ${nWarn} Hinweise` : ''} {showValidationDetails ? '▲' : '▼'}
               </button>
               <button type="button" className="btn btn-sm btn-primary" onClick={() => setStep(3)}>
-                Weiter: OER &amp; Differenzierung →
+                Weiter: WLO-OER, Material &amp; Matrix →
               </button>
             </div>
           </div>
 
-          {/* Collapsible Live Validation Drawer (only opens when clicked OR when errors exist) */}
           {(showValidationDetails || nErr > 0) && explainedMessages.length > 0 && (
             <div
               className="card"
@@ -1082,20 +1291,28 @@ export function PlannerPage() {
             </div>
           )}
 
-          {/* Compact Live Timeline Band */}
           {showLiveBand && (
             <div className="card" style={{ padding: 14, marginTop: 10 }}>
-              <TimelineBandSvg arrangement={arrangement} blocksById={blocksById} svgRef={svgRef} />
+              <TimelineBandSvg
+                arrangement={arrangement}
+                blocksById={blocksById}
+                svgRef={svgRef}
+                groups={groups}
+                subgroupMethods={subgroupMethods}
+              />
             </div>
           )}
 
-          {/* Main Full-Width View: Role Table OR Partitur Block Editor */}
           {viewMode === 'verlaufsplan' ? (
             <VerlaufsplanView
               rows={scenarioRows}
               groups={groups}
-              onOpenOerForStep={(k) => jumpToResources('oer', k)}
-              onOpenMaterialForStep={(k) => jumpToResources('material', k)}
+              lehrkraefteInfo={lehrkraefteInfo}
+              allBlocks={bundle.bausteine}
+              subgroupMethods={subgroupMethods}
+              onSubgroupMethodChange={handleSubgroupMethodChange}
+              onEditDiffMeasure={handleEditDiffMeasure}
+              onOpenResourcesForStep={(tab, k) => jumpToResources(tab, k)}
             />
           ) : (
             <PartiturView
@@ -1115,7 +1332,7 @@ export function PlannerPage() {
       )}
 
       {/* =================================================================== */}
-      {/* SCHRITT 3: WLO-OER-KACHELN, BINNENDIFFERENZIERUNG & MATERIAL        */}
+      {/* SCHRITT 3: WLO-OER-KACHELN, KI-MATERIAL & DIFFERENZIERUNGSMATRIX    */}
       {/* =================================================================== */}
       {step === 3 && (
         <section style={{ marginTop: 16 }}>
@@ -1125,7 +1342,7 @@ export function PlannerPage() {
             onResourceTabChange={setResourceTab}
             focusedStepKey={focusedStepKey}
             arrangement={arrangement}
-            onArrangementChange={setArrangement}
+            allBlocks={bundle.bausteine}
             blocksById={blocksById}
             usedBlocks={usedBlocks}
             validation={validation}
@@ -1133,6 +1350,8 @@ export function PlannerPage() {
             labelOf={labelOf}
             fach={fach}
             thema={thema}
+            didaktischerAnsatz={didaktischerAnsatzLabel}
+            lehrkraefteInfo={lehrkraefteInfo}
             lernziele={lernziele}
             problemstellung={problemstellung}
             hinweise={hinweise}
@@ -1143,8 +1362,15 @@ export function PlannerPage() {
             onGroupsChange={setGroups}
             aiDiffByStep={aiDiffByStep}
             onAiDiffChange={setAiDiffByStep}
+            onEditDiffMeasure={handleEditDiffMeasure}
+            subgroupMethods={subgroupMethods}
+            onSubgroupMethodChange={handleSubgroupMethodChange}
             oerByStep={oerByStep}
             onOerByStepChange={setOerByStep}
+            generatedMaterials={generatedMaterials}
+            onGeneratedMaterialsChange={setGeneratedMaterials}
+            thematicRows={thematicRows}
+            onThematicRowsChange={setThematicRows}
             elaboration={elaboration}
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
@@ -1156,23 +1382,28 @@ export function PlannerPage() {
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
             <button type="button" className="btn" onClick={() => setStep(2)}>
-              ← Zurück zu Ablauf &amp; Rollen
+              ← Zurück zum Methodischen Konzept
             </button>
             <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
-              Weiter zu Schritt 4: Fertiger Entwurf &amp; Export →
+              Weiter zu Schritt 4: Fertiges thematisches Szenario &amp; Export →
             </button>
           </div>
         </section>
       )}
 
       {/* =================================================================== */}
-      {/* SCHRITT 4: VOLLBREITER UNTERRICHTSENTWURF & EXPORTE                 */}
+      {/* SCHRITT 4: FERTIGES THEMATISCHES SZENARIO (TABELLE + TEXT + EXPORT) */}
       {/* =================================================================== */}
       {step === 4 && (
         <section style={{ marginTop: 16 }}>
-          {/* Keep a hidden offscreen-rendered SVG ready for PDF embedding if user didn't visit Step 2 */}
           <div style={{ position: 'absolute', left: -9999, top: -9999, width: 760, pointerEvents: 'none' }} aria-hidden="true">
-            <TimelineBandSvg arrangement={arrangement} blocksById={blocksById} svgRef={svgRef} />
+            <TimelineBandSvg
+              arrangement={arrangement}
+              blocksById={blocksById}
+              svgRef={svgRef}
+              groups={groups}
+              subgroupMethods={subgroupMethods}
+            />
           </div>
           <ScenarioStudioPanel
             mode="export"
@@ -1180,7 +1411,7 @@ export function PlannerPage() {
             onResourceTabChange={setResourceTab}
             focusedStepKey={focusedStepKey}
             arrangement={arrangement}
-            onArrangementChange={setArrangement}
+            allBlocks={bundle.bausteine}
             blocksById={blocksById}
             usedBlocks={usedBlocks}
             validation={validation}
@@ -1188,6 +1419,8 @@ export function PlannerPage() {
             labelOf={labelOf}
             fach={fach}
             thema={thema}
+            didaktischerAnsatz={didaktischerAnsatzLabel}
+            lehrkraefteInfo={lehrkraefteInfo}
             lernziele={lernziele}
             problemstellung={problemstellung}
             hinweise={hinweise}
@@ -1198,8 +1431,15 @@ export function PlannerPage() {
             onGroupsChange={setGroups}
             aiDiffByStep={aiDiffByStep}
             onAiDiffChange={setAiDiffByStep}
+            onEditDiffMeasure={handleEditDiffMeasure}
+            subgroupMethods={subgroupMethods}
+            onSubgroupMethodChange={handleSubgroupMethodChange}
             oerByStep={oerByStep}
             onOerByStepChange={setOerByStep}
+            generatedMaterials={generatedMaterials}
+            onGeneratedMaterialsChange={setGeneratedMaterials}
+            thematicRows={thematicRows}
+            onThematicRowsChange={setThematicRows}
             elaboration={elaboration}
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
@@ -1211,7 +1451,7 @@ export function PlannerPage() {
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 14 }}>
             <button type="button" className="btn" onClick={() => setStep(3)}>
-              ← Zurück zu OER &amp; Differenzierung
+              ← Zurück zu WLO-OER, Material &amp; Matrix
             </button>
           </div>
         </section>

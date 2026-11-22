@@ -352,6 +352,7 @@ export interface MatchRequest {
   modus?: 'phase' | 'ablauf';
   zieltyp?: string;
   zielart?: string;
+  ansatz?: string | string[];
   lernfunktion?: string | string[];
   liefert?: string | string[];
   zeitMin?: number;

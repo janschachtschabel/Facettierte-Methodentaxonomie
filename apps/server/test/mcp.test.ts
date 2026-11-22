@@ -46,15 +46,20 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     await app.close();
   });
 
-  it('lists all 7 FMT tools, resources, and prompts', async () => {
+  it('lists all 12 FMT tools, resources, and prompts', async () => {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
+      'build_scenario_plan',
       'compare_methods',
+      'elaborate_scenario',
+      'generate_phase_material',
       'get_method',
       'list_vocabularies',
       'match_scenario',
+      'score_differentiation_matrix',
       'search_methods',
+      'search_wlo_oer',
       'suggest_replacements',
       'validate_arrangement'
     ]);
@@ -122,6 +127,49 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const vocabRes = await client.callTool({ name: 'list_vocabularies', arguments: { scheme: 'ansatz' } });
     const vocabJson = JSON.parse((vocabRes.content as Array<{ text: string }>)[0].text);
     expect(vocabJson.werte.length).toBe(12);
+
+    // New v1.5 MCP tools: score_differentiation_matrix, build_scenario_plan, elaborate_scenario, generate_phase_material
+    const diffRes = await client.callTool({
+      name: 'score_differentiation_matrix',
+      arguments: { personaId: 'languageAndCulture', baustein: 'erfindungsaufgabe', limit: 6 }
+    });
+    const diffJson = JSON.parse((diffRes.content as Array<{ text: string }>)[0].text);
+    expect(diffJson.topRecommendations.length).toBeGreaterThan(0);
+    expect(diffJson.alternativeMethoden.length).toBeGreaterThan(0);
+
+    const planRes = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: {
+        text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
+        fach: 'Mathematik',
+        thema: 'Bruchrechnen',
+        includeWloOer: false
+      }
+    });
+    const planJson = JSON.parse((planRes.content as Array<{ text: string }>)[0].text);
+    expect(planJson.pruefung.gueltig).toBe(true);
+    expect(planJson.thematischeTabelle.length).toBeGreaterThan(0);
+    expect(planJson.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
+
+    const elabRes = await client.callTool({
+      name: 'elaborate_scenario',
+      arguments: {
+        arrangement: matchJson.arrangement,
+        fach: 'Physik',
+        thema: 'Dichte',
+        oerRessourcen: [{ titel: 'PhET Dichte', wwwurl: 'https://phet.colorado.edu/de/simulations/density' }]
+      }
+    });
+    const elabJson = JSON.parse((elabRes.content as Array<{ text: string }>)[0].text);
+    expect(elabJson.thematischeTabelle.length).toBeGreaterThan(0);
+    expect(elabJson.ausarbeitung).toContain('Dichte');
+
+    const matRes = await client.callTool({
+      name: 'generate_phase_material',
+      arguments: { baustein: 'abrufquiz', fach: 'Physik', thema: 'Dichte', materialTyp: 'quiz' }
+    });
+    const matJson = JSON.parse((matRes.content as Array<{ text: string }>)[0].text);
+    expect(matJson.material).toContain('Abrufquiz');
   });
 
   it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {
