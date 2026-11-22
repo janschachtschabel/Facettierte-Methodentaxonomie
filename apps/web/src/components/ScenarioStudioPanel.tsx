@@ -7,6 +7,7 @@ import { DifferentiationMatrixPanel } from './DifferentiationMatrixPanel.js';
 import {
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
+  exportArrangementOnePageSheet,
   exportArrangementWordDoc,
   exportMarkdownToPrintableHtml
 } from '../planner/arrangementOps.js';
@@ -69,6 +70,7 @@ interface Props {
   elaboration: string | null;
   onElaborationChange: (next: string | null) => void;
   onPrintPdf: () => void;
+  onPrintOnePage?: () => void;
   onSaveBrowser: () => void;
   onDownloadProject: () => void;
   getTimelineSvg: () => string | null;
@@ -115,6 +117,7 @@ export function ScenarioStudioPanel({
   elaboration,
   onElaborationChange,
   onPrintPdf,
+  onPrintOnePage,
   onSaveBrowser,
   onDownloadProject,
   getTimelineSvg,
@@ -781,6 +784,20 @@ export function ScenarioStudioPanel({
             <button type="button" className="btn btn-primary" onClick={onPrintPdf}>
               🖨 Als PDF drucken / speichern
             </button>
+            <button
+              type="button"
+              className="btn"
+              title="Kompakte Pultvorlage / Kurzablauf auf maximal 1 A4-Seite (Querformat)"
+              onClick={() => {
+                if (onPrintOnePage) {
+                  onPrintOnePage();
+                } else {
+                  printHtmlDocument(exportArrangementOnePageSheet(arrangement, blocksById, validation, exportOpts(false)));
+                }
+              }}
+            >
+              📄 Kurzablauf (1 A4-Seite)
+            </button>
           </div>
         </div>
 
@@ -819,6 +836,20 @@ export function ScenarioStudioPanel({
             }
           >
             ⬇ Word / LibreOffice (.doc)
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            title="Kompakte 1-Seiten-Pultvorlage (max. 1 A4-Seite Querformat) als druckfertige HTML-Datei"
+            onClick={() =>
+              downloadFile(
+                'fmt-kurzablauf-1seite.html',
+                exportArrangementOnePageSheet(arrangement, blocksById, validation, exportOpts(false)),
+                'text/html;charset=utf-8'
+              )
+            }
+          >
+            ⬇ Kurzablauf 1 A4 (.html)
           </button>
           <button
             type="button"

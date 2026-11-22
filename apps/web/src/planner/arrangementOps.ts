@@ -10,7 +10,7 @@ import {
   type ValidationResult,
   type WiederkehrNode
 } from '@fmt/core';
-import { escHtml, markdownToHtml } from './markdownMath.js';
+import { escHtml, markdownToHtml, renderInlineMarkdownHtml } from './markdownMath.js';
 
 const clone = <T>(o: T): T => JSON.parse(JSON.stringify(o)) as T;
 
@@ -1024,11 +1024,293 @@ export function exportMarkdownToPrintableHtml(title: string, markdown: string): 
     th { background: #EEF2EE; }
     ul, ol { margin: 6px 0 10px; padding-left: 22px; }
     li { margin: 4px 0; }
+    code { background: #EEF2EE; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+    blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid #2C5D8A; background: #F5F8FA; }
+    .math-display { margin: 10px 0; text-align: center; }
     @media print { body { margin: 0; padding: 0; max-width: none; } }
   </style>
 </head>
 <body>
 ${htmlBody}
+</body>
+</html>`;
+}
+
+function clipCompact(text: string, maxChars: number): string {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxChars) return clean;
+  const cut = clean.slice(0, maxChars - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${lastSpace > maxChars * 0.65 ? cut.slice(0, lastSpace) : cut}…`;
+}
+
+/**
+ * Generates a compact 1-page A4 landscape classroom cheat-sheet ("Kurzablauf / Pultvorlage").
+ * Strictly calibrated to fit on max. 1 A4 page using adaptive typography and concise cells.
+ */
+export function exportArrangementOnePageSheet(
+  arr: Arrangement,
+  blocksById: Map<string, Baustein>,
+  validation: ValidationResult,
+  options: ExportOptions = {}
+): string {
+  const title = options.thema ? `${options.fach ? `${options.fach}: ` : ''}${options.thema}` : arr.name;
+  const activeGroups = (options.groups || []).filter((g) => g.active);
+  const totalLearners = activeGroups.reduce((s, g) => s + (g.count || 0), 0);
+
+  const thematicRows = options.thematicRows?.length ? options.thematicRows : null;
+  const scenarioRows = options.scenarioRows?.length ? options.scenarioRows : [];
+
+  type CompactRow = {
+    orderLabel: string;
+    durationMin: number;
+    phaseLabel: string;
+    methodName: string;
+    procedure: string;
+    roles: string;
+    diff: string;
+    material: string;
+  };
+
+  const genMats = options.generatedMaterials || [];
+  const rows: CompactRow[] = thematicRows
+    ? thematicRows.map((tr) => {
+        const scRow = scenarioRows.find((r) => r.key === tr.key);
+        const diffParts = activeGroups
+          .map((g) => {
+            const val = tr.groupAdaptations[g.id];
+            if (!val) return '';
+            const shortLabel = g.label.split(/[\s&(]/)[0] || g.label;
+            return `**${shortLabel}:** ${val}`;
+          })
+          .filter(Boolean);
+        const oerNames = (scRow?.oerResources || []).map((o) => o.title);
+        const matNames = genMats.filter((m) => m.stepKey === tr.key).map((m) => `📝 ${m.title}`);
+        const matSummary = [...matNames, ...oerNames].length
+          ? [...matNames, ...oerNames].join(' · ')
+          : tr.materialsAndOer;
+        return {
+          orderLabel: tr.orderLabel,
+          durationMin: tr.durationMin,
+          phaseLabel: tr.phaseLabel,
+          methodName: tr.methodName,
+          procedure: tr.methodProcedure || tr.methodName,
+          roles: `**LK:** ${tr.teacherAction} / **SuS:** ${tr.learnerAction}`,
+          diff: diffParts.join(' · ') || '–',
+          material: matSummary || '–'
+        };
+      })
+    : scenarioRows.length
+      ? scenarioRows.map((r) => {
+          const matNames = r.key ? genMats.filter((m) => m.stepKey === r.key).map((m) => `📝 ${m.title}`) : [];
+          return {
+            orderLabel: r.orderLabel,
+            durationMin: r.durationMin,
+            phaseLabel: r.phaseLabel,
+            methodName: r.methodName,
+            procedure: `${r.methodName} (${r.socialForm})`,
+            roles: `**LK:** ${r.teacherRole} / **SuS:** ${r.learnerRole}`,
+            diff:
+              r.differentiation
+                .map((d) => `**${d.groupLabel.split(/[\s&(]/)[0]}:** ${d.measure}`)
+                .join(' · ') || '–',
+            material: [...matNames, ...r.oerResources.map((o) => o.title)].join(' · ') || '–'
+          };
+        })
+      : collectUsedBlocks(arr, blocksById).map((b, idx) => ({
+          orderLabel: String(idx + 1),
+          durationMin: b.dauerMin ?? 15,
+          phaseLabel: `Phase ${idx + 1}`,
+          methodName: b.name,
+          procedure: b.durchfuehrung?.slice(0, 2).join(' → ') || b.kurzbeschreibung || '',
+          roles: b.kurzbeschreibung || '',
+          diff: '–',
+          material: b.material?.slice(0, 2).join(', ') || '–'
+        }));
+
+  const n = rows.length;
+  // Adaptive typography & clipping budget so even 10–12+ phases stay strictly on 1 A4 landscape page
+  const fontPt = n <= 5 ? 8.3 : n <= 8 ? 7.5 : n <= 11 ? 6.8 : 6.2;
+  const cellPad = n <= 5 ? '4px 6px' : n <= 8 ? '3px 5px' : '2px 4px';
+  const procCap = n <= 5 ? 230 : n <= 8 ? 165 : n <= 11 ? 120 : 95;
+  const roleCap = n <= 5 ? 220 : n <= 8 ? 160 : n <= 11 ? 115 : 90;
+  const diffCap = n <= 5 ? 190 : n <= 8 ? 140 : n <= 11 ? 105 : 85;
+  const matCap = n <= 5 ? 130 : n <= 8 ? 100 : 80;
+  const showTimeline = Boolean(options.timelineSvg) && n <= 8;
+
+  const metaBadges = [
+    `⏱ ${validation.dauerMin} min`,
+    `${n} Phasen`,
+    options.didaktischerAnsatz || '',
+    options.lehrkraefteInfo || '1 Lehrkraft',
+    totalLearners ? `${totalLearners} Lernende` : ''
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const goalsLine = options.lernziele?.trim()
+    ? `<div class="goals"><strong>Lernziele:</strong> ${renderInlineMarkdownHtml(clipCompact(options.lernziele, 210), 'mathml')}</div>`
+    : '';
+
+  const allOer = scenarioRows.flatMap((r) => r.oerResources);
+  const oerFooter = allOer.length
+    ? ` · <strong>WLO-OER:</strong> ${allOer
+        .slice(0, 4)
+        .map((o) => {
+          const href = o.wwwurl || o.url || '';
+          return href ? `<a href="${escHtml(href)}">${escHtml(clipCompact(o.title, 36))}</a>` : escHtml(o.title);
+        })
+        .join(' | ')}`
+    : '';
+
+  const rowsHtml = rows
+    .map(
+      (r) => `<tr>
+        <td class="col-num"><strong>${escHtml(r.orderLabel)}</strong><div class="dur">${r.durationMin}′</div></td>
+        <td class="col-method"><div class="phase-lbl">${escHtml(clipCompact(r.phaseLabel, 48))}</div><strong>${escHtml(r.methodName)}</strong></td>
+        <td>${renderInlineMarkdownHtml(clipCompact(r.procedure, procCap), 'mathml')}</td>
+        <td>${renderInlineMarkdownHtml(clipCompact(r.roles, roleCap), 'mathml')}</td>
+        <td>${renderInlineMarkdownHtml(clipCompact(r.diff, diffCap), 'mathml')}</td>
+        <td class="col-mat">${renderInlineMarkdownHtml(clipCompact(r.material, matCap), 'mathml')}</td>
+      </tr>`
+    )
+    .join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Kurzablauf (1 A4) – ${escHtml(title)}</title>
+  <style>
+    @page { size: A4 landscape; margin: 8mm 9mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #fff; color: #14212E; font-family: "Segoe UI", Arial, sans-serif; }
+    .one-page-sheet {
+      width: 100%;
+      max-width: 279mm;
+      max-height: 193mm;
+      margin: 0 auto;
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow: hidden;
+    }
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      border-bottom: 2px solid #2C5D8A;
+      padding-bottom: 3px;
+    }
+    .sheet-head h1 {
+      margin: 0;
+      font-family: "Barlow Semi Condensed", "Segoe UI", Arial, sans-serif;
+      font-size: 13.5pt;
+      color: #14212E;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sheet-meta {
+      font-size: 8.2pt;
+      color: #3B4A57;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .goals {
+      font-size: 7.8pt;
+      line-height: 1.3;
+      color: #243442;
+      background: #F4F7F5;
+      border-left: 3px solid #2C5D8A;
+      padding: 2px 6px;
+    }
+    .mini-svg {
+      border: 1px solid #D3DCD6;
+      border-radius: 4px;
+      padding: 2px 4px;
+      background: #FAFBFA;
+      max-height: 46px;
+      overflow: hidden;
+    }
+    .mini-svg svg { width: 100%; height: 40px; display: block; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: ${fontPt}pt;
+      line-height: 1.24;
+    }
+    th, td {
+      border: 1px solid #C6D0C9;
+      padding: ${cellPad};
+      vertical-align: top;
+      text-align: left;
+      overflow-wrap: break-word;
+    }
+    th {
+      background: #EEF2EE;
+      font-family: "Barlow Semi Condensed", "Segoe UI", Arial, sans-serif;
+      font-weight: 700;
+      font-size: ${Math.max(fontPt, 7.2)}pt;
+    }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    .col-num { width: 5%; text-align: center; white-space: nowrap; }
+    .col-num .dur { font-size: ${Math.max(fontPt - 0.5, 6)}pt; color: #2C5D8A; font-weight: 700; }
+    .col-method { width: 15%; }
+    .phase-lbl { font-size: ${Math.max(fontPt - 0.7, 5.8)}pt; color: #4A5864; }
+    .col-mat { width: 14%; }
+    .sheet-foot {
+      margin-top: auto;
+      padding-top: 3px;
+      border-top: 1px solid #D3DCD6;
+      font-size: 6.8pt;
+      color: #4A5864;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    a { color: #2C5D8A; text-decoration: none; }
+    .math-inline math { font-size: 1em; }
+    @media print {
+      .one-page-sheet { padding: 0; max-width: none; max-height: 193mm; }
+      a { color: #14212E; }
+    }
+  </style>
+</head>
+<body>
+  <div class="one-page-sheet">
+    <header class="sheet-head">
+      <h1>Kurzablauf · ${escHtml(title)}</h1>
+      <div class="sheet-meta">${escHtml(metaBadges)}</div>
+    </header>
+    ${goalsLine}
+    ${showTimeline ? `<div class="mini-svg">${options.timelineSvg}</div>` : ''}
+    <table>
+      <thead>
+        <tr>
+          <th class="col-num"># / Zeit</th>
+          <th class="col-method">Phase &amp; FMT-Methode</th>
+          <th style="width: 24%;">Methodisches Vorgehen</th>
+          <th style="width: 24%;">Lehrkraft &amp; Lernende</th>
+          <th style="width: 18%;">Binnendifferenzierung</th>
+          <th class="col-mat">Material / OER</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+    <footer class="sheet-foot">
+      <span><strong>FMT-Kurzablauf (Pultvorlage, 1 A4-Seite)</strong>${oerFooter}</span>
+      <span>FMT · Jan Schachtschabel · CC BY 4.0</span>
+    </footer>
+  </div>
 </body>
 </html>`;
 }

@@ -16,7 +16,8 @@ import {
   appendBlockToArrangement,
   collectUsedBlocks,
   createChainPreset,
-  exportArrangementHtmlHandout
+  exportArrangementHtmlHandout,
+  exportArrangementOnePageSheet
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
 import {
@@ -558,6 +559,23 @@ export function PlannerPage() {
     printHtmlDocument(html);
   };
 
+  const handlePrintOnePage = () => {
+    const effThematic = thematicRows?.length ? thematicRows : buildDefaultThematicRows(scenarioRows, groups, fach, thema);
+    const html = exportArrangementOnePageSheet(arrangement, blocksById, validation, {
+      fach,
+      thema,
+      didaktischerAnsatz: didaktischerAnsatzLabel,
+      lehrkraefteInfo,
+      lernziele,
+      timelineSvg: resolveTimelineSvgString(),
+      groups,
+      thematicRows: effThematic,
+      generatedMaterials,
+      scenarioRows
+    });
+    printHtmlDocument(html);
+  };
+
   const handleSaveBrowser = (asNew = false) => {
     const title = thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name;
     const { saved, list } = saveScenarioToStorage({
@@ -688,6 +706,14 @@ export function PlannerPage() {
         <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-sm btn-primary" onClick={handlePrintPdf}>
             🖨 PDF drucken
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={handlePrintOnePage}
+            title="Kompakte Pultvorlage / Spickzettel auf maximal 1 A4-Seite (Querformat)"
+          >
+            📄 Kurzablauf (1 A4)
           </button>
           <button type="button" className="btn btn-sm" onClick={() => handleSaveBrowser(false)}>
             💾 Speichern
@@ -1448,6 +1474,7 @@ export function PlannerPage() {
             elaboration={elaboration}
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
+            onPrintOnePage={handlePrintOnePage}
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}
@@ -1518,6 +1545,7 @@ export function PlannerPage() {
             elaboration={elaboration}
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
+            onPrintOnePage={handlePrintOnePage}
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}
