@@ -1,0 +1,141 @@
+{
+  "kennung": "gradual-release",
+  "name": "Gradual Release of Responsibility (Ich – Wir – Ihr – Du)",
+  "kurzbeschreibung": "Systematische schrittweise Verantwortungsübergabe von der modellierenden Lehrkraft über gemeinsame und kooperative Übung zur eigenständigen Anwendung.",
+  "alternativname": [
+    "Ich-Wir-Du",
+    "I Do – We Do – You Do",
+    "Scaffolding-Übergabe"
+  ],
+  "status": "entwurf",
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "uebung"
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "formativ",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "lautes-modellieren",
+      "name": "Explizites Lautes Denken in der Ich-Phase"
+    },
+    {
+      "kennung": "geleitete-uebergabe",
+      "name": "Diagnosegesteuerter Übergang in die eigenständige Du-Phase"
+    }
+  ],
+  "dauerMin": 25,
+  "dauerMax": 60,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel"
+  ],
+  "problem": "Lernende scheitern an selbstständigen Aufgaben, wenn der Sprung von der Erklärung zur Einzelarbeit zu groß ist.",
+  "durchfuehrung": [
+    "Ich-Phase (Focused Instruction): Lehrkraft modelliert das Verfahren laut denkend an einem Beispiel.",
+    "Wir-Phase (Guided Instruction): Gemeinsames Bearbeiten eines zweiten Beispiels mit gezielten Rückfragen.",
+    "Ihr-Phase (Collaborative): Partner- oder Kleingruppenbearbeitung mit gegenseitiger Kontrolle.",
+    "Du-Phase (Independent): Eigenständige Bearbeitung gestufter Aufgaben zur Sicherung."
+  ],
+  "material": [
+    "Musterbeispiel",
+    "Gestuftes Übungsblatt"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 40,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "instruktion",
+    "scaffolding",
+    "uebung"
+  ],
+  "qualitaetsrisiko": [
+    "Zu frühes Loslassen vor sicherem Verständnis in der Wir-Phase führt zu Fehlroutinen."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Schrittweise Verantwortungsübergabe verbessert Lesestrategien und prozedurale Sicherheit besonders bei geringem Vorwissen.",
+      "quelle": "Pearson & Gallagher (1983); Fisher & Frey (2014)",
+      "geltung": "Primar- und Sekundarstufe bei strukturierten Kompetenzen und Strategien."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gradual release of responsibility",
+      "url": "https://en.wikipedia.org/wiki/Gradual_release_of_responsibility",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.24,
+    "y": 1.92
+  }
+}

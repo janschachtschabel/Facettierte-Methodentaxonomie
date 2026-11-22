@@ -287,22 +287,35 @@ export function scoreDifferentiationMatrix(
   };
 }
 
+const RANGE_ORDER: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
+
 /**
  * Recommends concrete alternative FMT catalog methods for a subgroup in a given phase,
- * keeping the same Lernfunktion while matching the subgroup's matrix-computed guidance & scaffolding needs.
+ * strictly enforcing matching Lernfunktion (purpose), compatible granularity (rang <= current),
+ * and realistic duration while fitting the subgroup's matrix-computed guidance & scaffolding needs.
  */
 export function suggestAlternativeMethodsForGroup(
   matrixResult: MatrixScoreResult,
   currentBlock: Baustein | undefined,
   allBlocks: Baustein[],
-  limit = 5
+  limit = 5,
+  phaseDurationMin?: number
 ): Array<{ kennung: string; name: string; reichweite: string; dauerMin: number; dauerMax: number; grund: string }> {
   if (!currentBlock) return [];
   const fns = new Set(currentBlock.lernfunktion || []);
   const wantGuidance = matrixResult.didacticProfile.preferredGuidance;
+  const curRank = RANGE_ORDER[currentBlock.reichweite] ?? 2;
+  const maxDur = Math.max(phaseDurationMin ?? currentBlock.dauerMax, currentBlock.dauerMax) * 1.5;
 
   const scored = allBlocks
-    .filter((b) => b.kennung !== currentBlock.kennung && b.lernfunktion.some((f) => fns.has(f)))
+    .filter((b) => {
+      if (b.kennung === currentBlock.kennung) return false;
+      if (!b.lernfunktion.some((f) => fns.has(f))) return false;
+      const bRank = RANGE_ORDER[b.reichweite] ?? 2;
+      if (bRank > curRank) return false;
+      if (b.dauerMin > maxDur) return false;
+      return true;
+    })
     .map((b) => {
       let fit = 0;
       const reasons: string[] = [];
@@ -310,7 +323,7 @@ export function suggestAlternativeMethodsForGroup(
         fit += 4;
         reasons.push(`passt zum Lenkungsbedarf (${wantGuidance})`);
       }
-      if (matrixResult.didacticProfile.needsScaffolding && (b.adaptivitaet.includes('diff-hilfe') || b.adaptivitaet.includes('diff-tempo'))) {
+      if (matrixResult.didacticProfile.needsScaffolding && (b.adaptivitaet.includes('diff-prozess') || b.adaptivitaet.includes('diff-tempo'))) {
         fit += 2;
         reasons.push('bietet Hilfestufen / Tempoanpassung');
       }
@@ -319,7 +332,7 @@ export function suggestAlternativeMethodsForGroup(
         reasons.push('ermöglicht vertiefende Konstruktion/Transfer');
       }
       if (b.status === 'kuratiert') fit += 1;
-      if (b.reichweite === currentBlock.reichweite) fit += 1;
+      if (b.reichweite === currentBlock.reichweite) fit += 2;
       return {
         b,
         fit,

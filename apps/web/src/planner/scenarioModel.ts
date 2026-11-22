@@ -166,7 +166,7 @@ export function getOerWwwUrl(o: OerResource): string {
 function summarizeTeacherRole(b: Baustein, labelOf: (s: string, c: string) => string): string {
   const roles = (b.rolle || [])
     .filter((r) => r !== 'ki-keine')
-    .map((r) => labelOf('lehrkraftrolle', r));
+    .map((r) => labelOf('agentenrolle', r));
   const step0 = b.durchfuehrung?.[0] ? ` · Einstieg: ${b.durchfuehrung[0]}` : '';
   return `${roles.length ? roles.join(', ') : 'Moderation & Begleitung'}${step0}`;
 }

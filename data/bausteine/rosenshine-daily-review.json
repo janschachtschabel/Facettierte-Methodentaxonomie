@@ -1,0 +1,143 @@
+{
+  "kennung": "rosenshine-daily-review",
+  "name": "Daily Review (Täglicher Abruf-Einstieg nach Rosenshine)",
+  "kurzbeschreibung": "Fünf- bis achtminütiger strukturierter Stundenbeginn, der zentrales Vorwissen der letzten Stunden aktiv abruft, bevor neuer Stoff anknüpft.",
+  "alternativname": [
+    "Täglicher Review",
+    "Rosenshine-Einstieg",
+    "Warm-up Retrieval"
+  ],
+  "status": "entwurf",
+  "piktogramm": "quiz",
+  "ansatz": [
+    "instruktion",
+    "uebung",
+    "diagnose-feedback"
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "diff-tempo"
+  ],
+  "feedback": [
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "konzepte"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "aktiver-abruf",
+      "name": "Aktiver Abruf ohne Nachschlagen statt bloßem Vorlesen"
+    },
+    {
+      "kennung": "schnelle-klaerung",
+      "name": "Sofortige Korrektur häufiger Lücken vor dem Neulernen"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Neues Wissen wird schlecht verankert, wenn Voraussetzungen der Vorstunden nicht im Arbeitsgedächtnis aktiviert sind.",
+  "durchfuehrung": [
+    "3–5 kurze Kernfragen aus der letzten Stunde und der Vorwoche sichtbar stellen.",
+    "Lernende beantworten die Fragen 3–4 Minuten still schriftlich oder auf Mini-Whiteboards.",
+    "Antworten kurz abgleichen, Fehlerquellen direkt klären und Brücke zum neuen Stundenthema schlagen."
+  ],
+  "material": [
+    "Tafel/Folie mit 3–5 Fragen",
+    "Heft oder Mini-Whiteboard"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 120,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "einstieg",
+    "abruf",
+    "instruktion"
+  ],
+  "qualitaetsrisiko": [
+    "Bei zu langen Besprechungen verdrängt der Review die Hauptphase der Stunde."
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Regelmäßiger kurzer Abruf zu Stundenbeginn stärkt Langzeitbehalten und reduziert kognitive Überlastung beim Anknüpfen neuen Wissens.",
+      "quelle": "Rosenshine (2012): Principles of Instruction; Roediger & Karpicke (2006)",
+      "geltung": "Allgemeinbildende Schule und Hochschule, besonders bei aufbauenden Fächern."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Direct Instruction",
+      "url": "https://en.wikipedia.org/wiki/Direct_instruction",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Testing Effect",
+      "url": "https://en.wikipedia.org/wiki/Testing_effect",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.14,
+    "y": 1.55
+  }
+}

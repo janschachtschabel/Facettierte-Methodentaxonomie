@@ -1,0 +1,151 @@
+{
+  "kennung": "siebensprung-pbl",
+  "name": "Siebensprung (Maastrichter PBL-Verfahren)",
+  "kurzbeschreibung": "Klassischer 7-stufiger Ablauf des Problemorientierten Lernens (PBL) von der Fallanalyse über selbst formulierte Lernziele und Selbststudium bis zur gemeinsamen Synthese.",
+  "alternativname": [
+    "7-Jump",
+    "Maastrichter Siebensprung",
+    "PBL-Siebensprung"
+  ],
+  "status": "entwurf",
+  "piktogramm": "projekt",
+  "ansatz": [
+    "forschend",
+    "kooperativ"
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen",
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "konzepte",
+    "afb3"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "loesungsversuche",
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "lernfragen-ableiten",
+      "name": "Eigene Lernfragen aus dem Problemfall formulieren (Schritt 5)"
+    },
+    {
+      "kennung": "synthese-pruefung",
+      "name": "Gemeinsame fachliche Synthese und Rückbindung an den Fall (Schritt 7)"
+    }
+  ],
+  "dauerMin": 120,
+  "dauerMax": 270,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Abstrakte Theorien bleiben träges Wissen, wenn sie ohne authentischen Problemkontext vermittelt werden.",
+  "durchfuehrung": [
+    "Schritte 1–2: Unklare Begriffe im Falltext klären und das Kernproblem definieren.",
+    "Schritte 3–4: Brainstorming zum Vorwissen und systematische Ordnung von Hypothesen.",
+    "Schritt 5: Konkrete Lernziele und Wissenslücken der Gruppe festlegen.",
+    "Schritt 6: Gezieltes Selbststudium und Recherche außerhalb oder in Stillarbeitsphasen.",
+    "Schritt 7: Ergebnisse zusammentragen, kritisch prüfen und auf den Ausgangsfall anwenden."
+  ],
+  "material": [
+    "Authentischer Falltext",
+    "Whiteboard/Flipchart",
+    "Fachquellen"
+  ],
+  "raum": "Gruppenraum",
+  "gruppeMin": 5,
+  "gruppeMax": 32,
+  "teamMin": 5,
+  "teamMax": 10,
+  "vorbereitungMin": 40,
+  "technik": "t-projektion",
+  "internet": true,
+  "kategorie": [
+    "pbl",
+    "forschend",
+    "fallarbeit"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne fachliche Qualitätssicherung in Schritt 7 können Fehlkonzepte unkorrigiert bleiben."
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "PBL stärkt langfristige Anwendungskompetenz und Problemlösefähigkeit, erfordert aber bei Anfängern gezielte Strukturhilfen.",
+      "quelle": "Dochy et al. (2003); Strobel & van Barneveld (2009)",
+      "geltung": "Sekundarstufe II, Berufsbildung und Hochschule; bei geringem Vorwissen Scaffolding nötig."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Problembasiertes Lernen",
+      "url": "https://de.wikipedia.org/wiki/Problembasiertes_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.72,
+    "y": 2.68
+  }
+}

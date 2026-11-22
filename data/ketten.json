@@ -230,5 +230,182 @@
         "ziel": "lernstand-diagnostiziert"
       }
     ]
+  },
+  {
+    "id": "pbl-siebensprung",
+    "label": "Problemorientiertes Lernen (PBL / Siebensprung)",
+    "schritte": [
+      {
+        "id": "pbl1",
+        "label": "Authentischen Problemfall erschließen",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen"
+      },
+      {
+        "id": "pbl2",
+        "label": "Hypothesen & Lernfragen entwickeln",
+        "funktion": [
+          "problemloesen"
+        ],
+        "ziel": "loesungsversuche"
+      },
+      {
+        "id": "pbl3",
+        "label": "Synthese & Konzeptsicherung",
+        "funktion": [
+          "verstehen"
+        ],
+        "ziel": "konzept-gesichert"
+      },
+      {
+        "id": "pbl4",
+        "label": "Übertragung auf neuen Problemfall",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt"
+      },
+      {
+        "id": "pbl5",
+        "label": "Prozess- & Lernreflexion",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert"
+      }
+    ]
+  },
+  {
+    "id": "direkte-instruktion",
+    "label": "Direkte Instruktion (Explicit Teaching / Rosenshine)",
+    "zielart": [
+      "prozeduren",
+      "konzepte"
+    ],
+    "schritte": [
+      {
+        "id": "di1",
+        "label": "Review & Vorwissen aktivieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert"
+      },
+      {
+        "id": "di2",
+        "label": "Explizit modellieren & erklären",
+        "funktion": [
+          "erwerb"
+        ],
+        "ziel": "erstwissen-ungesichert"
+      },
+      {
+        "id": "di3",
+        "label": "Geleitete Übung mit Feedback",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "prozedur-gelaeufig"
+      },
+      {
+        "id": "di4",
+        "label": "Verständnis & Lernstand prüfen",
+        "funktion": [
+          "diagnose"
+        ],
+        "ziel": "lernstand-diagnostiziert"
+      },
+      {
+        "id": "di5",
+        "label": "Selbstständig festigen & verteilt abrufen",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "wissen-konsolidiert"
+      }
+    ]
+  },
+  {
+    "id": "kooperatives-lernen",
+    "label": "Kooperatives Lernen (Individuell → Team → Sicherung)",
+    "schritte": [
+      {
+        "id": "ko1",
+        "label": "Vorwissen & Perspektiven aktivieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert"
+      },
+      {
+        "id": "ko2",
+        "label": "Kooperative Erarbeitung (Team/Experten)",
+        "funktion": [
+          "erwerb",
+          "verstehen"
+        ],
+        "ziel": "erstwissen-ungesichert"
+      },
+      {
+        "id": "ko3",
+        "label": "Gegenseitige Konsolidierung & Abruf",
+        "funktion": [
+          "konsolidierung"
+        ],
+        "ziel": "wissen-konsolidiert"
+      },
+      {
+        "id": "ko4",
+        "label": "Gemeinsame Reflexion & Diagnose",
+        "funktion": [
+          "diagnose",
+          "metakognition"
+        ],
+        "ziel": "lernstand-diagnostiziert"
+      }
+    ]
+  },
+  {
+    "id": "projektlernen",
+    "label": "Projektbasiertes & handlungsorientiertes Lernen",
+    "schritte": [
+      {
+        "id": "pr1",
+        "label": "Projektanlass & Problemstellung klären",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen"
+      },
+      {
+        "id": "pr2",
+        "label": "Planung, Recherche & Konzeptsicherung",
+        "funktion": [
+          "verstehen",
+          "erwerb"
+        ],
+        "ziel": "konzept-gesichert"
+      },
+      {
+        "id": "pr3",
+        "label": "Produktentwicklung, Erprobung & Präsentation",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt"
+      },
+      {
+        "id": "pr4",
+        "label": "Projekt- & Prozessreflexion",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert"
+      }
+    ]
   }
 ]

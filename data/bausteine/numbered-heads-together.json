@@ -1,0 +1,139 @@
+{
+  "kennung": "numbered-heads-together",
+  "name": "Numbered Heads Together (Nummerierte Köpfe)",
+  "kurzbeschreibung": "Kooperative Kurzmethode nach Kagan: Teams erarbeiten gemeinsam eine Antwort, alle Gruppenmitglieder erhalten Nummern und eine zufällig gezogene Nummer präsentiert für das Team.",
+  "alternativname": [
+    "Nummerierte Köpfe",
+    "Kagan Numbered Heads",
+    "Zufalls-Teamantwort"
+  ],
+  "status": "entwurf",
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "uebung",
+    "diagnose-feedback"
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "fakten",
+    "prozeduren"
+  ],
+  "sequenz": [
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "individuelle-verantwortung",
+      "name": "Zufällige Auswahl der Nummer sichert, dass alle im Team die Lösung erklären können"
+    },
+    {
+      "kennung": "positive-abhaengigkeit",
+      "name": "Kurze „Köpfe zusammen“-Beratung vor dem Aufruf"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 20,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "In klassischer Gruppenarbeit übernehmen wenige Leistungsstarke das Reden, während andere passiv bleiben.",
+  "durchfuehrung": [
+    "Viererteams durchnummerieren (1–4) und eine klare Frage oder Aufgabe stellen.",
+    "Kurze stille Denkzeit, danach „Köpfe zusammen“: Team klärt die Antwort so, dass jedes Mitglied sie begründen kann.",
+    "Lehrkraft zieht zufällig eine Nummer (z. B. Würfel/Los); alle mit dieser Nummer präsentieren oder zeigen ihre Lösung."
+  ],
+  "material": [
+    "Aufgabenkarte/Tafel",
+    "Würfel oder Zufallszahl"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 8,
+  "gruppeMax": 40,
+  "teamMin": 3,
+  "teamMax": 4,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "kooperativ",
+    "aktivierung",
+    "diagnose"
+  ],
+  "qualitaetsrisiko": [
+    "Wird die Nummer vor der Beratung genannt, arbeiten die übrigen Teammitglieder nicht mit."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte kooperative Abrufverfahren mit individueller Verantwortlichkeit steigern aktive Beteiligung und Aufgabenleistung auch bei leistungsschwächeren Lernenden.",
+      "quelle": "Slavin (1995); Maheady et al. (2006)",
+      "geltung": "Primar- und Sekundarstufe, besonders in heterogenen Klassen."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kooperatives Lernen",
+      "url": "https://de.wikipedia.org/wiki/Kooperatives_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.74
+  }
+}

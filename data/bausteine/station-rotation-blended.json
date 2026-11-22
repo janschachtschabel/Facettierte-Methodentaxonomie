@@ -1,0 +1,150 @@
+{
+  "kennung": "station-rotation-blended",
+  "name": "Station-Rotation-Modell (Blended Learning)",
+  "kurzbeschreibung": "Zeitlich getakteter Wechsel zwischen drei Lernstationen: kleingruppenorientierte Lehrkraft-Instruktion, kollaborative Anwendung und adaptives digitales Online-Lernen.",
+  "alternativname": [
+    "Blended Station Rotation",
+    "Rotationsmodell Blended Learning"
+  ],
+  "status": "entwurf",
+  "piktogramm": "stationen",
+  "ansatz": [
+    "digital-ki",
+    "offen",
+    "instruktion"
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-tempo",
+    "diff-prozess",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "system",
+    "formativ",
+    "peer"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kleingruppen-tisch",
+      "name": "Fokussierte Kleingruppen-Förderung direkt am Lehrkraft-Tisch"
+    },
+    {
+      "kennung": "digital-station",
+      "name": "Adaptives Online-/OER-Training mit direkter Rückmeldung"
+    }
+  ],
+  "dauerMin": 60,
+  "dauerMax": 135,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "In großen heterogenen Klassen fehlt bei reinem Plenumsunterricht Zeit für gezielte Kleingruppenförderung.",
+  "durchfuehrung": [
+    "Klasse in drei leistungshomogene oder gemischte Rotationsteams einteilen.",
+    "Station 1 (Lehrkraft-Tisch): Direkte, bedarfsgerechte Instruktion und Klärung von Fehlkonzepten.",
+    "Station 2 (Digital/OER): Interaktive Übungen, Erklärvideos oder adaptive Aufgaben.",
+    "Station 3 (Kollaborativ): Anwendungs- oder Transferaufgabe im Team; Wechsel alle 15–20 Minuten."
+  ],
+  "material": [
+    "Klassensatz Teil-Endgeräte (1/3 reicht!)",
+    "OER-/Übungslinks",
+    "Stationskarten"
+  ],
+  "raum": "Klassenraum mit 3 Zonen",
+  "gruppeMin": 9,
+  "gruppeMax": 36,
+  "teamMin": 3,
+  "teamMax": 12,
+  "vorbereitungMin": 30,
+  "technik": "t-geteilt",
+  "internet": true,
+  "kategorie": [
+    "blended",
+    "differenzierung",
+    "stationen"
+  ],
+  "qualitaetsrisiko": [
+    "Unklare Übergangsroutinen kosten wertvolle Lernzeit beim Stationswechsel."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Blended-Learning-Rotationsmodelle zeigen gegenüber rein analogem Unterricht kleine bis mittlere Leistungsgewinne bei besserer Individualisierung.",
+      "quelle": "Means et al. (2013); Christensen Institute Blended Learning Taxonomy",
+      "geltung": "Primar- und Sekundarstufe; bereits mit einem Drittel-Gerätesatz umsetzbar."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Blended learning",
+      "url": "https://en.wikipedia.org/wiki/Blended_learning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 2.28
+  }
+}

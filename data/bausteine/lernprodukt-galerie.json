@@ -1,0 +1,144 @@
+{
+  "kennung": "lernprodukt-galerie",
+  "name": "Museumsgang mit Kriterien-Feedback (Structured Gallery Walk)",
+  "kurzbeschreibung": "Ausstellung von Gruppen- oder Einzelprodukten im Raum mit strukturiertem Rundgang, kriteriengeleiteten Feedback-Notizen und anschließender Überarbeitungsrunde.",
+  "alternativname": [
+    "Gallery Walk",
+    "Museumsgang",
+    "Galerierundgang"
+  ],
+  "status": "entwurf",
+  "piktogramm": "stationen",
+  "ansatz": [
+    "offen",
+    "diagnose-feedback",
+    "kooperativ"
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "bn-kriterial",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "verteilt",
+    "verschachtelt"
+  ],
+  "vorbedingung": [
+    "loesungsversuche"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien-feedback",
+      "name": "Konkrete Feedback-Kriterien (z. B. 2 Stärken + 1 konkreter Tipp) statt allgemeinem Lob"
+    },
+    {
+      "kennung": "ueberarbeitung",
+      "name": "Kurze Überarbeitungsphase zur Nutzung des erhaltenen Peer-Feedbacks"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Frontal präsentierte Gruppenplakate kosten viel Zeit und führen bei den Zuhörenden oft zu nachlassender Aufmerksamkeit.",
+  "durchfuehrung": [
+    "Lernprodukte (Plakate, Modelle, Skizzen) gut sichtbar im Raum aufhängen.",
+    "Lernende gehen in Kleingruppen von Station zu Station und hinterlassen kriteriengeleitete Feedback-Karten.",
+    "Teams werten das Feedback an ihrem eigenen Produkt aus und formulieren eine konkrete Verbesserung."
+  ],
+  "material": [
+    "Plakate/Lernprodukte",
+    "Klebepunkte/Feedback-Karten",
+    "Kriterienliste"
+  ],
+  "raum": "Klassenraum mit Wandfläche",
+  "gruppeMin": 6,
+  "gruppeMax": 40,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "praesentation",
+    "peer-feedback",
+    "sicherung"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne Beobachtungsauftrag verkommt der Rundgang zu unkonzentriertem Umherlaufen."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kriteriengeleitetes Peer-Feedback an sichtbaren Lernprodukten stärkt Qualitätsbewusstsein und fachliche Korrekturfähigkeit.",
+      "quelle": "Topping (2009); Double, McGrane & Hopfenbeck (2020)",
+      "geltung": "Alle Bildungsstufen nach Erarbeitungs- oder Projektphasen."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gallery walk",
+      "url": "https://en.wikipedia.org/wiki/Gallery_walk",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.54
+  }
+}

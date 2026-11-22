@@ -408,8 +408,21 @@ export function DifferentiationMatrixPanel({
                   const mRes = matrixByGroup.get(g.id);
                   const suggestedAlts =
                     mRes && r.block && g.focus !== 'regel'
-                      ? suggestAlternativeMethodsForGroup(mRes, r.block, allBlocks, 4)
+                      ? suggestAlternativeMethodsForGroup(mRes, r.block, allBlocks, 5, r.durationMin)
                       : [];
+                  const sugIds = new Set(suggestedAlts.map((x) => x.kennung));
+                  const rangeOrd: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
+                  const curRank = r.block ? rangeOrd[r.block.reichweite] ?? 2 : 2;
+                  const fns = new Set(r.block?.lernfunktion || []);
+                  const maxDur = Math.max(r.durationMin * 1.5, r.block?.dauerMax ?? 45);
+                  const compatRest = sortedBlocks.filter(
+                    (b) =>
+                      b.kennung !== r.methodId &&
+                      !sugIds.has(b.kennung) &&
+                      b.lernfunktion.some((f) => fns.has(f)) &&
+                      (rangeOrd[b.reichweite] ?? 2) <= curRank &&
+                      b.dauerMin <= maxDur
+                  );
                   return (
                     <div
                       key={g.id}
@@ -438,7 +451,7 @@ export function DifferentiationMatrixPanel({
                       {g.focus !== 'regel' && (
                         <div style={{ marginTop: 6 }}>
                           <label style={{ fontFamily: 'var(--display)', fontSize: 12, fontWeight: 600, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                            Optional: Alternative FMT-Methode für diese Teilgruppe (parallele Schwimmlinie)
+                            Optional: Alternative FMT-Methode (gleicher Zweck &amp; Granularität ≤ {r.methodRange})
                             <select
                               style={{ fontSize: 12.5, padding: '3px 6px' }}
                               value={altId}
@@ -446,21 +459,23 @@ export function DifferentiationMatrixPanel({
                             >
                               <option value="">Gleiche Methode wie Hauptgruppe (nur anpassen)</option>
                               {suggestedAlts.length > 0 && (
-                                <optgroup label="★ Passend laut Binnendifferenzierungsmatrix">
+                                <optgroup label="★ Passend zu Matrix, Zweck & Granularität">
                                   {suggestedAlts.map((a) => (
                                     <option key={a.kennung} value={a.kennung}>
-                                      ★ {a.name} ({a.dauerMin}–{a.dauerMax} min · {a.grund})
+                                      ★ {a.name} ({a.reichweite.toUpperCase()}, {a.dauerMin}–{a.dauerMax} min · {a.grund})
                                     </option>
                                   ))}
                                 </optgroup>
                               )}
-                              <optgroup label="Alle FMT-Methoden">
-                                {sortedBlocks.map((b) => (
-                                  <option key={b.kennung} value={b.kennung}>
-                                    {b.name} ({b.reichweite.toUpperCase()})
-                                  </option>
-                                ))}
-                              </optgroup>
+                              {compatRest.length > 0 && (
+                                <optgroup label="✓ Weitere passende Methoden (gleicher Zweck & Granularität)">
+                                  {compatRest.map((b) => (
+                                    <option key={b.kennung} value={b.kennung}>
+                                      {b.name} ({b.reichweite.toUpperCase()}, {b.dauerMin}–{b.dauerMax} min)
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              )}
                             </select>
                           </label>
                         </div>

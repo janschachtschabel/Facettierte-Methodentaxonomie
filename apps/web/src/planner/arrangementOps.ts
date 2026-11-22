@@ -165,6 +165,78 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
     };
   }
 
+  if (zieltyp === 'pbl-siebensprung') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'mittel', zeitbudgetMin: 225 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('ankerfall', 25, { kettenschritt: 'pbl1' }),
+          E('erfindungsaufgabe', 40, { kettenschritt: 'pbl2' }),
+          E('vergleichende-instruktion', 35, { kettenschritt: 'pbl3' }),
+          E('experiment', 55, { kettenschritt: 'pbl4', belegung: [fill('sicherung', E('exit-ticket', 5))] }),
+          E('reflexionsprompt', 10, { kettenschritt: 'pbl5' })
+        ]
+      }
+    };
+  }
+
+  if (zieltyp === 'direkte-instruktion') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'gering', zeitbudgetMin: 135 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('rosenshine-daily-review', 8, { kettenschritt: 'di1' }),
+          E('vortrag-prompts', 25, { kettenschritt: 'di2' }),
+          E('loesungsbeispiele', 35, { kettenschritt: 'di3' }),
+          E('exit-ticket', 5, { kettenschritt: 'di4' }),
+          E('abrufquiz', 8, { kettenschritt: 'di5' }),
+          { typ: 'Wiederkehr', baustein: 'abrufquiz', anzahl: 3, abstand: 'P2D', dauerMin: 6 }
+        ]
+      }
+    };
+  }
+
+  if (zieltyp === 'kooperatives-lernen') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'mittel', zeitbudgetMin: 135 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('tps', 8, { kettenschritt: 'ko1' }),
+          E('gruppenpuzzle', 60, { kettenschritt: 'ko2', belegung: [fill('sicherung', E('abrufquiz', 8))] }),
+          E('abrufquiz', 8, { kettenschritt: 'ko3' }),
+          E('exit-ticket', 5, { kettenschritt: 'ko4' }),
+          { typ: 'Wiederkehr', baustein: 'abrufquiz', anzahl: 3, abstand: 'P2D', dauerMin: 6 }
+        ]
+      }
+    };
+  }
+
+  if (zieltyp === 'projektlernen') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'mittel', zeitbudgetMin: 270 },
+      ablauf: {
+        typ: 'Parallel',
+        haupt: {
+          typ: 'Sequenz',
+          teile: [
+            E('ankerfall', 25, { kettenschritt: 'pr1' }),
+            E('kooperatives-skript', 35, { kettenschritt: 'pr2' }),
+            E('experiment', 60, { kettenschritt: 'pr3', belegung: [fill('sicherung', E('exit-ticket', 5))] }),
+            E('reflexionsprompt', 10, { kettenschritt: 'pr4' })
+          ]
+        },
+        begleitend: [E('lerntagebuch', 20)]
+      }
+    };
+  }
+
   // faktenwissen or fallback
   return {
     ...base,

@@ -1299,6 +1299,7 @@ export function PlannerPage() {
                 svgRef={svgRef}
                 groups={groups}
                 subgroupMethods={subgroupMethods}
+                ketten={bundle.ketten}
               />
             </div>
           )}
@@ -1396,13 +1397,14 @@ export function PlannerPage() {
       {/* =================================================================== */}
       {step === 4 && (
         <section style={{ marginTop: 16 }}>
-          <div style={{ position: 'absolute', left: -9999, top: -9999, width: 760, pointerEvents: 'none' }} aria-hidden="true">
+          <div style={{ position: 'absolute', left: -9999, top: -9999, width: 1000, pointerEvents: 'none' }} aria-hidden="true">
             <TimelineBandSvg
               arrangement={arrangement}
               blocksById={blocksById}
               svgRef={svgRef}
               groups={groups}
               subgroupMethods={subgroupMethods}
+              ketten={bundle.ketten}
             />
           </div>
           <ScenarioStudioPanel

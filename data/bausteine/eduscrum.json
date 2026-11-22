@@ -1,0 +1,147 @@
+{
+  "kennung": "eduscrum",
+  "name": "eduScrum (Agiles Projektlernen in Sprints)",
+  "kurzbeschreibung": "Übertragung agiler Scrum-Praktiken auf Unterrichtsprojekte mit sichtbarem Flap/Kanban-Board, kurzen Sprints, Stand-ups, Produkt-Reviews und Retrospektiven.",
+  "alternativname": [
+    "Agiles Lernen",
+    "Scrum im Unterricht",
+    "Sprint-Projektarbeit"
+  ],
+  "status": "entwurf",
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "kooperativ",
+    "reflexion"
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-tempo",
+    "diff-inhalt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "formativ",
+    "selbstkontrolle"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "afb3"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kanban-transparenz",
+      "name": "Öffentliches Aufgabenboard (To Do / Doing / Done) mit Definition of Done"
+    },
+    {
+      "kennung": "standup-retro",
+      "name": "Kurze 5-Minuten-Stand-ups und strukturierte Sprint-Retrospektive"
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 540,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Längere Projektarbeiten verzetteln sich häufig ohne transparente Zwischenziele und Team-Koordination.",
+  "durchfuehrung": [
+    "Lehrkraft (Product Owner) klärt Projektziel, Qualitätskriterien (Definition of Done) und Zeitrahmen.",
+    "Teams (4 Pers.) zerlegen Aufgaben auf Karten am Sprint-Board und starten jede Stunde mit einem 5-Minuten-Stand-up.",
+    "Am Sprint-Ende folgen Sprint-Review (Produktvorstellung) und Sprint-Retrospektive (Verbesserung der Zusammenarbeit)."
+  ],
+  "material": [
+    "Projekt-Board / Pinnwand",
+    "Klebepunkte & Aufgabenkarten",
+    "Kriterienraster"
+  ],
+  "raum": "Klassen- oder Projektraum",
+  "gruppeMin": 8,
+  "gruppeMax": 36,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "projekt",
+    "agil",
+    "selbststeuerung"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne klare fachliche Abnahmekriterien (Definition of Done) wird die Methode zur reinen Prozess-Routine."
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisstudien zeigen höhere Selbstorganisation, Aufgabenklarheit und Teamverantwortung in Projektphasen.",
+      "quelle": "Delhij, van Solingen & Wijnands (2015): The eduScrum Guide",
+      "geltung": "Sekundarstufe I/II, Berufsbildung und Hochschule in mehrwöchigen Projektphasen."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Scrum",
+      "url": "https://de.wikipedia.org/wiki/Scrum",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 2.75
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "kennung": "dreischritt-interview",
+  "name": "Dreischritt-Interview (Three-Step Interview)",
+  "kurzbeschreibung": "Strukturierte kooperative Austauschform in drei Takten (A befragt B, B befragt A, beide berichten im Viererteam), die aktives Zuhören und Perspektivübernahme fördert.",
+  "alternativname": [
+    "Three-Step Interview",
+    "Partner-Team-Interview"
+  ],
+  "status": "entwurf",
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "diskurs",
+    "reflexion"
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fremdbericht",
+      "name": "Im dritten Schritt stellt jede Person die Gedanken der Partnerperson vor (sichert aktives Zuhören)"
+    }
+  ],
+  "dauerMin": 12,
+  "dauerMax": 25,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "In offenen Gesprächsrunden warten Lernende oft nur auf ihren eigenen Redebeitrag statt genau zuzuhören.",
+  "durchfuehrung": [
+    "Schritt 1 (3 min): In Zweierpaaren interviewt A Person B anhand von 2–3 Leitfragen und macht Stichpunkte.",
+    "Schritt 2 (3 min): Rollenwechsel – B interviewt A.",
+    "Schritt 3 (6 min): Zwei Paare bilden ein Viererteam; jede Person fasst die wichtigsten Aussagen ihres Gegenübers zusammen."
+  ],
+  "material": [
+    "2–3 Interview-Leitfragen",
+    "Notizkarten"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 40,
+  "teamMin": 4,
+  "teamMax": 4,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "kooperativ",
+    "gespraech",
+    "perspektivwechsel"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne klare Zeitansage und Notizpflicht geraten die Interviewphasen aus dem Gleichgewicht."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte kooperative Dialogformate verbessern Elaboration, Zuhörqualität und Einbindung zurückhaltender Lernender.",
+      "quelle": "Kagan & Kagan (2009); Johnson & Johnson (2009)",
+      "geltung": "Alle Bildungsstufen für Vorwissensaktivierung, Meinungsbildung und Reflexion."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Cooperative learning",
+      "url": "https://en.wikipedia.org/wiki/Cooperative_learning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.66
+  }
+}

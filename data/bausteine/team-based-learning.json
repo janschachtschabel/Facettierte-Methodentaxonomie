@@ -1,0 +1,150 @@
+{
+  "kennung": "team-based-learning",
+  "name": "Team-Based Learning (TBL: iRAT → tRAT → Transfer)",
+  "kurzbeschreibung": "Hochstrukturiertes Großgruppen- und Kursverfahren nach Michaelsen: Vorbereitungslektüre, Einzeltest (iRAT), identischer Teamtest mit Sofortfeedback (tRAT) und authentische 4S-Anwendungsentscheidungen.",
+  "alternativname": [
+    "TBL",
+    "Team-basiertes Lernen",
+    "iRAT-tRAT-Methode"
+  ],
+  "status": "entwurf",
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "forschend",
+    "diagnose-feedback"
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "diagnose",
+    "verstehen",
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet",
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-prozess"
+  ],
+  "feedback": [
+    "unmittelbar",
+    "peer",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "schlecht-strukturiert",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "wissen-konsolidiert",
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "irat-trat",
+      "name": "Readiness Assurance Process (Einzeltest iRAT gefolgt vom identischen Teamtest tRAT)"
+    },
+    {
+      "kennung": "vier-s-anwendung",
+      "name": "4S-Anwendungsaufgabe (Significant Problem, Same Problem, Specific Choice, Simultaneous Report)"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 180,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "In großen Klassen oder Seminaren bleiben Gruppenarbeiten ohne individuelle Vorbereitungspflicht oft ineffizient.",
+  "durchfuehrung": [
+    "Vorbereitung: Fokussierte Basislektüre oder Erklärvideo vorab bearbeiten.",
+    "iRAT (10 min): Kurzer Einzel-Multiple-Choice-Test zu den Kernkonzepten.",
+    "tRAT (15 min): Gleicher Test in festen 5er-Teams mit sofortiger Rückmeldung (z. B. Rubbelkarten/LMS) und anschließender Mini-Klärung offener Fragen.",
+    "4S-Anwendung (45 min): Alle Teams lösen dasselbe komplexe Fallproblem, treffen eine eindeutige Entscheidung und zeigen sie zeitgleich zur Debatte."
+  ],
+  "material": [
+    "Vorbereitungstext",
+    "iRAT/tRAT-Test",
+    "4S-Entscheidungskarten"
+  ],
+  "raum": "Klassen- oder Hörsaal",
+  "gruppeMin": 12,
+  "gruppeMax": 200,
+  "teamMin": 4,
+  "teamMax": 7,
+  "vorbereitungMin": 45,
+  "technik": "t-projektion",
+  "internet": false,
+  "kategorie": [
+    "kooperativ",
+    "hochschule",
+    "anwendung"
+  ],
+  "qualitaetsrisiko": [
+    "Sind die 4S-Aufgaben zu einfach, entsteht keine fachliche Kontroverse zwischen den Teams."
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Team-Based Learning erzielt signifikante Verbesserungen bei Konzeptverständnis, Anwendungsleistung und Beteiligung gegenüber klassischen Vorlesungen.",
+      "quelle": "Swanson et al. (2019): Meta-Analysis of Team-Based Learning; Fatmi et al. (2013): Effectiveness of TBL in Health Professions Education",
+      "geltung": "Sekundarstufe II, Berufsbildung und Hochschule (auch in großen Gruppen)."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Team-based learning",
+      "url": "https://en.wikipedia.org/wiki/Team-based_learning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.45,
+    "y": 2.82
+  }
+}

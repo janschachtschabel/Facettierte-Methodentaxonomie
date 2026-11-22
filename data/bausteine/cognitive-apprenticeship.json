@@ -1,0 +1,149 @@
+{
+  "kennung": "cognitive-apprenticeship",
+  "name": "Cognitive Apprenticeship (Kognitive Meisterlehre)",
+  "kurzbeschreibung": "Sechs-Stufen-Verfahren (Modeling, Coaching, Scaffolding, Articulation, Reflection, Exploration), das unsichtbare Experten-Denkprozesse schrittweise erlernbar macht.",
+  "alternativname": [
+    "Kognitive Meisterlehre",
+    "Modeling-Coaching-Fading"
+  ],
+  "status": "entwurf",
+  "piktogramm": "dialog",
+  "ansatz": [
+    "forschend",
+    "instruktion"
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "formativ",
+    "unmittelbar",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "prozeduren",
+    "konzepte"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "thinking-aloud",
+      "name": "Sichtbarmachen kognitiver Strategien (Modeling & Articulation)"
+    },
+    {
+      "kennung": "fading",
+      "name": "Adaptives Ausschleichen der Hilfen (Scaffolding → Fading → Exploration)"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 240,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Bei komplexen Denk- und Problemlöseaufgaben bleiben die entscheidenden Zwischenschritte von Experten für Lernende unsichtbar.",
+  "durchfuehrung": [
+    "Modeling: Lehrkraft demonstriert eine authentische Aufgabe und verbalisiert Entscheidungen und Irrwege.",
+    "Coaching & Scaffolding: Lernende bearbeiten ähnliche Aufgaben mit gezielten Hilfen, die schrittweise reduziert werden (Fading).",
+    "Articulation & Reflection: Lernende begründen ihr Vorgehen laut und vergleichen es mit Expertenstrategien.",
+    "Exploration: Selbstständiges Bearbeiten neuer, offener Problemstellungen."
+  ],
+  "material": [
+    "Authentische Aufgabenreihe",
+    "Strategiekarten / Leitfragen"
+  ],
+  "raum": "Klassen- oder Fachraum",
+  "gruppeMin": 2,
+  "gruppeMax": 30,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "forschend",
+    "scaffolding",
+    "problemloesen"
+  ],
+  "qualitaetsrisiko": [
+    "Wird das Fading übersprungen, entsteht dauerhafte Abhängigkeit von Hinweisen."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Cognitive Apprenticeship fördert den Transfer komplexer Schreib-, Mathematik- und Problemlösestrategien.",
+      "quelle": "Collins, Brown & Newman (1989); Dennen & Burner (2008)",
+      "geltung": "Sekundarstufe, Berufsbildung und Hochschule bei komplexen, strategieintensiven Aufgaben."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Cognitive apprenticeship",
+      "url": "https://en.wikipedia.org/wiki/Cognitive_apprenticeship",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.52
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "kennung": "kooperatives-skript",
+  "name": "Kooperatives Skript (Scripted Cooperation)",
+  "kurzbeschreibung": "Evidenzstarkes Partner-Lernverfahren nach O’Donnell & Dansereau mit festem Rollenwechsel zwischen freiem Zusammenfassen (Recall) und kriteriengeleitetem Prüfen/Ergänzen (Listener).",
+  "alternativname": [
+    "Scripted Cooperation",
+    "MURDER-Skript",
+    "Kooperationsskript"
+  ],
+  "status": "entwurf",
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "visualisierung",
+    "uebung"
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-tempo",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "fakten"
+  ],
+  "sequenz": [
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "konzept-gesichert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "recall-ohne-text",
+      "name": "Freie Wiedergabe aus dem Gedächtnis statt bloßem Vorlesen"
+    },
+    {
+      "kennung": "fehler-elaboration",
+      "name": "Systematische Fehlerkorrektur und gemeinsame Elaboration durch den Zuhörer"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Unstrukturierte Partnerarbeit an Fachtexten bleibt oft oberflächlich oder verteilt sich ungleich.",
+  "durchfuehrung": [
+    "Fachtext in 2–4 überschaubare Abschnitte teilen; beide Partner lesen Abschnitt 1 still.",
+    "Text verdecken: Person A fasst die Kernaussagen frei aus dem Gedächtnis zusammen (Recaller).",
+    "Person B hört zu, ergänzt Auslassungen und korrigiert Fehler (Listener); danach bilden beide gemeinsam ein Beispiel oder Merkbild.",
+    "Bei Abschnitt 2 Rollen tauschen und Zyklus wiederholen."
+  ],
+  "material": [
+    "Abschnittsweise gegliederter Fachtext",
+    "Rollenkarte Skript"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 50,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "kooperativ",
+    "textarbeit",
+    "abruf"
+  ],
+  "qualitaetsrisiko": [
+    "Zu starke Über-Skriptung (Over-Scripting) kann erfahrene Lernende einengen."
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Kooperationsskripte erzielen in Metaanalysen robuste positive Effekte auf Fachwissen (d ≈ 0,55) und Kooperationsqualität.",
+      "quelle": "Vogel et al. (2017): Meta-analysis on CSCL scripts; O’Donnell (1999)",
+      "geltung": "Sekundarstufe und Hochschule bei informationsdichten Texten und Konzepten."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Cooperative learning",
+      "url": "https://en.wikipedia.org/wiki/Cooperative_learning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.34,
+    "y": 2.72
+  }
+}

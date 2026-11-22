@@ -25,7 +25,9 @@ export function ComparePage() {
   };
 
   const rows: Array<{ label: string; va: string; vb: string; group?: boolean }> = [
-    { label: 'Reichweite', va: `${a.reichweite.toUpperCase()} ${labelOf('reichweite', a.reichweite)}`, vb: `${b.reichweite.toUpperCase()} ${labelOf('reichweite', b.reichweite)}` },
+    { label: 'Reichweite / Granularität', va: `${a.reichweite.toUpperCase()} ${labelOf('reichweite', a.reichweite)}`, vb: `${b.reichweite.toUpperCase()} ${labelOf('reichweite', b.reichweite)}` },
+    { label: 'Didaktischer Ansatz', va: (a.ansatz || []).map((c) => labelOf('ansatz', c)).join(', ') || '–', vb: (b.ansatz || []).map((c) => labelOf('ansatz', c)).join(', ') || '–' },
+    { label: 'Evidenzgrad (beste Studie)', va: search.bestGrade(a) ? `Grad ${search.bestGrade(a)} (${a.evidenz.length} Belege)` : 'Ohne Wirksamkeitsbeleg', vb: search.bestGrade(b) ? `Grad ${search.bestGrade(b)} (${b.evidenz.length} Belege)` : 'Ohne Wirksamkeitsbeleg' },
     { label: 'Dauer', va: `${a.dauerMin}–${a.dauerMax} min`, vb: `${b.dauerMin}–${b.dauerMax} min` },
     { label: 'Vorbereitung', va: `${a.vorbereitungMin} min`, vb: `${b.vorbereitungMin} min` },
     { label: 'Lerngruppe', va: `${a.gruppeMin}–${a.gruppeMax} Pers.`, vb: `${b.gruppeMin}–${b.gruppeMax} Pers.` },
@@ -80,6 +82,9 @@ export function ComparePage() {
               <strong style={{ color: 'var(--dD)' }}>╌╌</strong> {b.name} <EvidenceBadge grade={search.bestGrade(b)} />
             </span>
           </div>
+          <p className="muted" style={{ fontSize: 12, textAlign: 'center', margin: '8px 0 0' }}>
+            Lesehilfe Radar: Ordinale Achsen (A2 Engagement, B1 Anleitung, B2 Steuerung) zeigen die Ausprägungsstärke; kategoriale Achsen zeigen die Funktions-/Format-Bandbreite. Exakte Werte stehen in der Vergleichstabelle unten.
+          </p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

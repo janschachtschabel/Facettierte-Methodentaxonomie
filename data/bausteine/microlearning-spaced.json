@@ -1,0 +1,139 @@
+{
+  "kennung": "microlearning-spaced",
+  "name": "Microlearning mit verteiltem Abruf (Spaced Micro-Units)",
+  "kurzbeschreibung": "Zerlegung von Lernstoff in 5–10-minütige, fokussierte digitale Mikro-Einheiten kombiniert mit zeitlich gestaffelten Kurz-Abrufen über mehrere Tage.",
+  "alternativname": [
+    "Microlearning",
+    "Mikrolernen",
+    "Lernhäppchen mit Spaced Retrieval"
+  ],
+  "status": "entwurf",
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "uebung"
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "selbstkontrolle"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "asynchron",
+    "synchron",
+    "distanz"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "prozeduren"
+  ],
+  "sequenz": [
+    "geblockt",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ein-ziel-pro-nugget",
+      "name": "Genau ein Kernkonzept pro Mikro-Einheit (Cognitive Load begrenzen)"
+    },
+    {
+      "kennung": "abruf-anker",
+      "name": "Jede Mikro-Einheit schließt mit einer aktiven Abruf- oder Transferfrage"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Lange Selbstlernmodule oder Videos führen im digitalen Lernen schnell zu kognitiver Ermüdung und Abbrüchen.",
+  "durchfuehrung": [
+    "Lerninhalt in 3–4 prägnante Mikro-Einheiten (je 3–5 Min. Text/Video/Grafik) gliedern.",
+    "Direkt nach jedem Abschnitt 2–3 aktive Verständnis- oder Abruffragen mit Sofortfeedback bearbeiten lassen.",
+    "Nach 2 und 7 Tagen kurze Wiederholungs-Nuggets im LMS oder per Karteikarten-App anstoßen."
+  ],
+  "material": [
+    "LMS / H5P / Lernkarten-App",
+    "Kurze OER-Nuggets"
+  ],
+  "raum": "Digital / Hybrid",
+  "gruppeMin": 1,
+  "gruppeMax": 500,
+  "vorbereitungMin": 25,
+  "technik": "t-einzeln",
+  "internet": true,
+  "kategorie": [
+    "digital",
+    "abruf",
+    "selbstlernen"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne abschließende Vernetzungsphase droht fragmentiertes Inselwissen."
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Segmentierung (Segmenting Principle) kombiniert mit verteiltem Abruf verbessert Behalten und Transfer signifikant.",
+      "quelle": "Mayer (2021): Multimedia Learning; Cepeda et al. (2006)",
+      "geltung": "Sekundarstufe, Berufsbildung, Hochschule und Erwachsenenbildung."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Microlearning",
+      "url": "https://en.wikipedia.org/wiki/Microlearning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.3,
+    "y": 1.88
+  }
+}

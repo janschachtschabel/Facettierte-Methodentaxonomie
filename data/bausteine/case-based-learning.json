@@ -1,0 +1,144 @@
+{
+  "kennung": "case-based-learning",
+  "name": "Case-Based Learning (Fallbasiertes Lernen)",
+  "kurzbeschreibung": "Strukturierte Analyse eines realitätsnahen Entscheidungs- oder Diagnosefalls mit Leitfragen, Kriterienabwägung und begründeter Lösungsempfehlung.",
+  "alternativname": [
+    "Fallbasiertes Lernen",
+    "Harvard-Fallmethode",
+    "Case Method"
+  ],
+  "status": "entwurf",
+  "piktogramm": "debatte",
+  "ansatz": [
+    "forschend",
+    "diskurs"
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "afb3",
+    "konzepte"
+  ],
+  "sequenz": [
+    "geblockt",
+    "verschachtelt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien-abwaegung",
+      "name": "Fachlich begründete Abwägung konkurrierender Handlungsoptionen"
+    },
+    {
+      "kennung": "fall-transfer",
+      "name": "Ableitung übertragbarer Prinzipien über den Einzelfall hinaus"
+    }
+  ],
+  "dauerMin": 35,
+  "dauerMax": 90,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Lernende kennen Regeln theoretisch, können sie aber in mehrdeutigen Praxissituationen nicht abwägend anwenden.",
+  "durchfuehrung": [
+    "Authentischen Kurzfall mit Daten, Perspektiven und Entscheidungsdilemma ausgeben.",
+    "Einzel- und Kleingruppenanalyse anhand strukturierter Leitfragen (Problem, Fakten, Optionen, Kriterien).",
+    "Moderierte Plenumsdiskussion der Lösungsvorschläge mit expliziter Sicherung übertragbarer Fachprinzipien."
+  ],
+  "material": [
+    "Fallvignette (1–2 Seiten)",
+    "Analysematrix / Leitfragen"
+  ],
+  "raum": "Klassen- oder Seminarraum",
+  "gruppeMin": 6,
+  "gruppeMax": 45,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 25,
+  "technik": "t-keine",
+  "internet": false,
+  "kategorie": [
+    "fallarbeit",
+    "problemloesen",
+    "diskurs"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne abschließende Dekontextualisierung bleibt das Gelernte am konkreten Einzelfall haften."
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Fallbasiertes Lernen erhöht Motivation und Urteilsfähigkeit bei anwendungsnahen Entscheidungen gegenüber rein theoretischer Darstellung.",
+      "quelle": "Thistlethwaite et al. (2012)",
+      "geltung": "Sekundarstufe II, Berufsbildung und Hochschule (Medizin, Wirtschaft, Politik, MINT)."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Case method",
+      "url": "https://en.wikipedia.org/wiki/Case_method",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.58
+  }
+}

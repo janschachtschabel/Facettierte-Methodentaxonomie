@@ -1,0 +1,150 @@
+{
+  "kennung": "mastery-learning-bloom",
+  "name": "Mastery Learning (Zielerreichendes Lernen nach Bloom)",
+  "kurzbeschreibung": "Modulares Kurs- und Einheitenmodell mit klaren Lernzielen, formativen Diagnose-Checks sowie gezielten Korrektiv- oder Vertiefungsschleifen bis zur Beherrschung.",
+  "alternativname": [
+    "Zielerreichendes Lernen",
+    "Bloom Mastery Learning",
+    "Kompetenzorientiertes Lernen"
+  ],
+  "status": "entwurf",
+  "piktogramm": "stationen",
+  "ansatz": [
+    "instruktion",
+    "diagnose-feedback",
+    "uebung"
+  ],
+  "reichweite": "r4",
+  "lernfunktion": [
+    "erwerb",
+    "diagnose",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "diff-tempo",
+    "diff-prozess",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "formativ",
+    "bn-kriterial",
+    "selbstkontrolle"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "fakten"
+  ],
+  "sequenz": [
+    "geblockt",
+    "verschachtelt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "wissen-konsolidiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterium-schwelle",
+      "name": "Klare Beherrschungskriterien (z. B. 80 % im formativen Check)"
+    },
+    {
+      "kennung": "korrektiv-enrichment",
+      "name": "Parallele Korrektiv-Schleifen und Enrichment-Aufgaben nach Diagnose"
+    }
+  ],
+  "dauerMin": 270,
+  "dauerMax": 900,
+  "geeignetBeiVorwissen": [
+    "gering",
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Bei einheitlichem Unterrichtstempo kumulieren frühe Verständnislücken über ganze Kurseinheiten hinweg.",
+  "durchfuehrung": [
+    "Lernstoff in überschaubare Moduleinheiten mit transparenten Zielkriterien gliedern.",
+    "Nach jeder Einheit einen unbenoteten formativen Diagnose-Test durchführen.",
+    "Lernende unterhalb der Zielschwelle durchlaufen alternative Erklär-/Übungsmaterialien (Korrektive); Lernende oberhalb bearbeiten Vertiefungsaufgaben (Enrichment).",
+    "Zweiter paralleler Diagnose-Check bestätigt die Zielerreichung vor dem nächsten Modul."
+  ],
+  "material": [
+    "Lernzielraster",
+    "Formative Diagnose-Checks A/B",
+    "Korrektiv- & Vertiefungsmaterial"
+  ],
+  "raum": "Klassenraum oder Lernplattform",
+  "gruppeMin": 1,
+  "gruppeMax": 60,
+  "vorbereitungMin": 60,
+  "technik": "t-projektion",
+  "internet": false,
+  "kategorie": [
+    "kursmodell",
+    "differenzierung",
+    "diagnose"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne echte alternative Zugänge in der Korrektivphase entsteht nur eintöniges Wiederholen."
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Mastery Learning erzielt konsistent mittlere bis hohe Leistungsgewinne (d ≈ 0,58) und verringert Leistungsstreuung.",
+      "quelle": "Kulik, Kulik & Bangert-Drowns (1990); Hattie (2009)",
+      "geltung": "Schule und Hochschule in klar strukturierbaren Inhaltsbereichen; erfordert Zeitflexibilität."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Mastery learning",
+      "url": "https://en.wikipedia.org/wiki/Mastery_learning",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.28,
+    "y": 2.15
+  }
+}

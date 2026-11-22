@@ -1,0 +1,148 @@
+{
+  "kennung": "juniorfirma-schuelerfirma",
+  "name": "Schülerfirma / Übungsfirma (Langzeit-Projektmodul)",
+  "kurzbeschreibung": "Realitätsnahes Kursmodul, in dem Lernende über ein Halbjahr oder Schuljahr hinweg ein eigenes Produkt- oder Dienstleistungsprojekt planen, kalkulieren, umsetzen und bilanzieren.",
+  "alternativname": [
+    "Schülerfirma",
+    "Übungsfirma",
+    "Lernbüro-Unternehmen"
+  ],
+  "status": "entwurf",
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "forschend",
+    "kooperativ"
+  ],
+  "reichweite": "r4",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "offen",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "formativ",
+    "peer",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "afb3"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "reale-abnehmer",
+      "name": "Echte Produkte/Dienstleistungen mit realem Adressaten- und Ressourcenbezug"
+    },
+    {
+      "kennung": "meilenstein-reflexion",
+      "name": "Regelmäßige Geschäftsberichte und fachliche Reflexionsschleifen"
+    }
+  ],
+  "dauerMin": 360,
+  "dauerMax": 1800,
+  "geeignetBeiVorwissen": [
+    "mittel",
+    "hoch"
+  ],
+  "problem": "Wirtschaftliche, organisatorische und nachhaltige Zusammenhänge bleiben ohne reale Entscheidungsfolgen abstrakt.",
+  "durchfuehrung": [
+    "Geschäftsidee entwickeln, Rollen/Abteilungen besetzen und Geschäftsplan aufstellen.",
+    "Über mehrere Unterrichtseinheiten hinweg Produktion, Kommunikation, Buchhaltung und Qualitätssicherung eigenverantwortlich steuern.",
+    "Regelmäßige Meilenstein-Sitzungen zur fachlichen Reflexion und abschließender Geschäftsbericht."
+  ],
+  "material": [
+    "Projekt- & Kalkulationsvorlagen",
+    "Protokollbuch"
+  ],
+  "raum": "Fachraum / Lernwerkstatt",
+  "gruppeMin": 8,
+  "gruppeMax": 32,
+  "teamMin": 4,
+  "teamMax": 8,
+  "vorbereitungMin": 60,
+  "technik": "t-projektion",
+  "internet": true,
+  "kategorie": [
+    "kursmodell",
+    "projekt",
+    "handlungsorientiert"
+  ],
+  "qualitaetsrisiko": [
+    "Ohne gezielte fachliche Auswertungsphasen verdrängt operative Routine das konzeptuelle Lernen."
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Fördert berufliche Handlungskompetenz, Selbstwirksamkeit und fächerübergreifendes Transferdenken.",
+      "quelle": "Deutsches Netzwerk Schülerfirmen / KMK-Handlungsorientierung",
+      "geltung": "Sekundarstufe I/II und Berufsbildung in Wahlpflicht- oder Projektkursen."
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schülerfirma",
+      "url": "https://de.wikipedia.org/wiki/Sch%C3%BClerfirma",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.86,
+    "y": 2.64
+  }
+}
