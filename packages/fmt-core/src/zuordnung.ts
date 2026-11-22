@@ -301,10 +301,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zieltyp', /kooperatives?\s+lernen\s+(?:reihe|einheit|stunde|doppelstunde|ablauf)/, () => 'kooperatives-lernen'],
     ['zieltyp', /problemlos|probleme?\s+losen|offene\s+aufgabe|transferaufgabe/, () => 'problemloesen'],
     ['zieltyp', /\b5\s?e\b|forschend/, () => 'fuenf-e'],
-    ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
+    ['zieltyp', /\bfaktenwissen\b/, () => 'faktenwissen'],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen/, () => 'fakten'],
-    ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|ablauf/, () => 'ablauf']
+    ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
+    ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|modul|ablauf/, () => 'ablauf']
   ];
 
   // Multi-value approach rules covering ALL 12 FMT ansatz codes (allows combining e.g. "kooperativ und spielerisch")
@@ -370,7 +371,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       if (!('ansatz' in kriterien) && sem.scales.ansatz[0] && sem.scales.ansatz[0].score >= 0.55) {
         take('ansatz', [sem.scales.ansatz[0].code], `semantisch: ${sem.scales.ansatz[0].label}`);
       }
-      if (!('lernfunktion' in kriterien) && !('zieltyp' in kriterien) && sem.scales.lernfunktion[0] && sem.scales.lernfunktion[0].score >= 0.65) {
+      if (
+        !('lernfunktion' in kriterien) &&
+        !('zieltyp' in kriterien) &&
+        !('zielart' in kriterien) &&
+        !('modus' in kriterien) &&
+        sem.scales.lernfunktion[0] &&
+        sem.scales.lernfunktion[0].score >= 0.65
+      ) {
         take('lernfunktion', [sem.scales.lernfunktion[0].code], `semantisch: ${sem.scales.lernfunktion[0].label}`);
       }
       if (!('anleitung' in kriterien) && sem.scales.anleitung[0] && sem.scales.anleitung[0].score >= 0.72) {

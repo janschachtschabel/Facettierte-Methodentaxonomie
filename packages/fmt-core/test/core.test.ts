@@ -305,4 +305,50 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     expect(traits.signals.length).toBeGreaterThanOrEqual(4);
     expect(traits.matrixScore?.topRecommendations.length).toBeGreaterThan(0);
   });
+
+  it('matches all 5 planner starter scenarios deterministically as valid Abläufe (not single phases)', () => {
+    const starterCases: Array<{ id: string; text: string; ansatz: string[]; expectedChain: string }> = [
+      {
+        id: 'mathe-bruch',
+        text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
+        ansatz: ['instruktion', 'uebung'],
+        expectedChain: 'prozedur'
+      },
+      {
+        id: 'physik-dichte',
+        text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
+        ansatz: ['forschend'],
+        expectedChain: 'konzeptaufbau'
+      },
+      {
+        id: 'bio-oekosystem',
+        text: 'Biologie Klasse 8 forschend 5E Ökosystem Wald, 135 Minuten, mittleres Vorwissen',
+        ansatz: ['forschend', 'kooperativ'],
+        expectedChain: 'fuenf-e'
+      },
+      {
+        id: 'deutsch-arg',
+        text: 'Deutsch Sekundarstufe I Doppelstunde 90 Minuten Argumentation und Problemlösen, mittleres Vorwissen',
+        ansatz: ['diskurs', 'kooperativ'],
+        expectedChain: 'problemloesen'
+      },
+      {
+        id: 'gesch-demokratie',
+        text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen',
+        ansatz: ['kooperativ'],
+        expectedChain: 'faktenwissen'
+      }
+    ];
+
+    for (const c of starterCases) {
+      const res = M.zuordnen({ text: c.text, ansatz: c.ansatz, gruppe: 26 });
+      expect(res.modus, `${c.id} should match as ablauf`).toBe('ablauf');
+      if (res.modus === 'ablauf') {
+        expect(res.kette?.id, `${c.id} chain`).toBe(c.expectedChain);
+        expect(res.arrangement, `${c.id} arrangement`).toBeTruthy();
+        expect(res.pruefung?.gueltig, `${c.id} valid`).toBe(true);
+        expect(res.schritte?.length, `${c.id} steps`).toBeGreaterThanOrEqual(4);
+      }
+    }
+  });
 });

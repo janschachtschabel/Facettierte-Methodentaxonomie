@@ -359,9 +359,13 @@ export function PlannerPage() {
       zeitbudgetMin: p.zeitMin
     };
     setArrangement(preset);
+    setMatchResult(null);
     setThematicRows(null);
     setElaboration(null);
-    setMatchNotice(`Starter-Vorlage „${p.label}“ geladen. Du kannst direkt zu Schritt 2 wechseln oder die Felder anpassen.`);
+    setOerByStep({});
+    setGeneratedMaterials([]);
+    setAiDiffByStep({});
+    setMatchNotice(`Starter-Vorlage „${p.label}“ geladen (${p.zeitMin} min). Du kannst direkt zu Schritt 2 wechseln oder die Felder anpassen.`);
   };
 
   const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null) => {

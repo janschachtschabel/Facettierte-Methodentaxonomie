@@ -119,13 +119,13 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
   if (zieltyp === 'prozedur') {
     return {
       ...base,
-      kontext: { bildungsstufe: 'sek1', vorwissen: 'gering', zeitbudgetMin: 180 },
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'gering', zeitbudgetMin: 90 },
       ablauf: {
         typ: 'Sequenz',
         teile: [
           E('tps', 8, { kettenschritt: 'p1' }),
-          E('vortrag-prompts', 25, { kettenschritt: 'p2' }),
-          E('loesungsbeispiele', 35, { kettenschritt: 'p3' }),
+          E('vortrag-prompts', 20, { kettenschritt: 'p2' }),
+          E('loesungsbeispiele', 30, { kettenschritt: 'p3' }),
           E('abrufquiz', 8, { kettenschritt: 'p4' }),
           { typ: 'Wiederkehr', baustein: 'abrufquiz', anzahl: 3, abstand: 'P2D', dauerMin: 6 }
         ]
