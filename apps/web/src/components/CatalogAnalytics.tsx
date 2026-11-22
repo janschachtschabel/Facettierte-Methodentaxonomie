@@ -42,6 +42,48 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
   const xs = (v: number) => clamp(Rt - clamp(v, 0, 1) * (Rt - L), L + 12, Rt - 12);
   const ys = (v: number) => clamp(B - (clamp(v, 0, 3) / 3) * (B - T - 30) - 15, T + 12, B - 12);
 
+  // Deterministic collision-free label placement when filtered by Ansatz
+  const staticLabels = useMemo(() => {
+    const map = new Map<string, { x: number; y: number; anchor: 'start' | 'end'; text: string }>();
+    if (!plotAnsatz || plotBlocks.length > 28) return map;
+
+    const placed: Array<{ x0: number; x1: number; y0: number; y1: number }> = [];
+    const sorted = [...plotBlocks].sort((a, b) => ys(a.plot!.y) - ys(b.plot!.y) || xs(a.plot!.x) - xs(b.plot!.x));
+
+    for (const b of sorted) {
+      const cx = xs(b.plot!.x);
+      const cy = ys(b.plot!.y);
+      const rawText = b.name.replace(/ \(.*\)$/, '');
+      const text = rawText.length > 28 ? `${rawText.slice(0, 27)}…` : rawText;
+      const w = text.length * 6.4 + 6;
+      const h = 14;
+      const preferLeft = cx > 540;
+      const candidates: Array<{ x: number; y: number; anchor: 'start' | 'end' }> = [
+        { x: preferLeft ? cx - 9 : cx + 9, y: cy + 4, anchor: preferLeft ? 'end' : 'start' },
+        { x: preferLeft ? cx + 9 : cx - 9, y: cy + 4, anchor: preferLeft ? 'start' : 'end' },
+        { x: preferLeft ? cx - 9 : cx + 9, y: cy - 9, anchor: preferLeft ? 'end' : 'start' },
+        { x: preferLeft ? cx - 9 : cx + 9, y: cy + 16, anchor: preferLeft ? 'end' : 'start' },
+        { x: preferLeft ? cx + 9 : cx - 9, y: cy - 9, anchor: preferLeft ? 'start' : 'end' },
+        { x: preferLeft ? cx + 9 : cx - 9, y: cy + 16, anchor: preferLeft ? 'start' : 'end' }
+      ];
+
+      for (const c of candidates) {
+        const x0 = c.anchor === 'start' ? c.x : c.x - w;
+        const x1 = c.anchor === 'start' ? c.x + w : c.x;
+        const y0 = c.y - h + 2;
+        const y1 = c.y + 2;
+        if (x0 < L + 2 || x1 > Rt - 2 || y0 < T + 2 || y1 > B - 2) continue;
+        const overlaps = placed.some((p) => !(x1 + 3 < p.x0 || x0 - 3 > p.x1 || y1 + 2 < p.y0 || y0 - 2 > p.y1));
+        if (!overlaps) {
+          placed.push({ x0, x1, y0, y1 });
+          map.set(b.kennung, { ...c, text });
+          break;
+        }
+      }
+    }
+    return map;
+  }, [plotBlocks, plotAnsatz]);
+
   // Heatmap: Reichweite (R1..R4) x Lernfunktion (8)
   const reichweiten = valuesOf('reichweite').filter((r) => r.id !== 'r5');
   const lernfunktionen = valuesOf('lernfunktion');
@@ -218,6 +260,7 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
             const cx = xs(b.plot!.x);
             const cy = ys(b.plot!.y);
             const isHov = hoveredPlot === b.kennung;
+            const lbl = staticLabels.get(b.kennung);
             return (
               <Link key={b.kennung} to={`/methoden/${b.kennung}`}>
                 <g
@@ -232,26 +275,58 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
                     fill={b.ki ? 'var(--paper)' : b.status === 'kuratiert' ? 'var(--dA)' : 'var(--dC)'}
                     stroke="var(--ink)"
                     strokeWidth={b.ki ? 2.4 : 0.9}
-                    opacity={hoveredPlot && !isHov ? 0.45 : 0.92}
+                    opacity={hoveredPlot && !isHov ? 0.42 : 0.92}
                   />
                   <title>{`${b.name} (${b.reichweite.toUpperCase()}, ${b.dauerMin}–${b.dauerMax} min)`}</title>
-                  {(isHov || (plotAnsatz !== '' && plotBlocks.length <= 28)) && (
+                  {lbl && !isHov && (
                     <text
-                      x={cx > 560 ? cx - 10 : cx + 10}
-                      y={cy + 4}
-                      textAnchor={cx > 560 ? 'end' : 'start'}
-                      fontSize={12}
-                      fontWeight={isHov ? 700 : 500}
+                      x={lbl.x}
+                      y={lbl.y}
+                      textAnchor={lbl.anchor}
+                      fontSize={11.5}
+                      fontWeight={500}
                       fill="var(--ink)"
                       fontFamily="var(--display)"
+                      style={{ paintOrder: 'stroke', stroke: 'var(--surface)', strokeWidth: 3.5, strokeLinejoin: 'round' }}
                     >
-                      {b.name.replace(/ \(.*\)$/, '')}
+                      {lbl.text}
                     </text>
                   )}
                 </g>
               </Link>
             );
           })}
+          {hoveredBlock && hoveredBlock.plot && (() => {
+            const cx = xs(hoveredBlock.plot.x);
+            const cy = ys(hoveredBlock.plot.y);
+            const label = hoveredBlock.name.replace(/ \(.*\)$/, '');
+            const anchor = cx > 500 ? 'end' : 'start';
+            const tx = anchor === 'end' ? cx - 12 : cx + 12;
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={8.5}
+                  fill={hoveredBlock.ki ? 'var(--paper)' : hoveredBlock.status === 'kuratiert' ? 'var(--dA)' : 'var(--dC)'}
+                  stroke="var(--ink)"
+                  strokeWidth={2.2}
+                />
+                <text
+                  x={tx}
+                  y={cy + 4}
+                  textAnchor={anchor}
+                  fontSize={13}
+                  fontWeight={700}
+                  fill="var(--ink)"
+                  fontFamily="var(--display)"
+                  style={{ paintOrder: 'stroke', stroke: 'var(--surface)', strokeWidth: 4.5, strokeLinejoin: 'round' }}
+                >
+                  {label}
+                </text>
+              </g>
+            );
+          })()}
         </svg>
 
         <div

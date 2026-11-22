@@ -1,6 +1,6 @@
 import type { CatalogBundle } from '@fmt/core';
 
-export const CACHE_KEY = 'fmt_catalog_bundle_v1';
+export const CACHE_KEY = 'fmt_catalog_bundle_v2';
 
 export interface StorageLike {
   getItem(key: string): string | null;
@@ -124,11 +124,18 @@ export async function loadCatalogWithCache(
   if (cached) {
     const revalidated = (async (): Promise<ServerMeta | null> => {
       try {
-        const metaRes = await fetcher('/api/v1/meta', { headers: { Accept: 'application/json' } });
+        const metaRes = await fetcher('/api/v1/meta', {
+          cache: 'no-cache',
+          headers: { Accept: 'application/json' }
+        });
         if (!metaRes.ok) return null;
         const meta = (await metaRes.json()) as ServerMeta;
         if (meta.versionHash && meta.versionHash !== cached.versionHash) {
-          const catRes = await fetcher('/api/v1/catalog', { headers: { Accept: 'application/json' } });
+          const catUrl = `/api/v1/catalog?v=${encodeURIComponent(meta.versionHash)}`;
+          const catRes = await fetcher(catUrl, {
+            cache: 'no-cache',
+            headers: { Accept: 'application/json' }
+          });
           if (catRes.ok) {
             const fresh = (await catRes.json()) as CatalogBundle;
             if (isValidBundle(fresh)) {
@@ -147,8 +154,8 @@ export async function loadCatalogWithCache(
   }
 
   const [catRes, metaRes] = await Promise.all([
-    fetcher('/api/v1/catalog', { headers: { Accept: 'application/json' } }),
-    fetcher('/api/v1/meta', { headers: { Accept: 'application/json' } }).catch(() => null)
+    fetcher('/api/v1/catalog', { cache: 'no-cache', headers: { Accept: 'application/json' } }),
+    fetcher('/api/v1/meta', { cache: 'no-cache', headers: { Accept: 'application/json' } }).catch(() => null)
   ]);
 
   if (!catRes.ok) {

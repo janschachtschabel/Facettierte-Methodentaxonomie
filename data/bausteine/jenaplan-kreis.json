@@ -52,7 +52,8 @@
     "gegenstand"
   ],
   "anleitung": [
-    "geleitet"
+    "geleitet",
+    "offen"
   ],
   "steuerung": {
     "organisation": "geteilt",
@@ -125,7 +126,7 @@
     }
   ],
   "plot": {
-    "x": 0.5,
+    "x": 0.32,
     "y": 2.4
   },
   "aufgabe": [

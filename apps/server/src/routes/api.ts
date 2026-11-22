@@ -63,9 +63,13 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     };
   });
 
-  app.get('/api/v1/catalog', async (req, reply) => {
+  app.get('/api/v1/catalog', async (req: FastifyRequest<{ Querystring: { v?: string } }>, reply) => {
     reply.header('ETag', store.etag);
-    reply.header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400');
+    const matchesVersion = typeof req.query?.v === 'string' && req.query.v === store.bundle.versionHash;
+    reply.header(
+      'Cache-Control',
+      matchesVersion ? 'public, max-age=31536000, immutable' : 'public, no-cache'
+    );
     if (req.headers['if-none-match'] === store.etag) {
       return reply.code(304).send();
     }

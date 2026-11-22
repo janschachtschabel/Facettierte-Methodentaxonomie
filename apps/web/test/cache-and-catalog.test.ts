@@ -51,7 +51,7 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
           status: 200
         });
       }
-      if (url === '/api/v1/catalog') {
+      if (url.startsWith('/api/v1/catalog')) {
         return new Response(JSON.stringify(BUNDLE), { status: 200 });
       }
       throw new Error('Unexpected fetch: ' + url);
@@ -61,7 +61,10 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     const res = await loadCatalogWithCache(fetcher, storage, onUpdate);
     expect(res.fromCache).toBe(true);
     await res.revalidated;
-    expect(fetcher).toHaveBeenCalledWith('/api/v1/catalog', expect.anything());
+    expect(fetcher).toHaveBeenCalledWith(
+      `/api/v1/catalog?v=${encodeURIComponent(BUNDLE.versionHash)}`,
+      expect.objectContaining({ cache: 'no-cache' })
+    );
     expect(onUpdate).toHaveBeenCalledTimes(1);
     expect(JSON.parse(storage.getItem(CACHE_KEY)!).versionHash).toBe(BUNDLE.versionHash);
   });

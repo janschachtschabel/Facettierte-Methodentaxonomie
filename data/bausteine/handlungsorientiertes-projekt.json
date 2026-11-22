@@ -51,7 +51,8 @@
     "gesellschaft"
   ],
   "anleitung": [
-    "geleitet"
+    "geleitet",
+    "offen"
   ],
   "steuerung": {
     "organisation": "geteilt",
@@ -149,7 +150,7 @@
     }
   ],
   "plot": {
-    "x": 0.58,
+    "x": 0.26,
     "y": 2.45
   },
   "aufgabe": [
