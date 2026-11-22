@@ -20,7 +20,7 @@ Dieser Leitfaden beschreibt alle Betriebsarten der **FMT Methodendatenbank** –
 ### 2.1 Hostinger Docker Manager („Compose from URL“)
 
 Die Datei `docker-compose.yml` im Projekt-Hauptordner erfüllt alle Hostinger-Anforderungen:
-- vorgebautes öffentliches Multi-Arch-Image (`linux/amd64`, `linux/arm64`) auf Docker Hub (`janschachtschabel/fmt-methodendatenbank:latest`) – alternativ GHCR (`ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest`),
+- vorgebautes öffentliches Multi-Arch-Image (`linux/amd64`, `linux/arm64`) auf GHCR (`ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest`), ohne Registry-Login direkt pullbar,
 - kein `build:` und keine Bind-Mounts auf Repo-Dateien,
 - kein `external: true`-Netz (benanntes Standardnetz `fmt-methodendatenbank-web`),
 - keine Host-Ports `80`/`443` (HTTPS übernimmt Hostingers Traefik über Labels),
@@ -75,7 +75,7 @@ docker run -d \
   -e CORS_ORIGIN=* \
   -v fmt-models:/app/models \
   --restart unless-stopped \
-  janschachtschabel/fmt-methodendatenbank:latest
+  ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest
 ```
 
 Oder lokal aus dem Quellcode bauen:
@@ -209,7 +209,7 @@ Für eine noch stärkere rein semantische Freitext-zu-Filter-Klassifikation ohne
 | `TRUST_PROXY` | `0`, `false`, `1`, `2`, `true` | `0` (`1` in `docker-compose.yml`) | Server | Vertraute Proxy-Hops für `X-Forwarded-For` & Rate-Limiting |
 | `CORS_ORIGIN` | `*` oder CSV-Liste | `*` | Server | Erlaubte CORS-Origins |
 | `DOMAIN` | Reiner Hostname (ohne `https://`) | *(leer)* | Server + Hostinger-Compose | Hostname für Traefik-Router & Let's Encrypt; wird beim Start strikt validiert |
-| `FMT_IMAGE` | Docker-Image-Tag | `janschachtschabel/fmt-methodendatenbank:latest` | `docker-compose.yml` | Image-Quelle (Docker Hub oder GHCR) |
+| `FMT_IMAGE` | Docker-Image-Tag | `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` | `docker-compose.yml` | Image-Quelle (GHCR Standard oder Docker Hub) |
 | `TRAEFIK_NETWORK` | Netzwerkname | `fmt-methodendatenbank-web` | `docker-compose.yml` | Name des benannten Docker-Standardnetzes |
 | `TRAEFIK_ENTRYPOINT` | Traefik-Entrypoint | `websecure` | `docker-compose.yml` | HTTPS-Entrypoint auf dem VPS |
 | `TRAEFIK_CERTRESOLVER` | Traefik-Resolver | `letsencrypt` | `docker-compose.yml` | ACME-Certresolver auf dem VPS |

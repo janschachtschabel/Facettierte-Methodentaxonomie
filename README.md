@@ -34,7 +34,7 @@ Die `docker-compose.yml` im Hauptordner ist direkt für Hostingers Docker Manage
    ```text
    https://github.com/janschachtschabel/Facettierte-Methodentaxonomie
    ```
-2. Anwendungsnamen übernehmen und **bereitstellen**. Der erste Deploy startet sofort ohne Variablen mit dem vorgebauten Multi-Arch-Image `janschachtschabel/fmt-methodendatenbank:latest` (Docker Hub; alternativ GHCR `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest`).
+2. Anwendungsnamen übernehmen und **bereitstellen**. Der erste Deploy startet sofort ohne Variablen mit dem vorgebauten öffentlichen Multi-Arch-Image `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` (GHCR, `linux/amd64` + `linux/arm64`).
 3. Projekt **Bearbeiten** → in `.env` den **reinen Hostnamen ohne `https://`** eintragen und erneut bereitstellen:
    ```env
    DOMAIN=methoden.deine-domain.de
@@ -48,7 +48,7 @@ docker run -d \
   --name fmt-methodendatenbank \
   -p 8080:8080 \
   --restart unless-stopped \
-  janschachtschabel/fmt-methodendatenbank:latest
+  ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest
 ```
 
 Danach direkt erreichbar unter `http://localhost:8080/`.
@@ -90,7 +90,7 @@ cd Facettierte-Methodentaxonomie
 
 npm ci
 npm run build      # baut @fmt/core, dist-data/ (290 Methoden + 24 SKOS), @fmt/web und @fmt/server
-npm test           # führt alle 44 automatisierten Tests aus
+npm test           # führt alle 46 automatisierten Tests aus
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env

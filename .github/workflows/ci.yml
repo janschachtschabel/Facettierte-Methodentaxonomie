@@ -91,3 +91,10 @@ jobs:
             exit 1
           fi
           echo "DOMAIN-GUARD-OK"
+
+      - name: Verify default docker-compose.yml image is publicly pullable (no auth)
+        run: |
+          DEFAULT_IMAGE=$(docker compose --env-file .env.example -f docker-compose.yml config --images | head -n 1)
+          echo "Checking anonymous public manifest for: $DEFAULT_IMAGE"
+          docker manifest inspect "$DEFAULT_IMAGE" > /dev/null
+          echo "PUBLIC-IMAGE-OK: $DEFAULT_IMAGE"
