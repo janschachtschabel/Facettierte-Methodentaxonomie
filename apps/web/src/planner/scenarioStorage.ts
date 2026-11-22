@@ -18,6 +18,14 @@ export interface SavedScenario {
   fach: string;
   thema: string;
   hinweise: string;
+  scenarioText?: string;
+  ansatzCodes?: string[];
+  customAnsatzText?: string;
+  gruppeSize?: string;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
+  raumzeitFilter?: string;
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;
@@ -111,7 +119,7 @@ export function exportScenarioProjectJson(scenario: Omit<SavedScenario, 'id' | '
   return JSON.stringify(
     {
       '@type': 'FmtScenarioProject',
-      schemaVersion: '1.3',
+      schemaVersion: '1.4',
       exportedAt: new Date().toISOString(),
       ...scenario
     },
@@ -120,25 +128,42 @@ export function exportScenarioProjectJson(scenario: Omit<SavedScenario, 'id' | '
   );
 }
 
+function extractEmbeddedJsonFromHtml(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith('<')) return null;
+  const projectMatch = trimmed.match(/<script[^>]*id=["']fmt-scenario-project["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (projectMatch?.[1]?.trim()) return projectMatch[1].trim();
+  const ldMatch = trimmed.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (ldMatch?.[1]?.trim()) return ldMatch[1].trim();
+  return null;
+}
+
 export function importScenarioProjectJson(
   raw: string
 ):
   | { ok: true; project: Partial<SavedScenario> & { arrangement: Arrangement } }
   | { ok: false; fehler: string } {
   try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const jsonSource = extractEmbeddedJsonFromHtml(raw) ?? raw;
+    const parsed = JSON.parse(jsonSource) as Record<string, unknown>;
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { ok: false, fehler: 'Datei enthält kein gültiges JSON-Objekt.' };
     }
-    // Accept either full FmtScenarioProject, NeutralLearningScenario, or plain FMT Arrangement JSON-LD
+    // Accept full FmtScenarioProject, API/MCP FmtScenarioPlan (maschinenlesbar), NeutralLearningScenario, HTML handout, or plain FMT Arrangement JSON-LD
+    const maschinenlesbar =
+      parsed.maschinenlesbar && typeof parsed.maschinenlesbar === 'object'
+        ? (parsed.maschinenlesbar as Record<string, unknown>)
+        : null;
     const arrCandidate =
       parsed.typ === 'Arrangement'
         ? parsed
         : parsed.arrangement && typeof parsed.arrangement === 'object'
           ? parsed.arrangement
-          : parsed.fmt_arrangement && typeof parsed.fmt_arrangement === 'object'
-            ? parsed.fmt_arrangement
-            : null;
+          : maschinenlesbar?.arrangement && typeof maschinenlesbar.arrangement === 'object'
+            ? maschinenlesbar.arrangement
+            : parsed.fmt_arrangement && typeof parsed.fmt_arrangement === 'object'
+              ? parsed.fmt_arrangement
+              : null;
     if (!arrCandidate) {
       return { ok: false, fehler: 'Kein gültiges FMT-Arrangement in der Datei gefunden.' };
     }
@@ -149,31 +174,96 @@ export function importScenarioProjectJson(
       string,
       unknown
     >;
+
+    // Normalize groups from either SavedScenario.groups OR API/MCP lerngruppenUndMatrix
+    let groups: LearnerGroup[] | undefined = Array.isArray(parsed.groups) ? (parsed.groups as LearnerGroup[]) : undefined;
+    if (!groups && Array.isArray(parsed.lerngruppenUndMatrix)) {
+      groups = (parsed.lerngruppenUndMatrix as Array<Record<string, unknown>>).map((g, i) => ({
+        id: String(g.id || `grp-${i}`),
+        label: String(g.label || `Gruppe ${i + 1}`),
+        focus: i === 0 ? 'basis' : i === 2 ? 'vertiefung' : 'regel',
+        profile: String(
+          g.profile ||
+            (g.didacticProfile && typeof g.didacticProfile === 'object'
+              ? (g.didacticProfile as Record<string, unknown>).summary || ''
+              : '') ||
+            (Array.isArray(g.matrixTop) ? g.matrixTop.join('; ') : '')
+        ),
+        active: true,
+        count: typeof g.count === 'number' ? g.count : undefined,
+        personaId: typeof g.personaId === 'string' ? g.personaId : undefined,
+        matrixValues:
+          g.selectedValues && typeof g.selectedValues === 'object'
+            ? (g.selectedValues as Record<string, string>)
+            : undefined
+      }));
+    }
+
+    // Normalize thematicRows from either thematicRows, thematischeTabelle (API/MCP), or maschinenlesbar.thematicRows
+    const thematicRows = Array.isArray(parsed.thematicRows)
+      ? (parsed.thematicRows as ThematicPhaseRow[])
+      : Array.isArray(parsed.thematischeTabelle)
+        ? (parsed.thematischeTabelle as ThematicPhaseRow[])
+        : Array.isArray(maschinenlesbar?.thematicRows)
+          ? (maschinenlesbar!.thematicRows as ThematicPhaseRow[])
+          : null;
+
+    // Normalize OER from either oerByStep OR API/MCP wloOerRessourcen
+    let oerByStep: Record<string, OerResource[]> | undefined =
+      parsed.oerByStep && typeof parsed.oerByStep === 'object' && !Array.isArray(parsed.oerByStep)
+        ? (parsed.oerByStep as Record<string, OerResource[]>)
+        : undefined;
+    if (!oerByStep && Array.isArray(parsed.wloOerRessourcen) && parsed.wloOerRessourcen.length > 0) {
+      const firstKey = thematicRows?.[0]?.key || 'step-0';
+      oerByStep = {
+        [firstKey]: (parsed.wloOerRessourcen as Array<Record<string, unknown>>).map((o, i) => {
+          const href = String(o.wwwurl || o.url || '');
+          return {
+            id: `imported-oer-${i}`,
+            title: String(o.titel || o.title || 'WLO-OER'),
+            description: '',
+            url: href,
+            wwwurl: href,
+            wloRenderUrl: typeof o.wloRenderUrl === 'string' ? o.wloRenderUrl : null,
+            license: typeof o.lizenz === 'string' ? o.lizenz : null,
+            resourceType: typeof o.medientyp === 'string' ? o.medientyp : null,
+            source: 'wlo'
+          };
+        })
+      };
+    }
+
+    const strOrUndef = (v: unknown) => (typeof v === 'string' ? v : undefined);
+
     return {
       ok: true,
       project: {
         title:
-          typeof parsed.title === 'string'
-            ? parsed.title
-            : typeof meta.title === 'string'
-              ? meta.title
-              : checked.arrangement.name,
-        fach: typeof parsed.fach === 'string' ? parsed.fach : typeof meta.subject === 'string' ? meta.subject : undefined,
-        thema: typeof parsed.thema === 'string' ? parsed.thema : typeof meta.topic === 'string' ? meta.topic : undefined,
-        hinweise: typeof parsed.hinweise === 'string' ? parsed.hinweise : undefined,
-        lernziele: typeof parsed.lernziele === 'string' ? parsed.lernziele : undefined,
-        problemstellung: typeof parsed.problemstellung === 'string' ? parsed.problemstellung : undefined,
-        didaktischerAnsatz: typeof parsed.didaktischerAnsatz === 'string' ? parsed.didaktischerAnsatz : undefined,
-        lehrkraefteInfo: typeof parsed.lehrkraefteInfo === 'string' ? parsed.lehrkraefteInfo : undefined,
-        groups: Array.isArray(parsed.groups) ? (parsed.groups as LearnerGroup[]) : undefined,
+          strOrUndef(parsed.title) ||
+          strOrUndef(maschinenlesbar?.title) ||
+          strOrUndef(meta.title) ||
+          checked.arrangement.name,
+        fach: strOrUndef(parsed.fach) || strOrUndef(maschinenlesbar?.fach) || strOrUndef(meta.subject),
+        thema: strOrUndef(parsed.thema) || strOrUndef(maschinenlesbar?.thema) || strOrUndef(meta.topic),
+        hinweise: strOrUndef(parsed.hinweise),
+        scenarioText: strOrUndef(parsed.scenarioText) || strOrUndef(maschinenlesbar?.scenarioText),
+        ansatzCodes: Array.isArray(parsed.ansatzCodes) ? parsed.ansatzCodes.map(String) : undefined,
+        customAnsatzText: strOrUndef(parsed.customAnsatzText),
+        gruppeSize: strOrUndef(parsed.gruppeSize),
+        maxTechnik: strOrUndef(parsed.maxTechnik),
+        ohneInternet: typeof parsed.ohneInternet === 'boolean' ? parsed.ohneInternet : undefined,
+        ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
+        raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
+        lernziele: strOrUndef(parsed.lernziele) || strOrUndef(maschinenlesbar?.lernziele),
+        problemstellung: strOrUndef(parsed.problemstellung),
+        didaktischerAnsatz: strOrUndef(parsed.didaktischerAnsatz) || strOrUndef(maschinenlesbar?.didaktischerAnsatz),
+        lehrkraefteInfo: strOrUndef(parsed.lehrkraefteInfo),
+        groups,
         aiDiffByStep:
           parsed.aiDiffByStep && typeof parsed.aiDiffByStep === 'object' && !Array.isArray(parsed.aiDiffByStep)
             ? (parsed.aiDiffByStep as Record<string, StepDiffSuggestion[]>)
             : undefined,
-        oerByStep:
-          parsed.oerByStep && typeof parsed.oerByStep === 'object' && !Array.isArray(parsed.oerByStep)
-            ? (parsed.oerByStep as Record<string, OerResource[]>)
-            : undefined,
+        oerByStep,
         subgroupMethods:
           parsed.subgroupMethods && typeof parsed.subgroupMethods === 'object' && !Array.isArray(parsed.subgroupMethods)
             ? (parsed.subgroupMethods as SubgroupMethodMap)
@@ -181,8 +271,8 @@ export function importScenarioProjectJson(
         generatedMaterials: Array.isArray(parsed.generatedMaterials)
           ? (parsed.generatedMaterials as GeneratedMaterialItem[])
           : undefined,
-        thematicRows: Array.isArray(parsed.thematicRows) ? (parsed.thematicRows as ThematicPhaseRow[]) : null,
-        elaboration: typeof parsed.elaboration === 'string' ? parsed.elaboration : null,
+        thematicRows,
+        elaboration: strOrUndef(parsed.elaboration) || strOrUndef(parsed.ausarbeitung) || null,
         arrangement: checked.arrangement
       }
     };

@@ -130,6 +130,42 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     });
     expect(rep.statusCode).toBe(200);
     expect(rep.json().kandidaten.some((c: { baustein: string }) => c.baustein === 'vortrag-prompts')).toBe(true);
+
+    // Parity check: /api/v1/match and /api/v1/plan on starter Doppelstunde + Grundschule 45 min
+    const mMathe = await app.inject({
+      method: 'POST',
+      url: '/api/v1/match',
+      payload: {
+        text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
+        ansatz: ['instruktion', 'uebung'],
+        gruppe: 26
+      }
+    });
+    expect(mMathe.statusCode).toBe(200);
+    const mj = mMathe.json();
+    expect(mj.modus).toBe('ablauf');
+    expect(mj.kette.id).toBe('prozedur');
+    expect(mj.pruefung.gueltig).toBe(true);
+    expect(mj.pruefung.dauerMin).toBeLessThanOrEqual(90);
+
+    const pGs = await app.inject({
+      method: 'POST',
+      url: '/api/v1/plan',
+      payload: {
+        text: 'Grundschule Klasse 3 Sachunterricht Einzelstunde 45 Minuten Konzept Wasserkreislauf verstehen, geringes Vorwissen, ohne Internet',
+        ansatz: ['kooperativ', 'spiel-simulation'],
+        gruppe: 24,
+        ohneInternet: true,
+        includeWloOer: false
+      }
+    });
+    expect(pGs.statusCode).toBe(200);
+    const pg = pGs.json();
+    expect(pg.pruefung.gueltig).toBe(true);
+    expect(pg.pruefung.dauerMin).toBeLessThanOrEqual(45);
+    expect(pg.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
+    expect(pg.maschinenlesbar.schemaVersion).toBe('1.4');
+    expect(pg.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
   });
 
   it('serves SKOS Turtle, JSON-LD, canonical w3id.org content negotiation and SPA fallback cleanly (Review Focus #4)', async () => {

@@ -138,19 +138,35 @@ const STARTER_PRESETS: StarterPreset[] = [
   },
   {
     id: 'gesch-demokratie',
-    label: 'Politik/Geschichte · Demokratie (135 min)',
+    label: 'Politik · Demokratie & DaZ (135 min)',
     fach: 'Politik',
     thema: 'Gewaltenteilung & Demokratie',
-    text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen',
+    text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen, mehrere DaZ-Kinder',
     ansatz: ['kooperativ'],
     lernziele:
       '1. Legislative, Exekutive und Judikative sicher zuordnen\n2. Kontrollmechanismen an einem aktuellen Fallbeispiel erläutern',
     problemstellung:
-      'Institutionenkunde wirkt trocken, wenn Fachbegriffe nicht aktiv abgerufen und an konkreten Fällen gesichert werden.',
+      'Institutionenkunde wirkt trocken, wenn Fachbegriffe nicht aktiv abgerufen und sprachsensibel (DaZ) an konkreten Fällen gesichert werden.',
     bildungsstufe: 'sek1',
     vorwissen: 'gering',
     zeitMin: 135,
     chain: 'faktenwissen'
+  },
+  {
+    id: 'grundschule-sach',
+    label: 'Grundschule · Wasserkreislauf (45 min)',
+    fach: 'Sachunterricht',
+    thema: 'Der Wasserkreislauf im Alltag',
+    text: 'Grundschule Klasse 3 Sachunterricht Einzelstunde 45 Minuten Konzept Wasserkreislauf verstehen, geringes Vorwissen, ohne Internet',
+    ansatz: ['kooperativ', 'spiel-simulation'],
+    lernziele:
+      '1. Verdunstung, Kondensation und Niederschlag in einfachen Worten benennen\n2. Den Kreislauf an einer Skizze gemeinsam erklären',
+    problemstellung:
+      'Kinder kennen Regen und Pfützen, verbinden sie aber selten zu einem geschlossenen Kreislauf.',
+    bildungsstufe: 'primar',
+    vorwissen: 'gering',
+    zeitMin: 45,
+    chain: 'konzeptaufbau'
   }
 ];
 
@@ -213,6 +229,8 @@ export function PlannerPage() {
   const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>(() => loadSavedScenarios());
   const [activeSavedId, setActiveSavedId] = useState<string | null>(null);
   const [showSavedDrawer, setShowSavedDrawer] = useState(false);
+  const [showJsonImport, setShowJsonImport] = useState(false);
+  const [jsonImportDraft, setJsonImportDraft] = useState('');
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -618,26 +636,38 @@ export function PlannerPage() {
     printHtmlDocument(html);
   };
 
+  const buildCurrentScenarioSnapshot = (title: string) => ({
+    title,
+    fach,
+    thema,
+    hinweise,
+    scenarioText,
+    ansatzCodes,
+    customAnsatzText,
+    gruppeSize,
+    maxTechnik,
+    ohneInternet,
+    ohneKI,
+    raumzeitFilter,
+    lernziele,
+    problemstellung,
+    didaktischerAnsatz: didaktischerAnsatzLabel,
+    lehrkraefteInfo,
+    arrangement,
+    groups,
+    aiDiffByStep,
+    oerByStep,
+    subgroupMethods,
+    generatedMaterials,
+    thematicRows,
+    elaboration
+  });
+
   const handleSaveBrowser = (asNew = false) => {
     const title = thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name;
     const { saved, list } = saveScenarioToStorage({
       id: asNew ? undefined : activeSavedId || undefined,
-      title,
-      fach,
-      thema,
-      hinweise,
-      lernziele,
-      problemstellung,
-      didaktischerAnsatz: didaktischerAnsatzLabel,
-      lehrkraefteInfo,
-      arrangement,
-      groups,
-      aiDiffByStep,
-      oerByStep,
-      subgroupMethods,
-      generatedMaterials,
-      thematicRows,
-      elaboration
+      ...buildCurrentScenarioSnapshot(title)
     });
     setActiveSavedId(saved.id);
     setSavedScenarios(list);
@@ -645,79 +675,62 @@ export function PlannerPage() {
     setTimeout(() => setSaveNotice(null), 4000);
   };
 
-  const handleLoadSaved = (sc: SavedScenario) => {
-    setArrangement(sc.arrangement);
-    setFach(sc.fach);
-    setThema(sc.thema);
-    setHinweise(sc.hinweise);
-    if (sc.lernziele !== undefined) setLernziele(sc.lernziele);
-    if (sc.problemstellung !== undefined) setProblemstellung(sc.problemstellung);
-    if (sc.lehrkraefteInfo !== undefined) setLehrkraefteInfo(sc.lehrkraefteInfo);
-    setGroups(sc.groups?.length ? sc.groups : DEFAULT_LEARNER_GROUPS);
-    setAiDiffByStep(sc.aiDiffByStep || {});
-    setOerByStep(sc.oerByStep || {});
-    setSubgroupMethods(sc.subgroupMethods || {});
-    setGeneratedMaterials(sc.generatedMaterials || []);
-    setThematicRows(sc.thematicRows || null);
-    setElaboration(sc.elaboration || null);
-    setActiveSavedId(sc.id);
+  const applyImportedScenario = (p: Partial<SavedScenario> & { arrangement: Arrangement }, label: string, savedId: string | null = null) => {
+    setArrangement(p.arrangement);
+    if (p.fach !== undefined) setFach(p.fach);
+    if (p.thema !== undefined) setThema(p.thema);
+    if (p.hinweise !== undefined) setHinweise(p.hinweise);
+    if (p.scenarioText !== undefined) setScenarioText(p.scenarioText);
+    if (p.ansatzCodes !== undefined) setAnsatzCodes(p.ansatzCodes);
+    if (p.customAnsatzText !== undefined) setCustomAnsatzText(p.customAnsatzText);
+    if (p.gruppeSize !== undefined) setGruppeSize(p.gruppeSize);
+    if (p.maxTechnik !== undefined) setMaxTechnik(p.maxTechnik);
+    if (p.ohneInternet !== undefined) setOhneInternet(p.ohneInternet);
+    if (p.ohneKI !== undefined) setOhneKI(p.ohneKI);
+    if (p.raumzeitFilter !== undefined) setRaumzeitFilter(p.raumzeitFilter);
+    if (p.lernziele !== undefined) setLernziele(p.lernziele);
+    if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
+    if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
+    if (p.groups?.length) setGroups(p.groups);
+    if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
+    if (p.oerByStep) setOerByStep(p.oerByStep);
+    if (p.subgroupMethods) setSubgroupMethods(p.subgroupMethods);
+    if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
+    if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
+    if (p.elaboration !== undefined) setElaboration(p.elaboration);
+    setMatchResult(null);
+    setActiveSavedId(savedId);
     setShowSavedDrawer(false);
-    setStep(2);
-    setSaveNotice(`Szenario „${sc.title}“ geladen.`);
-    setTimeout(() => setSaveNotice(null), 3500);
+    setShowJsonImport(false);
+    // Open directly on Step 4 if a finished thematic scenario was imported, else Step 2
+    setStep(p.elaboration || (p.thematicRows && p.thematicRows.length > 0) ? 4 : 2);
+    setSaveNotice(label);
+    setTimeout(() => setSaveNotice(null), 4000);
+  };
+
+  const handleLoadSaved = (sc: SavedScenario) => {
+    applyImportedScenario(sc, `Szenario „${sc.title}“ geladen.`, sc.id);
   };
 
   const handleDownloadProjectFile = () => {
     const title = thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name;
-    const json = exportScenarioProjectJson({
-      title,
-      fach,
-      thema,
-      hinweise,
-      lernziele,
-      problemstellung,
-      didaktischerAnsatz: didaktischerAnsatzLabel,
-      lehrkraefteInfo,
-      arrangement,
-      groups,
-      aiDiffByStep,
-      oerByStep,
-      subgroupMethods,
-      generatedMaterials,
-      thematicRows,
-      elaboration
-    });
+    const json = exportScenarioProjectJson(buildCurrentScenarioSnapshot(title));
     const slug = (thema || arrangement.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'szenario';
     downloadFile(`fmt-${slug}.fmt.json`, json, 'application/json;charset=utf-8');
   };
 
+  const handleImportRawProject = (raw: string, fallbackName: string) => {
+    const res = importScenarioProjectJson(raw);
+    if (!res.ok) {
+      setSaveNotice(`Import fehlgeschlagen: ${res.fehler}`);
+      return;
+    }
+    applyImportedScenario(res.project, `Szenario „${res.project.title || fallbackName}“ vollständig importiert.`);
+    setJsonImportDraft('');
+  };
+
   const handleUploadProjectFile = (file: File) => {
-    file.text().then((raw) => {
-      const res = importScenarioProjectJson(raw);
-      if (!res.ok) {
-        setSaveNotice(`Import fehlgeschlagen: ${res.fehler}`);
-        return;
-      }
-      const p = res.project;
-      setArrangement(p.arrangement);
-      if (p.fach) setFach(p.fach);
-      if (p.thema) setThema(p.thema);
-      if (p.hinweise !== undefined) setHinweise(p.hinweise);
-      if (p.lernziele !== undefined) setLernziele(p.lernziele);
-      if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
-      if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
-      if (p.groups?.length) setGroups(p.groups);
-      if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
-      if (p.oerByStep) setOerByStep(p.oerByStep);
-      if (p.subgroupMethods) setSubgroupMethods(p.subgroupMethods);
-      if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
-      if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
-      if (p.elaboration !== undefined) setElaboration(p.elaboration);
-      setActiveSavedId(null);
-      setStep(2);
-      setSaveNotice(`Projektdatei „${p.title || file.name}“ geladen.`);
-      setTimeout(() => setSaveNotice(null), 4000);
-    });
+    file.text().then((raw) => handleImportRawProject(raw, file.name));
   };
 
   const nErr = validation.meldungen.filter((m) => m.schwere === 'Fehler').length;
@@ -764,16 +777,24 @@ export function PlannerPage() {
           <button type="button" className="btn btn-sm" onClick={() => setShowSavedDrawer((s) => !s)}>
             📂 Gespeichert ({savedScenarios.length})
           </button>
-          <button type="button" className="btn btn-sm" onClick={handleDownloadProjectFile} title="Als .fmt.json-Projektdatei sichern">
-            ⬇ Datei
+          <button type="button" className="btn btn-sm" onClick={handleDownloadProjectFile} title="Vollständiges Szenario maschinenlesbar als .fmt.json exportieren (wieder importierbar)">
+            ⬇ Export (.fmt.json)
           </button>
-          <button type="button" className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Gespeicherte Datei öffnen">
-            ⬆ Öffnen
+          <button type="button" className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Gespeicherte .fmt.json, API/MCP-Plan-JSON, JSON-LD oder HTML-Handout importieren">
+            ⬆ Import
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-ghost"
+            onClick={() => setShowJsonImport((v) => !v)}
+            title="Maschinenlesbares Szenario-JSON (z. B. aus MCP, API oder .fmt.json) direkt einfügen"
+          >
+            📋 JSON einfügen
           </button>
           <input
             ref={fileInputRef}
             type="file"
-            accept=".json,.jsonld"
+            accept=".json,.jsonld,.html,.htm"
             style={{ display: 'none' }}
             onChange={(e) => {
               const f = e.target.files?.[0];
@@ -793,6 +814,39 @@ export function PlannerPage() {
           style={{ padding: '8px 14px', marginTop: 10, borderLeft: '4px solid var(--dC)', fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14 }}
         >
           ✓ {saveNotice}
+        </div>
+      )}
+
+      {showJsonImport && (
+        <div className="card no-print" style={{ padding: 14, marginTop: 10, borderLeft: '4px solid var(--dA)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <strong style={{ fontFamily: 'var(--display)' }}>
+              📋 Maschinenlesbares Szenario einfügen (.fmt.json, API-/MCP-Antwort, JSON-LD oder HTML-Handout)
+            </strong>
+            <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowJsonImport(false)}>
+              Schließen
+            </button>
+          </div>
+          <textarea
+            rows={5}
+            style={{ width: '100%', fontFamily: 'var(--mono)', fontSize: 12.5 }}
+            value={jsonImportDraft}
+            onChange={(e) => setJsonImportDraft(e.target.value)}
+            placeholder='{"@type":"FmtScenarioProject", ...} oder Ausgabe aus POST /api/v1/plan bzw. MCP build_scenario_plan hier einfügen…'
+          />
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              disabled={!jsonImportDraft.trim()}
+              onClick={() => handleImportRawProject(jsonImportDraft, 'Eingefügtes JSON')}
+            >
+              ✓ Szenario laden &amp; anzeigen
+            </button>
+            <button type="button" className="btn btn-sm" onClick={() => fileInputRef.current?.click()}>
+              ⬆ Stattdessen Datei wählen (.fmt.json / .html)
+            </button>
+          </div>
         </div>
       )}
 

@@ -410,4 +410,126 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(onePage).toContain('<math');
     expect(onePage).toContain('Kurzablauf');
   });
+
+  it('round-trips complete machine-readable scenarios (.fmt.json, API/MCP FmtScenarioPlan JSON, and embedded HTML handouts)', () => {
+    const arr = createChainPreset('prozedur', BUNDLE);
+    const val = VALIDATOR.validate(arr, REGISTRY);
+
+    // 1. Full .fmt.json project round-trip (preserving scenarioText, ansatzCodes, matrixValues, thematicRows, materials & elaboration)
+    const exported = exportScenarioProjectJson({
+      title: 'Mathe: Bruchrechnen',
+      fach: 'Mathematik',
+      thema: 'Bruchrechnen',
+      scenarioText: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten',
+      ansatzCodes: ['instruktion', 'uebung'],
+      hinweise: 'Alltagsbeispiele Pizza/Schokolade',
+      lernziele: 'Brüche gleichnamig machen',
+      problemstellung: 'Nenner werden addiert',
+      didaktischerAnsatz: 'Direkte Instruktion & Übung',
+      lehrkraefteInfo: '1 Lehrkraft + Schulbegleitung',
+      arrangement: arr,
+      groups: DEFAULT_LEARNER_GROUPS,
+      aiDiffByStep: {},
+      oerByStep: {
+        'step-0': [
+          {
+            id: 'oer-1',
+            title: 'Bruchrechnen interaktiv',
+            description: 'OER',
+            url: 'https://example.org/brueche',
+            wwwurl: 'https://example.org/brueche',
+            license: 'CC_BY',
+            source: 'wlo'
+          }
+        ]
+      },
+      generatedMaterials: [
+        {
+          id: 'mat-1',
+          stepKey: 'step-0',
+          title: 'Arbeitsblatt Brüche',
+          materialType: 'arbeitsblatt',
+          content: '## Aufgabe 1',
+          createdAt: '2026-11-22T22:00:00.000Z'
+        }
+      ],
+      thematicRows: [
+        {
+          key: 'step-0',
+          orderLabel: '1',
+          phaseLabel: 'Einstieg',
+          durationMin: 10,
+          methodId: 'tps',
+          methodName: 'Think-Pair-Share',
+          methodProcedure: 'Konkretes Vorgehen zu Brüchen',
+          teacherAction: 'Stellt Pizza-Impuls',
+          learnerAction: 'Notieren Vorstellungen',
+          groupAdaptations: { basis: 'Bruchstreifen nutzen' },
+          materialsAndOer: 'Arbeitsblatt Brüche'
+        }
+      ],
+      elaboration: '## Ausformulierter Entwurf\nMit $\\frac{1}{2} + \\frac{1}{4} = \\frac{3}{4}$.'
+    });
+
+    const reimported = importScenarioProjectJson(exported);
+    expect(reimported.ok).toBe(true);
+    if (reimported.ok) {
+      expect(reimported.project.fach).toBe('Mathematik');
+      expect(reimported.project.scenarioText).toContain('Bruchrechnen');
+      expect(reimported.project.ansatzCodes).toEqual(['instruktion', 'uebung']);
+      expect(reimported.project.thematicRows?.[0].methodProcedure).toContain('Brüchen');
+      expect(reimported.project.generatedMaterials?.length).toBe(1);
+      expect(reimported.project.elaboration).toContain('\\frac{1}{2}');
+    }
+
+    // 2. Direct import of API (/api/v1/plan) or MCP (build_scenario_plan) response JSON!
+    const apiPlanJson = JSON.stringify({
+      fach: 'Biologie',
+      thema: 'Ökosystem Wald',
+      lerngruppenUndMatrix: [
+        { id: 'basis', label: 'DaZ & Basis', personaId: 'languageAndCulture', matrixTop: ['Visuelle Medien (+8)'] }
+      ],
+      wloOerRessourcen: [{ titel: 'Wald-Video', wwwurl: 'https://example.org/wald', lizenz: 'CC_BY' }],
+      thematischeTabelle: [
+        {
+          key: 'step-0',
+          orderLabel: '1',
+          phaseLabel: 'Einstieg',
+          durationMin: 15,
+          methodId: 'placemat',
+          methodName: 'Placemat-Methode',
+          methodProcedure: 'Waldbegriffe sammeln',
+          teacherAction: 'Legt Plakat aus',
+          learnerAction: 'Notieren im Randfeld',
+          groupAdaptations: { basis: 'Bildkarten nutzen' },
+          materialsAndOer: 'Wald-Video'
+        }
+      ],
+      maschinenlesbar: {
+        '@type': 'FmtScenarioPlan',
+        arrangement: arr
+      }
+    });
+    const importedPlan = importScenarioProjectJson(apiPlanJson);
+    expect(importedPlan.ok).toBe(true);
+    if (importedPlan.ok) {
+      expect(importedPlan.project.fach).toBe('Biologie');
+      expect(importedPlan.project.thema).toBe('Ökosystem Wald');
+      expect(importedPlan.project.thematicRows?.[0].methodId).toBe('placemat');
+      expect(importedPlan.project.groups?.[0].label).toBe('DaZ & Basis');
+      expect(importedPlan.project.oerByStep?.['step-0']?.[0].wwwurl).toBe('https://example.org/wald');
+    }
+
+    // 3. Re-import directly from an exported HTML handout (embedded JSON-LD / project script!)
+    const html = exportArrangementHtmlHandout(arr, BLOCKS, val, {
+      fach: 'Mathematik',
+      thema: 'Bruchrechnen',
+      kiAusarbeitung: '## Stundenverlauf'
+    });
+    const importedHtml = importScenarioProjectJson(html);
+    expect(importedHtml.ok).toBe(true);
+    if (importedHtml.ok) {
+      expect(importedHtml.project.arrangement.typ).toBe('Arrangement');
+    }
+  });
 });

@@ -397,11 +397,16 @@ export interface ScenarioPlanArgs {
   lernziele?: string;
   didaktischerAnsatz?: string;
   ansatz?: string | string[];
+  anleitung?: string | string[];
+  engagement?: string | string[];
+  interaktion?: string | string[];
+  reichweite?: string | string[];
   zeitMin?: number;
   gruppe?: number;
   bildungsstufe?: string;
   vorwissen?: string;
   maxTechnik?: string;
+  maxVorbereitung?: number;
   ohneInternet?: boolean;
   ohneKI?: boolean;
   includeWloOer?: boolean;
@@ -432,11 +437,16 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     text: args.text,
     modus: 'ablauf',
     ansatz: args.ansatz,
+    anleitung: args.anleitung,
+    engagement: args.engagement,
+    interaktion: args.interaktion,
+    reichweite: args.reichweite,
     zeitMin: args.zeitMin,
     gruppe: args.gruppe,
     bildungsstufe: args.bildungsstufe,
     vorwissen: args.vorwissen,
     maxTechnik: args.maxTechnik,
+    maxVorbereitung: args.maxVorbereitung,
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI
   };
@@ -562,8 +572,16 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     llmBriefing: briefing.llmBriefing,
     maschinenlesbar: {
       '@type': 'FmtScenarioPlan',
+      schemaVersion: '1.4',
       license: store.bundle.license,
-      arrangement: matched.arrangement
+      title: fach ? `${fach}: ${thema}` : thema,
+      fach: fach || null,
+      thema: thema || null,
+      lernziele: args.lernziele || null,
+      didaktischerAnsatz: args.didaktischerAnsatz || null,
+      scenarioText: args.text,
+      arrangement: matched.arrangement,
+      thematicRows: briefing.fallbackTable
     },
     leitplanken: FMT_GUARDRAILS
   };

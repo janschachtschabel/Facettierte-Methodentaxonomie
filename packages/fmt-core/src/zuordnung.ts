@@ -80,6 +80,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   };
   const bestGrade = (b: Baustein): EvidenceGrade | null =>
     GRADE_ORDER.find((g) => (b.evidenz || []).some((e) => e.grad === g)) || null;
+  const hasNegativeEvidence = (b: Baustein): boolean =>
+    (b.evidenz || []).some((e) =>
+      /bleibt\s+empirisch\s+deutlich\s+hinter|schneide(?:t|n)\b[^.]{0,60}\bschwächer\s+ab|g\s*≈\s*[−-]\s*0\./i.test(
+        e.befund || ''
+      )
+    );
   const states = (codes?: string[]) => (codes || []).map((z) => label('lernzustand', z));
   const usesAi = (b: Baustein) => Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
 
@@ -420,8 +426,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return w;
   }
 
-  function rankOf(b: Baustein, a: MatchRequest, wantedFunctions: string[], extra = 0): number[] {
+  function rankOf(b: Baustein, a: MatchRequest, wantedFunctions: string[], extra = 0, maxStepMin?: number): number[] {
     const g = bestGrade(b);
+    const contrastPenalty = hasNegativeEvidence(b) ? 1 : 0;
+    const budgetPenalty = maxStepMin != null && b.dauerMin > maxStepMin ? 1 : 0;
     const wantedAnsatz = list(a.ansatz);
     const ansatzPenalty =
       wantedAnsatz.length === 0 ? 0 : wantedAnsatz.some((code) => (b.ansatz || []).includes(code)) ? 0 : 1;
@@ -440,6 +448,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return [
       extra,
       passung(b, a).length ? 1 : 0,
+      contrastPenalty,
+      budgetPenalty,
       ansatzPenalty,
       softFilterPenalty,
       g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length,
@@ -538,13 +548,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     maxRang: number,
     a: MatchRequest,
     used: Set<string> | null,
-    target?: string
+    target?: string,
+    maxStepMin?: number
   ): Baustein[] {
     return data.bausteine
       .filter((b) => (rang.get(b.reichweite) ?? 0) <= maxRang && b.lernfunktion.some((f) => functions.includes(f)) && !rahmen(b, a))
       .map((b) => {
         const reaches = !target || closure(b.nachbedingung || []).has(target);
-        return { b, rank: rankOf(b, a, functions, (reaches ? 0 : 2) + (used && used.has(b.kennung) ? 1 : 0)) };
+        return {
+          b,
+          rank: rankOf(b, a, functions, (reaches ? 0 : 2) + (used && used.has(b.kennung) ? 1 : 0), maxStepMin)
+        };
       })
       .sort(byRank)
       .map((x) => x.b);
@@ -611,14 +625,27 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       return n;
     };
 
-    kette.schritte.forEach((step) => {
-      const cands = candidates(step.funktion, 3, a, used, step.ziel);
+    const totalBudget = given(a.zeitMin) ? Number(a.zeitMin) : null;
+    const wantsRecurrence = kette.schritte.some((s) => s.ziel === 'wissen-konsolidiert');
+    const usedDurationSoFar = () =>
+      teile.reduce((sum, node) => sum + (node.typ === 'Einsatz' ? node.dauerMin || 0 : 0), 0);
+
+    kette.schritte.forEach((step, idx) => {
+      const remainingSteps = Math.max(1, kette.schritte.length - idx);
+      const reserveRec = wantsRecurrence && totalBudget != null && totalBudget >= 75 ? 15 : 0;
+      const stepCap =
+        totalBudget != null
+          ? Math.max(5, Math.floor((totalBudget - reserveRec - usedDurationSoFar()) / remainingSteps))
+          : undefined;
+      const cands = candidates(step.funktion, 3, a, used, step.ziel, stepCap);
       let chosen: EinsatzNode | null = null;
       for (const b of cands) {
         for (const onlyMandatory of [true, false]) {
           if (!onlyMandatory && !(b.slot || []).some((s) => !s.pflicht)) continue;
+          const initialDur =
+            stepCap != null ? Math.max(b.dauerMin, Math.min(midDuration(b), stepCap)) : midDuration(b);
           const n = fill(
-            { typ: 'Einsatz', baustein: b.kennung, dauerMin: midDuration(b), kettenschritt: step.id },
+            { typ: 'Einsatz', baustein: b.kennung, dauerMin: initialDur, kettenschritt: step.id },
             b,
             onlyMandatory
           );
@@ -659,10 +686,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       });
     });
 
-    if (kette.schritte.some((s) => s.ziel === 'wissen-konsolidiert')) {
+    if (wantsRecurrence) {
       const rec = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert')[0];
       if (rec) {
-        teile.push(Object.assign({ typ: 'Wiederkehr' as const, baustein: rec.kennung, dauerMin: rec.dauerMin }, RECURRENCE));
+        const recTotal = rec.dauerMin * RECURRENCE.anzahl;
+        // Include spaced recurrence unless a very short single-lesson budget would be broken by 3x sessions
+        if (totalBudget == null || usedDurationSoFar() + recTotal <= totalBudget) {
+          teile.push(Object.assign({ typ: 'Wiederkehr' as const, baustein: rec.kennung, dauerMin: rec.dauerMin }, RECURRENCE));
+        }
       }
     }
 

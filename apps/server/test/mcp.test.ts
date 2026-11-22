@@ -144,14 +144,33 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
         text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
         fach: 'Mathematik',
         thema: 'Bruchrechnen',
+        ansatz: ['instruktion', 'uebung'],
         includeWloOer: false
       }
     });
     const planJson = JSON.parse((planRes.content as Array<{ text: string }>)[0].text);
     expect(planJson.pruefung.gueltig).toBe(true);
+    expect(planJson.pruefung.dauerMin).toBeLessThanOrEqual(90);
     expect(planJson.thematischeTabelle.length).toBeGreaterThan(0);
     expect(planJson.llmBriefing.systemPrompt).toContain('FMT');
     expect(planJson.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
+    expect(planJson.maschinenlesbar.schemaVersion).toBe('1.4');
+    expect(planJson.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
+
+    // Verify match_scenario parity on Doppelstunde starter text
+    const matheMatchRes = await client.callTool({
+      name: 'match_scenario',
+      arguments: {
+        text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
+        ansatz: ['instruktion', 'uebung'],
+        gruppe: 26
+      }
+    });
+    const matheMatch = JSON.parse((matheMatchRes.content as Array<{ text: string }>)[0].text);
+    expect(matheMatch.modus).toBe('ablauf');
+    expect(matheMatch.kette.id).toBe('prozedur');
+    expect(matheMatch.pruefung.gueltig).toBe(true);
+    expect(matheMatch.pruefung.dauerMin).toBeLessThanOrEqual(90);
 
     const elabRes = await client.callTool({
       name: 'elaborate_scenario',

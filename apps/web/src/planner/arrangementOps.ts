@@ -915,6 +915,23 @@ export function exportArrangementHtmlHandout(
   const jsonLdScript = options.machineReadableJson
     ? `<script type="application/ld+json">${options.machineReadableJson.replace(/<\/script/gi, '<\\/script')}</script>`
     : '';
+  const embeddedProjectJson = JSON.stringify({
+    '@type': 'FmtScenarioProject',
+    schemaVersion: '1.4',
+    title,
+    fach: options.fach || '',
+    thema: options.thema || '',
+    lernziele: options.lernziele || '',
+    problemstellung: options.problemstellung || '',
+    didaktischerAnsatz: options.didaktischerAnsatz || '',
+    lehrkraefteInfo: options.lehrkraefteInfo || '',
+    arrangement: arr,
+    groups: options.groups || [],
+    thematicRows: options.thematicRows || null,
+    generatedMaterials: options.generatedMaterials || [],
+    elaboration: options.kiAusarbeitung || null
+  }).replace(/<\/script/gi, '<\\/script');
+  const projectScript = `<script id="fmt-scenario-project" type="application/json">${embeddedProjectJson}</script>`;
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -922,6 +939,7 @@ export function exportArrangementHtmlHandout(
   <meta charset="utf-8" />
   <title>${escHtml(title)}</title>
   ${jsonLdScript}
+  ${projectScript}
   <style>
     @page { size: A4; margin: 16mm 14mm; }
     * { box-sizing: border-box; }
@@ -1078,58 +1096,58 @@ export function exportArrangementOnePageSheet(
   const genMats = options.generatedMaterials || [];
   const rows: CompactRow[] = thematicRows
     ? thematicRows.map((tr) => {
-        const scRow = scenarioRows.find((r) => r.key === tr.key);
-        const diffLines = activeGroups
-          .map((g) => {
-            const val = tr.groupAdaptations[g.id];
-            if (!val) return '';
-            const shortLabel = g.label.split(/[\s&(]/)[0] || g.label;
-            return `**${shortLabel}:** ${val}`;
-          })
-          .filter(Boolean);
-        const oerNames = (scRow?.oerResources || []).map((o) => `🌐 ${o.title}`);
-        const matNames = genMats.filter((m) => m.stepKey === tr.key).map((m) => `📝 ${m.title}`);
-        const matSummary = [...matNames, ...oerNames].length
-          ? [...matNames, ...oerNames].join(' · ')
-          : tr.materialsAndOer;
-        return {
-          orderLabel: tr.orderLabel,
-          durationMin: tr.durationMin,
-          phaseLabel: tr.phaseLabel,
-          methodName: tr.methodName,
-          procedure: tr.methodProcedure || tr.methodName,
-          teacher: tr.teacherAction,
-          learner: tr.learnerAction,
-          diffLines,
-          material: matSummary || '–'
-        };
-      })
+      const scRow = scenarioRows.find((r) => r.key === tr.key);
+      const diffLines = activeGroups
+        .map((g) => {
+          const val = tr.groupAdaptations[g.id];
+          if (!val) return '';
+          const shortLabel = g.label.split(/[\s&(]/)[0] || g.label;
+          return `**${shortLabel}:** ${val}`;
+        })
+        .filter(Boolean);
+      const oerNames = (scRow?.oerResources || []).map((o) => `🌐 ${o.title}`);
+      const matNames = genMats.filter((m) => m.stepKey === tr.key).map((m) => `📝 ${m.title}`);
+      const matSummary = [...matNames, ...oerNames].length
+        ? [...matNames, ...oerNames].join(' · ')
+        : tr.materialsAndOer;
+      return {
+        orderLabel: tr.orderLabel,
+        durationMin: tr.durationMin,
+        phaseLabel: tr.phaseLabel,
+        methodName: tr.methodName,
+        procedure: tr.methodProcedure || tr.methodName,
+        teacher: tr.teacherAction,
+        learner: tr.learnerAction,
+        diffLines,
+        material: matSummary || '–'
+      };
+    })
     : scenarioRows.length
       ? scenarioRows.map((r) => {
-          const matNames = r.key ? genMats.filter((m) => m.stepKey === r.key).map((m) => `📝 ${m.title}`) : [];
-          return {
-            orderLabel: r.orderLabel,
-            durationMin: r.durationMin,
-            phaseLabel: r.phaseLabel,
-            methodName: r.methodName,
-            procedure: `${r.methodName} (${r.socialForm})`,
-            teacher: r.teacherRole,
-            learner: r.learnerRole,
-            diffLines: r.differentiation.map((d) => `**${d.groupLabel.split(/[\s&(]/)[0]}:** ${d.measure}`),
-            material: [...matNames, ...r.oerResources.map((o) => `🌐 ${o.title}`)].join(' · ') || '–'
-          };
-        })
+        const matNames = r.key ? genMats.filter((m) => m.stepKey === r.key).map((m) => `📝 ${m.title}`) : [];
+        return {
+          orderLabel: r.orderLabel,
+          durationMin: r.durationMin,
+          phaseLabel: r.phaseLabel,
+          methodName: r.methodName,
+          procedure: `${r.methodName} (${r.socialForm})`,
+          teacher: r.teacherRole,
+          learner: r.learnerRole,
+          diffLines: r.differentiation.map((d) => `**${d.groupLabel.split(/[\s&(]/)[0]}:** ${d.measure}`),
+          material: [...matNames, ...r.oerResources.map((o) => `🌐 ${o.title}`)].join(' · ') || '–'
+        };
+      })
       : collectUsedBlocks(arr, blocksById).map((b, idx) => ({
-          orderLabel: String(idx + 1),
-          durationMin: b.dauerMin ?? 15,
-          phaseLabel: `Phase ${idx + 1}`,
-          methodName: b.name,
-          procedure: b.durchfuehrung?.slice(0, 2).join(' → ') || b.kurzbeschreibung || '',
-          teacher: b.kurzbeschreibung || '',
-          learner: '',
-          diffLines: [],
-          material: b.material?.slice(0, 2).join(', ') || '–'
-        }));
+        orderLabel: String(idx + 1),
+        durationMin: b.dauerMin ?? 15,
+        phaseLabel: `Phase ${idx + 1}`,
+        methodName: b.name,
+        procedure: b.durchfuehrung?.slice(0, 2).join(' → ') || b.kurzbeschreibung || '',
+        teacher: b.kurzbeschreibung || '',
+        learner: '',
+        diffLines: [],
+        material: b.material?.slice(0, 2).join(', ') || '–'
+      }));
 
   const n = rows.length;
   // A4 Portrait gives 277mm usable height: generous, crisp typography with clean wrapping and zero wasted bottom half
@@ -1201,8 +1219,8 @@ export function exportArrangementOnePageSheet(
         .join('');
       const diffHtml = r.diffLines.length
         ? r.diffLines
-            .map((dl) => `<div class="diff-line">${renderInlineMarkdownHtml(clipCompact(dl, diffCap), 'mathml')}</div>`)
-            .join('')
+          .map((dl) => `<div class="diff-line">${renderInlineMarkdownHtml(clipCompact(dl, diffCap), 'mathml')}</div>`)
+          .join('')
         : '–';
       return `<tr>
         <td class="col-num"><strong>${escHtml(r.orderLabel)}</strong><div class="dur">${r.durationMin}′</div></td>

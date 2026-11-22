@@ -306,49 +306,91 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     expect(traits.matrixScore?.topRecommendations.length).toBeGreaterThan(0);
   });
 
-  it('matches all 5 planner starter scenarios deterministically as valid Abläufe (not single phases)', () => {
-    const starterCases: Array<{ id: string; text: string; ansatz: string[]; expectedChain: string }> = [
+  it('matches all planner starter scenarios deterministically as valid, budget-fitting Abläufe without negative-evidence contrast methods', () => {
+    const NEGATIVE_CONTRAST_IDS = new Set([
+      'unangeleitete-gruppenarbeit',
+      'tafelabschrift-abschreiben',
+      'vorlesung-klassisch'
+    ]);
+
+    const starterCases: Array<{
+      id: string;
+      text: string;
+      ansatz: string[];
+      expectedChain: string;
+      maxBudgetMin: number;
+      ohneInternet?: boolean;
+    }> = [
       {
         id: 'mathe-bruch',
         text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
         ansatz: ['instruktion', 'uebung'],
-        expectedChain: 'prozedur'
+        expectedChain: 'prozedur',
+        maxBudgetMin: 90
       },
       {
         id: 'physik-dichte',
         text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
         ansatz: ['forschend'],
-        expectedChain: 'konzeptaufbau'
+        expectedChain: 'konzeptaufbau',
+        maxBudgetMin: 270
       },
       {
         id: 'bio-oekosystem',
         text: 'Biologie Klasse 8 forschend 5E Ökosystem Wald, 135 Minuten, mittleres Vorwissen',
         ansatz: ['forschend', 'kooperativ'],
-        expectedChain: 'fuenf-e'
+        expectedChain: 'fuenf-e',
+        maxBudgetMin: 135
       },
       {
         id: 'deutsch-arg',
         text: 'Deutsch Sekundarstufe I Doppelstunde 90 Minuten Argumentation und Problemlösen, mittleres Vorwissen',
         ansatz: ['diskurs', 'kooperativ'],
-        expectedChain: 'problemloesen'
+        expectedChain: 'problemloesen',
+        maxBudgetMin: 90
       },
       {
         id: 'gesch-demokratie',
-        text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen',
+        text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen, mehrere DaZ-Kinder',
         ansatz: ['kooperativ'],
-        expectedChain: 'faktenwissen'
+        expectedChain: 'faktenwissen',
+        maxBudgetMin: 135
+      },
+      {
+        id: 'grundschule-sach',
+        text: 'Grundschule Klasse 3 Sachunterricht Einzelstunde 45 Minuten Konzept Wasserkreislauf verstehen, geringes Vorwissen, ohne Internet',
+        ansatz: ['kooperativ', 'spiel-simulation'],
+        expectedChain: 'konzeptaufbau',
+        maxBudgetMin: 45,
+        ohneInternet: true
       }
     ];
 
     for (const c of starterCases) {
-      const res = M.zuordnen({ text: c.text, ansatz: c.ansatz, gruppe: 26 });
+      const res = M.zuordnen({ text: c.text, ansatz: c.ansatz, gruppe: 26, ohneInternet: c.ohneInternet });
       expect(res.modus, `${c.id} should match as ablauf`).toBe('ablauf');
       if (res.modus === 'ablauf') {
         expect(res.kette?.id, `${c.id} chain`).toBe(c.expectedChain);
         expect(res.arrangement, `${c.id} arrangement`).toBeTruthy();
         expect(res.pruefung?.gueltig, `${c.id} valid`).toBe(true);
         expect(res.schritte?.length, `${c.id} steps`).toBeGreaterThanOrEqual(4);
+        // Must NEVER auto-pick empirically weak contrast methods!
+        for (const s of res.schritte || []) {
+          expect(NEGATIVE_CONTRAST_IDS.has(s.baustein), `${c.id} must not pick negative contrast ${s.baustein}`).toBe(false);
+        }
+        // Must fit cleanly inside the requested lesson time budget!
+        expect(res.pruefung!.dauerMin, `${c.id} duration (${res.pruefung!.dauerMin} min) <= ${c.maxBudgetMin} min`).toBeLessThanOrEqual(
+          c.maxBudgetMin
+        );
       }
+    }
+
+    // Explicit single-phase pattern test (modus: 'phase')
+    const phaseCase = M.zuordnen({ text: 'Kurze Sicherung am Stundenende, 10 Minuten, Klasse 7, ohne Geräte' });
+    expect(phaseCase.modus).toBe('phase');
+    if (phaseCase.modus === 'phase') {
+      expect(phaseCase.vorschlaege.length).toBeGreaterThan(3);
+      expect(NEGATIVE_CONTRAST_IDS.has(phaseCase.vorschlaege[0].baustein)).toBe(false);
     }
   });
 });
