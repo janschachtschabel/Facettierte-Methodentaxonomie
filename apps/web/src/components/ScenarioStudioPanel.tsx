@@ -5,6 +5,8 @@ import { SimpleMarkdown } from './SimpleMarkdown.js';
 import {
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
+  exportArrangementWordDoc,
+  exportMarkdownToPrintableHtml,
   importArrangementJson
 } from '../planner/arrangementOps.js';
 import {
@@ -17,6 +19,7 @@ import {
   type StepDiffSuggestion
 } from '../planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../planner/lmsExport.js';
+import { printHtmlDocument } from '../planner/scenarioStorage.js';
 
 export type StudioTab = 'export' | 'diff' | 'oer' | 'material';
 
@@ -43,6 +46,10 @@ interface Props {
   onAiDiffChange: (next: Record<string, StepDiffSuggestion[]>) => void;
   oerByStep: Record<string, OerResource[]>;
   onOerByStepChange: (next: Record<string, OerResource[]>) => void;
+  elaboration: string | null;
+  onElaborationChange: (next: string | null) => void;
+  onPrintPdf: () => void;
+  getTimelineSvg: () => string | null;
   byokHeaders: () => Record<string, string>;
   llmAvailable: boolean;
 }
@@ -70,12 +77,15 @@ export function ScenarioStudioPanel({
   onAiDiffChange,
   oerByStep,
   onOerByStepChange,
+  elaboration,
+  onElaborationChange,
+  onPrintPdf,
+  getTimelineSvg,
   byokHeaders,
   llmAvailable
 }: Props) {
   // Full AI elaboration state
   const [busyElab, setBusyElab] = useState(false);
-  const [elaboration, setElaboration] = useState<string | null>(null);
   const [elabError, setElabError] = useState<string | null>(null);
   const [importText, setImportText] = useState('');
   const [importError, setImportError] = useState<string | null>(null);
@@ -157,7 +167,7 @@ export function ScenarioStudioPanel({
         setElabError(json.fehler || 'Ausgestaltung fehlgeschlagen.');
         return;
       }
-      setElaboration(String(json.ausarbeitung));
+      onElaborationChange(String(json.ausarbeitung));
     } catch (e) {
       setElabError(e instanceof Error ? e.message : 'Netzwerkfehler');
     } finally {
@@ -370,6 +380,33 @@ export function ScenarioStudioPanel({
           <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
             <button
               type="button"
+              className="btn btn-sm btn-primary"
+              title="Saubere A4-Druckansicht mit Zeitband, Verlaufstabelle, Differenzierung & Quellen – direkt als PDF speicherbar"
+              onClick={onPrintPdf}
+            >
+              🖨 Als PDF drucken / speichern
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              title="Öffnet direkt bearbeitbar in Microsoft Word & LibreOffice Writer"
+              onClick={() =>
+                downloadFile(
+                  'fmt-unterrichtsentwurf.doc',
+                  exportArrangementWordDoc(arrangement, blocksById, validation, {
+                    fach,
+                    thema,
+                    kiAusarbeitung: elaboration,
+                    scenarioRows
+                  }),
+                  'application/msword;charset=utf-8'
+                )
+              }
+            >
+              ⬇ Word / LibreOffice (.doc)
+            </button>
+            <button
+              type="button"
               className="btn btn-sm"
               onClick={() =>
                 downloadFile(
@@ -378,6 +415,7 @@ export function ScenarioStudioPanel({
                     fach,
                     thema,
                     kiAusarbeitung: elaboration,
+                    timelineSvg: getTimelineSvg(),
                     scenarioRows
                   }),
                   'text/html;charset=utf-8'
@@ -863,13 +901,37 @@ export function ScenarioStudioPanel({
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 15 }}>{generatedMaterial.title}</strong>
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  onClick={() => downloadFile('fmt-material.md', generatedMaterial.content, 'text/markdown;charset=utf-8')}
-                >
-                  ⬇ Als Markdown speichern
-                </button>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-primary"
+                    onClick={() =>
+                      printHtmlDocument(exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content))
+                    }
+                  >
+                    🖨 Als PDF drucken
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={() =>
+                      downloadFile(
+                        'fmt-material.html',
+                        exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content),
+                        'text/html;charset=utf-8'
+                      )
+                    }
+                  >
+                    ⬇ Handout (.html)
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={() => downloadFile('fmt-material.md', generatedMaterial.content, 'text/markdown;charset=utf-8')}
+                  >
+                    ⬇ Markdown (.md)
+                  </button>
+                </div>
               </div>
               <SimpleMarkdown content={generatedMaterial.content} />
             </div>

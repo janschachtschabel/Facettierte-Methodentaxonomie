@@ -9,6 +9,8 @@ import {
   createChainPreset,
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
+  exportArrangementWordDoc,
+  exportMarkdownToPrintableHtml,
   fitContainerDurationToSlots,
   importArrangementJson,
   moveStep,
@@ -29,6 +31,13 @@ import {
   detectMaterialTypeForBlock
 } from '../src/planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../src/planner/lmsExport.js';
+import {
+  deleteSavedScenario,
+  exportScenarioProjectJson,
+  importScenarioProjectJson,
+  loadSavedScenarios,
+  saveScenarioToStorage
+} from '../src/planner/scenarioStorage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
@@ -243,13 +252,65 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(moodleXml).toContain('https://wirlernenonline.de/dichte-sim');
     expect(moodleXml).toContain('Vorhersage');
 
-    // HTML handout renders IMS-LD Verlaufsplan table cleanly
+    // HTML handout renders IMS-LD Verlaufsplan table cleanly with A4 print CSS & embedded SVG
     const html = exportArrangementHtmlHandout(arr, BLOCKS, val, {
       fach: 'Physik',
       thema: 'Dichte',
+      timelineSvg: '<svg viewBox="0 0 100 20"><rect width="100" height="20"/></svg>',
       scenarioRows: rows
     });
+    expect(html).toContain('@page { size: A4;');
+    expect(html).toContain('Visuelles Zeitband');
     expect(html).toContain('<table><thead><tr><th>#</th>');
     expect(html).toContain('https://wirlernenonline.de/dichte-sim');
+
+    // Word .doc & printable material HTML exports
+    const wordDoc = exportArrangementWordDoc(arr, BLOCKS, val, { fach: 'Physik', thema: 'Dichte', scenarioRows: rows });
+    expect(wordDoc).toContain('urn:schemas-microsoft-com:office:word');
+    expect(wordDoc).toContain('<table><thead><tr><th>#</th>');
+
+    const matHtml = exportMarkdownToPrintableHtml('Arbeitsblatt Dichte', '# Arbeitsblatt\n1. Aufgabe A\n2. Aufgabe B');
+    expect(matHtml).toContain('@page { size: A4;');
+    expect(matHtml).toContain('<ol>');
+
+    // Browser scenario persistence & .fmt.json project round-trip
+    const mem = new Map<string, string>();
+    const storage = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v) };
+    const { saved, list } = saveScenarioToStorage(
+      {
+        title: 'Physik: Dichte',
+        fach: 'Physik',
+        thema: 'Dichte',
+        hinweise: 'Heterogene Klasse 7',
+        arrangement: arr,
+        groups: DEFAULT_LEARNER_GROUPS,
+        aiDiffByStep: {},
+        oerByStep: {},
+        elaboration: '## Entwurf\nTest'
+      },
+      storage
+    );
+    expect(list.length).toBe(1);
+    expect(loadSavedScenarios(storage)[0].id).toBe(saved.id);
+
+    const projectJson = exportScenarioProjectJson({
+      title: 'Physik: Dichte',
+      fach: 'Physik',
+      thema: 'Dichte',
+      hinweise: 'Test',
+      arrangement: arr,
+      groups: DEFAULT_LEARNER_GROUPS,
+      aiDiffByStep: {},
+      oerByStep: {},
+      elaboration: '## Entwurf'
+    });
+    const imported = importScenarioProjectJson(projectJson);
+    expect(imported.ok).toBe(true);
+    if (imported.ok) {
+      expect(imported.project.fach).toBe('Physik');
+      expect(imported.project.elaboration).toBe('## Entwurf');
+    }
+    expect(importScenarioProjectJson('{broken').ok).toBe(false);
+    expect(deleteSavedScenario(saved.id, storage).length).toBe(0);
   });
 });

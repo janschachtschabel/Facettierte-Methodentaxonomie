@@ -9,7 +9,8 @@ import { ByokModal } from '../components/ByokModal.js';
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
-  createChainPreset
+  createChainPreset,
+  exportArrangementHtmlHandout
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
 import {
@@ -19,6 +20,15 @@ import {
   type OerResource,
   type StepDiffSuggestion
 } from '../planner/scenarioModel.js';
+import {
+  deleteSavedScenario,
+  exportScenarioProjectJson,
+  importScenarioProjectJson,
+  loadSavedScenarios,
+  printHtmlDocument,
+  saveScenarioToStorage,
+  type SavedScenario
+} from '../planner/scenarioStorage.js';
 
 export function PlannerPage() {
   const {
@@ -55,10 +65,17 @@ export function PlannerPage() {
   const [groups, setGroups] = useState<LearnerGroup[]>(DEFAULT_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
+  const [elaboration, setElaboration] = useState<string | null>(null);
+
+  const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>(() => loadSavedScenarios());
+  const [activeSavedId, setActiveSavedId] = useState<string | null>(null);
+  const [showSavedDrawer, setShowSavedDrawer] = useState(false);
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
 
   const [byokOpen, setByokOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const studioRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!bundle) return;
@@ -172,8 +189,8 @@ export function PlannerPage() {
     URL.revokeObjectURL(url);
   };
 
-  const exportSvg = () => {
-    if (!svgRef.current) return;
+  const resolveTimelineSvgString = (): string | null => {
+    if (!svgRef.current) return null;
     const cs = getComputedStyle(document.documentElement);
     const vars = ['--dA', '--dB', '--dC', '--dD', '--paper', '--surface', '--ink', '--ink-2', '--rule', '--on-domain', '--display'];
     let xml = new XMLSerializer().serializeToString(svgRef.current);
@@ -181,7 +198,98 @@ export function PlannerPage() {
       const resolved = cs.getPropertyValue(v).trim();
       if (resolved) xml = xml.split(`var(${v})`).join(resolved);
     }
+    return xml;
+  };
+
+  const exportSvg = () => {
+    const xml = resolveTimelineSvgString();
+    if (!xml) return;
     downloadFile('fmt-szenario-zeitband.svg', xml, 'image/svg+xml;charset=utf-8');
+  };
+
+  const handlePrintPdf = () => {
+    const html = exportArrangementHtmlHandout(arrangement, blocksById, validation, {
+      fach,
+      thema,
+      kiAusarbeitung: elaboration,
+      timelineSvg: resolveTimelineSvgString(),
+      scenarioRows
+    });
+    printHtmlDocument(html);
+  };
+
+  const handleSaveBrowser = (asNew = false) => {
+    const title = thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name;
+    const { saved, list } = saveScenarioToStorage({
+      id: asNew ? undefined : activeSavedId || undefined,
+      title,
+      fach,
+      thema,
+      hinweise,
+      arrangement,
+      groups,
+      aiDiffByStep,
+      oerByStep,
+      elaboration
+    });
+    setActiveSavedId(saved.id);
+    setSavedScenarios(list);
+    setSaveNotice(`Szenario „${saved.title}“ im Browser gespeichert (${list.length} insgesamt).`);
+    setTimeout(() => setSaveNotice(null), 4000);
+  };
+
+  const handleLoadSaved = (sc: SavedScenario) => {
+    setArrangement(sc.arrangement);
+    setFach(sc.fach);
+    setThema(sc.thema);
+    setHinweise(sc.hinweise);
+    setGroups(sc.groups?.length ? sc.groups : DEFAULT_LEARNER_GROUPS);
+    setAiDiffByStep(sc.aiDiffByStep || {});
+    setOerByStep(sc.oerByStep || {});
+    setElaboration(sc.elaboration || null);
+    setActiveSavedId(sc.id);
+    setShowSavedDrawer(false);
+    setSaveNotice(`Szenario „${sc.title}“ geladen.`);
+    setTimeout(() => setSaveNotice(null), 3500);
+  };
+
+  const handleDownloadProjectFile = () => {
+    const title = thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name;
+    const json = exportScenarioProjectJson({
+      title,
+      fach,
+      thema,
+      hinweise,
+      arrangement,
+      groups,
+      aiDiffByStep,
+      oerByStep,
+      elaboration
+    });
+    const slug = (thema || arrangement.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'szenario';
+    downloadFile(`fmt-${slug}.fmt.json`, json, 'application/json;charset=utf-8');
+  };
+
+  const handleUploadProjectFile = (file: File) => {
+    file.text().then((raw) => {
+      const res = importScenarioProjectJson(raw);
+      if (!res.ok) {
+        setSaveNotice(`Import fehlgeschlagen: ${res.fehler}`);
+        return;
+      }
+      const p = res.project;
+      setArrangement(p.arrangement);
+      if (p.fach) setFach(p.fach);
+      if (p.thema) setThema(p.thema);
+      if (p.hinweise !== undefined) setHinweise(p.hinweise);
+      if (p.groups?.length) setGroups(p.groups);
+      if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
+      if (p.oerByStep) setOerByStep(p.oerByStep);
+      if (p.elaboration !== undefined) setElaboration(p.elaboration);
+      setActiveSavedId(null);
+      setSaveNotice(`Projektdatei „${p.title || file.name}“ geladen.`);
+      setTimeout(() => setSaveNotice(null), 4000);
+    });
   };
 
   const nErr = validation.meldungen.filter((m) => m.schwere === 'Fehler').length;
@@ -199,16 +307,109 @@ export function PlannerPage() {
           </p>
         </div>
         <div className="no-print" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-sm btn-primary" onClick={handlePrintPdf} title="Öffnet saubere A4-Druckansicht zum Speichern als PDF (inkl. Zeitband, Verlaufstabelle & Quellen)">
+            🖨 Als PDF drucken / speichern
+          </button>
+          <button type="button" className="btn btn-sm" onClick={() => handleSaveBrowser(false)} title="Speichert das komplette Szenario inkl. Differenzierung, OER & KI-Entwurf im Browser">
+            💾 Speichern
+          </button>
+          <button type="button" className="btn btn-sm" onClick={() => setShowSavedDrawer((s) => !s)}>
+            📂 Meine Szenarien ({savedScenarios.length})
+          </button>
+          <button type="button" className="btn btn-sm" onClick={handleDownloadProjectFile} title="Komplettes Szenario als .fmt.json-Projektdatei lokal sichern">
+            ⬇ Datei (.fmt.json)
+          </button>
+          <button type="button" className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Gespeicherte .fmt.json- oder JSON-LD-Datei wieder öffnen">
+            ⬆ Öffnen
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.jsonld"
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleUploadProjectFile(f);
+              e.target.value = '';
+            }}
+          />
           {meta?.llmAllowByok !== false && (
             <button type="button" className="btn btn-sm" onClick={() => setByokOpen(true)}>
               🔑 {byok.apiKey ? `BYOK aktiv (${byok.provider})` : 'Eigener KI-Key (BYOK)'}
             </button>
           )}
-          <button type="button" className="btn btn-sm" onClick={() => window.print()}>
-            🖨 Drucken / PDF
-          </button>
         </div>
       </div>
+
+      {saveNotice && (
+        <div
+          className="card no-print"
+          style={{ padding: '8px 14px', marginTop: 10, borderLeft: '4px solid var(--dC)', fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14 }}
+        >
+          ✓ {saveNotice}
+        </div>
+      )}
+
+      {showSavedDrawer && (
+        <section className="card no-print" style={{ padding: 16, marginTop: 12, borderLeft: '4px solid var(--dA)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+            <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
+              📂 Gespeicherte Szenarien im Browser ({savedScenarios.length})
+            </strong>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button type="button" className="btn btn-sm btn-primary" onClick={() => handleSaveBrowser(true)}>
+                + Aktuelles als neuen Eintrag speichern
+              </button>
+              <button type="button" className="btn btn-sm" onClick={() => setShowSavedDrawer(false)}>
+                Schließen
+              </button>
+            </div>
+          </div>
+          {savedScenarios.length === 0 ? (
+            <p className="muted" style={{ margin: 0, fontSize: 14 }}>
+              Noch keine Szenarien gespeichert. Klicke oben auf <strong>„💾 Speichern“</strong> oder sichere eine Projektdatei (<code>.fmt.json</code>).
+            </p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
+              {savedScenarios.map((sc) => (
+                <div
+                  key={sc.id}
+                  style={{
+                    padding: 10,
+                    borderRadius: 6,
+                    background: 'var(--paper)',
+                    border: `1px solid ${activeSavedId === sc.id ? 'var(--dA)' : 'var(--grid)'}`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4
+                  }}
+                >
+                  <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>{sc.title}</strong>
+                  <div className="muted" style={{ fontSize: 12 }}>
+                    {sc.arrangement.reichweite.toUpperCase()} · {new Date(sc.savedAt).toLocaleString('de-DE')}
+                    {sc.elaboration ? ' · inkl. KI-Entwurf' : ''}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                    <button type="button" className="btn btn-sm btn-primary" onClick={() => handleLoadSaved(sc)}>
+                      Laden
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => {
+                        setSavedScenarios(deleteSavedScenario(sc.id));
+                        if (activeSavedId === sc.id) setActiveSavedId(null);
+                      }}
+                    >
+                      Löschen
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* 1. Scenario Input & Hybrid AI Assistant */}
       <section className="card no-print" style={{ padding: 18, marginTop: 18 }}>
@@ -588,6 +789,10 @@ export function PlannerPage() {
             onAiDiffChange={setAiDiffByStep}
             oerByStep={oerByStep}
             onOerByStepChange={setOerByStep}
+            elaboration={elaboration}
+            onElaborationChange={setElaboration}
+            onPrintPdf={handlePrintPdf}
+            getTimelineSvg={resolveTimelineSvgString}
             byokHeaders={byokHeaders}
             llmAvailable={llmAvailable}
           />

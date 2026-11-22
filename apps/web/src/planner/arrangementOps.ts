@@ -516,6 +516,7 @@ export interface ExportOptions {
   fach?: string;
   thema?: string;
   kiAusarbeitung?: string | null;
+  timelineSvg?: string | null;
   scenarioRows?: Array<{
     orderLabel: string;
     phaseLabel: string;
@@ -702,13 +703,7 @@ export function exportArrangementMarkdown(
 const escHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-export function exportArrangementHtmlHandout(
-  arr: Arrangement,
-  blocksById: Map<string, Baustein>,
-  validation: ValidationResult,
-  options: ExportOptions = {}
-): string {
-  const md = exportArrangementMarkdown(arr, blocksById, validation, options);
+function markdownToCleanHtml(md: string): string {
   const fmtInline = (s: string) =>
     escHtml(s)
       .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
@@ -718,9 +713,24 @@ export function exportArrangementHtmlHandout(
 
   const rawLines = md.split('\n');
   const htmlParts: string[] = [];
+  let inUl = false;
+  let inOl = false;
+
+  const closeLists = () => {
+    if (inUl) {
+      htmlParts.push('</ul>');
+      inUl = false;
+    }
+    if (inOl) {
+      htmlParts.push('</ol>');
+      inOl = false;
+    }
+  };
+
   for (let i = 0; i < rawLines.length; i++) {
     const line = rawLines[i];
     if (line.startsWith('|') && i + 1 < rawLines.length && /^\|[\s:-]+\|/.test(rawLines[i + 1])) {
+      closeLists();
       const headers = line.slice(1, -1).split('|').map((c) => c.trim());
       i += 2;
       const bodyRows: string[][] = [];
@@ -737,43 +747,149 @@ export function exportArrangementHtmlHandout(
       continue;
     }
     if (line.startsWith('### ')) {
-      htmlParts.push(`<h3>${escHtml(line.slice(4))}</h3>`);
+      closeLists();
+      htmlParts.push(`<h3>${fmtInline(line.slice(4))}</h3>`);
     } else if (line.startsWith('## ')) {
-      htmlParts.push(`<h2>${escHtml(line.slice(3))}</h2>`);
+      closeLists();
+      htmlParts.push(`<h2>${fmtInline(line.slice(3))}</h2>`);
     } else if (line.startsWith('# ')) {
-      htmlParts.push(`<h1>${escHtml(line.slice(2))}</h1>`);
+      closeLists();
+      htmlParts.push(`<h1>${fmtInline(line.slice(2))}</h1>`);
     } else if (line === '---') {
+      closeLists();
       htmlParts.push('<hr />');
     } else if (!line.trim()) {
-      continue;
+      closeLists();
     } else if (/^\s*[-*]\s+/.test(line)) {
+      if (inOl) {
+        htmlParts.push('</ol>');
+        inOl = false;
+      }
+      if (!inUl) {
+        htmlParts.push('<ul>');
+        inUl = true;
+      }
       htmlParts.push(`<li>${fmtInline(line.replace(/^\s*[-*]\s+/, ''))}</li>`);
     } else if (/^\s*\d+\.\s+/.test(line)) {
+      if (inUl) {
+        htmlParts.push('</ul>');
+        inUl = false;
+      }
+      if (!inOl) {
+        htmlParts.push('<ol>');
+        inOl = true;
+      }
       htmlParts.push(`<li>${fmtInline(line.replace(/^\s*\d+\.\s+/, ''))}</li>`);
     } else {
+      closeLists();
       htmlParts.push(`<p>${fmtInline(line)}</p>`);
     }
   }
-  const htmlBody = htmlParts.join('\n');
+  closeLists();
+  return htmlParts.join('\n');
+}
+
+export function exportArrangementHtmlHandout(
+  arr: Arrangement,
+  blocksById: Map<string, Baustein>,
+  validation: ValidationResult,
+  options: ExportOptions = {}
+): string {
+  const md = exportArrangementMarkdown(arr, blocksById, validation, options);
+  const htmlBody = markdownToCleanHtml(md);
+  const title = options.thema ? `${arr.name} – ${options.thema}` : arr.name;
+  const svgSection = options.timelineSvg
+    ? `<section class="svg-box"><h2>Visuelles Zeitband &amp; Schachtelung</h2>${options.timelineSvg}</section>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>${escHtml(options.thema ? `${arr.name} – ${options.thema}` : arr.name)}</title>
+  <title>${escHtml(title)}</title>
   <style>
-    body { font-family: Georgia, serif; color: #14212E; background: #fff; max-width: 960px; margin: 32px auto; padding: 0 24px; line-height: 1.55; }
-    h1, h2, h3 { font-family: "Barlow Semi Condensed", Arial, sans-serif; color: #14212E; margin-top: 1.4em; }
-    h1 { border-bottom: 2px solid #2C5D8A; padding-bottom: 8px; }
-    h2 { border-bottom: 1px solid #C6D0C9; padding-bottom: 4px; color: #2C5D8A; }
-    table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9em; }
-    th, td { border: 1px solid #C6D0C9; padding: 7px 9px; text-align: left; vertical-align: top; }
-    th { background: #EEF2EE; font-family: "Barlow Semi Condensed", Arial, sans-serif; }
+    @page { size: A4; margin: 16mm 14mm; }
+    * { box-sizing: border-box; }
+    body { font-family: Georgia, "Times New Roman", serif; color: #14212E; background: #fff; max-width: 960px; margin: 24px auto; padding: 0 20px; line-height: 1.52; font-size: 10.5pt; }
+    h1, h2, h3 { font-family: "Barlow Semi Condensed", "Segoe UI", Arial, sans-serif; color: #14212E; margin-top: 1.25em; margin-bottom: 0.45em; break-after: avoid; page-break-after: avoid; }
+    h1 { font-size: 19pt; border-bottom: 2.5px solid #2C5D8A; padding-bottom: 6px; margin-top: 0; }
+    h2 { font-size: 13.5pt; border-bottom: 1px solid #C6D0C9; padding-bottom: 3px; color: #2C5D8A; }
+    h3 { font-size: 11.5pt; color: #1F3E2E; }
+    .svg-box { margin: 14px 0 18px; padding: 12px; border: 1px solid #C6D0C9; border-radius: 6px; background: #FAFBFA; break-inside: avoid; page-break-inside: avoid; }
+    .svg-box h2 { margin-top: 0; }
+    .svg-box svg { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 9pt; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    th, td { border: 1px solid #C6D0C9; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #EEF2EE; font-family: "Barlow Semi Condensed", Arial, sans-serif; font-weight: 700; }
+    ul, ol { margin: 6px 0 10px; padding-left: 20px; }
+    li { margin: 3px 0; }
+    a { color: #2C5D8A; text-decoration: underline; }
+    code { background: #EEF2EE; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+    hr { border: none; border-top: 1px solid #C6D0C9; margin: 18px 0; }
+    @media print {
+      body { margin: 0; padding: 0; max-width: none; }
+      a { color: #14212E; }
+    }
+  </style>
+</head>
+<body>
+${svgSection}
+${htmlBody}
+</body>
+</html>`;
+}
+
+export function exportArrangementWordDoc(
+  arr: Arrangement,
+  blocksById: Map<string, Baustein>,
+  validation: ValidationResult,
+  options: ExportOptions = {}
+): string {
+  // Word & LibreOffice Writer open HTML wrapped with Word XML namespaces cleanly as editable .doc
+  const md = exportArrangementMarkdown(arr, blocksById, validation, options);
+  const htmlBody = markdownToCleanHtml(md);
+  const title = options.thema ? `${arr.name} – ${options.thema}` : arr.name;
+  return `\uFEFF<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40" lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>${escHtml(title)}</title>
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; color: #14212E; font-size: 11pt; line-height: 1.45; }
+    h1 { color: #2C5D8A; font-size: 18pt; border-bottom: 1.5pt solid #2C5D8A; padding-bottom: 4pt; }
+    h2 { color: #2C5D8A; font-size: 13pt; margin-top: 14pt; }
+    h3 { color: #1F3E2E; font-size: 11.5pt; margin-top: 10pt; }
+    table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 9.5pt; }
+    th, td { border: 1pt solid #C6D0C9; padding: 5pt; vertical-align: top; }
+    th { background: #EEF2EE; font-weight: bold; }
+  </style>
+</head>
+<body>
+${htmlBody}
+</body>
+</html>`;
+}
+
+export function exportMarkdownToPrintableHtml(title: string, markdown: string): string {
+  const htmlBody = markdownToCleanHtml(markdown);
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>${escHtml(title)}</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    body { font-family: Georgia, "Times New Roman", serif; color: #14212E; background: #fff; max-width: 820px; margin: 20px auto; padding: 0 20px; line-height: 1.55; font-size: 11pt; }
+    h1, h2, h3 { font-family: "Barlow Semi Condensed", Arial, sans-serif; color: #14212E; break-after: avoid; }
+    h1 { font-size: 18pt; border-bottom: 2px solid #2C5D8A; padding-bottom: 6px; margin-top: 0; }
+    h2 { font-size: 13pt; color: #2C5D8A; margin-top: 1.2em; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+    th, td { border: 1px solid #C6D0C9; padding: 6px 8px; text-align: left; }
+    th { background: #EEF2EE; }
+    ul, ol { margin: 6px 0 10px; padding-left: 22px; }
     li { margin: 4px 0; }
-    a { color: #2C5D8A; }
-    code { background: #EEF2EE; padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
-    hr { border: none; border-top: 1px solid #C6D0C9; margin: 24px 0; }
-    @media print { body { margin: 0; max-width: none; } }
+    @media print { body { margin: 0; padding: 0; max-width: none; } }
   </style>
 </head>
 <body>
