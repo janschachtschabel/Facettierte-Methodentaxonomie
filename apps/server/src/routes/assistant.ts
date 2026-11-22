@@ -109,7 +109,16 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     const systemPrompt =
       'Du übersetzt deutsche Unterrichtsszenarien strikt in ein JSON-Objekt gemäß folgendem FMT-Anfrage-Schema. ' +
       'Antworte AUSSCHLIESSLICH mit einem gültigen JSON-Objekt ohne Erklärtext. ' +
-      'Verwende NUR erlaubte Enum-Codes aus dem Schema. Lass Felder weg, die nicht aus dem Text hervorgehen. Setze das Feld "text" NICHT.\n\n' +
+      'Verwende NUR erlaubte Enum-Codes aus dem Schema. Setze das Feld "text" NICHT.\n' +
+      'Wichtige Zuordnungsregeln:\n' +
+      '- Wenn eine ganze Stunde, Doppelstunde (90 min), Einzelstunde (45 min) oder Unterrichtsreihe beschrieben wird, setze "modus": "ablauf" und wähle den passendsten "zieltyp":\n' +
+      '  • "prozedur" für Rechen-/Übungs-/Verfahrenskompetenzen (z. B. Bruchrechnen, Gleichungen, Rechtschreibung, handwerkliche/sportliche Abläufe)\n' +
+      '  • "konzeptaufbau" für Begriffs- und Systemverständnis (z. B. Fotosynthese, Demokratie, Wirtschaftskreislauf)\n' +
+      '  • "problemloesen" für offene Anwendungs-/Transferprobleme\n' +
+      '  • "faktenwissen" für Vokabeln, Begriffslisten, Merkwissen\n' +
+      '  • "fuenf-e" für forschend-entdeckende naturwissenschaftliche Einheiten\n' +
+      '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose, Warm-up), setze "modus": "phase" und die passende "lernfunktion".\n' +
+      '- Leite naheliegende Werte aus dem schulischen Kontext ab (z. B. Bruchrechnen -> bildungsstufe "sek1", Einzelstunde -> zeitMin 45, Doppelstunde -> zeitMin 90), lass aber wirklich unbekannte Rahmenbedingungen weg.\n\n' +
       `Schema:\n${store.anfrageSchemaJson}`;
 
     try {
@@ -132,7 +141,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       if (!validateAnfrage(parsed) || Object.keys(parsed).length === 0) {
         return fallback('LLM-Ausgabe entsprach nicht dem FMT-Schema – Regel-Zuordnung als Fallback genutzt.');
       }
-      const anfrage = parsed as MatchRequest;
+      const ruleParsed = store.matcher.lesen(text).kriterien;
+      const merged: Record<string, unknown> = { ...ruleParsed, ...parsed };
+      if (!merged.modus && (merged.zieltyp || merged.zielart) && !merged.lernfunktion && !merged.liefert) {
+        merged.modus = 'ablauf';
+      }
+      const anfrage = (validateAnfrage(merged) ? merged : parsed) as MatchRequest;
       const ergebnis = store.matcher.zuordnen(anfrage);
       if (!target.isByok) translateCache.set(cacheKey, { anfrage });
       return reply.send({

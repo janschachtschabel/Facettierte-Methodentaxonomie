@@ -313,6 +313,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       extra,
       passung(b, a).length ? 1 : 0,
       g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length,
+      b.status === 'kuratiert' ? 0 : 1,
       wantedFunctions.length ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1 : 0,
       b.vorbereitungMin
     ];

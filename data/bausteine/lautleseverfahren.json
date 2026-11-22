@@ -38,7 +38,6 @@
     "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/18"
   ],
   "lernfunktion": [
-    "erwerb",
     "konsolidierung",
     "anwendung"
   ],
@@ -96,7 +95,9 @@
     "geblockt",
     "verteilt"
   ],
-  "vorbedingung": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
   "nachbedingung": [
     "prozedur-gelaeufig",
     "wissen-konsolidiert"
