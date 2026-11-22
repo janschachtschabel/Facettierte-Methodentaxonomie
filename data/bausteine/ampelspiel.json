@@ -1,0 +1,137 @@
+{
+  "status": "entwurf",
+  "kennung": "ampelspiel",
+  "name": "Ampelspiel (Positionierung mit Rot–Gelb–Grün)",
+  "kurzbeschreibung": "Schnelle Urteils- und Positionierungsmethode, bei der Lernende zu Thesen oder Fallbeispielen gleichzeitig mit roten, gelben oder grünen Karten Stellung beziehen und ihre Einschätzung anschließend begründen.",
+  "alternativname": [
+    "Ampel-Positionierung",
+    "Ampelkarten-Diskussion"
+  ],
+  "piktogramm": "feedback",
+  "ansatz": [
+    "diagnose-feedback",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch Lernen: Ampelspiel",
+      "url": "https://deutsch-lernen.zum.de/wiki/Ampelspiel",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "diagnose",
+    "verstehen"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "fehlvorstellungen-sichtbar",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "gleichzeitiges-zeigen",
+      "name": "Gleichzeitiges Hochhalten der Farbkarte verhindert Mitläufereffekte"
+    },
+    {
+      "kennung": "begruendungsrunde",
+      "name": "Gezieltes Aufrufen unterschiedlicher Farben zur Argumentation"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Bei offenen Plenumsfragen melden sich oft nur wenige Wortführer, während das Meinungs- oder Verständnisbild der Klasse unsichtbar bleibt.",
+  "durchfuehrung": [
+    "Bedeutung der drei Farben klären (Grün = Zustimmung/richtig, Gelb = unsicher/teils, Rot = Ablehnung/falsch)",
+    "Eine zugespitzte These oder fachliche Aussage vorlesen und 10 Sekunden stille Bedenkzeit geben",
+    "Auf ein gemeinsames Zeichen halten alle gleichzeitig ihre Karte hoch",
+    "Je eine Person aus Rot, Gelb und Grün begründet ihre Entscheidung; danach optional erneute Abstimmung"
+  ],
+  "material": [
+    "Rot-, Gelb- und Grün-Karten (oder farbige Becher) je Person",
+    "3–6 vorbereitete Thesen oder Fachfragen"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Einsatz für Richtig/Falsch-Diagnoseaussagen",
+    "Einsatz für ethische oder politische Urteilsbildung"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15-1"
+  ],
+  "hinweis": "Macht Kontroversen und Fehlvorstellungen in Sekunden für alle sichtbar – ganz ohne digitale Abstimmungstools.",
+  "qualitaetsrisiko": [
+    "Ausweichen auf Gelb bei jeder Aussage, wenn Begründungen nicht eingefordert werden"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "All-Student-Response-Systeme (gleichzeitige Rückmeldung aller Lernenden) stärken formative Diagnose und Beteiligung",
+      "quelle": "Wiliam 2011 (Embedded Formative Assessment)",
+      "geltung": "Schule, fächerübergreifend"
+    }
+  ],
+  "plot": {
+    "x": 0.15,
+    "y": 1.65
+  }
+}

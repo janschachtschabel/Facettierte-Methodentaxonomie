@@ -1,0 +1,149 @@
+{
+  "status": "entwurf",
+  "kennung": "schuelercoaching",
+  "name": "Schüler- & Lerncoaching",
+  "kurzbeschreibung": "Kurze, ressourcen- und lösungsorientierte Einzel- oder Kleingruppengespräche zur Begleitung von Lernzielen, Lernstrategien, Zeitplanung und Motivation über einen Lernabschnitt hinweg.",
+  "alternativname": [
+    "Lerncoaching",
+    "Lernberatung",
+    "Individuelles Coaching-Gespräch"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Lehrerfortbildung BW: Schülercoaching",
+      "url": "https://lehrerfortbildung-bw.de/st_if/bs/if/unterrichtsgestaltung/unterricht/schuelercoaching/",
+      "quelltyp": "oer",
+      "lizenz": "CC BY"
+    },
+    {
+      "titel": "Wikipedia: Lerncoaching",
+      "url": "https://de.wikipedia.org/wiki/Lerncoaching",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "makro",
+    "diff-prozess",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "selbstkontrolle",
+    "selbstregulationsebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb2"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ressourcenfokus",
+      "name": "Stärken und bereits gelungene Strategien sichtbar machen statt Defizitliste"
+    },
+    {
+      "kennung": "zielvereinbarung",
+      "name": "Konkretes, überprüfbares Nahziel bis zum nächsten Gespräch vereinbaren"
+    },
+    {
+      "kennung": "notenfreiheit",
+      "name": "Klare Trennung von Beratungs- und Bewertungsrolle"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 30,
+  "problem": "Allgemeines Unterrichtsfeedback erreicht individuelle Lernblockaden, Organisationsprobleme oder Motivationshürden oft nicht ausreichend.",
+  "durchfuehrung": [
+    "Gesprächsrahmen und Vertraulichkeit klären (5–10 Minuten pro Person während einer offenen Arbeitsphase)",
+    "Aktuellen Lernstand und Gelingendes gemeinsam reflektieren",
+    "Eine konkrete Hürde eingrenzen und gemeinsam 1–2 realistische nächste Schritte entwickeln",
+    "Vereinbarung kurz schriftlich festhalten und im Folgetermin bilanzieren"
+  ],
+  "material": [
+    "Kompakter Coaching-Gesprächsleitfaden / Zielkarte"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 4,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Peer-Lerncoaching mit Leitfragenkarten",
+    "5-Minuten-Kurzcheck während Wochenplan- oder Lernbürophasen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1"
+  ],
+  "hinweis": "Lässt sich ideal als begleitender Strang parallel zu offenen Übungs- oder Projektphasen organisieren.",
+  "qualitaetsrisiko": [
+    "Abgleiten in Ratschläge oder Benotungsgespräche statt echter Hilfe zur Selbststeuerung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Individuelle Lernberatung und zielorientiertes Coaching unterstützen Selbstwirksamkeit und Selbstregulation",
+      "quelle": "Hardeland 2015; Dignath & Büttner 2008",
+      "geltung": "Sekundarstufe, Berufsbildung und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.38,
+    "y": 2.4
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "status": "entwurf",
+  "kennung": "quellenkritik-faktencheck",
+  "name": "Quellenkritik & Faktencheck (Lateral Reading)",
+  "kurzbeschreibung": "Systematische Prüfung digitaler und gedruckter Informationsquellen durch Urheber-Check, Gegenrecherche in unabhängigen Quellen (Lateral Reading) und kriteriengeleitete Glaubwürdigkeitsbewertung.",
+  "alternativname": [
+    "Lateral Reading",
+    "Website-Check",
+    "Fake-News-Prüfung"
+  ],
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Herr Kalt: Qualität von Websites und Wikipedia-Artikeln beurteilen",
+      "url": "https://herr-kalt.de/arbeitsmethoden/qualitaet-websites",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Quellenkritik",
+      "url": "https://de.wikipedia.org/wiki/Quellenkritik",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wineburg & McGrew (2019): Lateral Reading and the Nature of Expertise",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "authentisch",
+    "schlecht-strukturiert",
+    "afb3"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "urheber-check",
+      "name": "Wer steckt hinter der Quelle (Impressum, Interessen, Finanzierung)?"
+    },
+    {
+      "kennung": "lateral-reading",
+      "name": "Seite verlassen und in neuen Tabs unabhängige Einschätzungen recherchieren"
+    },
+    {
+      "kennung": "belegpruefung",
+      "name": "Primärquelle, Datum und Datenbasis nachprüfen statt nur Gestaltung bewerten"
+    }
+  ],
+  "dauerMin": 25,
+  "dauerMax": 60,
+  "problem": "Lernende beurteilen Online-Quellen oft nach professionellem Aussehen statt nach Urheberschaft, Beleglage und unabhängigen Gegenquellen.",
+  "durchfuehrung": [
+    "Zwei bis drei kontrastierende Quellen (seriös, tendenziös, unklar) zum Unterrichtsthema vorgeben",
+    "Prinzip des Lateral Reading kurz modellieren: Seite verlassen, Urheber und Behauptung extern gegenchecken",
+    "In Tandems die Quellen mithilfe einer Faktencheck-Checkliste prüfen und begründet einstufen",
+    "Urteile im Plenum vergleichen und zentrale Prüfregeln für künftige Recherchen festhalten"
+  ],
+  "material": [
+    "Endgeräte mit Internetzugang (oder ausgedruckte Quellen-Dossiers)",
+    "Faktencheck-Leitfaden"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "Analoges Quellen-Dossier mit vorgefertigten Hintergrund-Steckbriefen",
+    "Prüfung KI-generierter Behauptungen und Quellenangaben"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-3"
+  ],
+  "hinweis": "Empirisch deutlich wirksamer als statische Merklisten, die nur auf der Webseite selbst bleiben.",
+  "qualitaetsrisiko": [
+    "Verharren auf der zu prüfenden Seite statt externer Gegenrecherche"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Explizites Training in Lateral Reading verbessert die Beurteilung digitaler Informationsquellen signifikant",
+      "quelle": "Wineburg et al. 2022 (Journal of Educational Psychology); Brodsky et al. 2021",
+      "geltung": "Sekundarstufe und Hochschule, digitaler Medienkontext"
+    }
+  ],
+  "plot": {
+    "x": 0.32,
+    "y": 2.35
+  }
+}

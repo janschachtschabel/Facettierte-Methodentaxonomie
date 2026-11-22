@@ -1,0 +1,153 @@
+{
+  "status": "entwurf",
+  "kennung": "stop-motion-erklaerfilm",
+  "name": "Stop-Motion- & Legetrick-Erklärfilm (Schülerproduktion)",
+  "kurzbeschreibung": "Produktionsorientierte Methode, bei der Kleingruppen ein fachliches Konzept oder einen Prozess mittels gezeichneter Legeelemente, Storyboard und Einzelbildaufnahmen als eigenen 60- bis 120-sekündigen Erklärfilm umsetzen.",
+  "alternativname": [
+    "Legetrickfilm",
+    "Erklärvideo selbst erstellen",
+    "Stop-Motion-Video"
+  ],
+  "piktogramm": "digital",
+  "ansatz": [
+    "kreativ",
+    "digital-ki",
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Stop-Motion",
+      "url": "https://de.wikipedia.org/wiki/Stop-Motion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Lehrerfortbildung BW: Methodensammlung digitales Lernen",
+      "url": "https://lehrerfortbildung-bw.de/st_digital/elearning/methodensammlung/",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "authentisch",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "storyboard-check",
+      "name": "Fachliche Prüfung von Skript & Storyboard VOR dem Filmen"
+    },
+    {
+      "kennung": "visualisierung",
+      "name": "Übersetzung abstrakter Zusammenhänge in klare visuelle Legeelemente"
+    },
+    {
+      "kennung": "abnahme",
+      "name": "Gemeinsames Sichten und fachliches Prüfen der fertigen Filme"
+    }
+  ],
+  "dauerMin": 60,
+  "dauerMax": 180,
+  "problem": "Reines Rezipieren fertiger Erklärvideos erzeugt oft eine Verstehensillusion, während eigenes Erklären und Visualisieren Wissenslücken sofort sichtbar macht.",
+  "durchfuehrung": [
+    "Fachliche Kriterien (Zielbegriffe, max. 90 Sekunden) und Rollen im Team (Skript, Grafik, Kamera, Sprecher) festlegen",
+    "Kurzes Storyboard + Sprechertext erstellen und fachlich kurz von Lehrkraft oder Peer-Team abnehmen lassen",
+    "Legeelemente basteln, Szenen mit Tablet/Smartphone-Stativ aufnehmen und einsprechen",
+    "Fertige Erklärfilme gemeinsam präsentieren und fachliche Genauigkeit reflektieren"
+  ],
+  "material": [
+    "1 Tablet/Smartphone + Stativ je Gruppe",
+    "Papier, Scheren, Stifte, Legeelemente",
+    "Storyboard-Vorlage"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 30,
+  "vorbereitungMin": 25,
+  "technik": "t-geteilt",
+  "internet": false,
+  "variante": [
+    "Analoges Live-Legetrick-Erklären unter der Dokumentenkamera ohne Schnitt",
+    "Digitales Whiteboard-Screencast-Erklärvideo"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-5"
+  ],
+  "hinweis": "Unbedingt vor dem Drehen das Storyboard fachlich gegenlesen, damit sich keine Fehlvorstellungen im Film verfestigen.",
+  "qualitaetsrisiko": [
+    "Übermäßiger Bastel- und Technikaufwand verdrängt die fachliche Durchdringung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Selbstständiges Erstellen von Erklärungen und multimedialen Lernprodukten fördert tiefes Verstehen (Learning by Explaining / Generative Learning)",
+      "quelle": "Fiorella & Mayer 2016 (Educational Psychology Review)",
+      "geltung": "Sekundarstufe und Hochschule, fächerübergreifend"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 2.6
+  }
+}

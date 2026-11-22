@@ -1,0 +1,154 @@
+{
+  "status": "entwurf",
+  "kennung": "wiki-kollaboration",
+  "name": "Kollaboratives Unterrichtswiki",
+  "kurzbeschreibung": "Gemeinsamer digitaler Wissensspeicher, in dem Lernende über eine Unterrichtsreihe hinweg vernetzte Fachartikel, Begriffserklärungen und Quellen verfassen, verlinken und gegenseitig überarbeiten.",
+  "alternativname": [
+    "Klassen-Wiki",
+    "Lernwiki",
+    "Kurs-Wiki"
+  ],
+  "piktogramm": "digital",
+  "ansatz": [
+    "digital-ki",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Wiki",
+      "url": "https://de.wikipedia.org/wiki/Wiki",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Herr Kalt: Arbeitsmethoden & Unterrichtswiki",
+      "url": "https://herr-kalt.de/arbeitsmethoden/start",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "authentisch",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vernetzung",
+      "name": "Querverlinkung verwandter Artikel statt isolierter Einzeldateien"
+    },
+    {
+      "kennung": "peer-review",
+      "name": "Gegenseitiges fachliches und sprachliches Redigieren über Versionshistorie"
+    },
+    {
+      "kennung": "quellenpflicht",
+      "name": "Verbindliche Quellen- und Lizenzangaben zu jedem Beitrag"
+    }
+  ],
+  "dauerMin": 60,
+  "dauerMax": 360,
+  "problem": "Einzelne Schülerprodukte verschwinden oft in Heften oder Ordnern, statt als gemeinsames Nachschlagewerk für die gesamte Lerngruppe nutzbar zu bleiben.",
+  "durchfuehrung": [
+    "Grundstruktur (Startseite, Artikelvorlage, Qualitäts- und Quellenkriterien) im Kurs-Wiki anlegen",
+    "Lernende oder Teams übernehmen abgegrenzte Artikelthemen und erstellen erste Entwürfe",
+    "Peer-Review-Runde: Andere Teams prüfen Verständlichkeit, Fachrichtigkeit und setzen Querverweise",
+    "Artikel überarbeiten und das fertige Wiki als gemeinsame Lern- und Prüfungsgrundlage nutzen"
+  ],
+  "material": [
+    "Endgeräte mit Zugang zu Schul-Wiki / LMS-Wiki",
+    "Artikel-Vorlage und Kriterienraster"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [
+    "Jahrgangsübergreifend weitergeführtes Fachwiki",
+    "Kombination mit Glossar und Quizfragen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-1"
+  ],
+  "hinweis": "Funktioniert auch hervorragend als digitaler Begleitstrang über eine ganze Unterrichtsreihe.",
+  "qualitaetsrisiko": [
+    "Copy-Paste aus dem Internet ohne eigenes Durchdringen oder fehlende gegenseitige Überarbeitung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Kollaboratives Schreiben in Wikis unterstützt Wissenskonstruktion und Textqualität, sofern klare Review-Strukturen vorgegeben werden",
+      "quelle": "Zheng et al. 2015 (Computers & Education)",
+      "geltung": "Sekundarstufe und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.55
+  }
+}

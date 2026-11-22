@@ -1,0 +1,137 @@
+{
+  "status": "entwurf",
+  "kennung": "gruppen-karussell",
+  "name": "Gruppen-Karussell (Marktplatz-Rotation)",
+  "kurzbeschreibung": "Rotierendes Austauschformat, bei dem eine Person je Kleingruppe am Ergebnisplakat bleibt und präsentiert, während die übrigen Gruppenmitglieder reihum die Ergebnisse der anderen Stationen besuchen und Feedback geben.",
+  "alternativname": [
+    "Marktplatz-Methode",
+    "Experten-Karussell",
+    "Two Stray, One Stay"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch Lernen: Gruppen-Karussell",
+      "url": "https://deutsch-lernen.zum.de/wiki/Gruppen-Karussell",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "gastgeber-rolle",
+      "name": "Wechselnde Gastgeberperson präsentiert das Gruppenergebnis mehrfach aktiv"
+    },
+    {
+      "kennung": "zeitgetaktete-rotation",
+      "name": "Klare Zeitsignale für den Stationswechsel (z. B. 3–5 Minuten)"
+    },
+    {
+      "kennung": "rueckmeldung",
+      "name": "Besucher stellen Verständnisfragen und ergänzen Impulse auf dem Plakat"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Plenumspräsentationen aller Kleingruppen hintereinander dauern lange und führen zu geringer Aktivität der Zuhörenden.",
+  "durchfuehrung": [
+    "Kleingruppen erstellen ein übersichtliches Plakat oder Produkt zu ihrem Teilaspekt",
+    "Pro Gruppe bleibt eine Person als Expertin/Gastgeber am Tisch; die anderen rotieren im Uhrzeigersinn weiter",
+    "Nach jedem Durchgang (3–5 Minuten) rotiert die Besuchergruppe weiter; optional wechselt die Gastgeberrolle zur Halbzeit",
+    "Zurück in der Stammgruppe tragen alle ihre gesammelten Erkenntnisse und Rückmeldungen zusammen"
+  ],
+  "material": [
+    "Gruppenplakate oder Arbeitsergebnisse",
+    "Timer / akustisches Wechselsignal",
+    "Haftnotizen für Fragen und Ergänzungen"
+  ],
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Gastgeberwechsel nach der Hälfte der Runden",
+    "Digitales Karussell in Breakout-Räumen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-1"
+  ],
+  "hinweis": "Ersetzt ermüdende Reihenpräsentationen im Plenum durch hohe Sprechzeit für alle Lernenden.",
+  "qualitaetsrisiko": [
+    "Hoher Geräuschpegel bei engen Räumen; Gastgeber verpassen ohne Rollentausch andere Stationen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxisbewährtes kooperatives Präsentationsformat mit hoher aktiver Sprech- und Wiederholungsrate",
+      "quelle": "Kooperatives Lernen / Kagan (One Stay, Two Stray)",
+      "geltung": "Schule, Jugendbildung und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.35,
+    "y": 2.75
+  }
+}

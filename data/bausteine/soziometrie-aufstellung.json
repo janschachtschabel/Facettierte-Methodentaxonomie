@@ -1,0 +1,136 @@
+{
+  "status": "entwurf",
+  "kennung": "soziometrie-aufstellung",
+  "name": "Soziometrische Aufstellung (Lebendige Statistik)",
+  "kurzbeschreibung": "Bewegte Einstiegs- und Diagnosemethode, bei der sich Lernende zu Fragen nach Vorerfahrung, Einschätzung oder Merkmalen sichtbar im Raum auf einer Skala oder in Gruppen aufstellen und kurz austauschen.",
+  "alternativname": [
+    "Lebendige Statistik",
+    "Aufstellung im Raum",
+    "Soziometrische Linie"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "diagnose-feedback",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Soziometrie",
+      "url": "https://de.wikipedia.org/wiki/Soziometrie",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "mikro"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "afb1"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "raumskala",
+      "name": "Klar markierte Pole oder Felder im Raum (z. B. viel Erfahrung ↔ neu im Thema)"
+    },
+    {
+      "kennung": "kurzaustausch",
+      "name": "Kurzer Austausch mit Nachbarpersonen am gewählten Standort"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Zu Beginn einer Einheit sind heterogene Vorkenntnisse und Haltungen in der Gruppe oft weder für die Lehrkraft noch für die Lernenden sichtbar.",
+  "durchfuehrung": [
+    "Imaginäre Linie oder Raumzonen definieren (z. B. Vorwissen, Alltagserfahrung, Haltung zur Leitfrage)",
+    "Lernende positionieren sich zügig im Raum",
+    "Kurzer 1-Minuten-Austausch mit direkten Nachbarn über den Grund der Positionierung",
+    "2–3 Stimmen aus unterschiedlichen Bereichen kurz einholen und optional direkt heterogene Teams aus der Linie bilden"
+  ],
+  "material": [
+    "Freie Raumfläche",
+    "Optional Bodenkarten zur Orientierung"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Direkte Gruppenbildung durch Falten der Linie (heterogene Paare)",
+    "Barrierefreie Variante mit Handzeichen oder Klebepunkten an einer Wandskala"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-4"
+  ],
+  "hinweis": "Keine bloßstellenden persönlichen Fragen stellen; auf freiwillige, sichere Teilnahme achten.",
+  "qualitaetsrisiko": [
+    "Sozialer Konformitätsdruck oder unangenehme Bloßstellung bei sensiblen Fragen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Bewährte aktivierende Gruppendiagnose aus Gruppen- und Demokratiepädagogik",
+      "quelle": "Praxisliteratur Demokratie- und Erwachsenenbildung",
+      "geltung": "Präsenzgruppen, Schule und Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.25,
+    "y": 1.75
+  }
+}

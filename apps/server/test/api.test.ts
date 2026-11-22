@@ -72,7 +72,9 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
   it('filters methods via /api/v1/methods, returns single method, and handles 404', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/v1/methods?text=jigsaw' });
     expect(res.statusCode).toBe(200);
-    expect(res.json().treffer.map((b: { kennung: string }) => b.kennung)).toEqual(['gruppenpuzzle']);
+    const ids = res.json().treffer.map((b: { kennung: string }) => b.kennung);
+    expect(ids).toContain('gruppenpuzzle');
+    expect(ids).toContain('partnerpuzzle');
 
     const one = await app.inject({ method: 'GET', url: '/api/v1/methods/abrufquiz' });
     expect(one.statusCode).toBe(200);

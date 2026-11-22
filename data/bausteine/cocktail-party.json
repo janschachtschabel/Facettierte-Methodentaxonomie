@@ -1,0 +1,133 @@
+{
+  "status": "entwurf",
+  "kennung": "cocktail-party",
+  "name": "Cocktail-Party (Aktivierender Kurzaustausch)",
+  "kurzbeschreibung": "Bewegte Einstiegs- und Vernetzungsmethode im Stehen, bei der Lernende frei durch den Raum gehen und sich anhand einer Impulsfrage oder Rollenkarte in rasch wechselnden Zweiergesprächen austauschen.",
+  "alternativname": [
+    "Stehempfang",
+    "Walk and Talk",
+    "Mingle-Methode"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch Lernen: Cocktail Party",
+      "url": "https://deutsch-lernen.zum.de/wiki/Cocktail_Party",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "gespraechsanlass",
+      "name": "Klarer Gesprächsimpuls, Rollen- oder Leitfragenkarte je Person"
+    },
+    {
+      "kennung": "partnerwechsel",
+      "name": "Mindestens 3–4 kurze Partnerwechsel im Stehen (je 1–2 Minuten)"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Zu Stundenbeginn oder nach längeren Sitzphasen fehlt oft Aktivierung und Niedrigschwelligkeit für mündlichen Austausch.",
+  "durchfuehrung": [
+    "Leitfrage, Fachbegriff oder Rollenkarte austeilen und Ziel der Gesprächsrunden nennen",
+    "Lernende bewegen sich frei im Raum und finden sich auf Signal paarweise zusammen",
+    "In 1–2 Minuten kurz austauschen, dann auf Signal die nächste Gesprächsperson suchen (3–4 Runden)",
+    "Im Plenum 2–3 besonders interessante Beobachtungen oder Muster kurz zusammentragen"
+  ],
+  "material": [
+    "Impuls- oder Rollenkarten (optional)",
+    "Freie Bewegungsfläche im Raum"
+  ],
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit Musik-Stopp als Wechselsignal",
+    "Fremdsprachen-Warm-up mit Gesprächskarten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-2",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/11-4"
+  ],
+  "hinweis": "Sehr wirksam im Sprachunterricht, als Einstieg oder zum bewegten Wiederholen von Fachbegriffen.",
+  "qualitaetsrisiko": [
+    "Gespräche bleiben oberflächlich oder weichen ohne klare Impulskarten vom Thema ab"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Aktivierende Kurzaustauschformate erhöhen mündliche Beteiligung insbesondere bei zurückhaltenden Lernenden",
+      "quelle": "Praxisliteratur Sprach- und Kommunikationsdidaktik",
+      "geltung": "Schule, Fremdsprachen- und Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.3,
+    "y": 2.45
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "status": "entwurf",
+  "kennung": "text-exzerpieren",
+  "name": "Strukturiertes Textmarkieren & Exzerpieren",
+  "kurzbeschreibung": "Systematische Texterschließungsmethode, bei der Lernende Sachtexte unter einer Leitfrage abschnittsweise gliedern, gezielt Schlüsselbegriffe markieren, Randnotizen formulieren und ein eigenständiges Exzerpt verfassen.",
+  "alternativname": [
+    "Exzerpieren",
+    "Textknacker",
+    "Gezieltes Markieren & Zusammenfassen"
+  ],
+  "piktogramm": "sprache",
+  "ansatz": [
+    "instruktion",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Herr Kalt: Informationen sinnvoll zusammenfassen",
+      "url": "https://herr-kalt.de/arbeitsmethoden/informationen-sinnvoll-zusammenfassen",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Wikipedia: Exzerpt",
+      "url": "https://de.wikipedia.org/wiki/Exzerpt",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "selbstkontrolle",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "leitfrage",
+      "name": "Klare Such- bzw. Leitfrage steuert die Auswahl relevanter Textstellen"
+    },
+    {
+      "kennung": "sparsames-markieren",
+      "name": "Maximal 10–15 % Schlüsselwörter markieren statt ganzer Absätze"
+    },
+    {
+      "kennung": "eigene-worte",
+      "name": "Abschnittsüberschriften und Exzerpt konsequent in eigenen Worten formulieren"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 40,
+  "problem": "Unangeleitetes Markieren führt oft zu komplett bunt eingefärbten Textseiten ohne tiefes Textverständnis.",
+  "durchfuehrung": [
+    "Leitfrage zum Sachtext klären und Text zunächst überfliegend in Sinnabschnitte gliedern",
+    "Pro Abschnitt nur zentrale Schlüsselbegriffe markieren und eine kurze Randüberschrift notieren",
+    "Kernaussagen aus den Randnotizen als knappes Exzerpt in eigenen Worten festhalten (inkl. Quellenangabe)",
+    "Mit Partnerperson vergleichen: Welche zentralen Aussagen fehlen oder wurden doppelt genannt?"
+  ],
+  "material": [
+    "Sachtext mit breitem Notizrand",
+    "Textmarker / Bleistift",
+    "Exzerpt-Vorlage"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Farbcodierung (z. B. Gelb = Hauptaussage, Blau = Beispiel, Rot = unklar)",
+    "Mit Satzstartern für sprachsensible Lerngruppen"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-4"
+  ],
+  "hinweis": "Reines Unterstreichen allein ist schwach (Dunlosky et al. 2013) – wirksam wird die Methode erst durch sparsames Markieren plus eigenständiges Verdichten.",
+  "qualitaetsrisiko": [
+    "Übermäßiges Markieren ganzer Sätze und bloßes Abschreiben statt eigenen Formulierens"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Unangeleitetes Markieren hat geringen Nutzen; strukturiertes Zusammenfassen in eigenen Worten fördert Textverstehen nachweislich",
+      "quelle": "Dunlosky et al. 2013; Fiorella & Mayer 2016",
+      "geltung": "Sachtextarbeit, Sekundarstufe und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.16,
+    "y": 1.85
+  }
+}

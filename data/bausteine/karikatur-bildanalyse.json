@@ -1,0 +1,147 @@
+{
+  "status": "entwurf",
+  "kennung": "karikatur-bildanalyse",
+  "name": "Kriteriengeleitete Bild- & Karikaturenanalyse",
+  "kurzbeschreibung": "Dreischrittige Erschließungsmethode (Beschreiben – Deuten – Bewerten) zur systematischen Entschlüsselung politischer, historischer oder gesellschaftlicher Karikaturen, Fotos und Infografiken.",
+  "alternativname": [
+    "Karikaturenanalyse",
+    "Bildanalyse im Dreischritt",
+    "Visual Literacy Check"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Karikatur",
+      "url": "https://de.wikipedia.org/wiki/Karikatur",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fall",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "trennung-beschreibung-deutung",
+      "name": "Strikte Trennung von sichtbarer Bildbeschreibung (AFB I) und Symboldeutung (AFB II)"
+    },
+    {
+      "kennung": "kontextualisierung",
+      "name": "Einordnung von Entstehungszeit, Urheber und historischem/politischem Kontext"
+    },
+    {
+      "kennung": "stellungnahme",
+      "name": "Begründete kritische Bewertung der Aussageabsicht (AFB III)"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 35,
+  "problem": "Lernende springen bei Bildern und Karikaturen häufig sofort zu vorschnellen Deutungen und übersehen zentrale Bildelemente, Symbole oder Kontextangaben.",
+  "durchfuehrung": [
+    "Bildquelle bzw. Karikatur zeigen und zunächst nur objektiv beschreiben lassen (Was ist genau zu sehen? Quelle/Datum?)",
+    "In Partnerarbeit Bildelemente, Übertreibungen, Symbole und Textanteile systematisch deuten",
+    "Zentrale Botschaft und Perspektive der Karikatur in 2–3 Sätzen formulieren",
+    "Im Plenum Deutungen vergleichen und begründet Stellung zur Aussage beziehen"
+  ],
+  "material": [
+    "Karikatur / Bildquelle (gedruckt oder projiziert)",
+    "Dreischritt-Leitfaden mit Satzstartern"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Ausschnitt-Methode (Karikatur schrittweise aufdecken)",
+    "Eigene Gegen-Karikatur skizzieren"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-3"
+  ],
+  "hinweis": "Klassiker der Gesellschaftswissenschaften, Ethik, Deutsch und Medienbildung; sehr gut über Satzstarter differenzierbar.",
+  "qualitaetsrisiko": [
+    "Vermischen von Beschreibung und Interpretation oder fehlendes historisches Kontextwissen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Fachdidaktisch etabliertes Dreischritt-Verfahren zur Förderung von Bild- und Urteilskompetenz",
+      "quelle": "Politik- und Geschichtsdidaktik (Sander; Pandel)",
+      "geltung": "Sekundarstufe I & II, Gesellschaftswissenschaften und Deutsch"
+    }
+  ],
+  "plot": {
+    "x": 0.24,
+    "y": 2.1
+  }
+}

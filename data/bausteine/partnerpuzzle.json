@@ -1,0 +1,143 @@
+{
+  "status": "entwurf",
+  "kennung": "partnerpuzzle",
+  "name": "Partnerpuzzle",
+  "kurzbeschreibung": "Zweistufige kooperative Methode für Zweierteams: Beide Lernende erarbeiten zunächst eigenständig unterschiedliche Teiltexte oder Themenaspekte und vermitteln sich ihr Wissen anschließend gegenseitig.",
+  "alternativname": [
+    "Partner-Jigsaw",
+    "Zweier-Puzzle"
+  ],
+  "piktogramm": "kooperativ",
+  "ansatz": [
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Lehrerfortbildung BW: Methodenblatt Partnerpuzzle",
+      "url": "https://lehrerfortbildung-bw.de/st_if/bs/if/unterrichtsgestaltung/methodenblaetter/partnerpuzzle.html",
+      "quelltyp": "oer",
+      "lizenz": "CC BY"
+    },
+    {
+      "titel": "Brüning & Saum (2009): Erfolgreich unterrichten durch Kooperatives Lernen",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "fakten",
+    "afb2"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "arbeitsteilung",
+      "name": "Zwei klar getrennte, gleichwertige Teilmaterialien (A und B)"
+    },
+    {
+      "kennung": "expertencheck",
+      "name": "Optionaler Kurzabgleich mit einer zweiten A- bzw. B-Person vor der Vermittlung"
+    },
+    {
+      "kennung": "gegenseitige-vermittlung",
+      "name": "Strukturiertes gegenseitiges Erklären und gemeinsames Sichern"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Beim klassischen Gruppenpuzzle mit vier oder mehr Rollen ist der Organisationsaufwand für eine Einzelstunde oft zu hoch.",
+  "durchfuehrung": [
+    "Lernende in Paare (A und B) einteilen und jeweils unterschiedliche Teilmaterialien austeilen",
+    "In Einzelarbeit das eigene Teilgebiet erschließen und zentrale Punkte notieren",
+    "Optional kurz in A-A- und B-B-Duos Verständnislücken klären und Vermittlung vorbereiten",
+    "Im Ausgangspaar A–B gegenseitig erklären, Rückfragen stellen und eine gemeinsame Gesamtübersicht sichern"
+  ],
+  "material": [
+    "Zwei komplementäre Informationstexte oder Aufgabenblätter (A und B)",
+    "Gemeinsamer Sicherungsbogen"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Differenzierte Textlängen für A und B",
+    "Mit abschließendem Kurzvortrag ausgeloster Paare"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/34-1"
+  ],
+  "hinweis": "Deutlich kompakter und störungsärmer als das große Gruppenpuzzle – ideal für 45-Minuten-Stunden.",
+  "qualitaetsrisiko": [
+    "Bloßes Vorlesen oder Abschreiben der Notizen statt echtem Erklären"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte kooperative Vermittlung in Zweierteams mit individueller Rechenschaft fördert Verstehen und Behalten",
+      "quelle": "Kyndt et al. 2013; Roscoe & Chi 2007",
+      "geltung": "Kooperatives Peer-Erklären, Sekundarstufe und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.25,
+    "y": 2.65
+  }
+}

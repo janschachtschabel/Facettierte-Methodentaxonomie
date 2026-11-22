@@ -657,12 +657,15 @@ export function PartiturView({
                 'kanban-lernboard',
                 'klassen-glossar',
                 'beobachtungsbogen',
+                'lesetagebuch',
+                'schuelercoaching',
                 'lerntagebuch',
                 'lernportfolio',
                 'cornell-methode',
                 'sketchnotes',
                 'collective-notebook',
                 'karteikarten-leitner',
+                'wiki-kollaboration',
                 'e-portfolio-kurs'
               ]);
               const eligible = sortedBlocks.filter((b) => (rangMap.get(b.reichweite) ?? 0) <= 3);

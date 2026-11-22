@@ -165,7 +165,8 @@ describe('FMT Core: Validator, Search, Matcher', () => {
 
   it('searches by synonym, phase name, facet, ansatz, status, time, states, evidence and computes valid replacements', () => {
     const ids = (k: Parameters<typeof S.suche>[0]) => S.suche(k).map((b) => b.kennung);
-    expect(ids({ text: 'jigsaw' })).toEqual(['gruppenpuzzle']);
+    expect(ids({ text: 'jigsaw' })).toContain('gruppenpuzzle');
+    expect(ids({ text: 'jigsaw' })).toContain('partnerpuzzle');
     expect(ids({ text: 'Lernzirkel' })).toEqual(['stationenlernen']);
     expect(ids({ liefert: 'wissen-konsolidiert' })).toContain('abrufquiz');
     expect(ids({ bildungsstufe: 'primar' })).not.toContain('productive-failure');

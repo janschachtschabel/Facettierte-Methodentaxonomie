@@ -1,0 +1,136 @@
+{
+  "status": "entwurf",
+  "kennung": "elevator-pitch",
+  "name": "Elevator Pitch (60-Sekunden-Kernbotschaft)",
+  "kurzbeschreibung": "Prägnante mündliche Verdichtungsmethode, bei der Lernende ein Konzept, eine Projektidee oder ein Arbeitsergebnis innerhalb von 60 Sekunden klar, adressatengerecht und überzeugend auf den Punkt bringen.",
+  "alternativname": [
+    "Fahrstuhl-Präsentation",
+    "60-Sekunden-Pitch"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "diskurs",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Elevator Pitch",
+      "url": "https://de.wikipedia.org/wiki/Elevator_Pitch",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zeitlimit",
+      "name": "Striktes 60-Sekunden-Limit erzwingt Fokussierung auf das Wesentliche"
+    },
+    {
+      "kennung": "dreischritt",
+      "name": "Struktur: Problem/Anlass – Kernidee/Lösung – Nutzen/Begründung"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Nach Arbeits- oder Projektphasen fällt es Lernenden oft schwer, den fachlichen Kern präzise von Nebendetails zu trennen.",
+  "durchfuehrung": [
+    "Dreischritt (Ausgangsfrage – Kernaussage – Beispiel/Begründung) und 60-Sekunden-Limit vorstellen",
+    "Lernende notieren 3–5 Stichworte auf einer Karteikarte (3–4 Minuten)",
+    "Pitches in Partner- oder Kleingruppen mit Stoppuhr vortragen und 1-Satz-Feedback geben",
+    "Optional 2–3 besonders gelungene Pitches im Plenum präsentieren"
+  ],
+  "material": [
+    "Karteikarten",
+    "Stoppuhr / Timer"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Pitch-Runde vor Projektstart zur Ideenprüfung",
+    "Audio-Pitch als kurze Sprachnotiz"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-5"
+  ],
+  "hinweis": "Hervorragend zur Ergebnissicherung am Ende einer Gruppen- oder Projektphase.",
+  "qualitaetsrisiko": [
+    "Reine Werbesprache ohne fachliche Substanz, wenn fachliche Kriterien fehlen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Zugespitztes Zusammenfassen in eigenen Worten unterstützt Elaboration und Kommunikationskompetenz",
+      "quelle": "Hochschul- und Wirtschaftsdidaktik",
+      "geltung": "Sekundarstufe, Berufsbildung und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.3,
+    "y": 2.2
+  }
+}

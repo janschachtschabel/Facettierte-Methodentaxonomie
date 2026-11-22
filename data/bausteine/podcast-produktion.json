@@ -1,0 +1,151 @@
+{
+  "status": "entwurf",
+  "kennung": "podcast-produktion",
+  "name": "Lern-Podcast selbst produzieren",
+  "kurzbeschreibung": "Audiobasierte Produktionsmethode, bei der Lernende in Kleingruppen eine kurze fachliche Radiosendung, ein Experteninterview oder eine Debattenfolge skripten, aufnehmen und als Hörbeitrag veröffentlichen.",
+  "alternativname": [
+    "Schüler-Podcast",
+    "Audio-Reportage",
+    "Hörbeitrag erstellen"
+  ],
+  "piktogramm": "digital",
+  "ansatz": [
+    "kreativ",
+    "digital-ki",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Podcast",
+      "url": "https://de.wikipedia.org/wiki/Podcast",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Lehrerfortbildung BW: Methodensammlung digitales Lernen",
+      "url": "https://lehrerfortbildung-bw.de/st_digital/elearning/methodensammlung/",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "authentisch",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "format-skript",
+      "name": "Klares Hörformat (Interview, Streitgespräch, Erklär-Feature) und Redaktionsskript"
+    },
+    {
+      "kennung": "hoerverstaendlichkeit",
+      "name": "Präzise, hörverständliche Fachsprache ohne visuelle Stütze"
+    },
+    {
+      "kennung": "hoer-feedback",
+      "name": "Kriteriengeleitetes Anhören und Rückmelden im Kurs"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 135,
+  "problem": "Schriftliche Ausarbeitungen allein trainieren adressatengerechtes mündliches Erklären und Argumentieren kaum.",
+  "durchfuehrung": [
+    "Zielgruppe, Länge (2–4 Minuten) und Format (z. B. Interview oder 2-Personen-Talk) festlegen",
+    "Inhalte recherchieren, Gliederung und Moderationsskript entwerfen",
+    "Beitrag in ruhiger Ecke mit Aufnahmegerät oder Tablet einsprechen und ggf. kurz schneiden",
+    "Podcasts gegenseitig anhören (z. B. als Hörstationen) und fachliches Feedback geben"
+  ],
+  "material": [
+    "Aufnahmegerät / Tablet / Smartphone",
+    "Redaktions- und Skriptvorlage"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 30,
+  "vorbereitungMin": 20,
+  "technik": "t-geteilt",
+  "internet": false,
+  "variante": [
+    "Fiktives historisches Interview im Geschichtsunterricht",
+    "Fremdsprachen-Podcast als Sprechprüfungsvorbereitung"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-5"
+  ],
+  "hinweis": "Senkt die Hürde gegenüber Video-Aufnahmen, da niemand vor der Kamera stehen muss (auch datenschutzfreundlicher).",
+  "qualitaetsrisiko": [
+    "Monotones Ablesen eines schriftlichen Aufsatzes statt lebendigem Hörformat"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Studien zur Medienproduktion zeigen positive Effekte auf fachliche Durchdringung und Sprechkompetenz",
+      "quelle": "Mediendidaktik / Generative Learning (Fiorella & Mayer 2016)",
+      "geltung": "Sekundarstufe, Fremdsprachen und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.4,
+    "y": 2.45
+  }
+}

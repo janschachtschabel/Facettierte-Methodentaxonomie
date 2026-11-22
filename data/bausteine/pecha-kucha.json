@@ -1,0 +1,142 @@
+{
+  "status": "entwurf",
+  "kennung": "pecha-kucha",
+  "name": "Pecha Kucha (20×20-Kurzpräsentation)",
+  "kurzbeschreibung": "Streng getaktetes visuelles Präsentationsformat mit 20 bildstarken Folien (oder einer schulischen Kurzform wie 10×20), die automatisch alle 20 Sekunden weiterschalten und zu präziser Verdichtung zwingen.",
+  "alternativname": [
+    "Pecha Kucha",
+    "20x20-Präsentation",
+    "Bildtakt-Kurzvortrag"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "visualisierung",
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Pecha Kucha",
+      "url": "https://de.wikipedia.org/wiki/Pecha_Kucha",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "plenum-lernendengeleitet",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "bildfokus",
+      "name": "Folien enthalten zentrale Bilder/Grafiken statt überladener Textwände"
+    },
+    {
+      "kennung": "autotakt",
+      "name": "Automatischer Folienwechsel alle 20 Sekunden verhindert Ausufern"
+    },
+    {
+      "kennung": "zuspitzung",
+      "name": "Klares Herausarbeiten der Kernbotschaft pro Folie"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Schüler- und Studierendenreferate ufern häufig zeitlich aus und bestehen aus abgelesenen Textfolien.",
+  "durchfuehrung": [
+    "Format und Umfang festlegen (Vollform 20×20 Sek. = 6:40 min oder Schul-Kurzform 10×20 Sek. = 3:20 min)",
+    "Lernende strukturieren ihr Thema in knappe Kernaussagen und wählen passende Bilder/Skizzen",
+    "Vortrag mit automatischem 20-Sekunden-Folienwechsel frei präsentieren",
+    "Anschließend kurze Verständnisfragen und kriteriengeleitetes Peer-Feedback"
+  ],
+  "material": [
+    "Präsentationssoftware mit automatischem Folienübergang",
+    "Beamer / Display",
+    "Lizenzfreie Bilder (OER / eigene Skizzen)"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-projektion",
+  "internet": false,
+  "variante": [
+    "Pecha Kucha Light (10 Folien à 20 Sekunden)",
+    "Analoges Bilder-Timing mit gedruckten Großkarten"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-5"
+  ],
+  "hinweis": "Zwingt zur inhaltlichen Priorisierung und macht Präsentationsphasen kurzweilig und gut planbar.",
+  "qualitaetsrisiko": [
+    "Hektisches Ablesen bei fehlender Probe oder Urheberrechtsverstöße bei Bildsuche"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Hochschul- und Mediendidaktik-Studien berichten höhere Aufmerksamkeit des Publikums und präzisere Strukturierung",
+      "quelle": "Beyer 2011; Klentzin et al. 2010",
+      "geltung": "Sekundarstufe II und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.35,
+    "y": 2.15
+  }
+}

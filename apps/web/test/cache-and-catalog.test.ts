@@ -124,7 +124,8 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     const hits3 = search.suche({ ansatz: 'diskurs' });
     const elapsed = performance.now() - t0;
 
-    expect(hits1.map((b) => b.kennung)).toEqual(['gruppenpuzzle']);
+    expect(hits1.map((b) => b.kennung)).toContain('gruppenpuzzle');
+    expect(hits1.map((b) => b.kennung)).toContain('partnerpuzzle');
     expect(hits2.length).toBeGreaterThan(3);
     expect(hits3.length).toBeGreaterThanOrEqual(10);
     expect(elapsed).toBeLessThan(20);

@@ -1,0 +1,137 @@
+{
+  "status": "entwurf",
+  "kennung": "swot-analyse",
+  "name": "SWOT-Analyse (Stärken · Schwächen · Chancen · Risiken)",
+  "kurzbeschreibung": "Vier-Felder-Analysemethode zur systematischen Bewertung eines Falls, Konzepts, Projekts oder politischen Vorschlags anhand interner Stärken/Schwächen und externer Chancen/Risiken.",
+  "alternativname": [
+    "SWOT-Matrix",
+    "Stärken-Schwächen-Chancen-Risiken-Analyse"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: SWOT-Analyse",
+      "url": "https://de.wikipedia.org/wiki/SWOT-Analyse",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fall",
+    "schlecht-strukturiert",
+    "afb3"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "trennung-innen-aussen",
+      "name": "Saubere Trennung zwischen internen Faktoren (S/W) und externen Umfeldbedingungen (O/T)"
+    },
+    {
+      "kennung": "handlungsableitung",
+      "name": "Aus den vier Feldern konkrete Handlungsoptionen oder ein begründetes Urteil ableiten"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Bei der Bewertung komplexer Fälle oder Projektideen argumentieren Lernende oft eindimensional (nur Pro oder nur Contra) ohne strukturelle Trennung von Innen- und Außenfaktoren.",
+  "durchfuehrung": [
+    "Untersuchungsgegenstand (z. B. Energieträger, Geschäftsmodell, Schulprojekt) und die vier SWOT-Felder kurz einführen",
+    "In Kleingruppen anhand von Materialien Faktoren in die 2×2-Matrix einordnen",
+    "Aus der Kombination (z. B. Stärken nutzen, um Chancen zu ergreifen; Risiken abfedern) 2–3 konkrete Empfehlungen ableiten",
+    "Matrizen im Plenum oder Museumsgang vergleichen und ein begründetes Gesamturteil sichern"
+  ],
+  "material": [
+    "SWOT-Matrix-Vorlage (A3-Plakat oder Arbeitsblatt)",
+    "Fallmaterial / Informationsquellen"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Persönliche Lern-SWOT zur Prüfungsvorbereitung",
+    "Einsatz in Politik, Wirtschaft, Geographie und BNE"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-1"
+  ],
+  "hinweis": "Führt erst dann zu echtem Urteilsvermögen, wenn nach dem Ausfüllen der Felder eine begründete Entscheidung abgeleitet wird.",
+  "qualitaetsrisiko": [
+    "Verwechslung von internen Schwächen und externen Risiken; Steckenbleiben beim bloßen Auflisten"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Strukturierte 2×2-Analysematrizen fördern mehrperspektivisches Abwägen in Fall- und Urteilsaufgaben",
+      "quelle": "Wirtschafts- und Politikdidaktik",
+      "geltung": "Sekundarstufe, Berufsbildung und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.28,
+    "y": 2.25
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "status": "entwurf",
+  "kennung": "lesetagebuch",
+  "name": "Lesetagebuch (Lektürebegleitendes Journal)",
+  "kurzbeschreibung": "Prozessbegleitendes analoges oder digitales Lektürejournal mit Pflicht- und Wahlaufgaben, in dem Lernende über eine ganze Lektüreeinheit hinweg Textstellen kommentieren, Figuren analysieren und persönliche Leseeindrücke festhalten.",
+  "alternativname": [
+    "Lesejournal",
+    "Lektüretagebuch",
+    "Reading Log"
+  ],
+  "piktogramm": "sprache",
+  "ansatz": [
+    "reflexion",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Lesetagebuch",
+      "url": "https://de.wikipedia.org/wiki/Lesetagebuch",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "verstehen",
+    "metakognition",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-produkt",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "metakognitiv",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "pflicht-wahl",
+      "name": "Mischung aus analytischen Pflichtaufgaben und kreativen Wahlaufträgen"
+    },
+    {
+      "kennung": "textbeleg",
+      "name": "Verbindung von subjektivem Leseeindruck und konkretem Textbeleg"
+    },
+    {
+      "kennung": "zwischenfeedback",
+      "name": "Mindestens ein kurzes Zwischenfeedback statt reiner Endabgabe"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 120,
+  "problem": "Bei längeren Ganzschriften oder Sachtextreihen lesen Lernende sehr unterschiedlich schnell und verlieren ohne begleitende Verarbeitung leicht den Überblick.",
+  "durchfuehrung": [
+    "Aufgabenkatalog (Pflicht- und Wahlbausteine) sowie Bewertungs- und Gestaltungskriterien zu Beginn austeilen",
+    "Lernende führen das Lesetagebuch kontinuierlich begleitend zu den Leseabschnitten im Heft oder Ordner",
+    "Zwischenstand in einer Partner-Lesekonferenz austauschen und gezielte Rückmeldung geben",
+    "Ausgewählte Einträge im Unterricht für Gesprächsrunden nutzen und Journal abschließend würdigen"
+  ],
+  "material": [
+    "Ganzschrift / Lektüre",
+    "Heft oder Schnellhefter",
+    "Pflicht- und Wahlaufgabenblatt"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Differenzierte Wahlaufgaben nach Lesekompetenz",
+    "Kombination mit Buchvorstellung oder Standbild"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1"
+  ],
+  "hinweis": "Starke analoge Begleitmethode für Deutsch, Fremdsprachen, Ethik und Geschichte; erlaubt natürliche Binnendifferenzierung über Wahlbausteine.",
+  "qualitaetsrisiko": [
+    "Reine Dekoration und Nacherzählung ohne echte Textauseinandersetzung; Aufschieben bis kurz vor Abgabe"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Deutschdidaktische Praxis- und Fallstudien belegen hohe Motivation und individuelle Differenzierung bei klarer Kriterienführung",
+      "quelle": "Bertschi-Kaufmann; Spinner (Literaturdidaktik)",
+      "geltung": "Primar- und Sekundarstufe, Deutsch- und Fremdsprachenunterricht"
+    }
+  ],
+  "plot": {
+    "x": 0.52,
+    "y": 2.15
+  }
+}
