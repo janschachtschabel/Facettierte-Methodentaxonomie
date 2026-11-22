@@ -1,7 +1,7 @@
 import { useCatalog } from '../data/CatalogContext.js';
 
 export function ApiMcpPage() {
-  const { bundle, meta } = useCatalog();
+  const { bundle, meta, setLlmSettingsOpen } = useCatalog();
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080';
   const totalMethods = bundle?.bausteine.length ?? null;
   const totalLabel = totalMethods != null ? `alle ${totalMethods}` : 'alle';
@@ -54,20 +54,26 @@ export function ApiMcpPage() {
         </div>
 
         <div className="card" style={{ padding: 18 }}>
-          <h2>Verfügbare MCP-Tools &amp; Resources (12 Tools)</h2>
+          <h2>Verfügbare MCP-Tools &amp; Resources (13 Tools · Zero-LLM-First)</h2>
+          <p className="muted" style={{ fontSize: 13.5, marginTop: 4 }}>
+            Alle MCP-Tools antworten standardmäßig <strong>ohne Server-LLM in &lt;5 ms</strong> (Vorfilterung, Regelprüfung,
+            Matrix-Scoring &amp; Klassifikation) und liefern bei komplexen Aufgaben ein fertiges <code>llmBriefing</code> für
+            das Enduser-LLM. Klassifikations-Engine: <code>{meta?.embeddingsEngine || 'hybrid-bm25-trigram'}</code>.
+          </p>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
-            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden</li>
+            <li><code>classify_scenario_text</code> – Zero-LLM Freitext-Klassifikation (Regeln + BM25/Trigram + opt. Model2Vec) auf 6 Skalen, Fach/Thema &amp; Matrix-Merkmale</li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden inkl. semantischer Vorschläge</li>
             <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen</li>
             <li><code>compare_methods</code> – Facette-für-Facette-Differenzvergleich</li>
-            <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung inkl. didaktischem Ansatz</li>
+            <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung inkl. didaktischem Ansatz &amp; Matrix-Signalen</li>
             <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen</li>
             <li><code>suggest_replacements</code> – Formal gültige Ersatzkandidaten an einem Knotenpfad</li>
             <li><code>list_vocabularies</code> – Kontrollierte Codes, Funktionsketten &amp; Differenzierungs-Personas</li>
             <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code></li>
             <li><code>score_differentiation_matrix</code> – Binnendifferenzierungsmatrix (−2..+2 Punkte) &amp; alternative Teilgruppen-Methoden</li>
-            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan (Tabelle, Matrix, WLO-OER mit <code>wwwurl</code> &amp; JSON-LD)</li>
-            <li><code>elaborate_scenario</code> – Thematische Verlaufstabelle + ausformulierter Unterrichtsentwurf</li>
-            <li><code>generate_phase_material</code> – Druckfertiges Unterrichtsmaterial zu einer FMT-Methode</li>
+            <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) inkl. <code>llmBriefing</code>, Matrix, JSON-LD &amp; opt. WLO-OER</li>
+            <li><code>elaborate_scenario</code> – Deterministische Verlaufstabelle + <code>llmBriefing</code> für das Enduser-LLM</li>
+            <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage (7 Typen) + <code>llmBriefing</code></li>
           </ul>
           <p style={{ fontSize: 14 }} className="muted">
             <strong>Resources:</strong> <code>fmt://catalog/summary</code> · <code>fmt://method/{'{kennung}'}</code> ·{' '}
@@ -92,7 +98,23 @@ export function ApiMcpPage() {
             <tbody>
               <tr>
                 <td><code>GET /api/v1/meta</code></td>
-                <td>Version, SHA-256 <code>versionHash</code>, Bausteine-Anzahl, LLM-Status ({meta?.llmConfigured ? 'aktiv' : 'deterministisch'})</td>
+                <td>
+                  Version, SHA-256 <code>versionHash</code>, Bausteine-Anzahl, Klassifikations-Engine (
+                  <code>{meta?.embeddingsEngine || 'hybrid-bm25-trigram'}</code>), Server-LLM (
+                  {meta?.llmConfigured ? `aktiv: ${meta.llmModel}` : 'Zero-LLM-Standard'})
+                </td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/classify</code></td>
+                <td>Zero-LLM Freitext-Klassifikation auf 6 Skalen, Fach/Thema, Methoden &amp; Matrix-Merkmale</td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/plan</code></td>
+                <td>Zero-LLM End-to-End-Vorfilterung (&lt;5 ms): Arrangement, Matrix, Tabelle &amp; fertiges <code>llmBriefing</code></td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/assistant/briefing</code></td>
+                <td>Erzeugt in &lt;2 ms vorab gefilterte Prompt-Pakete (<code>translate</code>, <code>elaborate</code>, <code>differentiate</code>, <code>material</code>) fürs Enduser-LLM</td>
               </tr>
               <tr>
                 <td><code>GET /api/v1/catalog</code></td>
@@ -141,9 +163,17 @@ export function ApiMcpPage() {
             </tbody>
           </table>
         </div>
-        <pre>{`curl -s -X POST ${origin}/api/v1/match \\
+        <pre>{`curl -s -X POST ${origin}/api/v1/plan \\
   -H "Content-Type: application/json" \\
-  -d '{"text":"Sicherung für Klasse 7, 10 Minuten, 28 Schüler, ohne Geräte"}'`}</pre>
+  -d '{"text":"Kooperatives Lernen 2 x 45 Minuten Klasse 7 mit DaZ-Kindern zum Thema Nachhaltigkeit"}'`}</pre>
+        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 14 }}>
+          <span className="muted">
+            Eigene OpenAI-kompatible KI-Anbindung (OpenAI, Mistral, Gemini, GWDG Academic Cloud, Ollama, LM Studio, LiteLLM) direkt in der App nutzen:
+          </span>
+          <button type="button" className="btn btn-sm" onClick={() => setLlmSettingsOpen(true)}>
+            ⚙ KI-Einstellungen öffnen
+          </button>
+        </div>
       </section>
 
       <section className="card" style={{ padding: 18, marginTop: 24 }}>

@@ -281,16 +281,27 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(mockCalls).toBe(before + 1);
   });
 
-  it('defaults to OpenAI gpt-6-luna, resolves OPENAI_API_KEY fallback safely, and adapts GPT-5/GPT-6 parameters', async () => {
-    const cfgDefault = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key' });
-    expect(cfgDefault.llmBaseUrl).toBe('https://api.openai.com/v1');
-    expect(cfgDefault.llmModel).toBe('gpt-6-luna');
-    expect(cfgDefault.llmApiKey).toBe('sk-os-test-key');
+  it('keeps server LLM strictly opt-in via LLM_API_KEY (or LLM_USE_OPENAI_ENV=true) and adapts GPT-5/GPT-6 parameters', async () => {
+    // Strictly Zero-LLM unless LLM_API_KEY (or explicit LLM_USE_OPENAI_ENV=true) is set
+    const cfgNoExplicit = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key' });
+    expect(cfgNoExplicit.llmBaseUrl).toBe('https://api.openai.com/v1');
+    expect(cfgNoExplicit.llmModel).toBe('gpt-6-luna');
+    expect(cfgNoExplicit.llmApiKey).toBe('');
 
-    const cfgDisabled = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key', LLM_API_KEY: 'none' });
+    const cfgExplicit = loadConfig({ LLM_API_KEY: 'sk-explicit-key' });
+    expect(cfgExplicit.llmApiKey).toBe('sk-explicit-key');
+
+    const cfgOptInOpenAi = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key', LLM_USE_OPENAI_ENV: 'true' });
+    expect(cfgOptInOpenAi.llmApiKey).toBe('sk-os-test-key');
+
+    const cfgDisabled = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key', LLM_USE_OPENAI_ENV: 'true', LLM_API_KEY: 'none' });
     expect(cfgDisabled.llmApiKey).toBe('');
 
-    const cfgNonOpenAi = loadConfig({ OPENAI_API_KEY: 'sk-os-test-key', LLM_BASE_URL: 'https://api.mistral.ai/v1' });
+    const cfgNonOpenAi = loadConfig({
+      OPENAI_API_KEY: 'sk-os-test-key',
+      LLM_USE_OPENAI_ENV: 'true',
+      LLM_BASE_URL: 'https://api.mistral.ai/v1'
+    });
     expect(cfgNonOpenAi.llmApiKey).toBe('');
 
     for (const m of ['gpt-5', 'gpt-5-mini', 'gpt-5.4-mini', 'gpt-5.6-luna', 'gpt-6-luna', 'gpt-6-sol', 'gpt-6.2-astra', 'o3-mini']) {
@@ -424,5 +435,41 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(cj.matrixMerkmale.selectedValues.sprachkompetenz).toBe('sprachkompetenz-gering');
     expect(cj.matrixMerkmale.selectedValues.strukturierung).toBe('strukturierung-stark');
     expect(cj.methodenVorschlaege.length).toBeGreaterThan(0);
+
+    // Ultra-fast Zero-LLM scenario pre-filtering + caller-LLM briefing endpoint (/api/v1/plan)
+    const planRes = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/plan',
+      payload: {
+        text: 'Kooperatives Lernen 2 x 45 Minuten in der 7. Klasse, mehrere DaZ-Kinder, Thema Nachhaltigkeit bei Lebensmitteln',
+        includeWloOer: false
+      }
+    });
+    expect(planRes.statusCode).toBe(200);
+    const pj = planRes.json();
+    expect(pj.pruefung.gueltig).toBe(true);
+    expect(pj.erkannteKriterien.zeitMin).toBe(90);
+    expect(pj.erkannteMatrixSignale.length).toBeGreaterThan(0);
+    expect(pj.llmBriefing.systemPrompt).toContain('FMT');
+    expect(pj.llmBriefing.userPrompt).toContain('Nachhaltigkeit');
+
+    // Zero-LLM Prompt-Briefing endpoint (/api/v1/assistant/briefing) for external & browser-direct LLMs
+    const briefTranslate = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/briefing',
+      payload: { task: 'translate', payload: { text: 'Einstieg Fotosynthese Klasse 7, 15 Minuten' } }
+    });
+    expect(briefTranslate.statusCode).toBe(200);
+    expect(briefTranslate.json().llmBriefing.jsonMode).toBe(true);
+    expect(briefTranslate.json().vorfilterung.kriterien.zeitMin).toBe(15);
+
+    const briefMat = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/briefing',
+      payload: { task: 'material', payload: { baustein: 'abrufquiz', fach: 'Biologie', thema: 'Fotosynthese', materialTyp: 'quiz' } }
+    });
+    expect(briefMat.statusCode).toBe(200);
+    expect(briefMat.json().fallbackMaterial).toContain('Fotosynthese');
+    expect(briefMat.json().llmBriefing.userPrompt).toContain('MATERIALTYP: quiz');
   });
 });

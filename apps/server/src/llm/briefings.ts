@@ -1,0 +1,570 @@
+import {
+  FMT_GUARDRAILS,
+  scoreDifferentiationMatrix,
+  type Arrangement,
+  type MatchRequest,
+  type ValidationResult
+} from '@fmt/core';
+import type { CatalogStore } from '../catalog-store.js';
+import {
+  buildDeterministicThematicTable,
+  extractSubjectAndTopicFromText,
+  type ElaboratePayload,
+  type MaterialPayload,
+  type ThematicTableRow
+} from '../routes/assistant.js';
+import { searchWloOer } from '../routes/oer.js';
+
+export interface PromptPair {
+  systemPrompt: string;
+  userPrompt: string;
+  jsonMode: boolean;
+  maxTokens: number;
+}
+
+export interface LlmBriefingPacket {
+  zweck: string;
+  ausfuehrungHinweis: string;
+  systemPrompt: string;
+  userPrompt: string;
+  jsonMode: boolean;
+  maxTokens: number;
+  leitplanken: readonly string[];
+}
+
+export interface ElaborateBriefingResult {
+  pruefung: ValidationResult;
+  fallbackTable: ThematicTableRow[];
+  fallbackMarkdown: string;
+  tableBatches: Array<{ chunkIndex: number; phaseKeys: string[]; prompt: PromptPair }>;
+  narrativePrompt: PromptPair;
+  llmBriefing: LlmBriefingPacket;
+}
+
+function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> {
+  if (!node || typeof node !== 'object') return out;
+  const n = node as Record<string, unknown>;
+  if (typeof n.baustein === 'string') out.add(n.baustein);
+  if (Array.isArray(n.teile)) n.teile.forEach((x) => collectUsedBlocks(x, out));
+  if (Array.isArray(n.begleitend)) n.begleitend.forEach((x) => collectUsedBlocks(x, out));
+  if (Array.isArray(n.optionen)) n.optionen.forEach((x) => collectUsedBlocks(x, out));
+  if (Array.isArray(n.belegung)) n.belegung.forEach((x) => collectUsedBlocks((x as { inhalt?: unknown }).inhalt, out));
+  if (n.haupt) collectUsedBlocks(n.haupt, out);
+  return out;
+}
+
+export function buildTranslateBriefing(store: CatalogStore, text: string) {
+  const pre = store.classifyText(text);
+  const extracted = extractSubjectAndTopicFromText(text);
+  const systemPrompt =
+    'Du übersetzt deutsche Unterrichtsszenarien strikt in ein JSON-Objekt gemäß folgendem FMT-Anfrage-Schema. ' +
+    'Antworte AUSSCHLIESSLICH mit einem gültigen JSON-Objekt ohne Erklärtext. ' +
+    'Verwende NUR erlaubte Enum-Codes aus dem Schema. Setze das Feld "text" NICHT.\n' +
+    'Wichtige Zuordnungsregeln:\n' +
+    '- Wenn eine ganze Stunde, Doppelstunde (90 min), Einzelstunde (45 min) oder Unterrichtsreihe beschrieben wird, setze "modus": "ablauf" und wähle den passendsten "zieltyp":\n' +
+    '  • "prozedur" für Rechen-/Übungs-/Verfahrenskompetenzen (z. B. Bruchrechnen, Gleichungen, Rechtschreibung)\n' +
+    '  • "konzeptaufbau" für Begriffs- und Systemverständnis (z. B. Fotosynthese, Demokratie, Dichte)\n' +
+    '  • "problemloesen" für offene Anwendungs-/Transferprobleme\n' +
+    '  • "faktenwissen" für Vokabeln, Begriffslisten, Merkwissen\n' +
+    '  • "fuenf-e" für forschend-entdeckende naturwissenschaftliche Einheiten\n' +
+    '  • "pbl-siebensprung" für problemorientiertes Lernen\n' +
+    '- Wenn ein didaktischer Ansatz erwähnt wird (z. B. problemorientiertes Lernen -> ["forschend"], kooperatives Lernen -> ["kooperativ"], direkte Instruktion -> ["instruktion"]), setze das Array "ansatz".\n' +
+    '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose), setze "modus": "phase" und die passende "lernfunktion".\n\n' +
+    `Vorfilterung (bereits deterministisch erkannt – bitte nur präzisieren/ergänzen):\n${JSON.stringify(pre.kriterien)}\n\n` +
+    `Schema:\n${store.anfrageSchemaJson}`;
+
+  return {
+    erkanntesFach: extracted.fach,
+    erkanntesThema: extracted.thema,
+    vorfilterung: pre,
+    llmBriefing: {
+      zweck: 'Freitext-Unterrichtsszenario auf das strenge FMT-Anfrage-JSON-Schema abbilden',
+      ausfuehrungHinweis:
+        'Das Ergebnis-JSON anschließend an POST /api/v1/match (oder MCP match_scenario) übergeben, um einen deterministisch geprüften Ablauf zu erzeugen.',
+      systemPrompt,
+      userPrompt: text,
+      jsonMode: true,
+      maxTokens: 1200,
+      leitplanken: FMT_GUARDRAILS
+    } satisfies LlmBriefingPacket
+  };
+}
+
+export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePayload): ElaborateBriefingResult {
+  const pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
+  const usedIds = [...collectUsedBlocks(body.arrangement.ablauf)];
+  for (const p of body.phasen || []) {
+    for (const sub of Object.values(p.subgroupMethods || {})) {
+      if (sub?.methodId && !usedIds.includes(sub.methodId)) usedIds.push(sub.methodId);
+    }
+  }
+
+  const catalogById = new Map(
+    usedIds
+      .map((id) => store.blocksById.get(id))
+      .filter((b): b is NonNullable<typeof b> => Boolean(b))
+      .map((b) => [
+        b.kennung,
+        {
+          kennung: b.kennung,
+          name: b.name,
+          reichweite: b.reichweite,
+          kurzbeschreibung: b.kurzbeschreibung,
+          problem: b.problem,
+          durchfuehrung: b.durchfuehrung,
+          material: b.material,
+          raum: b.raum,
+          kernkomponente: b.kernkomponente.map((k) => k.name),
+          qualitaetsrisiko: b.qualitaetsrisiko,
+          evidenz: b.evidenz,
+          quellen: b.quellen
+        }
+      ])
+  );
+  const catalogContext = [...catalogById.values()];
+  const fallbackTable = buildDeterministicThematicTable(store, body);
+
+  const fallbackMarkdown = [
+    `# Unterrichtsentwurf: ${body.fach ? `${body.fach} – ` : ''}${body.thema || body.arrangement.name}`,
+    '',
+    `- **Gesamtdauer:** ${pruefung.dauerMin} min · **Prüfstatus:** ${pruefung.gueltig ? 'Gültig' : 'Prüfhinweise offen'}`,
+    ...(body.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${body.didaktischerAnsatz}`] : []),
+    ...(body.akteure ? [`- **Akteure / Lerngruppe:** ${body.akteure}`] : []),
+    ...(body.lernziele ? ['', '## Lernziele', body.lernziele] : []),
+    '',
+    '## Thematischer Ablauf',
+    ...fallbackTable.map(
+      (r) =>
+        `### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **Lehrkraft:** ${r.teacherAction}\n- **Lernende:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
+    )
+  ].join('\n');
+
+  const sharedContextHeader =
+    `FACH: ${body.fach || 'nicht angegeben'} · THEMA: ${body.thema || 'nicht angegeben'} · GESAMTDAUER: ${pruefung.dauerMin} min\n` +
+    (body.didaktischerAnsatz ? `Didaktischer Ansatz: ${body.didaktischerAnsatz}\n` : '') +
+    (body.akteure ? `Akteure / Personenanzahl: ${body.akteure}\n` : '') +
+    (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
+    (body.problemstellung ? `Didaktische Ausgangslage / Problemstellung:\n${body.problemstellung}\n` : '') +
+    (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+    (body.differenzierung?.length
+      ? `Lerngruppen & Binnendifferenzierungsmatrix:\n${JSON.stringify(body.differenzierung)}\n`
+      : '');
+
+  const arcOverview = fallbackTable
+    .map((r) => `${r.orderLabel}. ${r.phaseLabel} [${r.methodName}, ${r.durationMin} min]`)
+    .join(' → ');
+
+  const CHUNK_SIZE = 3;
+  const phaseChunks: ThematicTableRow[][] = [];
+  for (let i = 0; i < fallbackTable.length; i += CHUNK_SIZE) {
+    phaseChunks.push(fallbackTable.slice(i, i + CHUNK_SIZE));
+  }
+
+  const tableSystemPrompt =
+    'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
+    'Konkretisiere NUR die übergebenen Unterrichtsphasen präzise und praxisfertig auf das Fach, das Thema, die Lerngruppen (Binnendifferenzierungsmatrix), die WLO-OER-Ressourcen (inkl. exakter wwwurl) und erstellte Materialien.\n' +
+    'WICHTIG: Die methodische Vorgehensweise (Durchführungsschritte & Kernkomponenten jeder FMT-Methode) darf NICHT verloren gehen – übertrage sie explizit und schrittweise auf das konkrete Thema!\n' +
+    'ANTWORTE AUSSCHLIESSLICH als gültiges JSON-Objekt mit exakt diesem Feld:\n' +
+    '{\n' +
+    '  "thematischeTabelle": [\n' +
+    '    {\n' +
+    '      "key": "<exakter phase.key>",\n' +
+    '      "methodProcedure": "<konkret aufs Thema übertragene methodische Schrittfolge / didaktische Vorgehensweise der FMT-Methode (2-4 Sätze)>",\n' +
+    '      "teacherAction": "<konkrete thematische Lehrkrafthandlung inkl. Impuls/Moderation (2-3 Sätze)>",\n' +
+    '      "learnerAction": "<konkrete thematische Aktivität der Lernenden mit Bezug aufs Thema (2-3 Sätze)>",\n' +
+    '      "groupAdaptations": { "<groupId>": "<konkrete thematische Anpassung oder alternative Methode für diese Teilgruppe>" },\n' +
+    '      "materialsAndOer": "<konkreter Bezug auf zugeordnete Materialien & WLO-OER inkl. vollständiger wwwurl>"\n' +
+    '    }\n' +
+    '  ]\n' +
+    '}\n' +
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs außerhalb der übergebenen Katalog- und WLO-Daten.';
+
+  const tableBatches = phaseChunks.map((chunk, chunkIdx) => {
+    const chunkKeys = new Set(chunk.map((r) => r.key));
+    const chunkMethodIds = new Set<string>();
+    for (const r of chunk) {
+      chunkMethodIds.add(r.methodId);
+      const subMap = body.phasen?.find((p) => p.key === r.key)?.subgroupMethods || {};
+      for (const sub of Object.values(subMap)) {
+        if (sub?.methodId) chunkMethodIds.add(sub.methodId);
+      }
+    }
+    const chunkCatalog = [...chunkMethodIds]
+      .map((id) => catalogById.get(id))
+      .filter((x): x is NonNullable<typeof x> => Boolean(x))
+      .map((b) => ({
+        kennung: b.kennung,
+        name: b.name,
+        kurzbeschreibung: b.kurzbeschreibung,
+        durchfuehrung: b.durchfuehrung,
+        kernkomponente: b.kernkomponente,
+        material: b.material
+      }));
+    const chunkOers = (body.oerRessourcen || []).filter((o) => !o.stepKey || chunkKeys.has(o.stepKey));
+    const chunkMats = (body.materialien || []).filter((m) => !m.stepKey || chunkKeys.has(m.stepKey));
+
+    const chunkUserPrompt =
+      `${sharedContextHeader}\n` +
+      `Gesamtverlauf zur Einordnung (Abschnitt ${chunkIdx + 1}/${phaseChunks.length}):\n${arcOverview}\n\n` +
+      `DIESE PHASEN KONKRETISIEREN (exakte Keys verwenden):\n${JSON.stringify(
+        chunk.map((r) => ({
+          key: r.key,
+          orderLabel: r.orderLabel,
+          phaseLabel: r.phaseLabel,
+          durationMin: r.durationMin,
+          methodId: r.methodId,
+          methodName: r.methodName,
+          subgroupMethods: body.phasen?.find((p) => p.key === r.key)?.subgroupMethods
+        }))
+      )}\n` +
+      (chunkOers.length ? `\nZugeordnete WLO-OER (wwwurl exakt übernehmen!):\n${JSON.stringify(chunkOers)}\n` : '') +
+      (chunkMats.length ? `\nErstellte Materialien:\n${JSON.stringify(chunkMats)}\n` : '') +
+      `\nFMT-Methodenbeschreibungen für diesen Abschnitt:\n${JSON.stringify(chunkCatalog)}`;
+
+    return {
+      chunkIndex: chunkIdx,
+      phaseKeys: chunk.map((r) => r.key),
+      prompt: {
+        systemPrompt: tableSystemPrompt,
+        userPrompt: chunkUserPrompt,
+        jsonMode: true,
+        maxTokens: 2800
+      }
+    };
+  });
+
+  const narrativeSystemPrompt =
+    'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
+    'Erstelle einen praxisfertigen, klar gegliederten deutschen Unterrichtsentwurf im Markdown-Format (KEIN JSON, direkt lesbares Markdown!).\n' +
+    'Struktur:\n' +
+    '1. ## Kurzüberblick, Lernziele, didaktischer Ansatz & Lernvoraussetzungen\n' +
+    '2. ## Thematische Durchführung (Phase für Phase): Übertrage die konkrete methodische Vorgehensweise (Schrittfolge & Kernkomponenten der FMT-Methoden) explizit auf das Thema, inkl. konkreter Arbeitsimpulse, Moderationsübergänge, Einbindung der erstellten Materialien und WLO-OER-Links (immer mit exakter wwwurl als Markdown-Link)\n' +
+    '3. ## Binnendifferenzierung & Teilgruppen-Unterstützung\n' +
+    '4. ## Qualitätsrisiken & verifizierte Quellen (nur aus den übergebenen Katalogdaten)\n' +
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Evidenzbefunde immer mit Geltung nennen.';
+
+  const narrativeUserPrompt =
+    `AUSGESTALTUNG DES UNTERRICHTSENTWURFS (Markdown):\n${sharedContextHeader}\n` +
+    (body.oerRessourcen?.length ? `WLO-OER-Ressourcen (exakte wwwurl einbinden):\n${JSON.stringify(body.oerRessourcen)}\n` : '') +
+    (body.materialien?.length ? `Erstellte Unterrichtsmaterialien:\n${JSON.stringify(body.materialien)}\n` : '') +
+    `\nPhasenfolge:\n${JSON.stringify(
+      fallbackTable.map((r) => ({
+        order: r.orderLabel,
+        phase: r.phaseLabel,
+        dauerMin: r.durationMin,
+        methode: r.methodName,
+        subgroupMethods: body.phasen?.find((p) => p.key === r.key)?.subgroupMethods
+      }))
+    )}\n` +
+    `Prüfstatus: ${pruefung.gueltig ? 'Formal gültig' : 'Prüfhinweise vorhanden'} (${pruefung.dauerMin} min)\n\n` +
+    `FMT-Katalogdaten (Durchführung, Kernkomponenten, Risiken, Evidenz, Quellen):\n${JSON.stringify(catalogContext)}`;
+
+  const narrativePrompt: PromptPair = {
+    systemPrompt: narrativeSystemPrompt,
+    userPrompt: narrativeUserPrompt,
+    jsonMode: false,
+    maxTokens: 3200
+  };
+
+  return {
+    pruefung,
+    fallbackTable,
+    fallbackMarkdown,
+    tableBatches,
+    narrativePrompt,
+    llmBriefing: {
+      zweck: 'Geprüftes FMT-Arrangement mit vorselektierten Methodendaten, Matrix-Maßnahmen und WLO-Links im eigenen LLM thematisch ausformulieren',
+      ausfuehrungHinweis:
+        'Nutze dieses vorab gefilterte Briefing direkt in deinem eigenen LLM (z. B. Claude, ChatGPT, Ollama), ohne weitere Katalog-Abfragen. Erfinde keine Methoden, Studien oder URLs außerhalb der enthaltenen FMT-Katalogdaten.',
+      systemPrompt: narrativeSystemPrompt,
+      userPrompt: narrativeUserPrompt,
+      jsonMode: false,
+      maxTokens: 3200,
+      leitplanken: FMT_GUARDRAILS
+    }
+  };
+}
+
+export interface DifferentiateBriefingPayload {
+  phases: Array<{ key: string; phaseLabel: string; methodId: string; durationMin: number }>;
+  gruppen: Array<{ id: string; label: string; profile: string; count?: number; matrixMeasures?: string[] }>;
+  fach?: string;
+  thema?: string;
+  bildungsstufe?: string;
+  hinweise?: string;
+}
+
+export function buildDifferentiateBriefing(store: CatalogStore, body: DifferentiateBriefingPayload) {
+  const enrichedPhases = body.phases.slice(0, 20).map((p) => {
+    const b = store.blocksById.get(p.methodId);
+    return {
+      key: p.key,
+      phaseLabel: p.phaseLabel,
+      durationMin: p.durationMin,
+      methodId: p.methodId,
+      methodName: b?.name || p.methodId,
+      anleitung: b?.anleitung || [],
+      adaptivitaet: b?.adaptivitaet || [],
+      durchfuehrung: b?.durchfuehrung || [],
+      variante: b?.variante || []
+    };
+  });
+  const gruppen = body.gruppen.slice(0, 6);
+
+  const systemPrompt =
+    'Du bist ein Experte für Binnendifferenzierung (Binnendifferenzierungsmatrix) und die Facettierte Methodentaxonomie (FMT). ' +
+    'Erstelle für jede übergebene Unterrichtsphase und jede Lerngruppe eine knappe, konkret umsetzbare, themenspezifische Differenzierungsmaßnahme (1–2 Sätze) unter Berücksichtigung der berechneten Matrix-Empfehlungen und Gruppengröße.\n' +
+    'Antworte AUSSCHLIESSLICH mit gültigem JSON im Format:\n' +
+    '{ "phasen": { "<phase.key>": [ { "groupId": "<group.id>", "groupLabel": "<group.label>", "measure": "<konkrete Maßnahme>" } ] } }\n' +
+    'Verwende exakt die übergebenen phase.key- und group.id-Werte. Erfinde keine neuen Methoden.';
+
+  const userPrompt =
+    `Fach: ${body.fach || 'nicht angegeben'}, Thema: ${body.thema || 'nicht angegeben'}, Bildungsstufe: ${body.bildungsstufe || 'nicht angegeben'}.\n` +
+    (body.hinweise ? `Hinweise: ${body.hinweise}\n` : '') +
+    `\nLerngruppen inkl. Matrix-Top-Empfehlungen:\n${JSON.stringify(gruppen, null, 2)}\n\n` +
+    `Unterrichtsphasen mit FMT-Methoden:\n${JSON.stringify(enrichedPhases, null, 2)}`;
+
+  return {
+    enrichedPhases,
+    llmBriefing: {
+      zweck: 'Phasenspezifische Binnendifferenzierungs-Maßnahmen pro Lerngruppe auf Basis der Matrix-Punkte ausformulieren',
+      ausfuehrungHinweis: 'Direkt im eigenen LLM als JSON-Prompt ausführen; alle Matrix-Top-Empfehlungen sind bereits vorausberechnet.',
+      systemPrompt,
+      userPrompt,
+      jsonMode: true,
+      maxTokens: 3500,
+      leitplanken: FMT_GUARDRAILS
+    } satisfies LlmBriefingPacket
+  };
+}
+
+export function buildMaterialBriefing(store: CatalogStore, body: MaterialPayload) {
+  const methodId = (body.baustein || '').trim();
+  const block = store.blocksById.get(methodId);
+  if (!block) {
+    throw new Error('Bitte einen gültigen FMT-Methodenbaustein auswählen.');
+  }
+  const materialTyp = body.materialTyp || 'arbeitsblatt';
+
+  const systemPrompt =
+    'Du erstellst direkt im Unterricht einsetzbares, druckfertiges Lehrmaterial (klares deutsches Markdown) auf Basis einer konkreten FMT-Unterrichtsmethode.\n' +
+    'STRUKTUR:\n' +
+    '1. **Kopfzeile** (Titel, Fach, Thema, Methode, Zeitrahmen)\n' +
+    '2. **Klare Arbeitsaufträge / Inhalt** – exakt passend zur gewählten FMT-Methode und deren Durchführungsschritten\n' +
+    '3. **Binnendifferenzierung** – sofern Lerngruppen und Matrix-Maßnahmen übergeben wurden, kennzeichne Hilfen (★ Basis / Satzstarter) und Erweiterungen (★★★ Vertiefung)\n' +
+    '4. **Erwartungshorizont / Lehrkraft-Hinweise** (kurze Musterlösungen & typische Fehlvorstellungen)\n' +
+    'Erfinde keine falschen Quellen-URLs.';
+
+  const methodenFakten = {
+    kennung: block.kennung,
+    name: block.name,
+    kurzbeschreibung: block.kurzbeschreibung,
+    durchfuehrung: block.durchfuehrung,
+    material: block.material,
+    kernkomponente: block.kernkomponente.map((k) => k.name),
+    qualitaetsrisiko: block.qualitaetsrisiko
+  };
+
+  const userPrompt =
+    `MATERIALTYP: ${materialTyp}\n` +
+    `Fach: ${body.fach || 'nicht angegeben'} · Thema: ${body.thema || 'nicht angegeben'} · Bildungsstufe: ${body.bildungsstufe || 'Sekundarstufe I'}\n` +
+    `Phase: ${body.phaseLabel || 'Unterrichtsphase'} · Dauer: ${body.dauerMin || block.dauerMin} min\n` +
+    (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+    (body.gruppen?.length ? `\nAktive Lerngruppen & Binnendifferenzierung:\n${JSON.stringify(body.gruppen, null, 2)}\n` : '') +
+    `\nFMT-Methode:\n${JSON.stringify(methodenFakten, null, 2)}`;
+
+  return {
+    baustein: block.name,
+    materialTyp,
+    methodenFakten,
+    llmBriefing: {
+      zweck: `Druckfertiges ${materialTyp} passend zur FMT-Methode „${block.name}“ im eigenen LLM ausarbeiten`,
+      ausfuehrungHinweis:
+        'Die mitgelieferte deterministische Struktur-Vorlage ist bereits direkt nutzbar; für themenspezifische Aufgaben, Texte und Musterlösungen dieses Briefing an dein eigenes LLM übergeben.',
+      systemPrompt,
+      userPrompt,
+      jsonMode: false,
+      maxTokens: 4500,
+      leitplanken: FMT_GUARDRAILS
+    } satisfies LlmBriefingPacket
+  };
+}
+
+export interface ScenarioPlanArgs {
+  text: string;
+  fach?: string;
+  thema?: string;
+  lernziele?: string;
+  didaktischerAnsatz?: string;
+  ansatz?: string | string[];
+  zeitMin?: number;
+  gruppe?: number;
+  bildungsstufe?: string;
+  vorwissen?: string;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
+  includeWloOer?: boolean;
+  gruppen?: Array<{
+    id: string;
+    label: string;
+    count?: number;
+    personaId?: string;
+    profile?: string;
+    selectedValues?: Record<string, string>;
+  }>;
+}
+
+/**
+ * Ultra-fast Zero-LLM end-to-end scenario pre-filtering & briefing builder (<5 ms without WLO HTTP).
+ * Combines hybrid classification (rules + BM25/Model2Vec), matrix trait auto-detection,
+ * validated FMT arrangement matching, deterministic thematic table, optional WLO OER,
+ * and a ready-to-use LLM briefing packet for the caller's own LLM.
+ */
+export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: ScenarioPlanArgs) {
+  const t0 = process.hrtime.bigint();
+  const classification = store.classifyText(args.text);
+  const extracted = extractSubjectAndTopicFromText(args.text);
+  const fach = args.fach?.trim() || extracted.fach || undefined;
+  const thema = args.thema?.trim() || extracted.thema || args.text.slice(0, 110);
+
+  const matchReq: MatchRequest = {
+    text: args.text,
+    modus: 'ablauf',
+    ansatz: args.ansatz,
+    zeitMin: args.zeitMin,
+    gruppe: args.gruppe,
+    bildungsstufe: args.bildungsstufe,
+    vorwissen: args.vorwissen,
+    maxTechnik: args.maxTechnik,
+    ohneInternet: args.ohneInternet,
+    ohneKI: args.ohneKI
+  };
+  let matched = store.matcher.zuordnen(matchReq);
+  let angenommenerZieltyp: string | null = null;
+  if (matched.modus !== 'ablauf' || !matched.arrangement) {
+    // Infer sensible default zieltyp from pre-classified ansatz/scales so casual prompts always get a valid plan
+    const ansatzList = Array.isArray(classification.kriterien.ansatz)
+      ? (classification.kriterien.ansatz as string[])
+      : [];
+    const fallbackZieltyp = ansatzList.includes('forschend')
+      ? 'fuenf-e'
+      : ansatzList.includes('uebung')
+        ? 'prozedur'
+        : 'konzeptaufbau';
+    angenommenerZieltyp = fallbackZieltyp;
+    matched = store.matcher.zuordnen({ ...matchReq, zieltyp: fallbackZieltyp });
+  }
+  if (matched.modus !== 'ablauf' || !matched.arrangement) {
+    return {
+      fehler: 'Konnte keinen vollständigen Ablauf zuordnen.',
+      dauerMs: Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100,
+      vorfilterung: classification,
+      ergebnis: matched
+    };
+  }
+
+  const detectedTraits = classification.matrixMerkmale;
+  const activeGroups =
+    args.gruppen && args.gruppen.length
+      ? args.gruppen
+      : [
+          {
+            id: 'basis',
+            label: 'Basisunterstützung & Sprachsensibel',
+            personaId:
+              detectedTraits.suggestedPersonaId && detectedTraits.suggestedPersonaId !== 'highPerforming'
+                ? detectedTraits.suggestedPersonaId
+                : 'languageAndCulture',
+            selectedValues:
+              detectedTraits.signals.length > 0 && detectedTraits.suggestedPersonaId !== 'highPerforming'
+                ? detectedTraits.selectedValues
+                : undefined
+          },
+          { id: 'regel', label: 'Regelniveau', personaId: 'average' },
+          {
+            id: 'vertiefung',
+            label: 'Vertiefung & Leistungsstark',
+            personaId: 'highPerforming',
+            selectedValues:
+              detectedTraits.signals.length > 0 && detectedTraits.suggestedPersonaId === 'highPerforming'
+                ? detectedTraits.selectedValues
+                : undefined
+          }
+        ];
+
+  const groupMatrices = activeGroups.map((g) => {
+    const scored = scoreDifferentiationMatrix({
+      personaId: g.personaId || 'average',
+      selectedValues: g.selectedValues,
+      limit: 6
+    });
+    return {
+      ...g,
+      matrixTop: scored.topRecommendations.slice(0, 4).map((r) => `${r.name} (+${r.score})`),
+      didacticProfile: scored.didacticProfile
+    };
+  });
+
+  let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];
+  if (args.includeWloOer && (thema || fach)) {
+    try {
+      const wlo = await searchWloOer({
+        query: thema || fach || args.text,
+        fach,
+        bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
+        maxItems: 6
+      });
+      oerHits = wlo.ergebnisse.map((o) => ({
+        titel: o.title,
+        wwwurl: o.wwwurl,
+        wloRenderUrl: o.wloRenderUrl,
+        lizenz: o.license,
+        medientyp: o.resourceType
+      }));
+    } catch {
+      // Graceful offline fallback
+    }
+  }
+
+  const elabPayload: ElaboratePayload = {
+    arrangement: matched.arrangement,
+    fach,
+    thema,
+    didaktischerAnsatz: args.didaktischerAnsatz,
+    lernziele: args.lernziele,
+    differenzierung: groupMatrices.map((g) => ({
+      id: g.id,
+      gruppe: g.label,
+      profil: g.profile || g.didacticProfile.summary,
+      anzahl: g.count,
+      matrixMassnahmen: g.matrixTop
+    })),
+    oerRessourcen: oerHits.map((o) => ({ titel: o.titel, wwwurl: o.wwwurl, lizenz: o.lizenz }))
+  };
+
+  const briefing = buildElaborateBriefing(store, elabPayload);
+  const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+
+  return {
+    dauerMs,
+    engine: classification.engine,
+    fach: fach || null,
+    thema: thema || null,
+    angenommenerZieltyp,
+    erkannteKriterien: matched.kriterien,
+    skalenVorfilterung: classification.skalen,
+    erkannteMatrixSignale: detectedTraits.signals,
+    pruefung: matched.pruefung,
+    lerngruppenUndMatrix: groupMatrices,
+    wloOerRessourcen: oerHits,
+    thematischeTabelle: briefing.fallbackTable,
+    llmBriefing: briefing.llmBriefing,
+    maschinenlesbar: {
+      '@type': 'FmtScenarioPlan',
+      license: store.bundle.license,
+      arrangement: matched.arrangement
+    },
+    leitplanken: FMT_GUARDRAILS
+  };
+}

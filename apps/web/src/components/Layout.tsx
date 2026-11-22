@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useCatalog } from '../data/CatalogContext.js';
+import { ByokModal } from './ByokModal.js';
+import { isUserLlmConfigured } from '../lib/directLlm.js';
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { bundle, error, fromCache, refreshNotice } = useCatalog();
+  const { bundle, meta, error, fromCache, refreshNotice, byok, setByok, llmSettingsOpen, setLlmSettingsOpen } =
+    useCatalog();
+  const userLlmActive = isUserLlmConfigured(byok);
   const [theme, setTheme] = useState<'auto' | 'light' | 'dark'>(() => {
     try {
       return (localStorage.getItem('fmt_theme') as 'auto' | 'light' | 'dark') || 'auto';
@@ -62,6 +66,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 {fromCache ? '⚡ Cache' : '✓ Live'}
               </span>
             )}
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => setLlmSettingsOpen(true)}
+              title={
+                userLlmActive
+                  ? `Eigene KI aktiv (${byok.directBrowser ? 'Direkt' : 'Proxy'}: ${byok.model || byok.provider})`
+                  : meta?.llmConfigured
+                    ? `Server-KI aktiv (${meta.llmModel}) · Klicken für eigene KI-Einstellungen`
+                    : 'Zero-LLM-Modus aktiv · Klicken, um eigene OpenAI-kompatible KI zu verbinden'
+              }
+            >
+              {userLlmActive
+                ? `🔑 KI: ${byok.model ? byok.model.slice(0, 16) : byok.provider}`
+                : meta?.llmConfigured
+                  ? `✨ KI: ${meta.llmModel ? meta.llmModel.slice(0, 14) : 'Server'}`
+                  : '⚙ KI-Einstellungen'}
+            </button>
             <button type="button" className="btn btn-sm" onClick={cycleTheme} title="Farbschema umschalten">
               {theme === 'auto' ? '◐ Auto' : theme === 'dark' ? '☾ Dunkel' : '☀ Hell'}
             </button>
@@ -120,6 +142,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+
+      <ByokModal
+        open={llmSettingsOpen}
+        onClose={() => setLlmSettingsOpen(false)}
+        value={byok}
+        onSave={setByok}
+        meta={meta}
+      />
     </>
   );
 }

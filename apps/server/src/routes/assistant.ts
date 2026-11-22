@@ -12,6 +12,14 @@ import {
   resolveLlmTarget,
   type LlmOverride
 } from '../llm/client.js';
+import {
+  buildDifferentiateBriefing,
+  buildElaborateBriefing,
+  buildMaterialBriefing,
+  buildTranslateBriefing,
+  type DifferentiateBriefingPayload,
+  type LlmBriefingPacket
+} from '../llm/briefings.js';
 
 export interface ThematicTableRow {
   key: string;
@@ -627,7 +635,13 @@ export async function generateMaterialCore(
   config: ServerConfig,
   override: LlmOverride,
   body: MaterialPayload
-): Promise<{ quelle: 'llm' | 'deterministisch'; gecacht: boolean; material: string; baustein: string }> {
+): Promise<{
+  quelle: 'llm' | 'deterministisch';
+  gecacht: boolean;
+  material: string;
+  baustein: string;
+  llmBriefing?: LlmBriefingPacket;
+}> {
   const methodId = (body.baustein || '').trim();
   const block = store.blocksById.get(methodId);
   if (!block) {
@@ -770,7 +784,14 @@ export async function generateMaterialCore(
       '',
       '_Struktur-Vorlage ohne LLM erzeugt (sofort bearbeitbar & isoliert druckbar) · FMT · CC BY 4.0_'
     ].join('\n');
-    return { quelle: 'deterministisch', gecacht: false, material: template, baustein: block.name };
+    const briefing = buildMaterialBriefing(store, body);
+    return {
+      quelle: 'deterministisch',
+      gecacht: false,
+      material: template,
+      baustein: block.name,
+      llmBriefing: briefing.llmBriefing
+    };
   }
 
   const cacheKey = hashKey([
@@ -963,10 +984,80 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     }
   });
 
+  // Ultra-fast Zero-LLM Briefing endpoint (<2 ms): prepares verified FMT prompts & deterministic
+  // fallbacks so external API callers OR the Web App's Browser-Direct OpenAI-compatible client can
+  // execute the LLM call directly against the user's own LLM without routing keys through the server.
+  app.post('/api/v1/assistant/briefing', async (req, reply) => {
+    const t0 = process.hrtime.bigint();
+    const body = req.body as {
+      task?: 'translate' | 'elaborate' | 'differentiate' | 'material';
+      payload?: Record<string, unknown>;
+    } | null;
+    const task = body?.task;
+    const payload = (body?.payload || {}) as Record<string, unknown>;
+    const ms = () => Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+
+    try {
+      if (task === 'translate') {
+        const text = typeof payload.text === 'string' ? payload.text.trim() : '';
+        if (!text) return reply.code(400).send({ fehler: 'Bitte payload.text übergeben.' });
+        const b = buildTranslateBriefing(store, text);
+        return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
+      }
+      if (task === 'elaborate') {
+        const p = payload as unknown as ElaboratePayload;
+        if (!p?.arrangement || p.arrangement.typ !== 'Arrangement') {
+          return reply.code(400).send({ fehler: 'Bitte ein gültiges payload.arrangement übergeben.' });
+        }
+        const b = buildElaborateBriefing(store, p);
+        return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
+      }
+      if (task === 'differentiate') {
+        const p = payload as unknown as DifferentiateBriefingPayload;
+        if (!Array.isArray(p?.phases) || !p.phases.length || !Array.isArray(p?.gruppen) || !p.gruppen.length) {
+          return reply.code(400).send({ fehler: 'Bitte payload.phases und payload.gruppen übergeben.' });
+        }
+        const b = buildDifferentiateBriefing(store, p);
+        return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
+      }
+      if (task === 'material') {
+        const p = payload as unknown as MaterialPayload;
+        const mat = await generateMaterialCore(store, config, {}, { ...p, mode: 'template' });
+        const b = buildMaterialBriefing(store, p);
+        return reply.send({
+          task,
+          dauerMs: ms(),
+          fallbackMaterial: mat.material,
+          ...b,
+          leitplanken: FMT_GUARDRAILS
+        });
+      }
+      return reply.code(400).send({
+        fehler: 'Unbekannter task. Erlaubt: translate, elaborate, differentiate, material.'
+      });
+    } catch (e) {
+      return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Briefing konnte nicht erstellt werden.' });
+    }
+  });
+
   app.post('/api/v1/assistant/elaborate', { config: rateLimitConfig }, async (req, reply) => {
-    const body = req.body as Partial<ElaboratePayload> | null;
+    const body = req.body as (Partial<ElaboratePayload> & { mode?: 'ki' | 'briefing' }) | null;
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
       return reply.code(400).send({ fehler: 'Bitte ein gültiges FMT-Arrangement übergeben.' });
+    }
+
+    if (body.mode === 'briefing') {
+      const b = buildElaborateBriefing(store, body as ElaboratePayload);
+      return reply.send({
+        quelle: 'deterministisch',
+        gecacht: false,
+        pruefung: b.pruefung,
+        ausarbeitung: b.fallbackMarkdown,
+        thematischeTabelle: b.fallbackTable,
+        llmBriefing: b.llmBriefing,
+        tableBatches: b.tableBatches,
+        leitplanken: FMT_GUARDRAILS
+      });
     }
 
     const override = readByokHeaders(req, body as Record<string, unknown> | null);
@@ -980,7 +1071,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     if (!target) {
       return reply.code(503).send({
-        fehler: 'Für die fachliche Ausgestaltung ist kein LLM-API-Key konfiguriert. Sie können optional im Browser einen eigenen API-Key (BYOK) hinterlegen.'
+        fehler: 'Für die fachliche Ausgestaltung ist kein LLM-API-Key konfiguriert. Sie können in den KI-Einstellungen eine eigene OpenAI-kompatible Anbindung hinterlegen oder mode: "briefing" nutzen.'
       });
     }
 

@@ -14,10 +14,15 @@ import type { CatalogStore } from '../catalog-store.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer } from '../routes/oer.js';
 import {
-  buildDeterministicThematicTable,
   elaborateScenarioCore,
+  extractSubjectAndTopicFromText,
   generateMaterialCore
 } from '../routes/assistant.js';
+import {
+  buildElaborateBriefing,
+  buildMaterialBriefing,
+  buildScenarioPlanZeroLlm
+} from '../llm/briefings.js';
 
 export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): McpServer {
   const effectiveConfig = config ?? loadConfig();
@@ -57,11 +62,16 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       limit: z.number().int().min(1).max(100).optional().default(20)
     },
     async ({ limit, ...criteria }) => {
+      const t0 = process.hrtime.bigint();
       const hits = store.search.suche(criteria as SearchCriteria);
+      const textQuery = typeof criteria.text === 'string' ? criteria.text.trim() : '';
+      const semantic = textQuery && hits.length < 5 ? store.classifyText(textQuery) : null;
+      const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
       return textResult({
         gesamt: store.bundle.bausteine.length,
         anzahl: hits.length,
         angezeigt: Math.min(hits.length, limit),
+        dauerMs,
         treffer: hits.slice(0, limit).map((b) => ({
           kennung: b.kennung,
           name: b.name,
@@ -78,6 +88,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           nachbedingung: b.nachbedingung,
           evidenzgrad: store.search.bestGrade(b)
         })),
+        ...(semantic
+          ? {
+              semantischeVorschlaege: semantic.methodenVorschlaege.slice(0, 6),
+              skalenHinweise: semantic.skalen
+            }
+          : {}),
         lizenz: `${store.bundle.licenseName} (${store.bundle.creator})`
       });
     }
@@ -147,6 +163,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       zielart: z.string().optional(),
       ansatz: z.union([z.string(), z.array(z.string())]).optional().describe('Didaktischer Ansatz, z. B. "forschend", "kooperativ", "instruktion"'),
       lernfunktion: z.union([z.string(), z.array(z.string())]).optional(),
+      anleitung: z.union([z.string(), z.array(z.string())]).optional(),
+      engagement: z.union([z.string(), z.array(z.string())]).optional(),
+      interaktion: z.union([z.string(), z.array(z.string())]).optional(),
+      reichweite: z.union([z.string(), z.array(z.string())]).optional(),
       liefert: z.union([z.string(), z.array(z.string())]).optional(),
       zeitMin: z.number().int().min(0).optional(),
       gruppe: z.number().int().min(1).optional(),
@@ -161,8 +181,17 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     },
     async (args) => {
       try {
+        const t0 = process.hrtime.bigint();
         const res = store.matcher.zuordnen(args as MatchRequest);
-        return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+        const text = typeof args.text === 'string' ? args.text.trim() : '';
+        const extra = text
+          ? {
+              ...extractSubjectAndTopicFromText(text),
+              erkannteMatrixMerkmale: store.classifyText(text).matrixMerkmale
+            }
+          : {};
+        const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+        return textResult({ ...res, dauerMs, ...extra, leitplanken: FMT_GUARDRAILS });
       } catch (e) {
         return textResult({ fehler: e instanceof Error ? e.message : 'Ungültige Anfrage.' });
       }
@@ -295,10 +324,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     }
   );
 
-  // 10. build_scenario_plan (End-to-end IMS-LD + thematic table + optional WLO OER + differentiation matrix)
+  // 10. build_scenario_plan (Ultra-fast Zero-LLM pre-filtering + matrix + optional WLO OER + caller LLM briefing!)
   server.tool(
     'build_scenario_plan',
-    'Komponiert ein vollständiges, geprüftes Lehr- und Lernszenario inkl. FMT-Methodenablauf, Binnendifferenzierungsmatrix-Empfehlungen pro Teilgruppe, optionaler WLO-OER-Suche (mit wwwurl), thematischer Tabelle, Markdown-Entwurf und maschinenlesbarem JSON-LD.',
+    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, geprüftes Lehr-/Lernszenario (Freitext-Vorfilterung, FMT-Methodenablauf, automatisch erkannte Binnendifferenzierungsmatrix-Merkmale, optional WLO-OER mit wwwurl, thematische Basistabelle, JSON-LD) inkl. fertigem llmBriefing zur direkten Ausformulierung im eigenen LLM.',
     {
       text: z.string().describe('Beschreibung des Unterrichtsvorhabens'),
       fach: z.string().optional(),
@@ -310,7 +339,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       gruppe: z.number().int().min(1).optional(),
       bildungsstufe: z.string().optional(),
       vorwissen: z.string().optional(),
-      includeWloOer: z.boolean().optional().default(true).describe('Ob automatisch passende WLO-OER-Materialien (mit wwwurl) gesucht werden sollen'),
+      maxTechnik: z.string().optional(),
+      ohneInternet: z.boolean().optional(),
+      ohneKI: z.boolean().optional(),
+      includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),
       gruppen: z
         .array(
           z.object({
@@ -324,96 +356,15 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
     },
     async (args) => {
-      const matchReq: MatchRequest = {
-        text: args.text,
-        modus: 'ablauf',
-        ansatz: args.ansatz,
-        zeitMin: args.zeitMin,
-        gruppe: args.gruppe,
-        bildungsstufe: args.bildungsstufe,
-        vorwissen: args.vorwissen
-      };
-      const matched = store.matcher.zuordnen(matchReq);
-      if (matched.modus !== 'ablauf' || !matched.arrangement) {
-        return textResult({ fehler: 'Konnte keinen vollständigen Ablauf zuordnen.', ergebnis: matched });
-      }
-
-      const activeGroups =
-        args.gruppen && args.gruppen.length
-          ? args.gruppen
-          : [
-              { id: 'basis', label: 'Basisunterstützung & Sprachsensibel', personaId: 'languageAndCulture' },
-              { id: 'regel', label: 'Regelniveau', personaId: 'average' },
-              { id: 'vertiefung', label: 'Vertiefung & Leistungsstark', personaId: 'highPerforming' }
-            ];
-
-      const groupMatrices = activeGroups.map((g) => {
-        const scored = scoreDifferentiationMatrix({ personaId: g.personaId || 'average', limit: 6 });
-        return {
-          ...g,
-          matrixTop: scored.topRecommendations.slice(0, 4).map((r) => `${r.name} (+${r.score})`),
-          didacticProfile: scored.didacticProfile
-        };
-      });
-
-      let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];
-      if (args.includeWloOer && (args.thema || args.fach)) {
-        try {
-          const wlo = await searchWloOer({
-            query: args.thema || args.fach || args.text,
-            fach: args.fach,
-            bildungsstufe: args.bildungsstufe,
-            maxItems: 5
-          });
-          oerHits = wlo.ergebnisse.map((o) => ({
-            titel: o.title,
-            wwwurl: o.wwwurl,
-            wloRenderUrl: o.wloRenderUrl,
-            lizenz: o.license,
-            medientyp: o.resourceType
-          }));
-        } catch {
-          // Graceful fallback if WLO network unreachable
-        }
-      }
-
-      const thematicTable = buildDeterministicThematicTable(store, {
-        arrangement: matched.arrangement,
-        fach: args.fach,
-        thema: args.thema || args.text,
-        didaktischerAnsatz: args.didaktischerAnsatz,
-        lernziele: args.lernziele,
-        differenzierung: groupMatrices.map((g) => ({
-          id: g.id,
-          gruppe: g.label,
-          profil: g.profile || g.didacticProfile.summary,
-          anzahl: g.count,
-          matrixMassnahmen: g.matrixTop
-        })),
-        oerRessourcen: oerHits.map((o) => ({ titel: o.titel, wwwurl: o.wwwurl, lizenz: o.lizenz }))
-      });
-
-      return textResult({
-        fach: args.fach || null,
-        thema: args.thema || null,
-        pruefung: matched.pruefung,
-        lerngruppenUndMatrix: groupMatrices,
-        wloOerRessourcen: oerHits,
-        thematischeTabelle: thematicTable,
-        maschinenlesbar: {
-          '@type': 'FmtScenarioPlan',
-          license: store.bundle.license,
-          arrangement: matched.arrangement
-        },
-        leitplanken: FMT_GUARDRAILS
-      });
+      const plan = await buildScenarioPlanZeroLlm(store, args);
+      return textResult(plan);
     }
   );
 
-  // 11. elaborate_scenario
+  // 11. elaborate_scenario (Zero-LLM by default: <2 ms deterministic table + ready-to-use llmBriefing for the caller's LLM!)
   server.tool(
     'elaborate_scenario',
-    'Erstellt eine thematisch angepasste Verlaufstabelle + ausformulierten Unterrichtsentwurf inkl. WLO-OER (wwwurl) und Differenzierung (per Server-LLM oder deterministischem Fallback).',
+    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann.',
     {
       arrangement: z.record(z.unknown()).describe('FMT-Arrangement JSON-LD'),
       fach: z.string().optional(),
@@ -425,11 +376,17 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       hinweise: z.string().optional(),
       oerRessourcen: z
         .array(z.object({ stepKey: z.string().optional(), titel: z.string(), wwwurl: z.string() }))
+        .optional(),
+      useServerLlm: z
+        .boolean()
         .optional()
+        .default(false)
+        .describe('Standard false (<2 ms, Zero-LLM + llmBriefing für das Enduser-LLM). Nur true setzen, wenn explizit der Server-LLM genutzt werden soll.')
     },
     async (args) => {
       try {
-        const res = await elaborateScenarioCore(store, effectiveConfig, {}, {
+        const t0 = process.hrtime.bigint();
+        const payload = {
           arrangement: args.arrangement as unknown as Arrangement,
           fach: args.fach,
           thema: args.thema,
@@ -439,18 +396,32 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           problemstellung: args.problemstellung,
           hinweise: args.hinweise,
           oerRessourcen: args.oerRessourcen
+        };
+        if (args.useServerLlm && effectiveConfig.llmApiKey) {
+          const res = await elaborateScenarioCore(store, effectiveConfig, {}, payload);
+          return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+        }
+        const briefing = buildElaborateBriefing(store, payload);
+        const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+        return textResult({
+          quelle: 'deterministisch',
+          dauerMs,
+          pruefung: briefing.pruefung,
+          ausarbeitung: briefing.fallbackMarkdown,
+          thematischeTabelle: briefing.fallbackTable,
+          llmBriefing: briefing.llmBriefing,
+          leitplanken: FMT_GUARDRAILS
         });
-        return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
       } catch (e) {
         return textResult({ fehler: e instanceof Error ? e.message : 'Ausarbeitung fehlgeschlagen.' });
       }
     }
   );
 
-  // 12. generate_phase_material
+  // 12. generate_phase_material (Zero-LLM by default: <2 ms printable Markdown template + llmBriefing for caller's LLM!)
   server.tool(
     'generate_phase_material',
-    'Erstellt druckfertiges Unterrichtsmaterial (Arbeitsblatt, Quiz, Checkliste, Versuchsanleitung, Diskussionskarten) passend zu einer FMT-Methode und einem Thema.',
+    'Erstellt in <2 ms deterministisch eine druckfertige Material-Strukturvorlage (Arbeitsblatt, Infoblatt, Quiz, Checkliste, Versuchsanleitung, Diskussionskarten, Glossar) plus ein fertiges llmBriefing für die fachliche Ausformulierung im Enduser-LLM.',
     {
       baustein: z.string().describe('FMT-Methodenkennung, z. B. "loesungsbeispiele" oder "abrufquiz"'),
       fach: z.string().optional(),
@@ -462,12 +433,26 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .enum(['arbeitsblatt', 'infoblatt', 'quiz', 'checkliste', 'versuchsanleitung', 'diskussionskarten', 'glossar'])
         .optional()
         .default('arbeitsblatt'),
-      hinweise: z.string().optional()
+      hinweise: z.string().optional(),
+      useServerLlm: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe('Standard false (<2 ms, Zero-LLM-Vorlage + llmBriefing für das Enduser-LLM).')
     },
     async (args) => {
       try {
-        const res = await generateMaterialCore(store, effectiveConfig, {}, args);
-        return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
+        const t0 = process.hrtime.bigint();
+        const mode = args.useServerLlm && effectiveConfig.llmApiKey ? 'ki' : 'template';
+        const res = await generateMaterialCore(store, effectiveConfig, {}, { ...args, mode });
+        const briefing = buildMaterialBriefing(store, args);
+        const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+        return textResult({
+          ...res,
+          dauerMs,
+          llmBriefing: res.llmBriefing || briefing.llmBriefing,
+          leitplanken: FMT_GUARDRAILS
+        });
       } catch (e) {
         return textResult({ fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.' });
       }
@@ -477,13 +462,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 13. classify_scenario_text (Zero-LLM hybrid rule + BM25/Model2Vec scale & matrix classifier)
   server.tool(
     'classify_scenario_text',
-    'Klassifiziert einen freien deutschen Szenariotext komplett ohne LLM (Regeln + BM25/Trigram + optional lokales Model2Vec-Embedding) auf FMT-Filterskalen, passende Methoden und Binnendifferenzierungsmatrix-Merkmale.',
+    'Klassifiziert einen freien deutschen Szenariotext extrem schnell ohne LLM (Regeln + BM25/Trigram + optional lokales Model2Vec-Embedding) auf FMT-Filterskalen, Fach/Thema, passende Methoden und Binnendifferenzierungsmatrix-Merkmale.',
     {
       text: z.string().describe('Freitext-Beschreibung der Unterrichtsidee inkl. Rahmen, Lernziel und Lerngruppenhinweisen')
     },
     async ({ text }) => {
+      const extracted = extractSubjectAndTopicFromText(text);
+      const cls = store.classifyText(text);
       return textResult({
-        ...store.classifyText(text),
+        ...cls,
+        erkanntesFach: extracted.fach,
+        erkanntesThema: extracted.thema,
+        empfohlenerNaechsterSchritt:
+          cls.kriterien.modus === 'phase'
+            ? 'match_scenario (modus: "phase") oder search_methods aufrufen'
+            : 'build_scenario_plan mit den vorab erkannten Kriterien aufrufen',
         leitplanken: FMT_GUARDRAILS
       });
     }
@@ -590,10 +583,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             type: 'text',
             text:
               `Plane ein modulares Lehr-/Lernszenario für folgende Anfrage:\n\n"${szenario}"\n\n` +
-              `Vorgehen:\n` +
-              `1. Nutze \`build_scenario_plan\` oder \`match_scenario\`, um einen geprüften FMT-Ablauf zu erzeugen.\n` +
-              `2. Nutze \`score_differentiation_matrix\` für die Teilgruppen-Differenzierung und \`search_wlo_oer\` für passende freie Bildungsmaterialien (immer mit wwwurl).\n` +
-              `3. Prüfe Anpassungen mit \`validate_arrangement\` und erzeuge bei Bedarf mit \`elaborate_scenario\` und \`generate_phase_material\` den thematischen Endentwurf.\n` +
+              `Vorgehen (schnelle Zero-LLM-Vorfilterung über MCP, Ausformulierung durch dich als Enduser-LLM):\n` +
+              `1. Nutze \`classify_scenario_text\` oder direkt \`build_scenario_plan\`, um in <5 ms einen geprüften FMT-Ablauf, erkannte Binnendifferenzierungsmatrix-Merkmale und ein fertiges \`llmBriefing\` zu erhalten.\n` +
+              `2. Suche bei Bedarf mit \`search_wlo_oer\` freie Bildungsmaterialien (immer exakte \`wwwurl\` übernehmen).\n` +
+              `3. Prüfe eigene Anpassungen mit \`validate_arrangement\` und formuliere den thematischen Endentwurf direkt anhand des gelieferten \`llmBriefing\` aus (nutze \`generate_phase_material\` für Material-Vorlagen + Briefings).\n` +
               `4. Beachte zwingend die vier FMT-Leitplanken:\n` +
               FMT_GUARDRAILS.map((g, i) => `   ${i + 1}. ${g}`).join('\n')
           }

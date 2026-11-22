@@ -4,7 +4,11 @@ export const BYOK_PROVIDERS: Record<string, string> = {
   openai: 'https://api.openai.com/v1',
   gemini: 'https://generativelanguage.googleapis.com/v1beta/openai',
   mistral: 'https://api.mistral.ai/v1',
-  openrouter: 'https://openrouter.ai/api/v1'
+  openrouter: 'https://openrouter.ai/api/v1',
+  groq: 'https://api.groq.com/openai/v1',
+  academiccloud: 'https://chat-ai.academiccloud.de/v1',
+  deepseek: 'https://api.deepseek.com/v1',
+  together: 'https://api.together.xyz/v1'
 };
 
 export function isOpenAiReasoningSeries(model: string): boolean {

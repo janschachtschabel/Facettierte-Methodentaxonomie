@@ -13,6 +13,9 @@ export interface ServerMeta {
   llmConfigured: boolean;
   llmModel?: string | null;
   llmAllowByok: boolean;
+  llmByokProviders?: string[];
+  embeddingsEngine?: string;
+  embeddingsModel?: string | null;
 }
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;

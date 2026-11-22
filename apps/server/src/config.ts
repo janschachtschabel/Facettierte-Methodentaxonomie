@@ -29,7 +29,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const llmBaseUrl = (env.LLM_BASE_URL || DEFAULT_LLM_BASE_URL).replace(/\/+$/, '');
   const explicitKey = (env.LLM_API_KEY || '').trim();
   const disableFallback = explicitKey.toLowerCase() === 'none' || explicitKey.toLowerCase() === 'off';
-  const openAiFallback = !disableFallback && isOpenAiUrl(llmBaseUrl) ? (env.OPENAI_API_KEY || '').trim() : '';
+  // Server-LLM is strictly opt-in via LLM_API_KEY (or explicit LLM_USE_OPENAI_ENV=true).
+  // This ensures local/Docker deployments stay fast & Zero-LLM unless intentionally configured.
+  const useOpenAiEnv = (env.LLM_USE_OPENAI_ENV || '').trim().toLowerCase() === 'true';
+  const openAiFallback =
+    !disableFallback && useOpenAiEnv && isOpenAiUrl(llmBaseUrl) ? (env.OPENAI_API_KEY || '').trim() : '';
   const llmApiKey = disableFallback ? '' : explicitKey || openAiFallback;
 
   return {

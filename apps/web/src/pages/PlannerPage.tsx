@@ -12,7 +12,7 @@ import { PartiturView } from '../components/PartiturView.js';
 import { VerlaufsplanView } from '../components/VerlaufsplanView.js';
 import { ScenarioStudioPanel, type StudioTab } from '../components/ScenarioStudioPanel.js';
 import { TimelineBandSvg } from '../components/TimelineBandSvg.js';
-import { ByokModal } from '../components/ByokModal.js';
+import { buildServerByokHeaders, isUserLlmConfigured, runDirectTranslate } from '../lib/directLlm.js';
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
@@ -168,7 +168,7 @@ export function PlannerPage() {
     pendingPlannerBlock,
     consumePendingPlannerBlock,
     byok,
-    setByok
+    setLlmSettingsOpen
   } = useCatalog();
 
   const [step, setStep] = useState<PlannerStep>(1);
@@ -215,7 +215,6 @@ export function PlannerPage() {
   const [showSavedDrawer, setShowSavedDrawer] = useState(false);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
 
-  const [byokOpen, setByokOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -290,15 +289,7 @@ export function PlannerPage() {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
   }
 
-  const byokHeaders = (): Record<string, string> => {
-    const h: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (byok.apiKey) {
-      h['X-LLM-Api-Key'] = byok.apiKey;
-      h['X-LLM-Provider'] = byok.provider || 'openai';
-      if (byok.model) h['X-LLM-Model'] = byok.model;
-    }
-    return h;
-  };
+  const byokHeaders = (): Record<string, string> => buildServerByokHeaders(byok);
 
   const toggleAnsatzCode = (code: string) => {
     setAnsatzCodes((prev) => (prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]));
@@ -441,18 +432,31 @@ export function PlannerPage() {
     setBusyAi(true);
     setMatchNotice(null);
     try {
-      const res = await fetch('/api/v1/assistant/translate', {
-        method: 'POST',
-        headers: byokHeaders(),
-        body: JSON.stringify({ text: buildEnrichedAiText() })
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setMatchNotice(`Hinweis: ${json.fehler || 'Anfrage fehlgeschlagen.'}`);
-        return;
+      let json: {
+        quelle?: string;
+        gecacht?: boolean;
+        hinweis?: string;
+        fehler?: string;
+        erkanntesFach?: string | null;
+        erkanntesThema?: string | null;
+        ergebnis?: MatchResult;
+      };
+      if (byok.enabled && byok.directBrowser) {
+        json = await runDirectTranslate(byok, buildEnrichedAiText());
+      } else {
+        const res = await fetch('/api/v1/assistant/translate', {
+          method: 'POST',
+          headers: byokHeaders(),
+          body: JSON.stringify({ text: buildEnrichedAiText() })
+        });
+        json = await res.json();
+        if (!res.ok) {
+          setMatchNotice(`Hinweis: ${json.fehler || 'Anfrage fehlgeschlagen.'}`);
+          return;
+        }
       }
       syncTopicFromScenarioText(json.erkanntesFach, json.erkanntesThema);
-      setMatchResult(json.ergebnis as MatchResult);
+      if (json.ergebnis) setMatchResult(json.ergebnis);
       if (json.ergebnis?.modus === 'ablauf' && json.ergebnis?.arrangement) {
         setArrangement(json.ergebnis.arrangement as Arrangement);
         setThematicRows(null);
@@ -461,10 +465,13 @@ export function PlannerPage() {
       }
       setMatchNotice(
         json.quelle === 'llm'
-          ? `KI-Übersetzung (${json.gecacht ? 'aus Cache' : 'live'}) → deterministisch geprüft.`
+          ? `KI-Übersetzung (${byok.enabled && byok.directBrowser ? `Direkt: ${byok.model}` : json.gecacht ? 'aus Cache' : 'live'}) → deterministisch geprüft.`
           : json.hinweis || 'Deterministische Regel-Zuordnung genutzt.'
       );
-    } catch {
+    } catch (e) {
+      if (byok.enabled && byok.directBrowser) {
+        setMatchNotice(`Direkte KI-Anfrage fehlgeschlagen (${e instanceof Error ? e.message : 'Fehler'}) – deterministische Zuordnung genutzt.`);
+      }
       runDeterministicMatch();
     } finally {
       setBusyAi(false);
@@ -711,7 +718,8 @@ export function PlannerPage() {
 
   const nErr = validation.meldungen.filter((m) => m.schwere === 'Fehler').length;
   const nWarn = validation.meldungen.length - nErr;
-  const llmAvailable = Boolean(meta?.llmConfigured || byok.apiKey);
+  const userLlmActive = isUserLlmConfigured(byok);
+  const llmAvailable = Boolean(meta?.llmConfigured || userLlmActive);
   const totalAttachedOer = Object.values(oerByStep).reduce((s, list) => s + list.length, 0);
 
   return (
@@ -769,11 +777,9 @@ export function PlannerPage() {
               e.target.value = '';
             }}
           />
-          {meta?.llmAllowByok !== false && (
-            <button type="button" className="btn btn-sm btn-ghost" onClick={() => setByokOpen(true)}>
-              🔑 {byok.apiKey ? `BYOK (${byok.provider})` : 'KI-Key'}
-            </button>
-          )}
+          <button type="button" className="btn btn-sm btn-ghost" onClick={() => setLlmSettingsOpen(true)}>
+            {userLlmActive ? `🔑 KI (${byok.model || byok.provider})` : '⚙ KI-Anbindung'}
+          </button>
         </div>
       </div>
 
@@ -914,9 +920,17 @@ export function PlannerPage() {
           <div className="card" style={{ padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
               <h2 style={{ margin: 0, fontSize: 21 }}>Was möchtest du unterrichten?</h2>
-              <span className="status-badge">
-                {llmAvailable ? `✨ KI aktiv (${byok.model || meta?.llmModel || 'gpt-6-luna'})` : '⚡ Deterministischer Sofort-Modus'}
-              </span>
+              <button
+                type="button"
+                className="status-badge"
+                style={{ cursor: 'pointer' }}
+                onClick={() => setLlmSettingsOpen(true)}
+                title="KI-Einstellungen öffnen (OpenAI-kompatible Anbindung konfigurieren)"
+              >
+                {llmAvailable
+                  ? `✨ KI aktiv (${userLlmActive ? byok.model || byok.provider : meta?.llmModel || 'Server'})`
+                  : '⚡ Zero-LLM-Modus · Eigene KI verbinden ⚙'}
+              </button>
             </div>
 
             <p className="muted" style={{ fontSize: 14, marginTop: 0, marginBottom: 10 }}>
@@ -1510,6 +1524,7 @@ export function PlannerPage() {
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}
+            byok={byok}
             byokHeaders={byokHeaders}
             llmAvailable={llmAvailable}
           />
@@ -1582,6 +1597,7 @@ export function PlannerPage() {
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}
+            byok={byok}
             byokHeaders={byokHeaders}
             llmAvailable={llmAvailable}
           />
@@ -1592,8 +1608,6 @@ export function PlannerPage() {
           </div>
         </section>
       )}
-
-      <ByokModal open={byokOpen} onClose={() => setByokOpen(false)} value={byok} onSave={setByok} />
     </div>
   );
 }

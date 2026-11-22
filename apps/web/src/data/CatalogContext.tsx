@@ -15,10 +15,26 @@ import {
 } from '@fmt/core';
 import { CACHE_KEY, getSafeLocalStorage, loadCatalogWithCache, type ServerMeta } from './catalogCache.js';
 
+export type LlmProviderId =
+  | 'openai'
+  | 'gemini'
+  | 'mistral'
+  | 'openrouter'
+  | 'academiccloud'
+  | 'groq'
+  | 'ollama'
+  | 'lmstudio'
+  | 'custom'
+  | 'server';
+
 export interface ByokSettings {
+  enabled: boolean;
   apiKey: string;
-  provider: string;
+  provider: LlmProviderId;
+  baseUrl: string;
   model: string;
+  directBrowser: boolean;
+  persistLocal: boolean;
 }
 
 interface CatalogContextValue {
@@ -42,22 +58,53 @@ interface CatalogContextValue {
   consumePendingPlannerBlock: () => string | null;
   byok: ByokSettings;
   setByok: (next: ByokSettings) => void;
+  llmSettingsOpen: boolean;
+  setLlmSettingsOpen: (open: boolean) => void;
 }
 
 const CatalogContext = createContext<CatalogContextValue | null>(null);
 const BYOK_KEY = 'fmt_byok_session_v1';
+const BYOK_LOCAL_KEY = 'fmt_byok_local_v2';
+
+export const DEFAULT_BYOK_SETTINGS: ByokSettings = {
+  enabled: false,
+  apiKey: '',
+  provider: 'openai',
+  baseUrl: 'https://api.openai.com/v1',
+  model: 'gpt-6-luna',
+  directBrowser: false,
+  persistLocal: false
+};
+
+function normalizeByok(p: Partial<ByokSettings> | null | undefined, persistLocal: boolean): ByokSettings {
+  if (!p) return { ...DEFAULT_BYOK_SETTINGS };
+  const provider = (p.provider || 'openai') as LlmProviderId;
+  const directBrowser =
+    typeof p.directBrowser === 'boolean'
+      ? p.directBrowser
+      : provider === 'custom' || provider === 'ollama' || provider === 'lmstudio';
+  const enabled = typeof p.enabled === 'boolean' ? p.enabled : Boolean(p.apiKey || (directBrowser && p.baseUrl));
+  return {
+    enabled,
+    apiKey: p.apiKey || '',
+    provider,
+    baseUrl: p.baseUrl || (provider === 'openai' ? 'https://api.openai.com/v1' : ''),
+    model: p.model || '',
+    directBrowser,
+    persistLocal
+  };
+}
 
 function readByok(): ByokSettings {
   try {
-    const raw = window.sessionStorage.getItem(BYOK_KEY);
-    if (raw) {
-      const p = JSON.parse(raw) as Partial<ByokSettings>;
-      return { apiKey: p.apiKey || '', provider: p.provider || 'openai', model: p.model || '' };
-    }
+    const sess = window.sessionStorage.getItem(BYOK_KEY);
+    if (sess) return normalizeByok(JSON.parse(sess) as Partial<ByokSettings>, false);
+    const loc = window.localStorage.getItem(BYOK_LOCAL_KEY);
+    if (loc) return normalizeByok(JSON.parse(loc) as Partial<ByokSettings>, true);
   } catch {
     // ignore
   }
-  return { apiKey: '', provider: 'openai', model: '' };
+  return { ...DEFAULT_BYOK_SETTINGS };
 }
 
 export function CatalogProvider({ children }: { children: React.ReactNode }) {
@@ -70,12 +117,18 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const [comparePair, setComparePair] = useState<[string, string]>(['lehrervortrag', 'vortrag-prompts']);
   const [pendingPlannerBlock, setPendingPlannerBlock] = useState<string | null>(null);
   const [byok, setByokState] = useState<ByokSettings>(() => readByok());
+  const [llmSettingsOpen, setLlmSettingsOpen] = useState(false);
 
   const setByok = (next: ByokSettings) => {
     setByokState(next);
     try {
-      if (next.apiKey) window.sessionStorage.setItem(BYOK_KEY, JSON.stringify(next));
-      else window.sessionStorage.removeItem(BYOK_KEY);
+      window.sessionStorage.removeItem(BYOK_KEY);
+      window.localStorage.removeItem(BYOK_LOCAL_KEY);
+      if (next.enabled) {
+        const serialized = JSON.stringify(next);
+        if (next.persistLocal) window.localStorage.setItem(BYOK_LOCAL_KEY, serialized);
+        else window.sessionStorage.setItem(BYOK_KEY, serialized);
+      }
     } catch {
       // ignore
     }
@@ -203,7 +256,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
       return k;
     },
     byok,
-    setByok
+    setByok,
+    llmSettingsOpen,
+    setLlmSettingsOpen
   };
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;

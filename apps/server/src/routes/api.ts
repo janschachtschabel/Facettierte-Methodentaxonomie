@@ -9,6 +9,9 @@ import {
 } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
+import { BYOK_PROVIDERS } from '../llm/client.js';
+import { buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
+import { extractSubjectAndTopicFromText } from './assistant.js';
 
 export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
   const fieldsMap = new Map(store.matcher.felder().map((f) => [f.feld, f]));
@@ -66,6 +69,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
+      llmByokProviders: Object.keys(BYOK_PROVIDERS),
       embeddingsEngine: store.model2vec ? 'hybrid-model2vec' : 'hybrid-bm25-trigram',
       embeddingsModel: store.model2vec ? store.model2vec.modelId : null,
       mcpEndpoint: '/mcp'
@@ -117,8 +121,26 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
         criteria[k] = Array.isArray(raw) ? raw[0] : raw;
       }
     }
+    const t0 = process.hrtime.bigint();
     const hits = store.search.suche(criteria);
-    return { gesamt: store.bundle.bausteine.length, anzahl: hits.length, treffer: hits };
+    const textQuery = typeof criteria.text === 'string' ? criteria.text.trim() : '';
+    const semanticInfo =
+      textQuery && hits.length < 5
+        ? store.classifyText(textQuery)
+        : null;
+    const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+    return {
+      gesamt: store.bundle.bausteine.length,
+      anzahl: hits.length,
+      dauerMs,
+      treffer: hits,
+      ...(semanticInfo
+        ? {
+            semantischeVorschlaege: semanticInfo.methodenVorschlaege.slice(0, 6),
+            skalenHinweise: semanticInfo.skalen
+          }
+        : {})
+    };
   });
 
   app.get('/api/v1/methods/:kennung', async (req: FastifyRequest<{ Params: { kennung: string } }>, reply) => {
@@ -177,7 +199,25 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!text) {
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" zur Klassifikation übergeben.' });
     }
-    return store.classifyText(text);
+    const extracted = extractSubjectAndTopicFromText(text);
+    return {
+      ...store.classifyText(text),
+      erkanntesFach: extracted.fach,
+      erkanntesThema: extracted.thema
+    };
+  });
+
+  app.post('/api/v1/plan', async (req, reply) => {
+    const body = req.body as Partial<ScenarioPlanArgs> | null;
+    const text = typeof body?.text === 'string' ? body.text.trim() : '';
+    if (!text) {
+      return reply.code(400).send({ fehler: 'Bitte ein Feld "text" für die Szenario-Vorfilterung übergeben.' });
+    }
+    return buildScenarioPlanZeroLlm(store, {
+      ...(body as ScenarioPlanArgs),
+      text,
+      includeWloOer: Boolean(body?.includeWloOer)
+    });
   });
 
   app.post('/api/v1/differentiation/score', async (req) => {

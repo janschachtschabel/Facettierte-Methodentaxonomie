@@ -28,6 +28,8 @@ import {
 } from '../planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../planner/lmsExport.js';
 import { printHtmlDocument } from '../planner/scenarioStorage.js';
+import type { ByokSettings } from '../data/CatalogContext.js';
+import { runDirectDifferentiate, runDirectElaborate, runDirectMaterial } from '../lib/directLlm.js';
 
 export type StudioTab = 'oer' | 'diff' | 'material';
 
@@ -75,6 +77,7 @@ interface Props {
   onSaveBrowser: () => void;
   onDownloadProject: () => void;
   getTimelineSvg: () => string | null;
+  byok?: ByokSettings;
   byokHeaders: () => Record<string, string>;
   llmAvailable: boolean;
 }
@@ -123,6 +126,7 @@ export function ScenarioStudioPanel({
   onSaveBrowser,
   onDownloadProject,
   getTimelineSvg,
+  byok,
   byokHeaders,
   llmAvailable
 }: Props) {
@@ -324,28 +328,41 @@ export function ScenarioStudioPanel({
         .filter(Boolean)
         .join(' · ');
 
-      const res = await fetch('/api/v1/assistant/elaborate', {
-        method: 'POST',
-        headers: byokHeaders(),
-        body: JSON.stringify({
-          arrangement,
-          thema,
-          fach,
-          didaktischerAnsatz: didaktischerAnsatz || undefined,
-          akteure: akteureSummary || undefined,
-          lernziele: lernziele.trim() || undefined,
-          problemstellung: problemstellung.trim() || undefined,
-          hinweise: hinweise.trim() || undefined,
-          differenzierung: diffPayload,
-          oerRessourcen: oerPayload,
-          materialien: matPayload,
-          phasen: phasenPayload
-        })
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setElabError(json.fehler || 'Ausgestaltung fehlgeschlagen.');
-        return;
+      const elaboratePayload = {
+        arrangement,
+        thema,
+        fach,
+        didaktischerAnsatz: didaktischerAnsatz || undefined,
+        akteure: akteureSummary || undefined,
+        lernziele: lernziele.trim() || undefined,
+        problemstellung: problemstellung.trim() || undefined,
+        hinweise: hinweise.trim() || undefined,
+        differenzierung: diffPayload,
+        oerRessourcen: oerPayload,
+        materialien: matPayload,
+        phasen: phasenPayload
+      };
+
+      let json: {
+        fehler?: string;
+        thematischeTabelle?: ThematicPhaseRow[];
+        ausarbeitung?: string;
+        gecacht?: boolean;
+        meta?: { teilprompts: number; erfolgreich: number; fehlgeschlagen: number; dauerMs: number };
+      };
+      if (byok?.enabled && byok.directBrowser) {
+        json = await runDirectElaborate(byok, elaboratePayload);
+      } else {
+        const res = await fetch('/api/v1/assistant/elaborate', {
+          method: 'POST',
+          headers: byokHeaders(),
+          body: JSON.stringify(elaboratePayload)
+        });
+        json = await res.json();
+        if (!res.ok) {
+          setElabError(json.fehler || 'Ausgestaltung fehlgeschlagen.');
+          return;
+        }
       }
       if (Array.isArray(json.thematischeTabelle) && json.thematischeTabelle.length > 0) {
         onThematicRowsChange(json.thematischeTabelle as ThematicPhaseRow[]);
@@ -375,38 +392,44 @@ export function ScenarioStudioPanel({
     setDiffError(null);
     try {
       const activeGroups = groups.filter((g) => g.active);
-      const res = await fetch('/api/v1/assistant/differentiate', {
-        method: 'POST',
-        headers: byokHeaders(),
-        body: JSON.stringify({
-          fach,
-          thema,
-          bildungsstufe: arrangement.kontext?.bildungsstufe
-            ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
-            : 'Sekundarstufe I',
-          hinweise: hinweise.trim() || undefined,
-          gruppen: activeGroups.map((g) => {
-            const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 });
-            return {
-              id: g.id,
-              label: g.label,
-              profile: g.profile,
-              count: g.count,
-              matrixMeasures: scored.topRecommendations.map((r) => `${r.name} (+${r.score})`)
-            };
-          }),
-          phases: scenarioRows.map((r) => ({
-            key: r.key,
-            phaseLabel: r.phaseLabel,
-            methodId: r.methodId,
-            durationMin: r.durationMin
-          }))
-        })
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setDiffError(json.fehler || 'KI-Differenzierung fehlgeschlagen.');
-        return;
+      const diffRequestPayload = {
+        fach,
+        thema,
+        bildungsstufe: arrangement.kontext?.bildungsstufe
+          ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
+          : 'Sekundarstufe I',
+        hinweise: hinweise.trim() || undefined,
+        gruppen: activeGroups.map((g) => {
+          const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 });
+          return {
+            id: g.id,
+            label: g.label,
+            profile: g.profile,
+            count: g.count,
+            matrixMeasures: scored.topRecommendations.map((r) => `${r.name} (+${r.score})`)
+          };
+        }),
+        phases: scenarioRows.map((r) => ({
+          key: r.key,
+          phaseLabel: r.phaseLabel,
+          methodId: r.methodId,
+          durationMin: r.durationMin
+        }))
+      };
+      let json: { fehler?: string; vorschlaege?: Record<string, Array<{ groupId?: string; groupLabel?: string; measure?: string }>> };
+      if (byok?.enabled && byok.directBrowser) {
+        json = await runDirectDifferentiate(byok, diffRequestPayload);
+      } else {
+        const res = await fetch('/api/v1/assistant/differentiate', {
+          method: 'POST',
+          headers: byokHeaders(),
+          body: JSON.stringify(diffRequestPayload)
+        });
+        json = await res.json();
+        if (!res.ok) {
+          setDiffError(json.fehler || 'KI-Differenzierung fehlgeschlagen.');
+          return;
+        }
       }
       const next: Record<string, StepDiffSuggestion[]> = {};
       for (const [k, list] of Object.entries(json.vorschlaege || {})) {
@@ -431,36 +454,42 @@ export function ScenarioStudioPanel({
     const effType = matType === 'auto' ? detectMaterialTypeForBlock(row.block) : matType;
     try {
       const activeGroups = groups.filter((g) => g.active);
-      const res = await fetch('/api/v1/assistant/material', {
-        method: 'POST',
-        headers: byokHeaders(),
-        body: JSON.stringify({
-          baustein: row.methodId,
-          phaseLabel: row.phaseLabel,
-          dauerMin: row.durationMin,
-          fach,
-          thema,
-          bildungsstufe: arrangement.kontext?.bildungsstufe
-            ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
-            : 'Sekundarstufe I',
-          materialTyp: effType,
-          mode,
-          gruppen: activeGroups.map((g) => {
-            const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 4 });
-            return {
-              label: g.label,
-              profile: g.profile,
-              count: g.count,
-              matrixMeasures: scored.topRecommendations.map((x) => x.name)
-            };
-          }),
-          hinweise: matNotes.trim() || hinweise.trim() || undefined
-        })
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setMatError(json.fehler || 'Materialgenerierung fehlgeschlagen.');
-        return;
+      const matRequestPayload = {
+        baustein: row.methodId,
+        phaseLabel: row.phaseLabel,
+        dauerMin: row.durationMin,
+        fach,
+        thema,
+        bildungsstufe: arrangement.kontext?.bildungsstufe
+          ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
+          : 'Sekundarstufe I',
+        materialTyp: effType,
+        mode,
+        gruppen: activeGroups.map((g) => {
+          const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 4 });
+          return {
+            label: g.label,
+            profile: g.profile,
+            count: g.count,
+            matrixMeasures: scored.topRecommendations.map((x) => x.name)
+          };
+        }),
+        hinweise: matNotes.trim() || hinweise.trim() || undefined
+      };
+      let json: { fehler?: string; material?: string };
+      if (mode === 'ki' && byok?.enabled && byok.directBrowser) {
+        json = await runDirectMaterial(byok, matRequestPayload);
+      } else {
+        const res = await fetch('/api/v1/assistant/material', {
+          method: 'POST',
+          headers: byokHeaders(),
+          body: JSON.stringify(matRequestPayload)
+        });
+        json = await res.json();
+        if (!res.ok) {
+          setMatError(json.fehler || 'Materialgenerierung fehlgeschlagen.');
+          return;
+        }
       }
       setDraftMaterial({
         title: `${row.methodName} – ${MATERIAL_TYPES.find((t) => t.id === effType)?.label || effType}`,

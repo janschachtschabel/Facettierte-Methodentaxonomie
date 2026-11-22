@@ -150,6 +150,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const planJson = JSON.parse((planRes.content as Array<{ text: string }>)[0].text);
     expect(planJson.pruefung.gueltig).toBe(true);
     expect(planJson.thematischeTabelle.length).toBeGreaterThan(0);
+    expect(planJson.llmBriefing.systemPrompt).toContain('FMT');
     expect(planJson.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
 
     const elabRes = await client.callTool({
@@ -162,15 +163,19 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
       }
     });
     const elabJson = JSON.parse((elabRes.content as Array<{ text: string }>)[0].text);
+    expect(elabJson.quelle).toBe('deterministisch');
     expect(elabJson.thematischeTabelle.length).toBeGreaterThan(0);
     expect(elabJson.ausarbeitung).toContain('Dichte');
+    expect(elabJson.llmBriefing.userPrompt).toContain('phet.colorado.edu');
 
     const matRes = await client.callTool({
       name: 'generate_phase_material',
       arguments: { baustein: 'abrufquiz', fach: 'Physik', thema: 'Dichte', materialTyp: 'quiz' }
     });
     const matJson = JSON.parse((matRes.content as Array<{ text: string }>)[0].text);
+    expect(matJson.quelle).toBe('deterministisch');
     expect(matJson.material).toContain('Abrufquiz');
+    expect(matJson.llmBriefing.userPrompt).toContain('MATERIALTYP: quiz');
 
     const clsRes = await client.callTool({
       name: 'classify_scenario_text',
