@@ -705,6 +705,24 @@ code {
   text-align: center;
 }
 
+.oer-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1120px) {
+  .oer-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .oer-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Footer */
 .footer {
   margin-top: 56px;

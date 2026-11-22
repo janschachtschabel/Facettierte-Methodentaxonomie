@@ -160,8 +160,6 @@ export function TimelineBandSvg({
   const H = phaseAxisY + 34;
 
   const isSelected = (k: string) => Boolean(selectedStepKey && selectedStepKey === k);
-  const hasAssets = (k: string) =>
-    (oerByStep[k]?.length || 0) > 0 || generatedMaterials.some((m) => m.stepKey === k);
 
   return (
     <div>
@@ -247,10 +245,16 @@ export function TimelineBandSvg({
             const selected = isSelected(it.stepKey);
             const oerCnt = oerByStep[it.stepKey]?.length || 0;
             const matCnt = generatedMaterials.filter((m) => m.stepKey === it.stepKey).length;
-            const badgeExtra = oerCnt > 0 || matCnt > 0 ? 22 : 0;
+            const oerPillW = oerCnt > 0 ? 34 : 0;
+            const matPillW = matCnt > 0 ? 34 : 0;
+            const badgeExtra = oerPillW + matPillW + (oerCnt > 0 && matCnt > 0 ? 6 : oerCnt > 0 || matCnt > 0 ? 4 : 0);
             const maxChars = Math.floor((w - 14 - badgeExtra) / 6.3);
             let txt = shortName(it.b.name);
             if (txt.length > maxChars) txt = txt.slice(0, Math.max(3, maxChars - 1)) + '…';
+            const badgeY = y + 2;
+            const badgeH = RH - 12;
+            const matX = x + w - matPillW - 4;
+            const oerX = matCnt > 0 ? matX - oerPillW - 4 : x + w - oerPillW - 4;
             return (
               <g
                 key={idx}
@@ -271,7 +275,7 @@ export function TimelineBandSvg({
                 <title>
                   {`${it.b.name} (${Math.round(it.t1 - it.t0)} min)` +
                     (oerCnt ? ` · ${oerCnt} WLO-OER` : '') +
-                    (matCnt ? ` · ${matCnt} Material` : '') +
+                    (matCnt ? ` · ${matCnt} KI-Material` : '') +
                     (onSelectStep ? ' — Klicken zum Auswählen' : '')}
                 </title>
                 {w > 54 && (
@@ -286,8 +290,37 @@ export function TimelineBandSvg({
                     {txt}
                   </text>
                 )}
-                {hasAssets(it.stepKey) && w > 28 && (
-                  <circle cx={x + w - 9} cy={y + (RH - 8) / 2} r={4} fill="var(--paper)" stroke="var(--ink)" strokeWidth={1} />
+                {oerCnt > 0 && w > 44 && (
+                  <g>
+                    <rect x={oerX} y={badgeY} width={oerPillW} height={badgeH} rx={8} fill="#E6F0FA" stroke="#2C5D8A" strokeWidth={1} />
+                    <text
+                      x={oerX + oerPillW / 2}
+                      y={badgeY + badgeH / 2 + 3.5}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fontWeight="700"
+                      fill="#1B466E"
+                      fontFamily="var(--display)"
+                    >
+                      🌐{oerCnt}
+                    </text>
+                  </g>
+                )}
+                {matCnt > 0 && w > 44 && (
+                  <g>
+                    <rect x={matX} y={badgeY} width={matPillW} height={badgeH} rx={8} fill="#FFF4E0" stroke="#A65E00" strokeWidth={1} />
+                    <text
+                      x={matX + matPillW / 2}
+                      y={badgeY + badgeH / 2 + 3.5}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fontWeight="700"
+                      fill="#7A4400"
+                      fontFamily="var(--display)"
+                    >
+                      📝{matCnt}
+                    </text>
+                  </g>
                 )}
               </g>
             );
@@ -439,7 +472,7 @@ export function TimelineBandSvg({
         <span><span style={{ color: 'var(--dD)' }}>■</span> offen → explizit</span>
         <span>□ in R1: verteilte Wiederkehr</span>
         {activeSubLaneIds.length > 0 && <span>┄ Parallele Schwimmlinie</span>}
-        {onSelectStep && <span>● Punkt auf Baustein = OER/Material zugeordnet · Baustein anklicken zum Auswählen</span>}
+        {onSelectStep && <span>🌐N = WLO-OER · 📝N = KI-Material · Baustein anklicken zum Auswählen</span>}
       </div>
     </div>
   );

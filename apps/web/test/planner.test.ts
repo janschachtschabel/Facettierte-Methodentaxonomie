@@ -383,7 +383,7 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(inline).toContain('katex');
     expect(inline).toContain('<strong>Waage</strong>');
 
-    // Compact 1-page A4 landscape cheat-sheet ("Kurzablauf")
+    // Compact 1-page A4 portrait cheat-sheet ("Kurzablauf") + sources box + isolated material pages
     const arr = createChainPreset('fuenf-e', BUNDLE);
     const val = VALIDATOR.validate(arr, REGISTRY);
     const rows = buildScenarioRows(arr, BUNDLE, BLOCKS, (_s, c) => c, DEFAULT_LEARNER_GROUPS, {}, {}, 'https://fmt.example.org');
@@ -392,11 +392,21 @@ describe('Modular Scenario Planner Tree Operations', () => {
       thema: 'Dichte',
       lernziele: 'Formel $\\rho = \\frac{m}{V}$ anwenden',
       groups: DEFAULT_LEARNER_GROUPS,
-      scenarioRows: rows
+      scenarioRows: rows,
+      generatedMaterials: [
+        {
+          stepKey: rows[0].key,
+          title: 'Infoblatt Dichte',
+          materialType: 'infoblatt',
+          content: '## Kerngedanke\nDichte $\\rho = \\frac{m}{V}$'
+        }
+      ]
     });
-    expect(onePage).toContain('@page { size: A4 landscape;');
+    expect(onePage).toContain('@page { size: A4 portrait;');
     expect(onePage).toContain('class="one-page-sheet"');
-    expect(onePage).toContain('max-height: 193mm');
+    expect(onePage).toContain('max-height: 277mm');
+    expect(onePage).toContain('class="sources-box"');
+    expect(onePage).toContain('<section class="material-page">');
     expect(onePage).toContain('<math');
     expect(onePage).toContain('Kurzablauf');
   });

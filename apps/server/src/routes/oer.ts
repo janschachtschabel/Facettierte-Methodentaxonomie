@@ -107,7 +107,9 @@ const DE_STOPWORDS = new Set([
   'der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines',
   'und', 'oder', 'von', 'vom', 'zu', 'zum', 'zur', 'im', 'in', 'am', 'an', 'auf', 'mit', 'fuer',
   'für', 'ueber', 'über', 'bei', 'beim', 'als', 'aus', 'nach', 'durch', 'klasse', 'stunde',
-  'doppelstunde', 'unterricht', 'thema'
+  'doppelstunde', 'unterricht', 'thema', 'konzept', 'verstehen', 'lernen', 'einfuehrung',
+  'einführung', 'erklaeren', 'erklären', 'ueben', 'üben', 'vertiefen', 'anwenden', 'grundlagen',
+  'methoden', 'methode', 'schueler', 'schüler', 'lernende', 'einheit', 'reihe', 'projekt'
 ]);
 
 export function sanitizeWloSearchWord(raw: string): string {
@@ -151,24 +153,46 @@ function firstProp(props: Record<string, string[] | undefined> | undefined, ...k
   return '';
 }
 
+function firstExternalHttpUrl(props: Record<string, string[] | undefined> | undefined, ...keys: string[]): string {
+  if (!props) return '';
+  for (const k of keys) {
+    const v = props[k];
+    if (!Array.isArray(v)) continue;
+    for (const candidate of v) {
+      if (typeof candidate !== 'string') continue;
+      const trimmed = candidate.trim();
+      if (/^https?:\/\//i.test(trimmed) && !trimmed.startsWith(WLO_PROD_ORIGIN)) {
+        return trimmed;
+      }
+    }
+  }
+  return '';
+}
+
 export function normalizeWloNodes(nodes: WloNode[]): OerItem[] {
-  const out: OerItem[] = [];
+  const externalItems: OerItem[] = [];
+  const repoFallbackItems: OerItem[] = [];
   const seenUrls = new Set<string>();
+  const seenTitles = new Set<string>();
   for (const n of nodes) {
     const props = n.properties || {};
     const id = n.ref?.id || '';
     const title = firstProp(props, 'cclom:title', 'cm:title', 'cm:name') || n.name || '';
+    const normTitle = title.toLowerCase().replace(/\s+/g, ' ').trim();
     const wloRenderUrl = id ? `${WLO_PROD_ORIGIN}/edu-sharing/components/render/${id}` : null;
-    const rawWwwUrl = firstProp(props, 'ccm:wwwurl', 'cclom:location');
-    const wwwurl = /^https?:\/\//i.test(rawWwwUrl) ? rawWwwUrl : wloRenderUrl || '';
-    if (!title || !wwwurl || !/^https?:\/\//i.test(wwwurl) || seenUrls.has(wwwurl)) continue;
+    // Prefer real external wwwurl from WLO metadata (ccm:wwwurl -> cclom:location -> ccm:replicationsourceid)
+    const externalUrl = firstExternalHttpUrl(props, 'ccm:wwwurl', 'cclom:location', 'ccm:replicationsourceid');
+    const wwwurl = externalUrl || wloRenderUrl || '';
+    if (!title || !wwwurl || !/^https?:\/\//i.test(wwwurl)) continue;
+    if (seenUrls.has(wwwurl) || (normTitle && seenTitles.has(normTitle))) continue;
     seenUrls.add(wwwurl);
+    if (normTitle) seenTitles.add(normTitle);
     const description = firstProp(props, 'cclom:general_description', 'cm:description').slice(0, 320);
     const license = firstProp(props, 'ccm:commonlicense_key_DISPLAYNAME', 'ccm:commonlicense_key') || null;
     const resourceType = firstProp(props, 'ccm:oeh_lrt_aggregated_DISPLAYNAME', 'ccm:oeh_lrt_aggregated') || null;
     const educationalContext = (props['ccm:educationalcontext_DISPLAYNAME'] || props['ccm:educationalcontext'] || []).slice(0, 3);
     const keywords = (props['cclom:general_keyword'] || []).slice(0, 6);
-    out.push({
+    const item: OerItem = {
       id: id || crypto.createHash('sha1').update(wwwurl).digest('hex').slice(0, 12),
       title,
       description,
@@ -181,9 +205,12 @@ export function normalizeWloNodes(nodes: WloNode[]): OerItem[] {
       educationalContext,
       keywords,
       source: 'wlo'
-    });
+    };
+    if (externalUrl) externalItems.push(item);
+    else repoFallbackItems.push(item);
   }
-  return out;
+  // Always prioritize items that carry a genuine external ccm:wwwurl over internal repo-render URLs
+  return [...externalItems, ...repoFallbackItems];
 }
 
 const wloCache = new LruTtlCache<{ items: OerItem[]; hinweis?: string }>(300, 10 * 60 * 1000);
@@ -222,7 +249,8 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
   const bildungsstufe = (params.bildungsstufe || '').trim();
   const inhaltstyp = (params.inhaltstyp || '').trim().toLowerCase();
   const nurOffeneLizenz = Boolean(params.nurOffeneLizenz);
-  const maxItems = Math.max(1, Math.min(15, Number(params.maxItems) || 6));
+  const maxItems = Math.max(1, Math.min(16, Number(params.maxItems) || 8));
+  const rawFetchLimit = Math.min(24, Math.max(16, maxItems * 2));
 
   const cleanWord = sanitizeWloSearchWord(rawQuery || fach);
   if (!cleanWord) {
@@ -235,7 +263,7 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
 
   const cacheKey = crypto
     .createHash('sha256')
-    .update(JSON.stringify([cleanWord.toLowerCase(), fachUri, ctxUri, lrtUri, nurOffeneLizenz, maxItems]))
+    .update(JSON.stringify(['v2', cleanWord.toLowerCase(), fachUri, ctxUri, lrtUri, nurOffeneLizenz, maxItems]))
     .digest('hex');
 
   const cached = wloCache.get(cacheKey);
@@ -254,8 +282,8 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 9000);
   try {
-    const buildCriteria = (useLrt: boolean, useCtx: boolean, useFach: boolean) => {
-      const c: Array<{ property: string; values: string[] }> = [{ property: 'ngsearchword', values: [cleanWord] }];
+    const buildCriteria = (word: string, useLrt: boolean, useCtx: boolean, useFach: boolean) => {
+      const c: Array<{ property: string; values: string[] }> = [{ property: 'ngsearchword', values: [word] }];
       if (useFach && fachUri) c.push({ property: 'virtual:taxonid', values: [fachUri] });
       if (useCtx && ctxUri) c.push({ property: 'ccm:educationalcontext', values: [ctxUri] });
       if (useLrt && lrtUri) c.push({ property: 'ccm:oeh_lrt_aggregated', values: [lrtUri] });
@@ -265,28 +293,52 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
       return c;
     };
 
-    let hinweis: string | undefined;
-    let items = await queryEduSharing(buildCriteria(true, true, true), maxItems, controller.signal);
+    const mergeUnique = (base: OerItem[], extra: OerItem[]) => {
+      const seenU = new Set(base.map((x) => x.wwwurl));
+      const seenT = new Set(base.map((x) => x.title.toLowerCase().trim()));
+      const merged = [...base];
+      for (const it of extra) {
+        const nt = it.title.toLowerCase().trim();
+        if (seenU.has(it.wwwurl) || seenT.has(nt)) continue;
+        seenU.add(it.wwwurl);
+        seenT.add(nt);
+        merged.push(it);
+      }
+      // Keep external wwwurl items ahead of repo-render fallbacks
+      const ext = merged.filter((x) => !x.wwwurl.startsWith(WLO_PROD_ORIGIN));
+      const repo = merged.filter((x) => x.wwwurl.startsWith(WLO_PROD_ORIGIN));
+      return [...ext, ...repo].slice(0, maxItems);
+    };
 
-    // Progressive relaxation if strict URI combination yields 0 hits
-    if (items.length === 0 && (lrtUri || ctxUri || fachUri)) {
-      items = await queryEduSharing(buildCriteria(false, true, true), maxItems, controller.signal);
-      if (items.length > 0 && lrtUri) {
-        hinweis = 'Filter „Medientyp“ wurde für mehr Treffer gelockert.';
-      }
+    const minWanted = Math.min(4, maxItems);
+    let hinweis: string | undefined;
+    let items = await queryEduSharing(buildCriteria(cleanWord, true, true, true), rawFetchLimit, controller.signal);
+
+    // Progressive relaxation if strict URI combination yields fewer than 4 hits
+    if (items.length < minWanted && lrtUri) {
+      const more = await queryEduSharing(buildCriteria(cleanWord, false, true, true), rawFetchLimit, controller.signal);
+      items = mergeUnique(items, more);
+      if (items.length >= minWanted) hinweis = 'Medientyp-Filter wurde für eine breitere Auswahl gelockert.';
     }
-    if (items.length === 0 && (ctxUri || fachUri)) {
-      items = await queryEduSharing(buildCriteria(false, false, true), maxItems, controller.signal);
-      if (items.length > 0) {
-        hinweis = 'Bildungsstufen-Filter wurde für mehr Treffer gelockert.';
-      }
+    if (items.length < minWanted && ctxUri) {
+      const more = await queryEduSharing(buildCriteria(cleanWord, false, false, true), rawFetchLimit, controller.signal);
+      items = mergeUnique(items, more);
+      if (items.length >= minWanted) hinweis = 'Bildungsstufen-Filter wurde für mehr Treffer gelockert.';
     }
-    if (items.length === 0 && fachUri) {
-      items = await queryEduSharing(buildCriteria(false, false, false), maxItems, controller.signal);
-      if (items.length > 0) {
-        hinweis = 'Fach- und Stufenfilter wurden gelockert (offene Stichwortsuche in WLO Prod).';
-      }
+    if (items.length < minWanted && fachUri) {
+      const more = await queryEduSharing(buildCriteria(cleanWord, false, false, false), rawFetchLimit, controller.signal);
+      items = mergeUnique(items, more);
+      if (items.length >= minWanted) hinweis = 'Fach- und Stufenfilter wurden gelockert (offene Stichwortsuche in WLO Prod).';
     }
+    // If a multi-word query still yields < 4 hits, retry with the strongest single core noun
+    const words = cleanWord.split(/\s+/).filter(Boolean);
+    if (items.length < minWanted && words.length > 1) {
+      const coreWord = [...words].sort((a, b) => b.length - a.length)[0];
+      const more = await queryEduSharing(buildCriteria(coreWord, false, false, Boolean(fachUri)), rawFetchLimit, controller.signal);
+      items = mergeUnique(items, more);
+      if (items.length > 0) hinweis = `Auswahl um Treffer zum Kernbegriff „${coreWord}“ erweitert.`;
+    }
+    items = mergeUnique([], items);
 
     wloCache.set(cacheKey, { items, hinweis });
     return {

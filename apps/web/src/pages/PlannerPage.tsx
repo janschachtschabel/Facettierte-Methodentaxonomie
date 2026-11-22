@@ -1475,6 +1475,7 @@ export function PlannerPage() {
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
             onPrintOnePage={handlePrintOnePage}
+            onNextStep={() => setStep(4)}
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}
@@ -1546,6 +1547,7 @@ export function PlannerPage() {
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
             onPrintOnePage={handlePrintOnePage}
+            onNextStep={() => setStep(4)}
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}

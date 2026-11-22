@@ -71,6 +71,7 @@ interface Props {
   onElaborationChange: (next: string | null) => void;
   onPrintPdf: () => void;
   onPrintOnePage?: () => void;
+  onNextStep?: () => void;
   onSaveBrowser: () => void;
   onDownloadProject: () => void;
   getTimelineSvg: () => string | null;
@@ -118,6 +119,7 @@ export function ScenarioStudioPanel({
   onElaborationChange,
   onPrintPdf,
   onPrintOnePage,
+  onNextStep,
   onSaveBrowser,
   onDownloadProject,
   getTimelineSvg,
@@ -516,34 +518,48 @@ export function ScenarioStudioPanel({
           className="no-print"
           style={{
             display: 'flex',
-            gap: 8,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 10,
             flexWrap: 'wrap',
             borderBottom: '1px solid var(--grid)',
             paddingBottom: 12,
             marginBottom: 16
           }}
         >
-          <button
-            type="button"
-            className={`btn btn-sm ${activeResourceTab === 'oer' ? 'btn-primary' : ''}`}
-            onClick={() => onResourceTabChange('oer')}
-          >
-            🌐 WLO / OER finden &amp; zuordnen {totalAttachedOer > 0 ? `(${totalAttachedOer})` : ''}
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm ${activeResourceTab === 'material' ? 'btn-primary' : ''}`}
-            onClick={() => onResourceTabChange('material')}
-          >
-            📝 Material per KI erstellen {generatedMaterials.length > 0 ? `(${generatedMaterials.length} angehängt)` : ''}
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm ${activeResourceTab === 'diff' ? 'btn-primary' : ''}`}
-            onClick={() => onResourceTabChange('diff')}
-          >
-            ⚖ Binnendifferenzierungsmatrix ({activeGroups.length} Gruppen)
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className={`btn btn-sm ${activeResourceTab === 'oer' ? 'btn-primary' : ''}`}
+              onClick={() => onResourceTabChange('oer')}
+            >
+              🌐 WLO / OER finden &amp; zuordnen {totalAttachedOer > 0 ? `(${totalAttachedOer})` : ''}
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${activeResourceTab === 'material' ? 'btn-primary' : ''}`}
+              onClick={() => onResourceTabChange('material')}
+            >
+              📝 Material per KI erstellen {generatedMaterials.length > 0 ? `(${generatedMaterials.length} angehängt)` : ''}
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${activeResourceTab === 'diff' ? 'btn-primary' : ''}`}
+              onClick={() => onResourceTabChange('diff')}
+            >
+              ⚖ Binnendifferenzierungsmatrix ({activeGroups.length} Gruppen)
+            </button>
+          </div>
+          {onNextStep && (
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={onNextStep}
+              title="Weiter zum fertigen thematischen Unterrichtsszenario & Export (Schritt 4)"
+            >
+              Weiter zu Schritt 4: Entwurf &amp; Export →
+            </button>
+          )}
         </div>
 
         {activeResourceTab === 'oer' && (

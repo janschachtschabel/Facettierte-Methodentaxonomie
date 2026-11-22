@@ -72,7 +72,7 @@ export function WloOerCards({
     if (!query && thema) setQuery(thema);
   }, [thema, query]);
 
-  const fetchWlo = async (q: string, lrt: string, maxItems = 9) => {
+  const fetchWlo = async (q: string, lrt: string, maxItems = 8) => {
     const res = await fetch('/api/v1/oer/wlo-search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -104,7 +104,7 @@ export function WloOerCards({
     setError(null);
     setHint(null);
     try {
-      const { items, hinweis } = await fetchWlo(q, inhaltstyp, 9);
+      const { items, hinweis } = await fetchWlo(q, inhaltstyp, 8);
       setResults(items);
       if (hinweis) setHint(hinweis);
       else if (items.length === 0) setHint('Keine Treffer – versuche einen kürzeren Fachbegriff oder „Alle Medientypen“.');
@@ -352,17 +352,10 @@ export function WloOerCards({
         </p>
       )}
 
-      {/* Visual OER Tile Grid */}
+      {/* Visual OER Tile Grid (4 per row × 2 rows = up to 8 cards, matching Method Catalog) */}
       {results.length > 0 && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
-            gap: 12,
-            marginTop: 12
-          }}
-        >
-          {results.map((item) => {
+        <div className="oer-grid-4" style={{ marginTop: 12 }}>
+          {results.slice(0, 8).map((item) => {
             const href = getOerWwwUrl(item);
             const attached = (oerByStep[targetStep] || []).some((x) => getOerWwwUrl(x) === href);
             return (

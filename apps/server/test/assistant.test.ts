@@ -377,9 +377,10 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(matRes.statusCode).toBe(200);
     expect(matRes.json().material).toContain('Gestuftes Arbeitsblatt');
 
-    // WLO search rejects empty query with clean 400 and strips German articles (edu-sharing Trap 2.8)
+    // WLO search rejects empty query with clean 400 and strips German articles & didactic filler words (edu-sharing Trap 2.8)
     expect(sanitizeWloSearchWord('die Bruchrechnung für die Klasse 6')).toBe('Bruchrechnung');
     expect(sanitizeWloSearchWord('Dichte von Stoffen im Physik Unterricht')).toBe('Dichte Stoffen Physik');
+    expect(sanitizeWloSearchWord('das Konzept Dichte verstehen')).toBe('Dichte');
     const badWlo = await appWithKey.inject({
       method: 'POST',
       url: '/api/v1/oer/wlo-search',

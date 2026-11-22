@@ -1045,8 +1045,10 @@ function clipCompact(text: string, maxChars: number): string {
 }
 
 /**
- * Generates a compact 1-page A4 landscape classroom cheat-sheet ("Kurzablauf / Pultvorlage").
- * Strictly calibrated to fit on max. 1 A4 page using adaptive typography and concise cells.
+ * Generates a crisp, teacher-ready 1-page A4 Portrait cheat-sheet ("Kurzablauf / Pultvorlage")
+ * with a clean non-overlapping timeline strip, readable 4-column table, and a dedicated
+ * Materials & WLO-OER source box directly below the table on Page 1.
+ * Any generated classroom materials follow automatically on isolated A4 handout pages (Page 2+).
  */
 export function exportArrangementOnePageSheet(
   arr: Arrangement,
@@ -1067,8 +1069,9 @@ export function exportArrangementOnePageSheet(
     phaseLabel: string;
     methodName: string;
     procedure: string;
-    roles: string;
-    diff: string;
+    teacher: string;
+    learner: string;
+    diffLines: string[];
     material: string;
   };
 
@@ -1076,7 +1079,7 @@ export function exportArrangementOnePageSheet(
   const rows: CompactRow[] = thematicRows
     ? thematicRows.map((tr) => {
         const scRow = scenarioRows.find((r) => r.key === tr.key);
-        const diffParts = activeGroups
+        const diffLines = activeGroups
           .map((g) => {
             const val = tr.groupAdaptations[g.id];
             if (!val) return '';
@@ -1084,7 +1087,7 @@ export function exportArrangementOnePageSheet(
             return `**${shortLabel}:** ${val}`;
           })
           .filter(Boolean);
-        const oerNames = (scRow?.oerResources || []).map((o) => o.title);
+        const oerNames = (scRow?.oerResources || []).map((o) => `🌐 ${o.title}`);
         const matNames = genMats.filter((m) => m.stepKey === tr.key).map((m) => `📝 ${m.title}`);
         const matSummary = [...matNames, ...oerNames].length
           ? [...matNames, ...oerNames].join(' · ')
@@ -1095,8 +1098,9 @@ export function exportArrangementOnePageSheet(
           phaseLabel: tr.phaseLabel,
           methodName: tr.methodName,
           procedure: tr.methodProcedure || tr.methodName,
-          roles: `**LK:** ${tr.teacherAction} / **SuS:** ${tr.learnerAction}`,
-          diff: diffParts.join(' · ') || '–',
+          teacher: tr.teacherAction,
+          learner: tr.learnerAction,
+          diffLines,
           material: matSummary || '–'
         };
       })
@@ -1109,12 +1113,10 @@ export function exportArrangementOnePageSheet(
             phaseLabel: r.phaseLabel,
             methodName: r.methodName,
             procedure: `${r.methodName} (${r.socialForm})`,
-            roles: `**LK:** ${r.teacherRole} / **SuS:** ${r.learnerRole}`,
-            diff:
-              r.differentiation
-                .map((d) => `**${d.groupLabel.split(/[\s&(]/)[0]}:** ${d.measure}`)
-                .join(' · ') || '–',
-            material: [...matNames, ...r.oerResources.map((o) => o.title)].join(' · ') || '–'
+            teacher: r.teacherRole,
+            learner: r.learnerRole,
+            diffLines: r.differentiation.map((d) => `**${d.groupLabel.split(/[\s&(]/)[0]}:** ${d.measure}`),
+            material: [...matNames, ...r.oerResources.map((o) => `🌐 ${o.title}`)].join(' · ') || '–'
           };
         })
       : collectUsedBlocks(arr, blocksById).map((b, idx) => ({
@@ -1123,20 +1125,21 @@ export function exportArrangementOnePageSheet(
           phaseLabel: `Phase ${idx + 1}`,
           methodName: b.name,
           procedure: b.durchfuehrung?.slice(0, 2).join(' → ') || b.kurzbeschreibung || '',
-          roles: b.kurzbeschreibung || '',
-          diff: '–',
+          teacher: b.kurzbeschreibung || '',
+          learner: '',
+          diffLines: [],
           material: b.material?.slice(0, 2).join(', ') || '–'
         }));
 
   const n = rows.length;
-  // Adaptive typography & clipping budget so even 10–12+ phases stay strictly on 1 A4 landscape page
-  const fontPt = n <= 5 ? 8.3 : n <= 8 ? 7.5 : n <= 11 ? 6.8 : 6.2;
-  const cellPad = n <= 5 ? '4px 6px' : n <= 8 ? '3px 5px' : '2px 4px';
-  const procCap = n <= 5 ? 230 : n <= 8 ? 165 : n <= 11 ? 120 : 95;
-  const roleCap = n <= 5 ? 220 : n <= 8 ? 160 : n <= 11 ? 115 : 90;
-  const diffCap = n <= 5 ? 190 : n <= 8 ? 140 : n <= 11 ? 105 : 85;
-  const matCap = n <= 5 ? 130 : n <= 8 ? 100 : 80;
-  const showTimeline = Boolean(options.timelineSvg) && n <= 8;
+  // A4 Portrait gives 277mm usable height: generous, crisp typography with clean wrapping and zero wasted bottom half
+  const fontPt = n <= 6 ? 8.3 : n <= 9 ? 7.6 : n <= 12 ? 7.0 : 6.4;
+  const cellPad = n <= 6 ? '5px 6px' : n <= 9 ? '4px 5px' : '3px 4px';
+  const procCap = n <= 6 ? 260 : n <= 9 ? 190 : 140;
+  const roleCap = n <= 6 ? 190 : n <= 9 ? 140 : 105;
+  const diffCap = n <= 6 ? 115 : n <= 9 ? 85 : 65;
+  const matCap = n <= 6 ? 140 : 100;
+  const showTimeline = Boolean(options.timelineSvg) && n <= 9;
 
   const metaBadges = [
     `⏱ ${validation.dauerMin} min`,
@@ -1149,31 +1152,71 @@ export function exportArrangementOnePageSheet(
     .join(' · ');
 
   const goalsLine = options.lernziele?.trim()
-    ? `<div class="goals"><strong>Lernziele:</strong> ${renderInlineMarkdownHtml(clipCompact(options.lernziele, 210), 'mathml')}</div>`
+    ? `<div class="goals"><strong>Lernziele:</strong> ${renderInlineMarkdownHtml(clipCompact(options.lernziele, 260), 'mathml')}</div>`
     : '';
 
-  const allOer = scenarioRows.flatMap((r) => r.oerResources);
-  const oerFooter = allOer.length
-    ? ` · <strong>WLO-OER:</strong> ${allOer
-        .slice(0, 4)
-        .map((o) => {
-          const href = o.wwwurl || o.url || '';
-          return href ? `<a href="${escHtml(href)}">${escHtml(clipCompact(o.title, 36))}</a>` : escHtml(o.title);
-        })
-        .join(' | ')}`
+  const allOer = scenarioRows.flatMap((r) =>
+    r.oerResources.map((o) => ({
+      phase: `${r.orderLabel} · ${r.methodName}`,
+      title: o.title,
+      href: o.wwwurl || o.url || '',
+      license: o.license || ''
+    }))
+  );
+  const uniqueOer = allOer.filter((o, i, arrO) => arrO.findIndex((x) => x.href === o.href) === i);
+
+  const sourceItemsHtml: string[] = [];
+  if (genMats.length > 0) {
+    for (const [mi, m] of genMats.entries()) {
+      const scRow = scenarioRows.find((r) => r.key === m.stepKey);
+      sourceItemsHtml.push(
+        `<li><strong>Anlage ${mi + 1} (eigene Druckseite):</strong> ${escHtml(m.title)}${scRow ? ` <em>(${escHtml(scRow.orderLabel)} · ${escHtml(scRow.methodName)})</em>` : ''}</li>`
+      );
+    }
+  }
+  for (const o of uniqueOer.slice(0, 6)) {
+    sourceItemsHtml.push(
+      `<li><strong>WLO-OER (${escHtml(o.phase)}):</strong> ${escHtml(o.title)}${o.license ? ` (${escHtml(o.license)})` : ''}${o.href ? ` — <a href="${escHtml(o.href)}">${escHtml(o.href)}</a>` : ''}</li>`
+    );
+  }
+  const sourcesBoxHtml = sourceItemsHtml.length
+    ? `<section class="sources-box"><h2>Materialien, Anlagen &amp; WLO-OER-Quellen</h2><ul>${sourceItemsHtml.join('')}</ul></section>`
     : '';
+
+  // Optional isolated printable pages for attached generated materials (Page 2+)
+  const materialPagesHtml = genMats
+    .map(
+      (mat, idx) =>
+        `<section class="material-page"><div class="material-page-header">Anlage ${idx + 1} (Arbeitsblatt / Zusatzmaterial) · ${escHtml(title)}</div><h1>${escHtml(mat.title)}</h1>${markdownToCleanHtml(mat.content)}</section>`
+    )
+    .join('\n');
 
   const rowsHtml = rows
-    .map(
-      (r) => `<tr>
+    .map((r) => {
+      const roleParts = [
+        r.teacher ? `<div><strong>LK:</strong> ${renderInlineMarkdownHtml(clipCompact(r.teacher, roleCap), 'mathml')}</div>` : '',
+        r.learner ? `<div><strong>SuS:</strong> ${renderInlineMarkdownHtml(clipCompact(r.learner, roleCap), 'mathml')}</div>` : ''
+      ]
+        .filter(Boolean)
+        .join('');
+      const diffHtml = r.diffLines.length
+        ? r.diffLines
+            .map((dl) => `<div class="diff-line">${renderInlineMarkdownHtml(clipCompact(dl, diffCap), 'mathml')}</div>`)
+            .join('')
+        : '–';
+      return `<tr>
         <td class="col-num"><strong>${escHtml(r.orderLabel)}</strong><div class="dur">${r.durationMin}′</div></td>
-        <td class="col-method"><div class="phase-lbl">${escHtml(clipCompact(r.phaseLabel, 48))}</div><strong>${escHtml(r.methodName)}</strong></td>
-        <td>${renderInlineMarkdownHtml(clipCompact(r.procedure, procCap), 'mathml')}</td>
-        <td>${renderInlineMarkdownHtml(clipCompact(r.roles, roleCap), 'mathml')}</td>
-        <td>${renderInlineMarkdownHtml(clipCompact(r.diff, diffCap), 'mathml')}</td>
-        <td class="col-mat">${renderInlineMarkdownHtml(clipCompact(r.material, matCap), 'mathml')}</td>
-      </tr>`
-    )
+        <td class="col-method"><div class="phase-lbl">${escHtml(clipCompact(r.phaseLabel, 54))}</div><strong>${escHtml(r.methodName)}</strong></td>
+        <td class="col-flow">
+          <div class="proc">${renderInlineMarkdownHtml(clipCompact(r.procedure, procCap), 'mathml')}</div>
+          ${roleParts ? `<div class="roles">${roleParts}</div>` : ''}
+        </td>
+        <td class="col-diff">
+          ${diffHtml}
+          ${r.material && r.material !== '–' ? `<div class="mat-line"><strong>Material:</strong> ${renderInlineMarkdownHtml(clipCompact(r.material, matCap), 'mathml')}</div>` : ''}
+        </td>
+      </tr>`;
+    })
     .join('\n');
 
   return `<!DOCTYPE html>
@@ -1182,66 +1225,67 @@ export function exportArrangementOnePageSheet(
   <meta charset="utf-8" />
   <title>Kurzablauf (1 A4) – ${escHtml(title)}</title>
   <style>
-    @page { size: A4 landscape; margin: 8mm 9mm; }
+    @page { size: A4 portrait; margin: 9mm 10mm; }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; background: #fff; color: #14212E; font-family: "Segoe UI", Arial, sans-serif; }
     .one-page-sheet {
       width: 100%;
-      max-width: 279mm;
-      max-height: 193mm;
+      max-width: 190mm;
+      max-height: 277mm;
       margin: 0 auto;
-      padding: 6px 10px;
+      padding: 6px 8px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       overflow: hidden;
     }
     .sheet-head {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
       border-bottom: 2px solid #2C5D8A;
-      padding-bottom: 3px;
+      padding-bottom: 4px;
     }
     .sheet-head h1 {
       margin: 0;
       font-family: "Barlow Semi Condensed", "Segoe UI", Arial, sans-serif;
       font-size: 13.5pt;
       color: #14212E;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .sheet-meta {
-      font-size: 8.2pt;
+      font-size: 8pt;
       color: #3B4A57;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
     .goals {
-      font-size: 7.8pt;
-      line-height: 1.3;
+      font-size: 8pt;
+      line-height: 1.32;
       color: #243442;
       background: #F4F7F5;
       border-left: 3px solid #2C5D8A;
-      padding: 2px 6px;
+      padding: 3px 7px;
     }
     .mini-svg {
       border: 1px solid #D3DCD6;
       border-radius: 4px;
-      padding: 2px 4px;
+      padding: 4px 6px;
       background: #FAFBFA;
-      max-height: 46px;
+      flex-shrink: 0;
       overflow: hidden;
     }
-    .mini-svg svg { width: 100%; height: 40px; display: block; }
+    .mini-svg svg {
+      width: 100%;
+      height: auto;
+      max-height: 76px;
+      display: block;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
       font-size: ${fontPt}pt;
-      line-height: 1.24;
+      line-height: 1.28;
     }
     th, td {
       border: 1px solid #C6D0C9;
@@ -1254,14 +1298,37 @@ export function exportArrangementOnePageSheet(
       background: #EEF2EE;
       font-family: "Barlow Semi Condensed", "Segoe UI", Arial, sans-serif;
       font-weight: 700;
-      font-size: ${Math.max(fontPt, 7.2)}pt;
+      font-size: ${Math.max(fontPt, 7.5)}pt;
     }
     tr { break-inside: avoid; page-break-inside: avoid; }
-    .col-num { width: 5%; text-align: center; white-space: nowrap; }
-    .col-num .dur { font-size: ${Math.max(fontPt - 0.5, 6)}pt; color: #2C5D8A; font-weight: 700; }
-    .col-method { width: 15%; }
-    .phase-lbl { font-size: ${Math.max(fontPt - 0.7, 5.8)}pt; color: #4A5864; }
-    .col-mat { width: 14%; }
+    .col-num { width: 7%; text-align: center; white-space: nowrap; }
+    .col-num .dur { font-size: ${Math.max(fontPt - 0.5, 6.2)}pt; color: #2C5D8A; font-weight: 700; }
+    .col-method { width: 20%; }
+    .phase-lbl { font-size: ${Math.max(fontPt - 0.8, 6)}pt; color: #4A5864; margin-bottom: 1px; }
+    .col-flow { width: 41%; }
+    .col-flow .proc { margin-bottom: 3px; }
+    .col-flow .roles { border-top: 1px dashed #D5DDD8; padding-top: 2px; color: #243442; }
+    .col-diff { width: 32%; }
+    .diff-line { margin-bottom: 2px; }
+    .mat-line { margin-top: 3px; padding-top: 2px; border-top: 1px dashed #D5DDD8; color: #1B466E; }
+    .sources-box {
+      border: 1px solid #C6D0C9;
+      border-radius: 4px;
+      background: #FAFBFA;
+      padding: 5px 8px;
+      font-size: 7.4pt;
+      line-height: 1.3;
+    }
+    .sources-box h2 {
+      margin: 0 0 3px;
+      font-family: "Barlow Semi Condensed", Arial, sans-serif;
+      font-size: 8.5pt;
+      color: #2C5D8A;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .sources-box ul { margin: 0; padding-left: 15px; }
+    .sources-box li { margin: 1.5px 0; word-break: break-word; }
     .sheet-foot {
       margin-top: auto;
       padding-top: 3px;
@@ -1271,14 +1338,28 @@ export function exportArrangementOnePageSheet(
       display: flex;
       justify-content: space-between;
       gap: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     a { color: #2C5D8A; text-decoration: none; }
     .math-inline math { font-size: 1em; }
+    .material-page {
+      max-width: 190mm;
+      margin: 18px auto 0;
+      padding: 12px 8px 0;
+      border-top: 2px dashed #2C5D8A;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 10.5pt;
+      line-height: 1.5;
+      break-before: page;
+      page-break-before: always;
+      break-after: page;
+      page-break-after: always;
+    }
+    .material-page h1 { font-family: "Barlow Semi Condensed", Arial, sans-serif; font-size: 17pt; border-bottom: 2px solid #2C5D8A; padding-bottom: 4px; margin: 4px 0 10px; }
+    .material-page h2 { font-family: "Barlow Semi Condensed", Arial, sans-serif; font-size: 12.5pt; color: #2C5D8A; margin: 12px 0 4px; }
+    .material-page-header { font-family: "Barlow Semi Condensed", Arial, sans-serif; font-size: 8.5pt; color: #4A5864; text-transform: uppercase; letter-spacing: 0.04em; }
     @media print {
-      .one-page-sheet { padding: 0; max-width: none; max-height: 193mm; }
+      .one-page-sheet { padding: 0; max-width: none; max-height: 277mm; }
+      .material-page { margin: 0; padding: 0; border-top: none; max-width: none; }
       a { color: #14212E; }
     }
   </style>
@@ -1296,21 +1377,21 @@ export function exportArrangementOnePageSheet(
         <tr>
           <th class="col-num"># / Zeit</th>
           <th class="col-method">Phase &amp; FMT-Methode</th>
-          <th style="width: 24%;">Methodisches Vorgehen</th>
-          <th style="width: 24%;">Lehrkraft &amp; Lernende</th>
-          <th style="width: 18%;">Binnendifferenzierung</th>
-          <th class="col-mat">Material / OER</th>
+          <th class="col-flow">Methodisches Vorgehen · Lehrkraft &amp; Lernende</th>
+          <th class="col-diff">Binnendifferenzierung &amp; Material</th>
         </tr>
       </thead>
       <tbody>
         ${rowsHtml}
       </tbody>
     </table>
+    ${sourcesBoxHtml}
     <footer class="sheet-foot">
-      <span><strong>FMT-Kurzablauf (Pultvorlage, 1 A4-Seite)</strong>${oerFooter}</span>
+      <span><strong>FMT-Kurzablauf (Pultvorlage, 1 A4-Seite${genMats.length ? ` + ${genMats.length} Material-Anlagen ab S. 2` : ''})</strong></span>
       <span>FMT · Jan Schachtschabel · CC BY 4.0</span>
     </footer>
   </div>
+${materialPagesHtml}
 </body>
 </html>`;
 }
