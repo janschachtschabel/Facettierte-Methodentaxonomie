@@ -1,0 +1,147 @@
+{
+  "status": "entwurf",
+  "kennung": "simulationsspiel-digital",
+  "name": "Interaktive Computersimulation / Virtuelles Labor",
+  "kurzbeschreibung": "Lernende variieren Parameter in einer interaktiven Simulation (z. B. PhET, Klimamodell) und überprüfen eigene Vorhersagen unmittelbar am Modell.",
+  "alternativname": [
+    "Virtuelles Labor",
+    "PhET-Simulation",
+    "Modell-Exploration"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "forschend",
+    "spiel-simulation",
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Simulation",
+      "url": "https://de.wikipedia.org/wiki/Simulation",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "mikro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kcr",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "simulation",
+    "afb2",
+    "afb3",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "hypothese-test",
+      "name": "Vorhersage vor dem Verstellen der Parameter formulieren"
+    },
+    {
+      "kennung": "uebertragung",
+      "name": "Grenzen des Modells gegenüber der Realität thematisieren"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Unsichtbare, gefährliche oder sehr langsame Prozesse (Atome, Klima, Stromkreise) lassen sich im Realexperiment kaum direkt variieren.",
+  "durchfuehrung": [
+    "Simulation am Beamer kurz demonstrieren und erste Leitfrage stellen",
+    "Lernende testen eigene Hypothesen systematisch durch Parametervariation",
+    "Beobachtete Zusammenhänge festhalten und im Plenum als Regel sichern"
+  ],
+  "material": [
+    "Interaktive Simulation (z. B. PhET)",
+    "Beobachtungs- und Hypothesenbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-projektion",
+  "internet": true,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Planloses „Knöpfchendrücken“ ohne Hypothesenbildung führt kaum zu Konzeptverständnis"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Interaktive Simulationen fördern konzeptuelles Verständnis in MINT-Fächern deutlich (d ≈ 0,5–0,7), besonders in Kombination mit Vorhersagen.",
+      "quelle": "Rutten, van Joolingen & van der Veen 2012; D’Angelo et al. 2014",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Ersetzt haptische Realexperimente nicht vollständig; Modellgrenzen müssen reflektiert werden"
+    }
+  ],
+  "plot": {
+    "x": 0.34,
+    "y": 2.18
+  }
+}

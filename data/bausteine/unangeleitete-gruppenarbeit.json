@@ -1,0 +1,124 @@
+{
+  "status": "entwurf",
+  "kennung": "unangeleitete-gruppenarbeit",
+  "name": "Freie Gruppenarbeit (ohne Rollen- oder Strukturvorgabe)",
+  "kurzbeschreibung": "Offene Kleingruppenphase zu einem Thema ohne feste Rollenverteilung oder kooperatives Skript – Kontrastbaustein zu strukturiertem kooperativem Lernen.",
+  "alternativname": [
+    "Offene Gruppenphase",
+    "Unstrukturierte Gruppenarbeit"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "offen",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Gruppenunterricht",
+      "url": "https://de.wikipedia.org/wiki/Gruppenunterricht",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zielprodukt",
+      "name": "Klares gemeinsames Ergebnisformat am Ende der Phase"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Lernende sollen selbstständig Arbeitsaufteilung und Aushandlung üben.",
+  "durchfuehrung": [
+    "Offenen Arbeitsauftrag und Zeitrahmen nennen",
+    "Gruppen organisieren Arbeitsteilung und Vorgehen selbst",
+    "Ergebnisse im Plenum vergleichen und fachlich sichern (Regel R-05)"
+  ],
+  "material": [
+    "Plakat oder Arbeitsblatt"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Soziales Faulenzen (Trittbrettfahren) und Dominanz einzelner Personen ohne individuelle Verantwortlichkeit"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Unstrukturierte Gruppenarbeit bleibt empirisch deutlich hinter kooperativem Lernen mit positiver Abhängigkeit und individueller Verantwortlichkeit zurück.",
+      "quelle": "Johnson & Johnson 2009; Slavin 1995",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Bei fehlender Gruppenroutine eher strukturierte Formen (Placemat, Gruppenpuzzle, Think-Pair-Share) wählen"
+    }
+  ],
+  "plot": {
+    "x": 0.16,
+    "y": 1.52
+  }
+}

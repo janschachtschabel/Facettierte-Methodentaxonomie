@@ -1,0 +1,125 @@
+{
+  "status": "entwurf",
+  "kennung": "freie-internetrecherche",
+  "name": "Freie Internetrecherche (ohne Leitfragen)",
+  "kurzbeschreibung": "Lernende recherchieren ohne vorgegebene Quellen, Kriterien oder Leitfragen frei im Internet – typisches Beispiel der FMT-Gefahrenzone (offen & passiv/oberflächlich).",
+  "alternativname": [
+    "Ungeführte Webrecherche",
+    "Freies Googeln"
+  ],
+  "piktogramm": "ki",
+  "ansatz": [
+    "offen",
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Suchmaschine",
+      "url": "https://de.wikipedia.org/wiki/Suchmaschine",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "system"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "asynchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [],
+  "kernkomponente": [
+    {
+      "kennung": "warnbeispiel",
+      "name": "Kontrastbaustein: Ohne Leitfragen & Quellenkritik dominiert Copy-Paste"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 45,
+  "problem": "Wird häufig als vermeintlich selbstständiges Lernen eingesetzt, überfordert aber Lernende mit geringem Vorwissen (Cognitive Overload).",
+  "durchfuehrung": [
+    "Thema nennen und freie Recherche am Endgerät starten",
+    "Lernende suchen selbstständig Websites und kopieren/notieren Informationen",
+    "Wichtig zur Heilung (Regel R-05): Unbedingt durch Quellenkritik & geleitete Sicherung ergänzen (oder WebQuest nutzen)"
+  ],
+  "material": [
+    "Endgeräte mit Internetzugang"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-einzeln",
+  "internet": true,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Gefahrenzone offen & passiv: Copy-Paste ohne Verarbeitung, Fehlinformationen, Verlust der Orientierung"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Unangeleitete Recherche ohne Such- und Prüfgerüst führt bei Novizen zu kognitiver Überlastung und geringem Lernerfolg.",
+      "quelle": "Kirschner, Sweller & Clark 2006; Alfieri et al. 2011",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Nur bei hoher Informationskompetenz und klarem Forschungsauftrag sinnvoll; sonst WebQuest vorziehen"
+    }
+  ],
+  "plot": {
+    "x": 0.12,
+    "y": 0.34
+  }
+}

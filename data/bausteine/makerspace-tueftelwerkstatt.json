@@ -1,0 +1,143 @@
+{
+  "status": "entwurf",
+  "kennung": "makerspace-tueftelwerkstatt",
+  "name": "Makerspace / Tüftelwerkstatt (FabLab)",
+  "kurzbeschreibung": "Offene Werkstattumgebung, in der Lernende durch Bauen, Tüfteln, Prototypen und digitales/analoges Fertigen eigene Lösungen entwickeln.",
+  "alternativname": [
+    "Maker Education",
+    "FabLab-Lernen",
+    "Tüftelwerkstatt"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "kreativ",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: FabLab",
+      "url": "https://de.wikipedia.org/wiki/FabLab",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "selbstkontrolle",
+    "unmittelbar",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "psychomotorik",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "prototyping",
+      "name": "Iteratives Bauen, Testen und Verbessern physischer oder digitaler Prototypen"
+    },
+    {
+      "kennung": "sicherheit",
+      "name": "Werkzeugeinweisung vor freier Nutzung"
+    }
+  ],
+  "dauerMin": 60,
+  "dauerMax": 240,
+  "problem": "Theoretisches MINT- und Gestaltungswissen bleibt ohne haptisches Ausprobieren und konstruktives Scheitern oft abstrakt.",
+  "durchfuehrung": [
+    "Offene Design- oder Funktionsherausforderung vorstellen (oder eigene Idee wählen)",
+    "Materialien/Werkzeuge wählen und ersten Prototyp bauen",
+    "Testen, Schwachstellen beobachten und iterativ weiterentwickeln",
+    "Prototyp und Lernprozess im Galeriegang vorstellen"
+  ],
+  "material": [
+    "Werkstattmaterial (Karton, Elektronik, Mikrocontroller, Werkzeug)"
+  ],
+  "raum": "Makerspace / Werkraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 40,
+  "technik": "t-einzeln",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Reines Basteln ohne konzeptuelle Reflexion (Regel R-05: anschließende Sicherung einplanen)"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Fördert Kreativität, Problemlösekompetenz und MINT-Interesse, besonders wenn Prototypen anschließend fachlich reflektiert werden.",
+      "quelle": "Papavlasopoulou et al. 2017; Blikstein 2013",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Hoher Material- und Betreuungsaufwand; fachliche Konzepte müssen explizit gesichert werden"
+    }
+  ],
+  "plot": {
+    "x": 0.09,
+    "y": 2.54
+  }
+}

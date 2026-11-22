@@ -1,0 +1,136 @@
+{
+  "status": "entwurf",
+  "kennung": "klassenarbeit-summativ",
+  "name": "Klassenarbeit / Schriftliche Klausur (summativ)",
+  "kurzbeschreibung": "Zeitlich begrenzte, individuelle schriftliche Leistungsüberprüfung zur summativen Bewertung am Ende einer Unterrichtseinheit.",
+  "alternativname": [
+    "Klausur",
+    "Schulaufgabe",
+    "Leistungsnachweis"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Klassenarbeit",
+      "url": "https://de.wikipedia.org/wiki/Klassenarbeit",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "fb-kr",
+    "summativ",
+    "bn-sozial",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "afb3",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "erwartungshorizont",
+      "name": "Transparenter Erwartungshorizont und nachvollziehbare Punktvergabe"
+    },
+    {
+      "kennung": "rueckmeldung",
+      "name": "Nachbesprechung typischer Fehler nach Rückgabe"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Am Ende einer Einheit muss der individuelle Leistungsstand vergleichbar und rechtsverbindlich erhoben werden.",
+  "durchfuehrung": [
+    "Aufgaben nach Anforderungsbereichen (AFB I–III) und Erwartungshorizont erstellen",
+    "Einzelbearbeitung unter standardisierten Prüfungsbedingungen",
+    "Korrektur anhand Punkteraster und Rückgabe mit Fehlerdiagnose"
+  ],
+  "material": [
+    "Aufgabenbogen",
+    "Erwartungshorizont / Bewertungsraster"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Reine Punkt-/Notenrückmeldung (fb-kr) ohne Fehleranalyse erzeugt kaum Lernzuwachs"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Summative Prüfungen sichern Vergleichbarkeit, wirken aber erst lernförderlich, wenn formative Rückmeldung und Nacharbeit folgen.",
+      "quelle": "Black & Wiliam 1998; Hattie 2009",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Soziale Bezugsnorm und Prüfungsangst können Motivation schwächerer Lernender senken"
+    }
+  ],
+  "plot": {
+    "x": 0.9,
+    "y": 1.05
+  }
+}

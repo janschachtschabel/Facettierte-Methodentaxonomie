@@ -141,7 +141,7 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
         <CatalogAnalytics bundle={BUNDLE} valuesOf={valuesOf} labelOf={labelOf} />
       </MemoryRouter>
     );
-    expect(container.textContent).toContain('225');
+    expect(container.textContent).toContain('240');
     expect(container.textContent).toContain('Abdeckungs-Heatmap');
     expect(container.textContent).toContain('Schnittstellen-Abdeckung');
     const circles = [...container.querySelectorAll('svg circle')];

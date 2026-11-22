@@ -1,0 +1,132 @@
+{
+  "status": "entwurf",
+  "kennung": "exkursionsfuehrung-rezeptiv",
+  "name": "Exkursions- & Museumsführung (rezeptiv)",
+  "kurzbeschreibung": "Geführter Rundgang an einem außerschulischen Lernort (Museum, Betrieb, Gedenkstätte) mit Vortrag durch eine Fachperson.",
+  "alternativname": [
+    "Museumsführung",
+    "Betriebsführung",
+    "Lehrwanderung"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Exkursion",
+      "url": "https://de.wikipedia.org/wiki/Exkursion",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb1",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "originalbegegnung",
+      "name": "Anschauung am originalen Objekt oder Lernort"
+    },
+    {
+      "kennung": "einbettung",
+      "name": "Vor- und Nachbereitung im Unterricht (sonst verpufft der Eindruck)"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Authentische Begegnungen mit Originalobjekten und Experten ermöglichen Eindrücke, die im Klassenraum fehlen.",
+  "durchfuehrung": [
+    "Beobachtungsschwerpunkt vor dem Rundgang benennen",
+    "Geführter Rundgang mit Erklärungen an ausgewählten Stationen",
+    "Im Nachgang Eindrücke sichern und mit Unterrichtsinhalten verknüpfen"
+  ],
+  "material": [
+    "Optional: Beobachtungsbogen / Klemmbrett"
+  ],
+  "raum": "Außerschulischer Lernort (Museum, Betrieb, Natur)",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Reines Hinterherlaufen und Zuhören („Museumsmüdigkeit“) führt zu geringer Verarbeitungstiefe"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Außerschulische Lernorte steigern situatives Interesse; kognitiver Lernerfolg hängt stark von Vor- und Nachbereitung ab.",
+      "quelle": "DeWitt & Storksdieck 2008",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Ohne Beobachtungsauftrag bleibt die Führung überwiegend passiv"
+    }
+  ],
+  "plot": {
+    "x": 0.52,
+    "y": 0.32
+  }
+}

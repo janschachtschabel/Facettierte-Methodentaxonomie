@@ -204,13 +204,47 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
                 <option value="">Alle (R1–R4)</option>
                 {reichweiten.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.id.toUpperCase()} {r.label}
+                    {r.label} ({r.id.toUpperCase()})
                   </option>
                 ))}
               </select>
             </label>
           </div>
         </div>
+
+        {(plotAnsatz || plotReichweite) && (
+          <div
+            style={{
+              marginTop: 8,
+              padding: '6px 10px',
+              borderRadius: 6,
+              background: 'var(--dA-soft)',
+              fontFamily: 'var(--display)',
+              fontSize: 13,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 8,
+              flexWrap: 'wrap'
+            }}
+          >
+            <span>
+              <strong>Filter aktiv:</strong> Es werden nur {plotBlocks.length} von {blocks.filter((b) => b.plot).length} verorteten Methoden gezeigt
+              {plotAnsatz ? ` (Ansatz: ${labelOf('ansatz', plotAnsatz)})` : ''}
+              {plotReichweite ? ` (Reichweite: ${plotReichweite.toUpperCase()})` : ''}. Leere Zonen sind durch diesen Filter bedingt.
+            </span>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => {
+                setPlotAnsatz('');
+                setPlotReichweite('');
+              }}
+            >
+              Alle {blocks.filter((b) => b.plot).length} Methoden zeigen
+            </button>
+          </div>
+        )}
 
         <svg viewBox="0 0 760 470" style={{ width: '100%', maxWidth: 880, display: 'block', margin: '10px auto 0' }}>
           {['passiv', 'aktiv', 'konstruktiv', 'interaktiv'].map((band, i) => {

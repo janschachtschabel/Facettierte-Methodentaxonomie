@@ -1,0 +1,134 @@
+{
+  "status": "entwurf",
+  "kennung": "multiple-choice-test",
+  "name": "Multiple-Choice-Kurztest (Richtig/Falsch-Diagnose)",
+  "kurzbeschreibung": "Standardisierter Auswahltest mit eindeutiger Richtig/Falsch-Rückmeldung (Knowledge of Result) zur schnellen Lernstandserhebung.",
+  "alternativname": [
+    "Antwort-Wahl-Verfahren",
+    "MC-Test"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback",
+    "digital-ki"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Multiple Choice",
+      "url": "https://de.wikipedia.org/wiki/Multiple_Choice",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "system",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kr",
+    "summativ",
+    "formativ",
+    "bn-kriterial",
+    "bn-sozial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "distraktoren",
+      "name": "Plausible Distraktoren aus typischen Fehlvorstellungen"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 20,
+  "problem": "Bei großen Gruppen ist eine schnelle, objektive Überprüfung von Grundwissen und typischen Fehlkonzepten nötig.",
+  "durchfuehrung": [
+    "Fragen mit 3–4 plausiblen Antwortoptionen austeilen oder projizieren",
+    "Individuelle Auswahl innerhalb fester Zeit",
+    "Sofortige Auswertung (Richtig/Falsch) und kurze Klärung der häufigsten Distraktoren"
+  ],
+  "material": [
+    "MC-Testbogen oder Abstimmkarten",
+    "Beamer / Projektion"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-projektion",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Raten ohne Verstehen; bloßes Richtig/Falsch ohne Begründung korrigiert Fehlkonzepte nicht dauerhaft"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Gut konstruierte MC-Tests mit diagnostischen Distraktoren nutzen den Testeffekt und decken Fehlvorstellungen schnell auf.",
+      "quelle": "Roediger & Marsh 2005; Butler 2018",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Schlecht formulierte Distraktoren prüfen nur Oberflächen-Wiedererkennen"
+    }
+  ],
+  "plot": {
+    "x": 0.88,
+    "y": 1.12
+  }
+}

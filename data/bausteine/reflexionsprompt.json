@@ -110,5 +110,12 @@
   "plot": {
     "x": 0.54,
     "y": 1.95
+  },
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lernende"
   }
 }

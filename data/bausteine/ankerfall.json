@@ -122,5 +122,12 @@
   "plot": {
     "x": 0.52,
     "y": 1.75
+  },
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
   }
 }

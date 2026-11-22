@@ -301,7 +301,7 @@ export function CatalogPage() {
               <select value={String(filters.status || '')} onChange={(e) => setFilter('status', e.target.value)}>
                 <option value="">alle</option>
                 <option value="kuratiert">Kuratiert (22 Kernmethoden)</option>
-                <option value="entwurf">Ersterfassung (203 Methoden)</option>
+                <option value="entwurf">Ersterfassung (218 Methoden)</option>
               </select>
             </label>
 

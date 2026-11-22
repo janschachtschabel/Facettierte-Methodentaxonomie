@@ -1,0 +1,141 @@
+{
+  "status": "entwurf",
+  "kennung": "schuelerlabor-frei",
+  "name": "Freies Forschen im Schülerlabor",
+  "kurzbeschreibung": "Eigenständige naturwissenschaftliche Untersuchung einer selbst gewählten Forschungsfrage mit authentischer Laborausstattung.",
+  "alternativname": [
+    "Offenes Schülerlabor",
+    "Eigenständiges Forschen"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "forschend"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Schülerlabor",
+      "url": "https://de.wikipedia.org/wiki/Sch%C3%BClerlabor",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "simulation",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "loesungsversuche",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "hypothese",
+      "name": "Eigene Forschungsfrage, Hypothese und Versuchsplanung"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Kritisches Auswerten der Messdaten und fachliche Rückbindung"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 240,
+  "problem": "Kochrezept-Experimente vermitteln selten echte naturwissenschaftliche Erkenntnisgewinnung.",
+  "durchfuehrung": [
+    "Phänomenbereich und Sicherheitsregeln im Labor einführen",
+    "Teams formulieren eigene Forschungsfrage und entwerfen Versuchsaufbau",
+    "Experimente durchführen, Daten protokollieren und wiederholen",
+    "Ergebnisse präsentieren und mit Fachkonzepten abgleichen"
+  ],
+  "material": [
+    "Laborausstattung",
+    "Forschungsprotokoll"
+  ],
+  "raum": "Schülerlabor / Fachraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 45,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Ohne methodisches Vorwissen überfordern offene Laboraufgaben schnell (Expertise-Reversal)"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Authentische Schülerlabor-Tage stärken fachliches Interesse und Wissenschaftsverständnis; Lernerfolg steigt mit Vor- und Nachbereitung.",
+      "quelle": "Pawek 2009; Glowinski & Bayrhuber 2011",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Für Novizen ohne Experimentierroutine besser als geleitetes Experiment (R2) starten"
+    }
+  ],
+  "plot": {
+    "x": 0.1,
+    "y": 2.26
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "status": "entwurf",
+  "kennung": "vokabeltest-kurzkontrolle",
+  "name": "Vokabeltest / Schriftliche Kurzkontrolle",
+  "kurzbeschreibung": "Kurze, unangekündigte oder angekündigte schriftliche Abfrage von Fachbegriffen, Formeln oder Vokabeln mit Punkterückmeldung.",
+  "alternativname": [
+    "Stegreifaufgabe",
+    "Extemporale",
+    "Kurzkontrolle"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Vokabeltrainer",
+      "url": "https://de.wikipedia.org/wiki/Vokabeltrainer",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "fb-kr",
+    "summativ",
+    "bn-sozial"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "abruf",
+      "name": "Freier schriftlicher Abruf ohne Hilfsmittel"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Kontinuierliches Lernen von Grundwortschatz oder Basisfakten soll überprüft und eingefordert werden.",
+  "durchfuehrung": [
+    "10–15 Zielbegriffe oder kurze Verständnisfragen austeilen oder ansagen",
+    "Einzelbearbeitung (5–10 min)",
+    "Einsammeln und Rückmeldung über Punktzahl / Fehler"
+  ],
+  "material": [
+    "Teststreifen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Reines Auswendiglernen kurz vor dem Test ohne nachhaltige Vernetzung (Bulimielernen)"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Regelmäßige kurze Abruftests fördern Behalten, wirken aber ohne Notendruck (formativ) deutlich motivierender.",
+      "quelle": "Roediger & Karpicke 2006",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Benotete Stegreifaufgaben erhöhen Prüfungsstress und extrinsische Motivation"
+    }
+  ],
+  "plot": {
+    "x": 0.9,
+    "y": 1.02
+  }
+}

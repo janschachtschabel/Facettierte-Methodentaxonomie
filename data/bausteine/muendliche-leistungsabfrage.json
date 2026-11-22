@@ -1,0 +1,133 @@
+{
+  "status": "entwurf",
+  "kennung": "muendliche-leistungsabfrage",
+  "name": "Mündliche Leistungsabfrage / Prüfungsgespräch",
+  "kurzbeschreibung": "Strukturiertes mündliches Abfragen einzelner Lernender zu Beginn der Stunde oder in einer Prüfungssituation.",
+  "alternativname": [
+    "Mündliche Prüfung",
+    "Ausfragen",
+    "Kolloquium"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "diagnose-feedback"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Prüfung",
+      "url": "https://de.wikipedia.org/wiki/Pr%C3%BCfung",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "fb-kr",
+    "summativ",
+    "bn-kriterial",
+    "bn-sozial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien",
+      "name": "Vorab bekannte Bewertungskriterien und faire Nachfragen"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 20,
+  "problem": "Mündliche Ausdrucks-, Argumentations- und Transferfähigkeit soll individuell geprüft werden.",
+  "durchfuehrung": [
+    "Klare Einstiegsfrage aus dem behandelten Stoff stellen",
+    "Bei Bedarf gestufte Verständnis- und Transferfragen nachlegen",
+    "Kriteriengeleitete Bewertung und kurze Rückmeldung geben"
+  ],
+  "material": [
+    "Fragenleitfaden",
+    "Beobachtungsbogen"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Vorführen im Plenum erzeugt Angst; während eine Person geprüft wird, bleibt die restliche Klasse passiv"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Mündliche Prüfungen ermöglichen adaptives Nachfragen, sind aber anfällig für Beurteilungsfehler (Halo-Effekt).",
+      "quelle": "Ingenkamp & Lissmann 2008",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Geringere Objektivität als schriftliche Verfahren; im Plenum geringe echte Lernzeit für Zuhörende"
+    }
+  ],
+  "plot": {
+    "x": 0.82,
+    "y": 1.38
+  }
+}

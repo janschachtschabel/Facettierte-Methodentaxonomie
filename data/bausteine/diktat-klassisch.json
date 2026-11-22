@@ -1,0 +1,134 @@
+{
+  "status": "entwurf",
+  "kennung": "diktat-klassisch",
+  "name": "Klassisches Diktat (Rechtschreibkontrolle)",
+  "kurzbeschreibung": "Lehrkraft diktiert einen geübten oder ungeübten Text satzweise zur summativen Überprüfung der Rechtschreibsicherheit.",
+  "alternativname": [
+    "Kontrolldiktat",
+    "Nachschrift"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "diagnose-feedback",
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Diktat",
+      "url": "https://de.wikipedia.org/wiki/Diktat",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "fb-kr",
+    "summativ",
+    "bn-sozial"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "fakten",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorlesen",
+      "name": "Vorlesen im Zusammenhang vor dem satzweisen Diktieren"
+    },
+    {
+      "kennung": "fehleranalyse",
+      "name": "Qualitative Fehlerkategorisierung statt bloßer Fehlerzählung"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Überprüfung der normgerechten Orthografie unter Zeitdruck.",
+  "durchfuehrung": [
+    "Gesamten Text einmal sinnentnehmend vorlesen",
+    "Text in Sinnabschnitten langsam diktieren",
+    "Abschließendes Vorlesen zur Selbstkontrolle, anschließend Korrektur"
+  ],
+  "material": [
+    "Diktattext",
+    "Liniiertes Papier"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Bloßes Fehlerzählen (fb-kr + soziale Bezugsnorm) fördert Rechtschreibstrategien kaum"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Reine Kontrolldiktate zeigen geringe Lernwirksamkeit gegenüber strategieorientiertem Rechtschreibtraining.",
+      "quelle": "Bredel, Fuhrhop & Noack 2011; Hattie 2009",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Als Lernform umstritten; als Diagnoseinstrument nur bei qualitativer Fehlerauswertung aussagekräftig"
+    }
+  ],
+  "plot": {
+    "x": 0.92,
+    "y": 0.92
+  }
+}

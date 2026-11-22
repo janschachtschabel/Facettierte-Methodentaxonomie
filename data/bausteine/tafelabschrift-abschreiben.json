@@ -1,0 +1,122 @@
+{
+  "status": "entwurf",
+  "kennung": "tafelabschrift-abschreiben",
+  "name": "Tafelabschrift / Strukturiertes Abschreiben",
+  "kurzbeschreibung": "Übertragen eines vorgegebenen Tafelbildes, Merksatzes oder Folieninhalts ins eigene Heft – rezeptiv-reproduktive Sicherungsform.",
+  "alternativname": [
+    "Hefteintrag abschreiben",
+    "Merksatzübernahme"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Abschreiben",
+      "url": "https://de.wikipedia.org/wiki/Abschreiben",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv",
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "klarheit",
+      "name": "Übersichtliche, fehlerfreie Vorlage mit klarem Fokus auf das Wesentliche"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Alle Lernenden benötigen eine verlässliche, fehlerfreie schriftliche Grundlage im Heft.",
+  "durchfuehrung": [
+    "Kompaktes Tafelbild oder Folie präsentieren und kurz erläutern",
+    "Lernende übertragen den Eintrag sauber ins Heft",
+    "Tipp zur Aktivierung: Mindestens eine eigene Beispielzeile oder Lücke selbst ergänzen lassen"
+  ],
+  "material": [
+    "Tafel / Beamer",
+    "Heft"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-projektion",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Mechanisches Abschreiben ohne Mitdenken bindet Zeit bei minimaler kognitiver Aktivierung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Reines wortwörtliches Abschreiben (verbatim copying) schneidet im ICAP-Rahmen deutlich schwächer ab als generatives Notieren.",
+      "quelle": "Chi & Wylie 2014; Mueller & Oppenheimer 2014",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Als alleinige Sicherung ineffizient; durch Lücken- oder Eigenbeispiele leicht konstruktiv aufwertbar"
+    }
+  ],
+  "plot": {
+    "x": 0.91,
+    "y": 0.36
+  }
+}

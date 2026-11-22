@@ -1,0 +1,124 @@
+{
+  "status": "entwurf",
+  "kennung": "vorlesen-lesung",
+  "name": "Vorlesen / Lehrervorlesung (rezeptiv)",
+  "kurzbeschreibung": "Ausdrucksstarkes Vorlesen eines literarischen, historischen oder erzählenden Textes durch die Lehrkraft bei konzentriertem Zuhören.",
+  "alternativname": [
+    "Lehrervorlesung",
+    "Vorlesestunde",
+    "Story-Listening"
+  ],
+  "piktogramm": "vortrag",
+  "ansatz": [
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Vorlesen",
+      "url": "https://de.wikipedia.org/wiki/Vorlesen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "passiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "prosodie",
+      "name": "Betontes, temposensibles Vorlesen mit kurzen Spannungspausen"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 20,
+  "problem": "Komplexe oder atmosphärisch dichte Texte erschließen sich schwächeren Lesenden über das Zuhören leichter.",
+  "durchfuehrung": [
+    "Kurzen situativen Rahmen geben",
+    "Textabschnitt ausdrucksstark und ohne Unterbrechung vorlesen",
+    "Kurze Nachklangpause; danach idealerweise aktive Anschlussmethode (z. B. Murmelgruppe)"
+  ],
+  "material": [
+    "Vorlesetext / Buch"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Bei > 15–20 min ohne Anschlussaktivität sinkt Aufmerksamkeit stark (Regel R-08)"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Regelmäßiges Vorlesen fördert Hörverstehen, Wortschatz und Lesemotivation, besonders in Primarstufe und Sek I.",
+      "quelle": "Mol & Bus 2011; Stiftung Lesen",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Rezeptives Zuhören allein sichert kein tiefes Textverständnis ohne anschließende Verarbeitung"
+    }
+  ],
+  "plot": {
+    "x": 0.88,
+    "y": 0.26
+  }
+}

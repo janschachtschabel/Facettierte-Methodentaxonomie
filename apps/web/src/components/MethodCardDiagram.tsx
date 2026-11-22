@@ -32,9 +32,9 @@ function shortStepLabel(step: string): string {
 }
 
 function socialIcon(interaktion: string[]): string {
-  if (interaktion.includes('kleingruppe')) return '⬡ Gruppe';
+  if (interaktion.some((x) => x.startsWith('kleingruppe'))) return '⬡ Gruppe';
   if (interaktion.includes('partner')) return '👥 Partner';
-  if (interaktion.includes('plenum-dialogisch') || interaktion.includes('plenum-lehrergeleitet')) return '◎ Plenum';
+  if (interaktion.some((x) => x.startsWith('plenum'))) return '◎ Plenum';
   return '👤 Einzel';
 }
 

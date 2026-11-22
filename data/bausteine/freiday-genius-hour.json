@@ -1,0 +1,146 @@
+{
+  "status": "entwurf",
+  "kennung": "freiday-genius-hour",
+  "name": "FREI DAY / Genius Hour (freie Zukunftsprojektzeit)",
+  "kurzbeschreibung": "Wöchentlich verankerte, vollständig selbstbestimmte Projektzeit, in der Lernende eigene Fragen und reale Zukunftsprojekte (z. B. SDGs) verfolgen.",
+  "alternativname": [
+    "Genius Hour",
+    "20%-Projektzeit",
+    "FREI DAY"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "forschend",
+    "kreativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Bildung für nachhaltige Entwicklung",
+      "url": "https://de.wikipedia.org/wiki/Bildung_f%C3%BCr_nachhaltige_Entwicklung",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r4",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "gesellschaft"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-tempo",
+    "makro"
+  ],
+  "feedback": [
+    "peer",
+    "selbstkontrolle",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ko-lernende",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "einstellungen",
+    "metakognitiv",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "eigenwahl",
+      "name": "Freie Themen- und Partnerwahl entlang realer Zukunftsfragen"
+    },
+    {
+      "kennung": "praesentation",
+      "name": "Öffentliche Präsentation und Selbstreflexion der Ergebnisse"
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 1200,
+  "problem": "Schulische Fächer lassen oft wenig Raum für selbstwirksames, interdisziplinäres Handeln an echten gesellschaftlichen Fragen.",
+  "durchfuehrung": [
+    "Interessen und reale Zukunftsfragen sammeln und Projektteams bilden",
+    "Projektplan, Meilensteine und benötigte Kontakte eigenständig organisieren",
+    "Regelmäßige wöchentliche Arbeitsphasen mit Coaching nach Bedarf",
+    "Ergebnisse der Schulgemeinschaft oder externen Partnern präsentieren und reflektieren"
+  ],
+  "material": [
+    "Projektlogbuch",
+    "Präsentationsmaterial",
+    "Optional: digitale Werkzeuge"
+  ],
+  "raum": "Klassenraum, Lernwerkstatt & außerschulische Orte",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Ohne regelmäßige Coaching-Gespräche und Meilensteine verlieren unsichere Gruppen den Fokus"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Stärkt Selbstwirksamkeit, Engagement und BNE-Gestaltungskompetenz; fachsystematischer Erwerb erfordert ergänzende Strukturphasen.",
+      "quelle": "Schule im Aufbruch / Rasfeld; Thomas 2000",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Ersetzt keinen systematischen Basiskompetenz-Aufbau; braucht klare Rahmenrituale"
+    }
+  ],
+  "plot": {
+    "x": 0.07,
+    "y": 2.68
+  }
+}

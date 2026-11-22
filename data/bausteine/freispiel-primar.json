@@ -1,0 +1,134 @@
+{
+  "status": "entwurf",
+  "kennung": "freispiel-primar",
+  "name": "Freispiel / Freie Spiel- und Lernphase",
+  "kurzbeschreibung": "Selbstgewählte, intrinsisch motivierte Spiel- und Explorationsphase (v. a. Elementar- und Primarbereich) zur sozial-emotionalen und kognitiven Entwicklung.",
+  "alternativname": [
+    "Freies Spiel",
+    "Spielzeit",
+    "Lernspiel-Ecke"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "offen",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Freispiel",
+      "url": "https://de.wikipedia.org/wiki/Freispiel",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "selbstkontrolle",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-unstrukturiert",
+    "partner",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "psychomotorik",
+    "afb2",
+    "schlecht-strukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorbereitete-umgebung",
+      "name": "Anregungsreiche, vorbereitete Spiel- und Materialumgebung"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 60,
+  "problem": "Jüngere Lernende brauchen selbstgesteuerte Spielräume für Selbstregulation, Sprache und soziales Aushandeln.",
+  "durchfuehrung": [
+    "Spiel- und Lernmaterialien zugänglich bereitstellen",
+    "Kinder wählen Spielpartner, Ort und Thema frei",
+    "Lehrkraft beobachtet diagnostisch und greift nur bei Bedarf unterstützend ein",
+    "Gemeinsames Aufräumen und kurzer Abschlusskreis"
+  ],
+  "material": [
+    "Konstruktions-, Rollen- und Lernspielmaterial"
+  ],
+  "raum": "Klassenraum / Lernlandschaft",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
+  "qualitaetsrisiko": [
+    "Ohne vorbereitete Umgebung oder Abschlussreflexion bleiben fachliche Lernchancen ungenutzt"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Fördert Selbstregulation, soziale Kompetenz und Sprachentwicklung im Elementar- und frühen Primarbereich.",
+      "quelle": "Weisberg, Hirsh-Pasek & Golinkoff 2013",
+      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "umstritten": "Für gezielten fachlichen Kompetenzerwerb ist angeleitetes Spiel (Guided Play) wirksamer als rein freies Spiel"
+    }
+  ],
+  "plot": {
+    "x": 0.08,
+    "y": 2.78
+  }
+}
