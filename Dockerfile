@@ -19,6 +19,9 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 FROM node:22-alpine AS runtime
+LABEL org.opencontainers.image.source="https://github.com/janschachtschabel/Facettierte-Methodentaxonomie" \
+      org.opencontainers.image.description="FMT Methodendatenbank – Web-App, REST API, Linked Data & MCP-Server (CC BY 4.0 / Apache-2.0)" \
+      org.opencontainers.image.licenses="Apache-2.0"
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
@@ -32,6 +35,8 @@ COPY --from=builder /app/apps/server/package.json ./apps/server/
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/apps/web/dist ./apps/web/dist
 COPY --from=builder /app/dist-data ./dist-data
+COPY scripts/download-m2v.mjs ./scripts/download-m2v.mjs
+RUN mkdir -p /app/models && chown node:node /app/models
 
 USER node
 EXPOSE 8080

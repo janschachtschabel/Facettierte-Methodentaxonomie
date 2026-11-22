@@ -1,16 +1,14 @@
 services:
-  fmt-methodendatenbank:
-    build: .
-    image: fmt-methodendatenbank:latest
-    container_name: fmt-methodendatenbank
+  fmt:
+    image: ${FMT_IMAGE:-ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest}
     restart: unless-stopped
-    ports:
-      - "${PORT:-8080}:8080"
     environment:
       PORT: "8080"
       HOST: "0.0.0.0"
+      TRUST_PROXY: "${TRUST_PROXY:-1}"
+      DOMAIN: "${DOMAIN:-}"
       CORS_ORIGIN: "${CORS_ORIGIN:-*}"
-      # Optional: OpenAI-kompatible Server-LLM-Anbindung (strikt opt-in über LLM_API_KEY; leer = Zero-LLM-Modus)
+      # Optional: Server-LLM (strikt opt-in über LLM_API_KEY; leer = Zero-LLM-Modus)
       LLM_BASE_URL: "${LLM_BASE_URL:-https://api.openai.com/v1}"
       LLM_MODEL: "${LLM_MODEL:-gpt-6-luna}"
       LLM_API_KEY: "${LLM_API_KEY:-}"
@@ -18,6 +16,24 @@ services:
       LLM_REASONING_EFFORT: "${LLM_REASONING_EFFORT:-low}"
       LLM_ALLOW_BYOK: "${LLM_ALLOW_BYOK:-true}"
       LLM_RATE_LIMIT_PER_MIN: "${LLM_RATE_LIMIT_PER_MIN:-20}"
-      LLM_TIMEOUT_MS: "${LLM_TIMEOUT_MS:-45000}"
+      LLM_TIMEOUT_MS: "${LLM_TIMEOUT_MS:-90000}"
       LLM_CACHE_MAX: "${LLM_CACHE_MAX:-500}"
       LLM_CACHE_TTL_MS: "${LLM_CACHE_TTL_MS:-3600000}"
+      # Optional: lokales Model2Vec-Modell im Volume (/app/models/m2v-qwen3-4b-256-edu)
+      FMT_M2V_MODEL_DIR: "${FMT_M2V_MODEL_DIR:-/app/models/m2v-qwen3-4b-256-edu}"
+    volumes:
+      - fmt-models:/app/models
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-fmt-methodendatenbank-web}"
+      - "traefik.http.routers.fmt-methodendatenbank.rule=Host(`${DOMAIN:-}`)"
+      - "traefik.http.routers.fmt-methodendatenbank.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.fmt-methodendatenbank.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}"
+      - "traefik.http.services.fmt-methodendatenbank.loadbalancer.server.port=8080"
+
+volumes:
+  fmt-models:
+
+networks:
+  default:
+    name: ${TRAEFIK_NETWORK:-fmt-methodendatenbank-web}

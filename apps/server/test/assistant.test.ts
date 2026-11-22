@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
-import { loadConfig } from '../src/config.js';
+import { loadConfig, validateDomainHost } from '../src/config.js';
 import { buildChatCompletionBody, isOpenAiReasoningSeries } from '../src/llm/client.js';
 import { sanitizeWloSearchWord } from '../src/routes/oer.js';
 
@@ -303,6 +303,16 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
       LLM_BASE_URL: 'https://api.mistral.ai/v1'
     });
     expect(cfgNonOpenAi.llmApiKey).toBe('');
+
+    // Hostinger Docker Manager DOMAIN validation (empty allowed for first deploy; https:// rejected loudly)
+    expect(validateDomainHost(undefined)).toBeNull();
+    expect(validateDomainHost('')).toBeNull();
+    expect(validateDomainHost('methoden.example.de')).toBe('methoden.example.de');
+    expect(validateDomainHost('srv123456.hstgr.cloud')).toBe('srv123456.hstgr.cloud');
+    expect(() => validateDomainHost('https://methoden.example.de')).toThrow(/reinen Hostnamen/i);
+    expect(() => validateDomainHost('http://methoden.example.de/')).toThrow(/reinen Hostnamen/i);
+    expect(() => validateDomainHost('methoden.example.de/pfad')).toThrow(/reinen Hostnamen/i);
+    expect(() => validateDomainHost('methoden.example.de:443')).toThrow(/reinen Hostnamen/i);
 
     for (const m of ['gpt-5', 'gpt-5-mini', 'gpt-5.4-mini', 'gpt-5.6-luna', 'gpt-6-luna', 'gpt-6-sol', 'gpt-6.2-astra', 'o3-mini']) {
       expect(isOpenAiReasoningSeries(m)).toBe(true);

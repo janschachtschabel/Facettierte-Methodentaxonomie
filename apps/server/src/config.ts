@@ -4,6 +4,7 @@ export const DEFAULT_LLM_MODEL = 'gpt-6-luna';
 export interface ServerConfig {
   port: number;
   host: string;
+  trustProxy?: number | boolean;
   corsOrigin: string;
   llmBaseUrl: string;
   llmModel: string;
@@ -14,6 +15,38 @@ export interface ServerConfig {
   llmTimeoutMs: number;
   llmCacheMax: number;
   llmCacheTtlMs: number;
+}
+
+const HOSTNAME_RE =
+  /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+/**
+ * Validates DOMAIN for Traefik Host(`…`) labels (Hostinger Docker Manager rule):
+ * - Empty/unset is valid (first deploy succeeds without variables).
+ * - Non-empty MUST be a pure hostname (no http://, https://, path, port, or spaces).
+ */
+export function validateDomainHost(raw?: string): string | null {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed) || trimmed.includes('/') || trimmed.includes(':') || /\s/.test(trimmed)) {
+    throw new Error(
+      `Ungültiger Wert für DOMAIN="${trimmed}": Bitte nur den reinen Hostnamen ohne "https://", Pfad oder Port eintragen (z. B. methoden.deine-domain.de oder srvNNNNNN.hstgr.cloud).`
+    );
+  }
+  if (!HOSTNAME_RE.test(trimmed)) {
+    throw new Error(
+      `Ungültiger Hostname in DOMAIN="${trimmed}": Erwartet wird ein gültiger DNS-Hostname (z. B. methoden.deine-domain.de).`
+    );
+  }
+  return trimmed;
+}
+
+function parseTrustProxy(raw?: string): number | boolean {
+  const v = (raw || '').trim().toLowerCase();
+  if (!v || v === '0' || v === 'false' || v === 'off') return false;
+  if (v === 'true') return true;
+  const n = Number(v);
+  return Number.isInteger(n) && n > 0 ? n : false;
 }
 
 function isOpenAiUrl(baseUrl: string): boolean {
@@ -39,6 +72,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   return {
     port: Number(env.PORT) || 8080,
     host: env.HOST || '0.0.0.0',
+    trustProxy: parseTrustProxy(env.TRUST_PROXY),
     corsOrigin: env.CORS_ORIGIN || '*',
     llmBaseUrl,
     llmModel: (env.LLM_MODEL || DEFAULT_LLM_MODEL).trim(),

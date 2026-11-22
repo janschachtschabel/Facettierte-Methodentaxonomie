@@ -21,14 +21,25 @@ Eine offene, maschinenlesbare **Datenbank für 240 Unterrichtsmethoden** im deut
 
 ## Schnellstart mit Docker
 
-```bash
-# Ohne LLM-Key (sofort einsatzbereit im deterministischen Modus):
-docker compose up --build
+### 1. Hostinger Docker Manager (VPS · „Compose from URL“)
 
-# Mit optionalem OpenAI-kompatiblem LLM-Assistenten:
+1. Im Hostinger Docker Manager → **Compose** → **Compose from URL** folgende URL einfügen:
+   `https://github.com/janschachtschabel/Facettierte-Methodentaxonomie`
+2. Anwendungsnamen übernehmen und **bereitstellen** (erster Deploy gelingt sofort ohne Variablen, nutzt das vorgebaute GHCR-Image `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` hinter Hostingers Traefik).
+3. Projekt bearbeiten → in `.env` den reinen Hostnamen (ohne `https://`) setzen:
+   `DOMAIN=methoden.deine-domain.de` (oder `srvNNNNNN.hstgr.cloud`) → erneut bereitstellen. Traefik holt das Let's-Encrypt-Zertifikat automatisch.
+4. Optional: `LLM_API_KEY` leer lassen (Zero-LLM-Standard, `< 5 ms`); Endnutzer können jederzeit in der App unter **⚙ KI-Einstellungen** ihre eigene OpenAI-kompatible KI (OpenAI, Mistral, Gemini, GWDG, OpenRouter, Ollama, LM Studio …) eintragen.
+
+### 2. Lokal selbst bauen (`docker-compose.build.yml`)
+
+```bash
+# Ohne LLM-Key (sofort einsatzbereit im schnellen Zero-LLM-Modus auf Port 8080):
+docker compose -f docker-compose.build.yml up --build
+
+# Mit optionalem Server-LLM:
 cp .env.example .env
-# LLM_BASE_URL, LLM_MODEL, LLM_API_KEY in .env setzen
-docker compose up --build
+# LLM_API_KEY in .env setzen
+docker compose -f docker-compose.build.yml up --build
 ```
 
 Danach erreichbar unter:

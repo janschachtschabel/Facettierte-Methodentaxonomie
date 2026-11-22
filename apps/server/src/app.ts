@@ -24,8 +24,14 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   const config = options.config ?? loadConfig();
   const store = loadCatalogStore(options.distDataDir);
 
+  const trustProxy =
+    typeof config.trustProxy === 'number'
+      ? (_address: string, hop: number) => hop < (config.trustProxy as number)
+      : Boolean(config.trustProxy);
+
   const app = Fastify({
     logger: options.logger ?? false,
+    trustProxy,
     bodyLimit: 128 * 1024
   }) as unknown as FastifyInstance & { fmtStore: CatalogStore };
 

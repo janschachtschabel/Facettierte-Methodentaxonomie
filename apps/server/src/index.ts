@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildApp } from './app.js';
-import { loadConfig } from './config.js';
+import { loadConfig, validateDomainHost } from './config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..', '..');
@@ -21,6 +21,10 @@ function loadLocalEnvFile() {
 
 async function start() {
   loadLocalEnvFile();
+  const domain = validateDomainHost(process.env.DOMAIN);
+  if (!domain) {
+    console.info('[FMT] Hinweis: DOMAIN ist leer – Start erfolgt im Erstbereitstellungs-/Lokalmodus. Für Traefik-HTTPS später reinen Hostnamen in .env setzen.');
+  }
   const config = loadConfig();
   const distDataDir = process.env.FMT_DATA_DIR || path.join(ROOT, 'dist-data');
   const webDistDir = process.env.FMT_WEB_DIR || path.join(ROOT, 'apps', 'web', 'dist');
