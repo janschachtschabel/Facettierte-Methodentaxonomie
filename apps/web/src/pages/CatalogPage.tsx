@@ -300,8 +300,12 @@ export function CatalogPage() {
               Redaktionsstatus
               <select value={String(filters.status || '')} onChange={(e) => setFilter('status', e.target.value)}>
                 <option value="">alle</option>
-                <option value="kuratiert">Kuratiert (22 Kernmethoden)</option>
-                <option value="entwurf">Ersterfassung (218 Methoden)</option>
+                <option value="kuratiert">
+                  Kuratiert ({bundle.bausteine.filter((b) => b.status === 'kuratiert').length} Kernmethoden)
+                </option>
+                <option value="entwurf">
+                  Ersterfassung ({bundle.bausteine.filter((b) => b.status !== 'kuratiert').length} Methoden)
+                </option>
               </select>
             </label>
 

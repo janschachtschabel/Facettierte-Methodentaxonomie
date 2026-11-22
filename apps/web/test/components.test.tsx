@@ -131,7 +131,7 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(svg!.innerHTML).not.toContain('Infinity');
   });
 
-  it('renders CatalogAnalytics live across all 225 methods with all dots inside the SVG plot bounds', () => {
+  it('renders CatalogAnalytics live across ALL database methods with every dot inside the SVG plot bounds', () => {
     const valuesOf = (schemeId: string) => {
       const s = BUNDLE.schemes.find((x) => x.id === schemeId);
       return s?.werte || (s?.gruppen || []).flatMap((g) => g.werte) || [];
@@ -141,11 +141,11 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
         <CatalogAnalytics bundle={BUNDLE} valuesOf={valuesOf} labelOf={labelOf} />
       </MemoryRouter>
     );
-    expect(container.textContent).toContain('240');
+    expect(container.textContent).toContain(String(BUNDLE.bausteine.length));
     expect(container.textContent).toContain('Abdeckungs-Heatmap');
     expect(container.textContent).toContain('Schnittstellen-Abdeckung');
     const circles = [...container.querySelectorAll('svg circle')];
-    expect(circles.length).toBeGreaterThan(200);
+    expect(circles.length).toBe(BUNDLE.bausteine.length);
     for (const c of circles) {
       const cx = Number(c.getAttribute('cx'));
       const cy = Number(c.getAttribute('cy'));

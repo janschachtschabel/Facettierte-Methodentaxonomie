@@ -161,5 +161,9 @@
       "quelle": "van Alten et al. 2019",
       "geltung": "Überwiegend Hochschule; Sekundarstufe wenig vertreten"
     }
-  ]
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 2.05
+  }
 }

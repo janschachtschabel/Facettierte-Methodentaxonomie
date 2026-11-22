@@ -120,7 +120,7 @@ const OBSOLETE = [
 const ROADMAP = [
   ['Kodierhandbuch', 'Definition, prototypisches Ankerbeispiel und Grenzfall für jeden Facettenwert und Lernzustand.'],
   ['Crosswalks', 'OEH-Vokabular angebunden; Abgleich mit Baumgartners 26 Dimensionen und AMB (DINI AG KIM) ausbauen.'],
-  ['Abdeckungstest (> 130 Methoden)', 'Mit diesem 200-Methoden-Katalog erreicht; laufende Kuratierung der Ersterfassungen.'],
+  ['Abdeckungstest (> 130 Methoden)', 'Mit dem aktuellen Datenbestand übertroffen; laufende Kuratierung der Ersterfassungen.'],
   ['Reliabilität (κ ≥ 0,70)', 'Zwei unabhängige Kodierende prüfen Übereinstimmung je Facette und für Vor-/Nachbedingungen.'],
   ['Regeln kalibrieren', 'Validator an von Fachleuten bewerteten Unterrichtsreihen prüfen (Treffer vs. Fehlalarme).'],
   ['Fachdidaktisches Delphi', 'Fachgebundene Funktionsketten und Lernzustände (MINT, Sprachen, Gesellschaftswissenschaften) ergänzen.'],
@@ -772,7 +772,10 @@ export function SystematikPage() {
               <li>Formaler Austausch (<code>ersatz()</code>) sichert Regelkonformität, nicht automatisch gleiche Wirkung (Loibl et al. 2024).</li>
               <li>Die meisten Synthesen stammen aus den USA und der Hochschule; Übertragbarkeit auf deutsche Schulen ist im Einzelfall zu prüfen.</li>
               <li>KI-Evidenz ist jung und instabil; Leistung <em>mit</em> KI zählt nie als Beleg für Lernen <em>ohne</em> KI.</li>
-              <li>Alle neu ergänzten Bausteine im 200er-Katalog tragen transparent den Status <em>Ersterfassung</em>.</li>
+              <li>
+                Alle {bundle.bausteine.filter((b) => b.status !== 'kuratiert').length} neu ergänzten Bausteine im aktuellen Katalog (
+                {bundle.bausteine.length} Methoden gesamt) tragen transparent den Status <em>Ersterfassung</em>.
+              </li>
             </ul>
           </div>
         </div>

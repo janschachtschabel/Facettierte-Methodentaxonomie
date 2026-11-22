@@ -14,23 +14,46 @@ const bestGrade = (b: Baustein): 'A' | 'B' | 'C' => {
   return 'C';
 };
 
+const ANLEITUNG_X: Record<string, number> = { explizit: 0.85, geleitet: 0.5, offen: 0.15 };
+const ENGAGEMENT_Y: Record<string, number> = { passiv: 0.3, aktiv: 1.1, konstruktiv: 2.0, interaktiv: 2.75 };
+
+function coordsOf(b: Baustein): { x: number; y: number } {
+  if (b.plot && typeof b.plot.x === 'number' && typeof b.plot.y === 'number') {
+    return b.plot;
+  }
+  const xs = (b.anleitung || []).map((a) => ANLEITUNG_X[a]).filter((n) => typeof n === 'number');
+  const ys = (b.engagement || []).map((e) => ENGAGEMENT_Y[e]).filter((n) => typeof n === 'number');
+  return {
+    x: xs.length ? xs.reduce((s, n) => s + n, 0) / xs.length : 0.5,
+    y: ys.length ? ys.reduce((s, n) => s + n, 0) / ys.length : 1.5
+  };
+}
+
 export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
   const [plotAnsatz, setPlotAnsatz] = useState('');
   const [plotReichweite, setPlotReichweite] = useState('');
   const [hoveredPlot, setHoveredPlot] = useState<string | null>(null);
 
   const blocks = bundle.bausteine;
+  const hasHighlight = Boolean(plotAnsatz || plotReichweite);
 
-  const plotBlocks = useMemo(
-    () =>
-      blocks.filter((b) => {
-        if (!b.plot) return false;
-        if (plotAnsatz && !b.ansatz.includes(plotAnsatz)) return false;
-        if (plotReichweite && b.reichweite !== plotReichweite) return false;
-        return true;
-      }),
-    [blocks, plotAnsatz, plotReichweite]
-  );
+  const isHighlighted = (b: Baustein) => {
+    if (plotAnsatz && !b.ansatz.includes(plotAnsatz)) return false;
+    if (plotReichweite && b.reichweite !== plotReichweite) return false;
+    return true;
+  };
+
+  // ALWAYS keep ALL methods visible in the scatter plot; optional selection highlights without hiding
+  const { bgBlocks, fgBlocks } = useMemo(() => {
+    if (!hasHighlight) return { bgBlocks: [] as Baustein[], fgBlocks: blocks };
+    const bg: Baustein[] = [];
+    const fg: Baustein[] = [];
+    for (const b of blocks) {
+      if (isHighlighted(b)) fg.push(b);
+      else bg.push(b);
+    }
+    return { bgBlocks: bg, fgBlocks: fg };
+  }, [blocks, hasHighlight, plotAnsatz, plotReichweite]);
 
   const hoveredBlock = hoveredPlot ? blocks.find((b) => b.kennung === hoveredPlot) || null : null;
 
@@ -42,17 +65,22 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
   const xs = (v: number) => clamp(Rt - clamp(v, 0, 1) * (Rt - L), L + 12, Rt - 12);
   const ys = (v: number) => clamp(B - (clamp(v, 0, 3) / 3) * (B - T - 30) - 15, T + 12, B - 12);
 
-  // Deterministic collision-free label placement when filtered by Ansatz
+  // Deterministic collision-free label placement for highlighted subset
   const staticLabels = useMemo(() => {
     const map = new Map<string, { x: number; y: number; anchor: 'start' | 'end'; text: string }>();
-    if (!plotAnsatz || plotBlocks.length > 28) return map;
+    if (!hasHighlight || fgBlocks.length > 28) return map;
 
     const placed: Array<{ x0: number; x1: number; y0: number; y1: number }> = [];
-    const sorted = [...plotBlocks].sort((a, b) => ys(a.plot!.y) - ys(b.plot!.y) || xs(a.plot!.x) - xs(b.plot!.x));
+    const sorted = [...fgBlocks].sort((a, b) => {
+      const ca = coordsOf(a);
+      const cb = coordsOf(b);
+      return ys(ca.y) - ys(cb.y) || xs(ca.x) - xs(cb.x);
+    });
 
     for (const b of sorted) {
-      const cx = xs(b.plot!.x);
-      const cy = ys(b.plot!.y);
+      const pt = coordsOf(b);
+      const cx = xs(pt.x);
+      const cy = ys(pt.y);
       const rawText = b.name.replace(/ \(.*\)$/, '');
       const text = rawText.length > 28 ? `${rawText.slice(0, 27)}…` : rawText;
       const w = text.length * 6.4 + 6;
@@ -82,7 +110,7 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
       }
     }
     return map;
-  }, [plotBlocks, plotAnsatz]);
+  }, [fgBlocks, hasHighlight]);
 
   // Heatmap: Reichweite (R1..R4) x Lernfunktion (8)
   const reichweiten = valuesOf('reichweite').filter((r) => r.id !== 'r5');
@@ -181,16 +209,19 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
       <div className="card" style={{ padding: 18 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <div>
-            <h3 style={{ margin: 0 }}>1. Lenkung ist nicht Aktivität ({plotBlocks.length} Methoden im Raum)</h3>
+            <h3 style={{ margin: 0 }}>
+              1. Lenkung ist nicht Aktivität (alle {blocks.length} Methoden im Raum
+              {hasHighlight ? ` · ${fgBlocks.length} hervorgehoben` : ''})
+            </h3>
             <p className="muted" style={{ fontSize: 14.5, margin: '4px 0 0', maxWidth: '72ch' }}>
-              Anleitungsgrad (B1) und Engagementmodus (A2) sind unabhängig kodiert. Punkt antippen öffnet das Methodenprofil.
+              Anleitungsgrad (B1) und Engagementmodus (A2) sind unabhängig kodiert. Alle {blocks.length} Methoden bleiben stets sichtbar; Auswahl hebt Teilmengen hervor.
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              Ansatz:
+              Ansatz hervorheben:
               <select value={plotAnsatz} onChange={(e) => setPlotAnsatz(e.target.value)}>
-                <option value="">Alle Ansätze</option>
+                <option value="">Alle {blocks.length} Methoden</option>
                 {valuesOf('ansatz').map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.label}
@@ -199,7 +230,7 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
               </select>
             </label>
             <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              Reichweite:
+              Reichweite hervorheben:
               <select value={plotReichweite} onChange={(e) => setPlotReichweite(e.target.value)}>
                 <option value="">Alle (R1–R4)</option>
                 {reichweiten.map((r) => (
@@ -212,7 +243,7 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
           </div>
         </div>
 
-        {(plotAnsatz || plotReichweite) && (
+        {hasHighlight && (
           <div
             style={{
               marginTop: 8,
@@ -229,9 +260,9 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
             }}
           >
             <span>
-              <strong>Filter aktiv:</strong> Es werden nur {plotBlocks.length} von {blocks.filter((b) => b.plot).length} verorteten Methoden gezeigt
+              <strong>Hervorhebung aktiv:</strong> {fgBlocks.length} von {blocks.length} Methoden hervorgehoben
               {plotAnsatz ? ` (Ansatz: ${labelOf('ansatz', plotAnsatz)})` : ''}
-              {plotReichweite ? ` (Reichweite: ${plotReichweite.toUpperCase()})` : ''}. Leere Zonen sind durch diesen Filter bedingt.
+              {plotReichweite ? ` (Reichweite: ${plotReichweite.toUpperCase()})` : ''} – die übrigen {bgBlocks.length} Methoden bleiben als grauer Hintergrund sichtbar.
             </span>
             <button
               type="button"
@@ -241,7 +272,7 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
                 setPlotReichweite('');
               }}
             >
-              Alle {blocks.filter((b) => b.plot).length} Methoden zeigen
+              Hervorhebung zurücksetzen
             </button>
           </div>
         )}
@@ -290,9 +321,29 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
             offen und passiv: Gefahrenzone
           </text>
 
-          {plotBlocks.map((b) => {
-            const cx = xs(b.plot!.x);
-            const cy = ys(b.plot!.y);
+          {/* Background (non-highlighted) methods stay visibly rendered to avoid visual distortion */}
+          {bgBlocks.map((b) => {
+            const pt = coordsOf(b);
+            const cx = xs(pt.x);
+            const cy = ys(pt.y);
+            return (
+              <Link key={b.kennung} to={`/methoden/${b.kennung}`}>
+                <g
+                  onMouseEnter={() => setHoveredPlot(b.kennung)}
+                  onMouseLeave={() => setHoveredPlot(null)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <circle cx={cx} cy={cy} r={3.8} fill="var(--ink-2)" opacity={0.18} />
+                  <title>{`${b.name} (${b.reichweite.toUpperCase()}, ${b.dauerMin}–${b.dauerMax} min)`}</title>
+                </g>
+              </Link>
+            );
+          })}
+          {/* Foreground (all methods by default, or highlighted subset) */}
+          {fgBlocks.map((b) => {
+            const pt = coordsOf(b);
+            const cx = xs(pt.x);
+            const cy = ys(pt.y);
             const isHov = hoveredPlot === b.kennung;
             const lbl = staticLabels.get(b.kennung);
             return (
@@ -305,11 +356,11 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={isHov ? 8.5 : 5}
+                    r={isHov ? 8.5 : hasHighlight ? 5.6 : 5}
                     fill={b.ki ? 'var(--paper)' : b.status === 'kuratiert' ? 'var(--dA)' : 'var(--dC)'}
                     stroke="var(--ink)"
                     strokeWidth={b.ki ? 2.4 : 0.9}
-                    opacity={hoveredPlot && !isHov ? 0.42 : 0.92}
+                    opacity={hoveredPlot && !isHov ? 0.42 : 0.94}
                   />
                   <title>{`${b.name} (${b.reichweite.toUpperCase()}, ${b.dauerMin}–${b.dauerMax} min)`}</title>
                   {lbl && !isHov && (
@@ -330,9 +381,10 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
               </Link>
             );
           })}
-          {hoveredBlock && hoveredBlock.plot && (() => {
-            const cx = xs(hoveredBlock.plot.x);
-            const cy = ys(hoveredBlock.plot.y);
+          {hoveredBlock && (() => {
+            const pt = coordsOf(hoveredBlock);
+            const cx = xs(pt.x);
+            const cy = ys(pt.y);
             const label = hoveredBlock.name.replace(/ \(.*\)$/, '');
             const anchor = cx > 500 ? 'end' : 'start';
             const tx = anchor === 'end' ? cx - 12 : cx + 12;

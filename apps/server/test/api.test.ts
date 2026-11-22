@@ -8,6 +8,7 @@ import { buildApp } from '../src/app.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
+const EXPECTED_METHOD_COUNT = fs.readdirSync(path.join(ROOT, 'data', 'bausteine')).filter((f) => f.endsWith('.json')).length;
 
 describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiation', () => {
   let app: FastifyInstance;
@@ -41,7 +42,7 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     fs.rmSync(fakeWebDir, { recursive: true, force: true });
   });
 
-  it('serves /healthz and /api/v1/meta with versionHash, block count 240, CC-BY 4.0 and LLM availability', async () => {
+  it('serves /healthz and /api/v1/meta with versionHash, dynamic block count, CC-BY 4.0 and LLM availability', async () => {
     const h = await app.inject({ method: 'GET', url: '/healthz' });
     expect(h.statusCode).toBe(200);
     expect(h.json()).toMatchObject({ status: 'ok' });
@@ -49,7 +50,7 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     const meta = await app.inject({ method: 'GET', url: '/api/v1/meta' });
     expect(meta.statusCode).toBe(200);
     const body = meta.json();
-    expect(body.bausteine).toBe(240);
+    expect(body.bausteine).toBe(EXPECTED_METHOD_COUNT);
     expect(body.creator).toBe('Jan Schachtschabel');
     expect(body.license).toBe('https://creativecommons.org/licenses/by/4.0/');
     expect(body.versionHash).toMatch(/^[a-f0-9]{64}$/);
@@ -61,7 +62,7 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(r1.statusCode).toBe(200);
     const etag = r1.headers.etag as string;
     expect(etag).toBeTruthy();
-    expect(r1.json().bausteine.length).toBe(240);
+    expect(r1.json().bausteine.length).toBe(EXPECTED_METHOD_COUNT);
 
     const r2 = await app.inject({ method: 'GET', url: '/api/v1/catalog', headers: { 'if-none-match': etag } });
     expect(r2.statusCode).toBe(304);

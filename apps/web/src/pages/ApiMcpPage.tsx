@@ -3,6 +3,8 @@ import { useCatalog } from '../data/CatalogContext.js';
 export function ApiMcpPage() {
   const { bundle, meta } = useCatalog();
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080';
+  const totalMethods = bundle?.bausteine.length ?? null;
+  const totalLabel = totalMethods != null ? `alle ${totalMethods}` : 'alle';
 
   const mcpHttpConfig = JSON.stringify(
     {
@@ -33,7 +35,7 @@ export function ApiMcpPage() {
     <div className="page-section">
       <h1>API, MCP &amp; Linked Data (OER)</h1>
       <p className="muted" style={{ maxWidth: '72ch' }}>
-        Alle {bundle?.bausteine.length || 100} Unterrichtsmethoden, 24 SKOS-Vokabulare, die deterministische 5-Stufen-Zuordnung
+        {totalMethods != null ? `Alle ${totalMethods}` : 'Alle'} Unterrichtsmethoden, {bundle?.schemes.length ?? 24} SKOS-Vokabulare, die deterministische 5-Stufen-Zuordnung
         (&lt;1 ms, 0 LLM-Tokens) und der 13-Regeln-Validator stehen für externe KI-Agents über <strong>MCP</strong> und{' '}
         <strong>REST / JSON-LD</strong> offen unter <strong>CC BY 4.0 (Jan Schachtschabel)</strong> bereit.
       </p>
@@ -54,7 +56,7 @@ export function ApiMcpPage() {
         <div className="card" style={{ padding: 18 }}>
           <h2>Verfügbare MCP-Tools &amp; Resources</h2>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
-            <li><code>search_methods</code> – Facettierte Suche über alle 100 Methoden</li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden</li>
             <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen</li>
             <li><code>compare_methods</code> – Facette-für-Facette-Differenzvergleich</li>
             <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung (Phase oder Ablauf)</li>

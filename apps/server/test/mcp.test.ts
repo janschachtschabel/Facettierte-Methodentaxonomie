@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
@@ -8,6 +9,7 @@ import { buildApp } from '../src/app.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
+const EXPECTED_METHOD_COUNT = fs.readdirSync(path.join(ROOT, 'data', 'bausteine')).filter((f) => f.endsWith('.json')).length;
 
 describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
   let app: FastifyInstance;
@@ -125,7 +127,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
   it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {
     const summary = await client.readResource({ uri: 'fmt://catalog/summary' });
     const parsed = JSON.parse((summary.contents[0] as { text: string }).text);
-    expect(parsed.anzahl).toBe(240);
+    expect(parsed.anzahl).toBe(EXPECTED_METHOD_COUNT);
     expect(parsed.creator).toBe('Jan Schachtschabel');
 
     // Verify CORS header survives reply.hijack() on /mcp

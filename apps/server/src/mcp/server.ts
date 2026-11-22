@@ -16,7 +16,7 @@ export function createFmtMcpServer(store: CatalogStore): McpServer {
   // 1. search_methods
   server.tool(
     'search_methods',
-    'Facettierte Suche über alle 100 FMT-Unterrichtsmethoden (Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Zeit, Gruppengröße, Technik, Evidenzgrad).',
+    `Facettierte Suche über alle ${store.bundle.bausteine.length} FMT-Unterrichtsmethoden (Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Zeit, Gruppengröße, Technik, Evidenzgrad).`,
     {
       text: z.string().optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
       lernfunktion: z.union([z.string(), z.array(z.string())]).optional(),
