@@ -35,22 +35,21 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
         lastMockBody = parsed;
         const userText = String(parsed.messages?.[1]?.content || '');
         let content = '';
-        if (
-          userText.includes('AUSGESTALTUNG') ||
-          String(parsed.messages?.[0]?.content || '').includes('thematischeTabelle')
-        ) {
+        if (String(parsed.messages?.[0]?.content || '').includes('thematischeTabelle')) {
           content = JSON.stringify({
             thematischeTabelle: [
               {
                 key: 'step-0',
+                methodProcedure: 'Konkretes Vorgehen der Methode am Thema.',
                 teacherAction: 'Leitet die Erarbeitung am Thema an.',
                 learnerAction: 'Erarbeiten das Thema strukturiert.',
                 groupAdaptations: { basis: 'Satzstarter nutzen.' },
                 materialsAndOer: 'Arbeitsblatt + WLO-OER'
               }
-            ],
-            ausarbeitung: '## Konkrete Ausgestaltung\nNutzen Sie die Bausteine genau wie geprüft.'
+            ]
           });
+        } else if (userText.includes('AUSGESTALTUNG')) {
+          content = '## Konkrete Ausgestaltung\nNutzen Sie die Bausteine genau wie geprüft.';
         } else if (userText.includes('MATERIALTYP:')) {
           content = '# Gestuftes Arbeitsblatt\n## Aufgaben\n1. Basisaufgabe\n2. Vertiefungsaufgabe';
         } else if (parsed.messages?.[0]?.content?.includes('Binnendifferenzierung')) {
@@ -205,8 +204,9 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(e.json().fehler).toMatch(/LLM|API-Key/i);
   });
 
-  it('elaborates a validated arrangement and includes all 4 FMT guardrails', async () => {
+  it('elaborates a validated arrangement via parallel sub-prompts and includes all 4 FMT guardrails', async () => {
     mockBehavior = 'valid';
+    const callsBefore = mockCalls;
     const dichte = (await appWithKey.inject({ method: 'GET', url: '/beispiele/dichte-reihe.jsonld' })).json();
     const res = await appWithKey.inject({
       method: 'POST',
@@ -217,6 +217,11 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     const j = res.json();
     expect(j.pruefung.gueltig).toBe(true);
     expect(j.ausarbeitung).toContain('Ausgestaltung');
+    expect(j.thematischeTabelle.length).toBeGreaterThan(3);
+    expect(j.thematischeTabelle[0].methodProcedure).toContain('Konkretes Vorgehen');
+    expect(j.meta.teilprompts).toBeGreaterThan(2);
+    expect(j.meta.fehlgeschlagen).toBe(0);
+    expect(mockCalls - callsBefore).toBe(j.meta.teilprompts);
     expect(j.leitplanken.length).toBe(4);
   });
 

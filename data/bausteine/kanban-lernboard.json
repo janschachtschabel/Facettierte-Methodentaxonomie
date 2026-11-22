@@ -1,0 +1,143 @@
+{
+  "status": "entwurf",
+  "kennung": "kanban-lernboard",
+  "name": "Kanban-Lernboard (To-do · In Arbeit · Fertig)",
+  "kurzbeschreibung": "Prozessbegleitendes Aufgabenboard mit Haftnotizen an Tafel, Plakat oder digital, mit dem Gruppen Arbeitspakete, Fortschritt und Blockaden sichtbar steuern.",
+  "alternativname": [
+    "Kanban-Board",
+    "Aufgaben-Pinnwand",
+    "Lern-Kanban"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "offen",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kanban",
+      "url": "https://de.wikipedia.org/wiki/Kanban",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "metakognition",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lernende",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "kleingruppe-unstrukturiert"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "authentisch",
+    "afb2"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "spalten",
+      "name": "Klare Statusspalten (Geplant · In Arbeit · Prüfen · Fertig)"
+    },
+    {
+      "kennung": "wip-limit",
+      "name": "Begrenzung paralleler Aufgaben (Fokus statt Verzettelung)"
+    },
+    {
+      "kennung": "standup",
+      "name": "Kurzer 2-Minuten-Abgleich zu Beginn/Ende einer Phase"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 60,
+  "problem": "In Gruppen-, Projekt- oder PBL-Phasen verlieren Teams leicht den Überblick über offene Teilaufgaben, Verantwortlichkeiten und Zeitbudget.",
+  "durchfuehrung": [
+    "Spalten (Offen · In Arbeit · Prüfen · Fertig) auf Plakat oder Tafel vorbereiten",
+    "Teilaufgaben auf Haftnotizen mit Verantwortlichen und Kurzfristigkeit notieren",
+    "Karten während der Arbeitsphasen live weiterschieben und Blockaden sichtbar markieren",
+    "Am Phasenende in 2 Minuten den Stand prüfen und nächste Schritte festlegen"
+  ],
+  "material": [
+    "Plakat/Tafel mit 3–4 Spalten",
+    "Haftnotizen (Post-its) und Filzstifte"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Klassen-Kanban auf Magnettafel",
+    "Digitales Taskboard im LMS"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/39-3"
+  ],
+  "hinweis": "Ideal als vollständig analoger Begleitstrang für Doppelstunden, Gruppenarbeiten, PBL und Projekte.",
+  "qualitaetsrisiko": [
+    "Karten werden einmal geklebt und danach nicht mehr aktualisiert"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Praxis- und Fallstudien zeigen erhöhte Transparenz der Teamarbeit und niedrigere Koordinationsverluste in Projektphasen",
+      "quelle": "Praxisberichte agiles Lernen / eduScrum-Kontext",
+      "geltung": "Sekundarstufe, Berufsbildung und Hochschule"
+    }
+  ],
+  "plot": {
+    "x": 0.45,
+    "y": 2.35
+  }
+}

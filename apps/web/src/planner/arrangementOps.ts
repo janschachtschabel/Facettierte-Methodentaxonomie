@@ -110,7 +110,7 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
             { typ: 'Wiederkehr', baustein: 'abrufquiz', anzahl: 3, abstand: 'P2D', dauerMin: 6 }
           ]
         },
-        begleitend: [E('lerntagebuch', 20)]
+        begleitend: [E('kompetenzraster-checkliste', 15)]
       }
     };
   }
@@ -232,7 +232,7 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
             E('reflexionsprompt', 10, { kettenschritt: 'pr4' })
           ]
         },
-        begleitend: [E('lerntagebuch', 20)]
+        begleitend: [E('kanban-lernboard', 20)]
       }
     };
   }
@@ -673,11 +673,11 @@ export function exportArrangementMarkdown(
     ...(options.lehrkraefteInfo ? [`- **Lehrkraft / Begleitung:** ${options.lehrkraefteInfo}`] : []),
     ...(options.groups?.filter((g) => g.active).length
       ? [
-          `- **Lerngruppen:** ${options.groups
-            .filter((g) => g.active)
-            .map((g) => `${g.label}${g.count ? ` (${g.count} Pers.)` : ''}`)
-            .join(' · ')}`
-        ]
+        `- **Lerngruppen:** ${options.groups
+          .filter((g) => g.active)
+          .map((g) => `${g.label}${g.count ? ` (${g.count} Pers.)` : ''}`)
+          .join(' · ')}`
+      ]
       : []),
     `- **Granularität / Reichweite:** ${arr.reichweite.toUpperCase()}`,
     `- **Zieltyp / Kette:** ${arr.zieltyp || 'Freier Ablauf'}`,

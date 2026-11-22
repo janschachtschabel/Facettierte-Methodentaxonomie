@@ -1,0 +1,144 @@
+{
+  "status": "entwurf",
+  "kennung": "klassen-glossar",
+  "name": "Wachsendes Fachbegriffs-Glossar / Wortwand",
+  "kurzbeschreibung": "Prozessbegleitende, analog auf Plakatwand oder im Heft geführte Sammlung zentraler Fachbegriffe, Alltagsbeispiele und Satzstarter über die gesamte Unterrichtseinheit.",
+  "alternativname": [
+    "Wortwand",
+    "Wortspeicher",
+    "Fachbegriffs-Poster"
+  ],
+  "piktogramm": "sprache",
+  "ansatz": [
+    "instruktion",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Glossar",
+      "url": "https://de.wikipedia.org/wiki/Glossar",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Leisen (2013): Handbuch Sprachförderung im Fach",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "konsolidierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "begriff-beispiel",
+      "name": "Jeder Fachbegriff mit kurzer Erklärung, Skizze und Alltagsbeispiel"
+    },
+    {
+      "kennung": "sichtbarkeit",
+      "name": "Dauerhafte Sichtbarkeit als Sprach-Scaffold während der Phasen"
+    },
+    {
+      "kennung": "nutzung",
+      "name": "Aktives Aufgreifen der Begriffe in Erklär- und Schreibphasen"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 45,
+  "problem": "Neue Fachbegriffe werden im Unterrichtsverlauf schnell überhört oder unpräzise verwendet – besonders bei sprachsensiblen Lerngruppen.",
+  "durchfuehrung": [
+    "Leeres Plakat (Wortwand) oder Glossar-Seite im Heft zu Beginn anlegen",
+    "Sobald ein neuer Schlüsselbegriff auftaucht, Begriffskarte mit Erklärung in eigenen Worten und Beispiel ergänzen",
+    "Begriffe als verbindliche Formulierungshilfe in Gruppen- und Sicherungsphasen heranziehen",
+    "Am Ende der Einheit zentrale Begriffe mit Pfeilen vernetzen oder kurz abrufen"
+  ],
+  "material": [
+    "Plakatpapier / Moderationskarten oder Glossar-Blatt im Heft",
+    "Dicke Stifte"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Zweisprachiger Wortspeicher (DaZ)",
+    "Digitales Kurs-Glossar"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1"
+  ],
+  "hinweis": "Sehr wirksame, rein analoge Begleitmethode für sprachsensiblen Fachunterricht (Scaffolding ohne digitale Geräte).",
+  "qualitaetsrisiko": [
+    "Bleibt reine Dekoration an der Wand, wenn Begriffe nicht aktiv in Aufgaben eingefordert werden"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Fachsprachliches Scaffolding über sichtbare Wortspeicher unterstützt fachliches Verstehen und präzise Versprachlichung",
+      "quelle": "Leisen 2013",
+      "geltung": "Sprachsensibler Fachunterricht, Primar- und Sekundarstufe"
+    }
+  ],
+  "plot": {
+    "x": 0.22,
+    "y": 1.65
+  }
+}

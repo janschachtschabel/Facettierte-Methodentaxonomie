@@ -124,6 +124,7 @@ export function ScenarioStudioPanel({
   // Full AI elaboration state
   const [busyElab, setBusyElab] = useState(false);
   const [elabError, setElabError] = useState<string | null>(null);
+  const [elabStatus, setElabStatus] = useState<string | null>(null);
   const [editingTable, setEditingTable] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [previewModal, setPreviewModal] = useState<
@@ -345,6 +346,18 @@ export function ScenarioStudioPanel({
         onThematicRowsChange(json.thematischeTabelle as ThematicPhaseRow[]);
       }
       onElaborationChange(String(json.ausarbeitung));
+      if (json.meta && typeof json.meta.teilprompts === 'number') {
+        const sec = ((Number(json.meta.dauerMs) || 0) / 1000).toFixed(1).replace('.', ',');
+        setElabStatus(
+          json.meta.fehlgeschlagen > 0
+            ? `Teilweise fertiggestellt (${json.meta.erfolgreich}/${json.meta.teilprompts} parallele Teilprompts in ${sec} s; fehlende Abschnitte mit FMT-Struktur aufgefüllt).`
+            : `✓ ${json.meta.teilprompts} parallele Teilprompts fertiggestellt (${sec} s).`
+        );
+      } else if (json.gecacht) {
+        setElabStatus('✓ Aus Cache geladen.');
+      } else {
+        setElabStatus(null);
+      }
     } catch (e) {
       setElabError(e instanceof Error ? e.message : 'Netzwerkfehler');
     } finally {
@@ -760,7 +773,7 @@ export function ScenarioStudioPanel({
             <button type="button" className="btn btn-primary" disabled={busyElab} onClick={() => void runAiElaborate()}>
               ✨{' '}
               {busyElab
-                ? 'Arbeite Tabelle & Entwurf aus…'
+                ? `Arbeite ${scenarioRows.length} Phasen + Entwurf in ${Math.max(1, Math.ceil(scenarioRows.length / 3)) + 1} parallelen Teilprompts aus…`
                 : elaboration
                   ? 'Thematische Tabelle & Entwurf neu ausarbeiten (KI)'
                   : 'Thematische Tabelle & Entwurf ausarbeiten (KI)'}
@@ -870,6 +883,11 @@ export function ScenarioStudioPanel({
         {elabError && (
           <div className="msgs" style={{ marginTop: 10 }}>
             <li className="err">{elabError}</li>
+          </div>
+        )}
+        {elabStatus && !elabError && (
+          <div style={{ marginTop: 8, fontSize: 12.5, fontFamily: 'var(--display)', color: 'var(--dA)' }}>
+            {elabStatus}
           </div>
         )}
 

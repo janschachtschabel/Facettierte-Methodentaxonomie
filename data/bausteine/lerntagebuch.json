@@ -1,8 +1,9 @@
 {
   "kennung": "lerntagebuch",
-  "name": "Lerntagebuch mit Prompts",
-  "kurzbeschreibung": "Längerfristiges, durch kognitive und metakognitive Leitfragen gestütztes Lernjournal über eine Unterrichtsreihe.",
+  "name": "Lerntagebuch mit Leitfragen (Prompts)",
+  "kurzbeschreibung": "Längerfristiges, analog im Heft oder digital geführtes Lernjournal, gestützt durch schriftliche kognitive und metakognitive Leitfragen (sog. Prompts – keine KI-Prompts).",
   "alternativname": [
+    "Lerntagebuch mit Prompts",
     "Lernjournal",
     "Learning Journal",
     "Lernprotokoll"
@@ -101,14 +102,14 @@
   "dauerMax": 60,
   "problem": "Verstehen und Lernstrategien entwickeln sich über Wochen und bleiben ohne Aufzeichnung unsichtbar.",
   "durchfuehrung": [
-    "Prompts und Rhythmus vereinbaren",
-    "Regelmäßig Einträge schreiben",
+    "Schriftliche Leitfragen (Prompts) und Schreib-Rhythmus vereinbaren",
+    "Regelmäßig Einträge im Papier-Heft oder digitalen Journal schreiben",
     "Rückmeldung zu ausgewählten Einträgen geben",
-    "Einträge für die eigene Planung nutzen"
+    "Einträge für die eigene Lernplanung nutzen"
   ],
   "material": [
-    "Heft oder digitales Journal",
-    "Liste der Prompts"
+    "Papier-Heft / Ordner oder digitales Journal",
+    "Gedruckte Liste der schriftlichen Leitfragen (Prompts)"
   ],
   "gruppeMin": 1,
   "gruppeMax": 35,

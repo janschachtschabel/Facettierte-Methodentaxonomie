@@ -651,20 +651,47 @@ export function PartiturView({
             ═ Begleitstrang (Parallel)
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <select
-              style={{ flex: 1 }}
-              value={parBlockId}
-              onChange={(e) => onChange(setParallelBlock(arrangement, e.target.value ? blocksById.get(e.target.value) || null : null, parDuration))}
-            >
-              <option value="">– kein Begleitstrang –</option>
-              {sortedBlocks
-                .filter((b) => (rangMap.get(b.reichweite) ?? 0) <= 3)
-                .map((b) => (
-                  <option key={b.kennung} value={b.kennung}>
-                    {b.name}
-                  </option>
-                ))}
-            </select>
+            {(() => {
+              const recommendedParallelIds = new Set([
+                'kompetenzraster-checkliste',
+                'kanban-lernboard',
+                'klassen-glossar',
+                'beobachtungsbogen',
+                'lerntagebuch',
+                'lernportfolio',
+                'cornell-methode',
+                'sketchnotes',
+                'collective-notebook',
+                'karteikarten-leitner',
+                'e-portfolio-kurs'
+              ]);
+              const eligible = sortedBlocks.filter((b) => (rangMap.get(b.reichweite) ?? 0) <= 3);
+              const recommended = eligible.filter((b) => recommendedParallelIds.has(b.kennung));
+              const others = eligible.filter((b) => !recommendedParallelIds.has(b.kennung));
+              return (
+                <select
+                  style={{ flex: 1 }}
+                  value={parBlockId}
+                  onChange={(e) => onChange(setParallelBlock(arrangement, e.target.value ? blocksById.get(e.target.value) || null : null, parDuration))}
+                >
+                  <option value="">– kein Begleitstrang –</option>
+                  <optgroup label="Empfohlene Begleitmethoden (analog &amp; digital)">
+                    {recommended.map((b) => (
+                      <option key={b.kennung} value={b.kennung}>
+                        {b.name} [{b.technik === 't-keine' ? 'analog' : 'digital'}]
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Weitere Methodenbausteine (R1–R3)">
+                    {others.map((b) => (
+                      <option key={b.kennung} value={b.kennung}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                </select>
+              );
+            })()}
             {parBlockId && (
               <input
                 type="number"

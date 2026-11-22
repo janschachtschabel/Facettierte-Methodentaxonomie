@@ -1,0 +1,148 @@
+{
+  "status": "entwurf",
+  "kennung": "kompetenzraster-checkliste",
+  "name": "Kompetenzraster & Ich-kann-Checkliste",
+  "kurzbeschreibung": "Analoge oder digitale Kriterienübersicht mit Niveaustufen, auf der Lernende begleitend zur Unterrichtseinheit ihren Lernfortschritt selbst einschätzen und nächste Übungsschritte wählen.",
+  "alternativname": [
+    "Ich-kann-Liste",
+    "Lernlandkarte",
+    "Kompetenzcheckliste"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "offen"
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Kompetenzraster",
+      "url": "https://de.wikipedia.org/wiki/Kompetenzraster",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Black & Wiliam (2009): Developing the theory of formative assessment",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "diagnose",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "formativ",
+    "bn-kriterial",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "feedbackgeber",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb2"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien",
+      "name": "Verständliche Ich-kann-Kriterien mit Niveaustufen"
+    },
+    {
+      "kennung": "selbstcheck",
+      "name": "Wiederkehrende Selbsteinschätzung mit Belegen"
+    },
+    {
+      "kennung": "anschluss",
+      "name": "Verknüpfung mit gezielten Übungs- oder Vertiefungsaufgaben"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 45,
+  "problem": "Lernende wissen im laufenden Unterricht oft nicht klar, welche Teilkompetenzen bereits sicher sitzen und woran sie als Nächstes arbeiten sollten.",
+  "durchfuehrung": [
+    "Kompetenzraster zu Beginn der Stunde oder Reihe austeilen und Zielkriterien kurz klären",
+    "Nach zentralen Arbeitsphasen erreichte Ich-kann-Stufen farbig markieren und mit einem Beispiel belegen",
+    "Offene Kriterien gezielt für Übungsauswahl, Partnerhilfe oder Rückfrage nutzen",
+    "Am Ende der Einheit Entwicklung zwischen Start- und Endstand vergleichen"
+  ],
+  "material": [
+    "Gedrucktes Kompetenzraster / Ich-kann-Checkliste (A4)",
+    "Farbstifte oder Klebepunkte"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Lernlandkarte mit Stationen",
+    "Partner-Check vor dem Abhaken"
+  ],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/111-1",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/38-5"
+  ],
+  "hinweis": "Funktioniert komplett analog auf Papier; besonders wirksam, wenn Lernende beim Abhaken ein konkretes Aufgabenbeispiel notieren.",
+  "qualitaetsrisiko": [
+    "Unreflektiertes Abhaken ohne Beleg (Über- oder Unterschätzung)"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Transparente Erfolgskriterien und kriteriengeleitete Selbsteinschätzung stärken formatives Feedback und Selbstregulation",
+      "quelle": "Black & Wiliam 2009; Hattie 2009",
+      "geltung": "Primar- und Sekundarstufe, fächerübergreifend"
+    }
+  ],
+  "plot": {
+    "x": 0.28,
+    "y": 1.85
+  }
+}

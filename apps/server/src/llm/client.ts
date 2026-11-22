@@ -157,6 +157,13 @@ export async function callChatCompletion(
       );
     }
     return content;
+  } catch (err) {
+    if (err instanceof Error && (err.name === 'AbortError' || /aborted/i.test(err.message))) {
+      throw new Error(
+        `Zeitüberschreitung bei der KI-Antwort (${Math.round(opts.timeoutMs / 1000)} s). Bitte erneut versuchen.`
+      );
+    }
+    throw err;
   } finally {
     clearTimeout(timer);
   }

@@ -273,7 +273,14 @@ export async function elaborateScenarioCore(
   pruefung: ValidationResult;
   ausarbeitung: string;
   thematischeTabelle: ThematicTableRow[];
+  meta?: {
+    teilprompts: number;
+    erfolgreich: number;
+    fehlgeschlagen: number;
+    dauerMs: number;
+  };
 }> {
+  const startedAt = Date.now();
   const pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
   const usedIds = [...collectUsedBlocks(body.arrangement.ablauf)];
   // Include any subgroup alternative methods too
@@ -282,28 +289,32 @@ export async function elaborateScenarioCore(
       if (sub?.methodId && !usedIds.includes(sub.methodId)) usedIds.push(sub.methodId);
     }
   }
-  const catalogContext = usedIds
-    .map((id) => store.blocksById.get(id))
-    .filter((b): b is NonNullable<typeof b> => Boolean(b))
-    .map((b) => ({
-      kennung: b.kennung,
-      name: b.name,
-      reichweite: b.reichweite,
-      kurzbeschreibung: b.kurzbeschreibung,
-      problem: b.problem,
-      durchfuehrung: b.durchfuehrung,
-      material: b.material,
-      raum: b.raum,
-      kernkomponente: b.kernkomponente.map((k) => k.name),
-      qualitaetsrisiko: b.qualitaetsrisiko,
-      evidenz: b.evidenz,
-      quellen: b.quellen
-    }));
+  const catalogById = new Map(
+    usedIds
+      .map((id) => store.blocksById.get(id))
+      .filter((b): b is NonNullable<typeof b> => Boolean(b))
+      .map((b) => [
+        b.kennung,
+        {
+          kennung: b.kennung,
+          name: b.name,
+          reichweite: b.reichweite,
+          kurzbeschreibung: b.kurzbeschreibung,
+          problem: b.problem,
+          durchfuehrung: b.durchfuehrung,
+          material: b.material,
+          raum: b.raum,
+          kernkomponente: b.kernkomponente.map((k) => k.name),
+          qualitaetsrisiko: b.qualitaetsrisiko,
+          evidenz: b.evidenz,
+          quellen: b.quellen
+        }
+      ])
+  );
+  const catalogContext = [...catalogById.values()];
 
-  const fallbackTable = buildDeterministicThematicTable(store, body);
-  const target = resolveLlmTarget(config, override);
-  if (!target) {
-    const mdLines = [
+  const buildStructuredMarkdownFallback = (rows: ThematicTableRow[]) =>
+    [
       `# Unterrichtsentwurf: ${body.fach ? `${body.fach} – ` : ''}${body.thema || body.arrangement.name}`,
       '',
       `- **Gesamtdauer:** ${pruefung.dauerMin} min · **Prüfstatus:** ${pruefung.gueltig ? 'Gültig' : 'Prüfhinweise offen'}`,
@@ -312,22 +323,26 @@ export async function elaborateScenarioCore(
       ...(body.lernziele ? ['', '## Lernziele', body.lernziele] : []),
       '',
       '## Thematischer Ablauf',
-      ...fallbackTable.map(
+      ...rows.map(
         (r) =>
-          `### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Lehrkraft:** ${r.teacherAction}\n- **Lernende:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
+          `### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **Lehrkraft:** ${r.teacherAction}\n- **Lernende:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
       )
-    ];
+    ].join('\n');
+
+  const fallbackTable = buildDeterministicThematicTable(store, body);
+  const target = resolveLlmTarget(config, override);
+  if (!target) {
     return {
       quelle: 'deterministisch',
       gecacht: false,
       pruefung,
-      ausarbeitung: mdLines.join('\n'),
+      ausarbeitung: buildStructuredMarkdownFallback(fallbackTable),
       thematischeTabelle: fallbackTable
     };
   }
 
   const cacheKey = hashKey([
-    'elaborate-v5',
+    'elaborate-v6',
     store.bundle.versionHash,
     target.model,
     body.thema || '',
@@ -351,11 +366,36 @@ export async function elaborateScenarioCore(
     }
   }
 
-  const systemPrompt =
+  // Shared compact scenario header used across all parallel sub-prompts
+  const sharedContextHeader =
+    `FACH: ${body.fach || 'nicht angegeben'} · THEMA: ${body.thema || 'nicht angegeben'} · GESAMTDAUER: ${pruefung.dauerMin} min\n` +
+    (body.didaktischerAnsatz ? `Didaktischer Ansatz: ${body.didaktischerAnsatz}\n` : '') +
+    (body.akteure ? `Akteure / Personenanzahl: ${body.akteure}\n` : '') +
+    (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
+    (body.problemstellung ? `Didaktische Ausgangslage / Problemstellung:\n${body.problemstellung}\n` : '') +
+    (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
+    (body.differenzierung?.length
+      ? `Lerngruppen & Binnendifferenzierungsmatrix:\n${JSON.stringify(body.differenzierung)}\n`
+      : '');
+
+  const arcOverview = fallbackTable
+    .map((r) => `${r.orderLabel}. ${r.phaseLabel} [${r.methodName}, ${r.durationMin} min]`)
+    .join(' → ');
+
+  const subTimeoutMs = Math.max(config.llmTimeoutMs, 60000);
+
+  // Split thematic table into small parallel batches (max 3 phases per batch) so each call finishes quickly & reliably
+  const CHUNK_SIZE = 3;
+  const phaseChunks: ThematicTableRow[][] = [];
+  for (let i = 0; i < fallbackTable.length; i += CHUNK_SIZE) {
+    phaseChunks.push(fallbackTable.slice(i, i + CHUNK_SIZE));
+  }
+
+  const tableSystemPrompt =
     'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-    'Führe das methodische Konzept (FMT-Methoden & deren konkrete Durchführungsschritte), das Thema, die Lerngruppen/Voraussetzungen (Binnendifferenzierungsmatrix), die WLO-OER-Ressourcen (inkl. wwwurl) und erstellte Materialien zu einem praxisfertigen, thematisch konkretisierten Gesamtszenario zusammen.\n' +
+    'Konkretisiere NUR die übergebenen Unterrichtsphasen präzise und praxisfertig auf das Fach, das Thema, die Lerngruppen (Binnendifferenzierungsmatrix), die WLO-OER-Ressourcen (inkl. exakter wwwurl) und erstellte Materialien.\n' +
     'WICHTIG: Die methodische Vorgehensweise (Durchführungsschritte & Kernkomponenten jeder FMT-Methode) darf NICHT verloren gehen – übertrage sie explizit und schrittweise auf das konkrete Thema!\n' +
-    'ANTWORTE AUSSCHLIESSLICH als gültiges JSON-Objekt mit exakt diesen zwei Feldern:\n' +
+    'ANTWORTE AUSSCHLIESSLICH als gültiges JSON-Objekt mit exakt diesem Feld:\n' +
     '{\n' +
     '  "thematischeTabelle": [\n' +
     '    {\n' +
@@ -366,75 +406,177 @@ export async function elaborateScenarioCore(
     '      "groupAdaptations": { "<groupId>": "<konkrete thematische Anpassung oder alternative Methode für diese Teilgruppe>" },\n' +
     '      "materialsAndOer": "<konkreter Bezug auf zugeordnete Materialien & WLO-OER inkl. vollständiger wwwurl>"\n' +
     '    }\n' +
-    '  ],\n' +
-    '  "ausarbeitung": "<ausführliches, klares deutsches Markdown mit: 1. Kurzüberblick, Lernziele, didaktischer Ansatz, Lernvoraussetzungen & Akteure; 2. Thematische Durchführungsbeschreibung Phase für Phase, bei der die konkrete methodische Vorgehensweise (Schrittfolge, Kernkomponenten) am Thema samt Aufgaben-/Moderationsimpulsen, Übergängen, Material- & WLO-OER-Einbindung (immer mit vollständiger wwwurl als Markdown-Link) sichtbar bleibt; 3. Binnendifferenzierung & ggf. parallele Teilgruppen-Methoden; 4. Qualitätsrisiken & verifiziertes Quellenverzeichnis aus den Katalogdaten>"\n' +
+    '  ]\n' +
     '}\n' +
-    'STRENGE REGELN:\n' +
-    '- Beziehe zugeordnete WLO-OER-Inhalte (immer mit ihrer exakten wwwurl!) und erstellte Materialien aktiv in die jeweiligen Phasen ein.\n' +
-    '- Erfinde KEINE neuen Methoden, keine neuen Studien und KEINE URLs außerhalb der übergebenen Katalog- und WLO-Daten.\n' +
-    '- Evidenzbefunde immer nur mit ihrer Geltung und Gegenposition nennen.';
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs außerhalb der übergebenen Katalog- und WLO-Daten.';
 
-  const userPrompt =
-    `FACH: ${body.fach || 'nicht angegeben'} · THEMA: ${body.thema || 'nicht angegeben'}\n` +
-    (body.didaktischerAnsatz ? `Didaktischer Ansatz: ${body.didaktischerAnsatz}\n` : '') +
-    (body.akteure ? `Akteure / Personenanzahl: ${body.akteure}\n` : '') +
-    (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
-    (body.problemstellung ? `Didaktische Ausgangslage / Problemstellung:\n${body.problemstellung}\n` : '') +
-    (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
-    (body.differenzierung?.length
-      ? `\nLerngruppen & Binnendifferenzierungsmatrix:\n${JSON.stringify(body.differenzierung, null, 2)}\n`
-      : '') +
-    (body.oerRessourcen?.length
-      ? `\nZugeordnete WLO-OER-Ressourcen (inkl. wwwurl – zwingend einbinden!):\n${JSON.stringify(body.oerRessourcen, null, 2)}\n`
-      : '') +
-    (body.materialien?.length
-      ? `\nErstellte/zugeordnete Unterrichtsmaterialien:\n${JSON.stringify(body.materialien, null, 2)}\n`
-      : '') +
-    `\nPhasenstruktur (exakte Keys verwenden):\n${JSON.stringify(
+  const tableBatchPromises = phaseChunks.map((chunk, chunkIdx) => {
+    const chunkKeys = new Set(chunk.map((r) => r.key));
+    const chunkMethodIds = new Set<string>();
+    for (const r of chunk) {
+      chunkMethodIds.add(r.methodId);
+      const subMap = body.phasen?.find((p) => p.key === r.key)?.subgroupMethods || {};
+      for (const sub of Object.values(subMap)) {
+        if (sub?.methodId) chunkMethodIds.add(sub.methodId);
+      }
+    }
+    const chunkCatalog = [...chunkMethodIds]
+      .map((id) => catalogById.get(id))
+      .filter((x): x is NonNullable<typeof x> => Boolean(x))
+      .map((b) => ({
+        kennung: b.kennung,
+        name: b.name,
+        kurzbeschreibung: b.kurzbeschreibung,
+        durchfuehrung: b.durchfuehrung,
+        kernkomponente: b.kernkomponente,
+        material: b.material
+      }));
+    const chunkOers = (body.oerRessourcen || []).filter((o) => !o.stepKey || chunkKeys.has(o.stepKey));
+    const chunkMats = (body.materialien || []).filter((m) => !m.stepKey || chunkKeys.has(m.stepKey));
+
+    const chunkUserPrompt =
+      `${sharedContextHeader}\n` +
+      `Gesamtverlauf zur Einordnung (Abschnitt ${chunkIdx + 1}/${phaseChunks.length}):\n${arcOverview}\n\n` +
+      `DIESE PHASEN KONKRETISIEREN (exakte Keys verwenden):\n${JSON.stringify(
+        chunk.map((r) => ({
+          key: r.key,
+          orderLabel: r.orderLabel,
+          phaseLabel: r.phaseLabel,
+          durationMin: r.durationMin,
+          methodId: r.methodId,
+          methodName: r.methodName,
+          subgroupMethods: body.phasen?.find((p) => p.key === r.key)?.subgroupMethods
+        }))
+      )}\n` +
+      (chunkOers.length ? `\nZugeordnete WLO-OER (wwwurl exakt übernehmen!):\n${JSON.stringify(chunkOers)}\n` : '') +
+      (chunkMats.length ? `\nErstellte Materialien:\n${JSON.stringify(chunkMats)}\n` : '') +
+      `\nFMT-Methodenbeschreibungen für diesen Abschnitt:\n${JSON.stringify(chunkCatalog)}`;
+
+    return callChatCompletion(
+      target,
+      [
+        { role: 'system', content: tableSystemPrompt },
+        { role: 'user', content: chunkUserPrompt }
+      ],
+      {
+        jsonMode: true,
+        maxTokens: 2800,
+        timeoutMs: subTimeoutMs,
+        reasoningEffort: config.llmReasoningEffort
+      }
+    );
+  });
+
+  // Narrative prose lesson plan runs concurrently in plain Markdown (no JSON escaping overhead!)
+  const narrativeSystemPrompt =
+    'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
+    'Erstelle einen praxisfertigen, klar gegliederten deutschen Unterrichtsentwurf im Markdown-Format (KEIN JSON, direkt lesbares Markdown!).\n' +
+    'Struktur:\n' +
+    '1. ## Kurzüberblick, Lernziele, didaktischer Ansatz & Lernvoraussetzungen\n' +
+    '2. ## Thematische Durchführung (Phase für Phase): Übertrage die konkrete methodische Vorgehensweise (Schrittfolge & Kernkomponenten der FMT-Methoden) explizit auf das Thema, inkl. konkreter Arbeitsimpulse, Moderationsübergänge, Einbindung der erstellten Materialien und WLO-OER-Links (immer mit exakter wwwurl als Markdown-Link)\n' +
+    '3. ## Binnendifferenzierung & Teilgruppen-Unterstützung\n' +
+    '4. ## Qualitätsrisiken & verifizierte Quellen (nur aus den übergebenen Katalogdaten)\n' +
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Evidenzbefunde immer mit Geltung nennen.';
+
+  const narrativeUserPrompt =
+    `AUSGESTALTUNG DES UNTERRICHTSENTWURFS (Markdown):\n${sharedContextHeader}\n` +
+    (body.oerRessourcen?.length ? `WLO-OER-Ressourcen (exakte wwwurl einbinden):\n${JSON.stringify(body.oerRessourcen)}\n` : '') +
+    (body.materialien?.length ? `Erstellte Unterrichtsmaterialien:\n${JSON.stringify(body.materialien)}\n` : '') +
+    `\nPhasenfolge:\n${JSON.stringify(
       fallbackTable.map((r) => ({
-        key: r.key,
-        orderLabel: r.orderLabel,
-        phaseLabel: r.phaseLabel,
-        durationMin: r.durationMin,
-        methodId: r.methodId,
-        methodName: r.methodName,
+        order: r.orderLabel,
+        phase: r.phaseLabel,
+        dauerMin: r.durationMin,
+        methode: r.methodName,
         subgroupMethods: body.phasen?.find((p) => p.key === r.key)?.subgroupMethods
-      })),
-      null,
-      2
-    )}\n\n` +
-    `Prüfungsergebnis:\n${JSON.stringify(pruefung, null, 2)}\n\n` +
-    `Katalogdaten der verwendeten Bausteine (inkl. Durchführung, Material und verifizierten Quellen):\n${JSON.stringify(catalogContext, null, 2)}`;
+      }))
+    )}\n` +
+    `Prüfstatus: ${pruefung.gueltig ? 'Formal gültig' : 'Prüfhinweise vorhanden'} (${pruefung.dauerMin} min)\n\n` +
+    `FMT-Katalogdaten (Durchführung, Kernkomponenten, Risiken, Evidenz, Quellen):\n${JSON.stringify(catalogContext)}`;
 
-  const raw = await callChatCompletion(
+  const narrativePromise = callChatCompletion(
     target,
     [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
+      { role: 'system', content: narrativeSystemPrompt },
+      { role: 'user', content: narrativeUserPrompt }
     ],
     {
-      jsonMode: true,
-      maxTokens: 8000,
-      timeoutMs: Math.max(config.llmTimeoutMs, 90000),
+      jsonMode: false,
+      maxTokens: 3200,
+      timeoutMs: subTimeoutMs,
       reasoningEffort: config.llmReasoningEffort
     }
   );
 
-  const parsed = extractJsonObject(raw) as {
-    thematischeTabelle?: Array<{
-      key?: string;
+  // Run all phase batches + narrative Markdown in parallel with fault tolerance
+  const [narrativeSettled, ...batchSettled] = await Promise.allSettled([narrativePromise, ...tableBatchPromises]);
+
+  const llmRowsByKey = new Map<
+    string,
+    {
       methodProcedure?: string;
       teacherAction?: string;
       learnerAction?: string;
       groupAdaptations?: Record<string, string>;
       materialsAndOer?: string;
-    }>;
-    ausarbeitung?: string;
-  } | null;
+    }
+  >();
 
-  const llmRows = Array.isArray(parsed?.thematischeTabelle) ? parsed!.thematischeTabelle : [];
+  let succeeded = 0;
+  let failed = 0;
+  let firstError: Error | null = null;
+
+  for (const res of batchSettled) {
+    if (res.status === 'fulfilled') {
+      succeeded++;
+      const parsed = extractJsonObject(res.value) as {
+        thematischeTabelle?: Array<{
+          key?: string;
+          methodProcedure?: string;
+          teacherAction?: string;
+          learnerAction?: string;
+          groupAdaptations?: Record<string, string>;
+          materialsAndOer?: string;
+        }>;
+      } | null;
+      const rows = Array.isArray(parsed?.thematischeTabelle) ? parsed!.thematischeTabelle : [];
+      for (const r of rows) {
+        if (r && typeof r.key === 'string' && r.key.trim()) {
+          llmRowsByKey.set(r.key.trim(), r);
+        }
+      }
+    } else {
+      failed++;
+      if (!firstError) firstError = res.reason instanceof Error ? res.reason : new Error(String(res.reason));
+    }
+  }
+
+  let ausarbeitung = '';
+  if (narrativeSettled.status === 'fulfilled' && narrativeSettled.value.trim()) {
+    succeeded++;
+    const rawNarr = narrativeSettled.value.trim();
+    // In case a mock or model still returned JSON with an ausarbeitung field, unwrap gracefully
+    const maybeJson = rawNarr.startsWith('{') ? (extractJsonObject(rawNarr) as { ausarbeitung?: string } | null) : null;
+    ausarbeitung =
+      typeof maybeJson?.ausarbeitung === 'string' && maybeJson.ausarbeitung.trim()
+        ? maybeJson.ausarbeitung.trim()
+        : rawNarr;
+  } else {
+    failed++;
+    if (narrativeSettled.status === 'rejected' && !firstError) {
+      firstError =
+        narrativeSettled.reason instanceof Error
+          ? narrativeSettled.reason
+          : new Error(String(narrativeSettled.reason));
+    }
+  }
+
+  if (succeeded === 0) {
+    throw firstError || new Error('KI-Ausgestaltung fehlgeschlagen.');
+  }
+
   const mergedTable: ThematicTableRow[] = fallbackTable.map((baseRow) => {
-    const match = llmRows.find((r) => r && r.key === baseRow.key);
+    const match = llmRowsByKey.get(baseRow.key);
     if (!match) return baseRow;
     const mergedGroups: Record<string, string> = { ...baseRow.groupAdaptations };
     if (match.groupAdaptations && typeof match.groupAdaptations === 'object') {
@@ -448,8 +590,14 @@ export async function elaborateScenarioCore(
         typeof match.methodProcedure === 'string' && match.methodProcedure.trim()
           ? match.methodProcedure.trim()
           : baseRow.methodProcedure,
-      teacherAction: typeof match.teacherAction === 'string' && match.teacherAction.trim() ? match.teacherAction.trim() : baseRow.teacherAction,
-      learnerAction: typeof match.learnerAction === 'string' && match.learnerAction.trim() ? match.learnerAction.trim() : baseRow.learnerAction,
+      teacherAction:
+        typeof match.teacherAction === 'string' && match.teacherAction.trim()
+          ? match.teacherAction.trim()
+          : baseRow.teacherAction,
+      learnerAction:
+        typeof match.learnerAction === 'string' && match.learnerAction.trim()
+          ? match.learnerAction.trim()
+          : baseRow.learnerAction,
       groupAdaptations: mergedGroups,
       materialsAndOer:
         typeof match.materialsAndOer === 'string' && match.materialsAndOer.trim()
@@ -458,14 +606,19 @@ export async function elaborateScenarioCore(
     };
   });
 
-  const ausarbeitung =
-    typeof parsed?.ausarbeitung === 'string' && parsed.ausarbeitung.trim()
-      ? parsed.ausarbeitung.trim()
-      : raw.trim();
+  if (!ausarbeitung) {
+    ausarbeitung = buildStructuredMarkdownFallback(mergedTable);
+  }
 
+  const meta = {
+    teilprompts: 1 + phaseChunks.length,
+    erfolgreich: succeeded,
+    fehlgeschlagen: failed,
+    dauerMs: Date.now() - startedAt
+  };
   const result = { ausarbeitung, thematischeTabelle: mergedTable };
-  if (!target.isByok) sharedElaborateCache.set(cacheKey, result);
-  return { quelle: 'llm', gecacht: false, pruefung, ...result };
+  if (!target.isByok && failed === 0) sharedElaborateCache.set(cacheKey, result);
+  return { quelle: 'llm', gecacht: false, pruefung, ...result, meta };
 }
 
 export async function generateMaterialCore(
