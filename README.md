@@ -34,10 +34,12 @@ Die `docker-compose.yml` im Hauptordner ist direkt für Hostingers Docker Manage
    ```text
    https://github.com/janschachtschabel/Facettierte-Methodentaxonomie
    ```
-2. Anwendungsnamen übernehmen und **bereitstellen**. Der erste Deploy startet sofort ohne Variablen mit dem vorgebauten öffentlichen Multi-Arch-Image `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` (GHCR, `linux/amd64` + `linux/arm64`).
-3. Projekt **Bearbeiten** → in `.env` den **reinen Hostnamen ohne `https://`** eintragen und erneut bereitstellen:
+2. Anwendungsnamen übernehmen und **bereitstellen**. Der erste Deploy startet sofort ohne Variablen mit dem vorgebauten öffentlichen Multi-Arch-Image `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` (GHCR, `linux/amd64` + `linux/arm64`) und ist direkt über Port **`8120`** (`http://<VPS-IP>:8120`, konfigurierbar über `HOST_PORT`) erreichbar.
+3. Für HTTPS mit eigener Domain: Projekt **Bearbeiten** → in `.env` den **reinen Hostnamen ohne `https://`** eintragen und erneut bereitstellen:
    ```env
    DOMAIN=methoden.deine-domain.de
+   # Optional: direkten HTTP-Port nach HTTPS-Setup auf localhost beschränken:
+   # HOST_BIND=127.0.0.1
    ```
    *(Ohne eigene Domain funktioniert auch der VPS-Hostname `srvNNNNNN.hstgr.cloud`.)* Hostingers Traefik holt das Let's-Encrypt-Zertifikat automatisch.
 

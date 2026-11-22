@@ -209,6 +209,8 @@ Für eine noch stärkere rein semantische Freitext-zu-Filter-Klassifikation ohne
 | `TRUST_PROXY` | `0`, `false`, `1`, `2`, `true` | `0` (`1` in `docker-compose.yml`) | Server | Vertraute Proxy-Hops für `X-Forwarded-For` & Rate-Limiting |
 | `CORS_ORIGIN` | `*` oder CSV-Liste | `*` | Server | Erlaubte CORS-Origins |
 | `DOMAIN` | Reiner Hostname (ohne `https://`) | *(leer)* | Server + Hostinger-Compose | Hostname für Traefik-Router & Let's Encrypt; wird beim Start strikt validiert |
+| `HOST_PORT` | Integer | `8120` | `docker-compose.yml` | Konfigurierbarer Host-Port auf dem VPS (`http://<VPS-IP>:8120`), kollisionsfrei neben 80/443/8080 |
+| `HOST_BIND` | IP-Adresse | `0.0.0.0` | `docker-compose.yml` | Bind-Adresse des Host-Ports (`127.0.0.1` für reinen Traefik-HTTPS-Zugriff ohne direkten HTTP-Port) |
 | `FMT_IMAGE` | Docker-Image-Tag | `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` | `docker-compose.yml` | Image-Quelle (GHCR Standard oder Docker Hub) |
 | `TRAEFIK_NETWORK` | Netzwerkname | `fmt-methodendatenbank-web` | `docker-compose.yml` | Name des benannten Docker-Standardnetzes |
 | `TRAEFIK_ENTRYPOINT` | Traefik-Entrypoint | `websecure` | `docker-compose.yml` | HTTPS-Entrypoint auf dem VPS |
