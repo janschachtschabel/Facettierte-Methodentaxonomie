@@ -165,18 +165,72 @@ export function getOerWwwUrl(o: OerResource): string {
   return o.wwwurl || o.url;
 }
 
+const SUBJECT_PATTERNS: Array<[RegExp, string]> = [
+  [/\bmathematik\b|\bmathe\b|\bbruchrechn|\bgleichung|\bgeometrie|\balgebra/i, 'Mathematik'],
+  [/\bphysik\b|\bdichte\b|\belektrizit|\bmechanik|\boptik/i, 'Physik'],
+  [/\bbiologie\b|\bbio\b|\bökosystem|\boekosystem|\bfotosynthese|\bzelle\b|\bgenetik/i, 'Biologie'],
+  [/\bchemie\b|\bsäure|\blauge|\batom|\bmolekül|\breaktion/i, 'Chemie'],
+  [/\bdeutsch\b|\bargumentier|\bgedicht|\brechtschreib|\baufsatz/i, 'Deutsch'],
+  [/\benglisch\b|\benglish\b/i, 'Englisch'],
+  [/\bfranzösisch\b|\bfranzoesisch\b/i, 'Französisch'],
+  [/\bspanisch\b/i, 'Spanisch'],
+  [/\bgeschichte\b|\bweimar|\bantike|\bmittelalter|\bindustrialisierung/i, 'Geschichte'],
+  [/\bpolitik\b|\bgemeinschaftskunde\b|\bsozialkunde\b|\bdemokratie|\bgewaltenteilung/i, 'Politik'],
+  [/\bgeografie\b|\bgeographie\b|\berdkunde\b|\bklimawandel/i, 'Geografie'],
+  [/\binformatik\b|\bprogrammieren|\balgorithm/i, 'Informatik'],
+  [/\bwirtschaft\b|\bökonomie\b/i, 'Wirtschaft'],
+  [/\bethik\b|\bphilosophie\b/i, 'Ethik / Philosophie'],
+  [/\breligion\b/i, 'Religion'],
+  [/\bkunst\b/i, 'Kunst'],
+  [/\bmusik\b/i, 'Musik'],
+  [/\bsport\b/i, 'Sport'],
+  [/\bhauswirtschaft\b|\bernährung\b|\blebensmittel|\bverbraucherbildung/i, 'Ernährung & Verbraucherbildung'],
+  [/\bnachhaltigkeit\b|\bbne\b/i, 'Nachhaltigkeit (BNE)'],
+  [/\bsachunterricht\b/i, 'Sachunterricht']
+];
+
+export function extractSubjectAndTopic(raw: string): { fach: string | null; thema: string | null } {
+  const firstLine = (raw || '').split(/\n\s*Zusatzangaben:/i)[0].trim();
+  if (!firstLine) return { fach: null, thema: null };
+  let fach: string | null = null;
+  for (const [re, label] of SUBJECT_PATTERNS) {
+    if (re.test(firstLine)) {
+      fach = label;
+      break;
+    }
+  }
+  const cleaned = firstLine
+    .replace(/\b(?:problemorientiertes?|problembasiertes?|forschendes?|entdeckendes?|kooperatives?|projektbasiertes?|handlungsorientiertes?|offenes?)\s+lernen\b/gi, ' ')
+    .replace(/\b(?:direkte\s+instruktion|unterrichtsreihe|unterrichtseinheit|einzelstunde|doppelstunde|stunde|sequenz|modul)\b/gi, ' ')
+    .replace(/\b(?:mit\s+)?\d+\s*[x×]\s*\d+\s*(?:minuten|min\.?)\b/gi, ' ')
+    .replace(/\b\d+\s*(?:minuten|min\.?|stunden|unterrichtsstunden)\b/gi, ' ')
+    .replace(/\b(?:für\s+)?(?:schüler(?:innen)?|lernende|kinder|klasse|jahrgang(?:sstufe)?)\s*(?:der\s+)?\d+\.?\s*(?:klasse)?\b/gi, ' ')
+    .replace(/\b(?:klasse|jg\.?|jahrgang)\s*\d+\b/gi, ' ')
+    .replace(/\b(?:sekundarstufe\s*(?:i{1,2}|1|2)|grundschule|oberstufe|mittelstufe|berufsschule)\b/gi, ' ')
+    .replace(/\b(?:geringes?|wenig|mittleres?|hohes?)\s+vorwissen\b/gi, ' ')
+    .replace(/\b(?:ohne\s+geräte|ohne\s+internet|ohne\s+ki)\b/gi, ' ')
+    .replace(/\b(?:mathematik|physik|biologie|chemie|deutsch|englisch|geschichte|politik|geografie|erdkunde|informatik|ethik|kunst|musik|sport|wirtschaft)\b/gi, ' ')
+    .replace(/^[\s.,:;–-]+|[\s.,:;–-]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s*[.,;:]\s*$/g, '')
+    .trim();
+  return { fach, thema: cleaned.length >= 3 ? cleaned.slice(0, 110) : null };
+}
+
 function summarizeTeacherRole(b: Baustein, labelOf: (s: string, c: string) => string): string {
   const roles = (b.rolle || [])
     .filter((r) => r !== 'ki-keine')
     .map((r) => labelOf('agentenrolle', r));
-  const step0 = b.durchfuehrung?.[0] ? ` · Einstieg: ${b.durchfuehrung[0]}` : '';
-  return `${roles.length ? roles.join(', ') : 'Moderation & Begleitung'}${step0}`;
+  const rolePrefix = roles.length ? roles.join(', ') : 'Moderation & Begleitung';
+  const step0 = b.durchfuehrung?.[0] ? `Aufgabe: ${b.durchfuehrung[0]}` : '';
+  const core = b.kernkomponente?.[0]?.name ? `Fokus: ${b.kernkomponente[0].name}` : '';
+  return [rolePrefix, step0, core].filter(Boolean).join(' · ');
 }
 
 function summarizeLearnerRole(b: Baustein, labelOf: (s: string, c: string) => string): string {
   const eng = (b.engagement || []).map((e) => labelOf('engagement', e)).join(' / ');
-  const restSteps = (b.durchfuehrung || []).slice(1, 3).join('; ');
-  return `${eng || 'aktiv'}${restSteps ? ` · ${restSteps}` : ''}`;
+  const steps = (b.durchfuehrung || []).length > 1 ? b.durchfuehrung.slice(1).join(' → ') : b.kurzbeschreibung;
+  return `${eng || 'aktiv'} · ${steps}`;
 }
 
 export function buildDeterministicDiffHints(

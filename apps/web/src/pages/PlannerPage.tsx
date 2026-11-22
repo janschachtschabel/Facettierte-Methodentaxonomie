@@ -25,6 +25,7 @@ import {
   buildScenarioRows,
   buildStructuredLessonText,
   DEFAULT_LEARNER_GROUPS,
+  extractSubjectAndTopic,
   type GeneratedMaterialItem,
   type LearnerGroup,
   type OerResource,
@@ -370,13 +371,33 @@ export function PlannerPage() {
     setMatchNotice(`Starter-Vorlage „${p.label}“ geladen. Du kannst direkt zu Schritt 2 wechseln oder die Felder anpassen.`);
   };
 
+  const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null) => {
+    const local = extractSubjectAndTopic(scenarioText);
+    const nextFach = (serverFach || local.fach || '').trim();
+    const nextThema = (serverThema || local.thema || '').trim();
+    const topicChanged =
+      (nextThema && nextThema.toLowerCase() !== thema.trim().toLowerCase()) ||
+      (nextFach && nextFach.toLowerCase() !== fach.trim().toLowerCase());
+    if (nextFach) setFach(nextFach);
+    if (nextThema) setThema(nextThema);
+    if (topicChanged) {
+      setThematicRows(null);
+      setElaboration(null);
+      setOerByStep({});
+      setGeneratedMaterials([]);
+      setAiDiffByStep({});
+    }
+  };
+
   const runDeterministicMatch = () => {
     setMatchNotice(null);
+    syncTopicFromScenarioText();
     const res = matcher.zuordnen(buildStructuredMatchRequest());
     setMatchResult(res);
     if (res.modus === 'ablauf' && res.arrangement) {
       setArrangement(res.arrangement);
       setThematicRows(null);
+      setElaboration(null);
       setMatchNotice(`Deterministisch in <1 ms komponiert (${res.kette?.label}).`);
       setStep(2);
     } else if (res.modus === 'phase') {
@@ -398,10 +419,12 @@ export function PlannerPage() {
         setMatchNotice(`Hinweis: ${json.fehler || 'Anfrage fehlgeschlagen.'}`);
         return;
       }
+      syncTopicFromScenarioText(json.erkanntesFach, json.erkanntesThema);
       setMatchResult(json.ergebnis as MatchResult);
       if (json.ergebnis?.modus === 'ablauf' && json.ergebnis?.arrangement) {
         setArrangement(json.ergebnis.arrangement as Arrangement);
         setThematicRows(null);
+        setElaboration(null);
         setStep(2);
       }
       setMatchNotice(

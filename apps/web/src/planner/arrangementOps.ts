@@ -610,6 +610,7 @@ export interface ExportOptions {
     materialsAndOer: string;
   }>;
   generatedMaterials?: Array<{ stepKey: string; title: string; materialType: string; content: string }>;
+  separateMaterialPagesInHtml?: boolean;
   scenarioRows?: Array<{
     key?: string;
     orderLabel: string;
@@ -808,7 +809,7 @@ export function exportArrangementMarkdown(
     lines.push('', '## 2. Ausformulierte Stunden- / Reihenbeschreibung', '', options.kiAusarbeitung.trim());
   }
 
-  if (options.generatedMaterials && options.generatedMaterials.length) {
+  if (options.generatedMaterials && options.generatedMaterials.length && !options.separateMaterialPagesInHtml) {
     lines.push('', '## Erstellte Unterrichtsmaterialien');
     for (const mat of options.generatedMaterials) {
       lines.push('', `### ${mat.title}`, '', mat.content.trim());
@@ -981,12 +982,18 @@ export function exportArrangementHtmlHandout(
   validation: ValidationResult,
   options: ExportOptions = {}
 ): string {
-  const md = exportArrangementMarkdown(arr, blocksById, validation, options);
+  const md = exportArrangementMarkdown(arr, blocksById, validation, { ...options, separateMaterialPagesInHtml: true });
   const htmlBody = markdownToCleanHtml(md);
   const title = options.thema ? `${arr.name} – ${options.thema}` : arr.name;
   const svgSection = options.timelineSvg
     ? `<section class="svg-box"><h2>Visuelles Zeitband &amp; Schachtelung</h2>${options.timelineSvg}</section>`
     : '';
+  const materialPagesHtml = (options.generatedMaterials || [])
+    .map(
+      (mat, idx) =>
+        `<section class="material-page"><div class="material-page-header">Unterrichtsmaterial ${idx + 1} · ${escHtml(title)}</div><h1>${escHtml(mat.title)}</h1>${markdownToCleanHtml(mat.content)}</section>`
+    )
+    .join('\n');
   const jsonLdScript = options.machineReadableJson
     ? `<script type="application/ld+json">${options.machineReadableJson.replace(/<\/script/gi, '<\\/script')}</script>`
     : '';
@@ -1008,6 +1015,9 @@ export function exportArrangementHtmlHandout(
     .svg-box { margin: 14px 0 18px; padding: 12px; border: 1px solid #C6D0C9; border-radius: 6px; background: #FAFBFA; break-inside: avoid; page-break-inside: avoid; }
     .svg-box h2 { margin-top: 0; }
     .svg-box svg { width: 100%; height: auto; display: block; }
+    .material-page { margin-top: 28px; padding-top: 14px; border-top: 2px dashed #2C5D8A; break-before: page; page-break-before: always; break-after: page; page-break-after: always; }
+    .material-page-header { font-family: "Barlow Semi Condensed", Arial, sans-serif; font-size: 9pt; color: #4A5864; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .after-materials { break-before: page; page-break-before: always; }
     table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 9pt; }
     thead { display: table-header-group; }
     tr { break-inside: avoid; page-break-inside: avoid; }
@@ -1021,12 +1031,14 @@ export function exportArrangementHtmlHandout(
     @media print {
       body { margin: 0; padding: 0; max-width: none; }
       a { color: #14212E; }
+      .material-page { margin-top: 0; padding-top: 0; border-top: none; }
     }
   </style>
 </head>
 <body>
 ${svgSection}
 ${htmlBody}
+${materialPagesHtml}
 </body>
 </html>`;
 }
@@ -1038,9 +1050,15 @@ export function exportArrangementWordDoc(
   options: ExportOptions = {}
 ): string {
   // Word & LibreOffice Writer open HTML wrapped with Word XML namespaces cleanly as editable .doc
-  const md = exportArrangementMarkdown(arr, blocksById, validation, options);
+  const md = exportArrangementMarkdown(arr, blocksById, validation, { ...options, separateMaterialPagesInHtml: true });
   const htmlBody = markdownToCleanHtml(md);
   const title = options.thema ? `${arr.name} – ${options.thema}` : arr.name;
+  const materialPagesHtml = (options.generatedMaterials || [])
+    .map(
+      (mat, idx) =>
+        `<section class="material-page"><p class="material-page-header">Unterrichtsmaterial ${idx + 1} · ${escHtml(title)}</p><h1>${escHtml(mat.title)}</h1>${markdownToCleanHtml(mat.content)}</section>`
+    )
+    .join('\n');
   return `\uFEFF<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40" lang="de">
 <head>
   <meta charset="utf-8" />
@@ -1050,6 +1068,8 @@ export function exportArrangementWordDoc(
     h1 { color: #2C5D8A; font-size: 18pt; border-bottom: 1.5pt solid #2C5D8A; padding-bottom: 4pt; }
     h2 { color: #2C5D8A; font-size: 13pt; margin-top: 14pt; }
     h3 { color: #1F3E2E; font-size: 11.5pt; margin-top: 10pt; }
+    .material-page { page-break-before: always; break-before: page; page-break-after: always; break-after: page; }
+    .material-page-header { font-size: 9pt; color: #4A5864; text-transform: uppercase; }
     table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 9.5pt; }
     th, td { border: 1pt solid #C6D0C9; padding: 5pt; vertical-align: top; }
     th { background: #EEF2EE; font-weight: bold; }
@@ -1057,6 +1077,7 @@ export function exportArrangementWordDoc(
 </head>
 <body>
 ${htmlBody}
+${materialPagesHtml}
 </body>
 </html>`;
 }

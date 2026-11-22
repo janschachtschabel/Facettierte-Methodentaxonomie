@@ -100,14 +100,14 @@ export function buildChatCompletionBody(
   if (isOpenAiReasoningSeries(target.model)) {
     // OpenAI GPT-5, GPT-6 & o-series count reasoning + output tokens together in max_completion_tokens
     // and reject non-default temperature; give generous headroom so reasoning never starves output.
-    const requested = opts.maxTokens ?? 1600;
-    body.max_completion_tokens = Math.max(requested, opts.jsonMode ? 2000 : 6000);
+    const requested = opts.maxTokens ?? 2000;
+    body.max_completion_tokens = Math.min(16000, Math.max(requested * 2, opts.jsonMode ? 4000 : 8000));
     if (supportsReasoningEffort(target.model)) {
       body.reasoning_effort = opts.reasoningEffort || 'low';
     }
   } else {
     body.temperature = 0.2;
-    body.max_tokens = opts.maxTokens ?? 900;
+    body.max_tokens = opts.maxTokens ?? 1600;
   }
 
   if (opts.jsonMode) {

@@ -28,7 +28,8 @@ import {
   buildNeutralLearningScenario,
   buildScenarioRows,
   DEFAULT_LEARNER_GROUPS,
-  detectMaterialTypeForBlock
+  detectMaterialTypeForBlock,
+  extractSubjectAndTopic
 } from '../src/planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../src/planner/lmsExport.js';
 import {
@@ -252,22 +253,48 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(moodleXml).toContain('https://wirlernenonline.de/dichte-sim');
     expect(moodleXml).toContain('Vorhersage');
 
-    // HTML handout renders IMS-LD Verlaufsplan table cleanly with A4 print CSS & embedded SVG
+    // HTML handout renders IMS-LD Verlaufsplan table cleanly with A4 print CSS, embedded SVG & isolated material pages
+    const sampleMat = {
+      id: 'mat-1',
+      stepKey: rows[0].key,
+      title: 'Arbeitsblatt Dichte-Versuch',
+      materialType: 'arbeitsblatt',
+      content: '## Aufgabe 1\nVergleiche Holz und Metall.',
+      createdAt: '2026-11-22T12:00:00Z'
+    };
     const html = exportArrangementHtmlHandout(arr, BLOCKS, val, {
       fach: 'Physik',
       thema: 'Dichte',
       timelineSvg: '<svg viewBox="0 0 100 20"><rect width="100" height="20"/></svg>',
-      scenarioRows: rows
+      scenarioRows: rows,
+      generatedMaterials: [sampleMat]
     });
     expect(html).toContain('@page { size: A4;');
     expect(html).toContain('Visuelles Zeitband');
     expect(html).toContain('<table><thead><tr><th>#</th>');
     expect(html).toContain('https://wirlernenonline.de/dichte-sim');
+    expect(html).toContain('page-break-before: always');
+    expect(html).toContain('page-break-after: always');
+    expect(html).toContain('<section class="material-page">');
+    expect(html).toContain('Arbeitsblatt Dichte-Versuch');
 
     // Word .doc & printable material HTML exports
-    const wordDoc = exportArrangementWordDoc(arr, BLOCKS, val, { fach: 'Physik', thema: 'Dichte', scenarioRows: rows });
+    const wordDoc = exportArrangementWordDoc(arr, BLOCKS, val, {
+      fach: 'Physik',
+      thema: 'Dichte',
+      scenarioRows: rows,
+      generatedMaterials: [sampleMat]
+    });
     expect(wordDoc).toContain('urn:schemas-microsoft-com:office:word');
     expect(wordDoc).toContain('<table><thead><tr><th>#</th>');
+    expect(wordDoc).toContain('<section class="material-page">');
+
+    // Automatic subject & topic extraction from natural-language prompts
+    const extracted = extractSubjectAndTopic(
+      'Problemorientiertes Lernen. Nachhaltigkeit bei der Lebensmittelzubereitung. Doppelstunde mit 2 x 45 Minuten für Schüler der 7. Klasse.'
+    );
+    expect(extracted.fach).toBe('Ernährung & Verbraucherbildung');
+    expect(extracted.thema).toContain('Nachhaltigkeit bei der Lebensmittelzubereitung');
 
     const matHtml = exportMarkdownToPrintableHtml('Arbeitsblatt Dichte', '# Arbeitsblatt\n1. Aufgabe A\n2. Aufgabe B');
     expect(matHtml).toContain('@page { size: A4;');

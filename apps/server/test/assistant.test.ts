@@ -141,6 +141,8 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(j1.quelle).toBe('llm');
     expect(j1.gecacht).toBe(false);
     expect(j1.anfrage.bildungsstufe).toBe('sek1');
+    expect(j1.erkanntesFach).toBe('Biologie');
+    expect(j1.erkanntesThema).toContain('Fotosynthese');
     expect(j1.ergebnis.modus).toBe('phase');
     expect(mockCalls).toBe(1);
 
@@ -293,11 +295,18 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
         maxTokens: 600,
         reasoningEffort: 'low'
       });
-      expect(body.max_completion_tokens).toBeGreaterThanOrEqual(1000);
+      expect(body.max_completion_tokens).toBeGreaterThanOrEqual(4000);
       expect(body.max_tokens).toBeUndefined();
       expect(body.temperature).toBeUndefined();
       expect(body.reasoning_effort).toBe('low');
       expect(body.response_format).toEqual({ type: 'json_object' });
+
+      const bigBody = buildChatCompletionBody({ model: m }, [{ role: 'user', content: 'Große Ausarbeitung' }], {
+        jsonMode: true,
+        maxTokens: 8000,
+        reasoningEffort: 'low'
+      });
+      expect(bigBody.max_completion_tokens).toBe(16000);
     }
 
     for (const m of ['gpt-4o-mini', 'gemini-2.5-flash', 'mistral-small-latest']) {

@@ -94,9 +94,10 @@ export function VerlaufsplanView({
             <span className="status-badge">Schritt 2 · Struktur &amp; Akteure</span>
           </div>
           <p className="muted" style={{ fontSize: 13.5, margin: '4px 0 0' }}>
-            Zeigt das <strong>methodische Grundgerüst aus der FMT-Datenbank</strong> (Lehrkraft &amp; Teilgruppen).
-            Über <strong>„✏ Rollen &amp; Parallel-Methoden anpassen“</strong> lassen sich Hinweise bearbeiten oder
-            zweck- &amp; granularitätspassende Alternativmethoden als parallele Schwimmlinie zuweisen.
+            Zeigt den <strong>Ablauf und die Rollen aus der FMT-Methodendatenbank</strong> (ohne KI).
+            Herkunft der Hinweise: <span className="status-badge" style={{ fontSize: 11 }}>FMT</span> Methodenbeschreibung ·{' '}
+            <span className="status-badge" style={{ fontSize: 11 }}>Matrix</span> Punkte-Matrix ·{' '}
+            <span className="status-badge" style={{ fontSize: 11 }}>KI</span> optional in Schritt 3 konkretisiert.
           </p>
         </div>
 
@@ -177,6 +178,18 @@ export function VerlaufsplanView({
                         {r.socialForm}
                       </span>
                     </div>
+                    {r.block?.durchfuehrung?.length ? (
+                      <details style={{ marginTop: 5, fontSize: 12, color: 'var(--ink-2)' }}>
+                        <summary style={{ cursor: 'pointer', fontFamily: 'var(--display)', fontWeight: 600, color: 'var(--dA)' }}>
+                          Ablauf der Methode ({r.block.durchfuehrung.length} Schritte)
+                        </summary>
+                        <ol style={{ margin: '4px 0 0', paddingLeft: 16, lineHeight: 1.4 }}>
+                          {r.block.durchfuehrung.map((st, si) => (
+                            <li key={si}>{st}</li>
+                          ))}
+                        </ol>
+                      </details>
+                    ) : null}
                     <div className="no-print" style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 6 }}>
                       <button
                         type="button"

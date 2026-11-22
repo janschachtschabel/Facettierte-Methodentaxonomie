@@ -100,6 +100,63 @@ function readByokHeaders(req: FastifyRequest, bodyObj?: Record<string, unknown> 
   };
 }
 
+const KNOWN_SUBJECT_PATTERNS: Array<[RegExp, string]> = [
+  [/\bmathematik\b|\bmathe\b|\bbruchrechn|\bgleichung|\bgeometrie|\balgebra/i, 'Mathematik'],
+  [/\bphysik\b|\bdichte\b|\belektrizit|\bmechanik|\boptik/i, 'Physik'],
+  [/\bbiologie\b|\bbio\b|\bökosystem|\boekosystem|\bfotosynthese|\bzelle\b|\bgenetik/i, 'Biologie'],
+  [/\bchemie\b|\bsäure|\blauge|\batom|\bmolekül|\breaktion/i, 'Chemie'],
+  [/\bdeutsch\b|\bargumentier|\bgedicht|\brechtschreib|\baufsatz|\blerntext/i, 'Deutsch'],
+  [/\benglisch\b|\benglish\b/i, 'Englisch'],
+  [/\bfranzösisch\b|\bfranzoesisch\b/i, 'Französisch'],
+  [/\bspanisch\b/i, 'Spanisch'],
+  [/\bgeschichte\b|\bweimar|\bantike|\bmittelalter|\bindustrialisierung/i, 'Geschichte'],
+  [/\bpolitik\b|\bgemeinschaftskunde\b|\bsozialkunde\b|\bdemokratie|\bgewaltenteilung/i, 'Politik'],
+  [/\bgeografie\b|\bgeographie\b|\berdkunde\b|\bklimawandel/i, 'Geografie'],
+  [/\binformatik\b|\bprogrammieren|\balgorithm/i, 'Informatik'],
+  [/\bwirtschaft\b|\bökonomie\b/i, 'Wirtschaft'],
+  [/\bethik\b|\bphilosophie\b/i, 'Ethik / Philosophie'],
+  [/\breligion\b/i, 'Religion'],
+  [/\bkunst\b/i, 'Kunst'],
+  [/\bmusik\b/i, 'Musik'],
+  [/\bsport\b/i, 'Sport'],
+  [/\bhauswirtschaft\b|\bernährung\b|\blebensmittel|\bverbraucherbildung/i, 'Ernährung & Verbraucherbildung'],
+  [/\bnachhaltigkeit\b|\bbne\b/i, 'Nachhaltigkeit (BNE)'],
+  [/\bsachunterricht\b/i, 'Sachunterricht']
+];
+
+export function extractSubjectAndTopicFromText(raw: string): { fach: string | null; thema: string | null } {
+  const firstLine = (raw || '').split(/\n\s*Zusatzangaben:/i)[0].trim();
+  if (!firstLine) return { fach: null, thema: null };
+
+  let fach: string | null = null;
+  for (const [re, label] of KNOWN_SUBJECT_PATTERNS) {
+    if (re.test(firstLine)) {
+      fach = label;
+      break;
+    }
+  }
+
+  // Strip framing boilerplate (class, duration, approach) to isolate the core topic cleanly
+  const cleaned = firstLine
+    .replace(/\b(?:problemorientiertes?|problembasiertes?|forschendes?|entdeckendes?|kooperatives?|projektbasiertes?|handlungsorientiertes?|offenes?)\s+lernen\b/gi, ' ')
+    .replace(/\b(?:direkte\s+instruktion|unterrichtsreihe|unterrichtseinheit|einzelstunde|doppelstunde|stunde|sequenz|modul)\b/gi, ' ')
+    .replace(/\b(?:mit\s+)?\d+\s*[x×]\s*\d+\s*(?:minuten|min\.?)\b/gi, ' ')
+    .replace(/\b\d+\s*(?:minuten|min\.?|stunden|unterrichtsstunden)\b/gi, ' ')
+    .replace(/\b(?:für\s+)?(?:schüler(?:innen)?|lernende|kinder|klasse|jahrgang(?:sstufe)?)\s*(?:der\s+)?\d+\.?\s*(?:klasse)?\b/gi, ' ')
+    .replace(/\b(?:klasse|jg\.?|jahrgang)\s*\d+\b/gi, ' ')
+    .replace(/\b(?:sekundarstufe\s*(?:i{1,2}|1|2)|grundschule|oberstufe|mittelstufe|berufsschule)\b/gi, ' ')
+    .replace(/\b(?:geringes?|wenig|mittleres?|hohes?)\s+vorwissen\b/gi, ' ')
+    .replace(/\b(?:ohne\s+geräte|ohne\s+internet|ohne\s+ki)\b/gi, ' ')
+    .replace(/\b(?:mathematik|physik|biologie|chemie|deutsch|englisch|geschichte|politik|geografie|erdkunde|informatik|ethik|kunst|musik|sport|wirtschaft)\b/gi, ' ')
+    .replace(/^[\s.,:;–-]+|[\s.,:;–-]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s*[.,;:]\s*$/g, '')
+    .trim();
+
+  const thema = cleaned.length >= 3 ? cleaned.slice(0, 110) : null;
+  return { fach, thema };
+}
+
 function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> {
   if (!node || typeof node !== 'object') return out;
   const n = node as Record<string, unknown>;
@@ -357,8 +414,8 @@ export async function elaborateScenarioCore(
     ],
     {
       jsonMode: true,
-      maxTokens: 3200,
-      timeoutMs: config.llmTimeoutMs,
+      maxTokens: 8000,
+      timeoutMs: Math.max(config.llmTimeoutMs, 90000),
       reasoningEffort: config.llmReasoningEffort
     }
   );
@@ -506,8 +563,8 @@ export async function generateMaterialCore(
     ],
     {
       jsonMode: false,
-      maxTokens: 2200,
-      timeoutMs: config.llmTimeoutMs,
+      maxTokens: 5000,
+      timeoutMs: Math.max(config.llmTimeoutMs, 60000),
       reasoningEffort: config.llmReasoningEffort
     }
   );
@@ -545,12 +602,15 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       throw e;
     }
 
+    const extractedMeta = extractSubjectAndTopicFromText(text);
     const fallback = (hinweis: string) => {
       const ergebnis = store.matcher.zuordnen({ text });
       return reply.send({
         quelle: 'regeln-fallback',
         gecacht: false,
         hinweis,
+        erkanntesFach: extractedMeta.fach,
+        erkanntesThema: extractedMeta.thema,
         anfrage: ergebnis.kriterien,
         ergebnis,
         leitplanken: FMT_GUARDRAILS
@@ -569,6 +629,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         return reply.send({
           quelle: 'llm',
           gecacht: true,
+          erkanntesFach: extractedMeta.fach,
+          erkanntesThema: extractedMeta.thema,
           anfrage: cached.anfrage,
           ergebnis,
           leitplanken: FMT_GUARDRAILS
@@ -600,7 +662,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         ],
         {
           jsonMode: true,
-          maxTokens: 600,
+          maxTokens: 1600,
           timeoutMs: config.llmTimeoutMs,
           reasoningEffort: config.llmReasoningEffort
         }
@@ -622,6 +684,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       return reply.send({
         quelle: 'llm',
         gecacht: false,
+        erkanntesFach: extractedMeta.fach,
+        erkanntesThema: extractedMeta.thema,
         anfrage,
         ergebnis,
         leitplanken: FMT_GUARDRAILS
@@ -749,8 +813,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         ],
         {
           jsonMode: true,
-          maxTokens: 1800,
-          timeoutMs: config.llmTimeoutMs,
+          maxTokens: 4500,
+          timeoutMs: Math.max(config.llmTimeoutMs, 60000),
           reasoningEffort: config.llmReasoningEffort
         }
       );

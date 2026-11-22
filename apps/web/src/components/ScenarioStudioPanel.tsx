@@ -126,6 +126,11 @@ export function ScenarioStudioPanel({
   const [elabError, setElabError] = useState<string | null>(null);
   const [editingTable, setEditingTable] = useState(false);
   const [editingText, setEditingText] = useState(false);
+  const [previewModal, setPreviewModal] = useState<
+    | { kind: 'material'; item: GeneratedMaterialItem }
+    | { kind: 'oer'; item: OerResource; phaseLabel: string }
+    | null
+  >(null);
 
   // Differentiation state
   const [busyDiff, setBusyDiff] = useState(false);
@@ -199,6 +204,14 @@ export function ScenarioStudioPanel({
   );
 
   const effectiveNarrativeText = elaboration && elaboration.trim() ? elaboration : structuredTextDraft;
+
+  const openMaterialInNewTab = (mat: GeneratedMaterialItem) => {
+    const html = exportMarkdownToPrintableHtml(mat.title, mat.content);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  };
 
   const downloadFile = (filename: string, content: string | Uint8Array, mime: string) => {
     const payload = typeof content === 'string' ? content : new Uint8Array(content);
@@ -859,6 +872,44 @@ export function ScenarioStudioPanel({
             <li className="err">{elabError}</li>
           </div>
         )}
+
+        {/* Clear, transparent prompt when thematic AI elaboration hasn't been triggered yet */}
+        {!elaboration && (
+          <div
+            style={{
+              marginTop: 14,
+              padding: '12px 14px',
+              borderRadius: 8,
+              background: 'var(--dB-soft)',
+              borderLeft: '4px solid var(--dB)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 12,
+              flexWrap: 'wrap'
+            }}
+          >
+            <div style={{ fontSize: 13.5, flex: '1 1 360px' }}>
+              <strong style={{ fontFamily: 'var(--display)' }}>
+                ℹ Hinweis: Aktuell wird die automatische Struktur-Vorschau (ohne KI) angezeigt.
+              </strong>{' '}
+              Die Tabelle und der Text nutzen bereits deine FMT-Methoden, Matrix-Werte und OERs.{' '}
+              {llmAvailable
+                ? `Klicke auf „Thematische Tabelle & Entwurf ausarbeiten (KI)“, damit alle Schritte, Impulse und Materialien sprachlich konkret auf „${thema || arrangement.name}“ zugeschnitten werden (läuft bewusst erst auf Klick, um Tokens zu sparen).`
+                : 'Ohne LLM-Key kannst du Tabelle und Text direkt manuell bearbeiten und sofort drucken/exportieren.'}
+            </div>
+            {llmAvailable && (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                disabled={busyElab}
+                onClick={() => void runAiElaborate()}
+              >
+                ✨ {busyElab ? 'Generiere…' : 'Jetzt thematisch ausarbeiten (KI)'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* SECTION A: THEMATISCHE VERLAUFSTABELLE (angepasst auf Fach, Thema, Materialien & WLO-OER!) */}
@@ -1012,6 +1063,42 @@ export function ScenarioStudioPanel({
                       ) : (
                         <div style={{ fontSize: 12.5 }}>{tr.materialsAndOer}</div>
                       )}
+                      {scRow && scRow.generatedMaterials.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+                          {scRow.generatedMaterials.map((m) => (
+                            <div
+                              key={m.id}
+                              style={{
+                                padding: '5px 7px',
+                                borderRadius: 5,
+                                background: 'var(--dC-soft)',
+                                border: '1px solid var(--dC)',
+                                fontSize: 11.5
+                              }}
+                            >
+                              <div style={{ fontWeight: 700, fontFamily: 'var(--display)' }}>📝 {m.title}</div>
+                              <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm"
+                                  style={{ fontSize: 11, padding: '1px 6px' }}
+                                  onClick={() => setPreviewModal({ kind: 'material', item: m })}
+                                >
+                                  👁 Öffnen
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-ghost"
+                                  style={{ fontSize: 11, padding: '1px 6px' }}
+                                  onClick={() => openMaterialInNewTab(m)}
+                                >
+                                  ↗ Neuer Tab
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       {scRow && scRow.oerResources.length > 0 && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
                           {scRow.oerResources.map((o) => {
@@ -1020,7 +1107,7 @@ export function ScenarioStudioPanel({
                               <div
                                 key={o.id}
                                 style={{
-                                  padding: '4px 6px',
+                                  padding: '5px 7px',
                                   borderRadius: 5,
                                   background: 'var(--paper)',
                                   border: '1px solid var(--dA)',
@@ -1032,6 +1119,16 @@ export function ScenarioStudioPanel({
                                 </a>
                                 <div style={{ fontFamily: 'var(--mono)', fontSize: 10.5, wordBreak: 'break-all', color: 'var(--ink-2)' }}>
                                   {href}
+                                </div>
+                                <div className="no-print" style={{ marginTop: 3 }}>
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-ghost"
+                                    style={{ fontSize: 11, padding: '1px 6px' }}
+                                    onClick={() => setPreviewModal({ kind: 'oer', item: o, phaseLabel: `${tr.orderLabel} · ${tr.methodName}` })}
+                                  >
+                                    👁 Details
+                                  </button>
                                 </div>
                               </div>
                             );
@@ -1110,6 +1207,62 @@ export function ScenarioStudioPanel({
           <SimpleMarkdown content={effectiveNarrativeText} />
         )}
 
+        {/* Always-visible attached generated materials directory (clickable modal + new tab + isolated PDF print!) */}
+        {generatedMaterials.length > 0 && (
+          <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+            <h4 style={{ margin: '0 0 8px', fontFamily: 'var(--display)', fontSize: 15.5 }}>
+              📝 Erstellte Unterrichtsmaterialien ({generatedMaterials.length}) — im PDF-Druck jeweils auf eigener Seite
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {generatedMaterials.map((m) => {
+                const row = scenarioRows.find((r) => r.key === m.stepKey);
+                return (
+                  <div
+                    key={m.id}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      background: 'var(--paper)',
+                      border: '1px solid var(--dC)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 10,
+                      flexWrap: 'wrap'
+                    }}
+                  >
+                    <div>
+                      <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>{m.title}</strong>
+                      <div className="muted" style={{ fontSize: 12 }}>
+                        Zugeordnete Phase: {row ? `${row.orderLabel} · ${row.methodName}` : m.stepKey}
+                      </div>
+                    </div>
+                    <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary"
+                        onClick={() => setPreviewModal({ kind: 'material', item: m })}
+                      >
+                        👁 Im Fenster öffnen
+                      </button>
+                      <button type="button" className="btn btn-sm" onClick={() => openMaterialInNewTab(m)}>
+                        ↗ In neuem Tab
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={() => printHtmlDocument(exportMarkdownToPrintableHtml(m.title, m.content))}
+                      >
+                        🖨 Isoliert drucken
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Always-visible verified WLO-OER & FMT source directories */}
         {totalAttachedOer > 0 && (
           <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
@@ -1177,12 +1330,147 @@ export function ScenarioStudioPanel({
             {'{}'} Maschinenlesbare Repräsentation (IMS-LD NeutralLearningScenario &amp; FMT JSON-LD)
           </summary>
           <p className="muted" style={{ fontSize: 13, margin: '6px 0 8px' }}>
-            Wird automatisch im HTML-Handout als <code>&lt;script type=&quot;application/ld+json&quot;&gt;</code>, im Markdown-Export,
-            im IMS Common Cartridge (<code>.imscc</code>) und als eigenständige <code>.json</code>-Datei mitgeliefert.
+            Enthält auch alle generierten Inhalte (<code>generated_content</code>: Entwurfstext, thematische Tabelle, erstellte
+            Materialien &amp; Matrix-Ergebnisse). Wird im HTML-Handout, Markdown, <code>.imscc</code> und <code>.json</code> mitexportiert.
           </p>
           <pre style={{ maxHeight: 320 }}>{machineReadablePreview}</pre>
         </details>
       </article>
+
+      {/* Large scrollable closable Modal for Generated Materials & WLO-OER Details */}
+      {previewModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setPreviewModal(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 27, 38, 0.58)',
+            zIndex: 120,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20
+          }}
+        >
+          <div
+            className="card"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: 'min(960px, 95vw)',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
+            }}
+          >
+            <div
+              style={{
+                padding: '14px 18px',
+                borderBottom: '1px solid var(--grid)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 10,
+                flexWrap: 'wrap',
+                background: 'var(--paper)'
+              }}
+            >
+              <div>
+                <span className="status-badge">
+                  {previewModal.kind === 'material' ? '📝 Erstelltes Unterrichtsmaterial' : `🌐 WLO-OER · ${previewModal.phaseLabel}`}
+                </span>
+                <h3 style={{ margin: '4px 0 0', fontSize: 18 }}>
+                  {previewModal.kind === 'material' ? previewModal.item.title : previewModal.item.title}
+                </h3>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {previewModal.kind === 'material' ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-primary"
+                      onClick={() =>
+                        printHtmlDocument(exportMarkdownToPrintableHtml(previewModal.item.title, previewModal.item.content))
+                      }
+                    >
+                      🖨 Drucken / PDF
+                    </button>
+                    <button type="button" className="btn btn-sm" onClick={() => openMaterialInNewTab(previewModal.item)}>
+                      ↗ Neuer Tab
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => downloadFile('fmt-material.md', previewModal.item.content, 'text/markdown;charset=utf-8')}
+                    >
+                      ⬇ .md
+                    </button>
+                  </>
+                ) : (
+                  <a
+                    href={getOerWwwUrl(previewModal.item)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-sm btn-primary"
+                  >
+                    ↗ Ressource öffnen (wwwurl)
+                  </a>
+                )}
+                <button type="button" className="btn btn-sm" onClick={() => setPreviewModal(null)}>
+                  ✕ Schließen
+                </button>
+              </div>
+            </div>
+
+            <div style={{ padding: 20, overflowY: 'auto', flex: 1 }}>
+              {previewModal.kind === 'material' ? (
+                <SimpleMarkdown content={previewModal.item.content} />
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {previewModal.item.previewUrl && (
+                    <img
+                      src={previewModal.item.previewUrl}
+                      alt={previewModal.item.title}
+                      style={{ maxHeight: 260, width: 'auto', objectFit: 'contain', borderRadius: 6, border: '1px solid var(--grid)' }}
+                    />
+                  )}
+                  <div>
+                    <strong>Direkt-URL (wwwurl):</strong>{' '}
+                    <a href={getOerWwwUrl(previewModal.item)} target="_blank" rel="noreferrer" style={{ wordBreak: 'break-all' }}>
+                      {getOerWwwUrl(previewModal.item)}
+                    </a>
+                  </div>
+                  {previewModal.item.wloRenderUrl && (
+                    <div>
+                      <strong>WLO-Katalogeintrag:</strong>{' '}
+                      <a href={previewModal.item.wloRenderUrl} target="_blank" rel="noreferrer" style={{ wordBreak: 'break-all' }}>
+                        {previewModal.item.wloRenderUrl}
+                      </a>
+                    </div>
+                  )}
+                  {previewModal.item.resourceType && (
+                    <div><strong>Medientyp:</strong> {previewModal.item.resourceType}</div>
+                  )}
+                  {previewModal.item.license && (
+                    <div><strong>Lizenz:</strong> {previewModal.item.license}</div>
+                  )}
+                  {previewModal.item.note && (
+                    <div><strong>Einsatzhinweis für diese Phase:</strong> {previewModal.item.note}</div>
+                  )}
+                  {previewModal.item.description && (
+                    <div>
+                      <strong>Beschreibung:</strong>
+                      <p style={{ margin: '4px 0 0' }}>{previewModal.item.description}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
