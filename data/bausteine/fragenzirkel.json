@@ -1,0 +1,142 @@
+{
+  "status": "entwurf",
+  "kennung": "fragenzirkel",
+  "name": "Fragenzirkel (Kollaborative Leitfragen-Entwicklung)",
+  "kurzbeschreibung": "Lernende formulieren zu einem Thema zunächst eigene Ausgangsfragen, geben sie im Kreis weiter, vertiefen und schärfen sie reihum durch Folgefragen und wählen tragfähige Forschungs- oder Leitfragen aus.",
+  "alternativname": [
+    "Fragenkarussell",
+    "Fragengenerierung im Kreis",
+    "Question Formulation Circle"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "forschend",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "herr-kalt.de: Fragenzirkel zur Themenfindung einer wissenschaftlichen Arbeit",
+      "url": "https://herr-kalt.de/arbeitsmethoden/fragenzirkel-thema",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "orientierung",
+    "problemloesen",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lernende",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "aufgabenebene"
+  ],
+  "interaktion": [
+    "einzel",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "problem-erschlossen"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "erstfrage",
+      "name": "Notieren einer eigenen Ausgangsidee oder ersten Frage auf einem Bogen"
+    },
+    {
+      "kennung": "zirkulation",
+      "name": "Reihum-Weitergabe mit Ergänzung vertiefender, zuspitzender Folgefragen"
+    },
+    {
+      "kennung": "auswahl",
+      "name": "Prüfen und Zuspitzen auf eine bearbeitbare Leit- oder Forschungsfrage"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Bei Projekten, Facharbeiten und forschendem Lernen wählen Lernende oft zu breite oder rein reproduktive Themen statt fokussierter, erforschbarer Leitfragen.",
+  "durchfuehrung": [
+    "Themenfeld eingrenzen; jede Person schreibt ihren Interessensbereich oben auf ein Blatt und bildet Vierer- bis Fünfergruppen",
+    "Blatt im Uhrzeigersinn weiterreichen: Jede Person ergänzt in 2 Minuten mindestens zwei vertiefende Fragen (Warum…? Inwiefern…? Welche Folgen…?)",
+    "Weitergeben, bis jedes Blatt wieder bei der ursprünglichen Person ankommt",
+    "Eigentümer:in sichtet alle Fragen, markiert die interessantesten und formuliert daraus eine präzise Leitfrage",
+    "Leitfragen kurz auf Bearbeitbarkeit (Umfang, Materialzugang, Fachbezug) im Paar oder mit der Lehrkraft gegenprüfen"
+  ],
+  "material": [
+    "A4- oder A3-Bögen (1 pro Person)",
+    "Stifte"
+  ],
+  "raum": "Gruppentische",
+  "gruppeMin": 4,
+  "gruppeMax": 32,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Kombination mit der Unterscheidung geschlossener vs. offener Fragen (Question Formulation Technique)"
+  ],
+  "hinweis": "Qualitätskriterien für gute Leitfragen (offen, eingegrenzt, untersuchbar) vor der Schlussauswahl sichtbar machen.",
+  "qualitaetsrisiko": [
+    "Es entstehen nur oberflächliche Wissensfragen statt echter Erkundungs- oder Problemfragen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Eigenständiges Generieren und Schärfen von Lern- und Forschungsfragen fördert tiefes Verstehen, Problemorientierung und Selbstregulation",
+      "quelle": "Rosenshine, Meister & Chapman 1996; Chin & Osborne 2008",
+      "geltung": "Sekundarstufe I/II und Hochschule insbesondere vor Projekten, Facharbeiten und Inquiry-Phasen"
+    }
+  ],
+  "plot": {
+    "x": 0.64,
+    "y": 2.6
+  }
+}

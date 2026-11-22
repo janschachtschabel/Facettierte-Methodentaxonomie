@@ -1,0 +1,132 @@
+{
+  "status": "entwurf",
+  "kennung": "autogrammjagd",
+  "name": "Autogrammjagd (Find Someone Who)",
+  "kurzbeschreibung": "Lernende bewegen sich mit einem Suchraster voller Aussagen oder Aufgaben durch den Raum, befragen Mitschüler:innen und sammeln Unterschriften samt kurzem fachlichem Beleg.",
+  "alternativname": [
+    "Find Someone Who",
+    "Finde jemanden, der …",
+    "Suchraster-Interview"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Autogrammjagd",
+      "url": "https://deutsch-lernen.zum.de/wiki/Autogrammjagd",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "diagnose",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-tempo",
+    "udl"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "suchraster",
+      "name": "Vorbereitetes Raster mit 6–12 fachlichen Aussagen oder Kurzaufgaben"
+    },
+    {
+      "kennung": "belegpflicht",
+      "name": "Jede Unterschrift erfordert eine kurze mündliche Erklärung oder Antwort"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Vorwissen und Vorerfahrungen bleiben zu Stundenbeginn oder in neuen Gruppen unsichtbar; die Autogrammjagd bringt alle in strukturierte Kurzgespräche.",
+  "durchfuehrung": [
+    "Raster mit 6–12 Feldern („Finde jemanden, der ein Beispiel für … nennen kann“) austeilen",
+    "Regel erklären: pro Feld eine andere Person befragen, Antwort kurz notieren und gegenzeichnen lassen",
+    "Lernende bewegen sich 8–12 Minuten durch den Raum und tauschen sich paarweise aus",
+    "Gemeinsame Auswertung im Plenum: besonders schwierige oder überraschende Felder klären"
+  ],
+  "material": [
+    "Kopiertes Suchraster (1 Blatt pro Person)",
+    "Stifte"
+  ],
+  "raum": "Klassenraum mit Bewegungsfläche",
+  "gruppeMin": 8,
+  "gruppeMax": 36,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Fachliche Wiederholungs-Autogrammjagd vor Klassenarbeiten",
+    "Kennenlern-Autogrammjagd zu Kursbeginn"
+  ],
+  "hinweis": "Darauf bestehen, dass nicht nur Namen eingesammelt, sondern die fachliche Antwort kurz stichwortartig notiert wird.",
+  "qualitaetsrisiko": [
+    "Unterschriften werden mechanisch ohne inhaltliches Gespräch eingesammelt"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte kooperative Abruf- und Austauschformate erhöhen Aktivierung und gegenseitige Erklärqualität im Vergleich zu reinem Frontalabfragen",
+      "quelle": "Kagan & Kagan 2009; Kyndt et al. 2013",
+      "geltung": "Schulische und erwachsenenbildnerische Gruppen mit klarem fachlichem Auftrag"
+    }
+  ],
+  "plot": {
+    "x": 0.46,
+    "y": 2.3
+  }
+}

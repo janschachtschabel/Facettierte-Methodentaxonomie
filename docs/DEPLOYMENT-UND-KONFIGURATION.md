@@ -279,7 +279,7 @@ curl -s -X POST http://localhost:8080/api/v1/assistant/briefing \
 ### Übersicht aller 13 MCP-Tools (`/mcp` & `stdio`)
 
 1. `classify_scenario_text` – Hybride Freitext-Klassifikation (6 Skalen, Fach/Thema, Methoden, Matrix-Merkmale)
-2. `search_methods` – Facettierte Suche über alle 275 Methoden inkl. semantischer Vorschläge
+2. `search_methods` – Facettierte Suche über alle 290 Methoden inkl. semantischer Vorschläge
 3. `get_method` – Vollständiges 13-Facetten-Profil inkl. Durchführung, Risiken, Evidenz & Quellen
 4. `compare_methods` – Facette-für-Facette-Vergleich zweier Bausteine
 5. `match_scenario` – Deterministische 5-Stufen-Zuordnung inkl. Matrix-Signalen

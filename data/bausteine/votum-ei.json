@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "votum-ei",
+  "name": "Votum-Ei (Zeichnerisches Vier-Quadranten-Feedback)",
+  "kurzbeschreibung": "Analoges, niedrigschwelliges Reflexions- und Feedbackformat: Lernende setzen Punkte oder kurze Symbole in ein viergeteiltes Ei-Diagramm (z. B. Verstehen, Tempo, Zusammenarbeit, Motivation).",
+  "alternativname": [
+    "Feedback-Ei",
+    "Vier-Felder-Votum",
+    "Zeichnerisches Unterrichtsfeedback"
+  ],
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "visualisierung"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Votum-Ei",
+      "url": "https://deutsch-lernen.zum.de/wiki/Votum-Ei",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "metakognition",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst",
+    "andere"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "diagnostisch",
+    "selbstregulationsebene"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "quadranten",
+      "name": "Vier klar benannte Feedback-Bereiche in einer einfachen Ei-Skizze"
+    },
+    {
+      "kennung": "punktierung",
+      "name": "Schnelles, spracharmes Markieren (Innen = sehr gut / sicher, Außen = unsicher / Verbesserungsbedarf)"
+    },
+    {
+      "kennung": "konsequenz",
+      "name": "Kurze Rückmeldung der Lehrkraft, was aus dem Bild für die nächste Stunde abgeleitet wird"
+    }
+  ],
+  "dauerMin": 3,
+  "dauerMax": 8,
+  "problem": "Schriftliche Reflexionsbögen kosten viel Zeit und stellen für sprachschwächere Lernende eine Hürde dar; das zeichnerische Votum-Ei macht das Stimmungs- und Verständnisbild sofort sichtbar.",
+  "durchfuehrung": [
+    "Großes viergeteiltes Ei auf Plakat oder Tafel zeichnen und die vier Bereiche benennen (z. B. Verständnis, Arbeitstempo, Gruppenarbeit, Eigenes Lernen)",
+    "Bedeutung der Position kurz erklären (nah an der Mitte = sehr gut / sicher; weit außen = noch unsicher / zu schwer)",
+    "Alle Lernenden setzen beim Verlassen des Raums oder zum Abschluss je einen Klebepunkt oder Strich pro Feld",
+    "Gesamtbild kurz gemeinsam ansehen und eine konkrete Konsequenz für die Folgestunde benennen"
+  ],
+  "material": [
+    "Plakat oder Tafelzeichnung",
+    "Klebepunkte oder Stifte"
+  ],
+  "raum": "Regulärer Klassenraum (Plakat nahe Ausgang oder Tafel)",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "vorbereitungMin": 3,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Individuelles Mini-Votum-Ei auf dem Arbeitsblatt als persönlicher Selbstcheck",
+    "Zwei Farben für Start- und Endstand einer Unterrichtsreihe"
+  ],
+  "hinweis": "Funktioniert komplett analog und sprachsensibel – ideale Alternative zu textlastigen Reflexionsformaten in Primar-, Sekundar- und DaZ-Klassen.",
+  "qualitaetsrisiko": [
+    "Feedback bleibt folgenlos, wenn die Lehrkraft das Ergebnis nicht sichtbar aufgreift"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Regelmäßiges formatives Lern- und Unterrichtsfeedback wirkt lernförderlich, wenn die Ergebnisse zur Anpassung des weiteren Unterrichts genutzt werden",
+      "quelle": "Hattie & Timperley 2007; Black & Wiliam 2009",
+      "geltung": "Schule und Erwachsenenbildung; für das Votum-Ei speziell liegt keine eigene Einzelstudie vor"
+    }
+  ],
+  "plot": {
+    "x": 0.32,
+    "y": 1.5
+  }
+}

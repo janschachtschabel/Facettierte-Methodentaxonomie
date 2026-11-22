@@ -1,0 +1,136 @@
+{
+  "status": "entwurf",
+  "kennung": "zickzack-dialog",
+  "name": "Zickzack-Dialog",
+  "kurzbeschreibung": "Zwei gegenübersitzende Reihen trainieren in einer fortlaufenden Zickzack-Kette feste Diskursroutinen, Rückfragen oder Fachbegriffserklärungen mit hohem individuellem Sprechanteil.",
+  "alternativname": [
+    "Zickzack-Gespräch",
+    "Ketten-Dialog",
+    "Wechselreihe"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Zickzack-Dialog",
+      "url": "https://deutsch-lernen.zum.de/wiki/Zickzack-Dialog",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "udl",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "fakten",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "gegenueberreihen",
+      "name": "Zwei einander zugewandte Reihen (A und B)"
+    },
+    {
+      "kennung": "zickzackkette",
+      "name": "Fortlaufende Frage-Antwort-Kette diagonal durch beide Reihen (A1 → B1 → A2 → B2 …)"
+    },
+    {
+      "kennung": "redehilfen",
+      "name": "Sichtbare Redemittel zur Verständnissicherung und Rückfrage"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Zurückhaltende Lernende kommen in offenen Gesprächsrunden selten zu Wort und üben mündliche Fach- oder Sprachroutinen kaum aktiv.",
+  "durchfuehrung": [
+    "Lerngruppe in zwei gegenüberliegende Reihen A und B (je 4–8 Personen) aufteilen; Redemittel sichtbar anbringen",
+    "Person A1 richtet eine Frage, These oder Aufgabe an B1; B1 antwortet und gibt einen neuen Impuls an A2 weiter",
+    "Die Kette läuft im Zickzack bis zum Ende der Reihe und ggf. mit neuer Rolle zurück",
+    "Nach einem Durchgang kurz sprachliche/fachliche Rückmeldung geben und eine schnellere zweite Runde starten"
+  ],
+  "material": [
+    "Impulskarten oder Satzstarter-Plakat"
+  ],
+  "raum": "Zwei Stuhl- oder Stehreihen",
+  "gruppeMin": 6,
+  "gruppeMax": 24,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mehrere parallele Kleinketten (je 6–8 Personen) bei großen Klassen, damit niemand lange warten muss"
+  ],
+  "hinweis": "Bei mehr als 14 Personen immer zwei parallele Zickzack-Ketten bilden, damit die Wartezeit kurz bleibt.",
+  "qualitaetsrisiko": [
+    "Hohe Wartezeit in zu langen Reihen führt zu Unruhe"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte mündliche Interaktionsroutinen mit Scaffolding fördern Sprachproduktion, Verständnissicherung und Beteiligung stiller Lernender",
+      "quelle": "Long 1996 (Interaction Hypothesis); Mackey & Goo 2007",
+      "geltung": "Fremdsprachen-, DaZ- und sprachsensibler Fachunterricht"
+    }
+  ],
+  "plot": {
+    "x": 0.36,
+    "y": 2.1
+  }
+}

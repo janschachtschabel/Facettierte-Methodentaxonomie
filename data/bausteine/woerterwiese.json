@@ -1,0 +1,134 @@
+{
+  "status": "entwurf",
+  "kennung": "woerterwiese",
+  "name": "Wörterwiese",
+  "kurzbeschreibung": "Lernende sammeln, ordnen und verknüpfen Schlüsselbegriffe zu einem neuen Thema oder Hör-/Lesetext visuell auf einer gemeinsamen Fläche zur sprachsensiblen Vorwissensaktivierung.",
+  "alternativname": [
+    "Wortschatzwiese",
+    "Begriffsteppich",
+    "Vorentlastungs-Wortfeld"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Wörterwiese",
+      "url": "https://deutsch-lernen.zum.de/wiki/W%C3%B6rterwiese",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "erwerb",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "udl",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "sammlung",
+      "name": "Niedrigschwellige Sammlung bekannter und neuer Schlüsselwörter"
+    },
+    {
+      "kennung": "strukturierung",
+      "name": "Sichtbares Clustern und Klären von Wortbedeutungen vor der Text-/Facharbeit"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Fach- und Bildungssprache überfordert Lernende (insbesondere mit DaZ oder geringem Vorwissen), wenn zentrale Begriffe vor einem Text oder Thema nicht gemeinsam vorentlastet werden.",
+  "durchfuehrung": [
+    "Thema, Bildimpuls oder Überschrift in der Mitte der Tafel/Pinwand sichtbar machen",
+    "Lernende notieren oder kleben passende Wörter, Assoziationen und bekannte Fachbegriffe als „Wörterwiese“ auf",
+    "Gemeinsam unbekannte Schlüsselbegriffe ergänzen, mit Symbolen/Skizzen verknüpfen und nach Oberbegriffen gruppieren",
+    "Wörterwiese während der anschließenden Hör-, Lese- oder Erarbeitungsphase als sichtbare Sprachhilfe hängen lassen"
+  ],
+  "material": [
+    "Tafel, Packpapier oder Wortkarten",
+    "Stifte, ggf. Bildkarten"
+  ],
+  "raum": "Klassenraum mit gut sichtbarer Wand- oder Tafelfläche",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Digitale Wörterwiese auf einer kollaborativen Pinnwand oder als Wortwolke",
+    "Mehrsprachige Wörterwiese mit Erstsprachen-Brücken"
+  ],
+  "hinweis": "Ideal als sprachsensible Vorentlastung für DaZ-Lernende sowie als sichtbarer Wortspeicher über die gesamte Stunde.",
+  "qualitaetsrisiko": [
+    "Begriffe werden bloß unverbunden gesammelt, ohne Bedeutungen zu klären oder später aufzugreifen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Vorwissensaktivierung und explizite Wortschatz-Vorentlastung verbessern das Text- und Fachverständnis besonders bei sprachlich heterogenen Lerngruppen",
+      "quelle": "Marzano 2004; Lesaux et al. 2010; Beck, McKeown & Kucan 2013",
+      "geltung": "Sprachsensibler Fach- und Sprachunterricht in Primar- und Sekundarstufe; für das Format Wörterwiese speziell keine eigene Einzelstudie"
+    }
+  ],
+  "plot": {
+    "x": 0.45,
+    "y": 1.9
+  }
+}

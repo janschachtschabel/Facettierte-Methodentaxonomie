@@ -1,0 +1,145 @@
+{
+  "status": "entwurf",
+  "kennung": "schreibkonferenz",
+  "name": "Schreibkonferenz",
+  "kurzbeschreibung": "In Kleingruppen lesen Lernende eigene Textentwürfe laut vor, erhalten kriteriengeleitetes Peer-Feedback und überarbeiten ihren Text gezielt.",
+  "alternativname": [
+    "Kooperatives Textüberarbeiten",
+    "Autorenrunde",
+    "Writing Conference"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Kooperatives Schreiben & Schreibkonferenz",
+      "url": "https://deutsch-lernen.zum.de/wiki/Kooperatives_Schreiben",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "konsolidierung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-produkt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "aufgabenebene",
+    "prozessebene",
+    "fb-elaboriert",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "loesungsversuche"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorlesen",
+      "name": "Vorlesen des eigenen Textentwurfs durch die Autorin bzw. den Autor"
+    },
+    {
+      "kennung": "kriterienfeedback",
+      "name": "Kriteriengeleitetes, wertschätzendes Peer-Feedback (Inhalt vor Rechtschreibung)"
+    },
+    {
+      "kennung": "ueberarbeitung",
+      "name": "Eigenverantwortliche Textrevision im Anschluss"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Textentwürfe werden im Unterricht häufig nur einmal geschrieben und korrigiert, ohne dass Lernende echte Leserückmeldungen für eine echte Überarbeitung erhalten.",
+  "durchfuehrung": [
+    "Kriterienkarte (z. B. Aufbau, Verständlichkeit, Fachbegriffe, Sprachrichtigkeit) und Gesprächsregeln einführen",
+    "Dreiergruppen bilden; eine Person liest ihren Erstentwurf langsam vor",
+    "Zuhörende nennen zunächst Stärken und stellen Verständnisfragen",
+    "Gemeinsame Überarbeitungstipps anhand der Kriterien notieren (Autorin/Autor entscheidet über die Übernahme)",
+    "Rollen wechseln; abschließend individuelle Überarbeitung der Entwürfe"
+  ],
+  "material": [
+    "Eigene Textentwürfe mit breitem Korrekturrand",
+    "Kriterienkarte / Feedbackleitfaden",
+    "Buntstifte"
+  ],
+  "raum": "Gruppentische mit ruhiger Gesprächsatmosphäre",
+  "gruppeMin": 6,
+  "gruppeMax": 32,
+  "teamMin": 2,
+  "teamMax": 4,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Fokussierte Schreibkonferenz mit arbeitsteiligen Prüfrollen (Inhalt, Struktur, Sprache)",
+    "Asynchrone digitale Schreibkonferenz über Kommentarfunktion"
+  ],
+  "hinweis": "Feedback zuerst auf Inhalt und Verständlichkeit lenken, bevor Rechtschreibung geprüft wird.",
+  "qualitaetsrisiko": [
+    "Rückmeldungen bleiben bei oberflächlichem Lob oder reiner Kommakorrektur stehen"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Kriteriengeleitetes Peer-Feedback und angeleitete Textüberarbeitung zeigen deutliche positive Effekte auf die Schreibqualität (ES ≈ 0,50–0,75)",
+      "quelle": "Graham & Perin 2007; Graham, Harris & Hebert 2011; Huisman et al. 2019",
+      "geltung": "Schreibunterricht Sekundarstufe und Primarstufe bei klaren Feedbackkriterien und vorherigem Modellieren"
+    }
+  ],
+  "plot": {
+    "x": 0.52,
+    "y": 2.7
+  }
+}

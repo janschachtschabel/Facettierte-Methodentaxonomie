@@ -1,0 +1,137 @@
+{
+  "status": "entwurf",
+  "kennung": "lern-bingo",
+  "name": "Begriffs- & Lern-Bingo",
+  "kurzbeschreibung": "Lernende füllen ein 3×3- oder 4×4-Raster mit Fachbegriffen, Ergebnissen oder Beispielen und markieren passende Felder, sobald Definitionen, Aufgaben oder Hörimpulse genannt werden.",
+  "alternativname": [
+    "Fachbegriffs-Bingo",
+    "Vokabel-Bingo",
+    "Rechen-Bingo"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "spiel-simulation",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Bingo im Unterricht",
+      "url": "https://deutsch-lernen.zum.de/wiki/Bingo",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "konsolidierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "fb-kcr",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "prozeduren",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "raster",
+      "name": "Individuell bestücktes 3×3- oder 4×4-Begriffsraster"
+    },
+    {
+      "kennung": "abruf",
+      "name": "Aktives Zuordnen von Definitionen/Aufgaben zu Begriffen unter spielerischem Reiz"
+    },
+    {
+      "kennung": "pruefung",
+      "name": "Gemeinsames Laut-Prüfen der Bingo-Reihe zur Fehlerkorrektur"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Reines Vokabel-, Formel- oder Fachbegriffswiederholen wirkt oft monoton; das Spielformat erzeugt hohe Aufmerksamkeit und sofortigen Gedächtnisabruf ohne Notendruck.",
+  "durchfuehrung": [
+    "Auswahl von 12–20 Fachbegriffen oder Rechenergebnissen an der Tafel bereitstellen",
+    "Alle Lernenden tragen 9 (3×3) bzw. 16 (4×4) Begriffe in beliebiger Reihenfolge in ihr Raster ein",
+    "Lehrkraft (oder Lernende) liest Umschreibungen, Beispiele oder kurze Aufgaben vor – ohne das Zielwort zu nennen",
+    "Wer eine vollständige Reihe waagerecht, senkrecht oder diagonal markiert hat, ruft „Bingo!“ und begründet die markierten Treffer kurz im Plenum"
+  ],
+  "material": [
+    "Blanko-Bingo-Raster (3×3 oder 4×4)",
+    "Aufgaben-/Definitionsliste"
+  ],
+  "raum": "Regulärer Klassenraum",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Lernende formulieren selbst die Definitionskarten für eine zweite Spielrunde",
+    "Bilder-Bingo für Primarstufe und DaZ-Anfänger"
+  ],
+  "hinweis": "Das Begründen der Bingo-Treffer im Plenum macht den Unterschied zwischen reinem Raten und echtem Verständnisabruf.",
+  "qualitaetsrisiko": [
+    "Spielspannung verdrängt die inhaltliche Überprüfung falscher Zuordnungen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Spielerisch eingebettete Abrufübungen verbinden den positiven Testing-Effekt mit erhöhter kurzfristiger Motivation",
+      "quelle": "Roediger & Karpicke 2006; Sailer & Homner 2020",
+      "geltung": "Fakten-, Wortschatz- und Begriffskonsolidierung in Schule und Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.34,
+    "y": 1.8
+  }
+}

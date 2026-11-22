@@ -1,0 +1,146 @@
+{
+  "status": "entwurf",
+  "kennung": "quellenkritik-check",
+  "name": "Kriteriengeleitete Quellen- & Informationsprüfung",
+  "kurzbeschreibung": "Lernende überprüfen Websites, Medienbeiträge oder KI-Ausgaben systematisch anhand transparenter Gütekriterien (Urheberschaft, Belege, Interessen, Aktualität, Gegenprüfung im Netz).",
+  "alternativname": [
+    "Website- & Quellencheck",
+    "Lateral Reading",
+    "Informationsbewertung",
+    "Faktencheck-Methode"
+  ],
+  "piktogramm": "ki",
+  "ansatz": [
+    "digital-ki",
+    "forschend",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "herr-kalt.de: Die Qualität von Websites und Wikipedia-Artikeln beurteilen",
+      "url": "https://herr-kalt.de/arbeitsmethoden/qualitaet-websites",
+      "quelltyp": "oer",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "bn-kriterial",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron",
+    "distanz"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "metakognitiv",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "herkunft",
+      "name": "Prüfung von Herausgeber:in, Impressum, Finanzierung und Absicht"
+    },
+    {
+      "kennung": "lateral-reading",
+      "name": "Querlesen (Lateral Reading): Quelle verlassen und unabhängig über sie recherchieren"
+    },
+    {
+      "kennung": "begruendetes-urteil",
+      "name": "Kriteriengeleitetes Vertrauensurteil mit Belegen"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 40,
+  "problem": "Lernende bewerten digitale Quellen oft nach professionellem Layout oder Suchmaschinen-Ranking statt nach Verlässlichkeit, Belegqualität und Interessenlage.",
+  "durchfuehrung": [
+    "Zwei bis drei kontrastierende Quellen (z. B. seriöser Fachartikel, interessengeleitete Lobbyseite, Wikipedia-Eintrag oder KI-Antwort) vorgeben",
+    "Prüfraster einführen: Wer steckt dahinter? Welche Belege werden genannt? Was sagen unabhängige Drittquellen (Lateral Reading)?",
+    "Paare oder Kleingruppen prüfen je eine Quelle und halten Befunde samt Beleg-Links im Prüfprotokoll fest",
+    "Urteile im Plenum vergleichen, typische Täuschungsmerkmale herausarbeiten und eine kompakte Klassen-Checkliste sichern"
+  ],
+  "material": [
+    "Ausgewählte Prüfquellen (URLs oder Ausdrucke)",
+    "Kriterien-Checkliste für Quellenprüfung"
+  ],
+  "raum": "Klassenraum mit Endgeräten und Internetzugang",
+  "gruppeMin": 2,
+  "gruppeMax": 32,
+  "teamMin": 2,
+  "teamMax": 3,
+  "vorbereitungMin": 15,
+  "technik": "t-geteilt",
+  "internet": true,
+  "variante": [
+    "Analoge Variante mit ausgedruckten Screenshots inkl. Impressum und Wikipedia-Versionsgeschichte",
+    "Erweiterung als KI-Faktencheck: Behauptungen eines Chatbots gegen Primärquellen prüfen"
+  ],
+  "hinweis": "Das Verlassen der zu prüfenden Seite („Lateral Reading“) ausdrücklich vormachen – reine Checklisten auf der Seite selbst täuschen oft bei professionell aufgemachten Falschinformationen.",
+  "qualitaetsrisiko": [
+    "Oberflächliches Abhaken formaler Merkmale (z. B. schönes Design oder .org-Domain) statt echter Gegenrecherche"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Gezieltes Training von Lateral Reading und kriteriengeleiteter Quellenbewertung verbessert die Erkennung unzuverlässiger Online-Informationen signifikant (ES ≈ 0,55–0,70)",
+      "quelle": "Wineburg & McGrew 2019; McGrew 2020; Breakstone et al. 2021",
+      "geltung": "Sekundarstufe I/II, Berufsbildung und Hochschule im Bereich Informations- und Medienkompetenz"
+    }
+  ],
+  "plot": {
+    "x": 0.54,
+    "y": 2.7
+  }
+}

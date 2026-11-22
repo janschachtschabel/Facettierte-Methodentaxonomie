@@ -1,0 +1,139 @@
+{
+  "status": "entwurf",
+  "kennung": "buddy-book",
+  "name": "Buddy Book (Faltbüchlein)",
+  "kurzbeschreibung": "Aus einem einzigen A4-Blatt falten und schneiden Lernende ein achtseitiges Mini-Buch, in dem sie Kernkonzepte, Regeln, Beispiele oder ein Glossar eigenständig verdichten.",
+  "alternativname": [
+    "Faltbuch",
+    "Faltfibel",
+    "Mini-Book",
+    "8-Seiten-Heft"
+  ],
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung",
+    "uebung",
+    "reflexion"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Buddy Book (Falt- und Schneidevorlage)",
+      "url": "https://deutsch-lernen.zum.de/wiki/Buddy_Book",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "konsolidierung",
+    "verstehen",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-produkt",
+    "diff-tempo",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "konzept-gesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "falten",
+      "name": "Haptisches Falten eines 8-seitigen Heftchens aus einem A4-Blatt"
+    },
+    {
+      "kennung": "verdichtung",
+      "name": "Seitenweise Reduktion auf Kernaussagen, Beispiele und Merkhilfen"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Längere Hefteinträge werden oft unreflektiert abgeschrieben und selten wiederholt; ein kompaktes, selbst gestaltetes Taschenbuch zwingt zur sinnvollen Verdichtung.",
+  "durchfuehrung": [
+    "A4-Blatt gemeinsam nach Faltanleitung in 8 Felder falten, in der Mitte einschneiden und zum Mini-Buch zusammenlegen",
+    "Seitenstruktur festlegen (Titelblatt, 6 Inhalts-/Beispielseiten, Rückseite für Selbstcheck oder Merkformeln)",
+    "Lernende füllen jede Seite knapp in eigenen Worten mit Skizzen, Merksätzen oder Fachbegriffen",
+    "Im Partnervergleich Lücken prüfen und das Buddy Book als persönliches Nachschlage- und Lernheft nutzen"
+  ],
+  "material": [
+    "1 Blatt DIN-A4-Papier pro Person",
+    "Schere",
+    "Stifte"
+  ],
+  "raum": "Regulärer Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Vorgedruckte Seitenüberschriften als Scaffolding für Basisgruppen",
+    "Fächerübergreifendes Formel- oder Vokabel-Buddy-Book zur Prüfungsvorbereitung"
+  ],
+  "hinweis": "Das Faltverfahren einmal live vormachen oder eine 4-Schritt-Bildanleitung aushängen, damit nicht zu viel Zeit für das Basteln verloren geht.",
+  "qualitaetsrisiko": [
+    "Fokus verrutscht vom inhaltlichen Verdichten zum bloßen Verzieren und Basteln"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Aktives Zusammenfassen und visuelles Strukturieren in eigenen Worten (generative Lernstrategien) fördern Behalten und Verständnis deutlich (ES ≈ 0,50)",
+      "quelle": "Fiorella & Mayer 2015; Dunlosky et al. 2013",
+      "geltung": "Generative Zusammenfassungs- und Visualisierungsstrategien allgemein; für Buddy Books speziell liegt keine eigene Meta-Analyse vor"
+    }
+  ],
+  "plot": {
+    "x": 0.42,
+    "y": 2.3
+  }
+}

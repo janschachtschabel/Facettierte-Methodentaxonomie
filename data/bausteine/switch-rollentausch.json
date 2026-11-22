@@ -1,0 +1,142 @@
+{
+  "status": "entwurf",
+  "kennung": "switch-rollentausch",
+  "name": "Switch / Freeze-Tag (Schneller Rollenwechsel)",
+  "kurzbeschreibung": "Aus dem Improvisationstheater abgeleitete Dialog- und Perspektivwechselmethode: Zwei Lernende spielen eine Szene oder Diskussion, bis auf das Signal „Switch!“ blitzschnell die Rolle oder Perspektive getauscht wird.",
+  "alternativname": [
+    "Switch",
+    "Freeze Tag",
+    "Perspektiv-Switch"
+  ],
+  "piktogramm": "rolle",
+  "ansatz": [
+    "spiel-simulation",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Switch (Improvisationstheater & Rollenwechsel)",
+      "url": "https://deutsch-lernen.zum.de/wiki/Switch",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gesellschaft",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "schlecht-strukturiert",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "konzept-gesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "dialogszene",
+      "name": "Kurze dialogische Konflikt- oder Alltagssituation"
+    },
+    {
+      "kennung": "switch-signal",
+      "name": "Spontaner Rollen- bzw. Positionstausch auf Signal („Switch!“)"
+    },
+    {
+      "kennung": "auswertung",
+      "name": "Reflexion der Perspektiven und Argumentationsmuster"
+    }
+  ],
+  "dauerMin": 10,
+  "dauerMax": 20,
+  "problem": "Lernende verharren in Diskussionen oder Sprachübungen oft starr in einer Position; der schnelle Rollenwechsel trainiert Empathie, spontane Sprachproduktion und Perspektivübernahme.",
+  "durchfuehrung": [
+    "Ausgangssituation und zwei gegensätzliche Rollen bzw. Standpunkte klar festlegen",
+    "Paare spielen den Dialog parallel im Raum (oder exemplarisch vor der Gruppe)",
+    "Auf das Signal „Switch!“ tauschen beide sofort ihre Rollen und führen das Gespräch nahtlos aus der Gegenperspektive weiter",
+    "Nach 2–3 Wechseln im Plenum auswerten, welche Argumente oder sprachlichen Mittel in beiden Rollen tragfähig waren"
+  ],
+  "material": [
+    "Kurze Rollen- oder Situationskarten"
+  ],
+  "raum": "Raum mit freier Stehfläche",
+  "gruppeMin": 4,
+  "gruppeMax": 30,
+  "teamMin": 2,
+  "teamMax": 3,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Freeze-Tag im Kreis: Zuschauende klatschen „Freeze!“, übernehmen die Körperhaltung einer Person und lenken die Szene neu",
+    "Paralleles Paar-Switch ohne Publikum zur Senkung von Sprechhemmungen"
+  ],
+  "hinweis": "Bei unsicheren Gruppen immer zuerst parallel in Paaren spielen lassen, damit niemand bloßgestellt wird.",
+  "qualitaetsrisiko": [
+    "Albernheit oder Überforderung bei fehlender fachlicher Vorbereitung der Positionen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Perspektivwechsel- und Rollenspielverfahren fördern Argumentationsfähigkeit, Empathie und mündliche Sprachflüssigkeit",
+      "quelle": "Johnson & Johnson 2009 (Constructive Controversy); Lee et al. 2015 (Drama-Based Pedagogy)",
+      "geltung": "Sprach-, Ethik-, Politik- und Gesellschaftsunterricht bei klarer Rahmenhandlung und Nachbesprechung"
+    }
+  ],
+  "plot": {
+    "x": 0.62,
+    "y": 2.6
+  }
+}

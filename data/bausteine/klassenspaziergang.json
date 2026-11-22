@@ -1,0 +1,135 @@
+{
+  "status": "entwurf",
+  "kennung": "klassenspaziergang",
+  "name": "Klassenspaziergang",
+  "kurzbeschreibung": "Lernende bewegen sich frei durch den Raum, bleiben auf ein Signal stehen und tauschen sich paarweise zu einer Aufgabe, Frage oder Karte mit wechselnden Partnern aus.",
+  "alternativname": [
+    "Walk and Talk",
+    "Mingle",
+    "Bewegter Austausch",
+    "Marktplatz-Gespräch"
+  ],
+  "piktogramm": "dialog",
+  "ansatz": [
+    "kooperativ",
+    "spiel-simulation"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Klassenspaziergang",
+      "url": "https://deutsch-lernen.zum.de/wiki/Klassenspaziergang",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "orientierung",
+    "konsolidierung",
+    "verstehen"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "konzepte",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "bewegung",
+      "name": "Kurze Bewegungsphase zur zufälligen Partnerfindung"
+    },
+    {
+      "kennung": "kurzgespraech",
+      "name": "Zeitlich begrenzter paarweiser Austausch mit anschließendem Wechsel"
+    }
+  ],
+  "dauerMin": 8,
+  "dauerMax": 15,
+  "problem": "Bei längeren Sitzphasen sinkt die Aufmerksamkeit und es sprechen im Plenum immer dieselben Personen; der bewegte Partnerwechsel aktiviert alle gleichzeitig.",
+  "durchfuehrung": [
+    "Gesprächsimpuls, Aufgabenkarte oder Leitfrage vorgeben",
+    "Lernende gehen frei im Raum umher (optional mit Musik oder kurzem Geh-Signal)",
+    "Auf Stopp-Signal bildet jede Person mit der nächststehenden Person ein Paar und bearbeitet den Impuls (1–2 min)",
+    "Auf erneutes Signal weitergehen und 2–4 Runden mit neuen Partnern durchführen",
+    "Abschließend 2–3 zentrale Erkenntnisse kurz im Plenum sichern"
+  ],
+  "material": [
+    "Aufgaben- oder Impulskarten (optional)",
+    "Akustisches Stopp-Signal"
+  ],
+  "raum": "Klassenraum mit ausreichend Bewegungsfläche zwischen den Tischen",
+  "gruppeMin": 6,
+  "gruppeMax": 36,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Karten-Tausch-Spaziergang (Quiz-Quiz-Trade): nach jedem Gespräch werden die Fragekarten getauscht",
+    "Barrierefreie Variante mit fester Sitzreihe und rotierenden Gesprächspartnern"
+  ],
+  "hinweis": "Auf Barrierefreiheit und ruhige Lautstärkeregelung achten; bei ungerader Zahl kurz eine Dreiergruppe bilden.",
+  "qualitaetsrisiko": [
+    "Gespräche driften ins Private ab, wenn kein klarer Impuls und keine kurze Sicherung folgen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte Partnerinteraktion mit hoher individueller Sprechzeit steigert kognitive Aktivierung und Behaltensleistung; kurze Bewegungsunterbrechungen unterstützen Aufmerksamkeit",
+      "quelle": "Chi & Wylie 2014 (ICAP); Erwin et al. 2012",
+      "geltung": "Schulische Präsenzsettings mit klarer Aufgabenbindung; für den Klassenspaziergang speziell keine isolierte Meta-Analyse"
+    }
+  ],
+  "plot": {
+    "x": 0.48,
+    "y": 2.4
+  }
+}

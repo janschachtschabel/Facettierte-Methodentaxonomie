@@ -1,0 +1,133 @@
+{
+  "status": "entwurf",
+  "kennung": "kofferpacken",
+  "name": "Fachliches Kofferpacken",
+  "kurzbeschreibung": "Kumulative mündliche Gedächtnis- und Begriffskette: Jede Person wiederholt die zuvor genannten Fachbegriffe oder Regeln in Reihenfolge und ergänzt einen neuen Begriff mit Kurzbeispiel.",
+  "alternativname": [
+    "Ich packe meinen Koffer (fachlich)",
+    "Begriffskette",
+    "Kumulative Wiederholung"
+  ],
+  "piktogramm": "quiz",
+  "ansatz": [
+    "spiel-simulation",
+    "uebung"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Kofferpacken",
+      "url": "https://deutsch-lernen.zum.de/wiki/Kofferpacken",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "konsolidierung",
+    "orientierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "andere"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "geteilt",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "fakten",
+    "afb1"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "wiederholungskette",
+      "name": "Kumulatives Aufsagen der bisherigen Fachbegriffe aus dem Gedächtnis"
+    },
+    {
+      "kennung": "ergaenzung",
+      "name": "Hinzufügen eines neuen passenden Begriffs inkl. kurzer Bedeutungsprobe"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Fachwortschatz und zentrale Merkmale einer Einheit geraten ohne aktives, wiederholtes Abrufen schnell wieder in Vergessenheit.",
+  "durchfuehrung": [
+    "Themenfeld benennen (z. B. „Ich packe meinen Ökosystem-Koffer mit …“) und Kleingruppen von 5–8 Personen bilden",
+    "Person 1 nennt einen passenden Fachbegriff und erklärt ihn in einem Satz",
+    "Person 2 wiederholt Begriff 1 und ergänzt Begriff 2; die Kette wächst reihum weiter",
+    "Bei Stocken hilft die Gruppe durch gezielte Umschreibungen statt sofortiger Auflösung",
+    "Nach 1–2 Runden die wichtigsten vergessenen Begriffe kurz sichtbar sichern"
+  ],
+  "material": [
+    "Kein Material erforderlich (optional Wortkarten als Stütze)"
+  ],
+  "raum": "Regulärer Klassenraum oder Stuhlkreis",
+  "gruppeMin": 4,
+  "gruppeMax": 30,
+  "teamMin": 4,
+  "teamMax": 8,
+  "vorbereitungMin": 2,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit Gesten oder Gegenständen (enaktive Merkhilfen für Primarstufe und DaZ)",
+    "Grammatik-Kofferpacken (z. B. mit Artikel- und Akkusativtraining)"
+  ],
+  "hinweis": "Gruppengröße auf 5–8 Personen begrenzen, damit die Kette weder zu lang noch demotivierend wird.",
+  "qualitaetsrisiko": [
+    "Reines mechanisches Auswendigaufsagen ohne Verständnis der Begriffe"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Aktives mündliches Abrufen (Retrieval Practice) stärkt kurz- und mittelfristiges Behalten von Begriffen deutlich gegenüber reinem Wiederlesen",
+      "quelle": "Roediger & Karpicke 2006; Adesope et al. 2017",
+      "geltung": "Begriffs-, Fakten- und Wortschatzsicherung in Primar-, Sekundar- und Sprachunterricht"
+    }
+  ],
+  "plot": {
+    "x": 0.3,
+    "y": 1.6
+  }
+}

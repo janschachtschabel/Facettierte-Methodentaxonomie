@@ -1,0 +1,152 @@
+{
+  "status": "entwurf",
+  "kennung": "simulation-globale",
+  "name": "Simulation globale (Ganzheitliche Lebensweltsimulation)",
+  "kurzbeschreibung": "Über mehrere Stunden hinweg erschafft die Lerngruppe gemeinsam einen fiktiven, alltagsnahen Ort mit eigenen Rollen und löst darin authentische kommunikative, fachliche und organisatorische Aufgaben.",
+  "alternativname": [
+    "Globale Simulation",
+    "Fiktive Lebenswelt",
+    "Weltenbau-Projekt"
+  ],
+  "piktogramm": "projekt",
+  "ansatz": [
+    "spiel-simulation",
+    "offen",
+    "kooperativ"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Simulation globale",
+      "url": "https://deutsch-lernen.zum.de/wiki/Simulation_globale",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gesellschaft",
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "geteilt",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-produkt",
+    "diff-prozess",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ",
+    "prozessebene"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron",
+    "distanz"
+  ],
+  "rolle": [
+    "coach",
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "schlecht-strukturiert",
+    "konzepte",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "wissen-konsolidiert",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ort",
+      "name": "Gemeinsamer Entwurf eines fiktiven Handlungsorts („lieu-thème“, z. B. Mietshaus, Dorf, Startup, Insel)"
+    },
+    {
+      "kennung": "identitaeten",
+      "name": "Ausgestaltung fiktiver Figuren/Rollen mit Biografie und Aufgaben"
+    },
+    {
+      "kennung": "ereignisse",
+      "name": "Bearbeitung fortlaufender Ereignisse, Konflikte und authentischer Text-/Fachprodukte"
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 540,
+  "problem": "Isolierte Einzelaufgaben bleiben oft künstlich und wenig sinnstiftend; eine durchgängige fiktive Lebenswelt schafft anhaltenden, authentischen Kommunikations- und Handlungsanlass.",
+  "durchfuehrung": [
+    "Gemeinsamen Handlungsort festlegen und visuell als Plan/Wandkarte gestalten (z. B. ein Mehrfamilienhaus, ein Viertel oder ein Unternehmen)",
+    "Jede Person (oder jedes Team) entwirft eine fiktive Identität/Rolle mit Steckbrief und Beziehungen zu anderen Rollen",
+    "Über mehrere Sitzungen hinweg authentische Ereignisse, Alltagsprobleme oder Fachaufträge einspielen (Briefe, Versammlungen, Kalkulationen, Konfliktlösungen)",
+    "Entstandene Produkte (Aushänge, Protokolle, Artikel, Pläne) an der gemeinsamen Ortswand dokumentieren",
+    "Abschließende Auswertung und Rückbindung der gewonnenen Fach- und Sprachkompetenzen in der Realität"
+  ],
+  "material": [
+    "Großes Wandplakat / Ortsplan",
+    "Rollensteckbriefe",
+    "Ereigniskarten",
+    "Dokumentationsmappe oder digitales Board"
+  ],
+  "raum": "Klassenraum mit dauerhaft nutzbarer Pinnwand oder Projektfläche",
+  "gruppeMin": 8,
+  "gruppeMax": 32,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Fremdsprachen-/DaZ-Klassiker „L’Immeuble“ (Ein Wohnhaus gestalten)",
+    "BNE-/Politik-Variante „Nachhaltige Gemeinde planen“"
+  ],
+  "hinweis": "Fachliche Lernziele und sprachliche Hilfen (Scaffolding) pro Ereignis vorab festlegen, damit das Szenario nicht bloßes freies Erzählen bleibt.",
+  "qualitaetsrisiko": [
+    "Hoher Zeitbedarf und Verlieren im Rollenspiel ohne systematische fachliche Sicherung"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Handlungs- und szenariobasierte Langzeitsimulationen steigern Lernmotivation, authentische Sprachproduktion und Transfer bei klarer Strukturierung",
+      "quelle": "Debyser 1986; Yaiche 1996; Vlachopoulos & Makri 2017",
+      "geltung": "Fremdsprachen-, DaZ-, Gesellschafts- und Projektunterricht ab Sekundarstufe I sowie Erwachsenenbildung"
+    }
+  ],
+  "plot": {
+    "x": 0.78,
+    "y": 2.8
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "status": "entwurf",
+  "kennung": "wirbelgruppe",
+  "name": "Wirbelgruppe",
+  "kurzbeschreibung": "Eine größere Lerngruppe diskutiert ein Thema zunächst in kleinen Untergruppen und wirbelt anschließend durch kontrollierten Gruppenwechsel durch, sodass Zwischenergebnisse zirkulieren und verdichtet werden.",
+  "alternativname": [
+    "Rotierende Diskussionsgruppen",
+    "Durchmischungs-Gruppenarbeit"
+  ],
+  "piktogramm": "gruppen",
+  "ansatz": [
+    "kooperativ",
+    "diskurs"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: Wirbelgruppe",
+      "url": "https://deutsch-lernen.zum.de/wiki/Wirbelgruppe",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen",
+    "problemloesen",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "schlecht-strukturiert",
+    "afb2",
+    "afb3"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "startgruppen",
+      "name": "Parallele Erstberatung in Kleingruppen (3–4 Personen)"
+    },
+    {
+      "kennung": "durchmischung",
+      "name": "Systematisches Durchmischen („Verwirbeln“) mit Weitergabe der Kerngedanken"
+    },
+    {
+      "kennung": "plenumssicherung",
+      "name": "Verdichtung der gewachsenen Positionen im Plenum"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "In Großgruppen scheuen viele Teilnehmende Wortmeldungen, und isolierte Kleingruppen erfahren erst spät von den Ideen der anderen Tische.",
+  "durchfuehrung": [
+    "Zentrale Diskussionsfrage oder Fallproblem vorstellen und Kleingruppen (3–4 Personen) bilden",
+    "Runde 1 (5–8 min): Gruppen sammeln Argumente und halten 2–3 Kernpunkte schriftlich fest",
+    "Verwirbeln: Gruppen werden gezielt neu gemischt (z. B. Durchzählen 1–4), sodass jede neue Gruppe alle Perspektiven vereint",
+    "Runde 2 (6–10 min): Teilnehmende stellen die Kernpunkte ihrer Ursprungsgruppe vor, vergleichen und entwickeln eine gemeinsame Position",
+    "Ergebnisse kurz im Plenum bündeln und fachlich einordnen"
+  ],
+  "material": [
+    "Notizkarten oder Tischblätter",
+    "Stifte"
+  ],
+  "raum": "Gruppentische oder Stuhlkreise",
+  "gruppeMin": 9,
+  "gruppeMax": 40,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Eine Person bleibt als Tisch-Gastgeber:in sitzen, während die übrigen weiterziehen (Übergang zum World Café)"
+  ],
+  "hinweis": "Klare Zeitansage und maximale Punktzahl je Runde verhindern langwierige Nacherzählungen.",
+  "qualitaetsrisiko": [
+    "Zeitverlust beim Umgruppieren ohne klares Durchzähl- oder Farbschema"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Strukturierte kooperative Austauschformate mit individueller Erklärpflicht fördern Verständnis und Beteiligungsbreite (ES ≈ 0,54)",
+      "quelle": "Kyndt et al. 2013; Johnson & Johnson 2009",
+      "geltung": "Kooperatives Lernen in Schule und Erwachsenenbildung; für die Wirbelgruppe speziell keine eigene Einzelstudie"
+    }
+  ],
+  "plot": {
+    "x": 0.56,
+    "y": 2.5
+  }
+}

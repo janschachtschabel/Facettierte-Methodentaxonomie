@@ -1,0 +1,140 @@
+{
+  "status": "entwurf",
+  "kennung": "sos-modell",
+  "name": "SOS-Modell (Sammeln – Ordnen – Systematisieren)",
+  "kurzbeschreibung": "Induktive Drei-Schritt-Methode zur Regel- und Musterentdeckung: Lernende sammeln authentische Beispiele, ordnen sie nach Gemeinsamkeiten und formulieren daraus eigenständig die zugrunde liegende Regel.",
+  "alternativname": [
+    "S-O-S-Modell",
+    "Sammeln – Ordnen – Systematisieren",
+    "Induktive Regelentdeckung"
+  ],
+  "piktogramm": "experiment",
+  "ansatz": [
+    "forschend",
+    "instruktion"
+  ],
+  "quellen": [
+    {
+      "titel": "ZUM Deutsch-Lernen: S-O-S-Modell (Sammeln – Ordnen – Systematisieren)",
+      "url": "https://deutsch-lernen.zum.de/wiki/S-O-S-Modell",
+      "quelltyp": "oer",
+      "lizenz": "CC BY 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "mikro"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "formativ",
+    "aufgabenebene"
+  ],
+  "interaktion": [
+    "partner",
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "konzept-gesichert",
+    "erstwissen-ungesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "sammeln",
+      "name": "Sammeln (S): Markieren und Herausschreiben passender Beispiele aus einem Kontext"
+    },
+    {
+      "kennung": "ordnen",
+      "name": "Ordnen (O): Sortieren der Beispiele nach auffälligen Merkmalen oder Mustern"
+    },
+    {
+      "kennung": "systematisieren",
+      "name": "Systematisieren (S): Regelformulierung, Fachbegriffszuordnung und Gegenprüfung an neuen Beispielen"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 35,
+  "problem": "Abstrakt vorgegebene Grammatik-, Rechtschreib- oder Fachregeln werden oft auswendig gelernt, aber nicht durchdrungen; die gezielte Beispielanalyse macht Regelmäßigkeiten selbst sichtbar.",
+  "durchfuehrung": [
+    "Sammeln: Lernende untersuchen einen kurzen Text oder Datensatz und markieren alle relevanten Formen/Fälle",
+    "Ordnen: In Partner- oder Kleingruppenarbeit werden die gesammelten Fälle in einer Tabelle nach gemeinsamen Merkmalen gruppiert",
+    "Systematisieren: Gruppen formulieren eine eigene Regel-Hypothese („Immer wenn …, dann …“)",
+    "Plenumssicherung: Lehrkraft gleicht die Hypothesen mit der kanonischen Fachregel ab, klärt Ausnahmen und lässt die Regel an 2–3 neuen Fällen testen"
+  ],
+  "material": [
+    "Kurzer Beispieltext oder vorbereitete Beispielkarten",
+    "Sortiertabelle / Markierstifte"
+  ],
+  "raum": "Regulärer Klassenraum",
+  "gruppeMin": 2,
+  "gruppeMax": 32,
+  "teamMin": 2,
+  "teamMax": 3,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Übertragung auf Mathematik/Naturwissenschaften (Gesetzmäßigkeiten aus Beispielfällen ableiten)",
+    "Differenzierte Beispielsätze mit farblichen Hinweisankern für Basisgruppen"
+  ],
+  "hinweis": "Beispielauswahl gezielt kontrastierend gestalten und die kanonische Regel am Ende explizit sichern.",
+  "qualitaetsrisiko": [
+    "Lernende entdecken eine unvollständige oder falsche Scheinregel, wenn die anschließende Systematisierung und Sicherung zu kurz kommt"
+  ],
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Geleitet-induktives Entdecken mit anschließender expliziter Konsolidierung (vergleichbar mit Guided Discovery / Contrasting Cases) fördert nachhaltiges Regelverständnis",
+      "quelle": "Alfieri et al. 2011; Schwartz et al. 2011; Ziebell & Schmidjell 2012",
+      "geltung": "Sprach-, Grammatik-, Rechtschreib- und MINT-Unterricht bei sorgfältiger Beispielauswahl und expliziter Abschlusssicherung"
+    }
+  ],
+  "plot": {
+    "x": 0.44,
+    "y": 2.4
+  }
+}
