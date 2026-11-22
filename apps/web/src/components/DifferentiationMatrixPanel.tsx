@@ -17,6 +17,8 @@ interface Props {
   groups: LearnerGroup[];
   onGroupsChange: (next: LearnerGroup[]) => void;
   scenarioRows: ScenarioPhaseRow[];
+  focusedStepKey?: string | null;
+  onSelectStepKey?: (stepKey: string) => void;
   allBlocks: Baustein[];
   subgroupMethods: SubgroupMethodMap;
   onSubgroupMethodChange: (stepKey: string, groupId: string, methodId: string | null) => void;
@@ -48,6 +50,8 @@ export function DifferentiationMatrixPanel({
   groups,
   onGroupsChange,
   scenarioRows,
+  focusedStepKey,
+  onSelectStepKey,
   allBlocks,
   subgroupMethods,
   onSubgroupMethodChange,
@@ -394,8 +398,19 @@ export function DifferentiationMatrixPanel({
 
       {/* Phase-by-phase customization: Adapt Method OR Choose Alternative FMT Method per Subgroup */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 12 }}>
-        {scenarioRows.map((r) => (
-          <div key={r.key} style={{ padding: 14, borderRadius: 8, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
+        {scenarioRows.map((r) => {
+          const isFocused = Boolean(focusedStepKey && focusedStepKey === r.key);
+          return (
+          <div
+            key={r.key}
+            onClick={() => onSelectStepKey?.(r.key)}
+            style={{
+              padding: 14,
+              borderRadius: 8,
+              background: isFocused ? 'color-mix(in srgb, var(--dA-soft) 45%, var(--paper))' : 'var(--paper)',
+              border: `1.5px solid ${isFocused ? 'var(--dA)' : 'var(--grid)'}`
+            }}
+          >
             <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14.5, marginBottom: 8 }}>
               {r.orderLabel} · {r.methodName} ({r.durationMin} min)
             </div>
@@ -485,7 +500,8 @@ export function DifferentiationMatrixPanel({
                 })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

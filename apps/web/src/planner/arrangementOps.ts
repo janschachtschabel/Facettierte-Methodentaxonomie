@@ -603,6 +603,7 @@ export interface ExportOptions {
     durationMin: number;
     methodId: string;
     methodName: string;
+    methodProcedure?: string;
     teacherAction: string;
     learnerAction: string;
     groupAdaptations: Record<string, string>;
@@ -734,11 +735,12 @@ export function exportArrangementMarkdown(
   if (options.thematicRows && options.thematicRows.length) {
     const activeGroups = (options.groups || []).filter((g) => g.active);
     const cleanCell = (s: string) => s.replace(/\|/g, '/').replace(/\n/g, ' ');
-    lines.push('', '### Thematische Verlaufstabelle (auf Thema, Rollen, Binnendifferenzierung & OER angepasst)', '');
+    lines.push('', '### Thematische Verlaufstabelle (Methodisches Vorgehen, Rollen, Binnendifferenzierung & OER)', '');
     const headers = [
       '#',
       'Phase & FMT-Methode',
       'Zeit',
+      'Methodisches Vorgehen (am Thema)',
       'Lehrkraft',
       'Lernende',
       ...(activeGroups.length ? ['Binnendifferenzierung / Teilgruppen'] : []),
@@ -771,6 +773,7 @@ export function exportArrangementMarkdown(
         cleanCell(tr.orderLabel),
         `${cleanCell(tr.phaseLabel)} – ${mLink}`,
         `${tr.durationMin} min`,
+        cleanCell(tr.methodProcedure || '–'),
         cleanCell(tr.teacherAction),
         cleanCell(tr.learnerAction),
         ...(activeGroups.length ? [diffTxt || '–'] : []),

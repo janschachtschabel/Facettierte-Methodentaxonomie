@@ -188,10 +188,24 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(c3.textContent).toContain('Szenario (R2)');
     expect(c3.textContent).toContain('Parallele Methode');
 
-    // Verify TimelineBandSvg renders parallel subgroup swimlane when subgroupMethods is populated
+    // Verify TimelineBandSvg renders parallel subgroup swimlane AND supports interactive step selection
+    let clickedStep = '';
     const { container: c4 } = render(
-      <TimelineBandSvg arrangement={preset} blocksById={BLOCKS} groups={DEFAULT_LEARNER_GROUPS} subgroupMethods={subMethods} />
+      <TimelineBandSvg
+        arrangement={preset}
+        blocksById={BLOCKS}
+        groups={DEFAULT_LEARNER_GROUPS}
+        subgroupMethods={subMethods}
+        selectedStepKey="step-0"
+        onSelectStep={(k) => {
+          clickedStep = k;
+        }}
+      />
     );
     expect(c4.textContent).toContain('Parallele Schwimmlinie');
+    const clickableBar = c4.querySelector('svg g[style*="pointer"]');
+    expect(clickableBar).toBeTruthy();
+    if (clickableBar) fireEvent.click(clickableBar);
+    expect(clickedStep).toBeTruthy();
   });
 });

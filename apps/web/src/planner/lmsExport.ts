@@ -198,6 +198,17 @@ export function exportScenarioToImscc(
   const itemsXml: string[] = [];
   const resourcesXml: string[] = [];
 
+  // Include narrative lesson plan overview as first page
+  if (scenario.generated_content?.narrative_lesson_plan_markdown) {
+    const ovHref = 'web_resources/00_unterrichtsentwurf_ueberblick.html';
+    const ovHtml = `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"/><title>${escHtml(scenario.metadata.title)}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:24px auto;padding:0 20px;line-height:1.6}pre{white-space:pre-wrap;font-family:inherit}</style></head><body><h1>${escHtml(scenario.metadata.title)}</h1><pre>${escHtml(scenario.generated_content.narrative_lesson_plan_markdown)}</pre></body></html>`;
+    files.push({ path: ovHref, content: ovHtml });
+    itemsXml.push(
+      `        <item identifier="item_overview" identifierref="res_overview"><title>${escXml(`Überblick & Entwurf: ${scenario.metadata.title}`)}</title></item>`
+    );
+    resourcesXml.push(`    <resource identifier="res_overview" type="webcontent" href="${ovHref}"><file href="${ovHref}"/></resource>`);
+  }
+
   rows.forEach((row, idx) => {
     const itemId = `item_phase_${idx + 1}`;
     const resId = `res_phase_${idx + 1}`;
@@ -232,6 +243,17 @@ export function exportScenarioToImscc(
     resourcesXml.push(
       `    <resource identifier="${resId}" type="webcontent" href="${href}"><file href="${href}"/></resource>`
     );
+  });
+
+  // Include all generated teaching materials as dedicated pages
+  (scenario.generated_content?.generated_materials || []).forEach((mat, mi) => {
+    const mHref = `web_resources/material_${mi + 1}.html`;
+    const mHtml = `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"/><title>${escHtml(mat.title)}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:24px auto;padding:0 20px;line-height:1.6}pre{white-space:pre-wrap;font-family:inherit}</style></head><body><h1>${escHtml(mat.title)}</h1><pre>${escHtml(mat.content_markdown)}</pre></body></html>`;
+    files.push({ path: mHref, content: mHtml });
+    itemsXml.push(
+      `        <item identifier="item_mat_${mi + 1}" identifierref="res_mat_${mi + 1}"><title>${escXml(`Material: ${mat.title}`)}</title></item>`
+    );
+    resourcesXml.push(`    <resource identifier="res_mat_${mi + 1}" type="webcontent" href="${mHref}"><file href="${mHref}"/></resource>`);
   });
 
   files.push({
@@ -286,6 +308,21 @@ export function exportScenarioToMoodleXml(
   let actId = 1;
   const activities: string[] = [];
 
+  if (scenario.generated_content?.narrative_lesson_plan_markdown) {
+    activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="page" contextid="${actId + 1000}">
+      <page id="${actId}">
+        <name>${escXml(`Unterrichtsentwurf: ${scenario.metadata.title}`)}</name>
+        <intro>${escXml(`Fach: ${scenario.metadata.subject} · Thema: ${scenario.metadata.topic}`)}</intro>
+        <introformat>1</introformat>
+        <content>${escXml(`<pre style="white-space:pre-wrap;font-family:inherit">${escHtml(scenario.generated_content.narrative_lesson_plan_markdown)}</pre>`)}</content>
+        <contentformat>1</contentformat>
+        <timemodified>${now}</timemodified>
+      </page>
+      <sectionid>1</sectionid>
+    </activity>`);
+    actId++;
+  }
+
   rows.forEach((row) => {
     const pageHtml = buildPhaseHtmlPage(row, scenario.metadata.title);
     activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="page" contextid="${actId + 1000}">
@@ -315,6 +352,21 @@ export function exportScenarioToMoodleXml(
     </activity>`);
       actId++;
     });
+  });
+
+  (scenario.generated_content?.generated_materials || []).forEach((mat) => {
+    activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="page" contextid="${actId + 1000}">
+      <page id="${actId}">
+        <name>${escXml(`Material: ${mat.title}`)}</name>
+        <intro>${escXml(`Materialtyp: ${mat.material_type}`)}</intro>
+        <introformat>1</introformat>
+        <content>${escXml(`<pre style="white-space:pre-wrap;font-family:inherit">${escHtml(mat.content_markdown)}</pre>`)}</content>
+        <contentformat>1</contentformat>
+        <timemodified>${now}</timemodified>
+      </page>
+      <sectionid>1</sectionid>
+    </activity>`);
+    actId++;
   });
 
   return `<?xml version="1.0" encoding="UTF-8"?>

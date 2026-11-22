@@ -20,6 +20,7 @@ export interface ThematicTableRow {
   durationMin: number;
   methodId: string;
   methodName: string;
+  methodProcedure: string;
   teacherAction: string;
   learnerAction: string;
   groupAdaptations: Record<string, string>;
@@ -125,16 +126,16 @@ export function buildDeterministicThematicTable(
   const phaseList: NonNullable<ElaboratePayload['phasen']> = payload.phasen?.length
     ? payload.phasen
     : [...collectUsedBlocks(payload.arrangement.ablauf)].map((id, i) => {
-        const b = store.blocksById.get(id);
-        return {
-          key: `step-${i}`,
-          orderLabel: String(i + 1),
-          phaseLabel: `Phase ${i + 1}`,
-          durationMin: b?.dauerMin ?? 15,
-          methodId: id,
-          methodName: b?.name || id
-        };
-      });
+      const b = store.blocksById.get(id);
+      return {
+        key: `step-${i}`,
+        orderLabel: String(i + 1),
+        phaseLabel: `Phase ${i + 1}`,
+        durationMin: b?.dauerMin ?? 15,
+        methodId: id,
+        methodName: b?.name || id
+      };
+    });
 
   return phaseList.map((p) => {
     const b = store.blocksById.get(p.methodId);
@@ -174,6 +175,11 @@ export function buildDeterministicThematicTable(
       matParts.push(b.material.slice(0, 3).join(', '));
     }
 
+    const stepsSummary = (b?.durchfuehrung || []).length
+      ? b!.durchfuehrung.map((s, i) => `${i + 1}. ${s}`).join(' ')
+      : b?.kurzbeschreibung || `Durchführung gemäß ${p.methodName}.`;
+    const coreNote = b?.kernkomponente?.[0]?.name ? ` (Kernkomponente: ${b.kernkomponente[0].name})` : '';
+
     return {
       key: p.key,
       orderLabel: p.orderLabel,
@@ -181,6 +187,7 @@ export function buildDeterministicThematicTable(
       durationMin: p.durationMin,
       methodId: p.methodId,
       methodName: p.methodName,
+      methodProcedure: `Methode „${p.methodName}“ am Thema ${topicTag}: ${stepsSummary}${coreNote}`,
       teacherAction: `Leitet „${p.methodName}“ zu ${topicTag} an: ${firstStep}`,
       learnerAction: `Erarbeiten ${topicTag} mittels ${p.methodName}: ${learnerSteps || b?.kurzbeschreibung || 'Aufgabenbearbeitung und Sicherung.'}`,
       groupAdaptations,
@@ -289,19 +296,21 @@ export async function elaborateScenarioCore(
 
   const systemPrompt =
     'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-    'Erstelle auf Basis des geprüften FMT-Arrangements, des Themas, der Lerngruppen/Differenzierungsmatrix, der verknüpften WLO-OER-Ressourcen (inkl. wwwurl) und erstellten Materialien einen praxisfertigen, thematisch konkretisierten Unterrichtsentwurf.\n' +
+    'Führe das methodische Konzept (FMT-Methoden & deren konkrete Durchführungsschritte), das Thema, die Lerngruppen/Voraussetzungen (Binnendifferenzierungsmatrix), die WLO-OER-Ressourcen (inkl. wwwurl) und erstellte Materialien zu einem praxisfertigen, thematisch konkretisierten Gesamtszenario zusammen.\n' +
+    'WICHTIG: Die methodische Vorgehensweise (Durchführungsschritte & Kernkomponenten jeder FMT-Methode) darf NICHT verloren gehen – übertrage sie explizit und schrittweise auf das konkrete Thema!\n' +
     'ANTWORTE AUSSCHLIESSLICH als gültiges JSON-Objekt mit exakt diesen zwei Feldern:\n' +
     '{\n' +
     '  "thematischeTabelle": [\n' +
     '    {\n' +
     '      "key": "<exakter phase.key>",\n' +
+    '      "methodProcedure": "<konkret aufs Thema übertragene methodische Schrittfolge / didaktische Vorgehensweise der FMT-Methode (2-4 Sätze)>",\n' +
     '      "teacherAction": "<konkrete thematische Lehrkrafthandlung inkl. Impuls/Moderation (2-3 Sätze)>",\n' +
     '      "learnerAction": "<konkrete thematische Aktivität der Lernenden mit Bezug aufs Thema (2-3 Sätze)>",\n' +
     '      "groupAdaptations": { "<groupId>": "<konkrete thematische Anpassung oder alternative Methode für diese Teilgruppe>" },\n' +
     '      "materialsAndOer": "<konkreter Bezug auf zugeordnete Materialien & WLO-OER inkl. vollständiger wwwurl>"\n' +
     '    }\n' +
     '  ],\n' +
-    '  "ausarbeitung": "<ausführliches, klares deutsches Markdown mit: 1. Kurzüberblick, Lernziele, didaktischer Ansatz & Akteure; 2. Thematische Durchführungsbeschreibung Phase für Phase mit konkreten Aufgaben-/Moderationsimpulsen, Übergängen, Material- & WLO-OER-Einbindung (immer mit vollständiger wwwurl als Markdown-Link); 3. Binnendifferenzierung & ggf. parallele Teilgruppen-Methoden; 4. Kernkomponenten, Qualitätsrisiken & verifiziertes Quellenverzeichnis aus den Katalogdaten>"\n' +
+    '  "ausarbeitung": "<ausführliches, klares deutsches Markdown mit: 1. Kurzüberblick, Lernziele, didaktischer Ansatz, Lernvoraussetzungen & Akteure; 2. Thematische Durchführungsbeschreibung Phase für Phase, bei der die konkrete methodische Vorgehensweise (Schrittfolge, Kernkomponenten) am Thema samt Aufgaben-/Moderationsimpulsen, Übergängen, Material- & WLO-OER-Einbindung (immer mit vollständiger wwwurl als Markdown-Link) sichtbar bleibt; 3. Binnendifferenzierung & ggf. parallele Teilgruppen-Methoden; 4. Qualitätsrisiken & verifiziertes Quellenverzeichnis aus den Katalogdaten>"\n' +
     '}\n' +
     'STRENGE REGELN:\n' +
     '- Beziehe zugeordnete WLO-OER-Inhalte (immer mit ihrer exakten wwwurl!) und erstellte Materialien aktiv in die jeweiligen Phasen ein.\n' +
@@ -357,6 +366,7 @@ export async function elaborateScenarioCore(
   const parsed = extractJsonObject(raw) as {
     thematischeTabelle?: Array<{
       key?: string;
+      methodProcedure?: string;
       teacherAction?: string;
       learnerAction?: string;
       groupAdaptations?: Record<string, string>;
@@ -377,6 +387,10 @@ export async function elaborateScenarioCore(
     }
     return {
       ...baseRow,
+      methodProcedure:
+        typeof match.methodProcedure === 'string' && match.methodProcedure.trim()
+          ? match.methodProcedure.trim()
+          : baseRow.methodProcedure,
       teacherAction: typeof match.teacherAction === 'string' && match.teacherAction.trim() ? match.teacherAction.trim() : baseRow.teacherAction,
       learnerAction: typeof match.learnerAction === 'string' && match.learnerAction.trim() ? match.learnerAction.trim() : baseRow.learnerAction,
       groupAdaptations: mergedGroups,
@@ -422,11 +436,11 @@ export async function generateMaterialCore(
       '',
       ...(body.gruppen?.length
         ? [
-            '## Binnendifferenzierung',
-            ...body.gruppen.map(
-              (g) => `- **${g.label}${g.count ? ` (${g.count} Pers.)` : ''}:** ${g.matrixMeasures?.slice(0, 2).join('; ') || g.profile}`
-            )
-          ]
+          '## Binnendifferenzierung',
+          ...body.gruppen.map(
+            (g) => `- **${g.label}${g.count ? ` (${g.count} Pers.)` : ''}:** ${g.matrixMeasures?.slice(0, 2).join('; ') || g.profile}`
+          )
+        ]
         : []),
       '',
       '## Kernkomponenten & Hinweise für die Lehrkraft',

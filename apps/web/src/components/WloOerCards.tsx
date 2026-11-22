@@ -4,6 +4,7 @@ import { getOerWwwUrl, type OerResource, type ScenarioPhaseRow } from '../planne
 interface Props {
   scenarioRows: ScenarioPhaseRow[];
   initialStepKey: string;
+  onTargetStepChange?: (stepKey: string) => void;
   fach: string;
   thema: string;
   bildungsstufe: string;
@@ -35,6 +36,7 @@ function preferredContentTypeForRow(row: ScenarioPhaseRow): string {
 export function WloOerCards({
   scenarioRows,
   initialStepKey,
+  onTargetStepChange,
   fach,
   thema,
   bildungsstufe,
@@ -245,7 +247,13 @@ export function WloOerCards({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 10, marginBottom: 12 }}>
         <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
           Ziel-Phase für Zuordnung
-          <select value={targetStep} onChange={(e) => setTargetStep(e.target.value)}>
+          <select
+            value={targetStep}
+            onChange={(e) => {
+              setTargetStep(e.target.value);
+              onTargetStepChange?.(e.target.value);
+            }}
+          >
             {scenarioRows.map((r) => (
               <option key={r.key} value={r.key}>
                 {r.orderLabel} · {r.methodName} ({r.durationMin} min)

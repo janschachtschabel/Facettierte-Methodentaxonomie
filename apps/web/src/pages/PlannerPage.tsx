@@ -23,6 +23,7 @@ import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
   buildScenarioRows,
+  buildStructuredLessonText,
   DEFAULT_LEARNER_GROUPS,
   type GeneratedMaterialItem,
   type LearnerGroup,
@@ -488,12 +489,31 @@ export function PlannerPage() {
 
   const handlePrintPdf = () => {
     const effThematic = thematicRows?.length ? thematicRows : buildDefaultThematicRows(scenarioRows, groups, fach, thema);
+    const effNarrative =
+      elaboration && elaboration.trim()
+        ? elaboration
+        : buildStructuredLessonText(arrangement, scenarioRows, effThematic, groups, {
+            fach,
+            thema,
+            didaktischerAnsatz: didaktischerAnsatzLabel,
+            lehrkraefteInfo,
+            lernziele,
+            problemstellung,
+            hinweise,
+            totalDurationMin: validation.dauerMin,
+            labelOf
+          });
     const sc = buildNeutralLearningScenario(arrangement, scenarioRows, groups, {
       fach,
       thema,
       didaktischerAnsatz: didaktischerAnsatzLabel,
       lehrkraefteInfo,
+      lernziele,
+      problemstellung,
+      hinweise,
       thematicRows: effThematic,
+      elaboration: effNarrative,
+      generatedMaterials,
       totalDurationMin: validation.dauerMin,
       labelOf
     });
@@ -504,7 +524,7 @@ export function PlannerPage() {
       lehrkraefteInfo,
       lernziele,
       problemstellung,
-      kiAusarbeitung: elaboration,
+      kiAusarbeitung: effNarrative,
       timelineSvg: resolveTimelineSvgString(),
       groups,
       thematicRows: effThematic,
@@ -1336,12 +1356,42 @@ export function PlannerPage() {
       {/* SCHRITT 3: WLO-OER-KACHELN, KI-MATERIAL & DIFFERENZIERUNGSMATRIX    */}
       {/* =================================================================== */}
       {step === 3 && (
-        <section style={{ marginTop: 16 }}>
+        <section style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Interactive Orientation Timeline: click any block to select & highlight its phase! */}
+          <div className="card no-print" style={{ padding: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+                🧭 Ablauf-Orientierung (Baustein anklicken, um Ziel-Phase für OER, Material &amp; Matrix zu wählen)
+              </strong>
+              {(() => {
+                const activeRow = scenarioRows.find((r) => r.key === (focusedStepKey || scenarioRows[0]?.key));
+                return activeRow ? (
+                  <span className="status-badge" style={{ borderColor: 'var(--dA)', color: 'var(--dA)' }}>
+                    Aktiv: {activeRow.orderLabel} · {activeRow.methodName} ({activeRow.durationMin} min)
+                  </span>
+                ) : null;
+              })()}
+            </div>
+            <TimelineBandSvg
+              arrangement={arrangement}
+              blocksById={blocksById}
+              svgRef={svgRef}
+              groups={groups}
+              subgroupMethods={subgroupMethods}
+              ketten={bundle.ketten}
+              selectedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
+              onSelectStep={(k) => setFocusedStepKey(k)}
+              oerByStep={oerByStep}
+              generatedMaterials={generatedMaterials}
+            />
+          </div>
+
           <ScenarioStudioPanel
             mode="resources"
             activeResourceTab={resourceTab}
             onResourceTabChange={setResourceTab}
-            focusedStepKey={focusedStepKey}
+            focusedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
+            onSelectStepKey={(k) => setFocusedStepKey(k)}
             arrangement={arrangement}
             allBlocks={bundle.bausteine}
             blocksById={blocksById}

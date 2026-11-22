@@ -1,5 +1,5 @@
 import type { Arrangement, ArrangementNode, Baustein, Funktionskette, WiederkehrNode } from '@fmt/core';
-import type { LearnerGroup, SubgroupMethodMap } from '../planner/scenarioModel.js';
+import type { GeneratedMaterialItem, LearnerGroup, OerResource, SubgroupMethodMap } from '../planner/scenarioModel.js';
 
 interface Props {
   arrangement: Arrangement;
@@ -8,6 +8,13 @@ interface Props {
   groups?: LearnerGroup[];
   subgroupMethods?: SubgroupMethodMap;
   ketten?: Funktionskette[];
+  /** Optional: highlight a specific step/slot key (e.g. in Step 3 orientation strip) */
+  selectedStepKey?: string | null;
+  /** Optional: clicking a block selects that step/slot key */
+  onSelectStep?: (stepKey: string) => void;
+  /** Optional: show small indicators for phases that already have WLO-OER or generated materials */
+  oerByStep?: Record<string, OerResource[]>;
+  generatedMaterials?: GeneratedMaterialItem[];
 }
 
 const RANG: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
@@ -27,7 +34,11 @@ export function TimelineBandSvg({
   svgRef,
   groups = [],
   subgroupMethods = {},
-  ketten = []
+  ketten = [],
+  selectedStepKey = null,
+  onSelectStep,
+  oerByStep = {},
+  generatedMaterials = []
 }: Props) {
   const isPar = arrangement.ablauf?.typ === 'Parallel';
   const haupt: ArrangementNode | undefined =
@@ -42,23 +53,23 @@ export function TimelineBandSvg({
         : [];
   const kette = arrangement.zieltyp ? ketten.find((k) => k.id === arrangement.zieltyp) : null;
 
-  const items: Array<{ row: number; t0: number; t1: number; b: Baustein; label?: string }> = [];
-  const subLaneItems: Array<{ groupId: string; t0: number; t1: number; b: Baustein }> = [];
-  const phaseSpans: Array<{ t0: number; t1: number; shortPurpose: string; fullPurpose: string }> = [];
+  const items: Array<{ row: number; t0: number; t1: number; b: Baustein; stepKey: string }> = [];
+  const subLaneItems: Array<{ groupId: string; t0: number; t1: number; b: Baustein; stepKey: string }> = [];
+  const phaseSpans: Array<{ t0: number; t1: number; shortPurpose: string; fullPurpose: string; stepKey: string }> = [];
   const wks: WiederkehrNode[] = [];
 
-  const lay = (node: ArrangementNode | undefined, t0: number, d: number, stepKey?: string) => {
+  const lay = (node: ArrangementNode | undefined, t0: number, d: number, stepKey: string) => {
     if (!node || typeof node !== 'object') return;
     if (node.typ === 'Einsatz') {
       const b = blocksById.get(node.baustein);
       if (!b) return;
-      items.push({ row: Math.min(3, RANG[b.reichweite] || 2), t0, t1: t0 + d, b });
+      items.push({ row: Math.min(3, RANG[b.reichweite] || 2), t0, t1: t0 + d, b, stepKey });
 
-      if (stepKey && subgroupMethods[stepKey]) {
+      if (subgroupMethods[stepKey]) {
         for (const [gid, altMethodId] of Object.entries(subgroupMethods[stepKey])) {
           const altBlock = altMethodId ? blocksById.get(altMethodId) : undefined;
           if (altBlock) {
-            subLaneItems.push({ groupId: gid, t0, t1: t0 + d, b: altBlock });
+            subLaneItems.push({ groupId: gid, t0, t1: t0 + d, b: altBlock, stepKey });
           }
         }
       }
@@ -71,18 +82,18 @@ export function TimelineBandSvg({
       let t = t0;
       kids.forEach((k) => {
         const dd = (k.inhalt.typ === 'Einsatz' ? k.inhalt.dauerMin || 0 : 0) * sc;
-        lay(k.inhalt, t, dd, stepKey ? `${stepKey}-slot-${k.slot}` : undefined);
+        lay(k.inhalt, t, dd, `${stepKey}-slot-${k.slot}`);
         t += dd;
       });
     } else if (node.typ === 'Alternative') {
       const opts = Array.isArray(node.optionen) ? node.optionen : [];
       const first = opts[0];
-      if (first) lay(first, t0, d, stepKey ? `${stepKey}-alt-0` : undefined);
+      if (first) lay(first, t0, d, `${stepKey}-alt-0`);
       opts.slice(1).forEach((opt, oi) => {
         if (opt?.typ === 'Einsatz') {
           const altB = blocksById.get(opt.baustein);
           if (altB) {
-            subLaneItems.push({ groupId: `__alt_branch_${oi + 2}`, t0, t1: t0 + d, b: altB });
+            subLaneItems.push({ groupId: `__alt_branch_${oi + 2}`, t0, t1: t0 + d, b: altB, stepKey: `${stepKey}-alt-${oi + 1}` });
           }
         }
       });
@@ -98,6 +109,7 @@ export function TimelineBandSvg({
       return;
     }
     phaseNum++;
+    const stepKey = `step-${realIdx}`;
     const opts = node.typ === 'Alternative' && Array.isArray(node.optionen) ? node.optionen : [];
     const dur =
       node.typ === 'Einsatz'
@@ -108,8 +120,8 @@ export function TimelineBandSvg({
     const chainStep = node.kettenschritt && kette ? kette.schritte.find((s) => s.id === node.kettenschritt) : null;
     const fullPurpose = chainStep ? `${chainStep.id.toUpperCase()}: ${chainStep.label}` : `Phase ${phaseNum}`;
     const shortPurpose = chainStep ? `${chainStep.id.toUpperCase()} · ${chainStep.label}` : `P${phaseNum}`;
-    phaseSpans.push({ t0: t, t1: t + dur, shortPurpose, fullPurpose });
-    lay(node, t, dur, `step-${realIdx}`);
+    phaseSpans.push({ t0: t, t1: t + dur, shortPurpose, fullPurpose, stepKey });
+    lay(node, t, dur, stepKey);
     t += dur;
   });
 
@@ -136,16 +148,20 @@ export function TimelineBandSvg({
     }
   }
 
-  // Wide, crisp 1320px coordinate space -> never looks distorted or oversized on 1920x1080!
-  const VB_W = 1320;
-  const X0 = 148;
-  const W = VB_W - X0 - 20;
+  // Full-width 1560px coordinate space -> fills 1920x1080 container cleanly with crisp, non-bloated proportions!
+  const VB_W = 1560;
+  const X0 = 150;
+  const W = VB_W - X0 - 18;
   const RH = 28;
   const Y0 = 8;
   const yOf = (r: number | string) => Y0 + rows.findIndex((x) => x[1] === r) * RH;
   const xOf = (tt: number) => X0 + (tt / total) * W;
   const phaseAxisY = Y0 + rows.length * RH + 6;
   const H = phaseAxisY + 34;
+
+  const isSelected = (k: string) => Boolean(selectedStepKey && selectedStepKey === k);
+  const hasAssets = (k: string) =>
+    (oerByStep[k]?.length || 0) > 0 || generatedMaterials.some((m) => m.stepKey === k);
 
   return (
     <div>
@@ -155,8 +171,25 @@ export function TimelineBandSvg({
           viewBox={`0 0 ${VB_W} ${H}`}
           role="img"
           aria-label="Zeitband nach Reichweite, Phasenzweck und Teilgruppen-Schwimmlinien"
-          style={{ width: '100%', maxWidth: 1240, height: 'auto', display: 'block' }}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
         >
+          {/* Highlight vertical band for selected phase */}
+          {selectedStepKey &&
+            phaseSpans
+              .filter((ps) => selectedStepKey === ps.stepKey || selectedStepKey.startsWith(`${ps.stepKey}-`))
+              .map((ps, idx) => (
+                <rect
+                  key={`sel-band-${idx}`}
+                  x={xOf(ps.t0)}
+                  y={Y0 - 2}
+                  width={Math.max(xOf(ps.t1) - xOf(ps.t0), 8)}
+                  height={phaseAxisY - Y0 + 18}
+                  fill="var(--dA-soft)"
+                  opacity={0.45}
+                  rx={4}
+                />
+              ))}
+
           {/* Subtle vertical phase boundaries */}
           {phaseSpans.map((ps, pi) =>
             pi > 0 ? (
@@ -211,17 +244,50 @@ export function TimelineBandSvg({
             const x = xOf(it.t0);
             const w = Math.max(xOf(it.t1) - x - 3, 4);
             const y = yOf(it.row) + 2;
-            const maxChars = Math.floor((w - 12) / 6.5);
+            const selected = isSelected(it.stepKey);
+            const oerCnt = oerByStep[it.stepKey]?.length || 0;
+            const matCnt = generatedMaterials.filter((m) => m.stepKey === it.stepKey).length;
+            const badgeExtra = oerCnt > 0 || matCnt > 0 ? 22 : 0;
+            const maxChars = Math.floor((w - 14 - badgeExtra) / 6.3);
             let txt = shortName(it.b.name);
             if (txt.length > maxChars) txt = txt.slice(0, Math.max(3, maxChars - 1)) + '…';
             return (
-              <g key={idx}>
-                <rect x={x} y={y} width={w} height={RH - 8} rx={4} fill={guidanceColor(it.b)} />
-                <title>{`${it.b.name} (${Math.round(it.t1 - it.t0)} min)`}</title>
+              <g
+                key={idx}
+                style={{ cursor: onSelectStep ? 'pointer' : 'default' }}
+                onClick={() => onSelectStep?.(it.stepKey)}
+              >
+                <rect
+                  x={x}
+                  y={y}
+                  width={w}
+                  height={RH - 8}
+                  rx={4}
+                  fill={guidanceColor(it.b)}
+                  stroke={selected ? 'var(--ink)' : 'none'}
+                  strokeWidth={selected ? 2.6 : 0}
+                  opacity={selectedStepKey && !selected ? 0.72 : 1}
+                />
+                <title>
+                  {`${it.b.name} (${Math.round(it.t1 - it.t0)} min)` +
+                    (oerCnt ? ` · ${oerCnt} WLO-OER` : '') +
+                    (matCnt ? ` · ${matCnt} Material` : '') +
+                    (onSelectStep ? ' — Klicken zum Auswählen' : '')}
+                </title>
                 {w > 54 && (
-                  <text x={x + 7} y={y + (RH - 8) / 2 + 4} fontSize="11.5" fontWeight="600" fill="var(--on-domain)" fontFamily="var(--display)">
+                  <text
+                    x={x + 7}
+                    y={y + (RH - 8) / 2 + 4}
+                    fontSize="11.5"
+                    fontWeight={selected ? '700' : '600'}
+                    fill="var(--on-domain)"
+                    fontFamily="var(--display)"
+                  >
                     {txt}
                   </text>
+                )}
+                {hasAssets(it.stepKey) && w > 28 && (
+                  <circle cx={x + w - 9} cy={y + (RH - 8) / 2} r={4} fill="var(--paper)" stroke="var(--ink)" strokeWidth={1} />
                 )}
               </g>
             );
@@ -231,11 +297,15 @@ export function TimelineBandSvg({
             const x = xOf(it.t0);
             const w = Math.max(xOf(it.t1) - x - 3, 4);
             const y = yOf(it.groupId) + 2;
-            const maxChars = Math.floor((w - 12) / 6.5);
+            const maxChars = Math.floor((w - 12) / 6.3);
             let txt = shortName(it.b.name);
             if (txt.length > maxChars) txt = txt.slice(0, Math.max(3, maxChars - 1)) + '…';
             return (
-              <g key={`sub-${idx}`}>
+              <g
+                key={`sub-${idx}`}
+                style={{ cursor: onSelectStep ? 'pointer' : 'default' }}
+                onClick={() => onSelectStep?.(it.stepKey)}
+              >
                 <rect
                   x={x}
                   y={y}
@@ -263,10 +333,26 @@ export function TimelineBandSvg({
               if (n.typ !== 'Einsatz') return null;
               const b = blocksById.get(n.baustein);
               if (!b) return null;
+              const stepKey = `parallel-${idx}`;
+              const selected = isSelected(stepKey);
               const y = yOf(0) + 2;
               return (
-                <g key={`par-${idx}`}>
-                  <rect x={X0} y={y} width={W} height={RH - 8} rx={4} fill={guidanceColor(b)} opacity={0.85} />
+                <g
+                  key={`par-${idx}`}
+                  style={{ cursor: onSelectStep ? 'pointer' : 'default' }}
+                  onClick={() => onSelectStep?.(stepKey)}
+                >
+                  <rect
+                    x={X0}
+                    y={y}
+                    width={W}
+                    height={RH - 8}
+                    rx={4}
+                    fill={guidanceColor(b)}
+                    opacity={selected ? 1 : 0.85}
+                    stroke={selected ? 'var(--ink)' : 'none'}
+                    strokeWidth={selected ? 2.4 : 0}
+                  />
                   <text x={X0 + 8} y={y + (RH - 8) / 2 + 4} fontSize="11.5" fontWeight="600" fill="var(--on-domain)" fontFamily="var(--display)">
                     {b.name} (begleitend, {n.dauerMin || b.dauerMin} min)
                   </text>
@@ -277,19 +363,24 @@ export function TimelineBandSvg({
           {wks.map((node, wi) => {
             const b = blocksById.get(node.baustein);
             if (!b) return null;
+            const selected = isSelected('wiederkehr');
             return Array.from({ length: node.anzahl }).map((_, i) => {
               const frac = node.anzahl > 1 ? 0.35 + (0.62 * i) / (node.anzahl - 1) : 0.7;
               return (
-                <g key={`wk-${wi}-${i}`}>
+                <g
+                  key={`wk-${wi}-${i}`}
+                  style={{ cursor: onSelectStep ? 'pointer' : 'default' }}
+                  onClick={() => onSelectStep?.('wiederkehr')}
+                >
                   <rect
                     x={X0 + frac * W - 5}
                     y={yOf(1) + 1}
                     width={10}
                     height={RH - 6}
                     rx={2}
-                    fill="var(--paper)"
-                    stroke={guidanceColor(b)}
-                    strokeWidth={2.4}
+                    fill={selected ? 'var(--dA-soft)' : 'var(--paper)'}
+                    stroke={selected ? 'var(--ink)' : guidanceColor(b)}
+                    strokeWidth={selected ? 3 : 2.4}
                   />
                   <title>{`${b.name}, Durchgang ${i + 1} von ${node.anzahl} (${node.abstand || 'P2D'})`}</title>
                 </g>
@@ -302,23 +393,30 @@ export function TimelineBandSvg({
           {phaseSpans.map((ps, pi) => {
             const x = xOf(ps.t0);
             const w = xOf(ps.t1) - x;
-            const maxChars = Math.floor((w - 8) / 6.2);
+            const maxChars = Math.floor((w - 10) / 6.2);
             const labelTxt =
               maxChars >= 6
                 ? ps.shortPurpose.length > maxChars
                   ? ps.shortPurpose.slice(0, maxChars - 1) + '…'
                   : ps.shortPurpose
                 : `P${pi + 1}`;
+            const activeSpan = Boolean(
+              selectedStepKey && (selectedStepKey === ps.stepKey || selectedStepKey.startsWith(`${ps.stepKey}-`))
+            );
             return (
-              <g key={`ps-${pi}`}>
+              <g
+                key={`ps-${pi}`}
+                style={{ cursor: onSelectStep ? 'pointer' : 'default' }}
+                onClick={() => onSelectStep?.(ps.stepKey)}
+              >
                 <title>{`${ps.fullPurpose} (${Math.round(ps.t0)}–${Math.round(ps.t1)} min)`}</title>
                 <text
                   x={x + w / 2}
                   y={phaseAxisY + 13}
                   textAnchor="middle"
-                  fontSize="11"
-                  fontWeight="600"
-                  fill="var(--ink-2)"
+                  fontSize="11.5"
+                  fontWeight={activeSpan ? '700' : '600'}
+                  fill={activeSpan ? 'var(--dA)' : 'var(--ink-2)'}
                   fontFamily="var(--display)"
                 >
                   {labelTxt}
@@ -340,7 +438,8 @@ export function TimelineBandSvg({
         <span><span style={{ color: 'var(--dB)' }}>■</span> offen</span>
         <span><span style={{ color: 'var(--dD)' }}>■</span> offen → explizit</span>
         <span>□ in R1: verteilte Wiederkehr</span>
-        {activeSubLaneIds.length > 0 && <span>┄ Parallele Schwimmlinie (Teilgruppe / Zweig)</span>}
+        {activeSubLaneIds.length > 0 && <span>┄ Parallele Schwimmlinie</span>}
+        {onSelectStep && <span>● Punkt auf Baustein = OER/Material zugeordnet · Baustein anklicken zum Auswählen</span>}
       </div>
     </div>
   );

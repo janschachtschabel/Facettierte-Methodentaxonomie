@@ -13,6 +13,7 @@ import {
 import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
+  buildStructuredLessonText,
   detectMaterialTypeForBlock,
   getOerWwwUrl,
   MATERIAL_TYPES,
@@ -34,6 +35,7 @@ interface Props {
   activeResourceTab: StudioTab;
   onResourceTabChange: (tab: StudioTab) => void;
   focusedStepKey: string | null;
+  onSelectStepKey?: (stepKey: string) => void;
   arrangement: Arrangement;
   allBlocks: Baustein[];
   blocksById: Map<string, Baustein>;
@@ -79,6 +81,7 @@ export function ScenarioStudioPanel({
   activeResourceTab,
   onResourceTabChange,
   focusedStepKey,
+  onSelectStepKey,
   arrangement,
   allBlocks,
   blocksById,
@@ -156,6 +159,7 @@ export function ScenarioStudioPanel({
       if (!saved) return d;
       return {
         ...d,
+        methodProcedure: saved.methodProcedure || d.methodProcedure,
         teacherAction: saved.teacherAction || d.teacherAction,
         learnerAction: saved.learnerAction || d.learnerAction,
         groupAdaptations: { ...d.groupAdaptations, ...(saved.groupAdaptations || {}) },
@@ -163,6 +167,38 @@ export function ScenarioStudioPanel({
       };
     });
   }, [scenarioRows, groups, fach, thema, thematicRows]);
+
+  const structuredTextDraft = useMemo(
+    () =>
+      buildStructuredLessonText(arrangement, scenarioRows, effectiveThematicRows, groups, {
+        fach,
+        thema,
+        didaktischerAnsatz,
+        lehrkraefteInfo,
+        lernziele,
+        problemstellung,
+        hinweise,
+        totalDurationMin: validation.dauerMin,
+        labelOf
+      }),
+    [
+      arrangement,
+      scenarioRows,
+      effectiveThematicRows,
+      groups,
+      fach,
+      thema,
+      didaktischerAnsatz,
+      lehrkraefteInfo,
+      lernziele,
+      problemstellung,
+      hinweise,
+      validation.dauerMin,
+      labelOf
+    ]
+  );
+
+  const effectiveNarrativeText = elaboration && elaboration.trim() ? elaboration : structuredTextDraft;
 
   const downloadFile = (filename: string, content: string | Uint8Array, mime: string) => {
     const payload = typeof content === 'string' ? content : new Uint8Array(content);
@@ -183,8 +219,13 @@ export function ScenarioStudioPanel({
       thema,
       didaktischerAnsatz,
       lehrkraefteInfo,
+      lernziele,
+      problemstellung,
+      hinweise,
       totalLearners: totalLearners || undefined,
       thematicRows: effectiveThematicRows,
+      elaboration: effectiveNarrativeText,
+      generatedMaterials,
       totalDurationMin: validation.dauerMin,
       labelOf
     });
@@ -199,7 +240,7 @@ export function ScenarioStudioPanel({
       lehrkraefteInfo,
       lernziele,
       problemstellung,
-      kiAusarbeitung: elaboration,
+      kiAusarbeitung: effectiveNarrativeText,
       timelineSvg: getTimelineSvg(),
       groups,
       thematicRows: effectiveThematicRows,
@@ -417,7 +458,7 @@ export function ScenarioStudioPanel({
 
   const updateThematicCell = (
     key: string,
-    field: 'teacherAction' | 'learnerAction' | 'materialsAndOer',
+    field: 'methodProcedure' | 'teacherAction' | 'learnerAction' | 'materialsAndOer',
     value: string
   ) => {
     const next = effectiveThematicRows.map((r) => (r.key === key ? { ...r, [field]: value } : r));
@@ -480,6 +521,7 @@ export function ScenarioStudioPanel({
           <WloOerCards
             scenarioRows={scenarioRows}
             initialStepKey={focusedStepKey || scenarioRows[0]?.key || 'step-0'}
+            onTargetStepChange={onSelectStepKey}
             fach={fach}
             thema={thema}
             bildungsstufe={arrangement.kontext?.bildungsstufe || ''}
@@ -493,6 +535,8 @@ export function ScenarioStudioPanel({
             groups={groups}
             onGroupsChange={onGroupsChange}
             scenarioRows={scenarioRows}
+            focusedStepKey={focusedStepKey}
+            onSelectStepKey={onSelectStepKey}
             allBlocks={allBlocks}
             subgroupMethods={subgroupMethods}
             onSubgroupMethodChange={onSubgroupMethodChange}
@@ -520,7 +564,13 @@ export function ScenarioStudioPanel({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10, marginBottom: 10 }}>
               <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
                 Phase / FMT-Methode
-                <select value={matStepKey} onChange={(e) => setMatStepKey(e.target.value)}>
+                <select
+                  value={matStepKey}
+                  onChange={(e) => {
+                    setMatStepKey(e.target.value);
+                    onSelectStepKey?.(e.target.value);
+                  }}
+                >
                   {scenarioRows.map((r) => (
                     <option key={r.key} value={r.key}>
                       {r.orderLabel} · {r.methodName} ({r.durationMin} min)
@@ -844,19 +894,22 @@ export function ScenarioStudioPanel({
           <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th style={{ width: 34 }}>#</th>
-                <th style={{ width: '16%' }}>Phase &amp; FMT-Methode</th>
-                <th style={{ width: 64 }}>Zeit</th>
-                <th style={{ width: '19%', background: 'color-mix(in srgb, var(--dA-soft) 55%, var(--surface))' }}>
-                  👩‍🏫 {lehrkraefteInfo || 'Lehrkraft'} (am Thema)
+                <th style={{ width: 32 }}>#</th>
+                <th style={{ width: '13%' }}>Phase &amp; FMT-Methode</th>
+                <th style={{ width: 58 }}>Zeit</th>
+                <th style={{ width: '22%', background: 'color-mix(in srgb, var(--dC-soft) 45%, var(--surface))' }}>
+                  🧭 Methodisches Vorgehen (am Thema)
                 </th>
-                <th style={{ width: '19%' }}>👥 Lernende (am Thema)</th>
+                <th style={{ width: '15%', background: 'color-mix(in srgb, var(--dA-soft) 55%, var(--surface))' }}>
+                  👩‍🏫 {lehrkraefteInfo || 'Lehrkraft'}
+                </th>
+                <th style={{ width: '15%' }}>👥 Lernende</th>
                 {activeGroups.length > 0 && (
-                  <th style={{ width: '21%', background: 'color-mix(in srgb, var(--dB-soft) 45%, var(--surface))' }}>
-                    ⚖ Binnendifferenzierung / Teilgruppen
+                  <th style={{ width: '18%', background: 'color-mix(in srgb, var(--dB-soft) 45%, var(--surface))' }}>
+                    ⚖ Binnendifferenzierung
                   </th>
                 )}
-                <th style={{ width: '19%' }}>🌐 Materialien &amp; WLO-OER (wwwurl)</th>
+                <th style={{ width: '15%' }}>🌐 Material &amp; WLO-OER</th>
               </tr>
             </thead>
             <tbody>
@@ -885,7 +938,19 @@ export function ScenarioStudioPanel({
                       )}
                     </td>
                     <td style={{ whiteSpace: 'nowrap', fontFamily: 'var(--display)', fontWeight: 700 }}>{tr.durationMin} min</td>
-                    <td style={{ background: 'color-mix(in srgb, var(--dA-soft) 18%, transparent)' }}>
+                    <td style={{ background: 'color-mix(in srgb, var(--dC-soft) 16%, transparent)', fontSize: 12.5 }}>
+                      {editingTable ? (
+                        <textarea
+                          rows={4}
+                          style={{ width: '100%', fontSize: 12.5 }}
+                          value={tr.methodProcedure}
+                          onChange={(e) => updateThematicCell(tr.key, 'methodProcedure', e.target.value)}
+                        />
+                      ) : (
+                        tr.methodProcedure
+                      )}
+                    </td>
+                    <td style={{ background: 'color-mix(in srgb, var(--dA-soft) 18%, transparent)', fontSize: 12.5 }}>
                       {editingTable ? (
                         <textarea
                           rows={3}
@@ -998,66 +1063,51 @@ export function ScenarioStudioPanel({
         >
           <div>
             <span className="status-badge" style={{ marginBottom: 4 }}>
-              {elaboration ? '✨ Ausformulierter Unterrichtsentwurf (mit Material- & OER-Bezug)' : '📄 Strukturierter Textentwurf'}
+              {elaboration
+                ? '✨ Ausformulierter Unterrichtsentwurf (mit Material- & OER-Bezug)'
+                : '📋 Strukturierter Textentwurf (druckbereit aus FMT + Kontext + Matrix + OER)'}
             </span>
             <h3 style={{ margin: '4px 0 0', fontSize: 20 }}>
               {thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name}
             </h3>
           </div>
-          <div className="no-print" style={{ display: 'flex', gap: 6 }}>
+          <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => {
+                if (!editingText && !elaboration) {
+                  onElaborationChange(structuredTextDraft);
+                }
+                setEditingText((s) => !s);
+              }}
+            >
+              {editingText ? '👁 Leseansicht' : '✏ Entwurfstext bearbeiten'}
+            </button>
             {elaboration && (
-              <button type="button" className="btn btn-sm" onClick={() => setEditingText((s) => !s)}>
-                {editingText ? '👁 Leseansicht' : '✏ Entwurfstext bearbeiten'}
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  onElaborationChange(null);
+                  setEditingText(false);
+                }}
+              >
+                ↺ Auf Struktur-Entwurf zurücksetzen
               </button>
             )}
           </div>
         </div>
 
-        {elaboration ? (
-          editingText ? (
-            <textarea
-              rows={20}
-              style={{ width: '100%', fontFamily: 'var(--mono)', fontSize: 13.5 }}
-              value={elaboration}
-              onChange={(e) => onElaborationChange(e.target.value)}
-            />
-          ) : (
-            <SimpleMarkdown content={elaboration} />
-          )
+        {editingText ? (
+          <textarea
+            rows={22}
+            style={{ width: '100%', fontFamily: 'var(--mono)', fontSize: 13.5 }}
+            value={effectiveNarrativeText}
+            onChange={(e) => onElaborationChange(e.target.value)}
+          />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {(lernziele.trim() || problemstellung.trim() || didaktischerAnsatz) && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-                {didaktischerAnsatz && (
-                  <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
-                    <strong style={{ fontFamily: 'var(--display)' }}>Didaktischer Ansatz &amp; Akteure</strong>
-                    <p style={{ margin: '6px 0 0', fontSize: 14 }}>
-                      {didaktischerAnsatz}
-                      {lehrkraefteInfo ? ` · ${lehrkraefteInfo}` : ''}
-                      {totalLearners ? ` · ${totalLearners} Lernende` : ''}
-                    </p>
-                  </div>
-                )}
-                {lernziele.trim() && (
-                  <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
-                    <strong style={{ fontFamily: 'var(--display)' }}>Lernziele</strong>
-                    <p style={{ margin: '6px 0 0', whiteSpace: 'pre-wrap', fontSize: 14 }}>{lernziele}</p>
-                  </div>
-                )}
-                {problemstellung.trim() && (
-                  <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
-                    <strong style={{ fontFamily: 'var(--display)' }}>Ausgangslage / Problemstellung</strong>
-                    <p style={{ margin: '6px 0 0', whiteSpace: 'pre-wrap', fontSize: 14 }}>{problemstellung}</p>
-                  </div>
-                )}
-              </div>
-            )}
-            <p className="muted" style={{ margin: 0, fontSize: 14 }}>
-              Klicke oben auf <strong>„✨ Thematische Tabelle &amp; Entwurf ausarbeiten (KI)“</strong>, um sowohl die
-              Verlaufstabelle als auch einen voll ausformulierten Unterrichtsentwurf mit konkreten Arbeitsimpulsen,
-              Übergängen und direkter Einbindung deiner WLO-OER-Ressourcen &amp; Materialien zu generieren.
-            </p>
-          </div>
+          <SimpleMarkdown content={effectiveNarrativeText} />
         )}
 
         {/* Always-visible verified WLO-OER & FMT source directories */}

@@ -64,6 +64,8 @@ export interface ThematicPhaseRow {
   durationMin: number;
   methodId: string;
   methodName: string;
+  /** Concrete methodological procedure (FMT Durchführungsschritte adapted to the topic!) */
+  methodProcedure: string;
   teacherAction: string;
   learnerAction: string;
   groupAdaptations: Record<string, string>;
@@ -467,6 +469,11 @@ export function buildDefaultThematicRows(
       matParts.push(r.materials.slice(0, 3).join(', '));
     }
 
+    const stepsSummary = (r.block?.durchfuehrung || []).length
+      ? r.block!.durchfuehrung.map((s, i) => `${i + 1}. ${s}`).join(' ')
+      : r.block?.kurzbeschreibung || `Durchführung gemäß Methodenprofil ${r.methodName}.`;
+    const coreNote = r.block?.kernkomponente?.[0]?.name ? ` (Kernkomponente: ${r.block.kernkomponente[0].name})` : '';
+
     return {
       key: r.key,
       orderLabel: r.orderLabel,
@@ -474,12 +481,120 @@ export function buildDefaultThematicRows(
       durationMin: r.durationMin,
       methodId: r.methodId,
       methodName: r.methodName,
+      methodProcedure: `Methode ${r.methodName} angewendet auf ${topicLabel}: ${stepsSummary}${coreNote}`,
       teacherAction: `Leitet ${r.methodName} zu ${topicLabel} an: ${r.teacherRole}`,
       learnerAction: `Erarbeiten ${topicLabel} via ${r.methodName}: ${r.learnerRole}`,
       groupAdaptations,
       materialsAndOer: matParts.join(' | ') || 'Standardmaterial'
     };
   });
+}
+
+/**
+ * Generates a complete, printable structured German textual lesson scenario
+ * (even without calling an LLM!) that brings together Step 1 context, Step 2 method procedures,
+ * Step 3 differentiation matrix, WLO-OERs (with wwwurl), and attached materials.
+ */
+export function buildStructuredLessonText(
+  arrangement: Arrangement,
+  rows: ScenarioPhaseRow[],
+  thematicRows: ThematicPhaseRow[],
+  groups: LearnerGroup[],
+  meta: {
+    fach: string;
+    thema: string;
+    didaktischerAnsatz?: string;
+    lehrkraefteInfo?: string;
+    lernziele?: string;
+    problemstellung?: string;
+    hinweise?: string;
+    totalDurationMin: number;
+    labelOf: (s: string, c: string) => string;
+  }
+): string {
+  const activeGroups = groups.filter((g) => g.active);
+  const totalLearners = activeGroups.reduce((s, g) => s + (g.count || 0), 0);
+  const byKey = new Map(thematicRows.map((t) => [t.key, t]));
+  const lines: string[] = [];
+
+  lines.push(`### 1. Didaktischer Steckbrief & Rahmenbedingungen`);
+  lines.push(
+    `- **Fach & Thema:** ${meta.fach || 'Unterricht'} – ${meta.thema || arrangement.name}` +
+      ` · **Dauer:** ${meta.totalDurationMin} min` +
+      (arrangement.kontext?.zeitbudgetMin ? ` (Budget: ${arrangement.kontext.zeitbudgetMin} min)` : '')
+  );
+  lines.push(
+    `- **Zielgruppe & Voraussetzungen:** ${
+      arrangement.kontext?.bildungsstufe ? meta.labelOf('bildungsstufe', arrangement.kontext.bildungsstufe) : 'nicht angegeben'
+    } · Vorwissen: ${
+      arrangement.kontext?.vorwissen ? meta.labelOf('vorwissen', arrangement.kontext.vorwissen) : 'nicht angegeben'
+    }` +
+      ` · Lehrkraft: ${meta.lehrkraefteInfo || '1 Lehrkraft'}` +
+      (totalLearners > 0 ? ` · ${totalLearners} Lernende gesamt` : '')
+  );
+  if (meta.didaktischerAnsatz) {
+    lines.push(`- **Didaktischer Ansatz & Ablaufmodell:** ${meta.didaktischerAnsatz} (Kette: ${arrangement.zieltyp || 'Freier Ablauf'})`);
+  }
+  if (activeGroups.length) {
+    lines.push(
+      `- **Aktive Lerngruppen (Binnendifferenzierung):** ${activeGroups
+        .map((g) => `${g.label}${g.count ? ` (${g.count} Pers.)` : ''}`)
+        .join(' · ')}`
+    );
+  }
+  if (meta.lernziele?.trim()) {
+    lines.push('', '### 2. Lernziele', meta.lernziele.trim());
+  }
+  if (meta.problemstellung?.trim()) {
+    lines.push('', '### Didaktische Ausgangslage & typische Hürden', meta.problemstellung.trim());
+  }
+  if (meta.hinweise?.trim()) {
+    lines.push('', `**Besondere Hinweise:** ${meta.hinweise.trim()}`);
+  }
+
+  lines.push('', '### 3. Methodische Durchführung Phase für Phase (angepasst auf Thema, Gruppen & Materialien)');
+  for (const r of rows) {
+    const tr = byKey.get(r.key);
+    lines.push('', `#### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min, ${r.methodRange})`);
+    if (tr?.methodProcedure) {
+      lines.push(`**Methodisches Vorgehen:** ${tr.methodProcedure}`);
+    } else if (r.block?.kurzbeschreibung) {
+      lines.push(r.block.kurzbeschreibung);
+    }
+    lines.push(`- **Lehrkraft (${meta.lehrkraefteInfo || 'Lehrkraft'}):** ${tr?.teacherAction || r.teacherRole}`);
+    lines.push(`- **Lernende (${r.socialForm}):** ${tr?.learnerAction || r.learnerRole}`);
+    if (Object.keys(r.subgroupMethods).length > 0) {
+      lines.push(
+        `- **Parallele Teilgruppen-Methoden:** ${Object.entries(r.subgroupMethods)
+          .map(([gid, sm]) => `${groups.find((g) => g.id === gid)?.label || gid}: ${sm.methodName}`)
+          .join(' · ')}`
+      );
+    }
+    if (activeGroups.length) {
+      const groupNotes = activeGroups
+        .map((g) => {
+          const val = tr?.groupAdaptations?.[g.id] || r.differentiation.find((d) => d.groupId === g.id)?.measure;
+          return val ? `${g.label}: ${val}` : '';
+        })
+        .filter(Boolean);
+      if (groupNotes.length) lines.push(`- **Binnendifferenzierung:** ${groupNotes.join(' | ')}`);
+    }
+    if (r.oerResources.length > 0) {
+      lines.push(
+        `- **Eingebundene WLO-OER:** ${r.oerResources
+          .map((o) => `[${o.title}](${getOerWwwUrl(o)}) (\`${getOerWwwUrl(o)}\`)${o.note ? ` – ${o.note}` : ''}`)
+          .join(' · ')}`
+      );
+    }
+    if (r.generatedMaterials.length > 0) {
+      lines.push(`- **Erstellte Materialien:** ${r.generatedMaterials.map((m) => m.title).join(', ')}`);
+    }
+    if (r.block?.kernkomponente?.length) {
+      lines.push(`- **Kernkomponenten & Qualitätsrisiko:** ${r.block.kernkomponente.map((k) => k.name).join('; ')}${r.block.qualitaetsrisiko?.[0] ? ` · Achtung: ${r.block.qualitaetsrisiko[0]}` : ''}`);
+    }
+  }
+
+  return lines.join('\n');
 }
 
 /**
@@ -498,6 +613,9 @@ export interface NeutralLearningScenario {
     didacticApproach?: string;
     teachersAndStaff?: string;
     totalLearners?: number;
+    learningObjectives?: string;
+    problemStatement?: string;
+    notes?: string;
     educationalLevel: string;
     priorKnowledge: string;
     granularity: string;
@@ -554,6 +672,26 @@ export interface NeutralLearningScenario {
       differentiation: StepDiffSuggestion[];
     }>;
   }>;
+  generated_content: {
+    narrative_lesson_plan_markdown: string;
+    narrative_source: 'ki' | 'strukturiert';
+    thematic_table: ThematicPhaseRow[];
+    generated_materials: Array<{
+      id: string;
+      step_key: string;
+      title: string;
+      material_type: string;
+      content_markdown: string;
+      created_at: string;
+    }>;
+    differentiation_matrix_results: Array<{
+      group_id: string;
+      group_label: string;
+      count?: number;
+      persona_id?: string;
+      top_measures: Array<{ id: string; name: string; score: number }>;
+    }>;
+  };
   fmt_arrangement: Arrangement;
 }
 
@@ -566,13 +704,45 @@ export function buildNeutralLearningScenario(
     thema: string;
     didaktischerAnsatz?: string;
     lehrkraefteInfo?: string;
+    lernziele?: string;
+    problemstellung?: string;
+    hinweise?: string;
     totalLearners?: number;
     thematicRows?: ThematicPhaseRow[];
+    elaboration?: string | null;
+    generatedMaterials?: GeneratedMaterialItem[];
     totalDurationMin: number;
     labelOf: (s: string, c: string) => string;
   }
 ): NeutralLearningScenario {
-  const thematicByKey = new Map((meta.thematicRows || []).map((t) => [t.key, t]));
+  const effThematic = meta.thematicRows?.length
+    ? meta.thematicRows
+    : buildDefaultThematicRows(rows, groups, meta.fach, meta.thema);
+  const thematicByKey = new Map(effThematic.map((t) => [t.key, t]));
+  const narrativeMd =
+    meta.elaboration && meta.elaboration.trim()
+      ? meta.elaboration.trim()
+      : buildStructuredLessonText(arrangement, rows, effThematic, groups, meta);
+  const allGeneratedMaterials =
+    meta.generatedMaterials ?? rows.flatMap((r) => r.generatedMaterials);
+
+  const matrixSummary = groups
+    .filter((g) => g.active)
+    .map((g) => {
+      const scored = scoreDifferentiationMatrix({
+        personaId: g.personaId,
+        selectedValues: g.matrixValues,
+        limit: 8
+      });
+      return {
+        group_id: g.id,
+        group_label: g.label,
+        ...(g.count ? { count: g.count } : {}),
+        ...(g.personaId ? { persona_id: g.personaId } : {}),
+        top_measures: scored.topRecommendations.map((r) => ({ id: r.id, name: r.name, score: r.score }))
+      };
+    });
+
   return {
     '@type': 'NeutralLearningScenario',
     schemaVersion: '1.5-fmt-imsld',
@@ -584,6 +754,9 @@ export function buildNeutralLearningScenario(
       ...(meta.didaktischerAnsatz ? { didacticApproach: meta.didaktischerAnsatz } : {}),
       ...(meta.lehrkraefteInfo ? { teachersAndStaff: meta.lehrkraefteInfo } : {}),
       ...(meta.totalLearners ? { totalLearners: meta.totalLearners } : {}),
+      ...(meta.lernziele?.trim() ? { learningObjectives: meta.lernziele.trim() } : {}),
+      ...(meta.problemstellung?.trim() ? { problemStatement: meta.problemstellung.trim() } : {}),
+      ...(meta.hinweise?.trim() ? { notes: meta.hinweise.trim() } : {}),
       educationalLevel: arrangement.kontext?.bildungsstufe
         ? meta.labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
         : 'nicht angegeben',
@@ -660,6 +833,20 @@ export function buildNeutralLearningScenario(
         }))
       }
     ],
+    generated_content: {
+      narrative_lesson_plan_markdown: narrativeMd,
+      narrative_source: meta.elaboration && meta.elaboration.trim() ? 'ki' : 'strukturiert',
+      thematic_table: effThematic,
+      generated_materials: allGeneratedMaterials.map((m) => ({
+        id: m.id,
+        step_key: m.stepKey,
+        title: m.title,
+        material_type: m.materialType,
+        content_markdown: m.content,
+        created_at: m.createdAt
+      })),
+      differentiation_matrix_results: matrixSummary
+    },
     fmt_arrangement: arrangement
   };
 }
