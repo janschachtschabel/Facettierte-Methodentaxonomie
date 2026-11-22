@@ -25,7 +25,7 @@ Eine offene, maschinenlesbare **Datenbank für 240 Unterrichtsmethoden** im deut
 
 1. Im Hostinger Docker Manager → **Compose** → **Compose from URL** folgende URL einfügen:
    `https://github.com/janschachtschabel/Facettierte-Methodentaxonomie`
-2. Anwendungsnamen übernehmen und **bereitstellen** (erster Deploy gelingt sofort ohne Variablen, nutzt das vorgebaute GHCR-Image `ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest` hinter Hostingers Traefik).
+2. Anwendungsnamen übernehmen und **bereitstellen** (erster Deploy gelingt sofort ohne Variablen, nutzt das vorgebaute Docker-Hub-Image `janschachtschabel/fmt-methodendatenbank:latest` hinter Hostingers Traefik).
 3. Projekt bearbeiten → in `.env` den reinen Hostnamen (ohne `https://`) setzen:
    `DOMAIN=methoden.deine-domain.de` (oder `srvNNNNNN.hstgr.cloud`) → erneut bereitstellen. Traefik holt das Let's-Encrypt-Zertifikat automatisch.
 4. Optional: `LLM_API_KEY` leer lassen (Zero-LLM-Standard, `< 5 ms`); Endnutzer können jederzeit in der App unter **⚙ KI-Einstellungen** ihre eigene OpenAI-kompatible KI (OpenAI, Mistral, Gemini, GWDG, OpenRouter, Ollama, LM Studio …) eintragen.

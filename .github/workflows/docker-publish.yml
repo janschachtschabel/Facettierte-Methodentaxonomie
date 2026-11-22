@@ -1,4 +1,4 @@
-name: Publish Docker Image (GHCR)
+name: Publish Docker Image (Docker Hub & GHCR)
 
 on:
   push:
@@ -13,7 +13,29 @@ permissions:
   packages: write
 
 jobs:
-  docker:
+  verify:
+    name: Verify Build & Tests before Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install, build & test
+        run: |
+          npm ci
+          npm run build
+          npm test
+          docker compose --env-file .env.example -f docker-compose.yml config -q
+
+  publish:
+    name: Build & Push Multi-Arch Image
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,24 +44,45 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to Docker Hub
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Prepare target image list
+        id: targets
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          {
+            echo "images<<EOF"
+            echo "ghcr.io/janschachtschabel/facettierte-methodentaxonomie"
+            if [ -n "$DOCKERHUB_USER" ]; then
+              echo "${DOCKERHUB_USER}/fmt-methodendatenbank"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/janschachtschabel/facettierte-methodentaxonomie
+          images: ${{ steps.targets.outputs.images }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
             type=semver,pattern={{version}}
 
-      - name: Build and push Docker image
+      - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v6
         with:
           context: .

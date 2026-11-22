@@ -1,0 +1,87 @@
+name: CI (Build, Tests & Hostinger Docker Check)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Testsuite (@fmt/core, @fmt/server, @fmt/web)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all workspaces & data artefacts
+        run: npm run build
+
+      - name: Run full Vitest suite
+        run: npm test
+
+      - name: Validate Hostinger Docker Compose configs
+        run: |
+          docker compose -f docker-compose.yml config -q
+          docker compose --env-file .env.example -f docker-compose.yml config -q
+          docker compose -f docker-compose.build.yml config -q
+          node -e "
+            const fs = require('node:fs');
+            const raw = fs.readFileSync('docker-compose.yml', 'utf8');
+            if (raw.includes('\t')) throw new Error('Tabs found in docker-compose.yml');
+            if (raw.includes('<<:')) throw new Error('YAML anchor merge found in docker-compose.yml');
+            if (/\\$\\{[^}]*\\$\\{/.test(raw)) throw new Error('Nested env interpolation found in docker-compose.yml');
+            if (/external:\\s*true/.test(raw)) throw new Error('external: true network found in docker-compose.yml');
+            console.log('HOSTINGER-YAML-OK');
+          "
+
+  docker-smoke-test:
+    name: Docker First-Deploy Smoke Test (Zero-Env & DOMAIN Guard)
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build local Docker image
+        run: docker build -t fmt-ci-test:local .
+
+      - name: Verify Zero-Env first-deploy startup & /healthz + /api/v1/meta
+        run: |
+          docker run -d --name fmt-smoke -p 18080:8080 --env-file .env.example fmt-ci-test:local
+          for i in $(seq 1 20); do
+            if curl -sf http://127.0.0.1:18080/healthz; then
+              break
+            fi
+            sleep 1
+          done
+          echo ""
+          META=$(curl -sf http://127.0.0.1:18080/api/v1/meta)
+          echo "$META"
+          echo "$META" | node -e "
+            const m = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));
+            if (m.llmConfigured !== false) throw new Error('Expected llmConfigured=false in zero-env mode');
+            if (!m.bausteine || m.bausteine < 250) throw new Error('Unexpected method count: ' + m.bausteine);
+            console.log('DOCKER-SMOKE-OK:', m.bausteine, 'methods, engine=' + m.embeddingsEngine);
+          "
+          docker rm -f fmt-smoke
+
+      - name: Verify invalid DOMAIN=https://... fails loudly on startup
+        run: |
+          if docker run --rm -e DOMAIN=https://bad.example.de fmt-ci-test:local; then
+            echo "ERROR: Container should have rejected DOMAIN with https://"
+            exit 1
+          fi
+          echo "DOMAIN-GUARD-OK"
