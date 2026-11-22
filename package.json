@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build:data": "npm -w @fmt/core run build && npm -w @fmt/core run build:artefacts",
+    "download:m2v": "node scripts/download-m2v.mjs",
     "check:links": "tsx packages/fmt-core/scripts/check-links.ts",
     "build": "npm run build:data && npm -w @fmt/web run build && npm -w @fmt/server run build",
     "test": "npm -w @fmt/core test && npm -w @fmt/server test && npm -w @fmt/web test",

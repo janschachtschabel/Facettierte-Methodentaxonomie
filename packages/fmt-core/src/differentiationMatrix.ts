@@ -351,3 +351,150 @@ export function suggestAlternativeMethodsForGroup(
     grund: x.grund
   }));
 }
+
+export interface DetectedMatrixTrait {
+  categoryId: string;
+  valueId: string;
+  label: string;
+  trigger: string;
+}
+
+export interface MatrixTraitDetectionResult {
+  selectedValues: Record<string, string>;
+  signals: DetectedMatrixTrait[];
+  suggestedPersonaId: string | null;
+  matrixScore: MatrixScoreResult | null;
+}
+
+const MATRIX_TRAIT_RULES: Array<{
+  re: RegExp;
+  traits: Array<{ categoryId: string; valueId: string; label: string }>;
+  personaHint?: string;
+}> = [
+  {
+    re: /\b(?:daz|deutsch als zweitsprache|sprachsensib\w*|sprachfoerder\w*|sprachförder\w*|geringe\s+sprach\w*|wenig\s+deutsch|mehrsprachig\w*|nicht-?muttersprach\w*)/i,
+    personaHint: 'languageAndCulture',
+    traits: [
+      { categoryId: 'sprachkompetenz', valueId: 'sprachkompetenz-gering', label: 'Geringe Sprachkompetenz (DaZ / Sprachförderung)' },
+      { categoryId: 'foerderbedarf-sprache', valueId: 'foerderbedarf-sprache-erheblich', label: 'Sprachlicher Förderbedarf' },
+      { categoryId: 'ausdrucksfaehigkeit', valueId: 'ausdrucksfaehigkeit-eingeschraenkt', label: 'Eingeschränkte Fachsprache' }
+    ]
+  },
+  {
+    re: /\b(?:lrs|legasthen\w*|lese-?rechtschreib\w*|leseschw[aä]ch\w*)/i,
+    personaHint: 'foerderLernen',
+    traits: [
+      { categoryId: 'ausdrucksfaehigkeit', valueId: 'ausdrucksfaehigkeit-eingeschraenkt', label: 'LRS / Lese-Rechtschreib-Unterstützung' },
+      { categoryId: 'foerderbedarf-sprache', valueId: 'foerderbedarf-sprache-gelegentlich', label: 'Sprach-/Leseunterstützung' },
+      { categoryId: 'sensorische', valueId: 'sensorische-multimodal', label: 'Multimodale Darstellung bevorzugen' }
+    ]
+  },
+  {
+    re: /\b(?:adhs|ads\b|konzentrations\w*|unruhig\w*|ablenkbar\w*|kurze\s+aufmerksamkeit)/i,
+    personaHint: 'foerderEmSoz',
+    traits: [
+      { categoryId: 'strukturierung', valueId: 'strukturierung-stark', label: 'Hoher Strukturierungsbedarf (ADHS / Fokus)' },
+      { categoryId: 'foerderbedarf-emotional-sozial', valueId: 'foerderbedarf-emotional-sozial-gelegentlich', label: 'Fokus- & Selbstregulationshilfe' },
+      { categoryId: 'engagement', valueId: 'engagement-gering', label: 'Kurze, aktivierende Takte nötig' }
+    ]
+  },
+  {
+    re: /\b(?:autismus|autist\w*|ass\b|asperger)/i,
+    personaHint: 'foerderEmSoz',
+    traits: [
+      { categoryId: 'foerderbedarf-autismus', valueId: 'foerderbedarf-autismus-deutlich', label: 'Förderbedarf Autismus-Spektrum' },
+      { categoryId: 'strukturierung', valueId: 'strukturierung-stark', label: 'Klare, vorhersehbare Strukturierung' }
+    ]
+  },
+  {
+    re: /\b(?:f[oö]rderbedarf\s+lernen|lernschwach\w*|lernschwierig\w*|inklusion|inklusiv\w*|langsames?\s+(?:lern)?tempo)/i,
+    personaHint: 'foerderLernen',
+    traits: [
+      { categoryId: 'foerderbedarf-lernen', valueId: 'foerderbedarf-lernen-umfassend', label: 'Förderbedarf Lernen' },
+      { categoryId: 'denkverarbeitung', valueId: 'denkverarbeitung-langsam', label: 'Mehr Bearbeitungszeit / Kleinschrittigkeit' },
+      { categoryId: 'strukturierung', valueId: 'strukturierung-stark', label: 'Starke Strukturierung & Hilfekarten' }
+    ]
+  },
+  {
+    re: /\b(?:emotional-?sozial|verhaltensauff[aä]llig\w*|konfliktreich\w*|sozial\w*\s+schwierig\w*)/i,
+    personaHint: 'foerderEmSoz',
+    traits: [
+      { categoryId: 'foerderbedarf-emotional-sozial', valueId: 'foerderbedarf-emotional-sozial-deutlich', label: 'Emotional-soziale Unterstützung' },
+      { categoryId: 'soziale-kompetenzen', valueId: 'soziale-kompetenzen-eingeschraenkt', label: 'Klare Rollen & Gesprächsregeln' }
+    ]
+  },
+  {
+    re: /\b(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*|geh[oö]rlos\w*)/i,
+    traits: [
+      { categoryId: 'foerderbedarf-hoeren', valueId: 'foerderbedarf-hoeren-beeintraechtigung', label: 'Hörbeeinträchtigung (visuelle Sicherung)' },
+      { categoryId: 'sensorische', valueId: 'sensorische-visuell', label: 'Visuelle Unterstützung priorisieren' }
+    ]
+  },
+  {
+    re: /\b(?:sehbeeintr[aä]cht\w*|sehbehindert\w*|blind\w*)/i,
+    traits: [
+      { categoryId: 'foerderbedarf-sehen', valueId: 'foerderbedarf-sehen-deutlich', label: 'Sehbeeinträchtigung (Kontrast / Audio)' },
+      { categoryId: 'sensorische', valueId: 'sensorische-auditiv', label: 'Auditive/taktile Zugänge stärken' }
+    ]
+  },
+  {
+    re: /\b(?:k[oö]rperlich\w*\s+beeintr|rollstuhl|motorisch\w*\s+einschr)/i,
+    traits: [
+      { categoryId: 'foerderbedarf-koerperlich', valueId: 'foerderbedarf-koerperlich-deutlich', label: 'Barrierefreie Bewegungs- & Raumgestaltung' }
+    ]
+  },
+  {
+    re: /\b(?:hochbegabt\w*|leistungsstark\w*|sehr\s+schnell\w*|unterfordert\w*|begabungsf[oö]rder\w*)/i,
+    personaHint: 'highPerforming',
+    traits: [
+      { categoryId: 'leistungsniveau', valueId: 'leistungsniveau-hoch', label: 'Hohes Leistungsniveau' },
+      { categoryId: 'denkverarbeitung', valueId: 'denkverarbeitung-schnell', label: 'Hohes Arbeitstempo (Transfer/Enrichment)' },
+      { categoryId: 'vorwissen', valueId: 'vorwissen-hoch', label: 'Hohes Vorwissen' }
+    ]
+  },
+  {
+    re: /\b(?:unmotiviert\w*|wenig\s+motivation|geringe\s+motivation|desinteress\w*|m[uü]de\s+klasse)/i,
+    traits: [
+      { categoryId: 'engagement', valueId: 'engagement-gering', label: 'Geringe Ausgangsmotivation (Lebensweltbezug stärken)' },
+      { categoryId: 'interessen', valueId: 'interessen-desinteresse', label: 'Interesse aktivierend wecken' }
+    ]
+  },
+  {
+    re: /\b(?:kein\w*|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)/i,
+    traits: [
+      { categoryId: 'vorwissen', valueId: 'vorwissen-gering', label: 'Geringes Vorwissen' }
+    ]
+  }
+];
+
+/**
+ * Deterministically maps heterogeneity, language, motivation, and inclusion cues from free text
+ * onto the 115 exact traits of the Binnendifferenzierungsmatrix (zero LLM required).
+ */
+export function detectMatrixTraitsFromText(text: string): MatrixTraitDetectionResult {
+  const raw = (text || '').trim();
+  const selectedValues: Record<string, string> = {};
+  const signals: DetectedMatrixTrait[] = [];
+  let suggestedPersonaId: string | null = null;
+
+  if (!raw) {
+    return { selectedValues, signals, suggestedPersonaId, matrixScore: null };
+  }
+
+  for (const rule of MATRIX_TRAIT_RULES) {
+    const m = rule.re.exec(raw);
+    if (!m) continue;
+    if (!suggestedPersonaId && rule.personaHint) suggestedPersonaId = rule.personaHint;
+    for (const t of rule.traits) {
+      if (!(t.categoryId in selectedValues)) {
+        selectedValues[t.categoryId] = t.valueId;
+        signals.push({ ...t, trigger: m[0].trim() });
+      }
+    }
+  }
+
+  const matrixScore =
+    Object.keys(selectedValues).length > 0 ? scoreDifferentiationMatrix({ selectedValues, limit: 6 }) : null;
+
+  return { selectedValues, signals, suggestedPersonaId, matrixScore };
+}

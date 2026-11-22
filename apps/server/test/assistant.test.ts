@@ -387,5 +387,42 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
       payload: {}
     });
     expect(badWlo.statusCode).toBe(400);
+
+    // Zero-LLM material template generation works cleanly without any API key (200 deterministisch)
+    const zeroKeyMat = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/material',
+      payload: {
+        baustein: 'vbe',
+        fach: 'Physik',
+        thema: 'Dichte von Stoffen',
+        materialTyp: 'versuchsanleitung',
+        gruppen: [{ label: 'Basis', profile: 'DaZ', matrixMeasures: ['Visuelle Medien', 'Satzstarter'] }]
+      }
+    });
+    expect(zeroKeyMat.statusCode).toBe(200);
+    expect(zeroKeyMat.json().quelle).toBe('deterministisch');
+    expect(zeroKeyMat.json().material).toContain('Beobachtungs- & Versuchsanleitung');
+    expect(zeroKeyMat.json().material).toContain('Visuelle Medien');
+
+    // Zero-LLM hybrid free-text classification endpoint (/api/v1/classify)
+    const cls = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/classify',
+      payload: {
+        text: 'Kooperatives und spielerisches Lernen mit 2 x 45 Minuten in der 7. Klasse, viele DaZ-Kinder und ein Schüler mit ADHS, Partnerarbeit ohne Vorbereitung'
+      }
+    });
+    expect(cls.statusCode).toBe(200);
+    const cj = cls.json();
+    expect(cj.kriterien.zeitMin).toBe(90);
+    expect(cj.kriterien.bildungsstufe).toBe('sek1');
+    expect(cj.kriterien.ansatz).toContain('kooperativ');
+    expect(cj.kriterien.ansatz).toContain('spiel-simulation');
+    expect(cj.kriterien.interaktion).toContain('partner');
+    expect(cj.kriterien.maxVorbereitung).toBe(5);
+    expect(cj.matrixMerkmale.selectedValues.sprachkompetenz).toBe('sprachkompetenz-gering');
+    expect(cj.matrixMerkmale.selectedValues.strukturierung).toBe('strukturierung-stark');
+    expect(cj.methodenVorschlaege.length).toBeGreaterThan(0);
   });
 });

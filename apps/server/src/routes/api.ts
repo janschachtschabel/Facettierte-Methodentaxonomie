@@ -66,6 +66,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
+      embeddingsEngine: store.model2vec ? 'hybrid-model2vec' : 'hybrid-bm25-trigram',
+      embeddingsModel: store.model2vec ? store.model2vec.modelId : null,
       mcpEndpoint: '/mcp'
     };
   });
@@ -167,6 +169,15 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     } catch (e) {
       return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiger Pfad.' });
     }
+  });
+
+  app.post('/api/v1/classify', async (req, reply) => {
+    const body = req.body as { text?: string } | null;
+    const text = typeof body?.text === 'string' ? body.text.trim() : '';
+    if (!text) {
+      return reply.code(400).send({ fehler: 'Bitte ein Feld "text" zur Klassifikation übergeben.' });
+    }
+    return store.classifyText(text);
   });
 
   app.post('/api/v1/differentiation/score', async (req) => {

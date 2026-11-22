@@ -3,15 +3,35 @@ import path from 'node:path';
 import {
   createMatcher,
   createSearch,
+  createSemanticClassifier,
   createValidator,
+  detectMatrixTraitsFromText,
   type Arrangement,
   type Baustein,
   type CatalogBundle,
   type FmtData,
   type FmtMatcher,
   type FmtSearch,
-  type FmtValidator
+  type FmtSemanticClassifier,
+  type FmtValidator,
+  type MatrixTraitDetectionResult,
+  type ScaleHit,
+  type ScaleName,
+  type SemanticMethodHit
 } from '@fmt/core';
+import { loadModel2VecClassifier, type Model2VecClassifier } from './embeddings/model2vec.js';
+
+export interface HybridTextClassification {
+  engine: 'hybrid-model2vec' | 'hybrid-bm25-trigram';
+  modelId: string | null;
+  dauerMs: number;
+  kriterien: Record<string, unknown>;
+  erkannt: Array<{ feld: string; wert: unknown; beleg: string }>;
+  offen: string[];
+  skalen: Record<ScaleName, ScaleHit[]>;
+  methodenVorschlaege: SemanticMethodHit[];
+  matrixMerkmale: MatrixTraitDetectionResult;
+}
 
 export interface CatalogStore {
   bundle: CatalogBundle;
@@ -21,6 +41,9 @@ export interface CatalogStore {
   validator: FmtValidator;
   search: FmtSearch;
   matcher: FmtMatcher;
+  semantic: FmtSemanticClassifier;
+  model2vec: Model2VecClassifier | null;
+  classifyText: (text: string) => HybridTextClassification;
   blocksById: Map<string, Baustein>;
   exampleRegistry: Map<string, Arrangement>;
   vocabsTtl: Map<string, string>;
@@ -57,6 +80,81 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
   const validator = createValidator(data);
   const search = createSearch(data, validator);
   const matcher = createMatcher(data, validator);
+  const semantic = createSemanticClassifier(data);
+
+  // Auto-load optional local Model2Vec static embeddings (e.g. JanSchachtschabel/m2v-qwen3-4b-256-edu)
+  let model2vec: Model2VecClassifier | null = null;
+  const candidateM2vDir =
+    process.env.FMT_M2V_MODEL_DIR || path.resolve(distDataDir, '..', 'models', 'm2v-qwen3-4b-256-edu');
+  if (candidateM2vDir && process.env.FMT_M2V_MODEL_DIR !== 'none') {
+    try {
+      model2vec = loadModel2VecClassifier(candidateM2vDir, data);
+    } catch {
+      model2vec = null;
+    }
+  }
+
+  const scales: ScaleName[] = ['ansatz', 'lernfunktion', 'anleitung', 'engagement', 'interaktion', 'reichweite'];
+  const classifyText = (text: string): HybridTextClassification => {
+    const t0 = Date.now();
+    const parsed = matcher.lesen(text);
+    const bmRes = semantic.classifyScales(text);
+    const m2vRes = model2vec ? model2vec.classifyScales(text) : null;
+
+    // Ensemble BM25+Trigram with Model2Vec when local model is loaded (best of lexical + semantic recall!)
+    const skalen = {} as Record<ScaleName, ScaleHit[]>;
+    for (const s of scales) {
+      if (!m2vRes) {
+        skalen[s] = bmRes.scales[s];
+        continue;
+      }
+      const fused = new Map<string, { code: string; label: string; score: number }>();
+      for (const h of bmRes.scales[s]) {
+        fused.set(h.code, { code: h.code, label: h.label, score: h.score * 0.55 });
+      }
+      for (const h of m2vRes.scales[s]) {
+        const prev = fused.get(h.code);
+        if (prev) prev.score += h.score * 0.65;
+        else fused.set(h.code, { code: h.code, label: h.label, score: h.score * 0.65 });
+      }
+      skalen[s] = [...fused.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map((x) => ({ ...x, score: Math.round(Math.min(1, x.score) * 100) / 100 }));
+    }
+
+    // Fuse top method suggestions
+    const bmMethods = semantic.rankMethods(text, 10);
+    let methodenVorschlaege = bmMethods.slice(0, 8);
+    if (model2vec) {
+      const m2vMethods = model2vec.rankMethods(text, 10);
+      const fusedM = new Map<string, SemanticMethodHit>();
+      for (const m of bmMethods) fusedM.set(m.kennung, { ...m, score: m.score * 0.55 });
+      for (const m of m2vMethods) {
+        const prev = fusedM.get(m.kennung);
+        if (prev) prev.score += m.score * 0.65;
+        else fusedM.set(m.kennung, { ...m, score: m.score * 0.65 });
+      }
+      methodenVorschlaege = [...fusedM.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8)
+        .map((x) => ({ ...x, score: Math.round(Math.min(1, x.score) * 100) / 100 }));
+    }
+
+    const matrixMerkmale = detectMatrixTraitsFromText(text);
+    return {
+      engine: model2vec ? 'hybrid-model2vec' : 'hybrid-bm25-trigram',
+      modelId: model2vec ? model2vec.modelId : null,
+      dauerMs: Date.now() - t0,
+      kriterien: parsed.kriterien,
+      erkannt: parsed.erkannt,
+      offen: parsed.offen,
+      skalen,
+      methodenVorschlaege,
+      matrixMerkmale
+    };
+  };
+
   const blocksById = new Map<string, Baustein>(bundle.bausteine.map((b) => [b.kennung, b]));
   const exampleRegistry = new Map<string, Arrangement>(
     bundle.beispiele.filter((a) => Boolean(a['@id'])).map((a) => [a['@id']!, a])
@@ -91,6 +189,9 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     validator,
     search,
     matcher,
+    semantic,
+    model2vec,
+    classifyText,
     blocksById,
     exampleRegistry,
     vocabsTtl,

@@ -76,6 +76,7 @@ export interface MaterialPayload {
   thema?: string;
   bildungsstufe?: string;
   materialTyp?: string;
+  mode?: 'ki' | 'template';
   gruppen?: Array<{ label: string; profile: string; count?: number; matrixMeasures?: string[] }>;
   hinweise?: string;
 }
@@ -634,27 +635,140 @@ export async function generateMaterialCore(
   }
 
   const materialTyp = body.materialTyp || 'arbeitsblatt';
-  const target = resolveLlmTarget(config, override);
+  const target = body.mode === 'template' ? null : resolveLlmTarget(config, override);
   if (!target) {
+    const fachLabel = body.fach?.trim() || 'Unterricht';
+    const themaLabel = body.thema?.trim() || block.name;
+    const dauer = body.dauerMin || block.dauerMin;
+    const stufe = body.bildungsstufe || 'Sekundarstufe I';
+    const steps = block.durchfuehrung || [];
+    const cores = (block.kernkomponente || []).map((k) => k.name);
+    const risks = block.qualitaetsrisiko || [];
+
+    const typeHeading: Record<string, string> = {
+      arbeitsblatt: 'Gestuftes Arbeitsblatt',
+      infoblatt: 'Strukturiertes Infoblatt',
+      quiz: 'Kurz-Quiz / Abruftest (ohne Notendruck)',
+      checkliste: 'Schritt-für-Schritt-Checkliste',
+      versuchsanleitung: 'Beobachtungs- & Versuchsanleitung',
+      diskussionskarten: 'Diskussions- & Impulskarten',
+      glossar: 'Fachbegriffs-Glossar & Satzstarter'
+    };
+
+    const bodySections: string[] = [];
+    if (materialTyp === 'versuchsanleitung') {
+      bodySections.push(
+        '## 1. Fragestellung & eigene Vorhersage',
+        `- **Leitfrage zum Thema „${themaLabel}“:** _[Konkrete Beobachtungs- oder Forschungsfrage ergänzen]_`,
+        '- **Meine Vorhersage vor dem Versuch:** Ich vermute, dass ________________________, weil ________________________.',
+        '',
+        '## 2. Materialien & Durchführung',
+        ...(block.material?.length ? [`- **Benötigtes Material:** ${block.material.join(', ')}`] : []),
+        ...steps.map((s, i) => `${i + 1}. ${s}`),
+        '',
+        '## 3. Beobachtung & Erklärung',
+        '| Beobachtung / Messwert | Vergleich mit Vorhersage | Fachliche Erklärung |',
+        '|---|---|---|',
+        '| | | |',
+        '| | | |'
+      );
+    } else if (materialTyp === 'quiz') {
+      bodySections.push(
+        '## Abruf- & Diagnosefragen (ohne Notendruck)',
+        `Bearbeite die Fragen zu **${themaLabel}** zunächst allein aus dem Gedächtnis (ca. ${Math.min(10, dauer)} min).`,
+        '',
+        `1. **Basisfrage (AFB I):** Nenne zwei zentrale Merkmale oder Begriffe zu „${themaLabel}“.`,
+        `2. **Verständnisfrage (AFB II):** Erkläre in eigenen Worten den Zusammenhang bei „${themaLabel}“ anhand eines Beispiels.`,
+        `3. **Typische Fehlvorstellung prüfen (AFB II):** Prüfe folgende Aussage auf Richtigkeit und begründe kurz: _[Typische Fehlvorstellung zu ${themaLabel} einfügen]_`,
+        `4. **Transferfrage (AFB III):** Übertrage das Prinzip auf eine neue Alltagssituation.`,
+        '',
+        '## Selbstcheck & Musterlösung (für die Auswertung)',
+        '- **Abgleich:** Markiere sichere Antworten (✓) und offene Punkte (?) für die nächste Wiederholung.'
+      );
+    } else if (materialTyp === 'checkliste') {
+      bodySections.push(
+        `## Schritt-für-Schritt-Checkliste (${block.name})`,
+        ...steps.map((s) => `- [ ] ${s}`),
+        ...cores.map((c) => `- [ ] Qualitätskriterium beachtet: **${c}**`),
+        '',
+        '## Abschluss-Check',
+        `- [ ] Ich kann die Kernaussage zu **${themaLabel}** in 2 Sätzen erklären.`,
+        '- [ ] Offene Frage für die Sicherungsphase notiert: ________________________'
+      );
+    } else if (materialTyp === 'diskussionskarten') {
+      bodySections.push(
+        `## Impuls- & Rollenkarten zu „${themaLabel}“`,
+        '> **Karte 1 – Pro / Befürwortung:** Sammle 2 sachliche Argumente und ein konkretes Beispiel für die These.',
+        '> **Karte 2 – Contra / Einwand:** Formuliere 2 begründete Gegenargumente oder Risiken.',
+        '> **Karte 3 – Praxis / Alltag:** Zeige, wie sich das Thema im Alltag oder in der Region auswirkt.',
+        '> **Karte 4 – Moderation & Zusammenfassung:** Achte auf faire Redezeit und fasse am Ende die stärksten Punkte zusammen.',
+        '',
+        '## Gesprächsablauf',
+        ...steps.map((s, i) => `${i + 1}. ${s}`)
+      );
+    } else if (materialTyp === 'glossar') {
+      bodySections.push(
+        `## Fachbegriffs-Glossar zu „${themaLabel}“`,
+        '| Fachbegriff | Erklärung in eigenen Worten | Beispiel / Skizze |',
+        '|---|---|---|',
+        `| _Begriff 1 (${themaLabel})_ | | |`,
+        '| _Begriff 2_ | | |',
+        '| _Begriff 3_ | | |',
+        '',
+        '## Sprachsensible Satzstarter',
+        '- *„Mir fällt bei … auf, dass …“*',
+        '- *„Ich vermute …, weil …“*',
+        '- *„Im Vergleich zu … zeigt sich, dass …“*',
+        '- *„Zusammenfassend lässt sich sagen, dass …“*'
+      );
+    } else if (materialTyp === 'infoblatt') {
+      bodySections.push(
+        `## Kernkonzepte zu „${themaLabel}“`,
+        `- **Leitidee (${fachLabel}):** _[Zentrale Erklärung oder Definition zu „${themaLabel}“ ergänzen]_`,
+        `- **Warum ist das wichtig?** ${block.problem || 'Hilft, fachliche Zusammenhänge sicher zu durchdringen.'}`,
+        '',
+        '## Leitfragen zum Verstehen',
+        ...steps.slice(0, 3).map((s, i) => `${i + 1}. ${s} *(bezogen auf ${themaLabel})*`),
+        '',
+        '## Merksatz & Beispiel',
+        `> **Merke:** _[Prägnanter Merksatz oder Formel zu „${themaLabel}“]_`
+      );
+    } else {
+      // Gestuftes Arbeitsblatt (default)
+      bodySections.push(
+        `## Arbeitsauftrag (${block.name} am Thema „${themaLabel}“)`,
+        ...steps.map((s, i) => `${i + 1}. ${s}`),
+        '',
+        '## Gestufte Aufgaben',
+        `- **★ Basis (Einstieg & Sicherung):** Nutze die Vorlage / Satzstarter und bearbeite den ersten Teilauftrag zu *${themaLabel}*.`,
+        `- **★★ Regel (Kernanforderung):** Bearbeite die Hauptaufgabe zu *${themaLabel}* vollständig und begründe deinen Lösungsweg.`,
+        `- **★★★ Vertiefung (Transfer):** Übertrage dein Ergebnis auf ein neues Alltagsbeispiel oder prüfe einen möglichen Denkfehler.`
+      );
+    }
+
     const template = [
-      `# ${block.name} – ${materialTyp} (${body.fach || 'Unterricht'}: ${body.thema || 'Thema'})`,
+      `# ${typeHeading[materialTyp] || materialTyp}: ${fachLabel} – ${themaLabel}`,
       '',
-      `- **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${body.dauerMin || block.dauerMin} min · **Stufe:** ${body.bildungsstufe || 'Sekundarstufe I'}`,
+      `**Methode:** ${block.name} · **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${dauer} min · **Stufe:** ${stufe}`,
+      ...(body.hinweise ? ['', `> **Zusatzauftrag:** ${body.hinweise}`] : []),
       '',
-      '## Arbeitsauftrag (auf Basis FMT-Methode)',
-      ...(block.durchfuehrung || []).map((s, i) => `${i + 1}. ${s}`),
+      ...bodySections,
       '',
       ...(body.gruppen?.length
         ? [
-          '## Binnendifferenzierung',
-          ...body.gruppen.map(
-            (g) => `- **${g.label}${g.count ? ` (${g.count} Pers.)` : ''}:** ${g.matrixMeasures?.slice(0, 2).join('; ') || g.profile}`
-          )
-        ]
+            '## Binnendifferenzierung (aus Matrix)',
+            ...body.gruppen.map(
+              (g) =>
+                `- **${g.label}${g.count ? ` (${g.count} Pers.)` : ''}:** ${g.matrixMeasures?.slice(0, 3).join('; ') || g.profile}`
+            ),
+            ''
+          ]
         : []),
+      '## Hinweise für die Lehrkraft (FMT-Katalog)',
+      ...cores.map((c) => `- **Kernkomponente:** ${c}`),
+      ...risks.map((r) => `- **Qualitätsrisiko im Blick behalten:** ${r}`),
       '',
-      '## Kernkomponenten & Hinweise für die Lehrkraft',
-      ...(block.kernkomponente || []).map((k) => `- ${k.name}`)
+      '_Struktur-Vorlage ohne LLM erzeugt (sofort bearbeitbar & isoliert druckbar) · FMT · CC BY 4.0_'
     ].join('\n');
     return { quelle: 'deterministisch', gecacht: false, material: template, baustein: block.name };
   }
@@ -1008,24 +1122,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     }
 
     const override = readByokHeaders(req, body as Record<string, unknown> | null);
-    let target;
     try {
-      target = resolveLlmTarget(config, override);
-    } catch (e) {
-      if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
-      throw e;
-    }
-
-    if (!target) {
-      return reply.code(503).send({
-        fehler: 'Für den KI-Materialgenerator ist kein LLM-API-Key konfiguriert (optional BYOK im Browser hinterlegen).'
-      });
-    }
-
-    try {
+      // Works both with LLM (fully elaborated tasks) AND without LLM (structured print-ready FMT template!)
       const res = await generateMaterialCore(store, config, override, body as MaterialPayload);
       return reply.send({ ...res, leitplanken: FMT_GUARDRAILS });
     } catch (e) {
+      if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
       return reply.code(502).send({
         fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.'
       });

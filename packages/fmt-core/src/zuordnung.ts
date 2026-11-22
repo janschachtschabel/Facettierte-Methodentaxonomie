@@ -17,6 +17,7 @@ import type {
   VocabValue
 } from './types.js';
 import type { FmtValidator } from './validate.js';
+import { createSemanticClassifier } from './semantic.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const SLOT_CANDIDATES = 8;
@@ -123,6 +124,34 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('lernfunktion')))
     },
     {
+      feld: 'anleitung',
+      typ: 'codes',
+      stufe: 2,
+      bedeutung: 'Gewünschter Anleitungsgrad (explizit, geleitet, offen)',
+      werte: opts(values(scheme('anleitung')))
+    },
+    {
+      feld: 'engagement',
+      typ: 'codes',
+      stufe: 2,
+      bedeutung: 'Gewünschter Engagementmodus (passiv, aktiv, konstruktiv, interaktiv)',
+      werte: opts(values(scheme('engagement')))
+    },
+    {
+      feld: 'interaktion',
+      typ: 'codes',
+      stufe: 2,
+      bedeutung: 'Gewünschte Sozialform / Interaktion (Einzel, Partner, Kleingruppe, Plenum)',
+      werte: opts(values(scheme('interaktion')))
+    },
+    {
+      feld: 'reichweite',
+      typ: 'codes',
+      stufe: 2,
+      bedeutung: 'Gewünschte Granularität / Reichweite (R1 Interaktion bis R4 Kurs)',
+      werte: opts(values(scheme('reichweite')))
+    },
+    {
       feld: 'liefert',
       typ: 'codes',
       stufe: 1,
@@ -224,17 +253,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       ['lernstand', 'diagnose']
     ]);
 
+  const semantic = createSemanticClassifier(data);
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
+    // Multiplicative durations first (e.g. "2 x 45 Minuten", "3 × 45 min")
+    ['zeitMin', /(\d{1,2})\s*[x×]\s*(\d{1,3})\s*(?:min\b|minuten)/, (m) => Number(m[1]) * Number(m[2])],
     ['zeitMin', /(\d{1,3})\s*(?:min\b|minuten)/, (m) => Number(m[1])],
+    ['zeitMin', /(\d{1,2})[.,]5\s*(?:unterrichts|schul)?stunden\b/, (m) => Math.round((Number(m[1]) + 0.5) * 60)],
     ['zeitMin', /(\d{1,2})\s*(?:unterrichts|schul)?stunden\b/, (m) => Number(m[1]) * 45],
     ['zeitMin', /doppelstunde/, () => 90],
     ['zeitMin', /\b(?:eine|einer|einzel|unterrichts|schul)\s?stunde\b/, () => 45],
     ['bildungsstufe', /(?:klasse|klassenstufe|jahrgang|jahrgangsstufe|jg\.?)\s*(\d{1,2})\b/, (m) => stageOfGrade(Number(m[1]))],
     ['bildungsstufe', /\b(\d{1,2})\.\s*(?:klasse|jahrgang)/, (m) => stageOfGrade(Number(m[1]))],
     ['bildungsstufe', /grundschul|primarstufe/, () => 'primar'],
-    ['bildungsstufe', /oberstufe|sekundarstufe\s*(?:ii|2)\b|sek\.?\s*(?:ii|2)\b/, () => 'sek2'],
-    ['bildungsstufe', /sekundarstufe\s*(?:i|1)\b|sek\.?\s*(?:i|1)\b|mittelstufe/, () => 'sek1'],
+    ['bildungsstufe', /oberstufe|sekundarstufe\s*(?:ii|2)\b|sek\.?\s*(?:ii|2)\b|gymnasiale\s+oberstufe/, () => 'sek2'],
+    ['bildungsstufe', /sekundarstufe\s*(?:i|1)\b|sek\.?\s*(?:i|1)\b|mittelstufe|realschule|gesamtschule|hauptschule/, () => 'sek1'],
     ['bildungsstufe', /berufsschul|berufsbildung|auszubildende|azubi/, () => 'berufsbildung'],
     ['bildungsstufe', /hochschul|studierende|universitat|vorlesung|seminar/, () => 'hochschule'],
     ['bildungsstufe', /erwachsenenbildung|volkshochschul|weiterbildung/, () => 'erwachsenenbildung'],
@@ -242,13 +275,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|anfanger/, () => 'gering'],
     ['vorwissen', /(?:viel|gut\w*|hoh\w*|solide\w*)\s+(?:vorwissen|vorkenntnis\w*)|fortgeschritten/, () => 'hoch'],
     ['vorwissen', /(?:etwas|mittler\w*)\s+(?:vorwissen|vorkenntnis\w*)|grundkenntnis/, () => 'mittel'],
-    ['maxTechnik', /ohne\s+(?:gerate|technik|digitale\s+\w+)|nur\s+(?:tafel|papier)|keine\s+(?:gerate|tablets|computer|technik)/, () => 't-keine'],
+    ['maxTechnik', /ohne\s+(?:gerate|technik|digitale\s+\w+)|nur\s+(?:tafel|papier)|keine\s+(?:gerate|tablets|computer|technik)|analog\b/, () => 't-keine'],
     ['maxTechnik', /tablets?\b|laptops?\b|ipads?\b|computerraum|endgerat/, () => 't-einzeln'],
     ['maxTechnik', /beamer|projektor|smartboard|digitale\s+tafel/, () => 't-projektion'],
     ['ohneInternet', /ohne\s+(?:internet|wlan|netz)|kein\s+(?:internet|wlan)|offline/, () => true],
     ['ohneKI', /ohne\s+ki\b|keine\s+ki\b/, () => true],
+    ['maxVorbereitung', /ohne\s+vorbereitung|sofort\s+einsetzbar|spontan/, () => 5],
+    ['maxVorbereitung', /wenig\s+vorbereitung|kurz\w*\s+vorbereitung/, () => 15],
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
     ['raumzeit', /online|distanz|videokonferenz|fernunterricht/, () => ['distanz']],
+    ['anleitung', /\b(?:offen-?entdeckend\w*|offen\w*\s+entdeck\w*|frei\s+erkund\w*|ohne\s+vorgaben)\b/, () => ['offen']],
+    ['anleitung', /\b(?:explizit\w*|kleinschrittig\w*|stark\s+gefuhrt\w*|direkt\s+angeleitet\w*)\b/, () => ['explizit']],
+    ['anleitung', /\b(?:geleitet\w*|mit\s+hilfekarten|scaffolding|mit\s+leitfragen)\b/, () => ['geleitet']],
+    ['interaktion', /\b(?:einzelarbeit|stillarbeit|allein\w*\s+arbeiten)\b/, () => ['einzel']],
+    ['interaktion', /\b(?:partnerarbeit|zu\s+zweit|tandem|paarweise)\b/, () => ['partner']],
+    ['interaktion', /\b(?:kleingruppe\w*|gruppenarbeit|teamarbeit|tischgruppe\w*)\b/, () => ['kleingruppe-kooperativ']],
+    ['interaktion', /\b(?:plenum|unterrichtsgesprach|ganze\s+klasse)\b/, () => ['plenum-lehrergeleitet']],
+    ['engagement', /\b(?:interaktiv\w*|miteinander\s+diskutier\w*|gegenseitig\s+erklar\w*)\b/, () => ['interaktiv']],
+    ['engagement', /\b(?:konstruktiv\w*|selbst\s+erstell\w*|eigen\w*\s+produkt)\b/, () => ['konstruktiv']],
+    ['reichweite', /\b(?:warm-?up|kurzer?\s+einstieg|kurze\s+aktivierung|blitzlicht|5-?10\s*min)\b/, () => ['r1']],
+    ['reichweite', /\b(?:ganzer?\s+kurs|halbjahr|schuljahr|lehrgang)\b/, () => ['r4']],
     ['zieltyp', /\bpbl\b|siebensprung|problemorientiert\w*\s+lernen|problembasiert\w*\s+lernen/, () => 'pbl-siebensprung'],
     ['zieltyp', /projektbasiert\w*|projektlernen|projektarbeit|handlungsorientiert\w*\s+projekt/, () => 'projektlernen'],
     ['zieltyp', /direkte?\s+instruktion|explicit\s+teaching|rosenshine/, () => 'direkte-instruktion'],
@@ -258,13 +304,23 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen/, () => 'fakten'],
-    ['ansatz', /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*/, () => ['forschend']],
-    ['ansatz', /kooperativ\w*|gruppenarbeit|partnerarbeit|peer-?learning/, () => ['kooperativ']],
-    ['ansatz', /direkte?\s+instruktion|lehrervortrag|explizit\w*\s+instruktion/, () => ['instruktion']],
-    ['ansatz', /offene\w*\s+unterricht|freiarbeit|stationen|werkstatt|projektbasiert\w*|projektarbeit/, () => ['offen']],
-    ['ansatz', /spielerisch\w*|gamification|planspiel|rollenspiel|simulation/, () => ['spiel-simulation']],
-    ['ansatz', /debatt\w*|diskurs\w*|diskussion/, () => ['diskurs']],
     ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|ablauf/, () => 'ablauf']
+  ];
+
+  // Multi-value approach rules covering ALL 12 FMT ansatz codes (allows combining e.g. "kooperativ und spielerisch")
+  const ANSATZ_RULES: Array<[string, RegExp]> = [
+    ['forschend', /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|hypothese\w*/],
+    ['kooperativ', /kooperativ\w*|gruppenarbeit|partnerarbeit|teamarbeit|peer-?learning|jigsaw|gruppenpuzzle/],
+    ['instruktion', /direkte?\s+instruktion|lehrervortrag|explizit\w*\s+instruktion|darbietend\w*|vormachen/],
+    ['offen', /offene\w*\s+unterricht|freiarbeit|stationen|werkstatt|wochenplan|projektbasiert\w*|projektarbeit/],
+    ['spiel-simulation', /spielerisch\w*|gamification|planspiel|rollenspiel|simulation|spiel\b|quizspiel/],
+    ['diskurs', /debatt\w*|diskurs\w*|diskussion|pro-?contra|streitgesprach|argumentier\w*/],
+    ['kreativ', /kreativ\w*|brainstorming|ideen\s+sammeln|erfinden|design\s+thinking|geschichten\s+schreiben/],
+    ['visualisierung', /visualisier\w*|mindmap|mind-?map|concept-?map|plakat|sketchnote\w*|schaubild|diagramm|strukturlegen/],
+    ['uebung', /intensiv\w*\s+uben|trainier\w*|automatisier\w*|abrufubung|rechenverfahren\s+uben|festigen/],
+    ['diagnose-feedback', /diagnose|lernstand\w*|kurztest|abfrage|peer-?feedback|ruckmeldung\s+einholen/],
+    ['reflexion', /reflexion|reflektier\w*|lerntagebuch|portfolio|selbsteinschatzung|lernprozess\s+bilanzier/],
+    ['digital-ki', /digital\w*\s+lern\w*|ki-?tutor|ki-?gestutzt|podcast|erklarvideo|stop-?motion|wiki\b|interaktiv\w*\s+whiteboard/]
   ];
 
   function lesen(text: string) {
@@ -281,6 +337,23 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const m = re.exec(t);
       if (m) take(feld, fn(m), m[0].trim());
     });
+
+    // Collect all matched approaches (multi-label!)
+    const ansatzHits: Array<{ code: string; beleg: string }> = [];
+    for (const [code, re] of ANSATZ_RULES) {
+      const m = re.exec(t);
+      if (m && !ansatzHits.some((x) => x.code === code)) {
+        ansatzHits.push({ code, beleg: m[0].trim() });
+      }
+    }
+    if (ansatzHits.length) {
+      take(
+        'ansatz',
+        ansatzHits.map((x) => x.code),
+        ansatzHits.map((x) => x.beleg).join(', ')
+      );
+    }
+
     const fns: Array<{ code: string; beleg: string; at: number }> = [];
     functionWords.forEach(([word, code]) => {
       const m = new RegExp('\\b' + word + '\\w*').exec(t);
@@ -290,6 +363,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       fns.sort((x, y) => x.at - y.at);
       take('lernfunktion', fns.map((x) => x.code), fns.map((x) => x.beleg).join(', '));
     }
+
+    // Zero-LLM semantic scale fallback (BM25 + German trigrams) for casual phrasings missed by exact regexes
+    if (t.length >= 12) {
+      const sem = semantic.classifyScales(text);
+      if (!('ansatz' in kriterien) && sem.scales.ansatz[0] && sem.scales.ansatz[0].score >= 0.55) {
+        take('ansatz', [sem.scales.ansatz[0].code], `semantisch: ${sem.scales.ansatz[0].label}`);
+      }
+      if (!('lernfunktion' in kriterien) && !('zieltyp' in kriterien) && sem.scales.lernfunktion[0] && sem.scales.lernfunktion[0].score >= 0.65) {
+        take('lernfunktion', [sem.scales.lernfunktion[0].code], `semantisch: ${sem.scales.lernfunktion[0].label}`);
+      }
+      if (!('anleitung' in kriterien) && sem.scales.anleitung[0] && sem.scales.anleitung[0].score >= 0.72) {
+        take('anleitung', [sem.scales.anleitung[0].code], `semantisch: ${sem.scales.anleitung[0].label}`);
+      }
+    }
+
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))
       .map((f) => f.feld)
       .filter((f) => !(f === 'zieltyp' && 'zielart' in kriterien) && !(f === 'zielart' && 'zieltyp' in kriterien));
@@ -329,10 +417,23 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const wantedAnsatz = list(a.ansatz);
     const ansatzPenalty =
       wantedAnsatz.length === 0 ? 0 : wantedAnsatz.some((code) => (b.ansatz || []).includes(code)) ? 0 : 1;
+    const wantedGuidance = list(a.anleitung);
+    const guidancePenalty =
+      wantedGuidance.length === 0 ? 0 : wantedGuidance.some((code) => (b.anleitung || []).includes(code)) ? 0 : 1;
+    const wantedInter = list(a.interaktion);
+    const interPenalty =
+      wantedInter.length === 0 ? 0 : wantedInter.some((code) => (b.interaktion || []).includes(code)) ? 0 : 1;
+    const wantedEng = list(a.engagement);
+    const engPenalty =
+      wantedEng.length === 0 ? 0 : wantedEng.some((code) => (b.engagement || []).includes(code)) ? 0 : 1;
+    const wantedRange = list(a.reichweite);
+    const rangePenalty = wantedRange.length === 0 ? 0 : wantedRange.includes(b.reichweite) ? 0 : 1;
+    const softFilterPenalty = guidancePenalty + interPenalty + engPenalty + rangePenalty;
     return [
       extra,
       passung(b, a).length ? 1 : 0,
       ansatzPenalty,
+      softFilterPenalty,
       g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length,
       b.status === 'kuratiert' ? 0 : 1,
       wantedFunctions.length ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1 : 0,

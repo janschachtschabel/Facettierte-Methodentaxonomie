@@ -474,6 +474,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     }
   );
 
+  // 13. classify_scenario_text (Zero-LLM hybrid rule + BM25/Model2Vec scale & matrix classifier)
+  server.tool(
+    'classify_scenario_text',
+    'Klassifiziert einen freien deutschen Szenariotext komplett ohne LLM (Regeln + BM25/Trigram + optional lokales Model2Vec-Embedding) auf FMT-Filterskalen, passende Methoden und Binnendifferenzierungsmatrix-Merkmale.',
+    {
+      text: z.string().describe('Freitext-Beschreibung der Unterrichtsidee inkl. Rahmen, Lernziel und Lerngruppenhinweisen')
+    },
+    async ({ text }) => {
+      return textResult({
+        ...store.classifyText(text),
+        leitplanken: FMT_GUARDRAILS
+      });
+    }
+  );
+
   // Resources
   server.resource('catalog-summary', 'fmt://catalog/summary', async (uri) => ({
     contents: [

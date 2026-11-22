@@ -7,3 +7,4 @@ export type { FmtSearch } from './suche.js';
 export { createMatcher } from './zuordnung.js';
 export type { FmtMatcher } from './zuordnung.js';
 export * from './differentiationMatrix.js';
+export * from './semantic.js';

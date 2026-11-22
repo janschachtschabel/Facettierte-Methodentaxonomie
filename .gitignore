@@ -10,6 +10,7 @@ wissen/
 Die Facettierte Methodentaxonomie*.md
 .agents/
 .superpowers/
+models/
 
 # Environment & OS files
 .env

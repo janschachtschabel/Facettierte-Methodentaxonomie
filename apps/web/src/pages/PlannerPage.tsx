@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  detectMatrixTraitsFromText,
   DIFF_MATRIX_PERSONAS,
   FMT_GUARDRAILS,
   type Arrangement,
@@ -388,21 +389,51 @@ export function PlannerPage() {
       setGeneratedMaterials([]);
       setAiDiffByStep({});
     }
+    // Deterministically detect heterogeneity/inclusion cues (DaZ, LRS, ADHS, Autismus, Hochbegabung...) -> auto-fill Matrix!
+    const matrixHit = detectMatrixTraitsFromText(scenarioText);
+    if (matrixHit.signals.length > 0) {
+      setGroups((prev) =>
+        prev.map((g) => {
+          if (g.focus === 'basis' && matrixHit.suggestedPersonaId !== 'highPerforming') {
+            return {
+              ...g,
+              personaId: matrixHit.suggestedPersonaId || g.personaId,
+              matrixValues: { ...(g.matrixValues || {}), ...matrixHit.selectedValues }
+            };
+          }
+          if (g.focus === 'vertiefung' && matrixHit.suggestedPersonaId === 'highPerforming') {
+            return {
+              ...g,
+              personaId: 'highPerforming',
+              matrixValues: { ...(g.matrixValues || {}), ...matrixHit.selectedValues }
+            };
+          }
+          return g;
+        })
+      );
+      return matrixHit.signals.map((s) => s.trigger).slice(0, 3);
+    }
+    return [] as string[];
   };
 
   const runDeterministicMatch = () => {
     setMatchNotice(null);
-    syncTopicFromScenarioText();
+    const detectedMatrixTriggers = syncTopicFromScenarioText();
     const res = matcher.zuordnen(buildStructuredMatchRequest());
     setMatchResult(res);
+    const matrixHint = detectedMatrixTriggers.length
+      ? ` · Matrix-Merkmale automatisch erkannt (${detectedMatrixTriggers.join(', ')})`
+      : '';
     if (res.modus === 'ablauf' && res.arrangement) {
       setArrangement(res.arrangement);
       setThematicRows(null);
       setElaboration(null);
-      setMatchNotice(`Deterministisch in <1 ms komponiert (${res.kette?.label}).`);
+      setMatchNotice(`Deterministisch in <1 ms komponiert (${res.kette?.label})${matrixHint}.`);
       setStep(2);
     } else if (res.modus === 'phase') {
-      setMatchNotice(`Einzelphase erkannt: ${res.vorschlaege.length} passende Bausteine gefunden (unten anklicken zum Übernehmen).`);
+      setMatchNotice(
+        `Einzelphase erkannt: ${res.vorschlaege.length} passende Bausteine gefunden (unten anklicken zum Übernehmen)${matrixHint}.`
+      );
     }
   };
 

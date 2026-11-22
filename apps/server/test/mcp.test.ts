@@ -46,11 +46,12 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     await app.close();
   });
 
-  it('lists all 12 FMT tools, resources, and prompts', async () => {
+  it('lists all 13 FMT tools, resources, and prompts', async () => {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
       'build_scenario_plan',
+      'classify_scenario_text',
       'compare_methods',
       'elaborate_scenario',
       'generate_phase_material',
@@ -170,6 +171,14 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     });
     const matJson = JSON.parse((matRes.content as Array<{ text: string }>)[0].text);
     expect(matJson.material).toContain('Abrufquiz');
+
+    const clsRes = await client.callTool({
+      name: 'classify_scenario_text',
+      arguments: { text: 'Kooperatives Lernen 2 x 45 Minuten Klasse 7 mit DaZ-Kindern' }
+    });
+    const clsJson = JSON.parse((clsRes.content as Array<{ text: string }>)[0].text);
+    expect(clsJson.kriterien.zeitMin).toBe(90);
+    expect(clsJson.matrixMerkmale.selectedValues.sprachkompetenz).toBe('sprachkompetenz-gering');
   });
 
   it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {

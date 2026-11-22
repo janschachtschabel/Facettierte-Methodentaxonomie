@@ -423,7 +423,7 @@ export function ScenarioStudioPanel({
     }
   };
 
-  const runMaterialGen = async () => {
+  const runMaterialGen = async (mode: 'ki' | 'template' = 'ki') => {
     const row = scenarioRows.find((r) => r.key === matStepKey);
     if (!row) return;
     setBusyMat(true);
@@ -444,6 +444,7 @@ export function ScenarioStudioPanel({
             ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
             : 'Sekundarstufe I',
           materialTyp: effType,
+          mode,
           gruppen: activeGroups.map((g) => {
             const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 4 });
             return {
@@ -647,14 +648,38 @@ export function ScenarioStudioPanel({
               />
             </label>
 
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={busyMat || !llmAvailable || !selectedMatRow}
-              onClick={() => void runMaterialGen()}
-            >
-              📝 {busyMat ? 'Generiere Material…' : 'Material per KI erstellen'}
-            </button>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {llmAvailable ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={busyMat || !selectedMatRow}
+                    onClick={() => void runMaterialGen('ki')}
+                  >
+                    ✨ {busyMat ? 'Generiere Material…' : 'Material per KI erstellen'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    disabled={busyMat || !selectedMatRow}
+                    title="Erzeugt sofort ein druckfertiges Struktur-Arbeitsblatt ohne KI-Tokens aus FMT-Schritten & Matrix"
+                    onClick={() => void runMaterialGen('template')}
+                  >
+                    📄 Struktur-Vorlage ohne KI (&lt;1 ms)
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={busyMat || !selectedMatRow}
+                  onClick={() => void runMaterialGen('template')}
+                >
+                  📄 {busyMat ? 'Erstelle Vorlage…' : 'Material-Vorlage erstellen (ohne KI)'}
+                </button>
+              )}
+            </div>
 
             {matError && (
               <div className="msgs" style={{ marginTop: 8 }}>

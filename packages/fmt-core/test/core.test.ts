@@ -6,6 +6,8 @@ import {
   createValidator,
   createSearch,
   createMatcher,
+  createSemanticClassifier,
+  detectMatrixTraitsFromText,
   FMT_RULES,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup
@@ -278,5 +280,29 @@ describe('FMT Core: Validator, Search, Matcher', () => {
 
     const ansatzMatch = M.zuordnen({ text: 'Problemorientiertes Lernen Physik Klasse 8 Konzept verstehen, 135 Minuten' });
     expect(ansatzMatch.kriterien.ansatz).toEqual(['forschend']);
+  });
+
+  it('extracts multiplicative durations, multi-ansatz, guidance/interaction/prep scales, semantic scale fallback & matrix traits without LLM', () => {
+    const parsed = M.lesen(
+      'Kooperatives und spielerisches Lernen mit 2 x 45 Minuten in der 7. Klasse, Partnerarbeit ohne Vorbereitung, geleitet mit Leitfragen'
+    );
+    expect(parsed.kriterien.zeitMin).toBe(90);
+    expect(parsed.kriterien.bildungsstufe).toBe('sek1');
+    expect(parsed.kriterien.ansatz).toEqual(['kooperativ', 'spiel-simulation']);
+    expect(parsed.kriterien.interaktion).toEqual(['partner']);
+    expect(parsed.kriterien.anleitung).toEqual(['geleitet']);
+    expect(parsed.kriterien.maxVorbereitung).toBe(5);
+
+    const sem = createSemanticClassifier(D);
+    const cls = sem.classifyScales('Gemeinsam ein Plakat oder Schaubild malen um Zusammenhänge sichtbar zu machen');
+    expect(cls.scales.ansatz[0]?.code).toBe('visualisierung');
+    expect(cls.scales.lernfunktion.some((x) => x.code === 'verstehen')).toBe(true);
+    expect(sem.rankMethods('Fehlvorstellungen vor Experiment sichtbar machen', 5).length).toBeGreaterThan(0);
+
+    const traits = detectMatrixTraitsFromText('Sehr heterogene 7. Klasse mit vielen DaZ-Kindern, LRS und einem Schüler mit ADHS');
+    expect(traits.selectedValues.sprachkompetenz).toBe('sprachkompetenz-gering');
+    expect(traits.selectedValues.strukturierung).toBe('strukturierung-stark');
+    expect(traits.signals.length).toBeGreaterThanOrEqual(4);
+    expect(traits.matrixScore?.topRecommendations.length).toBeGreaterThan(0);
   });
 });

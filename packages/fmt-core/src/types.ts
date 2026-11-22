@@ -354,6 +354,10 @@ export interface MatchRequest {
   zielart?: string;
   ansatz?: string | string[];
   lernfunktion?: string | string[];
+  anleitung?: string | string[];
+  engagement?: string | string[];
+  interaktion?: string | string[];
+  reichweite?: string | string[];
   liefert?: string | string[];
   zeitMin?: number;
   gruppe?: number;
