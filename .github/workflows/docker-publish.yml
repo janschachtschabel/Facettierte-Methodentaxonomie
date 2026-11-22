@@ -51,26 +51,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to Docker Hub
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Prepare target image list
         id: targets
         env:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_PASS: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           {
             echo "images<<EOF"
             echo "ghcr.io/janschachtschabel/facettierte-methodentaxonomie"
-            if [ -n "$DOCKERHUB_USER" ]; then
+            if [ -n "$DOCKERHUB_USER" ] && [ -n "$DOCKERHUB_PASS" ]; then
               echo "${DOCKERHUB_USER}/fmt-methodendatenbank"
             fi
             echo "EOF"
+            if [ -n "$DOCKERHUB_USER" ] && [ -n "$DOCKERHUB_PASS" ]; then
+              echo "dockerhub_enabled=true"
+            else
+              echo "dockerhub_enabled=false"
+            fi
           } >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Docker Hub
+        if: steps.targets.outputs.dockerhub_enabled == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract Docker metadata
         id: meta
