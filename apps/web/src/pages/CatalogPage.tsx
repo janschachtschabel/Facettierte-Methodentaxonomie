@@ -3,8 +3,17 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import type { EvidenceGrade, SearchCriteria } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
+import { MethodCardDiagram } from '../components/MethodCardDiagram.js';
 import { ProfileRadarSvg } from '../components/ProfileRadarSvg.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
+
+const GRANULARITY_READABLE: Record<string, string> = {
+  r1: 'Interaktion (R1)',
+  r2: 'Szenario (R2)',
+  r3: 'Reihe / Ensemble (R3)',
+  r4: 'Modul / Kurs (R4)',
+  r5: 'Curriculum (R5)'
+};
 
 export function CatalogPage() {
   const {
@@ -151,12 +160,12 @@ export function CatalogPage() {
           </label>
 
           <label>
-            Reichweite
+            Granularität / Reichweite
             <select value={String(filters.reichweite || '')} onChange={(e) => setFilter('reichweite', e.target.value)}>
               <option value="">beliebig</option>
               {valuesOf('reichweite').map((w) => (
                 <option key={w.id} value={w.id}>
-                  {w.id.toUpperCase()} {w.label}
+                  {GRANULARITY_READABLE[w.id] || `${w.label} (${w.id.toUpperCase()})`}
                 </option>
               ))}
             </select>
@@ -291,8 +300,8 @@ export function CatalogPage() {
               Redaktionsstatus
               <select value={String(filters.status || '')} onChange={(e) => setFilter('status', e.target.value)}>
                 <option value="">alle</option>
-                <option value="kuratiert">Kuratiert (Kernkatalog)</option>
-                <option value="entwurf">Ersterfassung (100er-Ausbau)</option>
+                <option value="kuratiert">Kuratiert (22 Kernmethoden)</option>
+                <option value="entwurf">Ersterfassung (203 Methoden)</option>
               </select>
             </label>
 
@@ -349,6 +358,25 @@ export function CatalogPage() {
             </button>
           </div>
         </div>
+        <details style={{ marginTop: 10 }}>
+          <summary style={{ fontFamily: 'var(--display)', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', color: 'var(--dA)' }}>
+            🎨 Visuelle Kachel-Legende (Granularität, Lenkungsfarben &amp; Ablaufvorschau)
+          </summary>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 8, fontSize: 13 }}>
+            <span>
+              <strong>Granularität:</strong> Interaktion (R1, 2–15 min) → Szenario (R2, 15–60 min) → Reihe / Ensemble (R3, Stunden–Wochen) → Modul / Kurs (R4)
+            </span>
+            <span>
+              <strong>Lenkungsfarbe:</strong> <span style={{ color: 'var(--dA)', fontWeight: 700 }}>■ explizit</span> ·{' '}
+              <span style={{ color: 'var(--dC)', fontWeight: 700 }}>■ geleitet</span> ·{' '}
+              <span style={{ color: 'var(--dB)', fontWeight: 700 }}>■ offen</span> ·{' '}
+              <span style={{ color: 'var(--dD)', fontWeight: 700 }}>■ offen → explizit</span>
+            </span>
+            <span>
+              <strong>Balken rechts:</strong> Aktivitätsgrad (ICAP: passiv → aktiv → konstruktiv → interaktiv)
+            </span>
+          </div>
+        </details>
       </section>
 
       {hits.length === 0 ? (
@@ -369,8 +397,10 @@ export function CatalogPage() {
                     <MethodPictogram type={b.piktogramm} />
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <span className="range-badge">{b.reichweite.toUpperCase()}</span>
-                        {b.komposit && <span className="status-badge">Komposit</span>}
+                        <span className="range-badge" title={`FMT-Granularitätsebene ${b.reichweite.toUpperCase()}`}>
+                          {GRANULARITY_READABLE[b.reichweite] || b.reichweite.toUpperCase()}
+                        </span>
+                        {b.komposit && <span className="status-badge">Container</span>}
                         {b.ki && <span className="status-badge">KI</span>}
                         <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
                           {b.status === 'kuratiert' ? 'Kuratiert' : 'Ersterfassung'}
@@ -391,6 +421,8 @@ export function CatalogPage() {
                     </div>
                   )}
                 </div>
+
+                <MethodCardDiagram baustein={b} labelOf={labelOf} />
 
                 <p className="method-card-desc">{b.kurzbeschreibung}</p>
 
@@ -434,7 +466,7 @@ export function CatalogPage() {
             <thead>
               <tr>
                 <th>Methode</th>
-                <th>R</th>
+                <th>Granularität</th>
                 <th>min</th>
                 <th>Lernfunktion</th>
                 <th>Anleitung</th>
@@ -454,7 +486,7 @@ export function CatalogPage() {
                       {b.alternativname.slice(0, 3).join(', ')}
                     </div>
                   </td>
-                  <td>{b.reichweite.toUpperCase()}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{GRANULARITY_READABLE[b.reichweite] || b.reichweite.toUpperCase()}</td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     {b.dauerMin}–{b.dauerMax}
                   </td>

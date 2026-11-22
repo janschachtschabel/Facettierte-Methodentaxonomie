@@ -8,7 +8,10 @@ import { createSearch, createValidator, type Arrangement, type CatalogBundle, ty
 import { PartiturView } from '../src/components/PartiturView.js';
 import { TimelineBandSvg } from '../src/components/TimelineBandSvg.js';
 import { CatalogAnalytics } from '../src/components/CatalogAnalytics.js';
+import { MethodCardDiagram } from '../src/components/MethodCardDiagram.js';
+import { VerlaufsplanView } from '../src/components/VerlaufsplanView.js';
 import { createChainPreset, setRecurrence } from '../src/planner/arrangementOps.js';
+import { buildScenarioRows, DEFAULT_LEARNER_GROUPS } from '../src/planner/scenarioModel.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(
@@ -151,5 +154,33 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
       expect(cy).toBeGreaterThanOrEqual(26);
       expect(cy).toBeLessThanOrEqual(410);
     }
+  });
+
+  it('renders MethodCardDiagram for both regular and container methods and VerlaufsplanView with per-actor columns', () => {
+    const pf = BLOCKS.get('productive-failure')!;
+    const { container: c1 } = render(<MethodCardDiagram baustein={pf} labelOf={labelOf} />);
+    expect(c1.querySelector('svg')).toBeTruthy();
+    expect(c1.textContent).toContain('▣');
+
+    const vbe = BLOCKS.get('vbe')!;
+    const { container: c2 } = render(<MethodCardDiagram baustein={vbe} labelOf={labelOf} />);
+    expect(c2.querySelector('svg')).toBeTruthy();
+
+    const preset = createChainPreset('konzeptaufbau', BUNDLE);
+    const rows = buildScenarioRows(preset, BUNDLE, BLOCKS, labelOf, DEFAULT_LEARNER_GROUPS, {}, {});
+    const { container: c3 } = render(
+      <MemoryRouter>
+        <VerlaufsplanView
+          rows={rows}
+          groups={DEFAULT_LEARNER_GROUPS}
+          onOpenOerForStep={() => {}}
+          onOpenMaterialForStep={() => {}}
+        />
+      </MemoryRouter>
+    );
+    expect(c3.textContent).toContain('Lehrkraft');
+    expect(c3.textContent).toContain('Basisunterstützung');
+    expect(c3.textContent).toContain('Vertiefung');
+    expect(c3.textContent).toContain('Szenario (R2)');
   });
 });

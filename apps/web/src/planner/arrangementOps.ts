@@ -515,6 +515,8 @@ export function importArrangementJson(
 export interface ExportOptions {
   fach?: string;
   thema?: string;
+  lernziele?: string;
+  problemstellung?: string;
   kiAusarbeitung?: string | null;
   timelineSvg?: string | null;
   scenarioRows?: Array<{
@@ -577,6 +579,8 @@ export function exportArrangementMarkdown(
     `- **Zieltyp / Kette:** ${arr.zieltyp || 'Freier Ablauf'}`,
     `- **Gesamtdauer:** ${validation.dauerMin} min${arr.kontext?.zeitbudgetMin ? ` (Budget: ${arr.kontext.zeitbudgetMin} min)` : ''}`,
     `- **Prüfstatus (R-00..R-12):** ${validation.gueltig ? 'Gültig' : 'Ungültig'} (${validation.meldungen.filter((m) => m.schwere === 'Fehler').length} Fehler, ${validation.meldungen.filter((m) => m.schwere === 'Warnung').length} Warnungen)`,
+    ...(options.lernziele?.trim() ? ['', '## Lernziele', '', options.lernziele.trim()] : []),
+    ...(options.problemstellung?.trim() ? ['', '## Didaktische Ausgangslage / Problemstellung', '', options.problemstellung.trim()] : []),
     '',
     '## 1. Strukturierter Phasenablauf'
   ];

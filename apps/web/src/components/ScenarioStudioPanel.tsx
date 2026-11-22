@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Arrangement, Baustein, ValidationResult } from '@fmt/core';
 import { SimpleMarkdown } from './SimpleMarkdown.js';
+import { WloOerCards } from './WloOerCards.js';
 import {
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
@@ -21,11 +22,12 @@ import {
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../planner/lmsExport.js';
 import { printHtmlDocument } from '../planner/scenarioStorage.js';
 
-export type StudioTab = 'export' | 'diff' | 'oer' | 'material';
+export type StudioTab = 'oer' | 'diff' | 'material';
 
 interface Props {
-  activeTab: StudioTab;
-  onTabChange: (tab: StudioTab) => void;
+  mode: 'resources' | 'export';
+  activeResourceTab: StudioTab;
+  onResourceTabChange: (tab: StudioTab) => void;
   focusedStepKey: string | null;
   arrangement: Arrangement;
   onArrangementChange: (next: Arrangement) => void;
@@ -36,6 +38,8 @@ interface Props {
   labelOf: (schemeId: string, code: string) => string;
   fach: string;
   thema: string;
+  lernziele: string;
+  problemstellung: string;
   hinweise: string;
   onFachChange: (v: string) => void;
   onThemaChange: (v: string) => void;
@@ -49,14 +53,17 @@ interface Props {
   elaboration: string | null;
   onElaborationChange: (next: string | null) => void;
   onPrintPdf: () => void;
+  onSaveBrowser: () => void;
+  onDownloadProject: () => void;
   getTimelineSvg: () => string | null;
   byokHeaders: () => Record<string, string>;
   llmAvailable: boolean;
 }
 
 export function ScenarioStudioPanel({
-  activeTab,
-  onTabChange,
+  mode,
+  activeResourceTab,
+  onResourceTabChange,
   focusedStepKey,
   arrangement,
   onArrangementChange,
@@ -67,6 +74,8 @@ export function ScenarioStudioPanel({
   labelOf,
   fach,
   thema,
+  lernziele,
+  problemstellung,
   hinweise,
   onFachChange,
   onThemaChange,
@@ -80,6 +89,8 @@ export function ScenarioStudioPanel({
   elaboration,
   onElaborationChange,
   onPrintPdf,
+  onSaveBrowser,
+  onDownloadProject,
   getTimelineSvg,
   byokHeaders,
   llmAvailable
@@ -96,13 +107,6 @@ export function ScenarioStudioPanel({
   const [busyDiff, setBusyDiff] = useState(false);
   const [diffError, setDiffError] = useState<string | null>(null);
 
-  // WLO OER search state
-  const [oerTargetStep, setOerTargetStep] = useState<string>(scenarioRows[0]?.key || 'step-0');
-  const [oerQuery, setOerQuery] = useState<string>(thema);
-  const [busyOer, setBusyOer] = useState(false);
-  const [oerError, setOerError] = useState<string | null>(null);
-  const [oerResults, setOerResults] = useState<OerResource[]>([]);
-
   // Material generator state
   const [matStepKey, setMatStepKey] = useState<string>(scenarioRows[0]?.key || 'step-0');
   const [matType, setMatType] = useState<string>('auto');
@@ -112,20 +116,14 @@ export function ScenarioStudioPanel({
   const [generatedMaterial, setGeneratedMaterial] = useState<{ title: string; content: string } | null>(null);
 
   useEffect(() => {
-    if (focusedStepKey) {
-      setOerTargetStep(focusedStepKey);
-      setMatStepKey(focusedStepKey);
-    }
+    if (focusedStepKey) setMatStepKey(focusedStepKey);
   }, [focusedStepKey]);
 
   useEffect(() => {
-    if (!scenarioRows.some((r) => r.key === oerTargetStep) && scenarioRows[0]) {
-      setOerTargetStep(scenarioRows[0].key);
-    }
     if (!scenarioRows.some((r) => r.key === matStepKey) && scenarioRows[0]) {
       setMatStepKey(scenarioRows[0].key);
     }
-  }, [scenarioRows, oerTargetStep, matStepKey]);
+  }, [scenarioRows, matStepKey]);
 
   const downloadFile = (filename: string, content: string | Uint8Array, mime: string) => {
     const payload = typeof content === 'string' ? content : new Uint8Array(content);
@@ -146,6 +144,16 @@ export function ScenarioStudioPanel({
       labelOf
     });
 
+  const exportOpts = () => ({
+    fach,
+    thema,
+    lernziele,
+    problemstellung,
+    kiAusarbeitung: elaboration,
+    timelineSvg: getTimelineSvg(),
+    scenarioRows
+  });
+
   const runAiElaborate = async () => {
     setBusyElab(true);
     setElabError(null);
@@ -157,6 +165,8 @@ export function ScenarioStudioPanel({
           arrangement,
           thema,
           fach,
+          lernziele: lernziele.trim() || undefined,
+          problemstellung: problemstellung.trim() || undefined,
           hinweise: hinweise.trim() || undefined,
           differenzierung: groups.filter((g) => g.active).map((g) => ({ gruppe: g.label, profil: g.profile })),
           oerRessourcen: Object.values(oerByStep).flat().map((o) => ({ titel: o.title, url: o.url }))
@@ -219,44 +229,6 @@ export function ScenarioStudioPanel({
     }
   };
 
-  const runWloSearch = async () => {
-    setBusyOer(true);
-    setOerError(null);
-    try {
-      const res = await fetch('/api/v1/oer/wlo-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: oerQuery.trim() || thema,
-          fach,
-          bildungsstufe: arrangement.kontext?.bildungsstufe || '',
-          maxItems: 8
-        })
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setOerError(json.fehler || 'WLO-Suche fehlgeschlagen.');
-        return;
-      }
-      setOerResults((json.ergebnisse || []) as OerResource[]);
-    } catch (e) {
-      setOerError(e instanceof Error ? e.message : 'Netzwerkfehler bei WLO-Suche');
-    } finally {
-      setBusyOer(false);
-    }
-  };
-
-  const attachOer = (stepKey: string, item: OerResource) => {
-    const existing = oerByStep[stepKey] || [];
-    if (existing.some((x) => x.url === item.url)) return;
-    onOerByStepChange({ ...oerByStep, [stepKey]: [...existing, item] });
-  };
-
-  const detachOer = (stepKey: string, url: string) => {
-    const existing = oerByStep[stepKey] || [];
-    onOerByStepChange({ ...oerByStep, [stepKey]: existing.filter((x) => x.url !== url) });
-  };
-
   const runMaterialGen = async () => {
     const row = scenarioRows.find((r) => r.key === matStepKey);
     if (!row) return;
@@ -301,269 +273,568 @@ export function ScenarioStudioPanel({
   const selectedMatRow = scenarioRows.find((r) => r.key === matStepKey);
   const autoDetectedType = detectMaterialTypeForBlock(selectedMatRow?.block);
 
-  return (
-    <div className="card" style={{ padding: 18 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-        <h2 style={{ fontSize: 22, margin: 0 }}>4. Szenario-Studio: Entwurf, Differenzierung, OER &amp; LMS-Export</h2>
-      </div>
-
-      {/* Shared Subject / Topic / Notes bar */}
-      <div className="no-print" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-        <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4 }}>
-          Fach
-          <input type="text" value={fach} onChange={(e) => onFachChange(e.target.value)} />
-        </label>
-        <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4 }}>
-          Thema
-          <input type="text" value={thema} onChange={(e) => onThemaChange(e.target.value)} />
-        </label>
-      </div>
-      <label
-        className="no-print"
-        style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 14 }}
-      >
-        Zusätzliche Hinweise (Lerngruppe, Schwerpunkt, Differenzierungsbedarf)
-        <input
-          type="text"
-          value={hinweise}
-          onChange={(e) => onHinweiseChange(e.target.value)}
-          placeholder="z. B. heterogene 7. Klasse, 2 Sprachanfänger, Fokus auf Alltagsbeispiele"
-        />
-      </label>
-
-      {/* Studio Tabs */}
-      <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', borderBottom: '1px solid var(--grid)', paddingBottom: 10, marginBottom: 14 }}>
-        <button
-          type="button"
-          className={`btn btn-sm ${activeTab === 'export' ? 'btn-primary' : ''}`}
-          onClick={() => onTabChange('export')}
+  // =========================================================================
+  // MODE 1 (STEP 3): OER-KACHELN, BINNENDIFFERENZIERUNG & MATERIALGENERATOR
+  // =========================================================================
+  if (mode === 'resources') {
+    return (
+      <div className="card" style={{ padding: 20 }}>
+        <div
+          className="no-print"
+          style={{
+            display: 'flex',
+            gap: 8,
+            flexWrap: 'wrap',
+            borderBottom: '1px solid var(--grid)',
+            paddingBottom: 12,
+            marginBottom: 16
+          }}
         >
-          📄 Unterrichtsentwurf &amp; LMS-Exporte
-        </button>
-        <button
-          type="button"
-          className={`btn btn-sm ${activeTab === 'diff' ? 'btn-primary' : ''}`}
-          onClick={() => onTabChange('diff')}
-        >
-          ⚖ Binnendifferenzierung ({groups.filter((g) => g.active).length})
-        </button>
-        <button
-          type="button"
-          className={`btn btn-sm ${activeTab === 'oer' ? 'btn-primary' : ''}`}
-          onClick={() => onTabChange('oer')}
-        >
-          🌐 WLO / OER-Suche {totalAttachedOer > 0 ? `(${totalAttachedOer})` : ''}
-        </button>
-        <button
-          type="button"
-          className={`btn btn-sm ${activeTab === 'material' ? 'btn-primary' : ''}`}
-          onClick={() => onTabChange('material')}
-        >
-          📝 Materialgenerator
-        </button>
-      </div>
+          <button
+            type="button"
+            className={`btn btn-sm ${activeResourceTab === 'oer' ? 'btn-primary' : ''}`}
+            onClick={() => onResourceTabChange('oer')}
+          >
+            🌐 WLO / OER-Kacheln {totalAttachedOer > 0 ? `(${totalAttachedOer} verknüpft)` : ''}
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${activeResourceTab === 'diff' ? 'btn-primary' : ''}`}
+            onClick={() => onResourceTabChange('diff')}
+          >
+            ⚖ Binnendifferenzierung ({groups.filter((g) => g.active).length} Gruppen)
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${activeResourceTab === 'material' ? 'btn-primary' : ''}`}
+            onClick={() => onResourceTabChange('material')}
+          >
+            📝 KI-Materialgenerator (Arbeitsblatt / Quiz / Karten)
+          </button>
+        </div>
 
-      {/* TAB 1: EXPORT & FULL AI LESSON DESCRIPTION */}
-      {activeTab === 'export' && (
-        <div>
-          <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-            Exportiert dein vollständiges Lehr- und Lernszenario inkl. IMS-LD-Verlaufstabelle, verlinkter FMT-Methoden ({usedBlocks.length}),
-            Binnendifferenzierung, WLO-OER-Ressourcen und verifizierter Quellen – direkt nutzbar in Moodle, ILIAS, Canvas oder als Handout.
-          </p>
+        {activeResourceTab === 'oer' && (
+          <WloOerCards
+            scenarioRows={scenarioRows}
+            initialStepKey={focusedStepKey || scenarioRows[0]?.key || 'step-0'}
+            fach={fach}
+            thema={thema}
+            bildungsstufe={arrangement.kontext?.bildungsstufe || ''}
+            oerByStep={oerByStep}
+            onOerByStepChange={onOerByStepChange}
+          />
+        )}
 
-          <div className="no-print" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-            <button type="button" className="btn btn-primary" disabled={busyElab} onClick={runAiElaborate}>
-              ✨ {busyElab ? 'Erstelle Unterrichtsentwurf…' : 'Gesamten Unterrichtsentwurf ausformulieren (KI)'}
-            </button>
+        {activeResourceTab === 'diff' && (
+          <div>
+            <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
+              Jede aktive Teilgruppe erscheint als eigene <strong>Spalte in der Rollen-Verlaufstabelle</strong> (Schritt 2), im PDF-Entwurf und im LMS-Export.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10, marginBottom: 14 }}>
+              {groups.map((g) => (
+                <div
+                  key={g.id}
+                  style={{
+                    padding: 12,
+                    borderRadius: 8,
+                    background: g.active ? 'var(--paper)' : 'transparent',
+                    border: `1px solid ${g.active ? 'var(--dA)' : 'var(--grid)'}`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: 8
+                  }}
+                >
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', flex: 1 }}>
+                    <input
+                      type="checkbox"
+                      checked={g.active}
+                      onChange={(e) =>
+                        onGroupsChange(groups.map((x) => (x.id === g.id ? { ...x, active: e.target.checked } : x)))
+                      }
+                    />
+                    <span>
+                      <strong style={{ fontFamily: 'var(--display)' }}>{g.label}</strong>
+                      <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
+                        {g.profile}
+                      </div>
+                    </span>
+                  </label>
+                  {g.focus === 'custom' && (
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => onGroupsChange(groups.filter((x) => x.id !== g.id))}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+              <input
+                type="text"
+                style={{ flex: '1 1 180px' }}
+                placeholder="Eigene Teilgruppe (z. B. DaZ / LRS / ADHS)"
+                value={newGroupLabel}
+                onChange={(e) => setNewGroupLabel(e.target.value)}
+              />
+              <input
+                type="text"
+                style={{ flex: '2 1 260px' }}
+                placeholder="Förderbedarf / Unterstützungsfokus"
+                value={newGroupProfile}
+                onChange={(e) => setNewGroupProfile(e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => {
+                  if (!newGroupLabel.trim()) return;
+                  onGroupsChange([
+                    ...groups,
+                    {
+                      id: `custom-${Date.now()}`,
+                      label: newGroupLabel.trim(),
+                      profile: newGroupProfile.trim() || 'Individuelle Unterstützung',
+                      focus: 'custom',
+                      active: true
+                    }
+                  ]);
+                  setNewGroupLabel('');
+                  setNewGroupProfile('');
+                }}
+              >
+                + Teilgruppe hinzufügen
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={busyDiff || !llmAvailable}
+                onClick={runAiDifferentiate}
+              >
+                ✨ {busyDiff ? 'Generiere Differenzierung…' : 'Themenspezifische Differenzierung mit KI erzeugen'}
+              </button>
+              {Object.keys(aiDiffByStep).length > 0 && (
+                <button type="button" className="btn btn-sm" onClick={() => onAiDiffChange({})}>
+                  Auf FMT-Regelhinweise zurücksetzen
+                </button>
+              )}
+            </div>
+
+            {diffError && (
+              <div className="msgs">
+                <li className="err">{diffError}</li>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10 }}>
+              {scenarioRows.map((r) => (
+                <div key={r.key} style={{ padding: 12, borderRadius: 8, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
+                  <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14.5, marginBottom: 6 }}>
+                    {r.orderLabel} · {r.methodName} ({r.durationMin} min)
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
+                    {r.differentiation.map((d, di) => (
+                      <li key={di} style={{ marginBottom: 4 }}>
+                        <strong>{d.groupLabel}:</strong> {d.measure}{' '}
+                        <span className="muted" style={{ fontSize: 11.5 }}>
+                          [{d.source === 'ki' ? 'KI' : 'FMT'}]
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
 
-          <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+        {activeResourceTab === 'material' && (
+          <div>
+            <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
+              Erstellt druckfertiges Unterrichtsmaterial (Arbeitsblatt, Quiz, Checkliste, Karten) passend zur gewählten FMT-Methode und deinen Lerngruppen.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10, marginBottom: 10 }}>
+              <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                Phase / FMT-Methode
+                <select value={matStepKey} onChange={(e) => setMatStepKey(e.target.value)}>
+                  {scenarioRows.map((r) => (
+                    <option key={r.key} value={r.key}>
+                      {r.orderLabel} · {r.methodName} ({r.durationMin} min)
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                Materialtyp
+                <select value={matType} onChange={(e) => setMatType(e.target.value)}>
+                  {MATERIAL_TYPES.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.id === 'auto'
+                        ? `${t.label} → ${MATERIAL_TYPES.find((x) => x.id === autoDetectedType)?.label || autoDetectedType}`
+                        : t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+              Zusatzwunsch fürs Material (optional)
+              <input
+                type="text"
+                value={matNotes}
+                onChange={(e) => setMatNotes(e.target.value)}
+                placeholder="z. B. 4 gestufte Aufgaben mit Alltagsbezug, inkl. Selbstkontroll-Lösung"
+              />
+            </label>
+
             <button
               type="button"
-              className="btn btn-sm btn-primary"
-              title="Saubere A4-Druckansicht mit Zeitband, Verlaufstabelle, Differenzierung & Quellen – direkt als PDF speicherbar"
-              onClick={onPrintPdf}
+              className="btn btn-primary"
+              disabled={busyMat || !llmAvailable || !selectedMatRow}
+              onClick={runMaterialGen}
             >
+              📝 {busyMat ? 'Generiere Material…' : 'Unterrichtsmaterial generieren (KI)'}
+            </button>
+
+            {matError && (
+              <div className="msgs" style={{ marginTop: 8 }}>
+                <li className="err">{matError}</li>
+              </div>
+            )}
+
+            {generatedMaterial && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 18,
+                  background: 'var(--paper)',
+                  borderRadius: 8,
+                  border: '1px solid var(--rule)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                  <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>{generatedMaterial.title}</strong>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-primary"
+                      onClick={() =>
+                        printHtmlDocument(exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content))
+                      }
+                    >
+                      🖨 Als PDF drucken
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() =>
+                        downloadFile(
+                          'fmt-material.html',
+                          exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content),
+                          'text/html;charset=utf-8'
+                        )
+                      }
+                    >
+                      ⬇ Handout (.html)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => downloadFile('fmt-material.md', generatedMaterial.content, 'text/markdown;charset=utf-8')}
+                    >
+                      ⬇ Markdown (.md)
+                    </button>
+                  </div>
+                </div>
+                <SimpleMarkdown content={generatedMaterial.content} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // MODE 2 (STEP 4): VOLLBREITER UNTERRICHTSENTWURF, QUELLEN & EXPORTE
+  // =========================================================================
+  const standardMarkdown = exportArrangementMarkdown(arrangement, blocksById, validation, exportOpts());
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Prominent Action & Export Ribbon */}
+      <div className="card no-print" style={{ padding: 20, borderTop: '3px solid var(--dA)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: 23 }}>Fertiger Unterrichtsentwurf &amp; Export</h2>
+            <p className="muted" style={{ margin: '4px 0 0', fontSize: 14.5 }}>
+              {fach || 'Fach'} · {thema || arrangement.name} · {validation.dauerMin} min · {usedBlocks.length} verlinkte FMT-Methoden
+              {totalAttachedOer > 0 ? ` · ${totalAttachedOer} WLO-OER` : ''}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-primary" disabled={busyElab} onClick={runAiElaborate}>
+              ✨ {busyElab ? 'Formuliere Entwurf…' : elaboration ? 'KI-Entwurf neu ausformulieren' : 'Vollständigen Entwurf ausformulieren (KI)'}
+            </button>
+            <button type="button" className="btn btn-primary" onClick={onPrintPdf}>
               🖨 Als PDF drucken / speichern
             </button>
+          </div>
+        </div>
+
+        {/* Quick Metadata inline polish */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, marginTop: 14 }}>
+          <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            Fach
+            <input type="text" value={fach} onChange={(e) => onFachChange(e.target.value)} />
+          </label>
+          <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            Thema
+            <input type="text" value={thema} onChange={(e) => onThemaChange(e.target.value)} />
+          </label>
+          <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            Zusatzhinweise für KI-Entwurf
+            <input
+              type="text"
+              value={hinweise}
+              onChange={(e) => onHinweiseChange(e.target.value)}
+              placeholder="z. B. Fokus auf Alltagsbeispiele, Zeitpuffer einplanen"
+            />
+          </label>
+        </div>
+
+        {/* Grouped Export Buttons */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() =>
+              downloadFile('fmt-unterrichtsentwurf.doc', exportArrangementWordDoc(arrangement, blocksById, validation, exportOpts()), 'application/msword;charset=utf-8')
+            }
+          >
+            ⬇ Word / LibreOffice (.doc)
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() =>
+              downloadFile('fmt-unterrichtsentwurf.html', exportArrangementHtmlHandout(arrangement, blocksById, validation, exportOpts()), 'text/html;charset=utf-8')
+            }
+          >
+            ⬇ Handout (.html)
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => downloadFile('fmt-unterrichtsentwurf.md', standardMarkdown, 'text/markdown;charset=utf-8')}
+          >
+            ⬇ Markdown (.md)
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            title="IMS Common Cartridge 1.3 – importierbar in Moodle, ILIAS, Canvas & itslearning"
+            onClick={() => {
+              const sc = buildScenario();
+              downloadFile('fmt-lernszenario.imscc', exportScenarioToImscc(sc, scenarioRows), 'application/zip');
+            }}
+          >
+            ⬇ LMS: Common Cartridge (.imscc)
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => {
+              const sc = buildScenario();
+              downloadFile('fmt-moodle-kurs.xml', exportScenarioToMoodleXml(sc, scenarioRows), 'application/xml;charset=utf-8');
+            }}
+          >
+            ⬇ Moodle (.xml)
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => {
+              const sc = buildScenario();
+              downloadFile('fmt-imsld-szenario.json', JSON.stringify(sc, null, 2), 'application/json;charset=utf-8');
+            }}
+          >
+            ⬇ IMS-LD (.json)
+          </button>
+          <button type="button" className="btn btn-sm" onClick={onSaveBrowser}>
+            💾 Im Browser speichern
+          </button>
+          <button type="button" className="btn btn-sm" onClick={onDownloadProject}>
+            ⬇ Projektdatei (.fmt.json)
+          </button>
+        </div>
+
+        {elabError && (
+          <div className="msgs" style={{ marginTop: 10 }}>
+            <li className="err">{elabError}</li>
+          </div>
+        )}
+      </div>
+
+      {/* FULL-WIDTH Prominent Draft Preview */}
+      <article className="card" style={{ padding: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 14, paddingBottom: 10, borderBottom: '1px solid var(--grid)' }}>
+          <div>
+            <span className="status-badge" style={{ marginBottom: 4 }}>
+              {elaboration ? '✨ KI-ausformulierter Unterrichtsentwurf' : '📋 Strukturierter FMT-Entwurf (sofort druckbereit)'}
+            </span>
+            <h3 style={{ margin: '4px 0 0', fontSize: 20 }}>
+              {thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name}
+            </h3>
+          </div>
+          {!elaboration && (
+            <span className="muted" style={{ fontSize: 13 }}>
+              Tipp: Klicke oben auf <strong>„Vollständigen Entwurf ausformulieren (KI)“</strong> für ausformulierte Impulse &amp; Übergänge.
+            </span>
+          )}
+        </div>
+
+        {elaboration ? (
+          <SimpleMarkdown content={elaboration} />
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {(lernziele.trim() || problemstellung.trim()) && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+                {lernziele.trim() && (
+                  <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
+                    <strong style={{ fontFamily: 'var(--display)' }}>Lernziele</strong>
+                    <p style={{ margin: '6px 0 0', whiteSpace: 'pre-wrap', fontSize: 14 }}>{lernziele}</p>
+                  </div>
+                )}
+                {problemstellung.trim() && (
+                  <div style={{ padding: 12, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
+                    <strong style={{ fontFamily: 'var(--display)' }}>Ausgangslage / Problemstellung</strong>
+                    <p style={{ margin: '6px 0 0', whiteSpace: 'pre-wrap', fontSize: 14 }}>{problemstellung}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {scenarioRows.map((r) => (
+                <div
+                  key={r.key}
+                  style={{
+                    padding: 14,
+                    borderRadius: 8,
+                    background: 'var(--paper)',
+                    border: '1px solid var(--grid)',
+                    borderLeft: `4px solid ${r.isNestedSlot ? 'var(--dD)' : 'var(--dA)'}`
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <div>
+                      <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
+                        {r.orderLabel} · {r.phaseLabel}:{' '}
+                        <Link to={`/methoden/${r.methodId}`}>{r.methodName}</Link>
+                      </strong>
+                    </div>
+                    <span className="chip">{r.durationMin} min</span>
+                  </div>
+                  {r.block?.kurzbeschreibung && (
+                    <p style={{ margin: '6px 0', fontSize: 14 }}>{r.block.kurzbeschreibung}</p>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8, fontSize: 13.5, marginTop: 6 }}>
+                    <div>
+                      <strong>👩‍🏫 Lehrkraft:</strong> {r.teacherRole}
+                    </div>
+                    <div>
+                      <strong>👥 Lernende:</strong> {r.learnerRole}
+                    </div>
+                  </div>
+                  {r.block?.durchfuehrung?.length ? (
+                    <ol style={{ margin: '8px 0 0', paddingLeft: 20, fontSize: 13.5 }}>
+                      {r.block.durchfuehrung.map((step, si) => (
+                        <li key={si}>{step}</li>
+                      ))}
+                    </ol>
+                  ) : null}
+                  {r.differentiation.length > 0 && (
+                    <div style={{ marginTop: 8, fontSize: 13 }}>
+                      <strong>⚖ Differenzierung:</strong>{' '}
+                      {r.differentiation.map((d) => `${d.groupLabel}: ${d.measure}`).join(' · ')}
+                    </div>
+                  )}
+                  {r.oerResources.length > 0 && (
+                    <div style={{ marginTop: 6, fontSize: 13 }}>
+                      <strong>🌐 OER:</strong>{' '}
+                      {r.oerResources.map((o, oi) => (
+                        <span key={o.id}>
+                          {oi > 0 && ' · '}
+                          <a href={o.url} target="_blank" rel="noreferrer">
+                            {o.title}
+                          </a>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Always-visible verified source list for all used blocks */}
+        {usedBlocks.length > 0 && (
+          <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+            <h4 style={{ margin: '0 0 8px', fontFamily: 'var(--display)', fontSize: 15.5 }}>
+              Verlinkte FMT-Methoden &amp; verifiziertes Quellenverzeichnis ({usedBlocks.length})
+            </h4>
+            <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {usedBlocks.map((b) => (
+                <li key={b.kennung}>
+                  <Link to={`/methoden/${b.kennung}`}>
+                    <strong>{b.name}</strong>
+                  </Link>
+                  :{' '}
+                  {(b.quellen || []).map((q, qi) => (
+                    <span key={qi}>
+                      {qi > 0 && ' · '}
+                      {q.url ? (
+                        <a href={q.url} target="_blank" rel="noreferrer">
+                          {q.titel}
+                        </a>
+                      ) : (
+                        q.titel
+                      )}
+                    </span>
+                  ))}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Technical JSON-LD drawer cleanly tucked at the bottom */}
+        <details className="no-print" style={{ marginTop: 18 }}>
+          <summary style={{ fontFamily: 'var(--display)', fontWeight: 600, cursor: 'pointer', fontSize: 13.5 }}>
+            Technischer Export / Import (FMT JSON-LD)
+          </summary>
+          <div style={{ marginTop: 8 }}>
             <button
               type="button"
               className="btn btn-sm"
-              title="Öffnet direkt bearbeitbar in Microsoft Word & LibreOffice Writer"
-              onClick={() =>
-                downloadFile(
-                  'fmt-unterrichtsentwurf.doc',
-                  exportArrangementWordDoc(arrangement, blocksById, validation, {
-                    fach,
-                    thema,
-                    kiAusarbeitung: elaboration,
-                    scenarioRows
-                  }),
-                  'application/msword;charset=utf-8'
-                )
-              }
-            >
-              ⬇ Word / LibreOffice (.doc)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() =>
-                downloadFile(
-                  'fmt-unterrichtsentwurf.html',
-                  exportArrangementHtmlHandout(arrangement, blocksById, validation, {
-                    fach,
-                    thema,
-                    kiAusarbeitung: elaboration,
-                    timelineSvg: getTimelineSvg(),
-                    scenarioRows
-                  }),
-                  'text/html;charset=utf-8'
-                )
-              }
-            >
-              ⬇ Entwurf &amp; Handout (.html)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() =>
-                downloadFile(
-                  'fmt-unterrichtsentwurf.md',
-                  exportArrangementMarkdown(arrangement, blocksById, validation, {
-                    fach,
-                    thema,
-                    kiAusarbeitung: elaboration,
-                    scenarioRows
-                  }),
-                  'text/markdown;charset=utf-8'
-                )
-              }
-            >
-              ⬇ Markdown (.md)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              title="IMS Common Cartridge 1.3 – direkt importierbar in Moodle, ILIAS, Canvas & itslearning"
-              onClick={() => {
-                const sc = buildScenario();
-                downloadFile('fmt-lernszenario.imscc', exportScenarioToImscc(sc, scenarioRows), 'application/zip');
-              }}
-            >
-              ⬇ LMS: IMS Common Cartridge (.imscc)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              title="Moodle XML Kursstruktur mit FMT-Methodenseiten & WLO-Links"
-              onClick={() => {
-                const sc = buildScenario();
-                downloadFile('fmt-moodle-kurs.xml', exportScenarioToMoodleXml(sc, scenarioRows), 'application/xml;charset=utf-8');
-              }}
-            >
-              ⬇ Moodle (.xml)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              title="IMS-LD-inspiriertes neutrales Lernszenario inkl. FMT-Methodenlinks, Rollen & Differenzierung"
-              onClick={() => {
-                const sc = buildScenario();
-                downloadFile('fmt-imsld-szenario.json', JSON.stringify(sc, null, 2), 'application/json;charset=utf-8');
-              }}
-            >
-              ⬇ IMS-LD Szenario (.json)
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
+              style={{ marginBottom: 8 }}
               onClick={() => downloadFile('fmt-arrangement.jsonld', JSON.stringify(arrangement, null, 2), 'application/ld+json')}
             >
-              ⬇ FMT JSON-LD
+              ⬇ FMT JSON-LD herunterladen
             </button>
-          </div>
-
-          {elabError && (
-            <div className="msgs">
-              <li className="err">{elabError}</li>
-            </div>
-          )}
-
-          {elaboration && (
-            <div
-              style={{
-                marginTop: 12,
-                padding: 16,
-                background: 'var(--paper)',
-                borderRadius: 8,
-                border: '1px solid var(--rule)',
-                maxHeight: 540,
-                overflowY: 'auto'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
-                  KI-Unterrichtsentwurf ({fach} · {thema})
-                </strong>
-                <button
-                  type="button"
-                  className="btn btn-sm no-print"
-                  onClick={() =>
-                    downloadFile(
-                      'fmt-unterrichtsentwurf-ki.md',
-                      exportArrangementMarkdown(arrangement, blocksById, validation, {
-                        fach,
-                        thema,
-                        kiAusarbeitung: elaboration,
-                        scenarioRows
-                      }),
-                      'text/markdown;charset=utf-8'
-                    )
-                  }
-                >
-                  ⬇ inkl. Quellen speichern
-                </button>
-              </div>
-              <SimpleMarkdown content={elaboration} />
-            </div>
-          )}
-
-          {usedBlocks.length > 0 && (
-            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
-              <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
-                Verlinkte FMT-Methoden &amp; Quellenverzeichnis ({usedBlocks.length}):
-              </div>
-              <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {usedBlocks.map((b) => (
-                  <li key={b.kennung}>
-                    <Link to={`/methoden/${b.kennung}`}>
-                      <strong>{b.name}</strong>
-                    </Link>
-                    :{' '}
-                    {(b.quellen || []).map((q, qi) => (
-                      <span key={qi}>
-                        {qi > 0 && ' · '}
-                        {q.url ? (
-                          <a href={q.url} target="_blank" rel="noreferrer">
-                            {q.titel}
-                          </a>
-                        ) : (
-                          q.titel
-                        )}
-                      </span>
-                    ))}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <details className="no-print" style={{ marginTop: 16 }}>
-            <summary style={{ fontFamily: 'var(--display)', fontWeight: 600, cursor: 'pointer' }}>
-              JSON-LD anzeigen oder importieren
-            </summary>
-            <pre style={{ maxHeight: 220 }}>{JSON.stringify(arrangement, null, 2)}</pre>
+            <pre style={{ maxHeight: 200 }}>{JSON.stringify(arrangement, null, 2)}</pre>
             <textarea
               rows={3}
               style={{ width: '100%', marginTop: 8 }}
@@ -588,356 +859,9 @@ export function ScenarioStudioPanel({
             >
               JSON-LD importieren
             </button>
-          </details>
-        </div>
-      )}
-
-      {/* TAB 2: BINNENDIFFERENZIERUNG */}
-      {activeTab === 'diff' && (
-        <div>
-          <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-            Aktive Lerngruppen erscheinen sofort im <strong>Verlaufsplan</strong>, im <strong>Handout</strong> und in den <strong>LMS-Exporten</strong>.
-            Die FMT erzeugt sofort regelbasierte Hinweise aus <code>B3 Adaptivität</code> &amp; <code>B1 Anleitung</code> – optional verfeinert die KI jede Phase passend zu Fach &amp; Thema.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-            {groups.map((g) => (
-              <div
-                key={g.id}
-                style={{
-                  padding: 10,
-                  borderRadius: 6,
-                  background: g.active ? 'var(--paper)' : 'transparent',
-                  border: '1px solid var(--grid)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 10
-                }}
-              >
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', flex: 1 }}>
-                  <input
-                    type="checkbox"
-                    checked={g.active}
-                    onChange={(e) =>
-                      onGroupsChange(groups.map((x) => (x.id === g.id ? { ...x, active: e.target.checked } : x)))
-                    }
-                  />
-                  <span>
-                    <strong style={{ fontFamily: 'var(--display)' }}>{g.label}</strong>
-                    <div className="muted" style={{ fontSize: 12.5 }}>
-                      {g.profile}
-                    </div>
-                  </span>
-                </label>
-                {g.focus === 'custom' && (
-                  <button
-                    type="button"
-                    className="btn btn-sm"
-                    onClick={() => onGroupsChange(groups.filter((x) => x.id !== g.id))}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
           </div>
-
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-            <input
-              type="text"
-              style={{ flex: '1 1 160px' }}
-              placeholder="Neue Teilgruppe (z. B. DaZ / Sprachanfänger)"
-              value={newGroupLabel}
-              onChange={(e) => setNewGroupLabel(e.target.value)}
-            />
-            <input
-              type="text"
-              style={{ flex: '2 1 220px' }}
-              placeholder="Förderbedarf / Profil"
-              value={newGroupProfile}
-              onChange={(e) => setNewGroupProfile(e.target.value)}
-            />
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => {
-                if (!newGroupLabel.trim()) return;
-                onGroupsChange([
-                  ...groups,
-                  {
-                    id: `custom-${Date.now()}`,
-                    label: newGroupLabel.trim(),
-                    profile: newGroupProfile.trim() || 'Individuelle Unterstützung',
-                    focus: 'custom',
-                    active: true
-                  }
-                ]);
-                setNewGroupLabel('');
-                setNewGroupProfile('');
-              }}
-            >
-              + Gruppe hinzufügen
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={busyDiff || !llmAvailable}
-              onClick={runAiDifferentiate}
-            >
-              ✨ {busyDiff ? 'Generiere Differenzierung…' : 'Themenspezifische Differenzierung mit KI erzeugen'}
-            </button>
-            {Object.keys(aiDiffByStep).length > 0 && (
-              <button type="button" className="btn btn-sm" onClick={() => onAiDiffChange({})}>
-                Auf FMT-Regelhinweise zurücksetzen
-              </button>
-            )}
-          </div>
-
-          {diffError && (
-            <div className="msgs">
-              <li className="err">{diffError}</li>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {scenarioRows.map((r) => (
-              <div key={r.key} style={{ padding: 10, borderRadius: 6, background: 'var(--paper)', border: '1px solid var(--grid)' }}>
-                <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, marginBottom: 4 }}>
-                  {r.orderLabel} · {r.methodName} ({r.durationMin} min)
-                </div>
-                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
-                  {r.differentiation.map((d, di) => (
-                    <li key={di}>
-                      <strong>{d.groupLabel}:</strong> {d.measure}{' '}
-                      <span className="muted" style={{ fontSize: 11.5 }}>
-                        [{d.source === 'ki' ? 'KI-Entwurf' : 'FMT-Regel'}]
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: WLO / OER SEARCH */}
-      {activeTab === 'oer' && (
-        <div>
-          <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-            Durchsucht <strong>WirLernenOnline / OpenEduHub</strong> nach freien Unterrichtsmaterialien (OER) und verknüpft sie direkt mit
-            der gewählten Phase im Verlaufsplan, Handout und LMS-Export (<code>.imscc</code> / Moodle).
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              Ziel-Phase im Szenario
-              <select value={oerTargetStep} onChange={(e) => setOerTargetStep(e.target.value)}>
-                {scenarioRows.map((r) => (
-                  <option key={r.key} value={r.key}>
-                    {r.orderLabel} · {r.methodName} ({r.durationMin} min)
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              Suchbegriff (WLO)
-              <input
-                type="text"
-                value={oerQuery}
-                onChange={(e) => setOerQuery(e.target.value)}
-                placeholder={thema || 'z. B. Bruchrechnen, Dichte, Fotosynthese'}
-              />
-            </label>
-          </div>
-
-          <button type="button" className="btn btn-primary" disabled={busyOer} onClick={runWloSearch}>
-            🌐 {busyOer ? 'Suche in WirLernenOnline…' : 'Freie OER-Materialien suchen'}
-          </button>
-
-          {oerError && (
-            <div className="msgs" style={{ marginTop: 8 }}>
-              <li className="err">{oerError}</li>
-            </div>
-          )}
-
-          {oerResults.length > 0 && (
-            <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {oerResults.map((item) => {
-                const attached = (oerByStep[oerTargetStep] || []).some((x) => x.url === item.url);
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      padding: 10,
-                      borderRadius: 6,
-                      background: 'var(--paper)',
-                      border: '1px solid var(--grid)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: 10
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <a href={item.url} target="_blank" rel="noreferrer" style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
-                        {item.title} ↗
-                      </a>
-                      {item.description && (
-                        <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
-                          {item.description}
-                        </div>
-                      )}
-                      <div className="muted" style={{ fontSize: 11.5, marginTop: 4 }}>
-                        {[item.resourceType, item.license, ...(item.educationalContext || [])].filter(Boolean).join(' · ')}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${attached ? '' : 'btn-primary'}`}
-                      onClick={() => (attached ? detachOer(oerTargetStep, item.url) : attachOer(oerTargetStep, item))}
-                    >
-                      {attached ? '✓ Angehängt' : '+ An Phase'}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {totalAttachedOer > 0 && (
-            <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid var(--grid)' }}>
-              <strong style={{ fontFamily: 'var(--display)', fontSize: 14 }}>
-                Angehängte OER-Materialien ({totalAttachedOer}):
-              </strong>
-              <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 13 }}>
-                {scenarioRows.flatMap((r) =>
-                  r.oerResources.map((o) => (
-                    <li key={`${r.key}-${o.id}`} style={{ marginBottom: 4 }}>
-                      <strong>{r.orderLabel} ({r.methodName}):</strong>{' '}
-                      <a href={o.url} target="_blank" rel="noreferrer">
-                        {o.title}
-                      </a>{' '}
-                      <button type="button" className="btn btn-sm btn-ghost" onClick={() => detachOer(r.key, o.url)}>
-                        ✕
-                      </button>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 4: MATERIALGENERATOR */}
-      {activeTab === 'material' && (
-        <div>
-          <p className="muted" style={{ fontSize: 14, marginTop: 0 }}>
-            Erzeugt direkt einsetzbares Unterrichtsmaterial (inkl. Differenzierung &amp; Erwartungshorizont) – exakt abgestimmt auf die
-            Durchführungsschritte der gewählten FMT-Methode.
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              Phase / FMT-Methode
-              <select value={matStepKey} onChange={(e) => setMatStepKey(e.target.value)}>
-                {scenarioRows.map((r) => (
-                  <option key={r.key} value={r.key}>
-                    {r.orderLabel} · {r.methodName} ({r.durationMin} min)
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              Materialtyp
-              <select value={matType} onChange={(e) => setMatType(e.target.value)}>
-                {MATERIAL_TYPES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.id === 'auto'
-                      ? `${t.label} → ${MATERIAL_TYPES.find((x) => x.id === autoDetectedType)?.label || autoDetectedType}`
-                      : t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
-            Zusatzwunsch fürs Material (optional)
-            <input
-              type="text"
-              value={matNotes}
-              onChange={(e) => setMatNotes(e.target.value)}
-              placeholder="z. B. 4 gestufte Aufgaben mit Alltagsbezug Pizza/Rezept, inkl. Selbstkontroll-Lösung"
-            />
-          </label>
-
-          <button type="button" className="btn btn-primary" disabled={busyMat || !llmAvailable || !selectedMatRow} onClick={runMaterialGen}>
-            📝 {busyMat ? 'Generiere Material…' : 'Unterrichtsmaterial generieren (KI)'}
-          </button>
-
-          {matError && (
-            <div className="msgs" style={{ marginTop: 8 }}>
-              <li className="err">{matError}</li>
-            </div>
-          )}
-
-          {generatedMaterial && (
-            <div
-              style={{
-                marginTop: 12,
-                padding: 16,
-                background: 'var(--paper)',
-                borderRadius: 8,
-                border: '1px solid var(--rule)',
-                maxHeight: 520,
-                overflowY: 'auto'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-                <strong style={{ fontFamily: 'var(--display)', fontSize: 15 }}>{generatedMaterial.title}</strong>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-primary"
-                    onClick={() =>
-                      printHtmlDocument(exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content))
-                    }
-                  >
-                    🖨 Als PDF drucken
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm"
-                    onClick={() =>
-                      downloadFile(
-                        'fmt-material.html',
-                        exportMarkdownToPrintableHtml(generatedMaterial.title, generatedMaterial.content),
-                        'text/html;charset=utf-8'
-                      )
-                    }
-                  >
-                    ⬇ Handout (.html)
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm"
-                    onClick={() => downloadFile('fmt-material.md', generatedMaterial.content, 'text/markdown;charset=utf-8')}
-                  >
-                    ⬇ Markdown (.md)
-                  </button>
-                </div>
-              </div>
-              <SimpleMarkdown content={generatedMaterial.content} />
-            </div>
-          )}
-        </div>
-      )}
+        </details>
+      </article>
     </div>
   );
 }

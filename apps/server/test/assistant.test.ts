@@ -6,6 +6,7 @@ import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 import { buildChatCompletionBody, isOpenAiReasoningSeries } from '../src/llm/client.js';
+import { sanitizeWloSearchWord } from '../src/routes/oer.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
@@ -348,7 +349,9 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(matRes.statusCode).toBe(200);
     expect(matRes.json().material).toContain('Gestuftes Arbeitsblatt');
 
-    // WLO search rejects empty query with clean 400
+    // WLO search rejects empty query with clean 400 and strips German articles (edu-sharing Trap 2.8)
+    expect(sanitizeWloSearchWord('die Bruchrechnung für die Klasse 6')).toBe('Bruchrechnung');
+    expect(sanitizeWloSearchWord('Dichte von Stoffen im Physik Unterricht')).toBe('Dichte Stoffen Physik');
     const badWlo = await appWithKey.inject({
       method: 'POST',
       url: '/api/v1/oer/wlo-search',

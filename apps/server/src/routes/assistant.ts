@@ -173,6 +173,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       thema?: string;
       fach?: string;
       hinweise?: string;
+      lernziele?: string;
+      problemstellung?: string;
       differenzierung?: unknown;
       oerRessourcen?: unknown;
     } | null;
@@ -221,11 +223,13 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       }));
 
     const cacheKey = hashKey([
-      'elaborate-v3',
+      'elaborate-v4',
       store.bundle.versionHash,
       target.model,
       body.thema || '',
       body.fach || '',
+      body.lernziele || '',
+      body.problemstellung || '',
       body.hinweise || '',
       body.differenzierung || null,
       body.oerRessourcen || null,
@@ -253,6 +257,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     const userPrompt =
       `AUSGESTALTUNG für Fach: ${body.fach || 'nicht angegeben'}, Thema: ${body.thema || 'nicht angegeben'}.\n` +
+      (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
+      (body.problemstellung ? `Didaktische Ausgangslage / Problemstellung:\n${body.problemstellung}\n` : '') +
       (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
       (body.differenzierung ? `\nBinnendifferenzierung / Lerngruppen:\n${JSON.stringify(body.differenzierung, null, 2)}\n` : '') +
       (body.oerRessourcen ? `\nVerknüpfte WLO/OER-Ressourcen:\n${JSON.stringify(body.oerRessourcen, null, 2)}\n` : '') +
