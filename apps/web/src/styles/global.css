@@ -756,6 +756,234 @@ code {
   }
 }
 
+/* Differentiation / Scenario Adaptation Page */
+.diff-wrap {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 24px 56px;
+}
+
+.diff-guide {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 20px;
+}
+
+@media (max-width: 820px) {
+  .diff-guide {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diff-guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.diff-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--dA);
+  color: var(--on-domain);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13.5px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.diff-field-input {
+  width: 100%;
+  display: block;
+}
+
+.diff-field-textarea {
+  width: 100%;
+  display: block;
+  min-height: 82px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.diff-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid var(--rule);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.diff-pill-pos {
+  background: var(--dC-soft);
+  border-color: var(--dC);
+  color: var(--dC);
+}
+
+.diff-pill-info {
+  background: var(--dA-soft);
+  border-color: var(--dA);
+  color: var(--dA);
+}
+
+.diff-pill-warn {
+  background: var(--dB-soft);
+  border-color: var(--dB);
+  color: var(--dB);
+}
+
+.diff-pill-neg {
+  background: var(--err-soft);
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.diff-chip-toggle {
+  font-family: var(--display);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+
+.diff-chip-toggle:hover {
+  border-color: var(--dA);
+}
+
+.diff-chip-toggle.is-active {
+  background: var(--dA);
+  border-color: var(--dA);
+  color: var(--on-domain);
+}
+
+.diff-constraints-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 10px 14px;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.diff-constraints-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.diff-constraints-grid select,
+.diff-constraints-grid input[type='number'] {
+  width: 100%;
+  font-size: 14.5px;
+  padding: 6px 9px;
+}
+
+.diff-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+}
+
+.diff-tab {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.diff-tab:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.diff-tab.is-active {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--rule);
+  box-shadow: var(--shadow);
+}
+
+.diff-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (max-width: 720px) {
+  .diff-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diff-measure-card {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.diff-measure-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.diff-section-lead {
+  margin: 6px 0 0;
+  font-size: 14.5px;
+  color: var(--ink-2);
+  max-width: 820px;
+}
+
 @media print {
   .topbar,
   .no-print,

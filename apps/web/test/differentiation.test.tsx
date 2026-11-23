@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 describe('DifferentiationPage (/differenzierung)', () => {
-  it('renders UDL basis, conflicts with resolution strategies, analog filter, and system-measures toggle cleanly', () => {
+  it('renders clear 3-step guide, interactive group chips, view tabs, UDL/conflicts/phases, and analog/system filters', () => {
     render(
       <MemoryRouter initialEntries={['/differenzierung']}>
         <DifferentiationPage />
@@ -31,6 +31,8 @@ describe('DifferentiationPage (/differenzierung)', () => {
     );
 
     expect(screen.getByText(/Binnendifferenzierung & Szenario-Anpassung/i)).toBeTruthy();
+    expect(screen.getByText(/Unterricht beschreiben/i)).toBeTruthy();
+    expect(screen.getByText(/Lerngruppe markieren/i)).toBeTruthy();
     expect(screen.getByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeTruthy();
     expect(screen.getByText(/2\. Zielkonflikte zwischen Teilgruppen/i)).toBeTruthy();
     expect(screen.getByText(/4\. Phasen-Anpassungen/i)).toBeTruthy();
@@ -39,6 +41,22 @@ describe('DifferentiationPage (/differenzierung)', () => {
     // Default preset is analog (t-keine + ohneInternet) and excludes system measures
     expect(screen.queryByText(/Interaktive digitale Medien/i)).toBeNull();
     expect(screen.queryByText(/Zusätzliche Förderstunden/i)).toBeNull();
+
+    // Clicking a group chip ("LRS / Lesen & Schreiben") adds it directly to the learner group input
+    const lrsChip = screen.getByRole('button', { name: /LRS \/ Lesen & Schreiben/i });
+    expect(lrsChip.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(lrsChip);
+    expect(lrsChip.getAttribute('aria-pressed')).toBe('true');
+
+    // Switching result tab to "2. Zielkonflikte" focuses cleanly on conflicts only
+    const conflictTab = screen.getByRole('tab', { name: /2\. Zielkonflikte/i });
+    fireEvent.click(conflictTab);
+    expect(screen.queryByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeNull();
+    expect(screen.getByText(/2\. Zielkonflikte zwischen Teilgruppen/i)).toBeTruthy();
+
+    // Switching back to "Gesamtplan" restores all sections
+    fireEvent.click(screen.getByRole('tab', { name: /Gesamtplan/i }));
+    expect(screen.getByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeTruthy();
 
     // Toggling "Auch Schul-/Systemmaßnahmen anzeigen" works without error
     const sysCheckbox = screen.getByLabelText(/Auch Schul-\/Systemmaßnahmen anzeigen/i) as HTMLInputElement;
