@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  detectLearnerGroupsFromText,
   detectMatrixTraitsFromText,
-  DIFF_MATRIX_PERSONAS,
   FMT_GUARDRAILS,
   type Arrangement,
   type MatchRequest,
@@ -26,8 +26,8 @@ import {
   buildNeutralLearningScenario,
   buildScenarioRows,
   buildStructuredLessonText,
-  DEFAULT_LEARNER_GROUPS,
   extractSubjectAndTopic,
+  STANDARD_LEARNER_GROUPS,
   type GeneratedMaterialItem,
   type LearnerGroup,
   type OerResource,
@@ -47,7 +47,7 @@ import {
   type SavedScenario
 } from '../planner/scenarioStorage.js';
 
-type PlannerStep = 1 | 2 | 3 | 4;
+type PlannerStep = 1 | 2 | 3 | 4 | 5;
 
 const DIDACTIC_APPROACH_OPTIONS: Array<{ code: string; label: string }> = [
   { code: 'forschend', label: 'Problemorientiertes / forschendes Lernen' },
@@ -220,7 +220,7 @@ export function PlannerPage() {
   const [ohneKI, setOhneKI] = useState(false);
   const [raumzeitFilter, setRaumzeitFilter] = useState<string>('');
 
-  const [groups, setGroups] = useState<LearnerGroup[]>(DEFAULT_LEARNER_GROUPS);
+  const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
   const [subgroupMethods, setSubgroupMethods] = useState<SubgroupMethodMap>({});
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
@@ -475,28 +475,28 @@ export function PlannerPage() {
       setGeneratedMaterials([]);
       setAiDiffByStep({});
     }
-    // Deterministically detect heterogeneity/inclusion cues (DaZ, LRS, ADHS, Autismus, Hochbegabung...) -> auto-fill Matrix!
+    // Only add differentiation subgroups automatically when explicit heterogeneity cues (DaZ, LRS, ADHS...) appear in the prompt
     const matrixHit = detectMatrixTraitsFromText(scenarioText);
     if (matrixHit.signals.length > 0) {
-      setGroups((prev) =>
-        prev.map((g) => {
-          if (g.focus === 'basis' && matrixHit.suggestedPersonaId !== 'highPerforming') {
-            return {
-              ...g,
-              personaId: matrixHit.suggestedPersonaId || g.personaId,
-              matrixValues: { ...(g.matrixValues || {}), ...matrixHit.selectedValues }
-            };
-          }
-          if (g.focus === 'vertiefung' && matrixHit.suggestedPersonaId === 'highPerforming') {
-            return {
-              ...g,
-              personaId: 'highPerforming',
-              matrixValues: { ...(g.matrixValues || {}), ...matrixHit.selectedValues }
-            };
-          }
-          return g;
-        })
-      );
+      const det = detectLearnerGroupsFromText(scenarioText);
+      if (det.groups.length > 0) {
+        const detectedGroups: LearnerGroup[] = det.groups.map((g) => ({
+          id: g.id,
+          label: g.label,
+          profile: g.label,
+          focus: g.id === 'vertiefung' ? 'vertiefung' : g.id === 'regel' ? 'regel' : g.id === 'daz' ? 'sprachsensibel' : 'basis',
+          active: true,
+          count: g.count,
+          personaId: g.personaId,
+          matrixValues: g.selectedValues || {}
+        }));
+        const hasRegel = detectedGroups.some((g) => g.focus === 'regel');
+        setGroups(
+          hasRegel
+            ? detectedGroups
+            : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelniveau (Hauptgruppe)', count: undefined }, ...detectedGroups]
+        );
+      }
       return matrixHit.signals.map((s) => s.trigger).slice(0, 3);
     }
     return [] as string[];
@@ -612,8 +612,12 @@ export function PlannerPage() {
 
   const jumpToResources = (tab: StudioTab, stepKey: string) => {
     setFocusedStepKey(stepKey);
-    setResourceTab(tab);
-    setStep(3);
+    if (tab === 'diff') {
+      setStep(3);
+    } else {
+      setResourceTab(tab);
+      setStep(4);
+    }
   };
 
   const downloadFile = (filename: string, content: string, mime: string) => {
@@ -776,7 +780,7 @@ export function PlannerPage() {
     setShowSavedDrawer(false);
     setShowJsonImport(false);
     // Open directly on Step 4 if a finished thematic scenario was imported, else Step 2
-    setStep(p.elaboration || (p.thematicRows && p.thematicRows.length > 0) ? 4 : 2);
+    setStep(p.elaboration || (p.thematicRows && p.thematicRows.length > 0) ? 5 : 2);
     setSaveNotice(label);
     setTimeout(() => setSaveNotice(null), 4000);
   };
@@ -992,27 +996,35 @@ export function PlannerPage() {
           marginTop: 14,
           padding: 8,
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
           gap: 8
         }}
       >
         {(
           [
-            { id: 1 as const, label: '1. Szenario & Kontext', sub: 'Beschreibung, Ansatz, Akteure & Rahmen' },
+            { id: 1 as const, label: '1. Szenario & Kontext', sub: 'Beschreibung, Ansatz & Rahmen' },
             {
               id: 2 as const,
               label: `2. Methodisches Konzept (${scenarioRows.length})`,
-              sub: 'FMT-Rollen, Bausteine, Schwimmlinien & Prüfer'
+              sub: 'FMT-Rollen, Bausteine & Prüfer'
             },
             {
               id: 3 as const,
-              label: `3. WLO-OER, Material & Matrix`,
-              sub: `${totalAttachedOer} WLO-OER · ${generatedMaterials.length} KI-Mat. · ${groups.filter((g) => g.active).length} Gruppen`
+              label: '3. Binnendifferenzierung',
+              sub:
+                groups.filter((g) => g.active).length <= 1
+                  ? 'Standardgruppe · optional anpassen'
+                  : `${groups.filter((g) => g.active).length} Teilgruppen · UDL & Matrix`
             },
             {
               id: 4 as const,
-              label: '4. Thematisches Szenario & Export',
-              sub: elaboration ? 'Thematische Tabelle + Text bereit' : 'Tabelle, Text, PDF/Word/LMS & JSON'
+              label: '4. WLO-OER & Material',
+              sub: `${totalAttachedOer} WLO-OER · ${generatedMaterials.length} KI-Materialien`
+            },
+            {
+              id: 5 as const,
+              label: '5. Szenario & Export',
+              sub: elaboration ? 'Tabelle + Text bereit' : 'Tabelle, Text, PDF/Word/LMS'
             }
           ] as const
         ).map((s) => {
@@ -1304,12 +1316,24 @@ export function PlannerPage() {
               {/* Group B: Akteure & Personenanzahl */}
               <div style={{ paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  2. Akteure, Personenanzahl &amp; Schülerteilgruppen (mit Binnendifferenzierungsmatrix-Persona)
+                  2. Lerngruppe &amp; Begleitung
                 </strong>
                 <div className="filter-grid" style={{ marginTop: 8 }}>
                   <label>
                     Gesamt-Klassengröße (Personen)
-                    <input type="number" min={1} max={300} value={gruppeSize} onChange={(e) => setGruppeSize(e.target.value)} />
+                    <input
+                      type="number"
+                      min={1}
+                      max={300}
+                      value={gruppeSize}
+                      onChange={(e) => {
+                        setGruppeSize(e.target.value);
+                        const num = Number(e.target.value);
+                        if (num > 0 && groups.length === 1 && groups[0].id === 'regel') {
+                          setGroups([{ ...groups[0], count: num }]);
+                        }
+                      }}
+                    />
                   </label>
                   <label>
                     Lehrkraft / Begleitpersonen
@@ -1321,68 +1345,9 @@ export function PlannerPage() {
                     />
                   </label>
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: 8, marginTop: 10 }}>
-                  {groups.map((g) => (
-                    <div
-                      key={g.id}
-                      style={{
-                        padding: '8px 10px',
-                        borderRadius: 6,
-                        background: g.active ? 'var(--dA-soft)' : 'var(--paper)',
-                        border: '1px solid var(--grid)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 6
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-                        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--display)', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={g.active}
-                            onChange={(e) =>
-                              setGroups(groups.map((x) => (x.id === g.id ? { ...x, active: e.target.checked } : x)))
-                            }
-                          />
-                          {g.label}
-                        </label>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
-                          <input
-                            type="number"
-                            min={0}
-                            max={200}
-                            style={{ width: 54, padding: '2px 5px', fontSize: 12 }}
-                            value={g.count ?? ''}
-                            placeholder="Anz."
-                            onChange={(e) =>
-                              setGroups(
-                                groups.map((x) =>
-                                  x.id === g.id ? { ...x, count: e.target.value ? Number(e.target.value) : undefined } : x
-                                )
-                              )
-                            }
-                          />
-                          Pers.
-                        </span>
-                      </div>
-                      <select
-                        style={{ fontSize: 12, padding: '3px 6px' }}
-                        value={g.personaId || ''}
-                        onChange={(e) =>
-                          setGroups(groups.map((x) => (x.id === g.id ? { ...x, personaId: e.target.value || undefined } : x)))
-                        }
-                      >
-                        <option value="">Ohne Matrix-Persona</option>
-                        {DIFF_MATRIX_PERSONAS.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            Matrix: {p.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
+                <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
+                  Standardmäßig startet dein Konzept mit einer Gesamtgruppe (Regelniveau). Teilgruppen für Binnendifferenzierung fügst du gezielt nach dem Methodenkonzept in <strong>Schritt 3</strong> hinzu.
+                </p>
               </div>
 
               {/* Group C: Technik & Raum */}
@@ -1477,7 +1442,7 @@ export function PlannerPage() {
                 {nWarn > 0 ? ` · ${nWarn} Hinweise` : ''} {showValidationDetails ? '▲' : '▼'}
               </button>
               <button type="button" className="btn btn-sm btn-primary" onClick={() => setStep(3)}>
-                Weiter: WLO-OER, Material &amp; Matrix →
+                Weiter zu Schritt 3: Binnendifferenzierung →
               </button>
             </div>
           </div>
@@ -1581,15 +1546,14 @@ export function PlannerPage() {
       )}
 
       {/* =================================================================== */}
-      {/* SCHRITT 3: WLO-OER-KACHELN, KI-MATERIAL & DIFFERENZIERUNGSMATRIX    */}
+      {/* SCHRITT 3: BINNENDIFFERENZIERUNG (OPTIONAL, NACH METHODENKONZEPT)   */}
       {/* =================================================================== */}
       {step === 3 && (
         <section style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Interactive Orientation Timeline: click any block to select & highlight its phase! */}
           <div className="card no-print" style={{ padding: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
               <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                🧭 Ablauf-Orientierung (Baustein anklicken, um Ziel-Phase für OER, Material &amp; Matrix zu wählen)
+                🧭 Dein Methodenkonzept im Überblick (Phase anklicken zum Hervorheben)
               </strong>
               {(() => {
                 const activeRow = scenarioRows.find((r) => r.key === (focusedStepKey || scenarioRows[0]?.key));
@@ -1615,9 +1579,10 @@ export function PlannerPage() {
           </div>
 
           <ScenarioStudioPanel
-            mode="resources"
+            mode="diff"
             activeResourceTab={resourceTab}
             onResourceTabChange={setResourceTab}
+            totalClassSize={Number(gruppeSize) || undefined}
             focusedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
             onSelectStepKey={(k) => setFocusedStepKey(k)}
             arrangement={arrangement}
@@ -1665,21 +1630,116 @@ export function PlannerPage() {
             ohneInternet={ohneInternet}
             ohneKI={ohneKI}
           />
-          <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
+          <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
             <button type="button" className="btn" onClick={() => setStep(2)}>
               ← Zurück zum Methodischen Konzept
             </button>
             <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
-              Weiter zu Schritt 4: Fertiges thematisches Szenario &amp; Export →
+              Weiter zu Schritt 4: WLO-OER &amp; Material →
             </button>
           </div>
         </section>
       )}
 
       {/* =================================================================== */}
-      {/* SCHRITT 4: FERTIGES THEMATISCHES SZENARIO (TABELLE + TEXT + EXPORT) */}
+      {/* SCHRITT 4: WLO-OER-KACHELN & KI-MATERIAL                            */}
       {/* =================================================================== */}
       {step === 4 && (
+        <section style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="card no-print" style={{ padding: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+                🧭 Ablauf-Orientierung (Baustein anklicken, um Ziel-Phase für OER &amp; Material zu wählen)
+              </strong>
+              {(() => {
+                const activeRow = scenarioRows.find((r) => r.key === (focusedStepKey || scenarioRows[0]?.key));
+                return activeRow ? (
+                  <span className="status-badge" style={{ borderColor: 'var(--dA)', color: 'var(--dA)' }}>
+                    Aktiv: {activeRow.orderLabel} · {activeRow.methodName} ({activeRow.durationMin} min)
+                  </span>
+                ) : null;
+              })()}
+            </div>
+            <TimelineBandSvg
+              arrangement={arrangement}
+              blocksById={blocksById}
+              svgRef={svgRef}
+              groups={groups}
+              subgroupMethods={subgroupMethods}
+              ketten={bundle.ketten}
+              selectedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
+              onSelectStep={(k) => setFocusedStepKey(k)}
+              oerByStep={oerByStep}
+              generatedMaterials={generatedMaterials}
+            />
+          </div>
+
+          <ScenarioStudioPanel
+            mode="resources"
+            activeResourceTab={resourceTab === 'material' ? 'material' : 'oer'}
+            onResourceTabChange={setResourceTab}
+            focusedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
+            onSelectStepKey={(k) => setFocusedStepKey(k)}
+            arrangement={arrangement}
+            allBlocks={bundle.bausteine}
+            blocksById={blocksById}
+            usedBlocks={usedBlocks}
+            validation={validation}
+            scenarioRows={scenarioRows}
+            labelOf={labelOf}
+            fach={fach}
+            thema={thema}
+            didaktischerAnsatz={didaktischerAnsatzLabel}
+            lehrkraefteInfo={lehrkraefteInfo}
+            lernziele={lernziele}
+            problemstellung={problemstellung}
+            hinweise={hinweise}
+            onFachChange={setFach}
+            onThemaChange={setThema}
+            onHinweiseChange={setHinweise}
+            groups={groups}
+            onGroupsChange={setGroups}
+            aiDiffByStep={aiDiffByStep}
+            onAiDiffChange={setAiDiffByStep}
+            onEditDiffMeasure={handleEditDiffMeasure}
+            subgroupMethods={subgroupMethods}
+            onSubgroupMethodChange={handleSubgroupMethodChange}
+            oerByStep={oerByStep}
+            onOerByStepChange={setOerByStep}
+            generatedMaterials={generatedMaterials}
+            onGeneratedMaterialsChange={setGeneratedMaterials}
+            thematicRows={thematicRows}
+            onThematicRowsChange={setThematicRows}
+            elaboration={elaboration}
+            onElaborationChange={setElaboration}
+            onPrintPdf={handlePrintPdf}
+            onPrintOnePage={handlePrintOnePage}
+            onNextStep={() => setStep(5)}
+            onSaveBrowser={() => handleSaveBrowser(false)}
+            onDownloadProject={handleDownloadProjectFile}
+            getTimelineSvg={resolveTimelineSvgString}
+            byok={byok}
+            byokHeaders={byokHeaders}
+            llmAvailable={llmAvailable}
+            maxTechnik={maxTechnik || undefined}
+            ohneInternet={ohneInternet}
+            ohneKI={ohneKI}
+          />
+          <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+            <button type="button" className="btn" onClick={() => setStep(3)}>
+              ← Zurück zur Binnendifferenzierung
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setStep(5)}>
+              Weiter zu Schritt 5: Fertiges thematisches Szenario &amp; Export →
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* =================================================================== */}
+      {/* SCHRITT 5: FERTIGES THEMATISCHES SZENARIO (TABELLE + TEXT + EXPORT) */}
+      {/* =================================================================== */}
+      {step === 5 && (
         <section style={{ marginTop: 16 }}>
           <div style={{ position: 'absolute', left: -9999, top: -9999, width: 1000, pointerEvents: 'none' }} aria-hidden="true">
             <TimelineBandSvg
@@ -1730,7 +1790,7 @@ export function PlannerPage() {
             onElaborationChange={setElaboration}
             onPrintPdf={handlePrintPdf}
             onPrintOnePage={handlePrintOnePage}
-            onNextStep={() => setStep(4)}
+            onNextStep={() => setStep(5)}
             onSaveBrowser={() => handleSaveBrowser(false)}
             onDownloadProject={handleDownloadProjectFile}
             getTimelineSvg={resolveTimelineSvgString}
@@ -1742,8 +1802,8 @@ export function PlannerPage() {
             ohneKI={ohneKI}
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 14 }}>
-            <button type="button" className="btn" onClick={() => setStep(3)}>
-              ← Zurück zu WLO-OER, Material &amp; Matrix
+            <button type="button" className="btn" onClick={() => setStep(4)}>
+              ← Zurück zu WLO-OER &amp; Material
             </button>
           </div>
         </section>

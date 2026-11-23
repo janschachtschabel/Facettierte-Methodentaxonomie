@@ -6,7 +6,10 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { CatalogBundle } from '@fmt/core';
 import { DifferentiationPage } from '../src/pages/DifferentiationPage.js';
+import { DifferentiationMatrixPanel } from '../src/components/DifferentiationMatrixPanel.js';
 import { ACTIVE_PLANNER_DRAFT_KEY } from '../src/planner/scenarioStorage.js';
+import { STANDARD_LEARNER_GROUPS, type LearnerGroup } from '../src/planner/scenarioModel.js';
+import { useState } from 'react';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(
@@ -109,5 +112,40 @@ describe('DifferentiationPage (/differenzierung)', () => {
     expect(screen.getByText(/Aktuelles Baukasten-Szenario/i)).toBeTruthy();
     expect(screen.getByText(/Physik · Dichte von Stoffen/i)).toBeTruthy();
     expect(screen.getByText(/In Baukasten übernehmen \(Schritt 3\)/i)).toBeTruthy();
+  });
+
+  it('DifferentiationMatrixPanel in Baukasten Step 3 starts with Standardgruppe and unlocks UDL/conflicts on chip click', () => {
+    function Harness() {
+      const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
+      return (
+        <MemoryRouter>
+          <DifferentiationMatrixPanel
+            groups={groups}
+            onGroupsChange={setGroups}
+            scenarioRows={[]}
+            allBlocks={BUNDLE.bausteine}
+            subgroupMethods={{}}
+            onSubgroupMethodChange={() => {}}
+            aiDiffByStep={{}}
+            onAiDiffChange={() => {}}
+            onEditDiffMeasure={() => {}}
+            onRunAiDifferentiate={() => {}}
+            busyDiff={false}
+            diffError={null}
+            llmAvailable={false}
+          />
+        </MemoryRouter>
+      );
+    }
+
+    render(<Harness />);
+    expect(screen.getByText(/Standardgruppe \(Regelniveau\)/i)).toBeTruthy();
+    expect(screen.queryByRole('tab', { name: /1\. Basis für alle/i })).toBeNull();
+
+    // Clicking a subgroup chip immediately activates differentiation tabs
+    fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/i }));
+    expect(screen.getByRole('tab', { name: /1\. Basis für alle/i })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: /2\. Zielkonflikte/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Zurück auf Standardgruppe/i })).toBeTruthy();
   });
 });

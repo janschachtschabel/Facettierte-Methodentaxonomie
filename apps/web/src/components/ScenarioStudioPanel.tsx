@@ -34,9 +34,10 @@ import { runDirectDifferentiate, runDirectElaborate, runDirectMaterial } from '.
 export type StudioTab = 'oer' | 'diff' | 'material';
 
 interface Props {
-  mode: 'resources' | 'export';
+  mode: 'diff' | 'resources' | 'export';
   activeResourceTab: StudioTab;
   onResourceTabChange: (tab: StudioTab) => void;
+  totalClassSize?: number;
   focusedStepKey: string | null;
   onSelectStepKey?: (stepKey: string) => void;
   arrangement: Arrangement;
@@ -89,6 +90,7 @@ export function ScenarioStudioPanel({
   mode,
   activeResourceTab,
   onResourceTabChange,
+  totalClassSize,
   focusedStepKey,
   onSelectStepKey,
   arrangement,
@@ -545,9 +547,51 @@ export function ScenarioStudioPanel({
   const activeGroups = groups.filter((g) => g.active);
 
   // =========================================================================
-  // MODE 1 (STEP 3): WLO-OER-SUCHE, KI-MATERIALAUFTRAG & DIFFERENZIERUNGSMATRIX
+  // MODE 0 (STEP 3): BINNENDIFFERENZIERUNG (OPTIONAL, NACH METHODENKONZEPT)
+  // =========================================================================
+  if (mode === 'diff') {
+    const isStandardOnly = activeGroups.length <= 1 && (activeGroups.length === 0 || activeGroups[0].focus === 'regel');
+    return (
+      <div className="card" style={{ padding: 20 }}>
+        <DifferentiationMatrixPanel
+          groups={groups}
+          onGroupsChange={onGroupsChange}
+          scenarioRows={scenarioRows}
+          focusedStepKey={focusedStepKey}
+          onSelectStepKey={onSelectStepKey}
+          allBlocks={allBlocks}
+          subgroupMethods={subgroupMethods}
+          onSubgroupMethodChange={onSubgroupMethodChange}
+          aiDiffByStep={aiDiffByStep}
+          onAiDiffChange={onAiDiffChange}
+          onEditDiffMeasure={onEditDiffMeasure}
+          onRunAiDifferentiate={() => void runAiDifferentiate()}
+          busyDiff={busyDiff}
+          diffError={diffError}
+          llmAvailable={llmAvailable}
+          maxTechnik={maxTechnik}
+          ohneInternet={ohneInternet}
+          ohneKI={ohneKI}
+          totalClassSize={totalClassSize}
+        />
+        {onNextStep && (
+          <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--rule)' }}>
+            <button type="button" className="btn btn-primary" onClick={onNextStep}>
+              {isStandardOnly
+                ? 'Ohne Differenzierung weiter zu Schritt 4: WLO-OER & Material →'
+                : 'Weiter zu Schritt 4: WLO-OER & Material →'}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // MODE 1 (STEP 4): WLO-OER-SUCHE & KI-MATERIALAUFTRAG
   // =========================================================================
   if (mode === 'resources') {
+    const effectiveTab = activeResourceTab === 'material' ? 'material' : 'oer';
     return (
       <div className="card" style={{ padding: 20 }}>
         <div
@@ -566,24 +610,17 @@ export function ScenarioStudioPanel({
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button
               type="button"
-              className={`btn btn-sm ${activeResourceTab === 'oer' ? 'btn-primary' : ''}`}
+              className={`btn btn-sm ${effectiveTab === 'oer' ? 'btn-primary' : ''}`}
               onClick={() => onResourceTabChange('oer')}
             >
               🌐 WLO / OER finden &amp; zuordnen {totalAttachedOer > 0 ? `(${totalAttachedOer})` : ''}
             </button>
             <button
               type="button"
-              className={`btn btn-sm ${activeResourceTab === 'material' ? 'btn-primary' : ''}`}
+              className={`btn btn-sm ${effectiveTab === 'material' ? 'btn-primary' : ''}`}
               onClick={() => onResourceTabChange('material')}
             >
               📝 Material per KI erstellen {generatedMaterials.length > 0 ? `(${generatedMaterials.length} angehängt)` : ''}
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${activeResourceTab === 'diff' ? 'btn-primary' : ''}`}
-              onClick={() => onResourceTabChange('diff')}
-            >
-              ⚖ Binnendifferenzierungsmatrix ({activeGroups.length} Gruppen)
             </button>
           </div>
           {onNextStep && (
@@ -591,14 +628,14 @@ export function ScenarioStudioPanel({
               type="button"
               className="btn btn-sm btn-primary"
               onClick={onNextStep}
-              title="Weiter zum fertigen thematischen Unterrichtsszenario & Export (Schritt 4)"
+              title="Weiter zum fertigen thematischen Unterrichtsszenario & Export (Schritt 5)"
             >
-              Weiter zu Schritt 4: Entwurf &amp; Export →
+              Weiter zu Schritt 5: Entwurf &amp; Export →
             </button>
           )}
         </div>
 
-        {activeResourceTab === 'oer' && (
+        {effectiveTab === 'oer' && (
           <WloOerCards
             scenarioRows={scenarioRows}
             initialStepKey={focusedStepKey || scenarioRows[0]?.key || 'step-0'}
@@ -611,30 +648,7 @@ export function ScenarioStudioPanel({
           />
         )}
 
-        {activeResourceTab === 'diff' && (
-          <DifferentiationMatrixPanel
-            groups={groups}
-            onGroupsChange={onGroupsChange}
-            scenarioRows={scenarioRows}
-            focusedStepKey={focusedStepKey}
-            onSelectStepKey={onSelectStepKey}
-            allBlocks={allBlocks}
-            subgroupMethods={subgroupMethods}
-            onSubgroupMethodChange={onSubgroupMethodChange}
-            aiDiffByStep={aiDiffByStep}
-            onAiDiffChange={onAiDiffChange}
-            onEditDiffMeasure={onEditDiffMeasure}
-            onRunAiDifferentiate={() => void runAiDifferentiate()}
-            busyDiff={busyDiff}
-            diffError={diffError}
-            llmAvailable={llmAvailable}
-            maxTechnik={maxTechnik}
-            ohneInternet={ohneInternet}
-            ohneKI={ohneKI}
-          />
-        )}
-
-        {activeResourceTab === 'material' && (
+        {effectiveTab === 'material' && (
           <div>
             <strong style={{ fontFamily: 'var(--display)', fontSize: 16 }}>
               📝 Materialauftrag an die KI (Arbeitsblatt, Quiz, Checkliste, Karten)
