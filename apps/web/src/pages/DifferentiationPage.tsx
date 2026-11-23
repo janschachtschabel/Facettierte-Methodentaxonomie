@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  QUICK_LEARNER_GROUP_PROFILES,
   adaptScenario,
   detectLearnerGroupsFromText,
   type AdaptScenarioResult,
@@ -8,10 +9,12 @@ import {
   type MeasureLevel
 } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
+import { exportMarkdownToPrintableHtml } from '../planner/arrangementOps.js';
 import {
   DIFF_HANDOFF_KEY,
   loadActivePlannerDraft,
   loadSavedScenarios,
+  printHtmlDocument,
   type ActivePlannerDraft,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
@@ -39,16 +42,23 @@ interface GroupChip {
   match: RegExp;
 }
 
-const GROUP_CHIPS: GroupChip[] = [
-  { id: 'daz', label: 'DaZ / Sprachförderung', snippet: 'DaZ-Kinder', match: /\bdaz\b|sprachsensib|sprachförder|mehrsprach/i },
-  { id: 'adhs', label: 'ADHS / Fokusstruktur', snippet: 'ADHS', match: /\badhs\b|\bads\b|konzentration|aufmerksamkeit/i },
-  { id: 'lrs', label: 'LRS / Lesen & Schreiben', snippet: 'LRS', match: /\blrs\b|legasthen|lese-?rechtschreib/i },
-  { id: 'lernen', label: 'Förderbedarf Lernen', snippet: 'Förderbedarf Lernen', match: /förderbedarf\s*lernen|lernschwierigkeit|sonderpädagog/i },
-  { id: 'vorwissen', label: 'Geringes Vorwissen', snippet: 'geringes Vorwissen', match: /gering(?:es|em)?\s+vorwissen|wenig\s+vorwissen|basisunterstütz/i },
-  { id: 'stark', label: 'Leistungsstark / Vertiefung', snippet: 'leistungsstarke Lernende', match: /leistungsstark|hochbegab|vertiefung|schnell/i },
-  { id: 'ruhig', label: 'Schüchtern / geringe Beteiligung', snippet: 'schüchterne Lernende', match: /schüchtern|zurückhalt|geringe\s+beteiligung|angst/i },
-  { id: 'barriere', label: 'Sehen / Hören / Motorik', snippet: 'Seh- oder Hörbeeinträchtigung', match: /sehbeeintr|hörbeeintr|motorik|barriere/i }
-];
+const CHIP_MATCHERS: Record<string, RegExp> = {
+  daz: /\bdaz\b|sprachsensib|sprachförder|mehrsprach/i,
+  adhs: /\badhs\b|\bads\b|konzentration|aufmerksamkeit/i,
+  lrs: /\blrs\b|legasthen|lese-?rechtschreib/i,
+  'foerder-lernen': /förderbedarf\s*lernen|lernschwierigkeit|sonderpädagog/i,
+  'vorwissen-gering': /gering(?:es|em)?\s+vorwissen|wenig\s+vorwissen|basisunterstütz/i,
+  vertiefung: /leistungsstark|hochbegab|vertiefung|schnell/i,
+  schuechtern: /schüchtern|zurückhalt|geringe\s+beteiligung|angst/i,
+  barriere: /seh|hör|motorik|barriere/i
+};
+
+const GROUP_CHIPS: GroupChip[] = QUICK_LEARNER_GROUP_PROFILES.map((p) => ({
+  id: p.id,
+  label: p.chipLabel,
+  snippet: p.snippet,
+  match: CHIP_MATCHERS[p.id] || new RegExp(p.id, 'i')
+}));
 
 const QUICK_PRESETS: QuickPreset[] = [
   {
@@ -397,6 +407,16 @@ export function DifferentiationPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handlePrintPdf = () => {
+    if (!result) return;
+    const md = buildMarkdownChecklist(result, activeScenarioTitle);
+    const html = exportMarkdownToPrintableHtml(
+      `Binnendifferenzierungsplan · ${result.kontext.thema || activeScenarioTitle || 'Szenario'}`,
+      md
+    );
+    printHtmlDocument(html);
+  };
+
   const handleSendToPlanner = () => {
     const returnToStep3 = inputMode === 'planner' && Boolean(livePlannerDraft);
     const det = lerngruppenText.trim()
@@ -719,6 +739,9 @@ export function DifferentiationPage() {
                   ? 'In Baukasten übernehmen (Schritt 3) →'
                   : 'Im Szenario-Baukasten weiterplanen →'}
               </button>
+              <button type="button" className="btn" onClick={handlePrintPdf}>
+                Drucken / PDF
+              </button>
               <button type="button" className="btn" onClick={() => void handleCopyMarkdown()}>
                 Checkliste kopieren
               </button>
@@ -934,6 +957,22 @@ export function DifferentiationPage() {
                           {p.lernfunktion}{p.durationMin ? ` · ca. ${p.durationMin} Min.` : ''}
                         </span>
                       </div>
+
+                      {p.methodenKontext && (
+                        <div
+                          style={{
+                            padding: '8px 10px',
+                            borderRadius: 6,
+                            background: 'var(--surface)',
+                            borderLeft: '3px solid var(--dA)',
+                            fontSize: 13,
+                            lineHeight: 1.45
+                          }}
+                        >
+                          <strong>Methoden-Kontext ({p.bausteinName}):</strong>{' '}
+                          {p.methodenKontext.methodenAnpassungshinweis}
+                        </div>
+                      )}
 
                       {p.passendeFmtMethoden.length > 0 && (
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', fontSize: 13 }}>

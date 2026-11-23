@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import {
   DIFF_MATRIX_PERSONAS,
   DIFF_MATRIX_VARIABLES,
+  QUICK_LEARNER_GROUP_PROFILES,
   getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
@@ -236,6 +237,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     const hasScenario =
       (typeof body.scenarioText === 'string' && body.scenarioText.trim().length > 0) ||
       (typeof body.text === 'string' && body.text.trim().length > 0) ||
+      (typeof body.baustein === 'string' && body.baustein.trim().length > 0) ||
       Boolean(body.arrangement) ||
       (Array.isArray(body.phasen) && body.phasen.length > 0) ||
       (typeof body.lerngruppenText === 'string' && body.lerngruppenText.trim().length > 0) ||
@@ -243,7 +245,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!hasScenario) {
       return reply
         .code(400)
-        .send({ fehler: 'Bitte mindestens scenarioText/text, arrangement, phasen, lerngruppenText oder gruppen übergeben.' });
+        .send({ fehler: 'Bitte mindestens scenarioText/text, baustein, arrangement, phasen, lerngruppenText oder gruppen übergeben.' });
     }
     return buildAdaptScenarioZeroLlm(store, body);
   });
@@ -251,10 +253,12 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
   app.post('/api/v1/differentiation/score', async (req) => {
     const body = (req.body || {}) as {
       personaId?: string;
+      quickProfileId?: string;
       selectedValues?: Record<string, string>;
       minScore?: number;
       limit?: number;
       baustein?: string;
+      bildungsstufe?: string;
       ebenen?: MeasureLevel[];
       includeSystemMeasures?: boolean;
       maxTechnik?: string;
@@ -262,9 +266,16 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       ohneKI?: boolean;
       maxAufwand?: MeasureEffort;
     };
+    const quickProfile = body.quickProfileId
+      ? QUICK_LEARNER_GROUP_PROFILES.find((p) => p.id === body.quickProfileId)
+      : undefined;
+    const mergedSelected = {
+      ...(quickProfile?.selectedValues || {}),
+      ...(body.selectedValues || {})
+    };
     const scoreResult = scoreDifferentiationMatrix({
-      personaId: body.personaId,
-      selectedValues: body.selectedValues,
+      personaId: body.personaId ?? quickProfile?.personaId,
+      selectedValues: Object.keys(mergedSelected).length ? mergedSelected : undefined,
       minScore: body.minScore,
       limit: body.limit,
       ebenen: body.ebenen,
@@ -279,13 +290,15 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5, undefined, {
           maxTechnik: body.maxTechnik,
           ohneInternet: body.ohneInternet,
-          ohneKI: body.ohneKI
+          ohneKI: body.ohneKI,
+          bildungsstufe: body.bildungsstufe
         })
       : [];
     return {
       ...scoreResult,
       alternativeMethoden,
-      personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
+      personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
+      schnellProfile: QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ id: p.id, label: p.label, profile: p.profile }))
     };
   });
 

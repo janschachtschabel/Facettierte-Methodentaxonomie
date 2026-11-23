@@ -1,4 +1,5 @@
 import {
+  computeMultiGroupSynthesis,
   locate,
   type AlternativeNode,
   type Arrangement,
@@ -596,7 +597,17 @@ export interface ExportOptions {
   timelineSvg?: string | null;
   machineReadableJson?: string | null;
   includeMachineReadableInMd?: boolean;
-  groups?: Array<{ id: string; label: string; count?: number; active: boolean }>;
+  groups?: Array<{
+    id: string;
+    label: string;
+    count?: number;
+    active: boolean;
+    personaId?: string;
+    matrixValues?: Record<string, string>;
+  }>;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
   thematicRows?: Array<{
     key: string;
     orderLabel: string;
@@ -758,7 +769,9 @@ export function exportArrangementMarkdown(
       const diffTxt = activeGroups
         .map((g) => {
           const val = tr.groupAdaptations[g.id] || tr.groupAdaptations[g.label];
-          return val ? `**${cleanCell(g.label)}:** ${cleanCell(val)}` : '';
+          const alt = scRow?.subgroupMethods?.[g.id];
+          const altStr = alt ? ` *(Alternativ-Methode: ${cleanCell(alt.methodName)})*` : '';
+          return val || altStr ? `**${cleanCell(g.label)}:** ${cleanCell(val || '')}${altStr}` : '';
         })
         .filter(Boolean)
         .join(' · ');
@@ -792,7 +805,16 @@ export function exportArrangementMarkdown(
       const mLink = r.methodUrl.startsWith('http')
         ? `[${cleanCell(r.methodName)} (${r.methodRange})](${r.methodUrl})`
         : `${cleanCell(r.methodName)} (${r.methodRange})`;
-      const diffTxt = r.differentiation.map((d) => `**${cleanCell(d.groupLabel)}:** ${cleanCell(d.measure)}`).join(' · ');
+      const altEntries = r.subgroupMethods
+        ? Object.entries(r.subgroupMethods).map(([gid, alt]) => {
+            const gLabel = options.groups?.find((g) => g.id === gid)?.label || gid;
+            return `**${cleanCell(gLabel)} (Alternativ-Methode):** ${cleanCell(alt.methodName)}`;
+          })
+        : [];
+      const diffTxt = [
+        ...r.differentiation.map((d) => `**${cleanCell(d.groupLabel)}:** ${cleanCell(d.measure)}`),
+        ...altEntries
+      ].join(' · ');
       const oerTxt = r.oerResources
         .map((o) => {
           const href = o.wwwurl || o.url;
@@ -803,6 +825,42 @@ export function exportArrangementMarkdown(
       lines.push(
         `| ${cleanCell(r.orderLabel)} | ${cleanCell(r.phaseLabel)} | ${r.durationMin} min | ${mLink} | ${cleanCell(r.teacherRole)} | ${cleanCell(r.learnerRole)} | ${extra} |`
       );
+    }
+  }
+
+  // Dedicated UDL Basis & Zielkonflikte summary in Markdown / HTML-Handout / Word-Doc when 2+ groups are active
+  const activeDiffGroups = (options.groups || []).filter((g) => g.active);
+  if (activeDiffGroups.length >= 2) {
+    const synth = computeMultiGroupSynthesis(
+      activeDiffGroups.map((g) => ({
+        id: g.id,
+        label: g.label,
+        count: g.count,
+        personaId: g.personaId,
+        selectedValues: g.matrixValues
+      })),
+      {
+        maxTechnik: options.maxTechnik,
+        ohneInternet: options.ohneInternet,
+        ohneKI: options.ohneKI
+      }
+    );
+    if (synth.udlBasis.length || synth.konflikte.length) {
+      lines.push('', '### Binnendifferenzierung: Gemeinsame Basis (UDL) & Zielkonflikte', '');
+      if (synth.udlBasis.length) {
+        lines.push('**Gemeinsame Basis für alle Teilgruppen (UDL):**');
+        for (const u of synth.udlBasis.slice(0, 5)) {
+          lines.push(`- **${u.name}** (Passung ≥ +${u.minNormalizedScore} %): ${u.meta.umsetzungsimpuls}`);
+        }
+        lines.push('');
+      }
+      if (synth.konflikte.length) {
+        lines.push('**Erkannte Zielkonflikte & Auflösungsstrategien:**');
+        for (const k of synth.konflikte.slice(0, 4)) {
+          lines.push(`- **${k.measureName}:** ${k.aufloesungsstrategie}`);
+        }
+        lines.push('');
+      }
     }
   }
 
@@ -1100,9 +1158,11 @@ export function exportArrangementOnePageSheet(
       const diffLines = activeGroups
         .map((g) => {
           const val = tr.groupAdaptations[g.id];
-          if (!val) return '';
+          const alt = scRow?.subgroupMethods?.[g.id];
+          if (!val && !alt) return '';
           const shortLabel = g.label.split(/[\s&(]/)[0] || g.label;
-          return `**${shortLabel}:** ${val}`;
+          const altNote = alt ? ` → Alt.: ${alt.methodName}` : '';
+          return `**${shortLabel}:** ${val || ''}${altNote}`;
         })
         .filter(Boolean);
       const oerNames = (scRow?.oerResources || []).map((o) => `🌐 ${o.title}`);
@@ -1172,6 +1232,30 @@ export function exportArrangementOnePageSheet(
   const goalsLine = options.lernziele?.trim()
     ? `<div class="goals"><strong>Lernziele:</strong> ${renderInlineMarkdownHtml(clipCompact(options.lernziele, 260), 'mathml')}</div>`
     : '';
+
+  const udlPrintBoxHtml = (() => {
+    if (activeGroups.length < 2) return '';
+    const synth = computeMultiGroupSynthesis(
+      activeGroups.map((g) => ({
+        id: g.id,
+        label: g.label,
+        count: g.count,
+        personaId: g.personaId,
+        selectedValues: g.matrixValues
+      })),
+      {
+        maxTechnik: options.maxTechnik,
+        ohneInternet: options.ohneInternet,
+        ohneKI: options.ohneKI
+      }
+    );
+    const udlList = synth.udlBasis.slice(0, 3).map((u) => `${escHtml(u.name)}`).join(' · ');
+    const conflictNote = synth.konflikte[0]
+      ? ` &nbsp;|&nbsp; <strong>Konflikt-Lösung (${escHtml(synth.konflikte[0].measureName)}):</strong> ${escHtml(clipCompact(synth.konflikte[0].aufloesungsstrategie, 130))}`
+      : '';
+    if (!udlList && !conflictNote) return '';
+    return `<div class="goals"><strong>UDL-Basis (${activeGroups.length} Gruppen):</strong> ${udlList}${conflictNote}</div>`;
+  })();
 
   const allOer = scenarioRows.flatMap((r) =>
     r.oerResources.map((o) => ({
@@ -1389,6 +1473,7 @@ export function exportArrangementOnePageSheet(
       <div class="sheet-meta">${escHtml(metaBadges)}</div>
     </header>
     ${goalsLine}
+    ${udlPrintBoxHtml}
     ${showTimeline ? `<div class="mini-svg">${options.timelineSvg}</div>` : ''}
     <table>
       <thead>

@@ -160,6 +160,36 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(html).toContain('<!DOCTYPE html>');
     expect(html).toContain('Quellenverzeichnis');
 
+    // Differentiated print/export (Markdown, HTML, One-Page-Sheet) includes UDL basis, conflicts & subgroup alternative methods
+    const diffRows = buildScenarioRows(
+      preset,
+      BUNDLE,
+      BLOCKS,
+      (_s, c) => c,
+      DEFAULT_LEARNER_GROUPS,
+      {},
+      {},
+      '',
+      { 'step-0': { basis: 'ampelspiel' } }
+    );
+    const mdDiff = exportArrangementMarkdown(preset, BLOCKS, val, {
+      fach: 'Physik',
+      thema: 'Dichte',
+      groups: DEFAULT_LEARNER_GROUPS,
+      scenarioRows: diffRows
+    });
+    expect(mdDiff).toContain('Gemeinsame Basis für alle Teilgruppen (UDL)');
+    expect(mdDiff).toContain('Erkannte Zielkonflikte');
+    expect(mdDiff).toContain('Alternativ-Methode');
+
+    const onePageDiff = exportArrangementOnePageSheet(preset, BLOCKS, val, {
+      fach: 'Physik',
+      thema: 'Dichte',
+      groups: DEFAULT_LEARNER_GROUPS,
+      scenarioRows: diffRows
+    });
+    expect(onePageDiff).toContain('UDL-Basis');
+
     // Broken R-01 + R-03 arrangement gets plain-German explanation & working 1-click fix
     const broken: Arrangement = {
       typ: 'Arrangement',

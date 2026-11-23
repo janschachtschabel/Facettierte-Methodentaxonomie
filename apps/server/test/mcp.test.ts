@@ -46,7 +46,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     await app.close();
   });
 
-  it('lists all 14 FMT tools, resources, and prompts', async () => {
+  it('lists all 15 FMT tools, resources, and prompts', async () => {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
@@ -57,6 +57,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
       'elaborate_scenario',
       'generate_phase_material',
       'get_method',
+      'list_differentiation_options',
       'list_vocabularies',
       'match_scenario',
       'score_differentiation_matrix',
@@ -67,10 +68,15 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     ]);
 
     const { prompts } = await client.listPrompts();
-    expect(prompts.map((p) => p.name).sort()).toEqual(['audit_lesson_plan', 'design_learning_scenario']);
+    expect(prompts.map((p) => p.name).sort()).toEqual([
+      'adapt_lesson_differentiation',
+      'audit_lesson_plan',
+      'design_learning_scenario'
+    ]);
 
     const { resources } = await client.listResources();
     expect(resources.some((r) => r.uri === 'fmt://catalog/summary')).toBe(true);
+    expect(resources.some((r) => r.uri === 'fmt://differentiation/options')).toBe(true);
     expect(resources.some((r) => r.uri === 'fmt://rules')).toBe(true);
   });
 
@@ -272,6 +278,37 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const adaptArr = JSON.parse((adaptArrRes.content as Array<{ text: string }>)[0].text);
     expect(adaptArr.phasenAnpassungen.length).toBeGreaterThanOrEqual(4);
     expect(adaptArr.phasenAnpassungen[0].baustein).toBeTruthy();
+    expect(adaptArr.phasenAnpassungen[0].methodenKontext).toBeDefined();
+
+    // Standalone 1-method adaptation via `baustein` shortcut + standalone `list_differentiation_options`
+    const optRes = await client.callTool({ name: 'list_differentiation_options', arguments: {} });
+    const optJson = JSON.parse((optRes.content as Array<{ text: string }>)[0].text);
+    expect(optJson.anzahlMassnahmen).toBe(172);
+    expect(optJson.schnellProfile.length).toBeGreaterThanOrEqual(8);
+    expect(optJson.anpassungsvariablen.length).toBeGreaterThanOrEqual(8);
+
+    const singleMethodRes = await client.callTool({
+      name: 'adapt_scenario',
+      arguments: {
+        baustein: 'gruppenpuzzle',
+        lerngruppenText: '4 DaZ-Kinder, 2 mit ADHS, 3 Leistungsstarke',
+        bildungsstufe: 'sek1',
+        maxTechnik: 't-keine',
+        ohneInternet: true
+      }
+    });
+    const singleMethod = JSON.parse((singleMethodRes.content as Array<{ text: string }>)[0].text);
+    expect(singleMethod.phasenAnpassungen.length).toBe(1);
+    expect(singleMethod.phasenAnpassungen[0].baustein).toBe('gruppenpuzzle');
+    expect(singleMethod.phasenAnpassungen[0].methodenKontext?.kernkomponente.length).toBeGreaterThan(0);
+
+    const quickScoreRes = await client.callTool({
+      name: 'score_differentiation_matrix',
+      arguments: { quickProfileId: 'daz', baustein: 'gruppenpuzzle', bildungsstufe: 'sek1', maxTechnik: 't-keine' }
+    });
+    const quickScore = JSON.parse((quickScoreRes.content as Array<{ text: string }>)[0].text);
+    expect(quickScore.selectedCount).toBe(4);
+    expect(quickScore.topRecommendations.length).toBeGreaterThan(0);
   });
 
   it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {

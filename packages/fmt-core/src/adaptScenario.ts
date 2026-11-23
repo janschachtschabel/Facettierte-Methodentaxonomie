@@ -34,6 +34,8 @@ export interface AdaptPhaseInput {
 
 export interface AdaptScenarioInput {
   scenarioText?: string;
+  /** Optional single FMT method kennung for direct 1-method differentiation in chat/MCP/API */
+  baustein?: string;
   arrangement?: Arrangement;
   phasen?: AdaptPhaseInput[];
   lerngruppenText?: string;
@@ -49,6 +51,149 @@ export interface AdaptScenarioInput {
   ebenen?: MeasureLevel[];
   includeSystemMeasures?: boolean;
 }
+
+export interface QuickLearnerGroupProfile {
+  id: string;
+  label: string;
+  chipLabel: string;
+  snippet: string;
+  profile: string;
+  focus: 'basis' | 'regel' | 'vertiefung' | 'sprachsensibel' | 'custom';
+  defaultCount: number;
+  personaId?: string;
+  selectedValues: Record<string, string>;
+}
+
+/**
+ * Single Source of Truth for quick learner-group presets across Core, Web UI (/differenzierung & Baukasten Step 3),
+ * REST API (/api/v1/differentiation/meta), and MCP (list_differentiation_options).
+ * Every variable ID and value ID is strictly validated against DIFF_MATRIX_VARIABLES.
+ */
+export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
+  {
+    id: 'daz',
+    label: 'DaZ & Sprachsensibel',
+    chipLabel: 'DaZ / Sprachförderung',
+    snippet: 'DaZ-Kinder',
+    profile: 'Sprachsensible Unterstützung mit Bildhilfen, Wortbank, Satzstartern und klarer Visualisierung',
+    focus: 'sprachsensibel',
+    defaultCount: 5,
+    selectedValues: {
+      sprachkompetenz: 'sprachkompetenz-gering',
+      'foerderbedarf-sprache': 'foerderbedarf-sprache-erheblich',
+      ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
+      sensorische: 'sensorische-visuell'
+    }
+  },
+  {
+    id: 'adhs',
+    label: 'ADHS & Fokusstrukturierung',
+    chipLabel: 'ADHS / Fokusstruktur',
+    snippet: 'ADHS',
+    profile: 'Kurze Arbeitsetappen, klare Schrittfolge, reizarme Struktur und aktive Bewegungsimpulse',
+    focus: 'basis',
+    defaultCount: 3,
+    selectedValues: {
+      strukturierung: 'strukturierung-stark',
+      'foerderbedarf-emotional-sozial': 'foerderbedarf-emotional-sozial-gelegentlich',
+      engagement: 'engagement-gering',
+      methoden: 'methoden-direkt'
+    }
+  },
+  {
+    id: 'lrs',
+    label: 'LRS & Lese-/Schreibunterstützung',
+    chipLabel: 'LRS / Lesen & Schreiben',
+    snippet: 'LRS',
+    profile: 'Entlastung bei Textmenge und Rechtschreibung, klares Layout und multimodale/mündliche Zugänge',
+    focus: 'basis',
+    defaultCount: 3,
+    selectedValues: {
+      ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
+      'foerderbedarf-sprache': 'foerderbedarf-sprache-gelegentlich',
+      sensorische: 'sensorische-multimodal',
+      strukturierung: 'strukturierung-stark'
+    }
+  },
+  {
+    id: 'foerder-lernen',
+    label: 'Förderbedarf Lernen & Kleinschrittigkeit',
+    chipLabel: 'Förderbedarf Lernen',
+    snippet: 'Förderbedarf Lernen',
+    profile: 'Kleinschrittige Aufgaben, anschauliche Modelle, Lösungsbeispiele und enge Begleitung',
+    focus: 'basis',
+    defaultCount: 4,
+    personaId: 'foerderLernen',
+    selectedValues: {
+      'foerderbedarf-lernen': 'foerderbedarf-lernen-umfassend',
+      vorwissen: 'vorwissen-gering',
+      leistungsniveau: 'leistungsniveau-gering',
+      denkverarbeitung: 'denkverarbeitung-langsam',
+      strukturierung: 'strukturierung-stark'
+    }
+  },
+  {
+    id: 'vorwissen-gering',
+    label: 'Geringes Vorwissen (Basis)',
+    chipLabel: 'Geringes Vorwissen',
+    snippet: 'geringes Vorwissen',
+    profile: 'Aktivierung von Grundlagen, schrittweise Hinführung und anschauliche Beispiele',
+    focus: 'basis',
+    defaultCount: 6,
+    selectedValues: {
+      vorwissen: 'vorwissen-gering',
+      leistungsniveau: 'leistungsniveau-gering',
+      strukturierung: 'strukturierung-stark',
+      lernstrategien: 'lernstrategien-kaum'
+    }
+  },
+  {
+    id: 'vertiefung',
+    label: 'Leistungsstark & Vertiefung',
+    chipLabel: 'Leistungsstark / Vertiefung',
+    snippet: 'leistungsstarke Lernende',
+    profile: 'Transferaufgaben, offene Problemstellungen, Vertiefung oder Tutorenrolle',
+    focus: 'vertiefung',
+    defaultCount: 5,
+    selectedValues: {
+      leistungsniveau: 'leistungsniveau-hoch',
+      vorwissen: 'vorwissen-hoch',
+      denkverarbeitung: 'denkverarbeitung-schnell',
+      strukturierung: 'strukturierung-offen',
+      metakognitive: 'metakognitive-stark'
+    }
+  },
+  {
+    id: 'schuechtern',
+    label: 'Schüchtern & geringe Beteiligung',
+    chipLabel: 'Schüchtern / geringe Beteiligung',
+    snippet: 'schüchterne Lernende',
+    profile: 'Geschützte Austauschformate (Einzel-/Partnerarbeit vor Plenum), angstfreie Rückmeldungen',
+    focus: 'basis',
+    defaultCount: 4,
+    selectedValues: {
+      'soziale-kompetenzen': 'soziale-kompetenzen-eingeschraenkt',
+      werte: 'werte-vermeidung',
+      selbstwirksamkeit: 'selbstwirksamkeit-gering',
+      arbeitsformen: 'arbeitsformen-partner'
+    }
+  },
+  {
+    id: 'barriere',
+    label: 'Sehen / Hören / Motorik',
+    chipLabel: 'Sehen / Hören / Motorik',
+    snippet: 'Seh-, Hör- oder motorische Einschränkung',
+    profile: 'Barrierearme Darstellung, multimodale Zugänge, Kontrast/Audio und angepasste Bearbeitungszeit',
+    focus: 'basis',
+    defaultCount: 2,
+    selectedValues: {
+      'foerderbedarf-sehen': 'foerderbedarf-sehen-leicht',
+      'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung',
+      'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-leicht',
+      sensorische: 'sensorische-multimodal'
+    }
+  }
+];
 
 export interface UdlMeasure {
   id: string;
@@ -83,6 +228,16 @@ export interface AdaptedSubgroupResult {
   vermeiden: MatrixRecommendation[];
 }
 
+export interface PhaseMethodContext {
+  interaktion: string[];
+  anleitung: string[];
+  kernkomponente: string[];
+  durchfuehrungKurz: string[];
+  qualitaetsrisiko: string[];
+  evidenzKurz: string | null;
+  methodenAnpassungshinweis: string;
+}
+
 export interface PhaseAdaptationResult {
   key: string;
   orderLabel: string;
@@ -91,6 +246,7 @@ export interface PhaseAdaptationResult {
   lernfunktion: string;
   baustein: string | null;
   bausteinName: string | null;
+  methodenKontext?: PhaseMethodContext;
   udlImpulse: Array<{ id: string; name: string; umsetzungsimpuls: string; aufwand: MeasureEffort }>;
   teilgruppenImpulse: Array<{
     groupId: string;
@@ -208,7 +364,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
   {
     id: 'foerder-lernen',
     label: 'Förderbedarf Lernen & Kleinschrittigkeit',
-    re: /\b(?:f[oö]rderbedarf\s+lernen|lernschwach\w*|lernschwierig\w*|langsames?\s+(?:lern)?tempo|sehr\s+(?:wenig|geringes?)\s+vorwissen)/i,
+    re: /\b(?:f[oö]rderbedarf\s+lernen|lernschwach\w*|lernschwierig\w*|langsames?\s+(?:lern)?tempo|sonderp[aä]dagog\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:f[oö]rderbedarf\s+lernen|lernschwierig\w*)/i,
     selectedValues: {
       'foerderbedarf-lernen': 'foerderbedarf-lernen-umfassend',
@@ -217,12 +373,63 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       denkverarbeitung: 'denkverarbeitung-langsam',
       strukturierung: 'strukturierung-stark'
     },
-    signalLabel: 'Förderbedarf Lernen / geringes Vorwissen'
+    signalLabel: 'Förderbedarf Lernen'
+  },
+  {
+    id: 'vorwissen-gering',
+    label: 'Geringes Vorwissen (Basis)',
+    re: /\b(?:(?:sehr\s+)?(?:gering\w*|wenig|kaum|fehlend\w*)\s+(?:vorwissen|vorkenntnis\w*|vorerfahrung\w*)|einsteiger\w*|grundlagenbedarf|basisunterst[uü]tz\w*)/i,
+    countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|studierende\w*|teilnehmende\w*|sus)?\s*(?:mit\s+)?(?:sehr\s+)?(?:gering\w*|wenig)\s+(?:vorwissen|vorkenntnis\w*)/i,
+    selectedValues: {
+      vorwissen: 'vorwissen-gering',
+      leistungsniveau: 'leistungsniveau-gering',
+      strukturierung: 'strukturierung-stark',
+      lernstrategien: 'lernstrategien-kaum'
+    },
+    signalLabel: 'Geringes Vorwissen'
+  },
+  {
+    id: 'schuechtern',
+    label: 'Schüchtern & Prüfungsangst',
+    re: /\b(?:sch[uü]chtern\w*|zur[uü]ckhaltend\w*|pr[uü]fungsangst|versagensangst|redeangst|geringe\s+beteiligung|trauen\s+sich\s+nicht)/i,
+    countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:sehr\s+)?(?:sch[uü]chtern\w*|zur[uü]ckhaltend\w*)/i,
+    selectedValues: {
+      'soziale-kompetenzen': 'soziale-kompetenzen-eingeschraenkt',
+      werte: 'werte-vermeidung',
+      selbstwirksamkeit: 'selbstwirksamkeit-gering',
+      arbeitsformen: 'arbeitsformen-partner'
+    },
+    signalLabel: 'Schüchtern / geringe Beteiligung'
+  },
+  {
+    id: 'motivation-gering',
+    label: 'Geringe Motivation & Aktivierung',
+    re: /\b(?:geringe\s+motivation|unmotiviert\w*|demotiviert\w*|desinteresse|wenig\s+engagement|lustlos\w*)/i,
+    countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:sehr\s+)?(?:unmotiviert\w*|demotiviert\w*)/i,
+    selectedValues: {
+      engagement: 'engagement-gering',
+      interessen: 'interessen-desinteresse',
+      relevanz: 'relevanz-gering',
+      methoden: 'methoden-spielerisch'
+    },
+    signalLabel: 'Geringe Motivation'
+  },
+  {
+    id: 'motorik',
+    label: 'Körperlich-motorische Unterstützung',
+    re: /\b(?:motorisch\w*|feinmotorik|k[oö]rperlich\w*\s+(?:beeintr[aä]cht\w*|einschr[aä]nk\w*|f[oö]rderbedarf)|rollstuhl|schreibmotorik)/i,
+    countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:motorisch\w*|k[oö]rperlich\w*)/i,
+    selectedValues: {
+      'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-deutlich',
+      'zeitliche-verfuegbarkeit': 'zeitliche-verfuegbarkeit-eingeschraenkt',
+      sensorische: 'sensorische-multimodal'
+    },
+    signalLabel: 'Motorische / körperliche Unterstützung'
   },
   {
     id: 'hoeren',
     label: 'Hörbeeinträchtigung (visuelle Sicherung)',
-    re: /\b(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*|geh[oö]rlos\w*)/i,
+    re: /\b(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*|geh[oö]rlos\w*|h[oö]rsch[aä]dig\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*)/i,
     selectedValues: {
       'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung',
@@ -233,7 +440,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
   {
     id: 'sehen',
     label: 'Sehbeeinträchtigung (Kontrast & Audio)',
-    re: /\b(?:sehbeeintr[aä]cht\w*|sehbehindert\w*|blind\w*)/i,
+    re: /\b(?:sehbeeintr[aä]cht\w*|sehbehindert\w*|blind\w*|sehschw[aä]ch\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:sehbeeintr[aä]cht\w*|sehbehindert\w*)/i,
     selectedValues: {
       'foerderbedarf-sehen': 'foerderbedarf-sehen-deutlich',
@@ -570,10 +777,75 @@ function recommendMethodsForPhase(
   }));
 }
 
+function buildPhaseMethodContext(
+  block: Baustein,
+  teilgruppen: AdaptedSubgroupResult[]
+): PhaseMethodContext {
+  const kernList = (block.kernkomponente || []).map((k) => k.name).filter(Boolean);
+  const firstEv = (block.evidenz || [])[0];
+  const needsLang = teilgruppen.some((t) => t.didacticProfile.needsLanguageSupport);
+  const needsScaffold = teilgruppen.some((t) => t.didacticProfile.needsScaffolding);
+  const hasEnrich = teilgruppen.some((t) => t.didacticProfile.benefitsFromEnrichment);
+
+  const hints: string[] = [];
+  if (kernList.length) {
+    hints.push(`Kernkomponente „${kernList[0]}“ bei jeder Differenzierung erhalten.`);
+  }
+  const inter = block.interaktion || [];
+  if (inter.includes('kleingruppe-kooperativ') || inter.includes('partner')) {
+    hints.push('Vor dem Austausch 2–3 Min. geschützte Einzeldenkzeit einplanen und feste Rollen bzw. Gesprächsstarter bereitstellen.');
+  } else if (inter.includes('plenum-lehrergeleitet') || inter.includes('plenum-lernendengeleitet')) {
+    hints.push('Aufträge sichtbar visualisieren und All-Student-Response oder kurzen Tandem-Abgleich vorschalten, statt nur schnelle Wortmeldungen abzurufen.');
+  } else if (inter.includes('einzel')) {
+    hints.push('Klare Schrittfolge mit Musterbeispiel und Selbstkontrollmöglichkeit am Platz auslegen.');
+  }
+  if (needsLang) hints.push('Sprachsensibel: zentrale Fachbegriffe und 2–3 Satzstarter direkt am Arbeitsauftrag sichtbar machen.');
+  if (needsScaffold) hints.push('Strukturhilfe: Teilaufträge zeitlich klar takten und nach 2 Min. kurz bei der Basisgruppe einchecken.');
+  if (hasEnrich) hints.push('Vertiefung: Erweiterungs- oder Transferfrage am selben Kerninhalt ohne Leerlauf bereithalten.');
+
+  return {
+    interaktion: inter,
+    anleitung: block.anleitung || [],
+    kernkomponente: kernList,
+    durchfuehrungKurz: (block.durchfuehrung || []).slice(0, 4),
+    qualitaetsrisiko: (block.qualitaetsrisiko || []).slice(0, 3),
+    evidenzKurz: firstEv ? `Grad ${firstEv.grad}: ${firstEv.befund}` : null,
+    methodenAnpassungshinweis: hints.join(' ')
+  };
+}
+
+function conflictsWithMethodInteraction(measureId: string, block?: Baustein): boolean {
+  if (!block) return false;
+  const inter = block.interaktion || [];
+  const isSocial = inter.includes('kleingruppe-kooperativ') || inter.includes('partner') || inter.includes('plenum-lehrergeleitet') || inter.includes('plenum-lernendengeleitet');
+  const isPureSolo = inter.includes('einzel') && !isSocial;
+  if (isSocial && measureId === 'sozialform-einzel') return true;
+  if (isPureSolo && (measureId === 'sozialform-gruppe' || measureId === 'sozialform-plenum')) return true;
+  if (inter.includes('plenum-lehrergeleitet') && measureId === 'methodik-lernprozess-fachspezifisch') return true;
+  return false;
+}
+
+function contextualizeMeasureForBlock(
+  m: { id: string; name: string; umsetzungsimpuls: string },
+  block?: Baustein
+): { id: string; name: string; umsetzungsimpuls: string } {
+  if (!block) return m;
+  const inter = block.interaktion || [];
+  const isSocial = inter.includes('kleingruppe-kooperativ') || inter.includes('partner') || inter.includes('plenum-lehrergeleitet') || inter.includes('plenum-lernendengeleitet');
+  if (m.id === 'sozialform-einzel' && isSocial) {
+    return {
+      ...m,
+      name: 'Vorgeschaltete Einzeldenkzeit (2–3 Min.)',
+      umsetzungsimpuls: `Vor der gemeinsamen Phase („${block.name}“) 2–3 Minuten ruhige Einzeldenkzeit sichern, damit alle eigene Ideen mitbringen.`
+    };
+  }
+  return m;
+}
+
 /**
  * Zero-LLM end-to-end scenario differentiation & adaptation engine (< 5 ms).
- * Works seamlessly for BOTH standalone free-text scenarios (chat / MCP / API / /differenzierung)
- * AND structured FMT arrangements from the Baukasten.
+ * Works seamlessly for BOTH standalone free-text scenarios (chat / MCP / API / /differenzierung),
+ * direct single-method adaptation (`baustein`), AND structured FMT arrangements from the Baukasten.
  */
 export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten'>, input: AdaptScenarioInput): AdaptScenarioResult {
   const t0 = Date.now();
@@ -643,32 +915,43 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten'>, input
 
   const synthesis = computeMultiGroupSynthesis(resolvedGroups, constraints, signalsByGroupId);
 
-  // Build phases from explicit phasen, FMT arrangement, or default 3-phase classroom structure
+  // Build phases from explicit phasen, direct single `baustein`, FMT arrangement, or default 3-phase classroom structure
+  const singleBlock = input.baustein ? blocksById.get(input.baustein) : undefined;
   const rawPhases: AdaptPhaseInput[] =
     input.phasen && input.phasen.length > 0
       ? input.phasen
-      : input.arrangement
-        ? extractPhasesFromArrangement(data, input.arrangement)
-        : [
+      : singleBlock
+        ? [
             {
               key: 'phase-1',
-              phaseLabel: 'Einstieg & Aktivierung',
-              durationMin: input.zeitMin ? Math.max(5, Math.round(input.zeitMin * 0.2)) : 10,
-              lernfunktion: 'orientierung'
-            },
-            {
-              key: 'phase-2',
-              phaseLabel: 'Erarbeitung & Verstehen',
-              durationMin: input.zeitMin ? Math.max(10, Math.round(input.zeitMin * 0.45)) : 20,
-              lernfunktion: 'verstehen'
-            },
-            {
-              key: 'phase-3',
-              phaseLabel: 'Übung, Transfer & Sicherung',
-              durationMin: input.zeitMin ? Math.max(10, Math.round(input.zeitMin * 0.35)) : 15,
-              lernfunktion: 'konsolidierung'
+              phaseLabel: singleBlock.name,
+              durationMin: input.zeitMin ?? singleBlock.dauerMin,
+              baustein: singleBlock.kennung,
+              lernfunktion: singleBlock.lernfunktion?.[0] || 'verstehen'
             }
-          ];
+          ]
+        : input.arrangement
+          ? extractPhasesFromArrangement(data, input.arrangement)
+          : [
+              {
+                key: 'phase-1',
+                phaseLabel: 'Einstieg & Aktivierung',
+                durationMin: input.zeitMin ? Math.max(5, Math.round(input.zeitMin * 0.2)) : 10,
+                lernfunktion: 'orientierung'
+              },
+              {
+                key: 'phase-2',
+                phaseLabel: 'Erarbeitung & Verstehen',
+                durationMin: input.zeitMin ? Math.max(10, Math.round(input.zeitMin * 0.45)) : 20,
+                lernfunktion: 'verstehen'
+              },
+              {
+                key: 'phase-3',
+                phaseLabel: 'Übung, Transfer & Sicherung',
+                durationMin: input.zeitMin ? Math.max(10, Math.round(input.zeitMin * 0.35)) : 15,
+                lernfunktion: 'konsolidierung'
+              }
+            ];
 
   const udlAsRecs: MatrixRecommendation[] = synthesis.udlBasis.map((u) => ({
     id: u.id,
@@ -688,22 +971,33 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten'>, input
     const fn = p.lernfunktion || block?.lernfunktion?.[0] || (idx === 0 ? 'orientierung' : idx === rawPhases.length - 1 ? 'konsolidierung' : 'verstehen');
     const fitsPhase = (phasen: string[]) => phasen.length === 0 || phasen.includes(fn);
 
-    const udlImpulse = synthesis.udlBasis
-      .filter((u) => fitsPhase(u.meta.phasen))
-      .slice(0, 3)
-      .map((u) => ({
-        id: u.id,
-        name: u.name,
-        umsetzungsimpuls: u.meta.umsetzungsimpuls,
+    // Prefer method-coherent UDL measures (demote conflicting social-form measures below content/scaffolding measures)
+    const udlFiltered = synthesis.udlBasis.filter((u) => fitsPhase(u.meta.phasen));
+    const udlOrdered = [
+      ...udlFiltered.filter((u) => !conflictsWithMethodInteraction(u.id, block)),
+      ...udlFiltered.filter((u) => conflictsWithMethodInteraction(u.id, block))
+    ];
+    const udlImpulse = udlOrdered.slice(0, 3).map((u) => {
+      const ctxM = contextualizeMeasureForBlock(
+        { id: u.id, name: u.name, umsetzungsimpuls: u.meta.umsetzungsimpuls },
+        block
+      );
+      return {
+        id: ctxM.id,
+        name: ctxM.name,
+        umsetzungsimpuls: ctxM.umsetzungsimpuls,
         aufwand: u.meta.aufwand
-      }));
+      };
+    });
 
     const teilgruppenImpulse = synthesis.teilgruppen.map((tg) => {
       const scored = synthesis.scoredByGroupId[tg.id];
-      const phaseMeasures = tg.spezifischeMassnahmen
-        .filter((m) => fitsPhase(m.meta.phasen))
-        .slice(0, 3);
-      const fallbackMeasures = phaseMeasures.length ? phaseMeasures : tg.spezifischeMassnahmen.slice(0, 2);
+      const phaseMeasures = tg.spezifischeMassnahmen.filter((m) => fitsPhase(m.meta.phasen));
+      const pool = phaseMeasures.length ? phaseMeasures : tg.spezifischeMassnahmen;
+      const ordered = [
+        ...pool.filter((m) => !conflictsWithMethodInteraction(m.id, block)),
+        ...pool.filter((m) => conflictsWithMethodInteraction(m.id, block))
+      ].slice(0, 3);
       const altMethods = block
         ? suggestAlternativeMethodsForGroup(scored, block, data.bausteine, 3, p.durationMin, {
             maxTechnik,
@@ -715,12 +1009,18 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten'>, input
       return {
         groupId: tg.id,
         groupLabel: tg.label,
-        massnahmen: fallbackMeasures.map((m) => ({
-          id: m.id,
-          name: m.name,
-          normalizedScore: m.normalizedScore,
-          umsetzungsimpuls: m.meta.umsetzungsimpuls
-        })),
+        massnahmen: ordered.map((m) => {
+          const ctxM = contextualizeMeasureForBlock(
+            { id: m.id, name: m.name, umsetzungsimpuls: m.meta.umsetzungsimpuls },
+            block
+          );
+          return {
+            id: ctxM.id,
+            name: ctxM.name,
+            normalizedScore: m.normalizedScore,
+            umsetzungsimpuls: ctxM.umsetzungsimpuls
+          };
+        }),
         alternativeMethoden: altMethods
       };
     });
@@ -743,6 +1043,7 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten'>, input
       lernfunktion: fn,
       baustein: block?.kennung || p.baustein || null,
       bausteinName: block?.name || null,
+      ...(block ? { methodenKontext: buildPhaseMethodContext(block, synthesis.teilgruppen) } : {}),
       udlImpulse,
       teilgruppenImpulse,
       passendeFmtMethoden
@@ -783,6 +1084,7 @@ export function getDifferentiationMetaSummary() {
       { id: 'kurz', label: 'Kurze Vorbereitung' },
       { id: 'mittel', label: 'Mittlere Vorbereitung' }
     ],
+    schnellProfile: QUICK_LEARNER_GROUP_PROFILES,
     anzahlMassnahmen: DIFF_MATRIX_MEASURES.reduce(
       (sum, ok) => sum + ok.kategorien.reduce((ks, k) => ks + k.auspraegungen.length, 0),
       0

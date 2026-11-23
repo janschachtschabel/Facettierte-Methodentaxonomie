@@ -407,7 +407,8 @@ export function scoreMethodAgainstFmtBridges(b: Baustein, measures: readonly Mat
 /**
  * Recommends concrete alternative FMT catalog methods for a subgroup in a given phase,
  * strictly enforcing matching Lernfunktion (purpose), compatible granularity (rang <= current),
- * tech/offline/KI constraints, and realistic duration while fitting the subgroup's matrix-computed
+ * tech/offline/KI/stage constraints, generic FMT-facet domain coherence (no psychomotor/play-simulation swaps
+ * for cognitive/STEM/text blocks), and realistic duration while fitting the subgroup's matrix-computed
  * guidance, scaffolding, and fmtBruecke needs.
  */
 export function suggestAlternativeMethodsForGroup(
@@ -420,6 +421,11 @@ export function suggestAlternativeMethodsForGroup(
 ): Array<{ kennung: string; name: string; reichweite: string; dauerMin: number; dauerMax: number; grund: string }> {
   if (!currentBlock) return [];
   const fns = new Set(currentBlock.lernfunktion || []);
+  const curAnsatz = new Set(currentBlock.ansatz || []);
+  const curAufgabe = new Set(currentBlock.aufgabe || []);
+  const curKat = new Set(currentBlock.kategorie || []);
+  const curIsPsychomotor = curAufgabe.has('psychomotorik');
+  const curIsPlaySim = curAnsatz.has('spiel-simulation');
   const wantGuidance = matrixResult.didacticProfile.preferredGuidance;
   const curRank = RANGE_ORDER[currentBlock.reichweite] ?? 2;
   const maxDur = Math.max(phaseDurationMin ?? currentBlock.dauerMax, currentBlock.dauerMax) * 1.5;
@@ -436,6 +442,18 @@ export function suggestAlternativeMethodsForGroup(
       if (constraints?.ohneInternet && b.internet) return false;
       if (constraints?.ohneKI && (Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES_SET.has(r)))) return false;
       if (constraints?.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(constraints.bildungsstufe)) return false;
+      // Exclude negative-evidence contrast methods
+      if (
+        (b.evidenz || []).some((e) =>
+          /bleibt\s+empirisch\s+deutlich\s+hinter|schneide(?:t|n)\b[^.]{0,60}\bschwächer\s+ab/i.test(e.befund || '')
+        )
+      ) {
+        return false;
+      }
+      // Generic FMT-facet domain-coherence guard (zero hardcoded method names):
+      // never propose psychomotor/sports or drama/play-simulation alternatives for cognitive/STEM/text blocks
+      if (!curIsPsychomotor && (b.aufgabe || []).includes('psychomotorik')) return false;
+      if (!curIsPlaySim && (b.ansatz || []).includes('spiel-simulation')) return false;
       return true;
     })
     .map((b) => {
@@ -458,6 +476,10 @@ export function suggestAlternativeMethodsForGroup(
         fit += 2;
         reasons.push('ermöglicht vertiefende Konstruktion/Transfer');
       }
+      // Domain/approach coherence bonus with the replaced method
+      if ((b.aufgabe || []).some((a) => curAufgabe.has(a))) fit += 2;
+      if ((b.ansatz || []).some((a) => curAnsatz.has(a))) fit += 1;
+      if ((b.kategorie || []).some((k) => curKat.has(k))) fit += 1;
       if (b.status === 'kuratiert') fit += 1;
       if (b.reichweite === currentBlock.reichweite) fit += 2;
       return {

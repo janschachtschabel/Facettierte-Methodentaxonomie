@@ -2,8 +2,11 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { z } from 'zod';
 import {
   DIFF_MATRIX_PERSONAS,
+  DIFF_MATRIX_VARIABLES,
   FMT_GUARDRAILS,
   FMT_RULES,
+  QUICK_LEARNER_GROUP_PROFILES,
+  getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
   type Arrangement,
@@ -297,8 +300,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 9. score_differentiation_matrix
   server.tool(
     'score_differentiation_matrix',
-    'Berechnet deterministische Binnendifferenzierungs-Empfehlungen über die Punkte-Matrix (-2 bis +2 über 115 Anpassungsvariablen × 172 Maßnahmen) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI. Optional wird bei Angabe eines FMT-Bausteins geprüft, welche alternativen FMT-Methoden für diese Teilgruppe besser passen.',
+    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins passende alternative Methoden für diese Teilgruppe vorgeschlagen.',
     {
+      quickProfileId: z
+        .enum(['daz', 'adhs', 'lrs', 'foerder-lernen', 'vorwissen-gering', 'vertiefung', 'schuechtern', 'barriere'])
+        .optional()
+        .describe('Schnellprofil für typische Teilgruppen (z. B. "daz", "adhs", "lrs", "vertiefung")'),
       personaId: z
         .enum(['languageAndCulture', 'average', 'highPerforming', 'foerderLernen', 'foerderEmSoz'])
         .optional()
@@ -306,7 +313,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       selectedValues: z
         .record(z.string())
         .optional()
-        .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"})'),
+        .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"}); Liste per list_differentiation_options abrufbar'),
       minScore: z.number().int().optional(),
       limit: z.number().int().min(1).max(40).optional().default(12),
       maxTechnik: z.string().optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
@@ -318,12 +325,20 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .default(false)
         .describe('Standard false (blendet Schul-/Systemmaßnahmen wie Förderstunden/Noten aus); true zeigt alle 3 Ebenen'),
       maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional().describe('Optional: maximaler Vorbereitungsaufwand'),
+      bildungsstufe: z.string().optional().describe('Optional: Bildungsstufe (z. B. "primar", "sek1") zur Filterung von Alternativmethoden'),
       baustein: z.string().optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen')
     },
-    async ({ personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures, maxAufwand, baustein }) => {
+    async ({ quickProfileId, personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures, maxAufwand, bildungsstufe, baustein }) => {
+      const quickProfile = quickProfileId
+        ? QUICK_LEARNER_GROUP_PROFILES.find((p) => p.id === quickProfileId)
+        : undefined;
+      const mergedSelected = {
+        ...(quickProfile?.selectedValues || {}),
+        ...(selectedValues || {})
+      };
       const scoreResult = scoreDifferentiationMatrix({
-        personaId,
-        selectedValues,
+        personaId: personaId ?? quickProfile?.personaId,
+        selectedValues: Object.keys(mergedSelected).length ? mergedSelected : undefined,
         minScore,
         limit,
         maxTechnik,
@@ -337,12 +352,14 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5, undefined, {
             maxTechnik,
             ohneInternet,
-            ohneKI
+            ohneKI,
+            bildungsstufe
           })
         : [];
       return textResult({
         ...scoreResult,
         alternativeMethoden,
+        verfuegbareSchnellProfile: QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ id: p.id, label: p.label, profile: p.profile })),
         verfuegbarePersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
       });
     }
@@ -514,9 +531,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 14. adapt_scenario (Standalone & FMT-integrated Zero-LLM differentiation + UDL + conflict resolution)
   server.tool(
     'adapt_scenario',
-    'Nutze dieses Tool immer, wenn ein vorhandenes oder freies Unterrichtsszenario (auch im Chat ohne FMT-Arrangement!) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Inklusion, Leistungsstarke, heterogene Klasse) angepasst und binnendifferenziert werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis (hilft allen), Zielkonflikte zwischen Teilgruppen inkl. Auflösungsstrategien, teilgruppenspezifische Maßnahmen mit konkretem Umsetzungsimpuls (-100..+100 %), phasenbezogene Anpassungen, passende/alternative FMT-Methoden sowie verbindliche Umsetzungsregeln. Blendet Schul-/Systemmaßnahmen standardmäßig aus und beachtet analog/offline-Filter.',
+    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden sowie ein fertiges `llmBriefing`.',
     {
       scenarioText: z.string().optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
+      baustein: z.string().optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
       lerngruppenText: z
         .string()
         .optional()
@@ -547,7 +565,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           })
         )
         .optional()
-        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen'),
+        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen (IDs über list_differentiation_options abrufbar)'),
       fach: z.string().optional(),
       thema: z.string().optional(),
       bildungsstufe: z.string().optional(),
@@ -568,6 +586,29 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         arrangement: args.arrangement as unknown as Arrangement | undefined
       });
       return textResult(res);
+    }
+  );
+
+  // 15. list_differentiation_options (Standalone catalog of all 36 learner-trait variables, 8 quick profiles, 5 personas & 3 action levels)
+  server.tool(
+    'list_differentiation_options',
+    'Listet eigenständig alle verfügbaren Lernvoraussetzungs-Merkmale (36 Anpassungsvariablen mit 115 Ausprägungen), die 8 kuratierten Schnellprofile (DaZ, ADHS, LRS, Förderbedarf Lernen, Geringes Vorwissen, Leistungsstark, Schüchtern, Sehen/Hören/Motorik), Personas und Handlungsebenen der Binnendifferenzierungsmatrix auf – damit ein Client gezielt `adapt_scenario` oder `score_differentiation_matrix` parametrisieren kann.',
+    {
+      oberkategorie: z
+        .string()
+        .optional()
+        .describe('Optional: Filter auf eine Oberkategorie der Lernvoraussetzungen (z. B. "kognitive", "sprache-kultur", "foerderbedarf")')
+    },
+    async ({ oberkategorie }) => {
+      const summary = getDifferentiationMetaSummary();
+      const vars = oberkategorie
+        ? DIFF_MATRIX_VARIABLES.filter((v) => v.id === oberkategorie || v.name.toLowerCase().includes(oberkategorie.toLowerCase()))
+        : DIFF_MATRIX_VARIABLES;
+      return textResult({
+        ...summary,
+        personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
+        anpassungsvariablen: vars
+      });
     }
   );
 
@@ -592,6 +633,24 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
               lernfunktion: b.lernfunktion,
               evidenzgrad: store.search.bestGrade(b)
             }))
+          },
+          null,
+          2
+        )
+      }
+    ]
+  }));
+
+  server.resource('differentiation-options', 'fmt://differentiation/options', async (uri) => ({
+    contents: [
+      {
+        uri: uri.href,
+        mimeType: 'application/json',
+        text: JSON.stringify(
+          {
+            ...getDifferentiationMetaSummary(),
+            personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
+            anpassungsvariablen: DIFF_MATRIX_VARIABLES
           },
           null,
           2
@@ -699,6 +758,33 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             text:
               `Analysiere folgenden Unterrichtsentwurf mit den FMT-Tools (\`search_methods\`, \`validate_arrangement\`, \`suggest_replacements\`):\n\n${entwurf}\n\n` +
               `Weise bei jeder Regelmeldung ihre Grundlage aus (formal, [E], [S], [A]) und mache klar, dass ein gültiges Arrangement kein Qualitätsurteil über die Durchführung ist.`
+          }
+        }
+      ]
+    })
+  );
+
+  server.prompt(
+    'adapt_lesson_differentiation',
+    'Passt einen beliebigen Unterrichtsentwurf oder eine einzelne Methode unabhängig vom FMT-Baukasten an heterogene Lernvoraussetzungen an (UDL, Zielkonflikte, Teilgruppen & Methodenkontext).',
+    {
+      szenario: z.string().describe('Beschreibung der geplanten Stunde, Aktivität oder Methode'),
+      lerngruppe: z.string().describe('Beschreibung der Lerngruppe / Voraussetzungen (z. B. DaZ, ADHS, LRS, Leistungsstarke)')
+    },
+    async ({ szenario, lerngruppe }) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Differenziere folgendes Unterrichtsvorhaben praxistauglich und evidenztransparent:\n\n` +
+              `Unterrichtsvorhaben: "${szenario}"\n` +
+              `Lerngruppe: "${lerngruppe}"\n\n` +
+              `Vorgehen:\n` +
+              `1. Rufe \`adapt_scenario\` direkt mit \`scenarioText\` und \`lerngruppenText\` (und ggf. \`baustein\`, \`maxTechnik\`, \`ohneInternet\`) auf. Falls du exakte Merkmals-IDs brauchst, rufe vorher \`list_differentiation_options\` auf.\n` +
+              `2. Übernimm die zurückgegebene UDL-Basis, benenne Zielkonflikte offen mit ihrer Auflösungsstrategie und halte dich bei konkreten Methoden an \`methodenKontext.kernkomponente\`.\n` +
+              `3. Trenne klar zwischen der heuristischen Binnendifferenzierungsmatrix (-100 bis +100 %) und empirischen FMT-Evidenzgraden (A–C).`
           }
         }
       ]

@@ -669,6 +669,7 @@ export function buildAdaptScenarioZeroLlm(store: CatalogStore, input: AdaptScena
   const verbindlicheUmsetzungsregeln = [
     'UDL ZUERST: Beginne mit den gemeinsamen Basis-Maßnahmen aus `udlBasis` (sie helfen allen Teilgruppen gleichzeitig mit minimalem Mehraufwand) und übertrage deren `umsetzungsimpuls` konkret auf das Unterrichtsthema.',
     'KONFLIKTE AKTIV AUFLÖSEN: Nenne jeden erkannten Zielkonflikt aus `konflikte` offen und setze die zugehörige `aufloesungsstrategie` (z. B. gestufte Aufgabenkarten, parallele Lernwege, Sternchenaufgaben) konkret um.',
+    'METHODENKERN WAHREN: Wenn eine Phase einen konkreten FMT-Baustein mit `methodenKontext` enthält, erhalte dessen `kernkomponente` und beachte den `methodenAnpassungshinweis`, statt die Methode durch allgemeine Standard-Tipps zu verwässern.',
     'TEILGRUPPEN & VERMEIDEN: Formuliere für jede Gruppe in `teilgruppen` konkrete, themenspezifische Hilfen bzw. Vertiefungen und beachte ausdrücklich die `vermeiden`-Hinweise.',
     'RAHMEN & EPISTEMIK: Beachte strikt die erkannten Technik-/Offline-Grenzen (`kontext.maxTechnik`, `kontext.ohneInternet`) und trenne klar zwischen der heuristischen Binnendifferenzierungsmatrix (-100 bis +100 %, keine Effektstärken) und empirischen FMT-Evidenzgraden (A–C mit Geltungsbereich).'
   ];

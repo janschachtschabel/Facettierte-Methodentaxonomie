@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import {
   DIFF_MATRIX_MEASURES,
+  DIFF_MATRIX_PERSONAS,
+  DIFF_MATRIX_VARIABLES,
+  QUICK_LEARNER_GROUP_PROFILES,
   adaptScenario,
   createMatcher,
   createValidator,
@@ -165,5 +168,67 @@ describe('FMT Differentiation Enrichment & adaptScenario Engine', () => {
       expect(blk.technik).toBe('t-keine');
       expect(blk.internet).toBe(false);
     }
+  });
+
+  it('validates 100% of variable/value IDs in DIFF_MATRIX_PERSONAS, QUICK_LEARNER_GROUP_PROFILES, and detectLearnerGroupsFromText, and preserves method context without niche-domain swaps', () => {
+    const validVars = new Map<string, Set<string>>();
+    for (const ok of DIFF_MATRIX_VARIABLES) {
+      for (const k of ok.kategorien) {
+        validVars.set(k.id, new Set(k.auspraegungen.map((a) => a.id)));
+      }
+    }
+
+    // 1. Every persona value ID must exist in DIFF_MATRIX_VARIABLES
+    for (const p of DIFF_MATRIX_PERSONAS) {
+      for (const [k, v] of Object.entries(p.values)) {
+        expect(validVars.get(k)?.has(v), `invalid persona value ${p.id}: ${k}=${v}`).toBe(true);
+      }
+    }
+
+    // 2. Every quick profile value ID must exist in DIFF_MATRIX_VARIABLES
+    expect(QUICK_LEARNER_GROUP_PROFILES.length).toBeGreaterThanOrEqual(8);
+    for (const qp of QUICK_LEARNER_GROUP_PROFILES) {
+      expect(Object.keys(qp.selectedValues).length).toBeGreaterThan(0);
+      for (const [k, v] of Object.entries(qp.selectedValues)) {
+        expect(validVars.get(k)?.has(v), `invalid quick profile value ${qp.id}: ${k}=${v}`).toBe(true);
+      }
+    }
+
+    // 3. Everyday German prompts all trigger valid trait-only subgroups (no silent fallback)
+    for (const sample of [
+      'geringes Vorwissen',
+      'schüchterne Lernende mit Prüfungsangst',
+      'motorische Einschränkung',
+      'geringe Motivation',
+      '5 DaZ-Kinder, 2 ADHS, 3 LRS, 4 Leistungsstarke'
+    ]) {
+      const det = detectLearnerGroupsFromText(sample);
+      expect(det.groups.length, `expected detected subgroup(s) for "${sample}"`).toBeGreaterThan(0);
+      for (const g of det.groups) {
+        for (const [k, v] of Object.entries(g.selectedValues || {})) {
+          expect(validVars.get(k)?.has(v), `invalid detected value ${g.id}: ${k}=${v}`).toBe(true);
+        }
+      }
+    }
+
+    // 4. Direct single-method adaptation attaches methodenKontext and avoids niche sports/theater swaps & timetable measures
+    const singleMethodRes = adaptScenario(D, {
+      baustein: 'experiment',
+      lerngruppenText: '5 DaZ-Kinder, 2 ADHS, 4 Leistungsstarke',
+      bildungsstufe: 'sek1',
+      maxTechnik: 't-keine',
+      ohneInternet: true
+    });
+    expect(singleMethodRes.phasenAnpassungen.length).toBe(1);
+    const ph = singleMethodRes.phasenAnpassungen[0];
+    expect(ph.baustein).toBe('experiment');
+    expect(ph.methodenKontext).toBeDefined();
+    expect(ph.methodenKontext?.methodenAnpassungshinweis.length).toBeGreaterThan(25);
+    const allAltNames = ph.teilgruppenImpulse.flatMap((t) => t.alternativeMethoden.map((a) => a.name));
+    expect(allAltNames.some((n) => /Freispiel|Zirkel|Stegreiftheater|Jeux Dramatiques|Schöllhorn|Bewegung/i.test(n))).toBe(false);
+
+    // No timetable/school-org measures leak into Leistungsstark recommendations by default
+    const strong = singleMethodRes.teilgruppen.find((t) => t.id === 'vertiefung')!;
+    expect(strong.spezifischeMassnahmen.some((m) => /Fachzeitanteile|Gleitzeit|Fachräume|Klassenlehrkraft/i.test(m.name))).toBe(false);
   });
 });

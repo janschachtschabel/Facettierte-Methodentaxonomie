@@ -1,4 +1,5 @@
 import {
+  QUICK_LEARNER_GROUP_PROFILES,
   scoreDifferentiationMatrix,
   type Arrangement,
   type ArrangementNode,
@@ -139,108 +140,17 @@ export interface QuickDiffGroupTemplate {
   matrixValues: Record<string, string>;
 }
 
-export const QUICK_DIFF_GROUP_TEMPLATES: QuickDiffGroupTemplate[] = [
-  {
-    id: 'daz',
-    label: 'DaZ & Sprachsensibel',
-    chipLabel: 'DaZ / Sprachförderung',
-    profile: 'Sprachsensible Unterstützung mit Bildhilfen, Glossar, Satzstartern und klarer Visualisierung',
-    focus: 'sprachsensibel',
-    defaultCount: 5,
-    matrixValues: {
-      sprachkompetenz: 'sprachkompetenz-gering',
-      'foerderbedarf-sprache': 'foerderbedarf-sprache-umfassend'
-    }
-  },
-  {
-    id: 'adhs',
-    label: 'ADHS & Fokusstrukturierung',
-    chipLabel: 'ADHS / Fokusstruktur',
-    profile: 'Kurze Arbeitsetappen, reizarme Struktur, klare Übergänge und aktive Bewegungsimpulse',
-    focus: 'basis',
-    defaultCount: 3,
-    matrixValues: {
-      strukturierung: 'strukturierung-gering',
-      'foerderbedarf-emotional-sozial': 'foerderbedarf-emotional-sozial-umfassend',
-      aufmerksamkeit: 'aufmerksamkeit-gering'
-    }
-  },
-  {
-    id: 'lrs',
-    label: 'LRS & Lese-/Schreibhilfen',
-    chipLabel: 'LRS / Lesen & Schreiben',
-    profile: 'Entlastung bei Textmenge und Rechtschreibung, übersichtliches Layout, Audio-/Bildstützung',
-    focus: 'basis',
-    defaultCount: 3,
-    matrixValues: {
-      lesekompetenz: 'lesekompetenz-gering',
-      schreibkompetenz: 'schreibkompetenz-gering'
-    }
-  },
-  {
-    id: 'foerder-lernen',
-    label: 'Förderbedarf Lernen',
-    chipLabel: 'Förderbedarf Lernen',
-    profile: 'Kleinschrittige Aufgaben, anschauliche Modelle, Lösungsbeispiele und enge Begleitung',
-    focus: 'basis',
-    defaultCount: 4,
-    personaId: 'foerderLernen',
-    matrixValues: {
-      'foerderbedarf-lernen': 'foerderbedarf-lernen-umfassend',
-      vorwissen: 'vorwissen-gering'
-    }
-  },
-  {
-    id: 'vorwissen-gering',
-    label: 'Geringes Vorwissen (Basis)',
-    chipLabel: 'Geringes Vorwissen',
-    profile: 'Aktivierung von Grundlagen, schrittweise Hinführung und anschauliche Beispiele',
-    focus: 'basis',
-    defaultCount: 6,
-    matrixValues: {
-      vorwissen: 'vorwissen-gering',
-      leistungsniveau: 'leistungsniveau-gering'
-    }
-  },
-  {
-    id: 'vertiefung',
-    label: 'Leistungsstark & Vertiefung',
-    chipLabel: 'Leistungsstark / Vertiefung',
-    profile: 'Transferaufgaben, offene Problemstellungen, Vertiefung oder Tutorenrolle',
-    focus: 'vertiefung',
-    defaultCount: 5,
-    personaId: 'highPerforming',
-    matrixValues: {
-      vorwissen: 'vorwissen-hoch',
-      leistungsniveau: 'leistungsniveau-hoch'
-    }
-  },
-  {
-    id: 'schuechtern',
-    label: 'Schüchtern & geringe Beteiligung',
-    chipLabel: 'Schüchtern / geringe Beteiligung',
-    profile: 'Geschützte Austauschformate (Einzel-/Partnerarbeit vor Plenum), schriftliche Beteiligungswege',
-    focus: 'basis',
-    defaultCount: 4,
-    matrixValues: {
-      'soziale-kompetenzen': 'soziale-kompetenzen-gering',
-      engagement: 'engagement-gering'
-    }
-  },
-  {
-    id: 'barriere',
-    label: 'Sehen / Hören / Motorik',
-    chipLabel: 'Sehen / Hören / Motorik',
-    profile: 'Barrierearme Darstellung, multimodale Zugänge und angepasste Bedien-/Bearbeitungszeit',
-    focus: 'basis',
-    defaultCount: 2,
-    matrixValues: {
-      'foerderbedarf-sehen': 'foerderbedarf-sehen-umfassend',
-      'foerderbedarf-hoeren': 'foerderbedarf-hoeren-umfassend',
-      'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-umfassend'
-    }
-  }
-];
+// Single Source of Truth from @fmt/core (100% validated against DIFF_MATRIX_VARIABLES)
+export const QUICK_DIFF_GROUP_TEMPLATES: QuickDiffGroupTemplate[] = QUICK_LEARNER_GROUP_PROFILES.map((p) => ({
+  id: p.id,
+  label: p.label,
+  chipLabel: p.chipLabel,
+  profile: p.profile,
+  focus: p.focus,
+  defaultCount: p.defaultCount,
+  personaId: p.personaId,
+  matrixValues: { ...p.selectedValues }
+}));
 
 export const DEFAULT_LEARNER_GROUPS: LearnerGroup[] = [
   {

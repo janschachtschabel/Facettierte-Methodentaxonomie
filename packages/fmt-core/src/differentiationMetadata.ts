@@ -389,10 +389,40 @@ const MEASURE_OVERRIDES: Record<string, Partial<MeasureEnrichment>> = {
     aufwand: 'mittel',
     umsetzungsimpuls: 'Plane mehrstündige oder mehrtägige Projektfenster im Stunden- bzw. Schuljahresplan ein.'
   },
+  'zeitstrukturen-flexibel': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    umsetzungsimpuls: 'Nutze schulorganisatorisch verankerte Gleitzeit- oder offene Lernband-Modelle über den Einzelstundenrahmen hinaus.'
+  },
+  'zeitstrukturen-verlaengert': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    umsetzungsimpuls: 'Richte im Stundenplan Doppelstunden oder Blockzeiten für vertiefende Arbeitsphasen ein.'
+  },
+  'bearbeitungszeit-beschleunigt': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    umsetzungsimpuls: 'Ermögliche langfristige Akzelerations- oder Enrichmentprogramme (z. B. Drehtürmodell, Überspringen einzelner Einheiten).'
+  },
   'lernrhythmus-biorhythmen': {
     ebene: 'organisation-system',
     aufwand: 'mittel',
     umsetzungsimpuls: 'Berücksichtige Tageszeit- und Stundenplanrhythmen bei der schulorganisatorischen Taktung anspruchsvoller Fächer.'
+  },
+  'lernrhythmus-anpassbar': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    umsetzungsimpuls: 'Passe Fachzeitanteile über den Halbjahres- oder Wochenstundenplan hinweg flexibel an den Förderbedarf an.'
+  },
+  'unterstuetzungsintensitaet-kontinuierlich': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    umsetzungsimpuls: 'Sichere dauerhafte sonderpädagogische Begleitung im Rahmen von Förderplänen und Jahrgangsteam-Absprachen.'
+  },
+  'unterstuetzungsakteure-lehrkraft': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    umsetzungsimpuls: 'Koordiniere Fach- und Klassenlehrkräfte im Team (z. B. Co-Teaching, Übergaben, gemeinsame Förderabsprachen).'
   },
   'unterstuetzungsakteure-sonderpaed': {
     ebene: 'organisation-system',
@@ -420,6 +450,18 @@ const MEASURE_OVERRIDES: Record<string, Partial<MeasureEnrichment>> = {
     aufwand: 'mittel',
     technik: 'analog',
     umsetzungsimpuls: 'Nutze schulische Lernwerkstätten oder außerschulische Lernorte für längerfristige Vertiefungsprojekte.'
+  },
+  'lernumgebung-differenziert': {
+    ebene: 'organisation-system',
+    aufwand: 'mittel',
+    technik: 'analog',
+    umsetzungsimpuls: 'Beziehe zusätzlich verfügbare Schulräume (Fachräume, Bibliothek, Lerninsel außerhalb des Klassenzimmers) organisatorisch ein.'
+  },
+  'lernumgebung-medienvielfalt': {
+    ebene: 'material-planung',
+    aufwand: 'kurz',
+    technik: 'digital',
+    umsetzungsimpuls: 'Biete eine gezielte Auswahl analoger und digitaler Medien (Arbeitskarten, Tablets, Anschauungsmaterial) für verschiedene Zugänge an.'
   },
   'lernumgebung-ausserschulisch': {
     ebene: 'organisation-system',
