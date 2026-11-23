@@ -32,7 +32,7 @@ export interface SemanticMethodHit {
 const SCALE_EXTRA_HINTS: Record<ScaleName, Record<string, string>> = {
   ansatz: {
     instruktion: 'erklären vormachen lehrervortrag demonstrieren einführen darbietend direkt anleiten tafelbild schrittweise zeigen beispiel vorrechnen',
-    kooperativ: 'zusammenarbeiten teamarbeit gruppenarbeit partnerarbeit austauschen gemeinsam erarbeiten gegenseitig erklären miteinander lernen',
+    kooperativ: 'kooperativ zusammenarbeiten austauschen gemeinsam erarbeiten gegenseitig erklären miteinander lernen tandem wirbelgruppe',
     forschend: 'forschen entdecken experimentieren untersuchen hypothesen prüfen phänomen beobachten problemorientiert knobeln forschungsfrage',
     offen: 'selbstständig frei wählen stationen werkstatt wochenplan projekt eigenverantwortlich interessengeleitet freiarbeit',
     diskurs: 'diskutieren debattieren argumentieren streitgespräch pro und contra meinung begründen stellung beziehen perspektiven abwägen',
@@ -87,6 +87,13 @@ export function foldDe(s: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/ß/g, 'ss');
+}
+
+function stripNegatedClauses(text: string): string {
+  return foldDe(text).replace(
+    /\b(?:ohne|kein(?:e|en|er|es)?)\s+(?:internet|wlan|netz|ki|gerate|technik|computer|tablets?|laptops?|digital\w*|online\w*|vorbereitung)\b/g,
+    ' '
+  );
 }
 
 // Lightweight German stemmer (strips common inflectional suffixes so "erklären"/"erklärt"/"Erklärung" share stems)
@@ -231,10 +238,11 @@ export function createSemanticClassifier(data: FmtData): FmtSemanticClassifier {
     prototypes,
     classifyScales(text: string): SemanticScaleClassification {
       const t0 = Date.now();
+      const cleaned = stripNegatedClauses(text);
       const result = {} as Record<ScaleName, ScaleHit[]>;
       for (const s of scales) {
         const searcher = scaleSearchers.get(s)!;
-        const ranked = searcher(text);
+        const ranked = searcher(cleaned);
         const topScore = ranked[0]?.score || 0;
         // Normalize relative confidence to 0..1 while keeping an absolute floor so noisy/empty queries stay empty
         result[s] = ranked

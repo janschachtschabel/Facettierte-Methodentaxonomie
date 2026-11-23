@@ -63,7 +63,8 @@
   ],
   "raumzeit": [
     "praesenz",
-    "synchron"
+    "synchron",
+    "distanz"
   ],
   "rolle": [
     "moderator",
@@ -106,7 +107,7 @@
     "3–6 vorbereitete Thesen oder Fachfragen"
   ],
   "gruppeMin": 4,
-  "gruppeMax": 35,
+  "gruppeMax": 200,
   "vorbereitungMin": 10,
   "technik": "t-keine",
   "internet": false,

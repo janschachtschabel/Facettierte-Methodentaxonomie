@@ -374,8 +374,19 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // Zero-LLM semantic scale fallback (BM25 + German trigrams) for casual phrasings missed by exact regexes
     if (t.length >= 12) {
       const sem = semantic.classifyScales(text);
-      if (!('ansatz' in kriterien) && sem.scales.ansatz[0] && sem.scales.ansatz[0].score >= 0.55) {
-        take('ansatz', [sem.scales.ansatz[0].code], `semantisch: ${sem.scales.ansatz[0].label}`);
+      const topAnsatz = sem.scales.ansatz[0];
+      const forbidDigitalKi =
+        Boolean(kriterien.ohneInternet) || Boolean(kriterien.ohneKI) || kriterien.maxTechnik === 't-keine';
+      const forbidKooperativ =
+        kriterien.gruppe === 1 || list(kriterien.interaktion).includes('einzel');
+      if (
+        !('ansatz' in kriterien) &&
+        topAnsatz &&
+        topAnsatz.score >= 0.55 &&
+        !(forbidDigitalKi && topAnsatz.code === 'digital-ki') &&
+        !(forbidKooperativ && topAnsatz.code === 'kooperativ')
+      ) {
+        take('ansatz', [topAnsatz.code], `semantisch: ${topAnsatz.label}`);
       }
       if (
         !('lernfunktion' in kriterien) &&
@@ -426,10 +437,61 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return w;
   }
 
+  const LANGUAGE_TEXT_METHODS = new Set([
+    'diktat-klassisch',
+    'laufdiktat',
+    'lautleseverfahren',
+    'lesetagebuch',
+    'schreibkonferenz',
+    'chorsprechen',
+    'woerterwiese',
+    'sq3r-lesemethode',
+    'text-exzerpieren',
+    'kooperatives-skript'
+  ]);
+  const MEDIA_SOURCE_METHODS = new Set(['quellenkritik-check', 'quellenkritik-faktencheck']);
+  const DRAMA_METHODS = new Set(['stegreiftheater', 'standbild', 'forumtheater']);
+  const ICEBREAKER_METHODS = new Set(['marshmallow-challenge', 'autogrammjagd']);
+
+  let currentRawText = '';
+
+  function domainPenalty(b: Baustein): number {
+    const raw = currentRawText;
+    if (!raw) return 0;
+    if (LANGUAGE_TEXT_METHODS.has(b.kennung)) {
+      const isLanguageOrText =
+        /\b(?:deutsch|lesen|lese\w*|fachtext|sachtext|schreib\w*|aufsatz|diktat|rechtschreib\w*|vokabel\w*|sprach\w*|englisch|franzosisch|spanisch|latein|daz|lekture|buch|gedicht|geschichte\s+schreiben|dialog\w*)\b/.test(
+          raw
+        );
+      return isLanguageOrText ? 0 : 1;
+    }
+    if (MEDIA_SOURCE_METHODS.has(b.kennung)) {
+      const isMediaOrHumanities =
+        /\b(?:quelle\w*|medien\w*|fake|faktencheck|geschichte|politik|gesellschaft|sozialkunde|ethik|debatt\w*|argument\w*|journalis\w*|nachricht\w*|ki-?kompetenz|recherche|demokratie|gewaltenteilung|weimar)\b/.test(
+          raw
+        );
+      return isMediaOrHumanities ? 0 : 1;
+    }
+    if (DRAMA_METHODS.has(b.kennung)) {
+      const isDramaRelevant =
+        /\b(?:theater|darstell\w*|szene\w*|rolle\w*|rollenspiel|kommunikation|angehorig\w*|ethik|deutsch|englisch|politik|geschichte|sozial\w*|konflikt|demokratie|pflege)\b/.test(
+          raw
+        );
+      return isDramaRelevant ? 0 : 1;
+    }
+    if (ICEBREAKER_METHODS.has(b.kennung)) {
+      const isIcebreakerRelevant = /\b(?:kennenlern\w*|teambuild\w*|icebreaker|warm-?up|design\s+thinking|prototyp\w*)\b/.test(raw);
+      return isIcebreakerRelevant ? 0 : 1;
+    }
+    return 0;
+  }
+
   function rankOf(b: Baustein, a: MatchRequest, wantedFunctions: string[], extra = 0, maxStepMin?: number): number[] {
     const g = bestGrade(b);
     const contrastPenalty = hasNegativeEvidence(b) ? 1 : 0;
-    const budgetPenalty = maxStepMin != null && b.dauerMin > maxStepMin ? 1 : 0;
+    const budgetPenalty =
+      maxStepMin != null && b.dauerMin > maxStepMin ? Math.ceil((b.dauerMin - maxStepMin) / 6) : 0;
+    const domPenalty = domainPenalty(b);
     const wantedAnsatz = list(a.ansatz);
     const ansatzPenalty =
       wantedAnsatz.length === 0 ? 0 : wantedAnsatz.some((code) => (b.ansatz || []).includes(code)) ? 0 : 1;
@@ -449,6 +511,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       extra,
       passung(b, a).length ? 1 : 0,
       contrastPenalty,
+      domPenalty,
       budgetPenalty,
       ansatzPenalty,
       softFilterPenalty,
@@ -637,7 +700,24 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         totalBudget != null
           ? Math.max(5, Math.floor((totalBudget - reserveRec - usedDurationSoFar()) / remainingSteps))
           : undefined;
-      const cands = candidates(step.funktion, 3, a, used, step.ziel, stepCap);
+      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap);
+      // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
+      // reaching step.ziel, include any valid method that delivers step.ziel directly.
+      const fallbackCands = data.bausteine
+        .filter(
+          (b) =>
+            (rang.get(b.reichweite) ?? 0) <= 3 &&
+            !rahmen(b, a) &&
+            closure(b.nachbedingung || []).has(step.ziel) &&
+            !primaryCands.some((p) => p.kennung === b.kennung)
+        )
+        .map((b) => ({
+          b,
+          rank: rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap)
+        }))
+        .sort(byRank)
+        .map((x) => x.b);
+      const cands = primaryCands.concat(fallbackCands);
       let chosen: EinsatzNode | null = null;
       for (const b of cands) {
         for (const onlyMandatory of [true, false]) {
@@ -687,13 +767,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     });
 
     if (wantsRecurrence) {
-      const rec = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert')[0];
+      const recCands = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert');
+      const rec =
+        totalBudget == null
+          ? recCands[0]
+          : recCands.find((c) => usedDurationSoFar() + c.dauerMin * RECURRENCE.anzahl <= totalBudget);
       if (rec) {
-        const recTotal = rec.dauerMin * RECURRENCE.anzahl;
-        // Include spaced recurrence unless a very short single-lesson budget would be broken by 3x sessions
-        if (totalBudget == null || usedDurationSoFar() + recTotal <= totalBudget) {
-          teile.push(Object.assign({ typ: 'Wiederkehr' as const, baustein: rec.kennung, dauerMin: rec.dauerMin }, RECURRENCE));
-        }
+        teile.push(Object.assign({ typ: 'Wiederkehr' as const, baustein: rec.kennung, dauerMin: rec.dauerMin }, RECURRENCE));
       }
     }
 
@@ -729,32 +809,37 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
-    const gelesen = given(anfrage.text) ? lesen(String(anfrage.text)) : { kriterien: {}, erkannt: [], offen: [] };
-    const a: MatchRequest = { ...gelesen.kriterien };
-    Object.keys(anfrage).forEach((k) => {
-      if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
-    });
-    const hasPhase = list(a.lernfunktion).length || list(a.liefert).length;
-    const modus = a.modus || (a.zieltyp || (a.zielart && !hasPhase) ? 'ablauf' : 'phase');
-    const head = {
-      kriterien: a,
-      erkannt: gelesen.erkannt,
-      offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld)
-    };
-    if (modus === 'phase') return Object.assign(head, phase(a));
-    const ketten = a.zieltyp
-      ? [chains.get(a.zieltyp)!].filter(Boolean)
-      : data.ketten.filter((k) => (k.zielart || []).includes(String(a.zielart)));
-    if (!ketten.length) {
-      return Object.assign(head, {
-        modus: 'ablauf' as const,
-        hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.'
+    currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
+    try {
+      const gelesen = given(anfrage.text) ? lesen(String(anfrage.text)) : { kriterien: {}, erkannt: [], offen: [] };
+      const a: MatchRequest = { ...gelesen.kriterien };
+      Object.keys(anfrage).forEach((k) => {
+        if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
       });
+      const hasPhase = list(a.lernfunktion).length || list(a.liefert).length;
+      const modus = a.modus || (a.zieltyp || (a.zielart && !hasPhase) ? 'ablauf' : 'phase');
+      const head = {
+        kriterien: a,
+        erkannt: gelesen.erkannt,
+        offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld)
+      };
+      if (modus === 'phase') return Object.assign(head, phase(a));
+      const ketten = a.zieltyp
+        ? [chains.get(a.zieltyp)!].filter(Boolean)
+        : data.ketten.filter((k) => (k.zielart || []).includes(String(a.zielart)));
+      if (!ketten.length) {
+        return Object.assign(head, {
+          modus: 'ablauf' as const,
+          hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.'
+        });
+      }
+      const res = ablauf(a, ketten[0]);
+      return Object.assign(head, res, {
+        weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
+      });
+    } finally {
+      currentRawText = '';
     }
-    const res = ablauf(a, ketten[0]);
-    return Object.assign(head, res, {
-      weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
-    });
   }
 
   return { zuordnen, lesen, felder, schema };

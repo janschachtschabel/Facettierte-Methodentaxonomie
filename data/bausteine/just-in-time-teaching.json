@@ -26,8 +26,8 @@
     "Moderationskarten"
   ],
   "raum": "Klassenraum",
-  "gruppeMin": 2,
-  "gruppeMax": 35,
+  "gruppeMin": 1,
+  "gruppeMax": 200,
   "technik": "t-einzeln",
   "internet": true,
   "vorbereitungMin": 20,
@@ -37,6 +37,7 @@
     "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/26-2"
   ],
   "lernfunktion": [
+    "orientierung",
     "diagnose",
     "verstehen"
   ],

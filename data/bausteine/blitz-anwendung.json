@@ -27,7 +27,7 @@
   ],
   "raum": "Klassenraum",
   "gruppeMin": 1,
-  "gruppeMax": 35,
+  "gruppeMax": 200,
   "technik": "t-keine",
   "internet": false,
   "vorbereitungMin": 5,
@@ -78,7 +78,9 @@
   ],
   "raumzeit": [
     "praesenz",
-    "synchron"
+    "synchron",
+    "distanz",
+    "asynchron"
   ],
   "rolle": [
     "instrukteur",

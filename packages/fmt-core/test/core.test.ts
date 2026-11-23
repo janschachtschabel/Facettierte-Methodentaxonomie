@@ -440,4 +440,70 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       expect(forbiddenIds.has(rec.id), `analog matrix must not recommend ${rec.id} (${rec.name})`).toBe(false);
     }
   });
+
+  it('produces valid, domain-plausible plans across diverse education sectors (lecture 180, online, async solo, math, sports, vocational)', () => {
+    // 1. Negations ("ohne Internet", "ohne KI") must NEVER trigger ansatz: ["digital-ki"]
+    const noNet = M.lesen('Grundschule Mathematik Bruchteile 45 Minuten, ohne Geräte, ohne Internet');
+    expect(noNet.kriterien.ansatz || []).not.toContain('digital-ki');
+    const noAi = M.lesen('Berufsschule Elektrotechnik Schaltung Problemlösen 90 Minuten, ohne KI');
+    expect(noAi.kriterien.ansatz || []).not.toContain('digital-ki');
+    const solo = M.lesen('Asynchrone Selbstlernphase 60 Minuten Konzept Klimasystem verstehen, Einzelarbeit zu Hause mit Laptop');
+    expect(solo.kriterien.ansatz || []).not.toContain('kooperativ');
+
+    // 2. Math direct instruction must NOT pick language/dictation methods (diktat-klassisch, lautleseverfahren)
+    const math = M.zuordnen({
+      text: 'Mathematik Klasse 7 Doppelstunde Lineare Gleichungen üben und rechnen, 90 Minuten, 28 Schüler, geringes Vorwissen, direkte Instruktion',
+      bildungsstufe: 'sek1',
+      zeitMin: 90,
+      gruppe: 28
+    });
+    expect(math.modus).toBe('ablauf');
+    if (math.modus === 'ablauf') {
+      expect(math.pruefung.gueltig).toBe(true);
+      const ids = (math.schritte || []).map((s) => s.baustein);
+      expect(ids).not.toContain('diktat-klassisch');
+      expect(ids).not.toContain('lautleseverfahren');
+    }
+
+    // 3. Large university lecture (180 students), online VHS course (distanz), and async solo study (gruppe: 1) MUST all be formally valid!
+    const hardSettings: Array<[string, Parameters<typeof M.zuordnen>[0]]> = [
+      [
+        'Großvorlesung 180',
+        {
+          text: 'Universität Vorlesung Informatik 90 Minuten 180 Studierende Datenbank-Normalisierung verstehen, Beamer vorhanden, geringes Vorwissen',
+          bildungsstufe: 'hochschule',
+          zeitMin: 90,
+          gruppe: 180
+        }
+      ],
+      [
+        'VHS Online Distanz',
+        {
+          text: 'Erwachsenenbildung VHS Online-Kurs Videokonferenz 90 Minuten 12 Teilnehmende KI-Kompetenz im Alltag, mittleres Vorwissen',
+          modus: 'ablauf',
+          zieltyp: 'konzeptaufbau',
+          bildungsstufe: 'erwachsenenbildung',
+          zeitMin: 90,
+          gruppe: 12
+        }
+      ],
+      [
+        'Asynchron Einzelarbeit',
+        {
+          text: 'Asynchrone Selbstlernphase 60 Minuten Sekundarstufe II Konzept Klimasystem verstehen, Einzelarbeit zu Hause mit Laptop',
+          bildungsstufe: 'sek2',
+          zeitMin: 60,
+          gruppe: 1
+        }
+      ]
+    ];
+    for (const [label, req] of hardSettings) {
+      const res = M.zuordnen(req);
+      expect(res.modus, label).toBe('ablauf');
+      if (res.modus === 'ablauf') {
+        expect(res.pruefung.gueltig, `${label} errors: ${JSON.stringify(res.pruefung.meldungen)}`).toBe(true);
+        expect(res.pruefung.dauerMin, `${label} within budget`).toBeLessThanOrEqual(req.zeitMin!);
+      }
+    }
+  });
 });
