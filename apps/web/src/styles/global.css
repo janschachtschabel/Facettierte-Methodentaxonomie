@@ -756,12 +756,12 @@ code {
   }
 }
 
-/* Differentiation / Scenario Adaptation Page */
+/* Differentiation / Scenario Adaptation Page (aligned with .wrap 1680px container of all other pages) */
 .diff-wrap {
-  max-width: 1120px;
+  max-width: 1680px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px 24px 56px;
+  padding: 24px 28px 56px;
 }
 
 .diff-section-num {
@@ -1004,7 +1004,7 @@ code {
 
 .diff-grid-2 {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 14px;
   margin-top: 14px;
 }

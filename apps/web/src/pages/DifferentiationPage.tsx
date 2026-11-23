@@ -50,7 +50,7 @@ const CHIP_MATCHERS: Record<string, RegExp> = {
   'vorwissen-gering': /gering(?:es|em)?\s+vorwissen|wenig\s+vorwissen|basisunterstütz/i,
   vertiefung: /leistungsstark|hochbegab|vertiefung|schnell/i,
   schuechtern: /schüchtern|zurückhalt|geringe\s+beteiligung|angst/i,
-  barriere: /seh|hör|motorik|barriere/i
+  barriere: /\bseh(?:beeintr|behind|schw[aä]ch)|blind|\bh[oö]r(?:beeintr|sch[aä]dig)|schwerh[oö]rig|geh[oö]rlos|motorik|motorisch|barriere/i
 };
 
 const GROUP_CHIPS: GroupChip[] = QUICK_LEARNER_GROUP_PROFILES.map((p) => ({
