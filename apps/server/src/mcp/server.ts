@@ -19,6 +19,7 @@ import {
   generateMaterialCore
 } from '../routes/assistant.js';
 import {
+  buildAdaptScenarioZeroLlm,
   buildElaborateBriefing,
   buildMaterialBriefing,
   buildScenarioPlanZeroLlm
@@ -311,9 +312,15 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       maxTechnik: z.string().optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
       ohneInternet: z.boolean().optional().describe('Optional: true filtert online-abhängige Maßnahmen heraus'),
       ohneKI: z.boolean().optional().describe('Optional: true schließt KI-abhängige Maßnahmen aus'),
+      includeSystemMeasures: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe('Standard false (blendet Schul-/Systemmaßnahmen wie Förderstunden/Noten aus); true zeigt alle 3 Ebenen'),
+      maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional().describe('Optional: maximaler Vorbereitungsaufwand'),
       baustein: z.string().optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen')
     },
-    async ({ personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, baustein }) => {
+    async ({ personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures, maxAufwand, baustein }) => {
       const scoreResult = scoreDifferentiationMatrix({
         personaId,
         selectedValues,
@@ -321,11 +328,17 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         limit,
         maxTechnik,
         ohneInternet,
-        ohneKI
+        ohneKI,
+        includeSystemMeasures,
+        maxAufwand
       });
       const currentBlock = baustein ? store.blocksById.get(baustein) : undefined;
       const alternativeMethoden = currentBlock
-        ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5)
+        ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5, undefined, {
+            maxTechnik,
+            ohneInternet,
+            ohneKI
+          })
         : [];
       return textResult({
         ...scoreResult,
@@ -495,6 +508,66 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             : 'build_scenario_plan mit den vorab erkannten Kriterien aufrufen',
         leitplanken: FMT_GUARDRAILS
       });
+    }
+  );
+
+  // 14. adapt_scenario (Standalone & FMT-integrated Zero-LLM differentiation + UDL + conflict resolution)
+  server.tool(
+    'adapt_scenario',
+    'Nutze dieses Tool immer, wenn ein vorhandenes oder freies Unterrichtsszenario (auch im Chat ohne FMT-Arrangement!) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Inklusion, Leistungsstarke, heterogene Klasse) angepasst und binnendifferenziert werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis (hilft allen), Zielkonflikte zwischen Teilgruppen inkl. Auflösungsstrategien, teilgruppenspezifische Maßnahmen mit konkretem Umsetzungsimpuls (-100..+100 %), phasenbezogene Anpassungen, passende/alternative FMT-Methoden sowie verbindliche Umsetzungsregeln. Blendet Schul-/Systemmaßnahmen standardmäßig aus und beachtet analog/offline-Filter.',
+    {
+      scenarioText: z.string().optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
+      lerngruppenText: z
+        .string()
+        .optional()
+        .describe('Freitext zu Lernvoraussetzungen / Teilgruppen, z. B. "26 Kinder: 5 DaZ, 2 ADHS, 4 sehr leistungsstark"'),
+      arrangement: z.record(z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
+      phasen: z
+        .array(
+          z.object({
+            key: z.string().optional(),
+            phaseLabel: z.string(),
+            durationMin: z.number().int().min(1).optional(),
+            baustein: z.string().optional(),
+            lernfunktion: z.string().optional(),
+            beschreibung: z.string().optional()
+          })
+        )
+        .optional()
+        .describe('Optional: eigene Phasenliste (auch ohne FMT-Methodenkennungen)'),
+      gruppen: z
+        .array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            count: z.number().int().min(1).optional(),
+            personaId: z.string().optional(),
+            selectedValues: z.record(z.string()).optional(),
+            text: z.string().optional()
+          })
+        )
+        .optional()
+        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen'),
+      fach: z.string().optional(),
+      thema: z.string().optional(),
+      bildungsstufe: z.string().optional(),
+      zeitMin: z.number().int().min(5).optional(),
+      maxTechnik: z.string().optional().describe('z. B. "t-keine" (nur analog), "t-projektion", "t-einzeln"'),
+      ohneInternet: z.boolean().optional(),
+      ohneKI: z.boolean().optional(),
+      maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional(),
+      includeSystemMeasures: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe('Standard false (nur sofort umsetzbare Unterrichts- & Materialmaßnahmen)')
+    },
+    async (args) => {
+      const res = buildAdaptScenarioZeroLlm(store, {
+        ...args,
+        arrangement: args.arrangement as unknown as Arrangement | undefined
+      });
+      return textResult(res);
     }
   );
 

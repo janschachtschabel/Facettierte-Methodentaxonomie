@@ -1,6 +1,9 @@
 import {
   FMT_GUARDRAILS,
+  adaptScenario,
+  computeMultiGroupSynthesis,
   scoreDifferentiationMatrix,
+  type AdaptScenarioInput,
   type Arrangement,
   type MatchRequest,
   type ValidationResult
@@ -522,9 +525,33 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     return {
       ...g,
       matrixTop: scored.topRecommendations.slice(0, 4).map((r) => `${r.name} (+${r.score})`),
+      matrixTopDetails: scored.topRecommendations.slice(0, 4).map((r) => ({
+        id: r.id,
+        name: r.name,
+        normalizedScore: r.normalizedScore,
+        relevanz: r.relevanz,
+        ebene: r.meta.ebene,
+        aufwand: r.meta.aufwand,
+        umsetzungsimpuls: r.meta.umsetzungsimpuls
+      })),
       didacticProfile: scored.didacticProfile
     };
   });
+
+  const multiGroupSynthesis = computeMultiGroupSynthesis(
+    activeGroups.map((g) => ({
+      id: g.id,
+      label: g.label,
+      count: g.count,
+      personaId: g.personaId || 'average',
+      selectedValues: g.selectedValues
+    })),
+    {
+      maxTechnik: effectiveMaxTechnik,
+      ohneInternet: effectiveOhneInternet,
+      ohneKI: effectiveOhneKI
+    }
+  );
 
   let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];
   if (args.includeWloOer && (thema || fach)) {
@@ -602,6 +629,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     erkannteMatrixSignale: detectedTraits.signals,
     pruefung: matched.pruefung,
     methodenDetails,
+    udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
+    konflikte: multiGroupSynthesis.konflikte.slice(0, 4),
     lerngruppenUndMatrix: groupMatrices,
     wloOerRessourcen: oerHits,
     thematischeTabelle: briefing.fallbackTable,
@@ -619,6 +648,62 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       arrangement: matched.arrangement,
       thematicRows: briefing.fallbackTable
     },
+    leitplanken: FMT_GUARDRAILS
+  };
+}
+
+/**
+ * Zero-LLM end-to-end scenario differentiation & adaptation briefing (< 5 ms).
+ * Works for BOTH standalone free-text scenarios (chat / MCP / API) and structured FMT arrangements.
+ */
+export function buildAdaptScenarioZeroLlm(store: CatalogStore, input: AdaptScenarioInput & { text?: string }) {
+  const effectiveText = input.scenarioText?.trim() || input.text?.trim() || undefined;
+  const extracted = effectiveText ? extractSubjectAndTopicFromText(effectiveText) : { fach: null, thema: null };
+  const result = adaptScenario(store.bundle, {
+    ...input,
+    scenarioText: effectiveText,
+    fach: input.fach?.trim() || extracted.fach || undefined,
+    thema: input.thema?.trim() || extracted.thema || undefined
+  });
+
+  const verbindlicheUmsetzungsregeln = [
+    'UDL ZUERST: Beginne mit den gemeinsamen Basis-Maßnahmen aus `udlBasis` (sie helfen allen Teilgruppen gleichzeitig mit minimalem Mehraufwand) und übertrage deren `umsetzungsimpuls` konkret auf das Unterrichtsthema.',
+    'KONFLIKTE AKTIV AUFLÖSEN: Nenne jeden erkannten Zielkonflikt aus `konflikte` offen und setze die zugehörige `aufloesungsstrategie` (z. B. gestufte Aufgabenkarten, parallele Lernwege, Sternchenaufgaben) konkret um.',
+    'TEILGRUPPEN & VERMEIDEN: Formuliere für jede Gruppe in `teilgruppen` konkrete, themenspezifische Hilfen bzw. Vertiefungen und beachte ausdrücklich die `vermeiden`-Hinweise.',
+    'RAHMEN & EPISTEMIK: Beachte strikt die erkannten Technik-/Offline-Grenzen (`kontext.maxTechnik`, `kontext.ohneInternet`) und trenne klar zwischen der heuristischen Binnendifferenzierungsmatrix (-100 bis +100 %, keine Effektstärken) und empirischen FMT-Evidenzgraden (A–C mit Geltungsbereich).'
+  ];
+
+  const systemPrompt =
+    'Du bist ein Experte für Binnendifferenzierung, Universal Design for Learning (UDL) und die Facettierte Methodentaxonomie (FMT). ' +
+    'Nutze ausschließlich die übergebenen deterministischen Anpassungsdaten (`udlBasis`, `konflikte`, `teilgruppen`, `phasenAnpassungen`), um ein konkretes, sofort im Unterricht umsetzbares Differenzierungskonzept auf Deutsch im Markdown-Format zu formulieren.\n' +
+    'STRUKTUR:\n' +
+    '1. ## Gemeinsame Basis für alle (UDL)\n' +
+    '2. ## Zielkonflikte & konkrete Auflösungsstrategien\n' +
+    '3. ## Konkrete Anpassungen je Phase & Teilgruppe (inkl. Satzstartern, Hilfekarten oder Transferimpulsen passend zum Thema sowie ggf. alternativen FMT-Methoden)\n' +
+    '4. ## Was vermieden werden sollte & Einordnung (heuristische Matrix vs. FMT-Evidenz)\n' +
+    'Erfinde KEINE neuen FMT-Methoden oder Studien außerhalb der übergebenen Daten.';
+
+  const userPrompt =
+    `SZENARIO-KONTEXT:\n${JSON.stringify(result.kontext, null, 2)}\n` +
+    (effectiveText ? `\nAusgangsszenario:\n${effectiveText}\n` : '') +
+    `\nUDL-BASIS:\n${JSON.stringify(result.udlBasis, null, 2)}\n` +
+    `\nZIELKONFLIKTE:\n${JSON.stringify(result.konflikte, null, 2)}\n` +
+    `\nTEILGRUPPEN:\n${JSON.stringify(result.teilgruppen, null, 2)}\n` +
+    `\nPHASEN-ANPASSUNGEN:\n${JSON.stringify(result.phasenAnpassungen, null, 2)}`;
+
+  return {
+    verbindlicheUmsetzungsregeln,
+    ...result,
+    llmBriefing: {
+      zweck: 'Geprüften UDL- & Binnendifferenzierungsplan konkret auf das Unterrichtsthema, Aufgabenstellungen und Phasen ausformulieren',
+      ausfuehrungHinweis:
+        'Alle UDL-Maßnahmen, Zielkonflikte, Teilgruppen-Profile und FMT-Methodenvorschläge sind deterministisch vorausberechnet. Übertrage die Umsetzungsimpulse direkt auf das Thema.',
+      systemPrompt,
+      userPrompt,
+      jsonMode: false,
+      maxTokens: 3200,
+      leitplanken: FMT_GUARDRAILS
+    } satisfies LlmBriefingPacket,
     leitplanken: FMT_GUARDRAILS
   };
 }

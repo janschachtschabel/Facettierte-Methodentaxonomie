@@ -54,7 +54,7 @@ export function ApiMcpPage() {
         </div>
 
         <div className="card" style={{ padding: 18 }}>
-          <h2>Verfügbare MCP-Tools &amp; Resources (13 Tools · Zero-LLM-First)</h2>
+          <h2>Verfügbare MCP-Tools &amp; Resources (14 Tools · Zero-LLM-First)</h2>
           <p className="muted" style={{ fontSize: 13.5, marginTop: 4 }}>
             Alle MCP-Tools antworten standardmäßig <strong>ohne Server-LLM in &lt;5 ms</strong> (Vorfilterung, Regelprüfung,
             Matrix-Scoring &amp; Klassifikation) und liefern bei komplexen Aufgaben ein fertiges <code>llmBriefing</code> für
@@ -70,8 +70,9 @@ export function ApiMcpPage() {
             <li><code>suggest_replacements</code> – Formal gültige Ersatzkandidaten an einem Knotenpfad</li>
             <li><code>list_vocabularies</code> – Kontrollierte Codes, Funktionsketten &amp; Differenzierungs-Personas</li>
             <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code></li>
-            <li><code>score_differentiation_matrix</code> – Binnendifferenzierungsmatrix (−2..+2 Punkte) &amp; alternative Teilgruppen-Methoden</li>
-            <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) inkl. <code>llmBriefing</code>, Matrix, JSON-LD &amp; opt. WLO-OER</li>
+            <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, Ebenen-/Technikfilter) &amp; alternative Teilgruppen-Methoden</li>
+            <li><code>adapt_scenario</code> – <strong>Szenario-Anpassung &amp; Binnendifferenzierung</strong> (für freie Chat-Entwürfe &amp; FMT-Arrangements): UDL-Basis, Zielkonflikte + Auflösungen, Phasen-Impulse &amp; FMT-Methoden (<code>POST /api/v1/adapt</code>)</li>
+            <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) inkl. <code>llmBriefing</code>, UDL/Konflikten, Matrix, JSON-LD &amp; opt. WLO-OER</li>
             <li><code>elaborate_scenario</code> – Deterministische Verlaufstabelle + <code>llmBriefing</code> für das Enduser-LLM</li>
             <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage (7 Typen) + <code>llmBriefing</code></li>
           </ul>

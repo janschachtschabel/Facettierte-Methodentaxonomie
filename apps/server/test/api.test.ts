@@ -166,6 +166,32 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(pg.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
     expect(pg.maschinenlesbar.schemaVersion).toBe('1.4');
     expect(pg.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
+    expect(Array.isArray(pg.udlBasis)).toBe(true);
+    expect(Array.isArray(pg.konflikte)).toBe(true);
+
+    // New differentiation metadata & standalone /api/v1/adapt endpoint
+    const dMeta = await app.inject({ method: 'GET', url: '/api/v1/differentiation/meta' });
+    expect(dMeta.statusCode).toBe(200);
+    expect(dMeta.json().anzahlMassnahmen).toBe(172);
+
+    const adaptRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: {
+        scenarioText: 'Mathematik Klasse 4 Bruchteile einführen mit Papierfalten, 45 Minuten, ohne Geräte, ohne Internet',
+        lerngruppenText: '5 DaZ-Kinder, 2 Kinder mit ADHS und 4 sehr leistungsstarke Kinder',
+        bildungsstufe: 'primar',
+        zeitMin: 45
+      }
+    });
+    expect(adaptRes.statusCode).toBe(200);
+    const aj = adaptRes.json();
+    expect(aj.udlBasis.length).toBeGreaterThan(0);
+    expect(aj.konflikte.length).toBeGreaterThan(0);
+    expect(aj.teilgruppen.length).toBe(3);
+    expect(aj.phasenAnpassungen.length).toBe(3);
+    expect(aj.verbindlicheUmsetzungsregeln.length).toBeGreaterThanOrEqual(4);
+    expect(aj.udlBasis.every((u: { meta: { technik: string; ebene: string } }) => u.meta.technik === 'analog' && u.meta.ebene !== 'organisation-system')).toBe(true);
   });
 
   it('serves SKOS Turtle, JSON-LD, canonical w3id.org content negotiation and SPA fallback cleanly (Review Focus #4)', async () => {

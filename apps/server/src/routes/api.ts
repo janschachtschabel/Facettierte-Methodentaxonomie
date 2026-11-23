@@ -1,16 +1,21 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import {
   DIFF_MATRIX_PERSONAS,
+  DIFF_MATRIX_VARIABLES,
+  getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
+  type AdaptScenarioInput,
   type Arrangement,
   type MatchRequest,
+  type MeasureEffort,
+  type MeasureLevel,
   type SearchCriteria
 } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
-import { buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
+import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
 
 export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
@@ -220,6 +225,29 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     });
   });
 
+  app.get('/api/v1/differentiation/meta', async () => ({
+    ...getDifferentiationMetaSummary(),
+    variables: DIFF_MATRIX_VARIABLES,
+    personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
+  }));
+
+  app.post('/api/v1/adapt', async (req, reply) => {
+    const body = (req.body || {}) as Partial<AdaptScenarioInput & { text?: string }>;
+    const hasScenario =
+      (typeof body.scenarioText === 'string' && body.scenarioText.trim().length > 0) ||
+      (typeof body.text === 'string' && body.text.trim().length > 0) ||
+      Boolean(body.arrangement) ||
+      (Array.isArray(body.phasen) && body.phasen.length > 0) ||
+      (typeof body.lerngruppenText === 'string' && body.lerngruppenText.trim().length > 0) ||
+      (Array.isArray(body.gruppen) && body.gruppen.length > 0);
+    if (!hasScenario) {
+      return reply
+        .code(400)
+        .send({ fehler: 'Bitte mindestens scenarioText/text, arrangement, phasen, lerngruppenText oder gruppen übergeben.' });
+    }
+    return buildAdaptScenarioZeroLlm(store, body);
+  });
+
   app.post('/api/v1/differentiation/score', async (req) => {
     const body = (req.body || {}) as {
       personaId?: string;
@@ -227,16 +255,32 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       minScore?: number;
       limit?: number;
       baustein?: string;
+      ebenen?: MeasureLevel[];
+      includeSystemMeasures?: boolean;
+      maxTechnik?: string;
+      ohneInternet?: boolean;
+      ohneKI?: boolean;
+      maxAufwand?: MeasureEffort;
     };
     const scoreResult = scoreDifferentiationMatrix({
       personaId: body.personaId,
       selectedValues: body.selectedValues,
       minScore: body.minScore,
-      limit: body.limit
+      limit: body.limit,
+      ebenen: body.ebenen,
+      includeSystemMeasures: body.includeSystemMeasures,
+      maxTechnik: body.maxTechnik,
+      ohneInternet: body.ohneInternet,
+      ohneKI: body.ohneKI,
+      maxAufwand: body.maxAufwand
     });
     const currentBlock = body.baustein ? store.blocksById.get(body.baustein) : undefined;
     const alternativeMethoden = currentBlock
-      ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5)
+      ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5, undefined, {
+          maxTechnik: body.maxTechnik,
+          ohneInternet: body.ohneInternet,
+          ohneKI: body.ohneKI
+        })
       : [];
     return {
       ...scoreResult,

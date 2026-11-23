@@ -278,7 +278,7 @@ curl -s -X POST http://localhost:8080/api/v1/assistant/briefing \
   }'
 ```
 
-### Übersicht aller 13 MCP-Tools (`/mcp` & `stdio`)
+### Übersicht aller 14 MCP-Tools (`/mcp` & `stdio`)
 
 1. `classify_scenario_text` – Hybride Freitext-Klassifikation (6 Skalen, Fach/Thema, Methoden, Matrix-Merkmale)
 2. `search_methods` – Facettierte Suche über alle 290 Methoden inkl. semantischer Vorschläge
@@ -289,7 +289,8 @@ curl -s -X POST http://localhost:8080/api/v1/assistant/briefing \
 7. `suggest_replacements` – Formal gültige Ersatzkandidaten an einem Knotenpfad
 8. `list_vocabularies` – Alle 24 SKOS-Vokabulare, Funktionsketten & Differenzierungs-Personas
 9. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline Prod (`redaktion.openeduhub.net`) inkl. `wwwurl`
-10. `score_differentiation_matrix` – Punkte-Matrix (−2..+2) & alternative Methoden für Teilgruppen
-11. `build_scenario_plan` – Kompletter Zero-LLM-Szenario-Plan (`< 5 ms`) inkl. `llmBriefing` & JSON-LD
-12. `elaborate_scenario` – Deterministische Verlaufstabelle + `llmBriefing` fürs Enduser-LLM
-13. `generate_phase_material` – Druckfertige Strukturvorlage (7 Typen) + `llmBriefing`
+10. `score_differentiation_matrix` – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, Ebenen-/Technikfilter) & alternative Methoden für Teilgruppen
+11. `adapt_scenario` – Szenario-Anpassung & Binnendifferenzierung für freie Chat-Entwürfe & FMT-Arrangements (UDL-Basis, Zielkonflikte + Auflösungen, Phasen-Impulse, FMT-Methoden & `llmBriefing`, auch als `POST /api/v1/adapt`)
+12. `build_scenario_plan` – Kompletter Zero-LLM-Szenario-Plan (`< 5 ms`) inkl. UDL/Konflikten, `llmBriefing` & JSON-LD
+13. `elaborate_scenario` – Deterministische Verlaufstabelle + `llmBriefing` fürs Enduser-LLM
+14. `generate_phase_material` – Druckfertige Strukturvorlage (7 Typen) + `llmBriefing`

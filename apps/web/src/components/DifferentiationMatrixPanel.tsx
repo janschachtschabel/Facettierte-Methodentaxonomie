@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  computeMultiGroupSynthesis,
   DIFF_MATRIX_PERSONAS,
   DIFF_MATRIX_VARIABLES,
   scoreDifferentiationMatrix,
@@ -71,6 +72,7 @@ export function DifferentiationMatrixPanel({
 }: Props) {
   const [selectedGroupId, setSelectedGroupId] = useState<string>(groups[0]?.id || 'basis');
   const [showAllVariables, setShowAllVariables] = useState(false);
+  const [includeSystemMeasures, setIncludeSystemMeasures] = useState(false);
   const [newGroupLabel, setNewGroupLabel] = useState('');
   const [newGroupCount, setNewGroupCount] = useState('4');
   const [newGroupPersona, setNewGroupPersona] = useState('foerderLernen');
@@ -88,12 +90,33 @@ export function DifferentiationMatrixPanel({
           maxTechnik: maxTechnik || undefined,
           ohneInternet,
           ohneKI,
+          includeSystemMeasures,
           limit: 10
         })
       );
     }
     return map;
-  }, [groups, maxTechnik, ohneInternet, ohneKI]);
+  }, [groups, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures]);
+
+  const multiSynthesis = useMemo(() => {
+    const active = groups.filter((g) => g.active);
+    if (active.length < 2) return null;
+    return computeMultiGroupSynthesis(
+      active.map((g) => ({
+        id: g.id,
+        label: g.label,
+        count: g.count,
+        personaId: g.personaId,
+        selectedValues: g.matrixValues
+      })),
+      {
+        maxTechnik: maxTechnik || undefined,
+        ohneInternet,
+        ohneKI,
+        includeSystemMeasures
+      }
+    );
+  }, [groups, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures]);
 
   const activeMatrix = selectedGroup ? matrixByGroup.get(selectedGroup.id) : null;
   const sortedBlocks = useMemo(() => [...allBlocks].sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);
@@ -132,19 +155,74 @@ export function DifferentiationMatrixPanel({
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <strong style={{ fontFamily: 'var(--display)', fontSize: 16.5 }}>
-            ⚖ Binnendifferenzierungsmatrix (Punktesystem −2 bis +2) &amp; Teilgruppen-Methoden
+            ⚖ Binnendifferenzierungsmatrix (normalisiert −100..+100 %) &amp; Teilgruppen-Methoden
           </strong>
-          <span className="status-badge">
-            {groups.filter((g) => g.active).length} aktive Teilgruppen · {totalLearners > 0 ? `${totalLearners} Lernende gesamt` : 'Personenzahl optional'}
-          </span>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={includeSystemMeasures}
+                onChange={(e) => setIncludeSystemMeasures(e.target.checked)}
+              />
+              Schul-/Systemmaßnahmen einblenden
+            </label>
+            <span className="status-badge">
+              {groups.filter((g) => g.active).length} aktive Teilgruppen · {totalLearners > 0 ? `${totalLearners} Lernende gesamt` : 'Personenzahl optional'}
+            </span>
+          </div>
         </div>
         <p className="muted" style={{ fontSize: 13.5, margin: '4px 0 0' }}>
           Wähle pro Teilgruppe eine Persona oder einzelne Anpassungsvariablen aus der{' '}
-          <strong>Binnendifferenzierungsmatrix</strong> (115 Ausprägungen × 172 Maßnahmen). Im Einzelfall kannst du pro Phase
-          entweder <strong>die Methode anpassen</strong> oder <strong>eine alternative FMT-Methode für die Teilgruppe</strong>{' '}
-          (parallele Schwimmlinie) wählen.
+          <strong>Binnendifferenzierungsmatrix</strong> (115 Ausprägungen × 172 Maßnahmen; heuristisches Expertenmodell,
+          standardmäßig auf sofort umsetzbare Unterrichts- &amp; Materialmaßnahmen gefiltert).
         </p>
       </div>
+
+      {/* Multi-Group UDL & Conflict Summary */}
+      {multiSynthesis && (multiSynthesis.udlBasis.length > 0 || multiSynthesis.konflikte.length > 0) && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 10,
+            padding: 12,
+            borderRadius: 8,
+            background: 'var(--paper)',
+            border: '1px solid var(--rule)'
+          }}
+        >
+          {multiSynthesis.udlBasis.length > 0 && (
+            <div>
+              <strong style={{ fontSize: 13.5, color: 'var(--dA)' }}>
+                ✓ Gemeinsame UDL-Basis (hilft allen Teilgruppen):
+              </strong>
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 12.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {multiSynthesis.udlBasis.slice(0, 4).map((u) => (
+                  <li key={u.id}>
+                    <strong>{u.name}</strong> (+{u.minNormalizedScore} %, {u.meta.aufwand}):{' '}
+                    <span className="muted">{u.meta.umsetzungsimpuls}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {multiSynthesis.konflikte.length > 0 && (
+            <div>
+              <strong style={{ fontSize: 13.5, color: 'var(--dC)' }}>
+                ⚡ Zielkonflikte &amp; Auflösungen ({multiSynthesis.konflikte.length}):
+              </strong>
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 12.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {multiSynthesis.konflikte.slice(0, 3).map((k) => (
+                  <li key={k.measureId}>
+                    <strong>{k.measureName}:</strong>{' '}
+                    <span className="muted">{k.aufloesungsstrategie}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Group Cards with Headcount & Persona Selector */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 10 }}>
@@ -217,7 +295,9 @@ export function DifferentiationMatrixPanel({
 
               {mRes && mRes.topRecommendations.length > 0 && (
                 <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>
-                  <strong>Top-Score:</strong> {mRes.topRecommendations[0].name} (<strong>+{mRes.topRecommendations[0].score}</strong>)
+                  <strong>Top-Empfehlung:</strong> {mRes.topRecommendations[0].name} (
+                  <strong>+{mRes.topRecommendations[0].normalizedScore} %</strong>)
+                  <div style={{ fontSize: 11.5, marginTop: 2 }}>{mRes.topRecommendations[0].meta.umsetzungsimpuls}</div>
                 </div>
               )}
             </div>

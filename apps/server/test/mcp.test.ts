@@ -46,10 +46,11 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     await app.close();
   });
 
-  it('lists all 13 FMT tools, resources, and prompts', async () => {
+  it('lists all 14 FMT tools, resources, and prompts', async () => {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
+      'adapt_scenario',
       'build_scenario_plan',
       'classify_scenario_text',
       'compare_methods',
@@ -241,6 +242,36 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const clsJson = JSON.parse((clsRes.content as Array<{ text: string }>)[0].text);
     expect(clsJson.kriterien.zeitMin).toBe(90);
     expect(clsJson.matrixMerkmale.selectedValues.sprachkompetenz).toBe('sprachkompetenz-gering');
+
+    // 14th MCP tool: adapt_scenario (standalone free-text chat scenario AND FMT arrangement)
+    const adaptFreeRes = await client.callTool({
+      name: 'adapt_scenario',
+      arguments: {
+        scenarioText: 'Deutsch Klasse 5 Satzglieder erarbeiten mit Arbeitsblatt, 45 Minuten, ohne Geräte, ohne Internet',
+        lerngruppenText: '6 DaZ-Kinder, 2 mit LRS und 4 leistungsstarke Kinder',
+        bildungsstufe: 'sek1',
+        zeitMin: 45
+      }
+    });
+    const adaptFree = JSON.parse((adaptFreeRes.content as Array<{ text: string }>)[0].text);
+    expect(adaptFree.udlBasis.length).toBeGreaterThan(0);
+    expect(adaptFree.konflikte.length).toBeGreaterThan(0);
+    expect(adaptFree.phasenAnpassungen.length).toBe(3);
+    expect(adaptFree.verbindlicheUmsetzungsregeln.length).toBeGreaterThanOrEqual(4);
+    expect(adaptFree.udlBasis.every((u: { meta: { ebene: string; technik: string } }) => u.meta.ebene !== 'organisation-system' && u.meta.technik === 'analog')).toBe(true);
+
+    const adaptArrRes = await client.callTool({
+      name: 'adapt_scenario',
+      arguments: {
+        arrangement: matchJson.arrangement,
+        lerngruppenText: '5 DaZ-Kinder und 4 leistungsstarke Kinder',
+        maxTechnik: 't-keine',
+        ohneInternet: true
+      }
+    });
+    const adaptArr = JSON.parse((adaptArrRes.content as Array<{ text: string }>)[0].text);
+    expect(adaptArr.phasenAnpassungen.length).toBeGreaterThanOrEqual(4);
+    expect(adaptArr.phasenAnpassungen[0].baustein).toBeTruthy();
   });
 
   it('reads MCP resources fmt://catalog/summary and fmt://rules', async () => {

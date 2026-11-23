@@ -20,7 +20,7 @@ Eine offene, maschinenlesbare **Datenbank für 290 Unterrichtsmethoden** im deut
   1. **Zero-LLM-Standard:** Server läuft ohne API-Key; API & MCP liefern bei komplexen Aufgaben fertige `llmBriefing`-Pakete für das eigene Enduser-LLM.
   2. **Eigene KI in den App-Einstellungen (`⚙ KI-Einstellungen`):** Endnutzer können direkt im Browser jede OpenAI-kompatible Anbindung eintragen (OpenAI, Google Gemini, Mistral AI, OpenRouter, GWDG Academic Cloud, Groq, **lokales Ollama / LM Studio** oder eigene LiteLLM/vLLM-Endpunkte – inkl. Browser-Direktmodus ohne Weitergabe des Keys an den FMT-Server).
   3. **Optionales Server-LLM per ENV:** Strikt opt-in über `LLM_API_KEY`.
-- **MCP-Server (13 Tools) & Linked Data:** Remote-MCP (`/mcp` via Streamable HTTP) + lokaler `stdio`-Start, REST-API (`/api/v1/*` + v0.7.0-Aliase), 24 SKOS-Vokabulare (`.ttl`), JSON-LD, JSON Schema und `w3id.org/fmt/`-Content-Negotiation.
+- **MCP-Server (14 Tools) & Linked Data:** Remote-MCP (`/mcp` via Streamable HTTP) + lokaler `stdio`-Start (inkl. `adapt_scenario` für freie Chat-Entwürfe & FMT-Arrangements), REST-API (`/api/v1/*`, `/api/v1/adapt` + v0.7.0-Aliase), 24 SKOS-Vokabulare (`.ttl`), JSON-LD, JSON Schema und `w3id.org/fmt/`-Content-Negotiation.
 
 ---
 
@@ -117,7 +117,7 @@ npm run dev:web    # Terminal 2: Vite Dev-Server (Proxy zu 8080)
 | URL | Zweck |
 |---|---|
 | `http://localhost:8080/` | Web-App (Methodenkatalog, Szenario-Baukasten, Vergleich, Systematik) |
-| `http://localhost:8080/mcp` | Remote-MCP-Server (Streamable HTTP, 13 Zero-LLM-Tools) |
+| `http://localhost:8080/mcp` | Remote-MCP-Server (Streamable HTTP, 14 Zero-LLM-Tools) |
 | `http://localhost:8080/api/v1/meta` | Status, Version, Hash, Methodenanzahl, Klassifikations-Engine & LLM-Status |
 | `http://localhost:8080/api/v1/plan` | Ein-Schritt-Zero-LLM-Vorfilterung inkl. `llmBriefing` (`POST`) |
 | `http://localhost:8080/api/v1/classify` | Hybride Freitext-Klassifikation auf 6 Skalen & Matrix-Merkmale (`POST`) |
@@ -175,7 +175,7 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 
 ---
 
-## MCP-Server (13 Zero-LLM-Tools für KI-Clients)
+## MCP-Server (14 Zero-LLM-Tools für KI-Clients)
 
 Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche, 5-Stufen-Zuordnung, Regelprüfung, Binnendifferenzierungsmatrix, hybride Freitext-Klassifikation) und liefern bei komplexen Aufgaben ein fertiges **`llmBriefing`** für das aufrufende Enduser-LLM.
 

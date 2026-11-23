@@ -1,0 +1,169 @@
+import { describe, it, expect } from 'vitest';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadFmtData } from '../src/load-data.js';
+import {
+  DIFF_MATRIX_MEASURES,
+  adaptScenario,
+  createMatcher,
+  createValidator,
+  detectLearnerGroupsFromText,
+  getMeasureEnrichment,
+  scoreDifferentiationMatrix,
+  suggestAlternativeMethodsForGroup
+} from '../src/index.js';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const DATA_DIR = path.join(ROOT, 'data');
+
+describe('FMT Differentiation Enrichment & adaptScenario Engine', () => {
+  const D = loadFmtData(DATA_DIR);
+  const V = createValidator(D);
+  const M = createMatcher(D, V);
+
+  it('covers 100% of all 172 measures with valid classroom metadata and valid FMT vocabulary bridge tokens', () => {
+    const validCodesByScheme = new Map<string, Set<string>>();
+    for (const s of D.schemes) {
+      const vals = s.werte || (s.gruppen || []).flatMap((g) => g.werte);
+      validCodesByScheme.set(s.id, new Set(vals.map((v) => v.id)));
+    }
+
+    let count = 0;
+    for (const ok of DIFF_MATRIX_MEASURES) {
+      for (const kat of ok.kategorien) {
+        for (const ausp of kat.auspraegungen) {
+          count++;
+          const meta = getMeasureEnrichment(ausp.id, kat.id);
+          expect(['unterricht-sofort', 'material-planung', 'organisation-system']).toContain(meta.ebene);
+          expect(['sofort', 'kurz', 'mittel']).toContain(meta.aufwand);
+          expect(['analog', 'projektion', 'digital', 'online']).toContain(meta.technik);
+          expect(meta.umsetzungsimpuls.length).toBeGreaterThan(20);
+
+          for (const ph of meta.phasen) {
+            expect(validCodesByScheme.get('lernfunktion')?.has(ph), `invalid phase "${ph}" on ${ausp.id}`).toBe(true);
+          }
+          for (const tok of meta.fmtBruecke) {
+            const [schemeId, codeId] = tok.split(':');
+            expect(
+              validCodesByScheme.get(schemeId)?.has(codeId),
+              `invalid fmtBruecke token "${tok}" on ${ausp.id}`
+            ).toBe(true);
+          }
+        }
+      }
+    }
+    expect(count).toBe(172);
+  });
+
+  it('excludes organisation-system measures by default, provides normalized scores (-100..+100), and avoids alphabetical noise on single-variable queries', () => {
+    const res = scoreDifferentiationMatrix({ personaId: 'languageAndCulture', limit: 15 });
+    expect(res.topRecommendations.length).toBeGreaterThan(0);
+    for (const rec of res.topRecommendations) {
+      expect(rec.meta.ebene).not.toBe('organisation-system');
+      expect(rec.normalizedScore).toBeGreaterThanOrEqual(15);
+      expect(rec.normalizedScore).toBeLessThanOrEqual(100);
+      expect(['kern', 'ergaenzend']).toContain(rec.relevanz);
+      expect(rec.meta.umsetzungsimpuls.length).toBeGreaterThan(15);
+    }
+    expect(res.topRecommendations.some((r) => /Förderstunden|Entwicklungsberichte|Nachhilfe/i.test(r.name))).toBe(false);
+
+    // Explicit opt-in includes organisation-system measures again
+    const withSys = scoreDifferentiationMatrix({
+      personaId: 'languageAndCulture',
+      includeSystemMeasures: true,
+      limit: 20
+    });
+    expect(withSys.topRecommendations.some((r) => r.meta.ebene === 'organisation-system')).toBe(true);
+
+    // Single variable query prioritizes immediate classroom actions over alphabetical digital tools
+    const single = scoreDifferentiationMatrix({
+      selectedValues: { 'foerderbedarf-lernen': 'foerderbedarf-lernen-umfassend' },
+      maxTechnik: 't-keine',
+      limit: 8
+    });
+    expect(single.topRecommendations.length).toBeGreaterThan(0);
+    expect(single.topRecommendations[0].meta.ebene).toBe('unterricht-sofort');
+    expect(single.topRecommendations.every((r) => r.meta.technik === 'analog')).toBe(true);
+  });
+
+  it('extracts distinct free-text subgroups strictly on detected traits without leaking clinical persona assumptions onto DaZ', () => {
+    const det = detectLearnerGroupsFromText('26 Kinder: 5 DaZ-Kinder, 2 mit ADHS und 4 sehr leistungsstarke Kinder');
+    expect(det.groups.map((g) => g.id)).toEqual(['daz', 'adhs', 'vertiefung']);
+    expect(det.groups[0].count).toBe(5);
+    expect(det.groups[0].personaId).toBeUndefined();
+    expect(det.groups[0].selectedValues?.['foerderbedarf-lernen']).toBeUndefined();
+    expect(det.groups[0].selectedValues?.['psychische-gesundheit']).toBeUndefined();
+    expect(det.groups[0].selectedValues?.sprachkompetenz).toBe('sprachkompetenz-gering');
+  });
+
+  it('computes UDL basis, cross-group conflicts with resolution strategies, and phase adaptations for BOTH free text and FMT arrangements', () => {
+    // 1. Free-text standalone chat scenario (no FMT arrangement)
+    const freeRes = adaptScenario(D, {
+      scenarioText: 'Mathematik Klasse 4 Bruchteile einführen mit Papierfalten, 45 Minuten, ohne Geräte, ohne Internet',
+      lerngruppenText: '5 DaZ-Kinder, 2 Kinder mit ADHS und 4 sehr leistungsstarke Kinder',
+      fach: 'Mathematik',
+      thema: 'Bruchteile',
+      bildungsstufe: 'primar',
+      zeitMin: 45
+    });
+    expect(freeRes.kontext.gruppenQuelle).toBe('erkannt');
+    expect(freeRes.kontext.maxTechnik).toBe('t-keine');
+    expect(freeRes.kontext.ohneInternet).toBe(true);
+    expect(freeRes.kontext.aktiveEbenen).toEqual(['unterricht-sofort', 'material-planung']);
+    expect(freeRes.udlBasis.length).toBeGreaterThan(0);
+    expect(freeRes.konflikte.length).toBeGreaterThan(0);
+    expect(freeRes.konflikte[0].aufloesungsstrategie.length).toBeGreaterThan(25);
+    expect(freeRes.phasenAnpassungen.length).toBe(3);
+    expect(freeRes.phasenAnpassungen[0].passendeFmtMethoden.length).toBeGreaterThan(0);
+    expect(freeRes.epistemischerHinweis).toContain('heuristischen');
+    // Strictly analog: no digital/online measures in UDL or subgroups
+    for (const u of freeRes.udlBasis) expect(u.meta.technik).toBe('analog');
+    for (const tg of freeRes.teilgruppen) {
+      for (const m of tg.spezifischeMassnahmen) expect(m.meta.technik).toBe('analog');
+    }
+
+    // 2. Single detected subgroup adds Regelniveau automatically
+    const singleGroupRes = adaptScenario(D, {
+      scenarioText: 'Biologie Klasse 6 Fotosynthese, 45 Minuten, 4 DaZ-Kinder'
+    });
+    expect(singleGroupRes.kontext.gruppenQuelle).toBe('erkannt+regelniveau');
+    expect(singleGroupRes.teilgruppen.length).toBe(2);
+
+    // 3. FMT Arrangement adaptation (with alternative methods respecting analog filter)
+    const matched = M.zuordnen({
+      text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen, ohne Geräte',
+      ansatz: ['instruktion', 'uebung'],
+      gruppe: 26
+    });
+    expect(matched.modus).toBe('ablauf');
+    if (matched.modus === 'ablauf' && matched.arrangement) {
+      const arrRes = adaptScenario(D, {
+        arrangement: matched.arrangement,
+        lerngruppenText: '6 DaZ-Kinder und 5 leistungsstarke Kinder',
+        maxTechnik: 't-keine',
+        ohneInternet: true
+      });
+      expect(arrRes.phasenAnpassungen.length).toBeGreaterThanOrEqual(4);
+      expect(arrRes.phasenAnpassungen[0].baustein).toBeTruthy();
+      expect(arrRes.udlBasis.length).toBeGreaterThan(0);
+      expect(arrRes.konflikte.length).toBeGreaterThan(0);
+    }
+
+    // 4. suggestAlternativeMethodsForGroup respects maxTechnik='t-keine' and uses fmtBruecke
+    const scored = scoreDifferentiationMatrix({ personaId: 'foerderLernen', maxTechnik: 't-keine' });
+    const alts = suggestAlternativeMethodsForGroup(
+      scored,
+      D.bausteine.find((b) => b.kennung === 'entdeckendes-lernen'),
+      D.bausteine,
+      5,
+      30,
+      { maxTechnik: 't-keine', ohneInternet: true }
+    );
+    expect(alts.length).toBeGreaterThan(0);
+    for (const a of alts) {
+      const blk = D.bausteine.find((x) => x.kennung === a.kennung)!;
+      expect(blk.technik).toBe('t-keine');
+      expect(blk.internet).toBe(false);
+    }
+  });
+});

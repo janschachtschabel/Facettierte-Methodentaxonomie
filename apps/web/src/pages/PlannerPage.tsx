@@ -261,6 +261,43 @@ export function PlannerPage() {
     }
   }, [bundle, arrangement, pendingPlannerBlock, blocksById, consumePendingPlannerBlock]);
 
+  // Consume optional handoff from /differenzierung ("In Szenario-Baukasten übernehmen")
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('fmt_diff_handoff_v1');
+      if (!raw) return;
+      sessionStorage.removeItem('fmt_diff_handoff_v1');
+      const h = JSON.parse(raw) as {
+        scenarioText?: string;
+        maxTechnik?: string;
+        ohneInternet?: boolean;
+        ohneKI?: boolean;
+        groups?: Array<{ id: string; label: string; count?: number; matrixValues?: Record<string, string> }>;
+      };
+      if (h.scenarioText) setScenarioText(h.scenarioText);
+      if (typeof h.maxTechnik === 'string') setMaxTechnik(h.maxTechnik);
+      if (typeof h.ohneInternet === 'boolean') setOhneInternet(h.ohneInternet);
+      if (typeof h.ohneKI === 'boolean') setOhneKI(h.ohneKI);
+      if (Array.isArray(h.groups) && h.groups.length > 0) {
+        setGroups(
+          h.groups.map((g) => ({
+            id: g.id,
+            label: g.label,
+            profile: g.label,
+            focus: g.id === 'vertiefung' ? 'vertiefung' : g.id === 'regel' ? 'regel' : 'basis',
+            active: true,
+            count: g.count,
+            matrixValues: g.matrixValues || {}
+          }))
+        );
+      }
+      setMatchNotice('Differenzierungsprofil & Rahmenbedingungen aus „Differenzierung“ übernommen.');
+      setStep(1);
+    } catch {
+      // ignore invalid handoff payload
+    }
+  }, []);
+
   const validation = useMemo(() => {
     if (!validator || !arrangement) return null;
     return validator.validate(arrangement, exampleRegistry);

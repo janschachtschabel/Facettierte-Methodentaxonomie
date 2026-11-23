@@ -52,6 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               Katalog ({bundle ? bundle.bausteine.length : '…'})
             </NavLink>
             <NavLink to="/planer">Szenario-Baukasten</NavLink>
+            <NavLink to="/differenzierung">Differenzierung</NavLink>
             <NavLink to="/vergleich">Vergleich</NavLink>
             <NavLink to="/systematik">Systematik</NavLink>
             <NavLink to="/api-mcp">API &amp; MCP</NavLink>

@@ -1,5 +1,19 @@
 import { DIFF_MATRIX_DATA } from './differentiationMatrixData.js';
+import {
+  getMeasureEnrichment,
+  MEASURE_EFFORT_ORDER,
+  MEASURE_LEVEL_ORDER,
+  type MeasureEffort,
+  type MeasureEnrichment,
+  type MeasureLevel,
+  type MeasureTech
+} from './differentiationMetadata.js';
 import type { Baustein } from './types.js';
+
+export type { MeasureEffort, MeasureEnrichment, MeasureLevel, MeasureTech };
+export { getMeasureEnrichment, MEASURE_EFFORT_ORDER, MEASURE_LEVEL_ORDER };
+
+export type MeasureRelevance = 'kern' | 'ergaenzend' | 'neutral' | 'vermeiden';
 
 export interface MatrixAuspraegung {
   id: string;
@@ -33,6 +47,9 @@ export interface MatrixRecommendation {
   oberKategorieId: string;
   oberKategorieName: string;
   score: number;
+  normalizedScore: number;
+  relevanz: MeasureRelevance;
+  meta: MeasureEnrichment;
 }
 
 export interface MatrixScoreResult {
@@ -145,46 +162,81 @@ const MEASURE_INDEX: MeasureIndexEntry[] = (() => {
 
 const MATRIX_LOOKUP: Record<string, string> = DIFF_MATRIX_DATA.matrix as unknown as Record<string, string>;
 
-const DIGITAL_MATRIX_MEASURE_IDS = new Set([
-  'medienformate-audiovisuell',
-  'medienformate-interaktiv',
-  'zugaenglichkeit-audio',
-  'methodik-lernprozess-digital',
-  'unterstuetzungsart-technisch',
-  'unterstuetzungsformate-online',
-  'lernwerkzeuge-digital',
-  'lernwerkzeuge-assistiv',
-  'leistungserfassung-digital'
-]);
+const MEASURE_ENRICHMENT_BY_ID = new Map<string, MeasureEnrichment>(
+  MEASURE_INDEX.map((m) => [m.id, getMeasureEnrichment(m.id, m.kategorieId)])
+);
 
-const ONLINE_MATRIX_MEASURE_IDS = new Set([
-  'methodik-lernprozess-digital',
-  'unterstuetzungsformate-online',
-  'lernwerkzeuge-digital',
-  'leistungserfassung-digital'
-]);
+export const DEFAULT_CLASSROOM_LEVELS: readonly MeasureLevel[] = ['unterricht-sofort', 'material-planung'];
+
+export function classifyRelevance(normalizedScore: number): MeasureRelevance {
+  if (normalizedScore >= 45) return 'kern';
+  if (normalizedScore >= 15) return 'ergaenzend';
+  if (normalizedScore <= -15) return 'vermeiden';
+  return 'neutral';
+}
+
+export function isMeasureAllowedByConstraints(
+  meta: MeasureEnrichment,
+  constraints: {
+    ebenen?: readonly MeasureLevel[];
+    includeSystemMeasures?: boolean;
+    maxTechnik?: string;
+    ohneInternet?: boolean;
+    ohneKI?: boolean;
+    maxAufwand?: MeasureEffort;
+  }
+): boolean {
+  const allowedLevels: readonly MeasureLevel[] = constraints.ebenen?.length
+    ? constraints.ebenen
+    : constraints.includeSystemMeasures
+      ? ['unterricht-sofort', 'material-planung', 'organisation-system']
+      : DEFAULT_CLASSROOM_LEVELS;
+  if (!allowedLevels.includes(meta.ebene)) return false;
+
+  if (constraints.maxTechnik === 't-keine' && meta.technik !== 'analog') return false;
+  if (constraints.maxTechnik === 't-projektion' && meta.technik !== 'analog' && meta.technik !== 'projektion') {
+    return false;
+  }
+  if (constraints.ohneInternet && meta.technik === 'online') return false;
+  if (constraints.maxAufwand && MEASURE_EFFORT_ORDER[meta.aufwand] > MEASURE_EFFORT_ORDER[constraints.maxAufwand]) {
+    return false;
+  }
+  return true;
+}
+
+const compareRecommendations = (a: MatrixRecommendation, b: MatrixRecommendation): number =>
+  b.normalizedScore - a.normalizedScore ||
+  MEASURE_LEVEL_ORDER[a.meta.ebene] - MEASURE_LEVEL_ORDER[b.meta.ebene] ||
+  MEASURE_EFFORT_ORDER[a.meta.aufwand] - MEASURE_EFFORT_ORDER[b.meta.aufwand] ||
+  b.score - a.score ||
+  a.name.localeCompare(b.name, 'de');
 
 export function getPersonaValues(personaId: string): Record<string, string> {
   const found = DIFF_MATRIX_PERSONAS.find((p) => p.id === personaId);
   return found ? { ...found.values } : {};
 }
 
+export interface ScoreMatrixInput {
+  personaId?: string;
+  selectedValues?: Record<string, string>;
+  minScore?: number;
+  limit?: number;
+  onlyBestPerCategory?: boolean;
+  ebenen?: MeasureLevel[];
+  includeSystemMeasures?: boolean;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
+  maxAufwand?: MeasureEffort;
+}
+
 /**
  * Deterministic scoring engine ported from https://github.com/janschachtschabel/binnendifferenzierungsmatrix.
- * Sums the curated -2..+2 suitability scores across all selected Anpassungsvariablen for each of the 172 Maßnahmen.
+ * Sums the curated -2..+2 suitability scores across all selected Anpassungsvariablen for each of the 172 Maßnahmen,
+ * normalizes to -100..+100, enriches with classroom metadata (ebene, aufwand, technik, phasen, fmtBruecke, umsetzungsimpuls),
+ * and filters out school/system-level or tech-incompatible measures by default.
  */
-export function scoreDifferentiationMatrix(
-  input: {
-    personaId?: string;
-    selectedValues?: Record<string, string>;
-    minScore?: number;
-    limit?: number;
-    onlyBestPerCategory?: boolean;
-    maxTechnik?: string;
-    ohneInternet?: boolean;
-    ohneKI?: boolean;
-  } = {}
-): MatrixScoreResult {
+export function scoreDifferentiationMatrix(input: ScoreMatrixInput = {}): MatrixScoreResult {
   const merged: Record<string, string> = {
     ...(input.personaId ? getPersonaValues(input.personaId) : {}),
     ...(input.selectedValues || {})
@@ -202,28 +254,32 @@ export function scoreDifferentiationMatrix(
     }
   }
 
-  const minScore = input.minScore ?? (selectedCount >= 10 ? 4 : selectedCount >= 3 ? 2 : 1);
+  const maxPossible = Math.max(1, selectedCount * 2);
   const onlyBestPerCategory = input.onlyBestPerCategory ?? true;
   const limit = Math.max(1, Math.min(50, input.limit ?? 12));
-  const disallowDigital = input.maxTechnik === 't-keine';
-  const disallowOnline = Boolean(input.ohneInternet);
-  const isMeasureAllowed = (m: MeasureIndexEntry) => {
-    if (disallowDigital && DIGITAL_MATRIX_MEASURE_IDS.has(m.id)) return false;
-    if (disallowOnline && ONLINE_MATRIX_MEASURE_IDS.has(m.id)) return false;
-    return true;
-  };
+  const useRawMinScore = input.minScore != null;
+  const rawMinScore = input.minScore ?? 1;
 
-  const allScored: MatrixRecommendation[] = MEASURE_INDEX.filter(isMeasureAllowed).map((m) => ({
-    id: m.id,
-    name: m.name,
-    kategorieId: m.kategorieId,
-    kategorieName: m.kategorieName,
-    oberKategorieId: m.oberKategorieId,
-    oberKategorieName: m.oberKategorieName,
-    score: scores[m.idx]
-  }));
+  const allScored: MatrixRecommendation[] = MEASURE_INDEX.filter((m) =>
+    isMeasureAllowedByConstraints(MEASURE_ENRICHMENT_BY_ID.get(m.id)!, input)
+  ).map((m) => {
+    const raw = scores[m.idx];
+    const normalizedScore = selectedCount > 0 ? Math.round((raw / maxPossible) * 100) : 0;
+    return {
+      id: m.id,
+      name: m.name,
+      kategorieId: m.kategorieId,
+      kategorieName: m.kategorieName,
+      oberKategorieId: m.oberKategorieId,
+      oberKategorieName: m.oberKategorieName,
+      score: raw,
+      normalizedScore,
+      relevanz: classifyRelevance(normalizedScore),
+      meta: MEASURE_ENRICHMENT_BY_ID.get(m.id)!
+    };
+  });
 
-  // Group by oberKategorie -> kategorie, selecting top measures per subcategory (matching RecommendationsPage.tsx)
+  // Group by oberKategorie -> kategorie, selecting top measures per subcategory
   const selectedRecs: MatrixRecommendation[] = [];
   const byOkMap = new Map<string, { oberKategorieId: string; oberKategorieName: string; measures: MatrixRecommendation[] }>();
 
@@ -232,15 +288,17 @@ export function scoreDifferentiationMatrix(
     for (const kat of ok.kategorien) {
       const katItems = allScored.filter((x) => x.oberKategorieId === ok.id && x.kategorieId === kat.id);
       if (!katItems.length) continue;
-      const maxS = Math.max(...katItems.map((x) => x.score));
-      if (maxS < minScore) continue;
+      katItems.sort(compareRecommendations);
+      const top = katItems[0];
+      const passes = useRawMinScore ? top.score >= rawMinScore : top.normalizedScore >= 15;
+      if (!passes) continue;
       const picked = onlyBestPerCategory
-        ? katItems.filter((x) => x.score === maxS).slice(0, 2)
-        : katItems.filter((x) => x.score >= minScore).sort((a, b) => b.score - a.score).slice(0, 3);
+        ? katItems.filter((x) => x.normalizedScore === top.normalizedScore).slice(0, 2)
+        : katItems.filter((x) => (useRawMinScore ? x.score >= rawMinScore : x.normalizedScore >= 15)).slice(0, 3);
       okMeasures.push(...picked);
       selectedRecs.push(...picked);
     }
-    okMeasures.sort((a, b) => b.score - a.score);
+    okMeasures.sort(compareRecommendations);
     if (okMeasures.length) {
       byOkMap.set(ok.id, {
         oberKategorieId: ok.id,
@@ -250,13 +308,12 @@ export function scoreDifferentiationMatrix(
     }
   }
 
-  selectedRecs.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, 'de'));
+  selectedRecs.sort(compareRecommendations);
   const topRecommendations = selectedRecs.slice(0, limit);
 
-  const avoidThreshold = selectedCount >= 10 ? -6 : selectedCount >= 3 ? -2 : -1;
   const avoidMeasures = allScored
-    .filter((x) => x.score <= avoidThreshold)
-    .sort((a, b) => a.score - b.score || a.name.localeCompare(b.name, 'de'))
+    .filter((x) => x.normalizedScore <= -15)
+    .sort((a, b) => a.normalizedScore - b.normalizedScore || a.score - b.score || a.name.localeCompare(b.name, 'de'))
     .slice(0, 6);
 
   // Derive didactic alignment signals for bridging to FMT methods
@@ -318,23 +375,55 @@ export function scoreDifferentiationMatrix(
 
 const RANGE_ORDER: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
 
+const TECH_RANK: Record<string, number> = { 't-keine': 0, 't-projektion': 1, 't-einzeln': 2, 't-spezial': 3 };
+const AI_ROLES_SET = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
+
+/**
+ * Counts how many FMT-facet bridge tokens from top matrix measures match a given FMT Baustein.
+ */
+export function scoreMethodAgainstFmtBridges(b: Baustein, measures: readonly MatrixRecommendation[]): { hits: number; matchedLabels: string[] } {
+  const facetValues: Record<string, string[]> = {
+    anleitung: b.anleitung || [],
+    adaptivitaet: b.adaptivitaet || [],
+    engagement: b.engagement || [],
+    interaktion: b.interaktion || [],
+    repraesentation: b.repraesentation || [],
+    feedback: b.feedback || []
+  };
+  const wantedTokens = new Set<string>();
+  for (const m of measures.slice(0, 8)) {
+    for (const tok of m.meta?.fmtBruecke || []) wantedTokens.add(tok);
+  }
+  const matchedLabels: string[] = [];
+  for (const tok of wantedTokens) {
+    const [scheme, code] = tok.split(':');
+    if (scheme && code && (facetValues[scheme] || []).includes(code)) {
+      matchedLabels.push(tok);
+    }
+  }
+  return { hits: matchedLabels.length, matchedLabels };
+}
+
 /**
  * Recommends concrete alternative FMT catalog methods for a subgroup in a given phase,
  * strictly enforcing matching Lernfunktion (purpose), compatible granularity (rang <= current),
- * and realistic duration while fitting the subgroup's matrix-computed guidance & scaffolding needs.
+ * tech/offline/KI constraints, and realistic duration while fitting the subgroup's matrix-computed
+ * guidance, scaffolding, and fmtBruecke needs.
  */
 export function suggestAlternativeMethodsForGroup(
   matrixResult: MatrixScoreResult,
   currentBlock: Baustein | undefined,
   allBlocks: Baustein[],
   limit = 5,
-  phaseDurationMin?: number
+  phaseDurationMin?: number,
+  constraints?: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; bildungsstufe?: string }
 ): Array<{ kennung: string; name: string; reichweite: string; dauerMin: number; dauerMax: number; grund: string }> {
   if (!currentBlock) return [];
   const fns = new Set(currentBlock.lernfunktion || []);
   const wantGuidance = matrixResult.didacticProfile.preferredGuidance;
   const curRank = RANGE_ORDER[currentBlock.reichweite] ?? 2;
   const maxDur = Math.max(phaseDurationMin ?? currentBlock.dauerMax, currentBlock.dauerMax) * 1.5;
+  const maxTechRank = constraints?.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 3) : 3;
 
   const scored = allBlocks
     .filter((b) => {
@@ -343,6 +432,10 @@ export function suggestAlternativeMethodsForGroup(
       const bRank = RANGE_ORDER[b.reichweite] ?? 2;
       if (bRank > curRank) return false;
       if (b.dauerMin > maxDur) return false;
+      if ((TECH_RANK[b.technik] ?? 0) > maxTechRank) return false;
+      if (constraints?.ohneInternet && b.internet) return false;
+      if (constraints?.ohneKI && (Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES_SET.has(r)))) return false;
+      if (constraints?.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(constraints.bildungsstufe)) return false;
       return true;
     })
     .map((b) => {
@@ -351,6 +444,11 @@ export function suggestAlternativeMethodsForGroup(
       if (b.anleitung.includes(wantGuidance)) {
         fit += 4;
         reasons.push(`passt zum Lenkungsbedarf (${wantGuidance})`);
+      }
+      const bridge = scoreMethodAgainstFmtBridges(b, matrixResult.topRecommendations);
+      if (bridge.hits > 0) {
+        fit += Math.min(4, bridge.hits);
+        reasons.push(`FMT-Facetten-Brücke (${bridge.matchedLabels.slice(0, 2).join(', ')})`);
       }
       if (matrixResult.didacticProfile.needsScaffolding && (b.adaptivitaet.includes('diff-prozess') || b.adaptivitaet.includes('diff-tempo'))) {
         fit += 2;
