@@ -233,9 +233,16 @@ function summarizeLearnerRole(b: Baustein, labelOf: (s: string, c: string) => st
   return `${eng || 'aktiv'} · ${steps}`;
 }
 
+export interface MatrixTechConstraints {
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
+}
+
 export function buildDeterministicDiffHints(
   b: Baustein | undefined,
-  groups: LearnerGroup[]
+  groups: LearnerGroup[],
+  constraints?: MatrixTechConstraints
 ): StepDiffSuggestion[] {
   if (!b) return [];
   const active = groups.filter((g) => g.active);
@@ -247,6 +254,9 @@ export function buildDeterministicDiffHints(
       const scored = scoreDifferentiationMatrix({
         personaId: g.personaId,
         selectedValues: g.matrixValues,
+        maxTechnik: constraints?.maxTechnik || undefined,
+        ohneInternet: constraints?.ohneInternet,
+        ohneKI: constraints?.ohneKI,
         limit: 4
       });
       if (scored.topRecommendations.length > 0) {
@@ -786,6 +796,9 @@ export function buildNeutralLearningScenario(
       const scored = scoreDifferentiationMatrix({
         personaId: g.personaId,
         selectedValues: g.matrixValues,
+        maxTechnik: (meta as { maxTechnik?: string }).maxTechnik || undefined,
+        ohneInternet: (meta as { ohneInternet?: boolean }).ohneInternet,
+        ohneKI: (meta as { ohneKI?: boolean }).ohneKI,
         limit: 8
       });
       return {

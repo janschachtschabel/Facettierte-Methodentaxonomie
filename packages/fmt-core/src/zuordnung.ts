@@ -18,6 +18,7 @@ import type {
 } from './types.js';
 import type { FmtValidator } from './validate.js';
 import { createSemanticClassifier } from './semantic.js';
+import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const SLOT_CANDIDATES = 8;
@@ -311,7 +312,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen/, () => 'fakten'],
     ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
-    ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|modul|ablauf/, () => 'ablauf']
+    ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|modul|ablauf|seminar\b|vorlesung\b|workshop\b|online-?kurs\b|sitzung\b/, () => 'ablauf']
   ];
 
   // Multi-value approach rules covering ALL 12 FMT ansatz codes (allows combining e.g. "kooperativ und spielerisch")
@@ -401,6 +402,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       if (!('anleitung' in kriterien) && sem.scales.anleitung[0] && sem.scales.anleitung[0].score >= 0.72) {
         take('anleitung', [sem.scales.anleitung[0].code], `semantisch: ${sem.scales.anleitung[0].label}`);
       }
+      // Generic matrix-to-guidance feedback: strong structural support needs (e.g. ADHS, LRS, Förderbedarf) imply explicit guidance
+      if (!('anleitung' in kriterien)) {
+        const matrixTraits = detectMatrixTraitsFromText(text);
+        if (
+          matrixTraits.selectedValues.strukturierung === 'strukturierung-stark' ||
+          matrixTraits.matrixScore?.didacticProfile.preferredGuidance === 'explizit'
+        ) {
+          const triggers = matrixTraits.signals.map((s) => s.trigger).slice(0, 2).join(', ');
+          take('anleitung', ['explizit'], `Matrix-Signal (${triggers || 'stark strukturiert'})`);
+        }
+      }
     }
 
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))
@@ -426,6 +438,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return null;
   }
 
+  const hasSekHochschuleOnlyEvidence = (b: Baustein): boolean => {
+    const scopes = (b.evidenz || []).map((e) => fold(e.geltung || '')).filter(Boolean);
+    if (!scopes.length) return false;
+    return scopes.every(
+      (s) =>
+        /(?:sekundarstufe|oberstufe|hochschule|universitat|berufsbildung|erwachsenenbildung|ab\s+sek)/.test(s) &&
+        !/(?:\bschule\b|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s)
+    );
+  };
+
   function passung(b: Baustein, a: MatchRequest): string[] {
     const w: string[] = [];
     if (a.vorwissen && b.geeignetBeiVorwissen && !b.geeignetBeiVorwissen.includes(a.vorwissen)) {
@@ -433,64 +455,82 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
     if (a.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(a.bildungsstufe)) {
       w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ spricht die Evidenz dagegen.`);
+    } else if (a.bildungsstufe === 'primar' && hasSekHochschuleOnlyEvidence(b)) {
+      w.push('Evidenz-Geltungsbereich beschränkt sich auf Sekundarstufe/Hochschule (für Primarstufe prüfen).');
     }
     return w;
   }
 
-  const LANGUAGE_TEXT_METHODS = new Set([
-    'diktat-klassisch',
-    'laufdiktat',
-    'lautleseverfahren',
-    'lesetagebuch',
-    'schreibkonferenz',
-    'chorsprechen',
-    'woerterwiese',
-    'sq3r-lesemethode',
-    'text-exzerpieren',
-    'kooperatives-skript'
-  ]);
-  const MEDIA_SOURCE_METHODS = new Set(['quellenkritik-check', 'quellenkritik-faktencheck']);
-  const DRAMA_METHODS = new Set(['stegreiftheater', 'standbild', 'forumtheater']);
-  const ICEBREAKER_METHODS = new Set(['marshmallow-challenge', 'autogrammjagd']);
+  // Fully generic, metadata-driven domain inference (derived from each method's own catalog text – zero hardcoded ID lists)
+  type InferredDomain = 'language-text' | 'media-sources' | 'drama-stage' | 'icebreaker' | null;
+  const methodDomain = new Map<string, InferredDomain>();
+  for (const b of data.bausteine) {
+    const blob = fold([b.name, ...(b.alternativname || []), b.kurzbeschreibung, b.problem || '', ...(b.durchfuehrung || [])].join(' '));
+    let dom: InferredDomain = null;
+    if (
+      /\b(?:diktat|rechtschreibkontrolle|laufdiktat|lautlese\w*|tandemlesen|chorlesen|lesetagebuch|lekturebegleitend|schreibkonferenz|chorsprechen|nachsprechubung|worterwiese|sq3r|exzerpier\w*|fachtext\s+in\s+kurze\s+abschnitte)\b/.test(
+        blob
+      )
+    ) {
+      dom = 'language-text';
+    } else if (/\b(?:quellenkritik|faktencheck|lateral\s+reading|quellen-?\s*(?:und|&)\s*informationsprufung)\b/.test(blob)) {
+      dom = 'media-sources';
+    } else if (/\b(?:stegreiftheater|forumtheater|improvisationstheater|standbild\w*)\b/.test(blob)) {
+      dom = 'drama-stage';
+    } else if (/\b(?:marshmallow|autogrammjagd|kennenlernspiel|icebreaker)\b/.test(blob)) {
+      dom = 'icebreaker';
+    }
+    methodDomain.set(b.kennung, dom);
+  }
 
   let currentRawText = '';
+  let currentSemanticScores = new Map<string, number>();
 
   function domainPenalty(b: Baustein): number {
     const raw = currentRawText;
     if (!raw) return 0;
-    if (LANGUAGE_TEXT_METHODS.has(b.kennung)) {
+    const dom = methodDomain.get(b.kennung);
+    if (!dom) return 0;
+    if (dom === 'language-text') {
       const isLanguageOrText =
         /\b(?:deutsch|lesen|lese\w*|fachtext|sachtext|schreib\w*|aufsatz|diktat|rechtschreib\w*|vokabel\w*|sprach\w*|englisch|franzosisch|spanisch|latein|daz|lekture|buch|gedicht|geschichte\s+schreiben|dialog\w*)\b/.test(
           raw
         );
       return isLanguageOrText ? 0 : 1;
     }
-    if (MEDIA_SOURCE_METHODS.has(b.kennung)) {
+    if (dom === 'media-sources') {
       const isMediaOrHumanities =
         /\b(?:quelle\w*|medien\w*|fake|faktencheck|geschichte|politik|gesellschaft|sozialkunde|ethik|debatt\w*|argument\w*|journalis\w*|nachricht\w*|ki-?kompetenz|recherche|demokratie|gewaltenteilung|weimar)\b/.test(
           raw
         );
       return isMediaOrHumanities ? 0 : 1;
     }
-    if (DRAMA_METHODS.has(b.kennung)) {
+    if (dom === 'drama-stage') {
       const isDramaRelevant =
         /\b(?:theater|darstell\w*|szene\w*|rolle\w*|rollenspiel|kommunikation|angehorig\w*|ethik|deutsch|englisch|politik|geschichte|sozial\w*|konflikt|demokratie|pflege)\b/.test(
           raw
         );
       return isDramaRelevant ? 0 : 1;
     }
-    if (ICEBREAKER_METHODS.has(b.kennung)) {
+    if (dom === 'icebreaker') {
       const isIcebreakerRelevant = /\b(?:kennenlern\w*|teambuild\w*|icebreaker|warm-?up|design\s+thinking|prototyp\w*)\b/.test(raw);
       return isIcebreakerRelevant ? 0 : 1;
     }
     return 0;
   }
 
-  function rankOf(b: Baustein, a: MatchRequest, wantedFunctions: string[], extra = 0, maxStepMin?: number): number[] {
+  function rankOf(
+    b: Baustein,
+    a: MatchRequest,
+    wantedFunctions: string[],
+    extra = 0,
+    maxStepMin?: number,
+    varietyPenalty = 0
+  ): number[] {
     const g = bestGrade(b);
     const contrastPenalty = hasNegativeEvidence(b) ? 1 : 0;
     const budgetPenalty =
-      maxStepMin != null && b.dauerMin > maxStepMin ? Math.ceil((b.dauerMin - maxStepMin) / 6) : 0;
+      maxStepMin != null && b.dauerMin > maxStepMin ? Math.ceil((b.dauerMin - maxStepMin) / 3) : 0;
     const domPenalty = domainPenalty(b);
     const wantedAnsatz = list(a.ansatz);
     const ansatzPenalty =
@@ -498,6 +538,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const wantedGuidance = list(a.anleitung);
     const guidancePenalty =
       wantedGuidance.length === 0 ? 0 : wantedGuidance.some((code) => (b.anleitung || []).includes(code)) ? 0 : 1;
+    const unstructuredPenalty =
+      wantedGuidance.includes('explizit') && (b.interaktion || []).includes('kleingruppe-unstrukturiert') ? 1 : 0;
     const wantedInter = list(a.interaktion);
     const interPenalty =
       wantedInter.length === 0 ? 0 : wantedInter.some((code) => (b.interaktion || []).includes(code)) ? 0 : 1;
@@ -506,16 +548,20 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       wantedEng.length === 0 ? 0 : wantedEng.some((code) => (b.engagement || []).includes(code)) ? 0 : 1;
     const wantedRange = list(a.reichweite);
     const rangePenalty = wantedRange.length === 0 ? 0 : wantedRange.includes(b.reichweite) ? 0 : 1;
-    const softFilterPenalty = guidancePenalty + interPenalty + engPenalty + rangePenalty;
+    const softFilterPenalty = guidancePenalty + unstructuredPenalty + interPenalty + engPenalty + rangePenalty;
+    const semScore = currentSemanticScores.get(b.kennung) ?? 0;
+    const semanticTier = semScore >= 0.55 ? 0 : semScore >= 0.35 ? 1 : 2;
     return [
       extra,
       passung(b, a).length ? 1 : 0,
       contrastPenalty,
       domPenalty,
       budgetPenalty,
+      varietyPenalty,
       ansatzPenalty,
       softFilterPenalty,
       g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length,
+      semanticTier,
       b.status === 'kuratiert' ? 0 : 1,
       wantedFunctions.length ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1 : 0,
       b.vorbereitungMin
@@ -612,7 +658,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     a: MatchRequest,
     used: Set<string> | null,
     target?: string,
-    maxStepMin?: number
+    maxStepMin?: number,
+    varietyPenaltyFn?: (b: Baustein) => number
   ): Baustein[] {
     return data.bausteine
       .filter((b) => (rang.get(b.reichweite) ?? 0) <= maxRang && b.lernfunktion.some((f) => functions.includes(f)) && !rahmen(b, a))
@@ -620,7 +667,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const reaches = !target || closure(b.nachbedingung || []).has(target);
         return {
           b,
-          rank: rankOf(b, a, functions, (reaches ? 0 : 2) + (used && used.has(b.kennung) ? 1 : 0), maxStepMin)
+          rank: rankOf(
+            b,
+            a,
+            functions,
+            (reaches ? 0 : 2) + (used && used.has(b.kennung) ? 1 : 0),
+            maxStepMin,
+            varietyPenaltyFn ? varietyPenaltyFn(b) : 0
+          )
         };
       })
       .sort(byRank)
@@ -656,6 +710,24 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     const teile: ArrangementNode[] = [];
     const used = new Set<string>();
+    const usedPictograms = new Map<string, number>();
+    const usedClusters = new Map<string, number>();
+    const clusterOf = (b: Baustein) => `${b.piktogramm || 'none'}:${(b.ansatz || [])[0] || 'any'}`;
+    const varietyPenaltyOf = (b: Baustein): number => {
+      const picCount = b.piktogramm ? usedPictograms.get(b.piktogramm) || 0 : 0;
+      const clCount = usedClusters.get(clusterOf(b)) || 0;
+      // Penalize repeating identical method cluster (e.g. 2 digital simulations) or 3+ identical pictograms
+      return (clCount > 0 ? 1 : 0) + (picCount >= 2 ? 1 : 0);
+    };
+    const recordUsed = (id: string) => {
+      used.add(id);
+      const b = blocks.get(id);
+      if (b) {
+        if (b.piktogramm) usedPictograms.set(b.piktogramm, (usedPictograms.get(b.piktogramm) || 0) + 1);
+        const cl = clusterOf(b);
+        usedClusters.set(cl, (usedClusters.get(cl) || 0) + 1);
+      }
+    };
     const schritte: AblaufSchrittResult[] = [];
     const offen: string[] = [];
 
@@ -700,7 +772,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         totalBudget != null
           ? Math.max(5, Math.floor((totalBudget - reserveRec - usedDurationSoFar()) / remainingSteps))
           : undefined;
-      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap);
+      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, varietyPenaltyOf);
       // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
       // reaching step.ziel, include any valid method that delivers step.ziel directly.
       const fallbackCands = data.bausteine
@@ -713,7 +785,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         )
         .map((b) => ({
           b,
-          rank: rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap)
+          rank: rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b))
         }))
         .sort(byRank)
         .map((x) => x.b);
@@ -743,9 +815,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         return;
       }
       teile.push(chosen);
-      used.add(chosen.baustein);
+      recordUsed(chosen.baustein);
       (chosen.belegung || []).forEach((x) => {
-        if (x.inhalt.typ === 'Einsatz') used.add(x.inhalt.baustein);
+        if (x.inhalt.typ === 'Einsatz') recordUsed(x.inhalt.baustein);
       });
       schritte.push({
         schritt: step.id,
@@ -810,6 +882,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
+    currentSemanticScores = new Map(
+      given(anfrage.text) ? semantic.rankMethods(String(anfrage.text), 35).map((h) => [h.kennung, h.score]) : []
+    );
     try {
       const gelesen = given(anfrage.text) ? lesen(String(anfrage.text)) : { kriterien: {}, erkannt: [], offen: [] };
       const a: MatchRequest = { ...gelesen.kriterien };
@@ -817,16 +892,27 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
       });
       const hasPhase = list(a.lernfunktion).length || list(a.liefert).length;
-      const modus = a.modus || (a.zieltyp || (a.zielart && !hasPhase) ? 'ablauf' : 'phase');
+      const isFullLessonBudget = given(a.zeitMin) && Number(a.zeitMin) >= 45;
+      const modus = a.modus || (a.zieltyp || (a.zielart && (!hasPhase || isFullLessonBudget)) ? 'ablauf' : 'phase');
       const head = {
         kriterien: a,
         erkannt: gelesen.erkannt,
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld)
       };
       if (modus === 'phase') return Object.assign(head, phase(a));
-      const ketten = a.zieltyp
+      let ketten = a.zieltyp
         ? [chains.get(a.zieltyp)!].filter(Boolean)
         : data.ketten.filter((k) => (k.zielart || []).includes(String(a.zielart)));
+      if (!ketten.length && given(anfrage.text)) {
+        const ansatzList = list(a.ansatz);
+        const inferredId = ansatzList.includes('forschend')
+          ? 'fuenf-e'
+          : ansatzList.includes('uebung')
+            ? 'prozedur'
+            : 'konzeptaufbau';
+        const fallbackChain = chains.get(inferredId);
+        if (fallbackChain) ketten = [fallbackChain];
+      }
       if (!ketten.length) {
         return Object.assign(head, {
           modus: 'ablauf' as const,
@@ -839,6 +925,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       });
     } finally {
       currentRawText = '';
+      currentSemanticScores = new Map();
     }
   }
 

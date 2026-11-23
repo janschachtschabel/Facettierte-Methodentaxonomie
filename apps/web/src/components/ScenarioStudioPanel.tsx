@@ -80,6 +80,9 @@ interface Props {
   byok?: ByokSettings;
   byokHeaders: () => Record<string, string>;
   llmAvailable: boolean;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
 }
 
 export function ScenarioStudioPanel({
@@ -128,7 +131,10 @@ export function ScenarioStudioPanel({
   getTimelineSvg,
   byok,
   byokHeaders,
-  llmAvailable
+  llmAvailable,
+  maxTechnik,
+  ohneInternet,
+  ohneKI
 }: Props) {
   // Full AI elaboration state
   const [busyElab, setBusyElab] = useState(false);
@@ -280,7 +286,7 @@ export function ScenarioStudioPanel({
     try {
       const activeGroups = groups.filter((g) => g.active);
       const diffPayload = activeGroups.map((g) => {
-        const mRes = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 });
+        const mRes = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, maxTechnik: maxTechnik || undefined, ohneInternet, ohneKI, limit: 5 });
         return {
           id: g.id,
           gruppe: g.label,
@@ -400,7 +406,7 @@ export function ScenarioStudioPanel({
           : 'Sekundarstufe I',
         hinweise: hinweise.trim() || undefined,
         gruppen: activeGroups.map((g) => {
-          const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 });
+          const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, maxTechnik: maxTechnik || undefined, ohneInternet, ohneKI, limit: 5 });
           return {
             id: g.id,
             label: g.label,
@@ -466,7 +472,7 @@ export function ScenarioStudioPanel({
         materialTyp: effType,
         mode,
         gruppen: activeGroups.map((g) => {
-          const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 4 });
+          const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, maxTechnik: maxTechnik || undefined, ohneInternet, ohneKI, limit: 4 });
           return {
             label: g.label,
             profile: g.profile,
@@ -622,6 +628,9 @@ export function ScenarioStudioPanel({
             busyDiff={busyDiff}
             diffError={diffError}
             llmAvailable={llmAvailable}
+            maxTechnik={maxTechnik}
+            ohneInternet={ohneInternet}
+            ohneKI={ohneKI}
           />
         )}
 

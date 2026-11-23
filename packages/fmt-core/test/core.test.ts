@@ -506,4 +506,57 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       }
     }
   });
+
+  it('applies generic variety guard, semantic relevance re-ranking, and matrix-to-guidance feedback without hardcoded method lists', () => {
+    // 1. Matrix-to-guidance feedback: ADHS/LRS Fördergruppe infers explicit guidance and avoids 25m unstructured group work
+    const adhsParsed = M.lesen('Grundschule Fördergruppe 6 Kinder mit ADHS und LRS, 45 Minuten Leseverständnis üben, sehr wenig Vorwissen, ohne Geräte');
+    expect(adhsParsed.kriterien.anleitung).toEqual(['explizit']);
+    const adhsPlan = M.zuordnen({
+      text: 'Grundschule Fördergruppe 6 Kinder mit ADHS und LRS, 45 Minuten Leseverständnis üben, sehr wenig Vorwissen, ohne Geräte',
+      bildungsstufe: 'primar',
+      zeitMin: 45,
+      gruppe: 6
+    });
+    expect(adhsPlan.modus).toBe('ablauf');
+    if (adhsPlan.modus === 'ablauf') {
+      expect(adhsPlan.pruefung.gueltig).toBe(true);
+      const ids = (adhsPlan.schritte || []).map((s) => s.baustein);
+      expect(ids).not.toContain('gruppenarbeit-klassisch');
+    }
+
+    // 2. Facet-based anti-redundancy: Chemistry 135m must not stack TWO digital simulations in the same sequence
+    const chem = M.zuordnen({
+      text: 'Chemie Oberstufe 3 Stunden 135 Minuten Säure-Base-Titration forschend experimentieren, 18 Schüler, mittleres Vorwissen',
+      bildungsstufe: 'sek2',
+      zeitMin: 135,
+      gruppe: 18
+    });
+    expect(chem.modus).toBe('ablauf');
+    if (chem.modus === 'ablauf') {
+      const ids = (chem.schritte || []).map((s) => s.baustein);
+      const simCount = ids.filter((id) => id.includes('simulation')).length;
+      expect(simCount, `should not stack 2 simulations: ${ids.join(' -> ')}`).toBeLessThanOrEqual(1);
+    }
+
+    // 3. Semantic relevance tie-breaker: History "Quellenanalyse und Debatte" differentiates from Psychology seminar
+    const hist = M.zuordnen({
+      text: 'Geschichte Oberstufe Klasse 12 Doppelstunde 90 Minuten Weimarer Republik Quellenanalyse und kontroverse Debatte, 20 Schüler, hohes Vorwissen, Diskurs',
+      bildungsstufe: 'sek2',
+      zeitMin: 90,
+      gruppe: 20
+    });
+    const psych = M.zuordnen({
+      text: 'Hochschule Seminar Psychologie 90 Minuten 25 Studierende Forschungsdesign kritisch diskutieren und anwenden, hohes Vorwissen',
+      bildungsstufe: 'hochschule',
+      zeitMin: 90,
+      gruppe: 25
+    });
+    expect(hist.modus).toBe('ablauf');
+    expect(psych.modus).toBe('ablauf');
+    if (hist.modus === 'ablauf' && psych.modus === 'ablauf') {
+      const histIds = (hist.schritte || []).map((s) => s.baustein);
+      const psychIds = (psych.schritte || []).map((s) => s.baustein);
+      expect(histIds.join(',')).not.toBe(psychIds.join(','));
+    }
+  });
 });

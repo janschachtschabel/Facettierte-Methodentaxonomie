@@ -29,6 +29,9 @@ interface Props {
   busyDiff: boolean;
   diffError: string | null;
   llmAvailable: boolean;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
 }
 
 const KEY_VARIABLE_IDS = new Set([
@@ -61,7 +64,10 @@ export function DifferentiationMatrixPanel({
   onRunAiDifferentiate,
   busyDiff,
   diffError,
-  llmAvailable
+  llmAvailable,
+  maxTechnik,
+  ohneInternet,
+  ohneKI
 }: Props) {
   const [selectedGroupId, setSelectedGroupId] = useState<string>(groups[0]?.id || 'basis');
   const [showAllVariables, setShowAllVariables] = useState(false);
@@ -79,12 +85,15 @@ export function DifferentiationMatrixPanel({
         scoreDifferentiationMatrix({
           personaId: g.personaId,
           selectedValues: g.matrixValues,
+          maxTechnik: maxTechnik || undefined,
+          ohneInternet,
+          ohneKI,
           limit: 10
         })
       );
     }
     return map;
-  }, [groups]);
+  }, [groups, maxTechnik, ohneInternet, ohneKI]);
 
   const activeMatrix = selectedGroup ? matrixByGroup.get(selectedGroup.id) : null;
   const sortedBlocks = useMemo(() => [...allBlocks].sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);

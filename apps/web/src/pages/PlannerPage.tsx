@@ -1486,6 +1486,9 @@ export function PlannerPage() {
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}
               onOpenResourcesForStep={(tab, k) => jumpToResources(tab, k)}
+              maxTechnik={maxTechnik || undefined}
+              ohneInternet={ohneInternet}
+              ohneKI={ohneKI}
             />
           ) : (
             <PartiturView
@@ -1585,6 +1588,9 @@ export function PlannerPage() {
             byok={byok}
             byokHeaders={byokHeaders}
             llmAvailable={llmAvailable}
+            maxTechnik={maxTechnik || undefined}
+            ohneInternet={ohneInternet}
+            ohneKI={ohneKI}
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
             <button type="button" className="btn" onClick={() => setStep(2)}>
@@ -1658,6 +1664,9 @@ export function PlannerPage() {
             byok={byok}
             byokHeaders={byokHeaders}
             llmAvailable={llmAvailable}
+            maxTechnik={maxTechnik || undefined}
+            ohneInternet={ohneInternet}
+            ohneKI={ohneKI}
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 14 }}>
             <button type="button" className="btn" onClick={() => setStep(3)}>

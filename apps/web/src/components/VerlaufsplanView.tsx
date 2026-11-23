@@ -13,6 +13,9 @@ interface Props {
   onSubgroupMethodChange: (stepKey: string, groupId: string, methodId: string | null) => void;
   onEditDiffMeasure: (stepKey: string, groupId: string, groupLabel: string, measure: string) => void;
   onOpenResourcesForStep: (tab: 'oer' | 'material' | 'diff', stepKey: string) => void;
+  maxTechnik?: string;
+  ohneInternet?: boolean;
+  ohneKI?: boolean;
 }
 
 const RANGE_READABLE: Record<string, string> = {
@@ -32,7 +35,10 @@ export function VerlaufsplanView({
   subgroupMethods,
   onSubgroupMethodChange,
   onEditDiffMeasure,
-  onOpenResourcesForStep
+  onOpenResourcesForStep,
+  maxTechnik,
+  ohneInternet,
+  ohneKI
 }: Props) {
   const [editMode, setEditMode] = useState(false);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(null);
@@ -40,10 +46,20 @@ export function VerlaufsplanView({
   const matrixByGroup = useMemo(() => {
     const m = new Map<string, ReturnType<typeof scoreDifferentiationMatrix>>();
     for (const g of groups) {
-      m.set(g.id, scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, limit: 5 }));
+      m.set(
+        g.id,
+        scoreDifferentiationMatrix({
+          personaId: g.personaId,
+          selectedValues: g.matrixValues,
+          maxTechnik: maxTechnik || undefined,
+          ohneInternet,
+          ohneKI,
+          limit: 5
+        })
+      );
     }
     return m;
-  }, [groups]);
+  }, [groups, maxTechnik, ohneInternet, ohneKI]);
 
   if (!rows.length) {
     return (
