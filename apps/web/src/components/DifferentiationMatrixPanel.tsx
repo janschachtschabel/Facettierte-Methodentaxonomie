@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   computeMultiGroupSynthesis,
   DIFF_MATRIX_PERSONAS,
@@ -169,6 +170,13 @@ export function DifferentiationMatrixPanel({
             <span className="status-badge">
               {groups.filter((g) => g.active).length} aktive Teilgruppen · {totalLearners > 0 ? `${totalLearners} Lernende gesamt` : 'Personenzahl optional'}
             </span>
+            <Link
+              to="/differenzierung?source=planner"
+              className="btn btn-sm"
+              title="Aktuelles Baukasten-Szenario in der übersichtlichen Differenzierungs-Vollansicht öffnen (UDL, Zielkonflikte & Checkliste)"
+            >
+              Vollansicht &amp; Checkliste ↗
+            </Link>
           </div>
         </div>
         <p className="muted" style={{ fontSize: 13.5, margin: '4px 0 0' }}>

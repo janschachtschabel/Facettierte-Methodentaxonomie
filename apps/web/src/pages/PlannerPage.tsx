@@ -37,10 +37,12 @@ import {
 } from '../planner/scenarioModel.js';
 import {
   deleteSavedScenario,
+  DIFF_HANDOFF_KEY,
   exportScenarioProjectJson,
   importScenarioProjectJson,
   loadSavedScenarios,
   printHtmlDocument,
+  saveActivePlannerDraft,
   saveScenarioToStorage,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
@@ -264,17 +266,24 @@ export function PlannerPage() {
   // Consume optional handoff from /differenzierung ("In Szenario-Baukasten übernehmen")
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem('fmt_diff_handoff_v1');
+      const raw = sessionStorage.getItem(DIFF_HANDOFF_KEY);
       if (!raw) return;
-      sessionStorage.removeItem('fmt_diff_handoff_v1');
+      sessionStorage.removeItem(DIFF_HANDOFF_KEY);
       const h = JSON.parse(raw) as {
         scenarioText?: string;
         maxTechnik?: string;
         ohneInternet?: boolean;
         ohneKI?: boolean;
-        groups?: Array<{ id: string; label: string; count?: number; matrixValues?: Record<string, string> }>;
+        returnToStep3?: boolean;
+        groups?: Array<{
+          id: string;
+          label: string;
+          count?: number;
+          personaId?: string;
+          matrixValues?: Record<string, string>;
+        }>;
       };
-      if (h.scenarioText) setScenarioText(h.scenarioText);
+      if (h.scenarioText && !h.returnToStep3) setScenarioText(h.scenarioText);
       if (typeof h.maxTechnik === 'string') setMaxTechnik(h.maxTechnik);
       if (typeof h.ohneInternet === 'boolean') setOhneInternet(h.ohneInternet);
       if (typeof h.ohneKI === 'boolean') setOhneKI(h.ohneKI);
@@ -287,16 +296,43 @@ export function PlannerPage() {
             focus: g.id === 'vertiefung' ? 'vertiefung' : g.id === 'regel' ? 'regel' : 'basis',
             active: true,
             count: g.count,
+            personaId: g.personaId,
             matrixValues: g.matrixValues || {}
           }))
         );
       }
-      setMatchNotice('Differenzierungsprofil & Rahmenbedingungen aus „Differenzierung“ übernommen.');
-      setStep(1);
+      if (h.returnToStep3) {
+        setStep(3);
+        setResourceTab('diff');
+        setMatchNotice('Aktualisierte Teilgruppen & Rahmenbedingungen aus „Differenzierung“ in Schritt 3 übernommen.');
+      } else {
+        setMatchNotice('Differenzierungsprofil & Rahmenbedingungen aus „Differenzierung“ übernommen.');
+        setStep(1);
+      }
     } catch {
       // ignore invalid handoff payload
     }
   }, []);
+
+  // Keep live Baukasten draft synced in sessionStorage so /differenzierung can open it immediately without saving first
+  useEffect(() => {
+    if (!arrangement) return;
+    const title = [fach.trim(), thema.trim()].filter(Boolean).join(' · ') || arrangement.name || 'Aktuelles Baukasten-Szenario';
+    saveActivePlannerDraft({
+      updatedAt: new Date().toISOString(),
+      title,
+      fach,
+      thema,
+      scenarioText,
+      bildungsstufe: arrangement.kontext?.bildungsstufe || arrangement.kontext?.stufe || undefined,
+      zeitMin: arrangement.kontext?.zeitbudgetMin || undefined,
+      maxTechnik,
+      ohneInternet,
+      ohneKI,
+      arrangement,
+      groups
+    });
+  }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups]);
 
   const validation = useMemo(() => {
     if (!validator || !arrangement) return null;

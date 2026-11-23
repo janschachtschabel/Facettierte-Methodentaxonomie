@@ -6,6 +6,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { CatalogBundle } from '@fmt/core';
 import { DifferentiationPage } from '../src/pages/DifferentiationPage.js';
+import { ACTIVE_PLANNER_DRAFT_KEY } from '../src/planner/scenarioStorage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(
@@ -20,10 +21,11 @@ vi.mock('../src/data/CatalogContext.js', () => ({
 
 afterEach(() => {
   cleanup();
+  window.sessionStorage.clear();
 });
 
 describe('DifferentiationPage (/differenzierung)', () => {
-  it('renders clear 3-step guide, interactive group chips, view tabs, UDL/conflicts/phases, and analog/system filters', () => {
+  it('opens focused on UDL tab, switches cleanly across tabs, supports clickable group chips and system-measures filter', () => {
     render(
       <MemoryRouter initialEntries={['/differenzierung']}>
         <DifferentiationPage />
@@ -31,37 +33,81 @@ describe('DifferentiationPage (/differenzierung)', () => {
     );
 
     expect(screen.getByText(/Binnendifferenzierung & Szenario-Anpassung/i)).toBeTruthy();
-    expect(screen.getByText(/Unterricht beschreiben/i)).toBeTruthy();
-    expect(screen.getByText(/Lerngruppe markieren/i)).toBeTruthy();
+    // Focused default tab shows 1. Basis für alle (UDL) without overwhelming with all 4 sections at once
     expect(screen.getByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeTruthy();
-    expect(screen.getByText(/2\. Zielkonflikte zwischen Teilgruppen/i)).toBeTruthy();
-    expect(screen.getByText(/4\. Phasen-Anpassungen/i)).toBeTruthy();
+    expect(screen.queryByText(/2\. Zielkonflikte zwischen Teilgruppen/i)).toBeNull();
     expect(screen.getByText(/heuristischen Expertenmodell/i)).toBeTruthy();
 
     // Default preset is analog (t-keine + ohneInternet) and excludes system measures
     expect(screen.queryByText(/Interaktive digitale Medien/i)).toBeNull();
     expect(screen.queryByText(/Zusätzliche Förderstunden/i)).toBeNull();
 
-    // Clicking a group chip ("LRS / Lesen & Schreiben") adds it directly to the learner group input
+    // Clicking a group chip ("LRS / Lesen & Schreiben") toggles cleanly
     const lrsChip = screen.getByRole('button', { name: /LRS \/ Lesen & Schreiben/i });
     expect(lrsChip.getAttribute('aria-pressed')).toBe('false');
     fireEvent.click(lrsChip);
     expect(lrsChip.getAttribute('aria-pressed')).toBe('true');
 
-    // Switching result tab to "2. Zielkonflikte" focuses cleanly on conflicts only
-    const conflictTab = screen.getByRole('tab', { name: /2\. Zielkonflikte/i });
-    fireEvent.click(conflictTab);
-    expect(screen.queryByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeNull();
+    // Switching tabs shows Zielkonflikte & Phasen cleanly
+    fireEvent.click(screen.getByRole('tab', { name: /2\. Zielkonflikte/i }));
     expect(screen.getByText(/2\. Zielkonflikte zwischen Teilgruppen/i)).toBeTruthy();
 
-    // Switching back to "Gesamtplan" restores all sections
-    fireEvent.click(screen.getByRole('tab', { name: /Gesamtplan/i }));
-    expect(screen.getByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeTruthy();
+    fireEvent.click(screen.getByRole('tab', { name: /4\. Nach Phase/i }));
+    expect(screen.getByText(/4\. Phasen-Anpassungen/i)).toBeTruthy();
 
-    // Toggling "Auch Schul-/Systemmaßnahmen anzeigen" works without error
+    // Gesamtansicht displays all sections together
+    fireEvent.click(screen.getByRole('tab', { name: /Gesamtansicht/i }));
+    expect(screen.getByText(/1\. Gemeinsame Basis für alle \(UDL/i)).toBeTruthy();
+    expect(screen.getByText(/2\. Zielkonflikte zwischen Teilgruppen/i)).toBeTruthy();
+
+    // Toggling "Auch Schul-/Systemmaßnahmen anzeigen" inside filter drawer works
     const sysCheckbox = screen.getByLabelText(/Auch Schul-\/Systemmaßnahmen anzeigen/i) as HTMLInputElement;
     expect(sysCheckbox.checked).toBe(false);
     fireEvent.click(sysCheckbox);
     expect(sysCheckbox.checked).toBe(true);
+  });
+
+  it('auto-loads the active Baukasten draft when opened via ?source=planner', () => {
+    window.sessionStorage.setItem(
+      ACTIVE_PLANNER_DRAFT_KEY,
+      JSON.stringify({
+        updatedAt: new Date().toISOString(),
+        title: 'Physik · Dichte von Stoffen',
+        fach: 'Physik',
+        thema: 'Dichte von Stoffen',
+        scenarioText: 'Physik Klasse 7 Dichte',
+        bildungsstufe: 'sek1',
+        zeitMin: 90,
+        maxTechnik: 't-keine',
+        ohneInternet: true,
+        ohneKI: false,
+        arrangement: {
+          typ: 'Arrangement',
+          name: 'Dichte-Reihe',
+          kontext: { bildungsstufe: 'sek1', zeitbudgetMin: 90 },
+          struktur: {
+            typ: 'Sequenz',
+            teile: [
+              { typ: 'Einsatz', baustein: 'ampelspiel', dauerMin: 10 },
+              { typ: 'Einsatz', baustein: 'partnerarbeit', dauerMin: 20 }
+            ]
+          }
+        },
+        groups: [
+          { id: 'basis', label: 'Basis & Sprachsensibel', profile: '', focus: 'basis', active: true, count: 6, personaId: 'languageAndCulture' },
+          { id: 'vertiefung', label: 'Vertiefung', profile: '', focus: 'vertiefung', active: true, count: 5, personaId: 'highPerforming' }
+        ]
+      })
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/differenzierung?source=planner']}>
+        <DifferentiationPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/Aktuelles Baukasten-Szenario/i)).toBeTruthy();
+    expect(screen.getByText(/Physik · Dichte von Stoffen/i)).toBeTruthy();
+    expect(screen.getByText(/In Baukasten übernehmen \(Schritt 3\)/i)).toBeTruthy();
   });
 });

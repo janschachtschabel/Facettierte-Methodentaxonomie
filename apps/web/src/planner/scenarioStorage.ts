@@ -10,6 +10,48 @@ import type {
 } from './scenarioModel.js';
 
 export const SAVED_SCENARIOS_KEY = 'fmt_saved_scenarios_v1';
+export const ACTIVE_PLANNER_DRAFT_KEY = 'fmt_active_planner_draft_v1';
+export const DIFF_HANDOFF_KEY = 'fmt_diff_handoff_v1';
+
+export interface ActivePlannerDraft {
+  updatedAt: string;
+  title: string;
+  fach: string;
+  thema: string;
+  scenarioText: string;
+  bildungsstufe?: string;
+  zeitMin?: number;
+  maxTechnik: string;
+  ohneInternet: boolean;
+  ohneKI: boolean;
+  arrangement: Arrangement;
+  groups: LearnerGroup[];
+}
+
+export function saveActivePlannerDraft(draft: ActivePlannerDraft): void {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.setItem(ACTIVE_PLANNER_DRAFT_KEY, JSON.stringify(draft));
+    }
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function loadActivePlannerDraft(): ActivePlannerDraft | null {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) return null;
+    const raw = window.sessionStorage.getItem(ACTIVE_PLANNER_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ActivePlannerDraft>;
+    if (!parsed || typeof parsed !== 'object' || !parsed.arrangement || parsed.arrangement.typ !== 'Arrangement') {
+      return null;
+    }
+    return parsed as ActivePlannerDraft;
+  } catch {
+    return null;
+  }
+}
 
 export interface SavedScenario {
   id: string;
