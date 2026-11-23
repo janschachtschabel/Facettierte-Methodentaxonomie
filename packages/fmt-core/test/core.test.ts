@@ -280,6 +280,14 @@ describe('FMT Core: Validator, Search, Matcher', () => {
 
     const ansatzMatch = M.zuordnen({ text: 'Problemorientiertes Lernen Physik Klasse 8 Konzept verstehen, 135 Minuten' });
     expect(ansatzMatch.kriterien.ansatz).toEqual(['forschend']);
+
+    // Expanded didactic approaches (incl. Lernen durch Lehren, handlungsorientiert, dialogisch, individualisiert, selbstreguliert, instruktionsorientiert)
+    expect(M.lesen('Lernen durch Lehren in Klasse 9').kriterien.ansatz).toEqual(['kooperativ', 'offen']);
+    expect(M.lesen('Handlungsorientiertes Lernen im Fach Biologie').kriterien.ansatz).toEqual(['forschend', 'spiel-simulation']);
+    expect(M.lesen('Dialogisches Lernen im Ethikunterricht').kriterien.ansatz).toEqual(['kooperativ', 'diskurs']);
+    expect(M.lesen('Individualisiertes Lernen mit Stationen').kriterien.ansatz).toEqual(['offen', 'diagnose-feedback']);
+    expect(M.lesen('Selbstreguliertes Lernen und Reflexives Lernen').kriterien.ansatz).toEqual(['reflexion']);
+    expect(M.lesen('Instruktionsorientiertes Lernen für Rechenverfahren').kriterien.ansatz).toEqual(['instruktion']);
   });
 
   it('extracts multiplicative durations, multi-ansatz, guidance/interaction/prep scales, semantic scale fallback & matrix traits without LLM', () => {

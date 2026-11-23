@@ -49,16 +49,44 @@ import {
 
 type PlannerStep = 1 | 2 | 3 | 4 | 5;
 
-const DIDACTIC_APPROACH_OPTIONS: Array<{ code: string; label: string }> = [
-  { code: 'forschend', label: 'Problemorientiertes / forschendes Lernen' },
-  { code: 'kooperativ', label: 'Kooperatives Lernen' },
-  { code: 'instruktion', label: 'Direkte Instruktion & Darbietung' },
-  { code: 'offen', label: 'Projekt- & offenes Lernen' },
-  { code: 'diskurs', label: 'Diskursives / argumentatives Lernen' },
-  { code: 'spiel-simulation', label: 'Spielerisches / simulationsbasiertes Lernen' },
-  { code: 'digital-ki', label: 'Digitales & KI-gestütztes Lernen' },
-  { code: 'reflexion', label: 'Selbstgesteuertes / reflexives Lernen' }
+interface DidacticApproachOption {
+  id: string;
+  label: string;
+  ansatz: string[];
+  anleitung?: string[];
+  engagement?: string[];
+  interaktion?: string[];
+  featured?: boolean;
+}
+
+const DIDACTIC_APPROACH_OPTIONS: DidacticApproachOption[] = [
+  // 12 Kern-Ansätze direkt sichtbar in Schritt 1 (ohne Aufklappen)
+  { id: 'problemorientiert', label: 'Problemorientiertes Lernen', ansatz: ['forschend'], engagement: ['konstruktiv'], featured: true },
+  { id: 'forschend', label: 'Forschendes Lernen', ansatz: ['forschend'], engagement: ['konstruktiv'], featured: true },
+  { id: 'entdeckend', label: 'Entdeckendes Lernen', ansatz: ['forschend', 'offen'], anleitung: ['geleitet', 'offen'], featured: true },
+  { id: 'handlungsorientiert', label: 'Handlungsorientiertes Lernen', ansatz: ['spiel-simulation', 'forschend'], engagement: ['aktiv', 'konstruktiv'], featured: true },
+  { id: 'kooperativ', label: 'Kooperatives Lernen', ansatz: ['kooperativ'], interaktion: ['partner', 'kleingruppe-kooperativ'], featured: true },
+  { id: 'lernen-durch-lehren', label: 'Lernen durch Lehren', ansatz: ['kooperativ', 'offen'], engagement: ['interaktiv', 'konstruktiv'], interaktion: ['kleingruppe-kooperativ', 'plenum-lernendengeleitet'], featured: true },
+  { id: 'projektorientiert', label: 'Projektorientiertes Lernen', ansatz: ['offen'], engagement: ['konstruktiv'], featured: true },
+  { id: 'selbstgesteuert', label: 'Selbstgesteuertes Lernen', ansatz: ['offen', 'reflexion'], anleitung: ['offen'], featured: true },
+  { id: 'diskursiv', label: 'Diskursives Lernen', ansatz: ['diskurs'], engagement: ['interaktiv'], featured: true },
+  { id: 'spielerisch', label: 'Spielerisches Lernen', ansatz: ['spiel-simulation'], engagement: ['aktiv', 'interaktiv'], featured: true },
+  { id: 'individualisiert', label: 'Individualisiertes Lernen', ansatz: ['offen', 'diagnose-feedback'], featured: true },
+  { id: 'instruktionsorientiert', label: 'Instruktionsorientiertes Lernen', ansatz: ['instruktion', 'uebung'], anleitung: ['explizit'], featured: true },
+  // 10 weitere wichtige didaktische Ansätze (1 Klick direkt daneben)
+  { id: 'kollaborativ', label: 'Kollaboratives Lernen', ansatz: ['kooperativ'], engagement: ['interaktiv'], interaktion: ['kleingruppe-kooperativ'] },
+  { id: 'selbstreguliert', label: 'Selbstreguliertes Lernen', ansatz: ['reflexion', 'diagnose-feedback'] },
+  { id: 'erfahrungsbasiert', label: 'Erfahrungsbasiertes Lernen', ansatz: ['spiel-simulation', 'reflexion'], engagement: ['aktiv'] },
+  { id: 'situationsorientiert', label: 'Situationsorientiertes Lernen', ansatz: ['forschend', 'spiel-simulation'] },
+  { id: 'kompetenzorientiert', label: 'Kompetenzorientiertes Lernen', ansatz: ['forschend', 'diagnose-feedback'], engagement: ['konstruktiv'] },
+  { id: 'konstruktivistisch', label: 'Konstruktivistisches Lernen', ansatz: ['forschend', 'kooperativ'], engagement: ['konstruktiv', 'interaktiv'] },
+  { id: 'dialogisch', label: 'Dialogisches Lernen', ansatz: ['diskurs', 'kooperativ'], interaktion: ['partner', 'plenum-lernendengeleitet'] },
+  { id: 'simulationsbasiert', label: 'Simulationsbasiertes Lernen', ansatz: ['spiel-simulation'], engagement: ['aktiv', 'interaktiv'] },
+  { id: 'reflexiv', label: 'Reflexives Lernen', ansatz: ['reflexion'] },
+  { id: 'digital-ki', label: 'Digitales & KI-gestütztes Lernen', ansatz: ['digital-ki'] }
 ];
+
+const APPROACH_BY_ID = new Map(DIDACTIC_APPROACH_OPTIONS.map((o) => [o.id, o]));
 
 interface StarterPreset {
   id: string;
@@ -209,12 +237,14 @@ export function PlannerPage() {
   const [fach, setFach] = useState('Physik');
   const [thema, setThema] = useState('Dichte von Stoffen');
   const [ansatzCodes, setAnsatzCodes] = useState<string[]>(['forschend']);
+  const [showAllApproaches, setShowAllApproaches] = useState(false);
+  const [presetContextSource, setPresetContextSource] = useState<string | null>('initial');
   const [customAnsatzText, setCustomAnsatzText] = useState('');
   const [lehrkraefteInfo, setLehrkraefteInfo] = useState('1 Lehrkraft');
   const [lernziele, setLernziele] = useState('');
   const [problemstellung, setProblemstellung] = useState('');
   const [hinweise, setHinweise] = useState('');
-  const [gruppeSize, setGruppeSize] = useState<string>('26');
+  const [gruppeSize, setGruppeSize] = useState<string>('');
   const [maxTechnik, setMaxTechnik] = useState<string>('');
   const [ohneInternet, setOhneInternet] = useState(false);
   const [ohneKI, setOhneKI] = useState(false);
@@ -369,9 +399,7 @@ export function PlannerPage() {
   }, [arrangement, bundle, blocksById, labelOf, groups, aiDiffByStep, oerByStep, subgroupMethods, generatedMaterials]);
 
   const didaktischerAnsatzLabel = useMemo(() => {
-    const labels = ansatzCodes.map(
-      (c) => DIDACTIC_APPROACH_OPTIONS.find((x) => x.code === c)?.label || labelOf('ansatz', c)
-    );
+    const labels = ansatzCodes.map((c) => APPROACH_BY_ID.get(c)?.label || labelOf('ansatz', c));
     if (customAnsatzText.trim()) labels.push(customAnsatzText.trim());
     return labels.join(', ');
   }, [ansatzCodes, customAnsatzText, labelOf]);
@@ -382,8 +410,34 @@ export function PlannerPage() {
 
   const byokHeaders = (): Record<string, string> => buildServerByokHeaders(byok);
 
-  const toggleAnsatzCode = (code: string) => {
-    setAnsatzCodes((prev) => (prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]));
+  const toggleAnsatzCode = (id: string) => {
+    setPresetContextSource(null);
+    setAnsatzCodes((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  /**
+   * When the user previously loaded a starter preset (or the initial sample) and now edits the
+   * free-text prompt above, automatically clear stale preset-populated optional fields so old
+   * Fach/Thema/Lernziele/Ansätze never contaminate the new scenario.
+   */
+  const handleScenarioTextChange = (nextText: string) => {
+    setScenarioText(nextText);
+    if (presetContextSource) {
+      setPresetContextSource(null);
+      setFach('');
+      setThema('');
+      setAnsatzCodes([]);
+      setCustomAnsatzText('');
+      setLernziele('');
+      setProblemstellung('');
+      setGruppeSize('');
+      setMaxTechnik('');
+      setOhneInternet(false);
+      setOhneKI(false);
+      setRaumzeitFilter('');
+      setGroups(STANDARD_LEARNER_GROUPS);
+      setMatchNotice('Vorlagen-Felder wurden für deine eigene Eingabe zurückgesetzt.');
+    }
   };
 
   const handleSubgroupMethodChange = (stepKey: string, groupId: string, methodId: string | null) => {
@@ -409,10 +463,30 @@ export function PlannerPage() {
 
   const buildStructuredMatchRequest = (): MatchRequest => {
     const req: MatchRequest = { text: scenarioText };
-    if (ansatzCodes.length) req.ansatz = ansatzCodes;
-    const sumGroupCounts = groups.filter((g) => g.active).reduce((s, g) => s + (g.count || 0), 0);
-    const effGroup = Number(gruppeSize) || sumGroupCounts;
-    if (effGroup > 0) req.gruppe = effGroup;
+    if (ansatzCodes.length) {
+      const fmtAnsatz = new Set<string>();
+      const fmtAnleitung = new Set<string>();
+      const fmtEngagement = new Set<string>();
+      const fmtInteraktion = new Set<string>();
+      for (const id of ansatzCodes) {
+        const opt = APPROACH_BY_ID.get(id);
+        if (opt) {
+          opt.ansatz.forEach((a) => fmtAnsatz.add(a));
+          opt.anleitung?.forEach((a) => fmtAnleitung.add(a));
+          opt.engagement?.forEach((a) => fmtEngagement.add(a));
+          opt.interaktion?.forEach((a) => fmtInteraktion.add(a));
+        } else {
+          fmtAnsatz.add(id);
+        }
+      }
+      if (fmtAnsatz.size) req.ansatz = [...fmtAnsatz];
+      if (fmtAnleitung.size && ansatzCodes.length === 1) req.anleitung = [...fmtAnleitung];
+      if (fmtEngagement.size && ansatzCodes.length === 1) req.engagement = [...fmtEngagement];
+      if (fmtInteraktion.size && ansatzCodes.length === 1) req.interaktion = [...fmtInteraktion];
+    }
+    // Only send explicit class size so we NEVER overwrite group sizes written in scenarioText (e.g. "6 Kinder", "120 Studierende")
+    const explicitGroup = Number(gruppeSize);
+    if (explicitGroup > 0) req.gruppe = explicitGroup;
     if (maxTechnik) req.maxTechnik = maxTechnik;
     if (ohneInternet) req.ohneInternet = true;
     if (ohneKI) req.ohneKI = true;
@@ -425,7 +499,9 @@ export function PlannerPage() {
     if (fach.trim()) extras.push(`Fach: ${fach.trim()}`);
     if (thema.trim()) extras.push(`Thema: ${thema.trim()}`);
     if (didaktischerAnsatzLabel) extras.push(`Didaktischer Ansatz: ${didaktischerAnsatzLabel}`);
-    if (lehrkraefteInfo.trim()) extras.push(`Lehrkräfte/Begleitung: ${lehrkraefteInfo.trim()}`);
+    if (lehrkraefteInfo.trim() && lehrkraefteInfo.trim() !== '1 Lehrkraft') {
+      extras.push(`Lehrkräfte/Begleitung: ${lehrkraefteInfo.trim()}`);
+    }
     if (lernziele.trim()) extras.push(`Lernziele: ${lernziele.trim()}`);
     if (gruppeSize && Number(gruppeSize) > 0) extras.push(`Klassengröße: ${gruppeSize} Lernende`);
     if (maxTechnik) extras.push(`Technik höchstens: ${labelOf('technikbedarf', maxTechnik)}`);
@@ -439,9 +515,25 @@ export function PlannerPage() {
     setFach(p.fach);
     setThema(p.thema);
     setScenarioText(p.text);
-    setAnsatzCodes(p.ansatz);
+    setAnsatzCodes(
+      p.ansatz.map((code) =>
+        code === 'instruktion'
+          ? 'instruktionsorientiert'
+          : code === 'diskurs'
+            ? 'diskursiv'
+            : code === 'uebung'
+              ? 'instruktionsorientiert'
+              : code
+      ).filter((v, i, arr) => arr.indexOf(v) === i)
+    );
     setLernziele(p.lernziele);
     setProblemstellung(p.problemstellung);
+    setMaxTechnik('');
+    setOhneInternet(/ohne\s+internet/i.test(p.text));
+    setOhneKI(false);
+    setGruppeSize('');
+    setGroups(STANDARD_LEARNER_GROUPS);
+    setPresetContextSource(p.label);
     const preset = createChainPreset(p.chain, bundle);
     preset.name = `${p.fach}: ${p.thema}`;
     preset.kontext = {
@@ -456,7 +548,7 @@ export function PlannerPage() {
     setOerByStep({});
     setGeneratedMaterials([]);
     setAiDiffByStep({});
-    setMatchNotice(`Starter-Vorlage „${p.label}“ geladen (${p.zeitMin} min). Du kannst direkt zu Schritt 2 wechseln oder die Felder anpassen.`);
+    setMatchNotice(`Starter-Vorlage „${p.label}“ geladen (${p.zeitMin} min). Du kannst direkt zu Schritt 2 wechseln oder den Text oben frei überschreiben.`);
   };
 
   const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null) => {
@@ -1077,19 +1169,68 @@ export function PlannerPage() {
             </div>
 
             <p className="muted" style={{ fontSize: 14, marginTop: 0, marginBottom: 10 }}>
-              Beschreibe dein Vorhaben in eigenen Worten – oder wähle eine Starter-Vorlage bzw. klappe unten die gezielten
-              didaktischen Felder (Ansatz, Akteure, Klassengröße, Technik) auf.
+              Beschreibe dein Vorhaben in eigenen Worten, wähle bei Bedarf einen oder mehrere didaktische Ansätze direkt per Klick
+              oder starte mit einer geprüften Vorlage.
             </p>
 
             <textarea
+              aria-label="Unterrichtsvorhaben beschreiben"
               rows={3}
               style={{ width: '100%' }}
               value={scenarioText}
-              onChange={(e) => setScenarioText(e.target.value)}
+              onChange={(e) => handleScenarioTextChange(e.target.value)}
               placeholder="z. B. Mathematik Bruchrechnen Doppelstunde Klasse 6, problemorientiertes Lernen, 26 Lernende, 90 Minuten"
             />
 
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+            {/* Directly visible Didactic Approaches (no expanding required!) */}
+            <div style={{ marginTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 13.5 }}>
+                  Didaktischer Ansatz (optional – steuert Methodenauswahl &amp; KI direkt):
+                </span>
+                <button
+                  type="button"
+                  className="diff-preset-link"
+                  onClick={() => setShowAllApproaches((s) => !s)}
+                >
+                  {showAllApproaches
+                    ? 'Weniger Ansätze anzeigen ▲'
+                    : `+ ${DIDACTIC_APPROACH_OPTIONS.filter((o) => !o.featured).length} weitere Ansätze anzeigen ▾`}
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }} role="group" aria-label="Didaktische Ansätze auswählen">
+                {DIDACTIC_APPROACH_OPTIONS.filter((opt) => showAllApproaches || opt.featured || ansatzCodes.includes(opt.id)).map((opt) => {
+                  const active = ansatzCodes.includes(opt.id);
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      aria-pressed={active}
+                      className={`diff-chip-toggle ${active ? 'is-active' : ''}`}
+                      onClick={() => toggleAnsatzCode(opt.id)}
+                    >
+                      <span>{active ? '✓' : '+'}</span>
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {showAllApproaches && (
+                <input
+                  type="text"
+                  aria-label="Optional eigener didaktischer Ansatz"
+                  style={{ width: '100%', marginTop: 8, fontSize: 13.5 }}
+                  value={customAnsatzText}
+                  onChange={(e) => {
+                    setPresetContextSource(null);
+                    setCustomAnsatzText(e.target.value);
+                  }}
+                  placeholder="Optional eigener didaktischer Ansatz (z. B. Service Learning, Flipped Classroom, Montessori)"
+                />
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
               <button type="button" className="btn btn-primary" disabled={busyAi} onClick={() => void runAiTranslate()}>
                 ✨ {busyAi ? 'Analysiere Szenario…' : 'Mit KI verstehen & Ablauf bauen'}
               </button>
@@ -1168,32 +1309,60 @@ export function PlannerPage() {
             </div>
           </div>
 
-          {/* Optional Expandable Structured Inputs (Lernpfadeditor-aligned: Didaktischer Ansatz, Akteure & Personenanzahl, Technik) */}
+          {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              ⚙ Optional: Didaktischer Ansatz, Akteure, Lerngruppe &amp; Technik verfeinern (fließen direkt in Planung, Matrix, KI &amp; WLO ein)
+              ⚙ Optional: Fach, Lernziele, Gruppengröße &amp; Technik verfeinern (fließen direkt in Planung, Matrix, KI &amp; WLO ein)
             </summary>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 14 }}>
               {/* Group A: Didaktische Grundlagen */}
               <div>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>1. Didaktischer Rahmen &amp; Ziele</strong>
-                <div className="filter-grid" style={{ marginTop: 8 }}>
-                  <label>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(215px, 1fr))',
+                    gap: '10px 14px',
+                    marginTop: 8,
+                    alignItems: 'end'
+                  }}
+                >
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Fach
-                    <input type="text" value={fach} onChange={(e) => setFach(e.target.value)} placeholder="z. B. Mathematik, Physik, Deutsch" />
+                    <input
+                      type="text"
+                      style={{ width: '100%' }}
+                      value={fach}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setFach(e.target.value);
+                      }}
+                      placeholder="z. B. Mathematik, Physik, Deutsch"
+                    />
                   </label>
-                  <label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Thema
-                    <input type="text" value={thema} onChange={(e) => setThema(e.target.value)} placeholder="z. B. Bruchrechnen, Dichte" />
+                    <input
+                      type="text"
+                      style={{ width: '100%' }}
+                      value={thema}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setThema(e.target.value);
+                      }}
+                      placeholder="z. B. Bruchrechnen, Dichte"
+                    />
                   </label>
-                  <label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Bildungsstufe
                     <select
+                      style={{ width: '100%' }}
                       value={arrangement.kontext?.bildungsstufe || 'sek1'}
-                      onChange={(e) =>
-                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, bildungsstufe: e.target.value } })
-                      }
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, bildungsstufe: e.target.value } });
+                      }}
                     >
                       {valuesOf('bildungsstufe').map((w) => (
                         <option key={w.id} value={w.id}>
@@ -1202,13 +1371,15 @@ export function PlannerPage() {
                       ))}
                     </select>
                   </label>
-                  <label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Vorwissen
                     <select
+                      style={{ width: '100%' }}
                       value={arrangement.kontext?.vorwissen || 'gering'}
-                      onChange={(e) =>
-                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, vorwissen: e.target.value } })
-                      }
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, vorwissen: e.target.value } });
+                      }}
                     >
                       {valuesOf('vorwissen').map((w) => (
                         <option key={w.id} value={w.id}>
@@ -1217,25 +1388,29 @@ export function PlannerPage() {
                       ))}
                     </select>
                   </label>
-                  <label>
-                    Zeitbudget (min)
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Zeitbudget (Min.)
                     <input
                       type="number"
+                      style={{ width: '100%' }}
                       min={0}
                       value={arrangement.kontext?.zeitbudgetMin ?? 90}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        setPresetContextSource(null);
                         setArrangement({
                           ...arrangement,
                           kontext: { ...arrangement.kontext, zeitbudgetMin: Math.max(0, Number(e.target.value) || 0) }
-                        })
-                      }
+                        });
+                      }}
                     />
                   </label>
-                  <label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Funktionskette / Zieltyp
                     <select
+                      style={{ width: '100%' }}
                       value={arrangement.zieltyp || ''}
                       onChange={(e) => {
+                        setPresetContextSource(null);
                         if (!e.target.value) setArrangement({ ...arrangement, zieltyp: undefined, name: 'Freier Ablauf' });
                         else setArrangement(createChainPreset(e.target.value, bundle));
                       }}
@@ -1248,11 +1423,15 @@ export function PlannerPage() {
                       ))}
                     </select>
                   </label>
-                  <label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Granularität / Rahmen
                     <select
+                      style={{ width: '100%' }}
                       value={arrangement.reichweite}
-                      onChange={(e) => setArrangement({ ...arrangement, reichweite: e.target.value })}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setArrangement({ ...arrangement, reichweite: e.target.value });
+                      }}
                     >
                       <option value="r2">Szenario / Einzelstunde (R2)</option>
                       <option value="r3">Reihe / Ensemble (R3)</option>
@@ -1261,43 +1440,17 @@ export function PlannerPage() {
                   </label>
                 </div>
 
-                {/* Didaktische Ansätze (Lernpfadeditor-inspiriert: Verb + Lernen!) */}
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, marginBottom: 6 }}>
-                    Didaktischer Ansatz / Lernform (steuert Methoden-Ranking &amp; KI direkt):
-                  </div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {DIDACTIC_APPROACH_OPTIONS.map((opt) => {
-                      const active = ansatzCodes.includes(opt.code);
-                      return (
-                        <button
-                          key={opt.code}
-                          type="button"
-                          className={`btn btn-sm ${active ? 'btn-primary' : ''}`}
-                          onClick={() => toggleAnsatzCode(opt.code)}
-                        >
-                          {active ? '✓ ' : '+ '}
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <input
-                    type="text"
-                    style={{ width: '100%', marginTop: 8, fontSize: 13.5 }}
-                    value={customAnsatzText}
-                    onChange={(e) => setCustomAnsatzText(e.target.value)}
-                    placeholder="Optional eigener didaktischer Ansatz (z. B. handlungsorientiertes Lernen, forschend-entdeckendes Lernen, Service Learning)"
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10, marginTop: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12, marginTop: 12 }}>
                   <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     Lernziele (optional)
                     <textarea
                       rows={2}
+                      style={{ width: '100%' }}
                       value={lernziele}
-                      onChange={(e) => setLernziele(e.target.value)}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setLernziele(e.target.value);
+                      }}
                       placeholder="Was sollen die Lernenden am Ende können?"
                     />
                   </label>
@@ -1305,8 +1458,12 @@ export function PlannerPage() {
                     Ausgangslage / typische Hürden (optional)
                     <textarea
                       rows={2}
+                      style={{ width: '100%' }}
                       value={problemstellung}
-                      onChange={(e) => setProblemstellung(e.target.value)}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setProblemstellung(e.target.value);
+                      }}
                       placeholder="z. B. Fehlvorstellungen, geringe Motivation, heterogene Vorkenntnisse"
                     />
                   </label>
@@ -1314,31 +1471,44 @@ export function PlannerPage() {
               </div>
 
               {/* Group B: Akteure & Personenanzahl */}
-              <div style={{ paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
+              <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
                   2. Lerngruppe &amp; Begleitung
                 </strong>
-                <div className="filter-grid" style={{ marginTop: 8 }}>
-                  <label>
-                    Gesamt-Klassengröße (Personen)
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                    gap: '10px 14px',
+                    marginTop: 8,
+                    alignItems: 'end',
+                    maxWidth: 640
+                  }}
+                >
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Klassengröße (optional, Personen)
                     <input
                       type="number"
+                      style={{ width: '100%' }}
                       min={1}
                       max={300}
                       value={gruppeSize}
+                      placeholder="aus Text oder offen (z. B. 26)"
                       onChange={(e) => {
+                        setPresetContextSource(null);
                         setGruppeSize(e.target.value);
                         const num = Number(e.target.value);
-                        if (num > 0 && groups.length === 1 && groups[0].id === 'regel') {
-                          setGroups([{ ...groups[0], count: num }]);
+                        if (groups.length === 1 && groups[0].id === 'regel') {
+                          setGroups([{ ...groups[0], count: num > 0 ? num : undefined }]);
                         }
                       }}
                     />
                   </label>
-                  <label>
-                    Lehrkraft / Begleitpersonen
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Lehrkraft / Begleitung
                     <input
                       type="text"
+                      style={{ width: '100%' }}
                       value={lehrkraefteInfo}
                       onChange={(e) => setLehrkraefteInfo(e.target.value)}
                       placeholder="z. B. 1 Lehrkraft, Co-Teaching + Sonderpädagogik"
@@ -1346,19 +1516,34 @@ export function PlannerPage() {
                   </label>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
-                  Standardmäßig startet dein Konzept mit einer Gesamtgruppe (Regelniveau). Teilgruppen für Binnendifferenzierung fügst du gezielt nach dem Methodenkonzept in <strong>Schritt 3</strong> hinzu.
+                  Bleibt die Klassengröße leer, übernimmt der Planer Zahlen direkt aus deinem Text (z. B. „6 Kinder“ oder „120 Studierende“). Teilgruppen für Binnendifferenzierung legst du in <strong>Schritt 3</strong> an.
                 </p>
               </div>
 
               {/* Group C: Technik & Raum */}
-              <div style={{ paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
+              <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
                   3. Rahmenbedingungen (Raum &amp; Technik – filtert Methoden direkt)
                 </strong>
-                <div className="filter-grid" style={{ marginTop: 8 }}>
-                  <label>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                    gap: '10px 14px',
+                    marginTop: 8,
+                    maxWidth: 640
+                  }}
+                >
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Verfügbare Technik (max.)
-                    <select value={maxTechnik} onChange={(e) => setMaxTechnik(e.target.value)}>
+                    <select
+                      style={{ width: '100%' }}
+                      value={maxTechnik}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setMaxTechnik(e.target.value);
+                      }}
+                    >
                       <option value="">beliebig</option>
                       {valuesOf('technikbedarf').map((w) => (
                         <option key={w.id} value={w.id}>
@@ -1367,9 +1552,16 @@ export function PlannerPage() {
                       ))}
                     </select>
                   </label>
-                  <label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Raum-Zeit-Modus
-                    <select value={raumzeitFilter} onChange={(e) => setRaumzeitFilter(e.target.value)}>
+                    <select
+                      style={{ width: '100%' }}
+                      value={raumzeitFilter}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setRaumzeitFilter(e.target.value);
+                      }}
+                    >
                       <option value="">beliebig</option>
                       {valuesOf('raumzeit').map((w) => (
                         <option key={w.id} value={w.id}>
@@ -1378,17 +1570,29 @@ export function PlannerPage() {
                       ))}
                     </select>
                   </label>
-                  <label style={{ justifyContent: 'flex-end' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 6 }}>
-                      <input type="checkbox" checked={ohneInternet} onChange={(e) => setOhneInternet(e.target.checked)} />
-                      Ohne Internet / Offline
-                    </span>
+                </div>
+                <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center', marginTop: 12, fontSize: 14 }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={ohneInternet}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setOhneInternet(e.target.checked);
+                      }}
+                    />
+                    Ohne Internet / Offline
                   </label>
-                  <label style={{ justifyContent: 'flex-end' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 6 }}>
-                      <input type="checkbox" checked={ohneKI} onChange={(e) => setOhneKI(e.target.checked)} />
-                      Ohne KI-Methoden im Unterricht
-                    </span>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={ohneKI}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setOhneKI(e.target.checked);
+                      }}
+                    />
+                    Ohne KI-Methoden im Unterricht
                   </label>
                 </div>
               </div>

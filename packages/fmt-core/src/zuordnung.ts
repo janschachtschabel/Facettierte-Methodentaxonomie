@@ -315,19 +315,34 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|modul|ablauf|seminar\b|vorlesung\b|workshop\b|online-?kurs\b|sitzung\b/, () => 'ablauf']
   ];
 
-  // Multi-value approach rules covering ALL 12 FMT ansatz codes (allows combining e.g. "kooperativ und spielerisch")
+  // Multi-value approach rules covering ALL 12 FMT ansatz codes + all 22 common "… Lernen" approaches (incl. Lernen durch Lehren)
   const ANSATZ_RULES: Array<[string, RegExp]> = [
-    ['forschend', /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|hypothese\w*/],
-    ['kooperativ', /kooperativ\w*|gruppenarbeit|partnerarbeit|teamarbeit|peer-?learning|jigsaw|gruppenpuzzle/],
-    ['instruktion', /direkte?\s+instruktion|lehrervortrag|explizit\w*\s+instruktion|darbietend\w*|vormachen/],
-    ['offen', /offene\w*\s+unterricht|freiarbeit|stationen|werkstatt|wochenplan|projektbasiert\w*|projektarbeit/],
-    ['spiel-simulation', /spielerisch\w*|gamification|planspiel|rollenspiel|simulation|spiel\b|quizspiel/],
-    ['diskurs', /debatt\w*|diskurs\w*|diskussion|pro-?contra|streitgesprach|argumentier\w*/],
+    [
+      'forschend',
+      /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|hypothese\w*|situationsorientiert\w*|kompetenzorientiert\w*|konstruktivistisch\w*|handlungsorientiert\w*/
+    ],
+    [
+      'kooperativ',
+      /kooperativ\w*|kollaborativ\w*|lernen\s+durch\s+lehren|\bldl\b|gruppenarbeit|partnerarbeit|teamarbeit|peer-?learning|jigsaw|gruppenpuzzle|dialogisch\w*/
+    ],
+    [
+      'instruktion',
+      /instruktionsorientiert\w*|direkte?\s+instruktion|lehrervortrag|explizit\w*\s+instruktion|darbietend\w*|vormachen/
+    ],
+    [
+      'offen',
+      /offene\w*\s+unterricht|freiarbeit|stationen|werkstatt|wochenplan|projektbasiert\w*|projektorientiert\w*|projektarbeit|selbstgesteuert\w*|individualisiert\w*|lernen\s+durch\s+lehren|\bldl\b/
+    ],
+    [
+      'spiel-simulation',
+      /spielerisch\w*|simulationsbasiert\w*|erfahrungsbasiert\w*|handlungsorientiert\w*|situationsorientiert\w*|gamification|planspiel|rollenspiel|simulation|spiel\b|quizspiel/
+    ],
+    ['diskurs', /debatt\w*|diskurs\w*|dialogisch\w*|diskussion|pro-?contra|streitgesprach|argumentier\w*/],
     ['kreativ', /kreativ\w*|brainstorming|ideen\s+sammeln|erfinden|design\s+thinking|geschichten\s+schreiben/],
     ['visualisierung', /visualisier\w*|mindmap|mind-?map|concept-?map|plakat|sketchnote\w*|schaubild|diagramm|strukturlegen/],
     ['uebung', /intensiv\w*\s+uben|trainier\w*|automatisier\w*|abrufubung|rechenverfahren\s+uben|festigen/],
-    ['diagnose-feedback', /diagnose|lernstand\w*|kurztest|abfrage|peer-?feedback|ruckmeldung\s+einholen/],
-    ['reflexion', /reflexion|reflektier\w*|lerntagebuch|portfolio|selbsteinschatzung|lernprozess\s+bilanzier/],
+    ['diagnose-feedback', /diagnose|lernstand\w*|kurztest|abfrage|peer-?feedback|ruckmeldung\s+einholen|kompetenzorientiert\w*|individualisiert\w*/],
+    ['reflexion', /reflexion|reflexiv\w*|reflektier\w*|selbstreguliert\w*|selbstgesteuert\w*|erfahrungsbasiert\w*|lerntagebuch|portfolio|selbsteinschatzung|lernprozess\s+bilanzier/],
     ['digital-ki', /digital\w*\s+lern\w*|ki-?tutor|ki-?gestutzt|podcast|erklarvideo|stop-?motion|wiki\b|interaktiv\w*\s+whiteboard/]
   ];
 

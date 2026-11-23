@@ -85,13 +85,14 @@ function formatEffortLabel(effort: MeasureEffort): string {
   }
 }
 
-/** Keeps total headcount balanced on Regelniveau when adding/removing subgroups */
+/** Keeps total headcount balanced on Regelniveau ONLY when a total class size is explicitly known */
 function rebalanceMainGroupCount(list: LearnerGroup[], targetTotal?: number): LearnerGroup[] {
-  const total = targetTotal && targetTotal > 0 ? targetTotal : 26;
   const mainIdx = list.findIndex((g) => g.id === 'regel');
   if (mainIdx === -1) return list;
+  const knownTotal = targetTotal && targetTotal > 0 ? targetTotal : list[mainIdx].count;
+  if (!knownTotal || knownTotal <= 0) return list;
   const othersSum = list.reduce((s, g, i) => (i === mainIdx || !g.active ? s : s + (g.count || 0)), 0);
-  const nextMainCount = Math.max(1, total - othersSum);
+  const nextMainCount = Math.max(1, knownTotal - othersSum);
   return list.map((g, i) => (i === mainIdx ? { ...g, count: nextMainCount } : g));
 }
 
