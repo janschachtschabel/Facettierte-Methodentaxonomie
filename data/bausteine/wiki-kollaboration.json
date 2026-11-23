@@ -150,5 +150,8 @@
   "plot": {
     "x": 0.42,
     "y": 2.55
-  }
+  },
+  "ungeeignetBeiStufe": [
+    "primar"
+  ]
 }

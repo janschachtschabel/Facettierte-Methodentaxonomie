@@ -296,7 +296,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 9. score_differentiation_matrix
   server.tool(
     'score_differentiation_matrix',
-    'Berechnet deterministische Binnendifferenzierungs-Empfehlungen über die Punkte-Matrix (-2 bis +2 über 115 Anpassungsvariablen × 172 Maßnahmen). Optional wird bei Angabe eines FMT-Bausteins geprüft, welche alternativen FMT-Methoden für diese Teilgruppe besser passen.',
+    'Berechnet deterministische Binnendifferenzierungs-Empfehlungen über die Punkte-Matrix (-2 bis +2 über 115 Anpassungsvariablen × 172 Maßnahmen) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI. Optional wird bei Angabe eines FMT-Bausteins geprüft, welche alternativen FMT-Methoden für diese Teilgruppe besser passen.',
     {
       personaId: z
         .enum(['languageAndCulture', 'average', 'highPerforming', 'foerderLernen', 'foerderEmSoz'])
@@ -308,10 +308,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"})'),
       minScore: z.number().int().optional(),
       limit: z.number().int().min(1).max(40).optional().default(12),
+      maxTechnik: z.string().optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
+      ohneInternet: z.boolean().optional().describe('Optional: true filtert online-abhängige Maßnahmen heraus'),
+      ohneKI: z.boolean().optional().describe('Optional: true schließt KI-abhängige Maßnahmen aus'),
       baustein: z.string().optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen')
     },
-    async ({ personaId, selectedValues, minScore, limit, baustein }) => {
-      const scoreResult = scoreDifferentiationMatrix({ personaId, selectedValues, minScore, limit });
+    async ({ personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, baustein }) => {
+      const scoreResult = scoreDifferentiationMatrix({
+        personaId,
+        selectedValues,
+        minScore,
+        limit,
+        maxTechnik,
+        ohneInternet,
+        ohneKI
+      });
       const currentBlock = baustein ? store.blocksById.get(baustein) : undefined;
       const alternativeMethoden = currentBlock
         ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5)
@@ -327,7 +338,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 10. build_scenario_plan (Ultra-fast Zero-LLM pre-filtering + matrix + optional WLO OER + caller LLM briefing!)
   server.tool(
     'build_scenario_plan',
-    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, geprüftes Lehr-/Lernszenario (Freitext-Vorfilterung, FMT-Methodenablauf, automatisch erkannte Binnendifferenzierungsmatrix-Merkmale, optional WLO-OER mit wwwurl, thematische Basistabelle, JSON-LD) inkl. fertigem llmBriefing zur direkten Ausformulierung im eigenen LLM.',
+    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, JSON-LD `maschinenlesbar` für den Baukasten-Import und `verbindlicheUmsetzungsregeln`). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
     {
       text: z.string().describe('Beschreibung des Unterrichtsvorhabens'),
       fach: z.string().optional(),

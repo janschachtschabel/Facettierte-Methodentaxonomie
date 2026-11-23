@@ -393,4 +393,51 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       expect(NEGATIVE_CONTRAST_IDS.has(phaseCase.vorschlaege[0].baustein)).toBe(false);
     }
   });
+
+  it('excludes Sek/Hochschule-only text methods for Primarstufe and filters digital matrix measures when maxTechnik=t-keine', () => {
+    // 1. Live Grundschule Mathematik Bruchteile scenario (primar, 45 min, t-keine)
+    const primarRes = M.zuordnen({
+      text: 'Mathematik Grundschule Bruchteile entdecken: Hälfte und Viertel, 45 Minuten, mittleres Vorwissen, ohne Geräte, ohne Internet',
+      modus: 'ablauf',
+      zieltyp: 'konzeptaufbau',
+      bildungsstufe: 'primar',
+      zeitMin: 45,
+      gruppe: 24,
+      vorwissen: 'mittel',
+      ansatz: ['kooperativ', 'forschend'],
+      maxTechnik: 't-keine',
+      maxVorbereitung: 15,
+      ohneInternet: true,
+      ohneKI: true
+    });
+    expect(primarRes.modus).toBe('ablauf');
+    if (primarRes.modus === 'ablauf') {
+      expect(primarRes.pruefung.gueltig).toBe(true);
+      expect(primarRes.pruefung.dauerMin).toBeLessThanOrEqual(45);
+      const ids = (primarRes.schritte || []).map((s) => s.baustein);
+      expect(ids).not.toContain('kooperatives-skript');
+      expect(ids).not.toContain('sq3r-lesemethode');
+      expect(ids).not.toContain('text-exzerpieren');
+    }
+
+    // 2. Differentiation matrix must respect maxTechnik='t-keine' and ohneInternet=true
+    const analogHigh = scoreDifferentiationMatrix({
+      personaId: 'highPerforming',
+      limit: 8,
+      maxTechnik: 't-keine',
+      ohneInternet: true
+    });
+    expect(analogHigh.topRecommendations.length).toBeGreaterThan(0);
+    const forbiddenIds = new Set([
+      'medienformate-interaktiv',
+      'medienformate-audiovisuell',
+      'methodik-lernprozess-digital',
+      'unterstuetzungsformate-online',
+      'lernwerkzeuge-digital',
+      'leistungserfassung-digital'
+    ]);
+    for (const rec of analogHigh.topRecommendations) {
+      expect(forbiddenIds.has(rec.id), `analog matrix must not recommend ${rec.id} (${rec.name})`).toBe(false);
+    }
+  });
 });

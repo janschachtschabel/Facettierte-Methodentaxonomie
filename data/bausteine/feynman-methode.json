@@ -137,5 +137,8 @@
   "qualitaetsrisiko": [
     "Unentdeckte Fehlkonzepte, wenn keine Rückkopplung mit Fachquelle oder Peer erfolgt",
     "Verkürzung auf bloßes Nacherzählen von Stichworten"
+  ],
+  "ungeeignetBeiStufe": [
+    "primar"
   ]
 }

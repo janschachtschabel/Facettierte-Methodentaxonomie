@@ -145,6 +145,25 @@ const MEASURE_INDEX: MeasureIndexEntry[] = (() => {
 
 const MATRIX_LOOKUP: Record<string, string> = DIFF_MATRIX_DATA.matrix as unknown as Record<string, string>;
 
+const DIGITAL_MATRIX_MEASURE_IDS = new Set([
+  'medienformate-audiovisuell',
+  'medienformate-interaktiv',
+  'zugaenglichkeit-audio',
+  'methodik-lernprozess-digital',
+  'unterstuetzungsart-technisch',
+  'unterstuetzungsformate-online',
+  'lernwerkzeuge-digital',
+  'lernwerkzeuge-assistiv',
+  'leistungserfassung-digital'
+]);
+
+const ONLINE_MATRIX_MEASURE_IDS = new Set([
+  'methodik-lernprozess-digital',
+  'unterstuetzungsformate-online',
+  'lernwerkzeuge-digital',
+  'leistungserfassung-digital'
+]);
+
 export function getPersonaValues(personaId: string): Record<string, string> {
   const found = DIFF_MATRIX_PERSONAS.find((p) => p.id === personaId);
   return found ? { ...found.values } : {};
@@ -161,6 +180,9 @@ export function scoreDifferentiationMatrix(
     minScore?: number;
     limit?: number;
     onlyBestPerCategory?: boolean;
+    maxTechnik?: string;
+    ohneInternet?: boolean;
+    ohneKI?: boolean;
   } = {}
 ): MatrixScoreResult {
   const merged: Record<string, string> = {
@@ -183,8 +205,15 @@ export function scoreDifferentiationMatrix(
   const minScore = input.minScore ?? (selectedCount >= 10 ? 4 : selectedCount >= 3 ? 2 : 1);
   const onlyBestPerCategory = input.onlyBestPerCategory ?? true;
   const limit = Math.max(1, Math.min(50, input.limit ?? 12));
+  const disallowDigital = input.maxTechnik === 't-keine';
+  const disallowOnline = Boolean(input.ohneInternet);
+  const isMeasureAllowed = (m: MeasureIndexEntry) => {
+    if (disallowDigital && DIGITAL_MATRIX_MEASURE_IDS.has(m.id)) return false;
+    if (disallowOnline && ONLINE_MATRIX_MEASURE_IDS.has(m.id)) return false;
+    return true;
+  };
 
-  const allScored: MatrixRecommendation[] = MEASURE_INDEX.map((m) => ({
+  const allScored: MatrixRecommendation[] = MEASURE_INDEX.filter(isMeasureAllowed).map((m) => ({
     id: m.id,
     name: m.name,
     kategorieId: m.kategorieId,

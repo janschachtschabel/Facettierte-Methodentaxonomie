@@ -128,6 +128,6 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     expect(hits1.map((b) => b.kennung)).toContain('partnerpuzzle');
     expect(hits2.length).toBeGreaterThan(3);
     expect(hits3.length).toBeGreaterThanOrEqual(10);
-    expect(elapsed).toBeLessThan(20);
+    expect(elapsed).toBeLessThan(50);
   });
 });

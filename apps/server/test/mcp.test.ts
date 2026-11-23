@@ -157,6 +157,44 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(planJson.maschinenlesbar.schemaVersion).toBe('1.4');
     expect(planJson.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
 
+    // Regression test from live ChatGPT MCP session: Grundschule Mathematik Bruchteile 45 min analog
+    const gsPlanRes = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: {
+        text: 'Mathematik Grundschule Bruchteile entdecken: Hälfte und Viertel, handlungsorientiert, entdeckend, anschaulich, kooperativ',
+        fach: 'Mathematik',
+        thema: 'Bruchteile entdecken: Hälfte und Viertel',
+        bildungsstufe: 'primar',
+        zeitMin: 45,
+        gruppe: 24,
+        vorwissen: 'mittel',
+        didaktischerAnsatz: 'handlungsorientiert, entdeckend, anschaulich, kooperativ',
+        maxTechnik: 't-keine',
+        maxVorbereitung: 15,
+        ohneInternet: true,
+        ohneKI: true,
+        includeWloOer: false
+      }
+    });
+    const gsPlan = JSON.parse((gsPlanRes.content as Array<{ text: string }>)[0].text);
+    expect(gsPlan.pruefung.gueltig).toBe(true);
+    expect(gsPlan.pruefung.dauerMin).toBeLessThanOrEqual(45);
+    // 1. Duration sum in thematischeTabelle MUST equal pruefung.dauerMin (fixes 40 vs 45 min mismatch)
+    const tableDurSum = gsPlan.thematischeTabelle.reduce((sum: number, r: { durationMin: number }) => sum + r.durationMin, 0);
+    expect(tableDurSum).toBe(gsPlan.pruefung.dauerMin);
+    // 2. No Sek/Hochschule-only text method like kooperatives-skript in Primarstufe
+    expect(gsPlan.thematischeTabelle.map((r: { methodId: string }) => r.methodId)).not.toContain('kooperatives-skript');
+    // 3. Matrix must not recommend digital/online measures when maxTechnik='t-keine'
+    const allMatrixTops: string[] = gsPlan.lerngruppenUndMatrix.flatMap((g: { matrixTop: string[] }) => g.matrixTop);
+    expect(allMatrixTops.some((m) => /digital|online/i.test(m))).toBe(false);
+    // 4. Binding client-LLM contract & structured methodenDetails must be returned top-level
+    expect(Array.isArray(gsPlan.verbindlicheUmsetzungsregeln)).toBe(true);
+    expect(gsPlan.verbindlicheUmsetzungsregeln.length).toBeGreaterThanOrEqual(4);
+    expect(Array.isArray(gsPlan.methodenDetails)).toBe(true);
+    expect(gsPlan.methodenDetails.length).toBe(gsPlan.thematischeTabelle.length);
+    expect(gsPlan.methodenDetails[0].status).toBeTruthy();
+    expect(Array.isArray(gsPlan.methodenDetails[0].durchfuehrung)).toBe(true);
+
     // Verify match_scenario parity on Doppelstunde starter text
     const matheMatchRes = await client.callTool({
       name: 'match_scenario',

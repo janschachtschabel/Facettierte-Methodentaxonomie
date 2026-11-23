@@ -236,12 +236,12 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
   const narrativeSystemPrompt =
     'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
     'Erstelle einen praxisfertigen, klar gegliederten deutschen Unterrichtsentwurf im Markdown-Format (KEIN JSON, direkt lesbares Markdown!).\n' +
-    'Struktur:\n' +
-    '1. ## Kurzüberblick, Lernziele, didaktischer Ansatz & Lernvoraussetzungen\n' +
-    '2. ## Thematische Durchführung (Phase für Phase): Übertrage die konkrete methodische Vorgehensweise (Schrittfolge & Kernkomponenten der FMT-Methoden) explizit auf das Thema, inkl. konkreter Arbeitsimpulse, Moderationsübergänge, Einbindung der erstellten Materialien und WLO-OER-Links (immer mit exakter wwwurl als Markdown-Link)\n' +
-    '3. ## Binnendifferenzierung & Teilgruppen-Unterstützung\n' +
-    '4. ## Qualitätsrisiken & verifizierte Quellen (nur aus den übergebenen Katalogdaten)\n' +
-    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Evidenzbefunde immer mit Geltung nennen.';
+    'VERBINDLICHE STRUKTUR & METHODENTREUE:\n' +
+    '1. ## Kurzüberblick, Lernziele, didaktischer Ansatz & gewählte FMT-Methoden (jede Methode mit Kennung, Status kuratiert/entwurf und geplanter Dauer exakt aus der Phasenfolge)\n' +
+    '2. ## Thematische Durchführung (Phase für Phase): Setze JEDE ausgewählte FMT-Methode methodentreu um – übertrage ihre originalen Durchführungsschritte & Kernkomponenten explizit auf das konkrete Thema (inkl. Arbeitsimpulsen, Übergängen, Materialien und WLO-OER-Links mit exakter wwwurl). Falls du begründet von einer Methode abweichst, kennzeichne dies ausdrücklich.\n' +
+    '3. ## Binnendifferenzierung & Teilgruppen-Unterstützung (Matrix-Empfehlungen mit dem Hinweis ausweisen, dass es sich um Werte der FMT-Punktematrix handelt, nicht um empirische Effektstärken)\n' +
+    '4. ## Qualitätsrisiken, Evidenz (stets mit Geltungsbereich!) & verifizierte Quellen (nur aus den übergebenen Katalogdaten)\n' +
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Übernimm die exakten Phasendauern (Summe = Gesamtdauer).';
 
   const narrativeUserPrompt =
     `AUSGESTALTUNG DES UNTERRICHTSENTWURFS (Markdown):\n${sharedContextHeader}\n` +
@@ -503,11 +503,21 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
           }
         ];
 
+  const effectiveMaxTechnik =
+    args.maxTechnik || (typeof matched.kriterien.maxTechnik === 'string' ? matched.kriterien.maxTechnik : undefined);
+  const effectiveOhneInternet =
+    args.ohneInternet ?? (typeof matched.kriterien.ohneInternet === 'boolean' ? matched.kriterien.ohneInternet : undefined);
+  const effectiveOhneKI =
+    args.ohneKI ?? (typeof matched.kriterien.ohneKI === 'boolean' ? matched.kriterien.ohneKI : undefined);
+
   const groupMatrices = activeGroups.map((g) => {
     const scored = scoreDifferentiationMatrix({
       personaId: g.personaId || 'average',
       selectedValues: g.selectedValues,
-      limit: 6
+      limit: 6,
+      maxTechnik: effectiveMaxTechnik,
+      ohneInternet: effectiveOhneInternet,
+      ohneKI: effectiveOhneKI
     });
     return {
       ...g,
@@ -556,7 +566,32 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   const briefing = buildElaborateBriefing(store, elabPayload);
   const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
 
+  const methodenDetails = briefing.fallbackTable.map((row) => {
+    const b = store.blocksById.get(row.methodId);
+    return {
+      phase: row.phaseLabel,
+      dauerMinGeplant: row.durationMin,
+      kennung: row.methodId,
+      name: row.methodName,
+      status: b?.status || 'entwurf',
+      reichweite: b?.reichweite || null,
+      kurzbeschreibung: b?.kurzbeschreibung || '',
+      durchfuehrung: b?.durchfuehrung || [],
+      kernkomponente: (b?.kernkomponente || []).map((k) => k.name),
+      qualitaetsrisiko: b?.qualitaetsrisiko || [],
+      evidenz: b?.evidenz || []
+    };
+  });
+
+  const verbindlicheUmsetzungsregeln = [
+    'METHODENTREUE: Setze alle ausgewählten FMT-Methoden aus `methodenDetails` mit Kennung, Status (`kuratiert`/`entwurf`) sowie ihren originalen Durchführungsschritten und Kernkomponenten konkret auf das Thema um. Ersetze sie nicht stillschweigend durch freie Eigenphasen; begründe und markiere eventuelle Abweichungen explizit.',
+    `ZEITKONSISTENZ: Übernimm exakt die geplanten Phasendauern aus \`thematischeTabelle\` (Summe = ${matched.pruefung?.dauerMin ?? briefing.pruefung.dauerMin} min, identisch mit \`pruefung.dauerMin\` und \`maschinenlesbar.arrangement\`).`,
+    'TRANSPARENZ (MATRIX, RISIKEN & EVIDENZ): Weise Binnendifferenzierungs-Empfehlungen aus `lerngruppenUndMatrix` mit dem Hinweis aus, dass es sich um Punkte der FMT-Differenzierungsmatrix handelt (keine empirischen Effektstärken), und nenne Qualitätsrisiken sowie Evidenz immer zusammen mit ihrem Geltungsbereich.',
+    'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.4`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
+  ];
+
   return {
+    verbindlicheUmsetzungsregeln,
     dauerMs,
     engine: classification.engine,
     fach: fach || null,
@@ -566,6 +601,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     skalenVorfilterung: classification.skalen,
     erkannteMatrixSignale: detectedTraits.signals,
     pruefung: matched.pruefung,
+    methodenDetails,
     lerngruppenUndMatrix: groupMatrices,
     wloOerRessourcen: oerHits,
     thematischeTabelle: briefing.fallbackTable,

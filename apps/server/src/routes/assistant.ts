@@ -178,6 +178,81 @@ function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> 
   return out;
 }
 
+function extractScheduledPhases(
+  store: CatalogStore,
+  arrangement: Arrangement
+): NonNullable<ElaboratePayload['phasen']> {
+  const chain = arrangement.zieltyp
+    ? store.bundle.ketten.find((k) => k.id === arrangement.zieltyp)
+    : undefined;
+  const stepLabelById = new Map((chain?.schritte || []).map((s) => [s.id, s.label]));
+  const rows: NonNullable<ElaboratePayload['phasen']> = [];
+
+  const visit = (node: unknown) => {
+    if (!node || typeof node !== 'object') return;
+    const n = node as Record<string, unknown>;
+    const typ = n.typ;
+    if (typ === 'Sequenz' && Array.isArray(n.teile)) {
+      n.teile.forEach(visit);
+      return;
+    }
+    if (typ === 'Einsatz' && typeof n.baustein === 'string') {
+      const b = store.blocksById.get(n.baustein);
+      const idx = rows.length;
+      const stepId = typeof n.kettenschritt === 'string' ? n.kettenschritt : undefined;
+      const phaseLabel =
+        (stepId && stepLabelById.get(stepId)) ||
+        (typeof n.titel === 'string' && n.titel.trim()) ||
+        `Phase ${idx + 1}`;
+      const durationMin =
+        typeof n.dauerMin === 'number' && Number.isFinite(n.dauerMin)
+          ? n.dauerMin
+          : (b?.dauerMin ?? 15);
+      rows.push({
+        key: `step-${idx}`,
+        orderLabel: String(idx + 1),
+        phaseLabel,
+        durationMin,
+        methodId: n.baustein,
+        methodName: b?.name || n.baustein
+      });
+      return;
+    }
+    if (typ === 'Wiederkehr' && typeof n.baustein === 'string') {
+      const b = store.blocksById.get(n.baustein);
+      const idx = rows.length;
+      const single =
+        typeof n.dauerMin === 'number' && Number.isFinite(n.dauerMin)
+          ? n.dauerMin
+          : (b?.dauerMin ?? 10);
+      const count = typeof n.anzahl === 'number' && n.anzahl > 0 ? n.anzahl : 1;
+      rows.push({
+        key: `step-${idx}`,
+        orderLabel: String(idx + 1),
+        phaseLabel: `Wiederkehr (${count}× à ${single} min)`,
+        durationMin: single * count,
+        methodId: n.baustein,
+        methodName: b?.name || n.baustein
+      });
+      return;
+    }
+    if (typ === 'Schleife' && Array.isArray(n.teile)) {
+      n.teile.forEach(visit);
+      return;
+    }
+    if (typ === 'Parallel') {
+      if (n.haupt) visit(n.haupt);
+      return;
+    }
+    if (typ === 'Wahl' && Array.isArray(n.optionen) && n.optionen.length) {
+      visit(n.optionen[0]);
+    }
+  };
+
+  visit(arrangement.ablauf);
+  return rows;
+}
+
 export function buildDeterministicThematicTable(
   store: CatalogStore,
   payload: ElaboratePayload
@@ -191,17 +266,7 @@ export function buildDeterministicThematicTable(
 
   const phaseList: NonNullable<ElaboratePayload['phasen']> = payload.phasen?.length
     ? payload.phasen
-    : [...collectUsedBlocks(payload.arrangement.ablauf)].map((id, i) => {
-      const b = store.blocksById.get(id);
-      return {
-        key: `step-${i}`,
-        orderLabel: String(i + 1),
-        phaseLabel: `Phase ${i + 1}`,
-        durationMin: b?.dauerMin ?? 15,
-        methodId: id,
-        methodName: b?.name || id
-      };
-    });
+    : extractScheduledPhases(store, payload.arrangement);
 
   return phaseList.map((p) => {
     const b = store.blocksById.get(p.methodId);
