@@ -286,6 +286,19 @@ export function buildDeterministicDiffHints(
   const hints: StepDiffSuggestion[] = [];
 
   for (const g of active) {
+    if (g.focus === 'regel') {
+      const core = b.kernkomponente?.[0]?.name;
+      hints.push({
+        groupId: g.id,
+        groupLabel: g.label,
+        measure: core
+          ? `Standard-Durchführung mit Fokus auf Kernkomponente „${core}“.`
+          : 'Standard-Durchführung gemäß Methodenprofil.',
+        source: 'fmt-regel'
+      });
+      continue;
+    }
+
     if (g.personaId || (g.matrixValues && Object.keys(g.matrixValues).length > 0)) {
       const scored = scoreDifferentiationMatrix({
         personaId: g.personaId,
@@ -296,17 +309,20 @@ export function buildDeterministicDiffHints(
         limit: 4
       });
       if (scored.topRecommendations.length > 0) {
-        const top2 = scored.topRecommendations.slice(0, 2).map((r) => `${r.name} (+${r.score})`);
+        const topRecs = scored.topRecommendations.slice(0, 2);
+        const impulseText = topRecs
+          .map((r) => `${r.name}: ${r.meta.umsetzungsimpuls}`)
+          .join(' ');
         const extra =
           g.focus === 'basis' && b.anleitung.includes('offen')
-            ? ' · Bei offener Methode: Hilfekarten bereitstellen.'
+            ? ' Bei offener Methode zusätzlich Hilfekarten bereithalten.'
             : g.focus === 'vertiefung' && (adapt.has('diff-inhalt') || adapt.has('diff-tempo'))
-              ? ' · Transfer-/Zusatzimpuls einplanen.'
+              ? ' Transfer- oder Erweiterungsimpuls ohne Leerlauf bereithalten.'
               : '';
         hints.push({
           groupId: g.id,
           groupLabel: g.label,
-          measure: `${top2.join('; ')}${extra}`,
+          measure: `${impulseText}${extra}`,
           source: 'matrix'
         });
         continue;
@@ -332,16 +348,6 @@ export function buildDeterministicDiffHints(
         parts.push('Zusatzimpuls: Verfahren begründen, auf neuen Kontext übertragen oder typische Fehlerquelle analysieren.');
       }
       hints.push({ groupId: g.id, groupLabel: g.label, measure: parts.join(' '), source: 'fmt-regel' });
-    } else if (g.focus === 'regel') {
-      const core = b.kernkomponente?.[0]?.name;
-      hints.push({
-        groupId: g.id,
-        groupLabel: g.label,
-        measure: core
-          ? `Standard-Durchführung mit Fokus auf Kernkomponente „${core}“.`
-          : 'Standard-Durchführung gemäß Methodenprofil.',
-        source: 'fmt-regel'
-      });
     } else {
       hints.push({
         groupId: g.id,

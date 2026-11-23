@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   computeMultiGroupSynthesis,
@@ -46,6 +46,8 @@ interface Props {
 
 type PanelTab = 'udl' | 'konflikte' | 'gruppen' | 'phasen';
 
+const TAB_ORDER: PanelTab[] = ['udl', 'konflikte', 'gruppen', 'phasen'];
+
 const KEY_VARIABLE_IDS = new Set([
   'vorwissen',
   'leistungsniveau',
@@ -81,6 +83,16 @@ function formatEffortLabel(effort: MeasureEffort): string {
     case 'mittel':
       return '>15 Min.';
   }
+}
+
+/** Keeps total headcount balanced on Regelniveau when adding/removing subgroups */
+function rebalanceMainGroupCount(list: LearnerGroup[], targetTotal?: number): LearnerGroup[] {
+  const total = targetTotal && targetTotal > 0 ? targetTotal : 26;
+  const mainIdx = list.findIndex((g) => g.id === 'regel');
+  if (mainIdx === -1) return list;
+  const othersSum = list.reduce((s, g, i) => (i === mainIdx || !g.active ? s : s + (g.count || 0)), 0);
+  const nextMainCount = Math.max(1, total - othersSum);
+  return list.map((g, i) => (i === mainIdx ? { ...g, count: nextMainCount } : g));
 }
 
 export function DifferentiationMatrixPanel({
@@ -163,17 +175,21 @@ export function DifferentiationMatrixPanel({
     onGroupsChange(groups.map((g) => (g.id === id ? { ...g, ...patch } : g)));
   };
 
+  const removeSubgroup = (id: string) => {
+    const remaining = groups.filter((g) => g.id !== id);
+    if (remaining.length === 0 || (remaining.length === 1 && remaining[0].id === 'regel')) {
+      onGroupsChange(STANDARD_LEARNER_GROUPS.map((g) => ({ ...g, count: totalClassSize || g.count })));
+      setSelectedGroupId('regel');
+    } else {
+      onGroupsChange(rebalanceMainGroupCount(remaining, totalClassSize));
+      if (selectedGroupId === id) setSelectedGroupId(remaining[0].id);
+    }
+  };
+
   const toggleQuickTemplate = (tpl: QuickDiffGroupTemplate) => {
     const exists = groups.find((g) => g.id === tpl.id);
     if (exists) {
-      const remaining = groups.filter((g) => g.id !== tpl.id);
-      if (remaining.length === 0) {
-        onGroupsChange(
-          STANDARD_LEARNER_GROUPS.map((g) => ({ ...g, count: totalClassSize || g.count }))
-        );
-      } else {
-        onGroupsChange(remaining);
-      }
+      removeSubgroup(tpl.id);
       return;
     }
 
@@ -191,12 +207,12 @@ export function DifferentiationMatrixPanel({
       personaId: tpl.personaId,
       matrixValues: { ...tpl.matrixValues }
     };
-    onGroupsChange([...baseList, nextGroup]);
+    onGroupsChange(rebalanceMainGroupCount([...baseList, nextGroup], totalClassSize));
     setSelectedGroupId(nextGroup.id);
   };
 
   const applyClassicThreeGroups = () => {
-    onGroupsChange(DEFAULT_LEARNER_GROUPS.map((g) => ({ ...g })));
+    onGroupsChange(rebalanceMainGroupCount(DEFAULT_LEARNER_GROUPS.map((g) => ({ ...g })), totalClassSize));
     setSelectedGroupId('basis');
   };
 
@@ -219,15 +235,15 @@ export function DifferentiationMatrixPanel({
       profile: g.label,
       focus: g.id === 'vertiefung' ? 'vertiefung' : g.id === 'regel' ? 'regel' : g.id === 'daz' ? 'sprachsensibel' : 'basis',
       active: true,
-      count: g.count,
+      count: g.count ?? 4,
       personaId: g.personaId,
       matrixValues: g.selectedValues || {}
     }));
     const hasRegel = mapped.some((g) => g.focus === 'regel');
     const next = hasRegel
       ? mapped
-      : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelniveau (Hauptgruppe)', count: undefined }, ...mapped];
-    onGroupsChange(next);
+      : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelniveau (Hauptgruppe)' }, ...mapped];
+    onGroupsChange(rebalanceMainGroupCount(next, totalClassSize));
     setSelectedGroupId(mapped[0].id);
     setQuickText('');
   };
@@ -254,10 +270,21 @@ export function DifferentiationMatrixPanel({
     onAiDiffChange({});
   };
 
+  const handleTabKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const idx = TAB_ORDER.indexOf(activeTab);
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setActiveTab(TAB_ORDER[(idx + 1) % TAB_ORDER.length]);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setActiveTab(TAB_ORDER[(idx - 1 + TAB_ORDER.length) % TAB_ORDER.length]);
+    }
+  };
+
   const totalLearners = activeGroups.reduce((s, g) => s + (g.count || 0), 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Header Row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
         <div>
@@ -267,7 +294,7 @@ export function DifferentiationMatrixPanel({
           <p className="muted" style={{ fontSize: 14, margin: '4px 0 0', maxWidth: 740 }}>
             {isStandardOnly
               ? 'Dein Konzept aus Schritt 2 gilt aktuell für die Standardgruppe (Regelniveau). Füge hier bei Bedarf Teilgruppen hinzu – oder gehe direkt weiter zu OER & Material.'
-              : `${activeGroups.length} aktive Teilgruppen${totalLearners > 0 ? ` (${totalLearners} Lernende)` : ''} – alle Anpassungen fließen automatisch in Material (Schritt 4) und Entwurf (Schritt 5) ein.`}
+              : 'Alle Anpassungen an Teilgruppen, Maßnahmen und Alternativ-Methoden fließen automatisch in Material (Schritt 4) und Entwurf/Druck (Schritt 5) ein.'}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -282,39 +309,82 @@ export function DifferentiationMatrixPanel({
           <Link
             to="/differenzierung?source=planner"
             className="btn btn-sm"
-            title="Aktuelles Baukasten-Szenario in der Vollansicht öffnen & als Checkliste exportieren"
+            title="Aktuelles Baukasten-Szenario in der Vollansicht öffnen & als Checkliste/PDF exportieren"
           >
             Vollansicht &amp; Checkliste ↗
           </Link>
         </div>
       </div>
 
-      {/* Quick Subgroup Builder: Always accessible, super calm */}
+      {/* Prominent Active Selection Bar: ALWAYS shows exact current groups + direct 1-click remove/edit/reset */}
+      <div className="diff-active-bar" role="region" aria-label="Aktive Teilgruppen im Konzept">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5, color: 'var(--dA)' }}>
+            Aktive Auswahl im Konzept ({activeGroups.length} {activeGroups.length === 1 ? 'Gruppe' : 'Teilgruppen'}
+            {totalLearners > 0 ? ` · ${totalLearners} Lernende gesamt` : ''}):
+          </strong>
+          {!isStandardOnly && (
+            <button
+              type="button"
+              className="btn btn-sm diff-reset-btn"
+              onClick={resetToStandardGroup}
+              title="Entfernt alle zusätzlichen Teilgruppen und kehrt zur einzelnen Standardgruppe zurück"
+            >
+              ↺ Alle Teilgruppen entfernen (Standardgruppe)
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {activeGroups.map((g) => (
+            <span key={g.id} className="diff-active-tag">
+              <button
+                type="button"
+                className="diff-active-tag-btn"
+                title={`Teilgruppe „${g.label}“ in Tab 3 (Teilgruppen & Feinjustierung) bearbeiten`}
+                onClick={() => {
+                  setSelectedGroupId(g.id);
+                  if (!isStandardOnly) setActiveTab('gruppen');
+                }}
+              >
+                <span>{g.label}</span>
+                {g.count ? <span className="muted" style={{ fontWeight: 500 }}>({g.count} Pers.)</span> : null}
+              </button>
+              {!isStandardOnly && g.id !== 'regel' && (
+                <button
+                  type="button"
+                  className="diff-active-tag-remove"
+                  aria-label={`Teilgruppe ${g.label} entfernen`}
+                  title={`„${g.label}“ wieder entfernen`}
+                  onClick={() => removeSubgroup(g.id)}
+                >
+                  ×
+                </button>
+              )}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Subgroup Picker Box (separated cleanly from the active selection bar) */}
       <div
         style={{
-          padding: 16,
+          padding: 15,
           borderRadius: 'var(--radius)',
           background: 'var(--paper)',
           border: '1px solid var(--rule)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 12
+          gap: 11
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-            {isStandardOnly ? 'Teilgruppen per Klick hinzufügen (optional):' : 'Aktive Teilgruppen anpassen oder ergänzen:'}
+          <strong style={{ fontFamily: 'var(--display)', fontSize: 14 }}>
+            Weitere Teilgruppen per Klick hinzufügen oder abwählen:
           </strong>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-sm" onClick={applyClassicThreeGroups}>
-              Standard-3er-Differenzierung (Basis · Regel · Vertiefung)
-            </button>
-            {!isStandardOnly && (
-              <button type="button" className="btn btn-sm btn-ghost" onClick={resetToStandardGroup}>
-                ↺ Zurück auf Standardgruppe
-              </button>
-            )}
-          </div>
+          <button type="button" className="diff-preset-link" onClick={applyClassicThreeGroups}>
+            Vorlage laden: Basis · Regel · Vertiefung (3 Gruppen)
+          </button>
         </div>
 
         {/* 8 Clickable Subgroup Chips */}
@@ -338,7 +408,11 @@ export function DifferentiationMatrixPanel({
 
         {/* Optional Free-Text Subgroup Recognition */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <label htmlFor="baukasten-diff-quicktext" className="muted" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden' }}>
+            Lerngruppe kurz beschreiben
+          </label>
           <input
+            id="baukasten-diff-quicktext"
             type="text"
             style={{ flex: '1 1 280px', fontSize: 14 }}
             value={quickText}
@@ -357,41 +431,54 @@ export function DifferentiationMatrixPanel({
         </div>
       </div>
 
-      {/* When differentiated (2+ groups OR non-standard group), show unified 4-tab differentiation workspace */}
+      {/* Unified Accessible 4-Tab Differentiation Workspace */}
       {!isStandardOnly && (
         <div>
-          <div className="diff-tabs" role="tablist" aria-label="Bereiche der Binnendifferenzierung">
+          <div
+            className="diff-tabs"
+            role="tablist"
+            aria-label="Bereiche der Binnendifferenzierung"
+            onKeyDown={handleTabKeyDown}
+          >
             <button
+              id="baukasten-tab-udl"
               type="button"
               role="tab"
               aria-selected={activeTab === 'udl'}
+              aria-controls="baukasten-panel-udl"
               className={`diff-tab ${activeTab === 'udl' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('udl')}
             >
               1. Basis für alle ({multiSynthesis?.udlBasis.length ?? 0})
             </button>
             <button
+              id="baukasten-tab-konflikte"
               type="button"
               role="tab"
               aria-selected={activeTab === 'konflikte'}
+              aria-controls="baukasten-panel-konflikte"
               className={`diff-tab ${activeTab === 'konflikte' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('konflikte')}
             >
               2. Zielkonflikte ({multiSynthesis?.konflikte.length ?? 0})
             </button>
             <button
+              id="baukasten-tab-gruppen"
               type="button"
               role="tab"
               aria-selected={activeTab === 'gruppen'}
+              aria-controls="baukasten-panel-gruppen"
               className={`diff-tab ${activeTab === 'gruppen' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('gruppen')}
             >
               3. Teilgruppen &amp; Feinjustierung ({activeGroups.length})
             </button>
             <button
+              id="baukasten-tab-phasen"
               type="button"
               role="tab"
               aria-selected={activeTab === 'phasen'}
+              aria-controls="baukasten-panel-phasen"
               className={`diff-tab ${activeTab === 'phasen' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('phasen')}
             >
@@ -401,7 +488,7 @@ export function DifferentiationMatrixPanel({
 
           {/* TAB 1: UDL BASIS */}
           {activeTab === 'udl' && (
-            <div>
+            <div id="baukasten-panel-udl" role="tabpanel" aria-labelledby="baukasten-tab-udl">
               <p className="diff-section-lead">
                 Diese Maßnahmen wirken für <strong>alle {activeGroups.length} aktiven Teilgruppen gleichzeitig positiv</strong> – einmal
                 einplanen, für die gesamte Klasse wirksam.
@@ -416,7 +503,12 @@ export function DifferentiationMatrixPanel({
                     <article key={u.id} className="diff-item-card">
                       <div className="diff-item-head">
                         <strong style={{ fontSize: 15 }}>{u.name}</strong>
-                        <span className="diff-pill diff-pill-pos">Passung ≥ +{u.minNormalizedScore} %</span>
+                        <span
+                          className="diff-pill diff-pill-pos"
+                          title="Normalisierter Passungswert aus der Differenzierungsmatrix (-100 bis +100 %), keine empirische Effektstärke."
+                        >
+                          Passung ≥ +{u.minNormalizedScore} %
+                        </span>
                       </div>
                       <div className="muted" style={{ fontSize: 12.5 }}>
                         {formatLevelLabel(u.meta.ebene)} · {formatEffortLabel(u.meta.aufwand)} · {u.oberKategorieName}
@@ -431,9 +523,9 @@ export function DifferentiationMatrixPanel({
 
           {/* TAB 2: ZIELKONFLIKTE */}
           {activeTab === 'konflikte' && (
-            <div>
+            <div id="baukasten-panel-konflikte" role="tabpanel" aria-labelledby="baukasten-tab-konflikte">
               <p className="diff-section-lead">
-                Wo sich die Bedürfnisse zweier Teilgruppen widersprechen – inklusive praktischer Auflösungsstrategie für dieselbe Stunde.
+                Wo sich die Bedürfnisse zweier Teilgruppen widersprechen – die Auflösungsstrategie zeigt, wie beides in derselben Stunde gelingt.
               </p>
               {!multiSynthesis || multiSynthesis.konflikte.length === 0 ? (
                 <p className="muted" style={{ marginTop: 12 }}>
@@ -470,26 +562,33 @@ export function DifferentiationMatrixPanel({
 
           {/* TAB 3: TEILGRUPPEN & FEINJUSTIERUNG */}
           {activeTab === 'gruppen' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div
+              id="baukasten-panel-gruppen"
+              role="tabpanel"
+              aria-labelledby="baukasten-tab-gruppen"
+              style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+            >
+              <p className="diff-section-lead">
+                Passe hier Personenzahlen, Vorlagen oder einzelne Lernvoraussetzungen an. Klicke auf <strong>„Merkmale bearbeiten“</strong>,
+                um die Matrix-Auswertung einer Gruppe unten anzuzeigen.
+              </p>
+
               <div className="diff-grid-2">
                 {groups.map((g) => {
                   const isSelected = selectedGroup?.id === g.id;
                   const mRes = matrixByGroup.get(g.id);
                   return (
-                    <div
+                    <article
                       key={g.id}
-                      onClick={() => setSelectedGroupId(g.id)}
                       className="diff-item-card"
                       style={{
-                        cursor: 'pointer',
                         background: isSelected ? 'var(--dA-soft)' : 'var(--paper)',
                         borderColor: isSelected ? 'var(--dA)' : 'var(--rule)'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                         <label
                           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontFamily: 'var(--display)', fontWeight: 700 }}
-                          onClick={(e) => e.stopPropagation()}
                         >
                           <input
                             type="checkbox"
@@ -498,7 +597,7 @@ export function DifferentiationMatrixPanel({
                           />
                           {g.label}
                         </label>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                           <input
                             type="number"
                             min={0}
@@ -516,30 +615,29 @@ export function DifferentiationMatrixPanel({
                             <button
                               type="button"
                               className="btn btn-sm"
+                              aria-label={`Teilgruppe ${g.label} entfernen`}
                               title="Teilgruppe entfernen"
-                              onClick={() => onGroupsChange(groups.filter((x) => x.id !== g.id))}
+                              onClick={() => removeSubgroup(g.id)}
                             >
-                              ✕
+                              ×
                             </button>
                           )}
                         </div>
                       </div>
 
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <select
-                          aria-label={`Matrix-Persona für ${g.label}`}
-                          style={{ width: '100%', fontSize: 13, padding: '4px 6px' }}
-                          value={g.personaId || ''}
-                          onChange={(e) => applyPersonaToGroup(g.id, e.target.value)}
-                        >
-                          <option value="">– Eigene Merkmale / ohne Vorlage –</option>
-                          {DIFF_MATRIX_PERSONAS.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              Vorlage: {p.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      <select
+                        aria-label={`Matrix-Persona für ${g.label}`}
+                        style={{ width: '100%', fontSize: 13, padding: '4px 6px' }}
+                        value={g.personaId || ''}
+                        onChange={(e) => applyPersonaToGroup(g.id, e.target.value)}
+                      >
+                        <option value="">– Eigene Merkmale / ohne Vorlage –</option>
+                        {DIFF_MATRIX_PERSONAS.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            Vorlage: {p.name}
+                          </option>
+                        ))}
+                      </select>
 
                       {mRes && mRes.topRecommendations.length > 0 && (
                         <div className="muted" style={{ fontSize: 12.5 }}>
@@ -547,7 +645,18 @@ export function DifferentiationMatrixPanel({
                           <div style={{ marginTop: 2 }}>{mRes.topRecommendations[0].meta.umsetzungsimpuls}</div>
                         </div>
                       )}
-                    </div>
+
+                      <div style={{ marginTop: 'auto', paddingTop: 4 }}>
+                        <button
+                          type="button"
+                          className={`btn btn-sm ${isSelected ? 'btn-primary' : ''}`}
+                          aria-pressed={isSelected}
+                          onClick={() => setSelectedGroupId(g.id)}
+                        >
+                          {isSelected ? '✓ Unten ausgewählt' : 'Merkmale bearbeiten'}
+                        </button>
+                      </div>
+                    </article>
                   );
                 })}
               </div>
@@ -556,6 +665,7 @@ export function DifferentiationMatrixPanel({
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                 <input
                   type="text"
+                  aria-label="Name für neue eigene Teilgruppe"
                   style={{ flex: '1 1 200px', fontSize: 13.5 }}
                   placeholder="Eigene Teilgruppe anlegen (z. B. Sprachanfänger, Projekt-Tutoren)"
                   value={newGroupLabel}
@@ -563,6 +673,7 @@ export function DifferentiationMatrixPanel({
                 />
                 <input
                   type="number"
+                  aria-label="Personenzahl neue Teilgruppe"
                   min={1}
                   max={100}
                   style={{ width: 78, fontSize: 13.5 }}
@@ -570,7 +681,12 @@ export function DifferentiationMatrixPanel({
                   onChange={(e) => setNewGroupCount(e.target.value)}
                   placeholder="Pers."
                 />
-                <select value={newGroupPersona} onChange={(e) => setNewGroupPersona(e.target.value)} style={{ flex: '1 1 210px', fontSize: 13.5 }}>
+                <select
+                  aria-label="Vorlage für neue Teilgruppe"
+                  value={newGroupPersona}
+                  onChange={(e) => setNewGroupPersona(e.target.value)}
+                  style={{ flex: '1 1 210px', fontSize: 13.5 }}
+                >
                   {DIFF_MATRIX_PERSONAS.map((p) => (
                     <option key={p.id} value={p.id}>
                       Vorlage: {p.name}
@@ -584,18 +700,22 @@ export function DifferentiationMatrixPanel({
                     if (!newGroupLabel.trim()) return;
                     const p = DIFF_MATRIX_PERSONAS.find((x) => x.id === newGroupPersona);
                     const id = `custom-${Date.now()}`;
-                    onGroupsChange([
-                      ...groups,
-                      {
-                        id,
-                        label: newGroupLabel.trim(),
-                        profile: p?.description || 'Individuelle Teilgruppe',
-                        focus: 'custom',
-                        active: true,
-                        count: Number(newGroupCount) || undefined,
-                        personaId: newGroupPersona
-                      }
-                    ]);
+                    const next = rebalanceMainGroupCount(
+                      [
+                        ...groups,
+                        {
+                          id,
+                          label: newGroupLabel.trim(),
+                          profile: p?.description || 'Individuelle Teilgruppe',
+                          focus: 'custom',
+                          active: true,
+                          count: Number(newGroupCount) || undefined,
+                          personaId: newGroupPersona
+                        }
+                      ],
+                      totalClassSize
+                    );
+                    onGroupsChange(next);
                     setSelectedGroupId(id);
                     setNewGroupLabel('');
                   }}
@@ -697,10 +817,15 @@ export function DifferentiationMatrixPanel({
 
           {/* TAB 4: PHASEN & ALTERNATIV-METHODEN */}
           {activeTab === 'phasen' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div
+              id="baukasten-panel-phasen"
+              role="tabpanel"
+              aria-labelledby="baukasten-tab-phasen"
+              style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <p className="diff-section-lead" style={{ margin: 0 }}>
-                  Passe einzelne Phasen deines Konzepts pro Teilgruppe an oder weise einer Teilgruppe eine alternative FMT-Methode zu.
+                  Passe jede Phase deines Konzepts direkt pro Teilgruppe an oder wähle optional eine alternative FMT-Methode.
                 </p>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
@@ -728,19 +853,38 @@ export function DifferentiationMatrixPanel({
               <div className="diff-grid-2">
                 {scenarioRows.map((r) => {
                   const isFocused = Boolean(focusedStepKey && focusedStepKey === r.key);
+                  const kernName = r.block?.kernkomponente?.[0]?.name;
                   return (
-                    <div
+                    <article
                       key={r.key}
-                      onClick={() => onSelectStepKey?.(r.key)}
+                      onFocus={() => onSelectStepKey?.(r.key)}
                       className="diff-item-card"
                       style={{
                         borderColor: isFocused ? 'var(--dA)' : 'var(--rule)',
                         background: isFocused ? 'color-mix(in srgb, var(--dA-soft) 45%, var(--paper))' : 'var(--paper)'
                       }}
                     >
-                      <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 15 }}>
-                        {r.orderLabel} · {r.methodName} ({r.durationMin} Min.)
+                      <div className="diff-item-head">
+                        <strong style={{ fontFamily: 'var(--display)', fontSize: 15 }}>
+                          {r.orderLabel} · {r.methodName} ({r.durationMin} Min.)
+                        </strong>
+                        {!isFocused && onSelectStepKey && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-ghost"
+                            onClick={() => onSelectStepKey(r.key)}
+                          >
+                            Im Zeitband zeigen
+                          </button>
+                        )}
                       </div>
+
+                      {kernName && (
+                        <div className="muted" style={{ fontSize: 12.5 }}>
+                          <strong>Kernkomponente wahren:</strong> {kernName}
+                        </div>
+                      )}
+
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                         {activeGroups.map((g) => {
                           const diff = r.differentiation.find((d) => d.groupId === g.id);
@@ -748,7 +892,11 @@ export function DifferentiationMatrixPanel({
                           const mRes = matrixByGroup.get(g.id);
                           const suggestedAlts =
                             mRes && r.block && g.focus !== 'regel'
-                              ? suggestAlternativeMethodsForGroup(mRes, r.block, allBlocks, 5, r.durationMin)
+                              ? suggestAlternativeMethodsForGroup(mRes, r.block, allBlocks, 5, r.durationMin, {
+                                  maxTechnik,
+                                  ohneInternet,
+                                  ohneKI
+                                })
                               : [];
                           const sugIds = new Set(suggestedAlts.map((x) => x.kennung));
                           const rangeOrd: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
@@ -763,6 +911,7 @@ export function DifferentiationMatrixPanel({
                               (rangeOrd[b.reichweite] ?? 2) <= curRank &&
                               b.dauerMin <= maxDur
                           );
+                          const textareaId = `diff-measure-${r.key}-${g.id}`;
                           return (
                             <div
                               key={g.id}
@@ -774,15 +923,16 @@ export function DifferentiationMatrixPanel({
                               }}
                             >
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                                <strong style={{ fontFamily: 'var(--display)', fontSize: 13.5 }}>
+                                <label htmlFor={textareaId} style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 13.5 }}>
                                   {g.label}
                                   {g.count ? ` (${g.count} Pers.)` : ''}
-                                </strong>
+                                </label>
                                 <span className="muted" style={{ fontSize: 11.5 }}>
-                                  {diff?.source === 'ki' ? 'KI' : diff?.source === 'manuell' ? 'Bearbeitet' : 'Matrix'}
+                                  {diff?.source === 'ki' ? 'KI' : diff?.source === 'manuell' ? 'Bearbeitet' : 'Empfehlung'}
                                 </span>
                               </div>
                               <textarea
+                                id={textareaId}
                                 rows={2}
                                 style={{ width: '100%', fontSize: 13, padding: '5px 7px' }}
                                 value={diff?.measure || ''}
@@ -824,7 +974,7 @@ export function DifferentiationMatrixPanel({
                           );
                         })}
                       </div>
-                    </div>
+                    </article>
                   );
                 })}
               </div>

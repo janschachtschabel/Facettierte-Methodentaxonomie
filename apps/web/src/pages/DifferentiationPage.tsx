@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   QUICK_LEARNER_GROUP_PROFILES,
@@ -757,48 +757,73 @@ export function DifferentiationPage() {
             </div>
           )}
 
-          {/* View Tabs (Focused default: 1. Basis für alle) */}
-          <div className="diff-tabs" role="tablist" aria-label="Bereiche des Anpassungsplans">
+          {/* View Tabs (Focused default: 1. Basis für alle, WCAG arrow-key navigable) */}
+          <div
+            className="diff-tabs"
+            role="tablist"
+            aria-label="Bereiche des Anpassungsplans"
+            onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+              const order: ResultTab[] = ['udl', 'konflikte', 'teilgruppen', 'phasen', 'alle'];
+              const idx = order.indexOf(activeTab);
+              if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                setActiveTab(order[(idx + 1) % order.length]);
+              } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                setActiveTab(order[(idx - 1 + order.length) % order.length]);
+              }
+            }}
+          >
             <button
+              id="diff-tab-udl"
               type="button"
               role="tab"
               aria-selected={activeTab === 'udl'}
+              aria-controls="diff-panel-content"
               className={`diff-tab ${activeTab === 'udl' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('udl')}
             >
               1. Basis für alle ({result.udlBasis.length})
             </button>
             <button
+              id="diff-tab-konflikte"
               type="button"
               role="tab"
               aria-selected={activeTab === 'konflikte'}
+              aria-controls="diff-panel-content"
               className={`diff-tab ${activeTab === 'konflikte' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('konflikte')}
             >
               2. Zielkonflikte ({result.konflikte.length})
             </button>
             <button
+              id="diff-tab-teilgruppen"
               type="button"
               role="tab"
               aria-selected={activeTab === 'teilgruppen'}
+              aria-controls="diff-panel-content"
               className={`diff-tab ${activeTab === 'teilgruppen' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('teilgruppen')}
             >
               3. Nach Teilgruppe ({result.teilgruppen.length})
             </button>
             <button
+              id="diff-tab-phasen"
               type="button"
               role="tab"
               aria-selected={activeTab === 'phasen'}
+              aria-controls="diff-panel-content"
               className={`diff-tab ${activeTab === 'phasen' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('phasen')}
             >
               4. Nach Phase ({result.phasenAnpassungen.length})
             </button>
             <button
+              id="diff-tab-alle"
               type="button"
               role="tab"
               aria-selected={activeTab === 'alle'}
+              aria-controls="diff-panel-content"
               className={`diff-tab ${activeTab === 'alle' ? 'is-active' : ''}`}
               onClick={() => setActiveTab('alle')}
             >
@@ -806,7 +831,12 @@ export function DifferentiationPage() {
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
+          <div
+            id="diff-panel-content"
+            role="tabpanel"
+            aria-labelledby={`diff-tab-${activeTab}`}
+            style={{ display: 'flex', flexDirection: 'column', gap: 26 }}
+          >
             {/* 1. UDL Basis */}
             {showSection('udl') && (
               <div>

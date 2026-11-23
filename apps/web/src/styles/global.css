@@ -1051,6 +1051,79 @@ code {
   flex-wrap: wrap;
 }
 
+.diff-active-bar {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--dA-soft);
+  border: 1.5px solid var(--dA);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.diff-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--dA);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.diff-active-tag-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.diff-active-tag-btn:hover {
+  text-decoration: underline;
+}
+
+.diff-active-tag-remove {
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  line-height: 1;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diff-active-tag-remove:hover {
+  background: var(--err-soft);
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.diff-reset-btn {
+  border-color: var(--err);
+  color: var(--err);
+  background: var(--surface);
+}
+
+.diff-reset-btn:hover {
+  background: var(--err-soft);
+  border-color: var(--err);
+}
+
 @media print {
   .topbar,
   .no-print,

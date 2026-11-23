@@ -139,13 +139,21 @@ describe('DifferentiationPage (/differenzierung)', () => {
     }
 
     render(<Harness />);
-    expect(screen.getByText(/Standardgruppe \(Regelniveau\)/i)).toBeTruthy();
+    expect(screen.getAllByText(/Standardgruppe \(Regelniveau\)/i).length).toBeGreaterThanOrEqual(2);
     expect(screen.queryByRole('tab', { name: /1\. Basis für alle/i })).toBeNull();
 
-    // Clicking a subgroup chip immediately activates differentiation tabs
+    // Clicking a subgroup chip immediately activates differentiation tabs & visible active-selection bar with balanced headcount
     fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/i }));
+    expect(screen.getByRole('region', { name: /Aktive Teilgruppen im Konzept/i })).toBeTruthy();
+    expect(screen.getByText(/26 Lernende gesamt/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Teilgruppe DaZ & Sprachsensibel entfernen/i })).toBeTruthy();
     expect(screen.getByRole('tab', { name: /1\. Basis für alle/i })).toBeTruthy();
     expect(screen.getByRole('tab', { name: /2\. Zielkonflikte/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Zurück auf Standardgruppe/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Alle Teilgruppen entfernen/i })).toBeTruthy();
+
+    // Removing the subgroup via its clear × button restores the single Standardgruppe cleanly
+    fireEvent.click(screen.getByRole('button', { name: /Teilgruppe DaZ & Sprachsensibel entfernen/i }));
+    expect(screen.queryByRole('tab', { name: /1\. Basis für alle/i })).toBeNull();
+    expect(screen.getByText(/1 Gruppe · 26 Lernende gesamt/i)).toBeTruthy();
   });
 });
