@@ -238,7 +238,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'validate_arrangement',
     'Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]).',
     {
-      arrangement: z.record(z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
+      arrangement: z.record(z.string(), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
     },
     async ({ arrangement }) => {
       try {
@@ -255,7 +255,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'suggest_replacements',
     'Berechnet formal gültige Ersatzbausteine an einem Knotenpfad eines Arrangements (jeder Kandidat live gegen R-00..R-12 geprüft).',
     {
-      arrangement: z.record(z.unknown()),
+      arrangement: z.record(z.string(), z.unknown()),
       pfad: z.string().describe('JSON-Pfad des Knotens, z. B. "/ablauf/teile/0" oder "/ablauf/haupt/teile/1"')
     },
     async ({ arrangement, pfad }) => {
@@ -342,7 +342,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Vordefinierte Schüler-Persona'),
       selectedValues: z
-        .record(z.string())
+        .record(z.string(), z.string())
         .optional()
         .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"}); Liste per list_differentiation_options abrufbar'),
       minScore: z.number().int().optional(),
@@ -453,7 +453,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'elaborate_scenario',
     'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann.',
     {
-      arrangement: z.record(z.unknown()).describe('FMT-Arrangement JSON-LD'),
+      arrangement: z.record(z.string(), z.unknown()).describe('FMT-Arrangement JSON-LD'),
       fach: z.string().optional(),
       thema: z.string().optional(),
       didaktischerAnsatz: z.string().optional(),
@@ -583,7 +583,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .max(MAX_TEXT_CHARS)
         .optional()
         .describe('Freitext zu Lernvoraussetzungen / Teilgruppen, z. B. "26 Kinder: 5 DaZ, 2 ADHS, 4 sehr leistungsstark"'),
-      arrangement: z.record(z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
+      arrangement: z.record(z.string(), z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
       phasen: z
         .array(
           z.object({
@@ -604,7 +604,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             label: z.string(),
             count: z.number().int().min(1).optional(),
             personaId: z.string().optional(),
-            selectedValues: z.record(z.string()).optional(),
+            selectedValues: z.record(z.string(), z.string()).optional(),
             text: z.string().optional()
           })
         )
