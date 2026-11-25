@@ -113,6 +113,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Geleitet-entdeckendes Lernen mit Hilfen übertrifft sowohl unangeleitetes Entdecken als auch reinen Vortrag (d ≈ 0,30).",
       "quelle": "Alfieri et al. 2011; Lazonder & Harmsen 2016",
       "geltung": "Schule und Hochschule, insb. MINT",

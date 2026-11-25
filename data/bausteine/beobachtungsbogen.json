@@ -136,6 +136,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Systematische formative Diagnose während des Lernprozesses erhöht die Passung nachfolgender Lernhilfen deutlich",
       "quelle": "Wiliam 2011; Kingston & Nash 2011",
       "geltung": "Schulische Präsenzphasen, fächerübergreifend"

@@ -130,6 +130,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Reine Kontrolldiktate zeigen geringe Lernwirksamkeit gegenüber strategieorientiertem Rechtschreibtraining.",
       "quelle": "Bredel, Fuhrhop & Noack 2011; Hattie 2009",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

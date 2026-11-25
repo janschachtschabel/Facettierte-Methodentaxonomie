@@ -125,6 +125,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Meta-Analyse zeigt kleine bis mittlere Vorteile von differenziellem gegenüber klassischem Wiederholungslernen im Bewegungserwerb.",
       "quelle": "Tassignon et al. 2021",
       "geltung": "Sport- und Bewegungsunterricht, Jugend & Erwachsene",

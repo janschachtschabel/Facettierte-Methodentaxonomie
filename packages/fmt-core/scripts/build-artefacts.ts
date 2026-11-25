@@ -247,6 +247,7 @@ export function buildContext(D: FmtData) {
     hinweis: 'fmt:hinweis',
     geltung: 'fmt:geltung',
     umstritten: 'fmt:umstritten',
+    evidenzBezug: 'fmt:evidenzBezug',
     alternativname: { '@id': 'skos:altLabel', '@container': '@set' },
     problem: 'fmt:problem',
     raum: 'fmt:raum',
@@ -486,7 +487,8 @@ export function buildSchema(D: FmtData) {
             befund: { type: 'string' },
             quelle: { type: 'string' },
             geltung: { type: 'string' },
-            umstritten: { type: 'string' }
+            umstritten: { type: 'string' },
+            evidenzBezug: { enum: ['methode', 'prinzip'] }
           }
         }
       }

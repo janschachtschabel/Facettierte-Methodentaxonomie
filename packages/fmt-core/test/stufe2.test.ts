@@ -145,3 +145,25 @@ describe('D1: Fachbereich', () => {
     expect(physik.some((id) => byId.get(id)?.fachbereich?.includes('mint'))).toBe(true);
   });
 });
+
+describe('D2: Evidenzbezug', () => {
+  it('jeder Evidenzeintrag mit Grad A oder B nennt seinen Bezug', () => {
+    for (const b of D.bausteine) {
+      for (const e of b.evidenz || []) {
+        if (e.grad === 'A' || e.grad === 'B') expect(['methode', 'prinzip'], b.kennung).toContain(e.evidenzBezug);
+      }
+    }
+  });
+
+  it('ein nur abgeleiteter Grad A zählt in der Rangfolge wie B', async () => {
+    const { rankingGrade } = await import('../src/ranking.js');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'prinzip' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'methode' }])).toBe('A');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'prinzip' }, { grad: 'A', evidenzBezug: 'methode' }])).toBe('A');
+    expect(rankingGrade([{ grad: 'B', evidenzBezug: 'prinzip' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'C' }])).toBe('C');
+    expect(rankingGrade([])).toBeNull();
+    const placemat = D.bausteine.find((b) => b.kennung === 'placemat')!;
+    expect(rankingGrade(placemat.evidenz)).toBe('B');
+  });
+});

@@ -112,6 +112,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Teil der strukturierten kooperativen Verfahren (Kagan), deren positive Effekte bei Interdependenz und Verantwortlichkeit meta-analytisch gestützt sind.",
       "quelle": "Kyndt et al. 2013; Kagan & Kagan 2009",
       "geltung": "Schule und Erwachsenenbildung",

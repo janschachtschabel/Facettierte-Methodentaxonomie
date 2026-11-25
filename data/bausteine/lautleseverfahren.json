@@ -124,6 +124,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Strukturierte Lautlesetandems gehören zu den empirisch am besten belegten Verfahren zur Förderung der Leseflüssigkeit.",
       "quelle": "Rosebrock et al. 2011; National Reading Panel 2000",
       "geltung": "Primarstufe und Sekundarstufe I, Deutsch & Fremdsprachen",

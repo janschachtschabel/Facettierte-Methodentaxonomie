@@ -135,6 +135,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Lernendes Zeichnen fördert Behalten und Verstehen, wenn es konzeptuelle Zusammenhänge abbildet",
       "quelle": "Fiorella & Zhang 2018; Wammes et al. 2016",
       "geltung": "Schule und Hochschule, überwiegend MINT/Psychologie; Wirkung sinkt bei zu hohem Zeichenaufwand"

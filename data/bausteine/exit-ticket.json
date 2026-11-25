@@ -117,6 +117,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Formative Diagnose wirkt positiv, vermutlich deutlich schwächer als früher berichtet (≈ 0,20 statt 0,40–0,70)",
       "quelle": "Black & Wiliam 1998; Kingston & Nash 2011",
       "geltung": "Schule, überwiegend USA und Großbritannien",

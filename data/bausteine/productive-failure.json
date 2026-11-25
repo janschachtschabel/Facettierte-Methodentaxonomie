@@ -149,6 +149,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "g ≈ 0,36 für konzeptuelles Wissen und Transfer; in Klasse 2 bis 5 und bei fachübergreifenden Fähigkeiten Vorteil für Instruktion zuerst",
       "quelle": "Sinha & Kapur 2021",
       "geltung": "Überwiegend Mathematik und Naturwissenschaften, Klasse 6 bis Hochschule; international"

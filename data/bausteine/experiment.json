@@ -153,6 +153,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Geleitetes Forschen ist wirksamer als ungeleitetes",
       "quelle": "Lazonder & Harmsen 2016; Alfieri et al. 2011",
       "geltung": "Schule und Hochschule, überwiegend Naturwissenschaften und Mathematik; international",

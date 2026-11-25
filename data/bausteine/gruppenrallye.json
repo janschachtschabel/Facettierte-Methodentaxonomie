@@ -144,6 +144,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "STAD zählt zu den am stärksten empirisch untersuchten kooperativen Verfahren mit positiven Leistungseffekten",
       "quelle": "Slavin 1995; Johnson, Johnson & Stanne 2000; Kyndt et al. 2013",
       "geltung": "Schule (Primar bis Sek II), überwiegend USA und Europa"

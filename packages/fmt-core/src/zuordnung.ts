@@ -20,7 +20,7 @@ import type { FmtValidator } from './validate.js';
 import { createSemanticClassifier } from './semantic.js';
 import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 import { createMentionDetector } from './mentions.js';
-import { pickOrder, softScore } from './ranking.js';
+import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -650,7 +650,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
               ? 'neutral'
               : 'fremd',
         textRelevance: currentSemanticScores.get(b.kennung) ?? 0,
-        evidence: bestGrade(b),
+        evidence: rankingGrade(b.evidenz),
         draft: b.status !== 'kuratiert',
         functionPosition: wantedFunctions.length
           ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1

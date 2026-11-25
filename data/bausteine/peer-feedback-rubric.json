@@ -145,6 +145,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Peer-Assessment verbessert die akademische Leistung im Mittel (g ≈ 0,31) über Schulstufen und Fächer hinweg",
       "quelle": "Double, McGrane & Hopfenbeck 2020",
       "geltung": "Primarstufe bis Hochschule, international; Kriterienraster stärken den Effekt"

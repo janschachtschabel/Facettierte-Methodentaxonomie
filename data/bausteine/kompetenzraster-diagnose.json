@@ -139,6 +139,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kriteriengeleitete Selbsteinschätzung mit Verankerung fördert Selbstregulation und Leistung leicht bis mittel",
       "quelle": "Panadero, Brown & Strijbos 2016",
       "geltung": "Schule und Hochschule, international"

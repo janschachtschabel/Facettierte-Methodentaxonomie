@@ -118,6 +118,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Reine Vorlesungen schneiden in MINT-Hochschulkursen im Mittel schwächer ab als aktivierende Formate (g ≈ −0,47).",
       "quelle": "Freeman et al. 2014",
       "geltung": "Hochschule, MINT-Fächer",

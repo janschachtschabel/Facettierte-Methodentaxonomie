@@ -169,6 +169,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Ungeleitetes Entdecken schneidet im Mittel schlechter ab als explizite Instruktion (d ≈ −0,38) und geleitetes Forschen",
       "quelle": "Alfieri et al. 2011; Lazonder & Harmsen 2016",
       "geltung": "Schule und Hochschule, international; Risiko besonders hoch bei geringem Vorwissen"

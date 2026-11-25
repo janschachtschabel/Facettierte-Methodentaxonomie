@@ -124,6 +124,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Fördert Selbstregulation, soziale Kompetenz und Sprachentwicklung im Elementar- und frühen Primarbereich.",
       "quelle": "Weisberg, Hirsh-Pasek & Golinkoff 2013",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

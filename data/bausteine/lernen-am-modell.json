@@ -116,6 +116,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kognitives Modellieren mit Scaffolding und Fading zeigt positive Effekte auf Strategieerwerb und Problemlösen.",
       "quelle": "Bandura 1977; Collins et al. 1989; van de Pol et al. 2010",
       "geltung": "Schule und Hochschule, insb. Schreiben und MINT",

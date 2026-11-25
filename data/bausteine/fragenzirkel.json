@@ -133,6 +133,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Eigenständiges Generieren und Schärfen von Lern- und Forschungsfragen fördert tiefes Verstehen, Problemorientierung und Selbstregulation",
       "quelle": "Rosenshine, Meister & Chapman 1996; Chin & Osborne 2008",
       "geltung": "Sekundarstufe I/II und Hochschule insbesondere vor Projekten, Facharbeiten und Inquiry-Phasen"

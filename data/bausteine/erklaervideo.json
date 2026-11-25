@@ -134,6 +134,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Videos mit aktiven Aufgaben und Segmentierung schneiden besser ab als unkommentiertes Ansehen",
       "quelle": "Noetel et al. 2021",
       "geltung": "Hochschule, international; Übertragung auf jüngere Schüler zu prüfen"

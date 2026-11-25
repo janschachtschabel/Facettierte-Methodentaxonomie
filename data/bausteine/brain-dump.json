@@ -138,6 +138,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Freier Abruf erzielt im Vergleich zu Wiedererkennen und Wiederlesen besonders starke Testing-Effekte (g ≈ 0,60–0,80)",
       "quelle": "Rowland 2014; Adesope et al. 2017; Yang et al. 2021",
       "geltung": "Labor und Unterricht, Schule und Hochschule, international"

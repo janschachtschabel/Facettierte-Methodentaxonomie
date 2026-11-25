@@ -101,6 +101,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Intelligente Tutorsysteme zeigen mittlere positive Effekte auf Lernleistung gegenüber regulärem Gruppenunterricht (g ≈ 0,42–0,66).",
       "quelle": "Kulik & Fletcher 2016; Steenbergen-Hu & Cooper 2014",
       "geltung": "Mathematik, Naturwissenschaften, Sekundarstufe & Hochschule",

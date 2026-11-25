@@ -115,6 +115,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Reines wortwörtliches Abschreiben (verbatim copying) schneidet im ICAP-Rahmen deutlich schwächer ab als generatives Notieren.",
       "quelle": "Chi & Wylie 2014; Mueller & Oppenheimer 2014",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

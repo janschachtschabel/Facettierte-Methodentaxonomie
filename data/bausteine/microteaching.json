@@ -119,6 +119,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Microteaching zählt zu den gut belegten Trainingsformaten in der Lehrer- und Präsentationsbildung.",
       "quelle": "Hattie 2009; Allen & Ryan 1969",
       "geltung": "Hochschule, Lehramts- und Berufsbildung",

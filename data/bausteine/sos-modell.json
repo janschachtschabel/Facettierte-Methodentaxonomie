@@ -135,6 +135,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Geleitet-induktives Entdecken mit anschließender expliziter Konsolidierung (vergleichbar mit Guided Discovery / Contrasting Cases) fördert nachhaltiges Regelverständnis",
       "quelle": "Alfieri et al. 2011; Schwartz et al. 2011; Ziebell & Schmidjell 2012",
       "geltung": "Sprach-, Grammatik-, Rechtschreib- und MINT-Unterricht bei sorgfältiger Beispielauswahl und expliziter Abschlusssicherung"

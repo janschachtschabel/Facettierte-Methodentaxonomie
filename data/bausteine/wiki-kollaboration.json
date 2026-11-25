@@ -148,6 +148,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kollaboratives Schreiben in Wikis unterstützt Wissenskonstruktion und Textqualität, sofern klare Review-Strukturen vorgegeben werden",
       "quelle": "Zheng et al. 2015 (Computers & Education)",
       "geltung": "Sekundarstufe und Hochschule"

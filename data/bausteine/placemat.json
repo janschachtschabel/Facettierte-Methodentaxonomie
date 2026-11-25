@@ -139,6 +139,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturiertes kooperatives Lernen mit individueller Rechenschaft wirkt positiv auf Leistung (ES ≈ 0,54)",
       "quelle": "Kyndt et al. 2013; Johnson, Johnson & Stanne 2000",
       "geltung": "Kooperatives Lernen allgemein; für Placemat speziell keine eigene Meta-Analyse"

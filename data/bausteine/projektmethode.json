@@ -184,6 +184,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Projektbasiertes Lernen d ≈ 0,71 auf Leistung, mit Fach, Region und Dauer als Moderatoren",
       "quelle": "Chen & Yang 2019",
       "geltung": "International; Primärstudien heterogen. Befunde zu problembasiertem Lernen (Dochy et al. 2003) betreffen ein anderes Muster."

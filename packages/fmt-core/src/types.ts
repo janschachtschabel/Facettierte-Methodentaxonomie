@@ -115,6 +115,8 @@ export interface Evidenzaussage {
   quelle: string;
   geltung: string;
   umstritten?: string;
+  /** methode: studies on this method itself; prinzip: derived from the underlying principle. */
+  evidenzBezug?: 'methode' | 'prinzip';
 }
 
 export interface Steuerungsprofil {

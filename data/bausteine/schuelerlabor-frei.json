@@ -137,6 +137,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Authentische Schülerlabor-Tage stärken fachliches Interesse und Wissenschaftsverständnis; Lernerfolg steigt mit Vor- und Nachbereitung.",
       "quelle": "Pawek 2009; Glowinski & Bayrhuber 2011",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

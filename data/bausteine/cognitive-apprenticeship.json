@@ -133,6 +133,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Cognitive Apprenticeship fördert den Transfer komplexer Schreib-, Mathematik- und Problemlösestrategien.",
       "quelle": "Collins, Brown & Newman (1989); Dennen & Burner (2008)",
       "geltung": "Sekundarstufe, Berufsbildung und Hochschule bei komplexen, strategieintensiven Aufgaben."

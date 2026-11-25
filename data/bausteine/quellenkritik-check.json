@@ -141,6 +141,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Gezieltes Training von Lateral Reading und kriteriengeleiteter Quellenbewertung verbessert die Erkennung unzuverlässiger Online-Informationen signifikant (ES ≈ 0,55–0,70)",
       "quelle": "Wineburg & McGrew 2019; McGrew 2020; Breakstone et al. 2021",
       "geltung": "Sekundarstufe I/II, Berufsbildung und Hochschule im Bereich Informations- und Medienkompetenz"

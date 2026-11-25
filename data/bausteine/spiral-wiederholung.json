@@ -118,6 +118,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Kombiniert Abrufpraxis (Yang et al. 2021), Verteilung (Cepeda et al. 2006) und Verschachtelung (Brunmair & Richter 2019).",
       "quelle": "Cepeda et al. 2006; Yang et al. 2021; Brunmair & Richter 2019",
       "geltung": "Schule und Hochschule, insb. Mathematik, Sprachen & MINT",

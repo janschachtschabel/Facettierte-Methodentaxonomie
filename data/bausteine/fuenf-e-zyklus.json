@@ -197,6 +197,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Gut dokumentiertes Rahmenmodell mit positiven Befunden für geleitetes naturwissenschaftliches Lernen",
       "quelle": "Bybee et al. 2006; Lazonder & Harmsen 2016",
       "geltung": "Naturwissenschaften, Schule, USA und international"

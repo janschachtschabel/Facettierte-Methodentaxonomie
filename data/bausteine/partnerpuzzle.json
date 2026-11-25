@@ -134,6 +134,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturierte kooperative Vermittlung in Zweierteams mit individueller Rechenschaft fördert Verstehen und Behalten",
       "quelle": "Kyndt et al. 2013; Roscoe & Chi 2007",
       "geltung": "Kooperatives Peer-Erklären, Sekundarstufe und Hochschule"

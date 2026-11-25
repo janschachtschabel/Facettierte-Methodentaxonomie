@@ -162,6 +162,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kleine bis mittlere positive Effekte auf Einstellungen, soziale Kompetenzen und Schulleistung (ES ≈ 0,27–0,43)",
       "quelle": "Celio, Durlak & Dymnicki 2011",
       "geltung": "Primar bis Hochschule, überwiegend USA; Qualität der Reflexion moderiert stark"

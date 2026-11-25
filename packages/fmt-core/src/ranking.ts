@@ -49,6 +49,17 @@ export const SOFT_WEIGHTS = {
   mentioned: -10
 } as const;
 
+/**
+ * Evidence grade as it counts for ranking: a grade A that is only derived from the underlying principle
+ * (not from studies on the method itself) counts like B. The displayed grade stays unchanged.
+ */
+export function rankingGrade(
+  entries: Array<{ grad: 'A' | 'B' | 'C'; evidenzBezug?: 'methode' | 'prinzip' }> | undefined
+): 'A' | 'B' | 'C' | null {
+  const grades = (entries || []).map((e) => (e.grad === 'A' && e.evidenzBezug === 'prinzip' ? 'B' : e.grad));
+  return (['A', 'B', 'C'] as const).find((g) => grades.includes(g)) || null;
+}
+
 /** Candidates within this distance of the best soft score count as equivalent. */
 export const EQUIVALENCE_TOLERANCE = 0.75;
 

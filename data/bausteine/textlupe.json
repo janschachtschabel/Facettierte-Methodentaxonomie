@@ -142,6 +142,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Kriteriengeleitetes Peer-Feedback im Schreibprozess verbessert die Textqualität (ES ≈ 0,30–0,50)",
       "quelle": "Graham, Hebert & Harris 2015",
       "geltung": "Schreibdidaktik, Schule (Primar und Sek), international"

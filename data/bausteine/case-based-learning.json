@@ -127,6 +127,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Fallbasiertes Lernen erhöht Motivation und Urteilsfähigkeit bei anwendungsnahen Entscheidungen gegenüber rein theoretischer Darstellung.",
       "quelle": "Thistlethwaite et al. (2012)",
       "geltung": "Sekundarstufe II, Berufsbildung und Hochschule (Medizin, Wirtschaft, Politik, MINT)."

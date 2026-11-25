@@ -160,6 +160,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "g ≈ 0,36, stark heterogen",
       "quelle": "van Alten et al. 2019",
       "geltung": "Überwiegend Hochschule; Sekundarstufe wenig vertreten"

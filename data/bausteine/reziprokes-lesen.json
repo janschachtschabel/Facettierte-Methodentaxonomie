@@ -145,6 +145,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Deutliche Effekte auf Leseverständnis (Median ES ≈ 0,32 auf standardisierten Tests, deutlich höher bei lehrernahen Tests)",
       "quelle": "Rosenshine & Meister 1994",
       "geltung": "Schule (Primar und Sek I), USA; erfordert explizite Strategie-Einführung"

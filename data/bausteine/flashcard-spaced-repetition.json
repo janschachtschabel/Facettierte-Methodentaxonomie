@@ -120,6 +120,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Verteilte Abrufpraxis erzeugt große, robuste Langzeit-Behaltenseffekte über alle Altersstufen.",
       "quelle": "Cepeda et al. 2006; Rowland 2014; Yang et al. 2021",
       "geltung": "Schule, Studium, Berufsbildung",

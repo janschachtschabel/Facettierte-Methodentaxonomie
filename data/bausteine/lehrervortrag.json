@@ -129,6 +129,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Reiner Vortrag schneidet gegen aktivierende Formate schlechter ab (Prüfungsleistung SMD ≈ 0,47)",
       "quelle": "Freeman et al. 2014",
       "geltung": "Hochschule, MINT; Übertragung auf die Schule ungeprüft"

@@ -129,6 +129,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Summative Prüfungen sichern Vergleichbarkeit, wirken aber erst lernförderlich, wenn formative Rückmeldung und Nacharbeit folgen.",
       "quelle": "Black & Wiliam 1998; Hattie 2009",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

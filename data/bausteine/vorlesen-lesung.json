@@ -119,6 +119,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Regelmäßiges Vorlesen fördert Hörverstehen, Wortschatz und Lesemotivation, besonders in Primarstufe und Sek I.",
       "quelle": "Mol & Bus 2011; Stiftung Lesen",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

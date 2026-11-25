@@ -147,6 +147,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Lernen aus fehlerhaften Lösungsbeispielen fördert Fehlererkennung und Konzeptverständnis, v. a. bei Lernenden mit Grundwissen",
       "quelle": "Barbieri et al. 2023; Große & Renkl 2007",
       "geltung": "Mathematik und MINT, Schule und Hochschule"

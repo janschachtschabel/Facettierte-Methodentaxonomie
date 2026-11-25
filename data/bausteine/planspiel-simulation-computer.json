@@ -128,6 +128,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Interaktive Computersimulationen fördern konzeptuelles Verständnis in den Naturwissenschaften, besonders mit klarer Anleitung.",
       "quelle": "Rutten et al. 2012; D’Angelo et al. 2014",
       "geltung": "Sekundarstufe und Hochschule, MINT",

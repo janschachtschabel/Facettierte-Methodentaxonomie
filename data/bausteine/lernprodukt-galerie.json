@@ -127,6 +127,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Kriteriengeleitetes Peer-Feedback an sichtbaren Lernprodukten stärkt Qualitätsbewusstsein und fachliche Korrekturfähigkeit.",
       "quelle": "Topping (2009); Double, McGrane & Hopfenbeck (2020)",
       "geltung": "Alle Bildungsstufen nach Erarbeitungs- oder Projektphasen."
