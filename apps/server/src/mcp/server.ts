@@ -181,6 +181,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       raumzeit: z.union([z.string(), z.array(z.string())]).optional(),
       vorhanden: z.union([z.string(), z.array(z.string())]).optional(),
       vorwissen: z.string().optional(),
+      variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       bildungsstufe: z.string().optional()
     },
     async (args) => {
@@ -386,6 +387,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       vorwissen: z.string().optional(),
       maxTechnik: z.string().optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
+      variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),

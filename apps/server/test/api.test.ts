@@ -241,4 +241,23 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(spa.statusCode).toBe(200);
     expect(spa.body).toContain('FMT_SPA_SHELL');
   });
+
+  it('plan keeps a method named in the text, reports it as anchored and offers another variant', async () => {
+    const payload = {
+      text: 'Berufsschule Pflege: Kommunikation mit Angehörigen, Rollenspiel, 90 Minuten, 18 Auszubildende',
+      includeWloOer: false
+    };
+    const res = await app.inject({ method: 'POST', url: '/api/v1/plan', payload });
+    expect(res.statusCode).toBe(200);
+    const plan = res.json();
+    const ids = (p: { methodenDetails: Array<{ kennung: string }> }) => p.methodenDetails.map((m) => m.kennung);
+    expect(ids(plan)).toContain('rollenspiel');
+    expect(plan.verankert.map((v: { baustein: string }) => v.baustein)).toContain('rollenspiel');
+    expect(Array.isArray(plan.nichtVerankert)).toBe(true);
+    expect(Array.isArray(plan.annahmen)).toBe(true);
+
+    const other = (await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { ...payload, variante: 1 } })).json();
+    expect(ids(other)).toContain('rollenspiel');
+    expect(ids(other).join('>')).not.toBe(ids(plan).join('>'));
+  });
 });

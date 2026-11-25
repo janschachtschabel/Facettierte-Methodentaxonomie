@@ -412,6 +412,8 @@ export interface ScenarioPlanArgs {
   maxVorbereitung?: number;
   ohneInternet?: boolean;
   ohneKI?: boolean;
+  /** 0 = first proposal; higher values give the next equally suitable combination. */
+  variante?: number;
   includeWloOer?: boolean;
   gruppen?: Array<{
     id: string;
@@ -451,7 +453,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     maxTechnik: args.maxTechnik,
     maxVorbereitung: args.maxVorbereitung,
     ohneInternet: args.ohneInternet,
-    ohneKI: args.ohneKI
+    ohneKI: args.ohneKI,
+    variante: args.variante
   };
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;
@@ -628,6 +631,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     skalenVorfilterung: classification.skalen,
     erkannteMatrixSignale: detectedTraits.signals,
     pruefung: matched.pruefung,
+    verankert: matched.verankert || [],
+    nichtVerankert: matched.nichtVerankert || [],
+    annahmen: matched.annahmen || [],
     methodenDetails,
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
     konflikte: multiGroupSynthesis.konflikte.slice(0, 4),
