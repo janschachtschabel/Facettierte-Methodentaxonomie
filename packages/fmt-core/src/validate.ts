@@ -113,12 +113,14 @@ export function createValidator(data: FmtData): FmtValidator {
       passiv: number;
       passivGemeldet: boolean;
       wiederkehr: Array<{ anzahl: number; baustein: string }>;
+      ausserhalbMin: number;
     } = {
       zustand: new Set(),
       offen: null,
       passiv: 0,
       passivGemeldet: false,
-      wiederkehr: []
+      wiederkehr: [],
+      ausserhalbMin: 0
     };
 
     function checkPre(b: Baustein, pfad: string) {
@@ -302,6 +304,14 @@ export function createValidator(data: FmtData): FmtValidator {
           st.wiederkehr.push({ anzahl, baustein: b.kennung });
           leafEffects(b, einzel, pfad);
           addClosure(st.zustand, b.nachbedingung || []);
+          if (node.ausserhalbBudget != null && typeof node.ausserhalbBudget !== 'boolean') {
+            add('R-00', 'Fehler', pfad, 'Wiederkehr erwartet im Feld „ausserhalbBudget“ wahr oder falsch.');
+          }
+          if (node.ausserhalbBudget === true) {
+            // Repetitions in later sessions: they satisfy R-07 but are not part of this plan's duration.
+            st.ausserhalbMin += einzel * anzahl;
+            return 0;
+          }
           return einzel * anzahl;
         }
         case 'Alternative': {
@@ -405,7 +415,8 @@ export function createValidator(data: FmtData): FmtValidator {
       endzustand: [...st.zustand],
       dauerMin,
       reichweite: arr.reichweite,
-      wiederkehr: st.wiederkehr
+      wiederkehr: st.wiederkehr,
+      ...(st.ausserhalbMin ? { dauerAusserhalbMin: st.ausserhalbMin } : {})
     };
   }
 

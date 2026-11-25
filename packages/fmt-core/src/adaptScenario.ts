@@ -698,8 +698,8 @@ function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten'
       const count = typeof n.anzahl === 'number' && n.anzahl > 0 ? n.anzahl : 1;
       out.push({
         key: `step-${out.length}`,
-        phaseLabel: `Wiederkehr (${count}× à ${single} min)`,
-        durationMin: single * count,
+        phaseLabel: n.ausserhalbBudget ? `Wiederkehr in Folgestunden (${count}× à ${single} min)` : `Wiederkehr (${count}× à ${single} min)`,
+        durationMin: n.ausserhalbBudget ? 0 : single * count,
         baustein: n.baustein,
         lernfunktion: 'konsolidierung'
       });

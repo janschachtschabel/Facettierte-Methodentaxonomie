@@ -222,6 +222,8 @@ export interface WiederkehrNode {
   anzahl: number;
   abstand?: string;
   dauerMin?: number;
+  /** Repetitions take place in later sessions and do not count towards the time budget of this plan. */
+  ausserhalbBudget?: boolean;
 }
 
 export interface AlternativeNode {
@@ -310,6 +312,8 @@ export interface ValidationResult {
   dauerMin: number;
   reichweite: string;
   wiederkehr: Array<{ anzahl: number; baustein: string }>;
+  /** Minutes of distributed repetition planned for later sessions (not part of dauerMin). */
+  dauerAusserhalbMin?: number;
 }
 
 export interface SearchCriteria {

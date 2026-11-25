@@ -31,6 +31,8 @@ const FRAME_WORDS = new Set(
 );
 const SLOT_CANDIDATES = 8;
 const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
+/** Up to this budget a plan is one session (a double period plus breaks at most). */
+const SINGLE_SESSION_MAX_MIN = 180;
 const AI_ROLES = new Set([
   'tutor',
   'dialogpartner',
@@ -838,7 +840,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       );
       if (at >= 0) floors[at] = b.dauerMin;
     }
-    const reserveRec = wantsRecurrence && totalBudget != null && totalBudget >= 75 ? 15 : 0;
+    // A single session cannot hold repetitions that are days apart: they are planned for later sessions.
+    const recurrenceOutside = totalBudget != null && totalBudget <= SINGLE_SESSION_MAX_MIN;
+    const reserveRec = wantsRecurrence && !recurrenceOutside && totalBudget != null && totalBudget >= 75 ? 15 : 0;
     const budgets = totalBudget != null ? phaseBudgets(kette.schritte, totalBudget - reserveRec, floors) : null;
     const anchoredAt = new Map<string, string>();
 
@@ -918,11 +922,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     if (wantsRecurrence) {
       const recCands = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert');
       const rec =
-        totalBudget == null
+        totalBudget == null || recurrenceOutside
           ? recCands[0]
           : recCands.find((c) => usedDurationSoFar() + c.dauerMin * RECURRENCE.anzahl <= totalBudget);
       if (rec) {
-        teile.push(Object.assign({ typ: 'Wiederkehr' as const, baustein: rec.kennung, dauerMin: rec.dauerMin }, RECURRENCE));
+        teile.push(
+          Object.assign(
+            { typ: 'Wiederkehr' as const, baustein: rec.kennung, dauerMin: rec.dauerMin },
+            RECURRENCE,
+            recurrenceOutside ? { ausserhalbBudget: true } : {}
+          )
+        );
       }
     }
 
@@ -932,7 +942,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const minTotal = (nodes: ArrangementNode[]) =>
       nodes.reduce((sum, n) => {
         if (n.typ === 'Einsatz') return sum + Math.max(blocks.get(n.baustein)!.dauerMin, slotSum(n));
-        if (n.typ === 'Wiederkehr') return sum + (n.dauerMin || 0) * (n.anzahl || 1);
+        if (n.typ === 'Wiederkehr') return sum + (n.ausserhalbBudget ? 0 : (n.dauerMin || 0) * (n.anzahl || 1));
         return sum;
       }, 0);
     for (const b of mentioned) {

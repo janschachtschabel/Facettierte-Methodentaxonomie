@@ -274,6 +274,7 @@ export function buildContext(D: FmtData) {
     pflicht: { '@id': 'fmt:pflicht', '@type': 'xsd:boolean' },
     nachKernphase: { '@id': 'fmt:nachKernphase', '@type': 'xsd:boolean' },
     abstand: { '@id': 'fmt:abstand', '@type': 'xsd:duration' },
+    ausserhalbBudget: { '@id': 'fmt:ausserhalbBudget', '@type': 'xsd:boolean' },
     qualitaetsrisiko: { '@id': 'fmt:qualitaetsrisiko', '@container': '@set' },
     weggelassen: { '@id': 'fmt:weggelassen', '@container': '@set' },
     kernkomponente: { '@id': 'fmt:kernkomponente', '@container': '@set' },
@@ -517,7 +518,8 @@ export function buildSchema(D: FmtData) {
         baustein: { $ref: '#/$defs/code_baustein' },
         anzahl: { type: 'integer', minimum: 1 },
         abstand: { type: 'string', pattern: '^P' },
-        dauerMin: { type: 'integer', minimum: 0 }
+        dauerMin: { type: 'integer', minimum: 0 },
+        ausserhalbBudget: { type: 'boolean' }
       }),
       node('Alternative', ['optionen'], {
         kriterium: { type: 'string' },
