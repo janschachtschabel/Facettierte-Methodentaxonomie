@@ -102,7 +102,7 @@ describe('D4: Ketten für Urteilsbildung, Bewegung und Produktion', () => {
 });
 
 describe('D1: Fachbereich', () => {
-  const AREAS = ['mint', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis', 'uebergreifend'];
+  const AREAS = ['mathe-informatik', 'nawi-technik', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis', 'uebergreifend'];
   const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
 
   it('Vokabular und Befüllung: jede Methode hat mindestens einen gültigen Fachbereich', () => {
@@ -118,7 +118,9 @@ describe('D1: Fachbereich', () => {
 
   it('liest den Fachbereich aus dem Fach im Text', () => {
     const area = (text: string) => M.lesen(text).kriterien.fachbereich;
-    expect(area('Physik Klasse 8: Stromkreis, 45 Minuten')).toBe('mint');
+    expect(area('Physik Klasse 8: Stromkreis, 45 Minuten')).toBe('nawi-technik');
+    expect(area('Mathematik Klasse 8: Prozentrechnung, 45 Minuten')).toBe('mathe-informatik');
+    expect(area('Informatik Klasse 8: Algorithmen, 45 Minuten')).toBe('mathe-informatik');
     expect(area('Englisch Klasse 8: Simple Past, 45 Minuten')).toBe('sprachen');
     expect(area('Geschichte Klasse 8: Weimarer Republik, 45 Minuten')).toBe('gesellschaft');
     expect(area('Deutsch Klasse 8: Kurzgeschichten analysieren, 45 Minuten')).toBe('sprachen');
@@ -141,11 +143,14 @@ describe('D1: Fachbereich', () => {
     }
   });
 
-  it('bevorzugt fachtypische Methoden: Sport erhält Bewegungsmethoden, Physik bei 90 Minuten eine MINT-Methode', () => {
+  it('bevorzugt fachtypische Methoden: Sport erhält Bewegungsmethoden, Physik bei 90 Minuten eine naturwissenschaftliche Methode', () => {
     const sport = steps(M.zuordnen({ text: 'Sport Klasse 8: Weitsprung, 90 Minuten' }));
     expect(sport.filter((id) => byId.get(id)?.fachbereich?.includes('sport')).length).toBeGreaterThanOrEqual(2);
     const physik = steps(M.zuordnen({ text: 'Physik Klasse 8: Stromkreis, 90 Minuten' }));
-    expect(physik.some((id) => byId.get(id)?.fachbereich?.includes('mint'))).toBe(true);
+    expect(physik.some((id) => byId.get(id)?.fachbereich?.includes('nawi-technik'))).toBe(true);
+    for (const [f, t] of THEMEN.filter(([fach]) => fach === 'Mathematik' || fach === 'Informatik')) {
+      expect(steps(M.zuordnen({ text: szenarioText(f, t, 90) })), `${f}: ${t}`).not.toContain('experiment');
+    }
   });
 });
 

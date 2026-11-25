@@ -4,7 +4,7 @@ Stand: 2026-11-25. Alle Einträge unten sind Vorschläge, die bereits in `data/`
 
 ## D1 Fachbereich
 
-Neues Vokabular `fachbereich`: `mint` (MINT), `sprachen` (Sprachen), `gesellschaft` (Gesellschaft), `aesthetik` (Ästhetische Fächer), `sport` (Sport und Bewegung), `beruf-praxis` (Beruf und Praxis), `uebergreifend` (Fachübergreifend).
+Neues Vokabular `fachbereich`: `mathe-informatik` (Mathematik und Informatik), `nawi-technik` (Naturwissenschaften und Technik), `sprachen` (Sprachen), `gesellschaft` (Gesellschaft), `aesthetik` (Ästhetische Fächer), `sport` (Sport und Bewegung), `beruf-praxis` (Beruf und Praxis), `uebergreifend` (Fachübergreifend). Mathematik/Informatik und Naturwissenschaften/Technik sind auf Jans Entscheidung vom 2026-11-25 getrennt.
 
 Jede Methode trägt `fachbereich` (wo sie zu Hause ist) und optional `fachbereichUngeeignet`. Wirkung in der Zuordnung: ungeeignet = zurückgestellt (harte Stufe), zu Hause = 0,5 Punkte besser, nur in anderen Fachbereichen zu Hause = 1,5 Punkte schlechter. Der Fachbereich der Anfrage wird aus dem Fach im Text gelesen.
 
@@ -19,53 +19,53 @@ Jede Methode trägt `fachbereich` (wo sie zu Hause ist) und optional `fachbereic
 | British Parliamentary Style Debatte (`british-parliamentary-debate`) | gesellschaft, sprachen | sport |
 | Buddy Book (Faltbüchlein) (`buddy-book`) | uebergreifend | sport |
 | CATWOE-Perspektivenanalyse (`catwoe-analyse`) | beruf-praxis, gesellschaft | sport |
-| Chorsprechen & Strukturierte Nachsprechübung (`chorsprechen`) | sprachen, aesthetik | mint, sport |
+| Chorsprechen & Strukturierte Nachsprechübung (`chorsprechen`) | sprachen, aesthetik | mathe-informatik, nawi-technik, sport |
 | Clustering (Assoziationsnetz) (`clustering-schreiben`) | sprachen, uebergreifend | sport |
 | Cognitive Apprenticeship (Kognitive Meisterlehre) (`cognitive-apprenticeship`) | beruf-praxis, uebergreifend | – |
 | Collective-Notebook-Methode (`collective-notebook`) | uebergreifend | sport |
 | Concept Mapping (`concept-mapping`) | uebergreifend | sport |
 | Cornell-Methode (Strukturierte Mitschrift) (`cornell-methode`) | uebergreifend | sport |
-| Deduktive Regelvermittlung (`deduktives-erlaeutern`) | mint, sprachen | sport |
+| Deduktive Regelvermittlung (`deduktives-erlaeutern`) | mathe-informatik, sprachen | sport |
 | Deliberative Beratung (Bürgerrat im Unterricht) (`deliberation`) | gesellschaft, sprachen | sport |
 | Bewegungsdemonstration & Angeleitetes Nachmachen (`demonstration-nachmachen`) | sport, aesthetik, beruf-praxis | – |
-| Demonstrationsexperiment (`demonstrationsexperiment`) | mint | sprachen, gesellschaft, aesthetik, sport |
-| Dialogisches Lernen (nach Ruf & Gallin) (`dialogisches-lernen`) | sprachen, mint | sport |
-| Differenzielles Lernen (Bewegungsvariation nach Schöllhorn) (`differenzielles-lernen`) | sport, aesthetik | mint, sprachen, gesellschaft |
-| Klassisches Diktat (Rechtschreibkontrolle) (`diktat-klassisch`) | sprachen | mint, gesellschaft, aesthetik, sport |
+| Demonstrationsexperiment (`demonstrationsexperiment`) | nawi-technik | sprachen, gesellschaft, aesthetik, sport, mathe-informatik |
+| Dialogisches Lernen (nach Ruf & Gallin) (`dialogisches-lernen`) | sprachen, mathe-informatik | sport |
+| Differenzielles Lernen (Bewegungsvariation nach Schöllhorn) (`differenzielles-lernen`) | sport, aesthetik | mathe-informatik, nawi-technik, sprachen, gesellschaft |
+| Klassisches Diktat (Rechtschreibkontrolle) (`diktat-klassisch`) | sprachen | mathe-informatik, nawi-technik, gesellschaft, aesthetik, sport |
 | Dilemmadiskussion (Konstanzer Methode) (`dilemmadiskussion`) | gesellschaft, sprachen | sport |
 | Begleitetes Praxis- & Reflexionsmodul (Praktikum) (`dual-praxismodul`) | beruf-praxis | – |
 | Dynamische Urteilsbildung (`dynamische-urteilsbildung`) | gesellschaft, sprachen | sport |
 | Automatisches Schreiben (Ideenfluss) (`ecriture-automatique`) | sprachen, uebergreifend | sport |
-| Egg-Race (Konstruktionswettbewerb) (`egg-race`) | mint | sprachen, gesellschaft, sport |
-| Erfindungsaufgabe mit kontrastierenden Fällen (`erfindungsaufgabe`) | mint | sport |
+| Egg-Race (Konstruktionswettbewerb) (`egg-race`) | nawi-technik | sprachen, gesellschaft, sport |
+| Erfindungsaufgabe mit kontrastierenden Fällen (`erfindungsaufgabe`) | mathe-informatik, nawi-technik | sport |
 | Erlebnispädagogische Kooperationsaufgabe (`erlebnispaedagogik`) | sport, uebergreifend | – |
 | Mnemotechnik & Eselsbrücken entwickeln (`eselsbruecken-mnemonik`) | uebergreifend | sport |
-| Geleitetes Experiment in Kleingruppen (`experiment`) | mint, beruf-praxis | sprachen, gesellschaft |
+| Geleitetes Experiment in Kleingruppen (`experiment`) | nawi-technik, beruf-praxis | sprachen, gesellschaft, mathe-informatik |
 | Simulationsstation / OSCE-Praxischeck (`fall-simulation-osce`) | beruf-praxis | sprachen, gesellschaft, aesthetik |
-| Fantasiereise (Imaginative Hinführung) (`fantasiereise`) | aesthetik, sprachen, gesellschaft | mint |
+| Fantasiereise (Imaginative Hinführung) (`fantasiereise`) | aesthetik, sprachen, gesellschaft | mathe-informatik, nawi-technik |
 | Fishbowl-Diskussion (`fishbowl`) | gesellschaft, sprachen, uebergreifend | – |
 | Digitales Spaced-Repetition-Training (Anki / Leitner) (`flashcard-spaced-repetition`) | uebergreifend | sport |
 | Freewriting (Freies Schreiben) (`freewriting`) | sprachen, uebergreifend | sport |
 | Freie Internetrecherche (ohne Leitfragen) (`freie-internetrecherche`) | uebergreifend | sport |
-| Freie Lesezeit (Sustained Silent Reading) (`freies-stoebern-leseecke`) | sprachen | mint, sport |
-| Freier Text & Klassenzeitung (Freinet) (`freinet-druckerei`) | sprachen | mint, sport |
+| Freie Lesezeit (Sustained Silent Reading) (`freies-stoebern-leseecke`) | sprachen | mathe-informatik, nawi-technik, sport |
+| Freier Text & Klassenzeitung (Freinet) (`freinet-druckerei`) | sprachen | mathe-informatik, nawi-technik, sport |
 | Galeriemethode (Skizzen-Galerie) (`galeriemethode`) | aesthetik, uebergreifend | sport |
-| Bodypercussion & Rhythmische Erarbeitung (`gebundene-musik-rhythmus`) | aesthetik, sport | mint, gesellschaft |
-| Godly Play (Bodenbild-Erzählung & Ergründungsgespräch) (`godly-play`) | gesellschaft | mint, sport |
-| Induktive Beispielreihe (`induktives-entdecken`) | mint, sprachen | sport |
-| Jeux Dramatiques (Ausdrucksspiel) (`jeux-dramatiques`) | sprachen, gesellschaft, aesthetik | mint, sport |
+| Bodypercussion & Rhythmische Erarbeitung (`gebundene-musik-rhythmus`) | aesthetik, sport | mathe-informatik, nawi-technik, gesellschaft |
+| Godly Play (Bodenbild-Erzählung & Ergründungsgespräch) (`godly-play`) | gesellschaft | mathe-informatik, nawi-technik, sport |
+| Induktive Beispielreihe (`induktives-entdecken`) | mathe-informatik, sprachen | sport |
+| Jeux Dramatiques (Ausdrucksspiel) (`jeux-dramatiques`) | sprachen, gesellschaft, aesthetik | mathe-informatik, nawi-technik, sport |
 | Schülerfirma / Übungsfirma (Langzeit-Projektmodul) (`juniorfirma-schuelerfirma`) | beruf-praxis | – |
-| Kriteriengeleitete Bild- & Karikaturenanalyse (`karikatur-bildanalyse`) | gesellschaft, aesthetik, sprachen | mint, sport |
+| Kriteriengeleitete Bild- & Karikaturenanalyse (`karikatur-bildanalyse`) | gesellschaft, aesthetik, sprachen | mathe-informatik, nawi-technik, sport |
 | Lernkartei (Leitner-System) (`karteikarten-leitner`) | uebergreifend | sport |
 | KI-gestütztes kriteriengeleitetes Textfeedback (`ki-textfeedback`) | sprachen, gesellschaft | sport |
 | Wachsendes Fachbegriffs-Glossar / Wortwand (`klassen-glossar`) | uebergreifend | sport |
 | Klassenarbeit / Schriftliche Klausur (summativ) (`klassenarbeit-summativ`) | uebergreifend | sport |
 | Kollegiale Fallberatung (`kollegiale-fallberatung`) | beruf-praxis | sport |
 | Kraftfeldanalyse (nach Lewin) (`kraftfeldanalyse`) | beruf-praxis, gesellschaft | sport |
-| Kreatives Schreiben nach Schreibimpuls (`kreatives-schreiben`) | sprachen | mint, sport |
+| Kreatives Schreiben nach Schreibimpuls (`kreatives-schreiben`) | sprachen | mathe-informatik, nawi-technik, sport |
 | K-W-L-Methode (Wissen – Wollen – Gelernt) (`kwl-methode`) | uebergreifend | sport |
-| Laufdiktat (Schleichdiktat) (`laufdiktat`) | sprachen | mint, gesellschaft, aesthetik, sport |
-| Lautleseverfahren (Tandem- & Chorlesen) (`lautleseverfahren`) | sprachen | mint, aesthetik, sport |
+| Laufdiktat (Schleichdiktat) (`laufdiktat`) | sprachen | mathe-informatik, nawi-technik, gesellschaft, aesthetik, sport |
+| Lautleseverfahren (Tandem- & Chorlesen) (`lautleseverfahren`) | sprachen | mathe-informatik, nawi-technik, aesthetik, sport |
 | Lehrgang (`lehrgang`) | beruf-praxis | – |
 | Leittextmethode (`leittextmethode`) | beruf-praxis | – |
 | Begriffs- & Lern-Bingo (`lern-bingo`) | uebergreifend | sport |
@@ -73,29 +73,29 @@ Jede Methode trägt `fachbereich` (wo sie zu Hause ist) und optional `fachbereic
 | Lernfeldorientiertes Unterrichtsmodul (`lernfeld-curriculum`) | beruf-praxis | – |
 | Lernplakat & Posterpräsentation (`lernplakat`) | aesthetik, uebergreifend | sport |
 | Lerntagebuch mit Leitfragen (Prompts) (`lerntagebuch`) | uebergreifend | sport |
-| Lesetagebuch (Lektürebegleitendes Journal) (`lesetagebuch`) | sprachen | mint, aesthetik, sport |
+| Lesetagebuch (Lektürebegleitendes Journal) (`lesetagebuch`) | sprachen | mathe-informatik, nawi-technik, aesthetik, sport |
 | Loci-Methode (Gedächtnispalast) (`loci-methode`) | uebergreifend | sport |
-| Lösungsbeispiele mit Fading (`loesungsbeispiele`) | mint, beruf-praxis | sport, aesthetik |
-| Makerspace / Tüftelwerkstatt (FabLab) (`makerspace-tueftelwerkstatt`) | mint, aesthetik, beruf-praxis | sprachen, gesellschaft, sport |
+| Lösungsbeispiele mit Fading (`loesungsbeispiele`) | mathe-informatik, nawi-technik, beruf-praxis | sport, aesthetik |
+| Makerspace / Tüftelwerkstatt (FabLab) (`makerspace-tueftelwerkstatt`) | nawi-technik, mathe-informatik, aesthetik, beruf-praxis | sprachen, gesellschaft, sport |
 | Microteaching (`microteaching`) | beruf-praxis | sport |
 | Mind Mapping (`mind-mapping`) | uebergreifend | sport |
-| Model United Nations (MUN) (`model-united-nations`) | gesellschaft | mint, aesthetik, sport |
-| Morphologische Analyse (Zwicky-Box) (`morphologischer-kasten`) | beruf-praxis, mint, gesellschaft | sport |
+| Model United Nations (MUN) (`model-united-nations`) | gesellschaft | mathe-informatik, nawi-technik, aesthetik, sport |
+| Morphologische Analyse (Zwicky-Box) (`morphologischer-kasten`) | beruf-praxis, nawi-technik, gesellschaft | sport |
 | Multiple-Choice-Kurztest (Richtig/Falsch-Diagnose) (`multiple-choice-test`) | uebergreifend | sport |
-| Mystery-Methode (`mystery-methode`) | gesellschaft, mint | sport |
-| Netzplantechnik (Projekt- & Ablaufplanung) (`netzplantechnik-projekt`) | beruf-praxis, mint | sport, sprachen |
+| Mystery-Methode (`mystery-methode`) | gesellschaft, nawi-technik | sport |
+| Netzplantechnik (Projekt- & Ablaufplanung) (`netzplantechnik-projekt`) | beruf-praxis, mathe-informatik | sport, sprachen |
 | One-Minute-Paper (`one-minute-paper`) | uebergreifend | sport |
 | Papiercomputer (Einflussmatrix nach Vester) (`papiercomputer`) | beruf-praxis, gesellschaft | sport |
-| Parlamentssimulation (`parlamentssimulation`) | gesellschaft | mint, aesthetik, sport |
-| Peer Instruction (nach Mazur) (`peer-instruction`) | mint, uebergreifend | – |
+| Parlamentssimulation (`parlamentssimulation`) | gesellschaft | mathe-informatik, nawi-technik, aesthetik, sport |
+| Peer Instruction (nach Mazur) (`peer-instruction`) | mathe-informatik, nawi-technik, uebergreifend | – |
 | Placemat-Methode (`placemat`) | uebergreifend | sport |
 | Planspiel (`planspiel`) | gesellschaft, beruf-praxis, uebergreifend | – |
-| Computersimulation & Virtuelles Labor (`planspiel-simulation-computer`) | mint, gesellschaft | sport |
+| Computersimulation & Virtuelles Labor (`planspiel-simulation-computer`) | nawi-technik, gesellschaft | sport |
 | Lern-Podcast selbst produzieren (`podcast-produktion`) | aesthetik, sprachen, uebergreifend | sport |
 | Podiumsdiskussion (`podiumsdiskussion`) | gesellschaft, sprachen | sport |
 | Positionslinie (Meinungsbarometer) (`positionslinie`) | gesellschaft, sprachen, uebergreifend | – |
 | Pro-Contra-Debatte (Jugend debattiert) (`pro-contra-debatte`) | gesellschaft, sprachen | sport |
-| Productive Failure (`productive-failure`) | mint, uebergreifend | – |
+| Productive Failure (`productive-failure`) | mathe-informatik, nawi-technik, uebergreifend | – |
 | Produktives Lernen in der Praxis (`produktives-lernen`) | beruf-praxis | – |
 | Kriteriengeleitete Quellen- & Informationsprüfung (`quellenkritik-check`) | gesellschaft, sprachen | sport |
 | Quellenkritik & Faktencheck (Lateral Reading) (`quellenkritik-faktencheck`) | gesellschaft, sprachen | sport |
@@ -103,48 +103,46 @@ Jede Methode trägt `fachbereich` (wo sie zu Hause ist) und optional `fachbereic
 | Reziprokes Lehren und Lesen (`reziprokes-lesen`) | sprachen, gesellschaft, uebergreifend | sport, aesthetik |
 | Rollenspiel (`rollenspiel`) | gesellschaft, sprachen, beruf-praxis | sport |
 | Schreibgespräch (Stille Diskussion) (`schreibgespraech`) | uebergreifend | sport |
-| Schreibkonferenz (`schreibkonferenz`) | sprachen | mint, sport |
-| Freies Forschen im Schülerlabor (`schuelerlabor-frei`) | mint | sprachen, gesellschaft, aesthetik, sport |
+| Schreibkonferenz (`schreibkonferenz`) | sprachen | mathe-informatik, nawi-technik, sport |
+| Freies Forschen im Schülerlabor (`schuelerlabor-frei`) | nawi-technik | sprachen, gesellschaft, aesthetik, sport, mathe-informatik |
 | Service Learning (Lernen durch Engagement) (`service-learning`) | gesellschaft, uebergreifend | – |
-| Simulation globale (Ganzheitliche Lebensweltsimulation) (`simulation-globale`) | sprachen | mint, sport |
-| Interaktive Computersimulation / Virtuelles Labor (`simulationsspiel-digital`) | mint, gesellschaft | sport |
+| Simulation globale (Ganzheitliche Lebensweltsimulation) (`simulation-globale`) | sprachen | mathe-informatik, nawi-technik, sport |
+| Interaktive Computersimulation / Virtuelles Labor (`simulationsspiel-digital`) | nawi-technik, gesellschaft | sport |
 | Sketchnotes (Visuelle Notizen) (`sketchnotes`) | aesthetik, uebergreifend | sport |
 | Sokratisches Gespräch (`sokratisches-gespraech`) | gesellschaft, sprachen, uebergreifend | – |
-| SOS-Modell (Sammeln – Ordnen – Systematisieren) (`sos-modell`) | mint, sprachen | sport |
+| SOS-Modell (Sammeln – Ordnen – Systematisieren) (`sos-modell`) | mathe-informatik, sprachen | sport |
 | Fünf-Schritt-Lesemethode (SQ3R) (`sq3r-lesemethode`) | sprachen, gesellschaft, uebergreifend | sport, aesthetik |
-| Standbild (Szenisches Spiel) (`standbild`) | sprachen, gesellschaft, aesthetik | mint, sport |
-| Zirkel- & Bewegungstraining (Motorische Stationen) (`stationstraining-bewegung`) | sport | mint, sprachen, gesellschaft |
-| Stegreiftheater (Improvisationsszene) (`stegreiftheater`) | sprachen, gesellschaft, aesthetik | mint, sport |
+| Standbild (Szenisches Spiel) (`standbild`) | sprachen, gesellschaft, aesthetik | mathe-informatik, nawi-technik, sport |
+| Zirkel- & Bewegungstraining (Motorische Stationen) (`stationstraining-bewegung`) | sport | mathe-informatik, nawi-technik, sprachen, gesellschaft |
+| Stegreiftheater (Improvisationsszene) (`stegreiftheater`) | sprachen, gesellschaft, aesthetik | mathe-informatik, nawi-technik, sport |
 | Stop-Motion- & Legetrick-Erklärfilm (Schülerproduktion) (`stop-motion-erklaerfilm`) | aesthetik, sprachen, uebergreifend | sport |
 | Storytelling im Unterricht (`storytelling`) | sprachen, gesellschaft, uebergreifend | – |
 | Strukturierte Kontroverse (SAC) (`strukturierte-kontroverse`) | gesellschaft, sprachen | sport |
 | Strukturlegetechnik (`strukturlegetechnik`) | uebergreifend | sport |
 | Pädagogische Reflexionsgruppe (Supervision) (`supervision-gruppe`) | beruf-praxis | sport |
-| Switch / Freeze-Tag (Schneller Rollenwechsel) (`switch-rollentausch`) | sprachen, gesellschaft, aesthetik | mint, sport |
+| Switch / Freeze-Tag (Schneller Rollenwechsel) (`switch-rollentausch`) | sprachen, gesellschaft, aesthetik | mathe-informatik, nawi-technik, sport |
 | SWOT-Analyse (Stärken · Schwächen · Chancen · Risiken) (`swot-analyse`) | beruf-praxis, gesellschaft | sport |
 | Szenario-Technik (`szenario-technik`) | gesellschaft, uebergreifend | – |
 | Tafelabschrift / Strukturiertes Abschreiben (`tafelabschrift-abschreiben`) | uebergreifend | sport |
-| Tandem-Sprachlernen (`tandem-lernen`) | sprachen | mint, gesellschaft, aesthetik, sport |
+| Tandem-Sprachlernen (`tandem-lernen`) | sprachen | mathe-informatik, nawi-technik, gesellschaft, aesthetik, sport |
 | Strukturiertes Textmarkieren & Exzerpieren (`text-exzerpieren`) | sprachen, gesellschaft, uebergreifend | sport, aesthetik |
 | Textlupe (Peer-Textüberarbeitung) (`textlupe`) | sprachen, gesellschaft | sport |
-| Operatives & variierendes Üben (`uebung-variation`) | mint, sprachen | sport |
-| Ursache-Wirkungs-Diagramm (Ishikawa / Fischgräte) (`ursache-wirkungs-diagramm`) | beruf-praxis, mint, gesellschaft | sport |
-| Vorhersage–Beobachtung–Erklärung (`vbe`) | mint | sprachen, aesthetik, sport |
-| Verschachteltes Üben (Interleaving) (`verschachteltes-ueben`) | mint, uebergreifend | – |
+| Operatives & variierendes Üben (`uebung-variation`) | mathe-informatik, sprachen | sport |
+| Ursache-Wirkungs-Diagramm (Ishikawa / Fischgräte) (`ursache-wirkungs-diagramm`) | beruf-praxis, nawi-technik, gesellschaft | sport |
+| Vorhersage–Beobachtung–Erklärung (`vbe`) | nawi-technik | sprachen, aesthetik, sport, mathe-informatik |
+| Verschachteltes Üben (Interleaving) (`verschachteltes-ueben`) | mathe-informatik, nawi-technik, uebergreifend | – |
 | Vier-Stufen-Methode (Unterweisung) (`vier-stufen-methode`) | beruf-praxis, sport, aesthetik | gesellschaft, sprachen |
 | Vokabeltest / Schriftliche Kurzkontrolle (`vokabeltest-kurzkontrolle`) | uebergreifend | sport |
-| Vorlesen / Lehrervorlesung (rezeptiv) (`vorlesen-lesung`) | sprachen, gesellschaft | mint, sport |
+| Vorlesen / Lehrervorlesung (rezeptiv) (`vorlesen-lesung`) | sprachen, gesellschaft | mathe-informatik, nawi-technik, sport |
 | Vorlesung (Akademischer Überblicksvortrag) (`vorlesung-klassisch`) | uebergreifend | sport |
-| Waldpädagogische Naturerkundung (`waldpaedagogik`) | mint | – |
+| Waldpädagogische Naturerkundung (`waldpaedagogik`) | nawi-technik | – |
 | Wandzeitung (`wandzeitung`) | uebergreifend | sport |
 | WebQuest (`webquest`) | uebergreifend | sport |
 | Kollaboratives Unterrichtswiki (`wiki-kollaboration`) | uebergreifend | sport |
-| Wörterwiese (`woerterwiese`) | sprachen | mint, sport |
+| Wörterwiese (`woerterwiese`) | sprachen | mathe-informatik, nawi-technik, sport |
 | Zickzack-Dialog (`zickzack-dialog`) | sprachen, gesellschaft, uebergreifend | – |
 | Zukunftskonferenz (Future Search) (`zukunftskonferenz`) | gesellschaft, uebergreifend | – |
 | Zukunftswerkstatt (nach Jungk) (`zukunftswerkstatt`) | gesellschaft, uebergreifend | – |
-
-**Offene Frage:** `mint` fasst Mathematik/Informatik und Naturwissenschaften/Technik zusammen. Dadurch kann ein Schülerexperiment in einer Mathematik- oder Informatikstunde vorgeschlagen werden. Eine Teilung in zwei Werte würde das verhindern.
 
 ## D2 Evidenzbezug
 

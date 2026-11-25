@@ -184,7 +184,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       bildungsstufe: z.string().optional(),
       fachbereich: z
-        .enum(['mint', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis'])
+        .enum(['mathe-informatik', 'nawi-technik', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis'])
         .optional()
         .describe('Fächergruppe; wird sonst aus dem Fach im Text gelesen')
     },

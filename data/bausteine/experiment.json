@@ -13,12 +13,13 @@
     "forschend"
   ],
   "fachbereich": [
-    "mint",
+    "nawi-technik",
     "beruf-praxis"
   ],
   "fachbereichUngeeignet": [
     "sprachen",
-    "gesellschaft"
+    "gesellschaft",
+    "mathe-informatik"
   ],
   "quellen": [
     {

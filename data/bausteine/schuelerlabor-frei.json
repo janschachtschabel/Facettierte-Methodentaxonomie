@@ -13,13 +13,14 @@
     "forschend"
   ],
   "fachbereich": [
-    "mint"
+    "nawi-technik"
   ],
   "fachbereichUngeeignet": [
     "sprachen",
     "gesellschaft",
     "aesthetik",
-    "sport"
+    "sport",
+    "mathe-informatik"
   ],
   "quellen": [
     {

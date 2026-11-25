@@ -1110,9 +1110,14 @@
       "beschreibung": "Grobe Fächergruppe, in der eine Methode typischerweise eingesetzt wird. Ergänzt die 13 Facetten für die fachgerechte Auswahl; „übergreifend“ steht für Methoden ohne Fachbindung.",
       "werte": [
         {
-          "id": "mint",
-          "label": "MINT",
-          "definition": "Mathematik, Informatik, Naturwissenschaften, Technik, naturwissenschaftlicher Sachunterricht"
+          "id": "mathe-informatik",
+          "label": "Mathematik und Informatik",
+          "definition": "Mathematik, Informatik"
+        },
+        {
+          "id": "nawi-technik",
+          "label": "Naturwissenschaften und Technik",
+          "definition": "Physik, Chemie, Biologie, Technik, naturwissenschaftlicher Sachunterricht"
         },
         {
           "id": "sprachen",

@@ -73,7 +73,7 @@ Determinismus bleibt: gleiche Eingabe, gleiches Ergebnis. Kein Sprachmodell nöt
 
 | Nr. | Erweiterung | Wozu | Umfang |
 | --- | --- | --- | --- |
-| D1 | Neues Vokabular `fachbereich` (mint, sprachen, gesellschaft, aesthetik, sport, beruf-praxis, uebergreifend) und Feld `fachbereich` je Methode, optional `fachbereichUngeeignet` | Fachgerechte Auswahl; ersetzt die Wortlisten der Domänensperre | 290 Methoden, Erstbefüllung automatisch vorschlagbar, dann Durchsicht |
+| D1 | Neues Vokabular `fachbereich` (mathe-informatik, nawi-technik, sprachen, gesellschaft, aesthetik, sport, beruf-praxis, uebergreifend) und Feld `fachbereich` je Methode, optional `fachbereichUngeeignet` | Fachgerechte Auswahl; ersetzt die Wortlisten der Domänensperre | 290 Methoden, Erstbefüllung automatisch vorschlagbar, dann Durchsicht |
 | D2 | Feld `evidenzBezug` je Evidenzeintrag: `methode` (Studie zur Methode) oder `prinzip` (vom Wirkprinzip abgeleitet) | Abgeleitete A-Grade zählen in der Rangfolge wie B | rund 100 Methoden mit Grad A oder B prüfen |
 | D3 | Kettenschritte in `ketten.json` um `rolle` (rand, haupt, sicherung) und `zeitanteil` ergänzen | Zeitverteilung als Daten statt Code | 9 Ketten |
 | D4 | Drei neue Ketten: `urteilsbildung` (Diskurs), `fertigkeit-bewegung` (Sport, Praxis), `produktion` (Schreiben, Gestalten, Programmieren) | Fächer, die heute in „Konzeptaufbau“ fallen | 3 Ketten |
@@ -110,7 +110,7 @@ Suche nach Relevanz sortieren, Themenerkennung bereinigen.
 
 Die Einstufungen stehen zur Durchsicht in `docs/datenpflege/2026-11-25-stufe2-vorschlaege.md`.
 Weiter offen: Der Einstieg im Konzeptaufbau ist bei 45 Minuten fast immer das Ampelspiel, weil nur wenige
-kurze Methoden „Fehlvorstellungen sichtbar“ liefern. `mint` trennt Mathematik nicht von den Naturwissenschaften.
+kurze Methoden „Fehlvorstellungen sichtbar“ liefern.
 
 ## Nicht-Ziele
 
