@@ -361,6 +361,8 @@ export interface MatchRequest {
   liefert?: string | string[];
   zeitMin?: number;
   gruppe?: number;
+  /** Index of an equivalent alternative proposal (0 = default). */
+  variante?: number;
   maxTechnik?: string;
   ohneInternet?: boolean;
   ohneKI?: boolean;
@@ -383,6 +385,8 @@ export interface PhaseProposal {
   evidenzgrad: EvidenceGrade | null;
   warnungen: string[];
   gruende: string[];
+  /** The request names this method. */
+  genannt?: boolean;
 }
 
 export interface AblaufSchrittResult {
@@ -425,6 +429,12 @@ export interface AblaufMatchResult extends MatchHead {
   kette?: { id: string; label: string };
   schritte?: AblaufSchrittResult[];
   offenSchritte?: string[];
+  /** Methods named in the request and where they were placed. */
+  verankert?: Array<{ baustein: string; schritt: string }>;
+  /** Methods named in the request that could not be placed, with the reason. */
+  nichtVerankert?: Array<{ baustein: string; grund: string }>;
+  /** Assumptions the matcher made because the request left something open. */
+  annahmen?: string[];
   arrangement?: Arrangement;
   pruefung?: {
     gueltig: boolean;

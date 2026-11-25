@@ -19,8 +19,16 @@ import type {
 import type { FmtValidator } from './validate.js';
 import { createSemanticClassifier } from './semantic.js';
 import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
+import { createMentionDetector } from './mentions.js';
+import { pickOrder, softScore } from './ranking.js';
+import { phaseBudgets, stretch } from './zeitverteilung.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
+const FRAME_WORDS = new Set(
+  'klasse klassenstufe jahrgang minuten min stunde stunden doppelstunde einzelstunde schuler schulerinnen lernende kinder studierende teilnehmende personen sus und oder mit ohne der die das ein eine einer zum zur fur thema'.split(
+    ' '
+  )
+);
 const SLOT_CANDIDATES = 8;
 const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
 const AI_ROLES = new Set([
@@ -168,6 +176,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     { feld: 'zeitMin', typ: 'integer', stufe: 2, bedeutung: 'Verfügbare Minuten: für die Phase oder als Zeitbudget des Ablaufs' },
     { feld: 'gruppe', typ: 'integer', stufe: 2, bedeutung: 'Größe der Lerngruppe' },
     {
+      feld: 'variante',
+      typ: 'integer',
+      bedeutung: 'Nummer eines gleichwertigen alternativen Vorschlags (0 = Standard, 1 = nächster Vorschlag usw.)'
+    },
+    {
       feld: 'maxTechnik',
       typ: 'code',
       stufe: 2,
@@ -236,6 +249,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     Object.keys(a).forEach((key) => {
       const f = FIELDS.find((x) => x.feld === key);
       if (!f) throw new Error(`Unbekanntes Feld „${key}“. Erlaubt: ${FIELDS.map((x) => x.feld).join(', ')}.`);
+      if (f.typ === 'integer' && given(a[key]) && !(Number.isInteger(Number(a[key])) && Number(a[key]) >= 0)) {
+        throw new Error(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
+      }
       if (!f.werte) return;
       const allowed = f.werte.map((w) => w.code);
       list(a[key]).forEach((v) => {
@@ -513,6 +529,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   let currentRawText = '';
   let currentSemanticScores = new Map<string, number>();
+  let currentMentions = new Set<string>();
+  let currentSeed = '';
+  let currentVariante = 0;
+  let currentTechAsked = false;
+  const mentionDetector = createMentionDetector(data);
+  type Ranked = { b: Baustein; hard: number[]; soft: number };
+  const order = (items: Ranked[], tolerance?: number): Baustein[] =>
+    pickOrder(
+      items.map((x) => ({ item: x.b, id: x.b.kennung, hard: x.hard, soft: x.soft })),
+      currentSeed,
+      currentVariante,
+      tolerance
+    );
+  const needsUnaskedTech = (b: Baustein) =>
+    !currentTechAsked && (Boolean(b.internet) || usesAi(b) || (techRank.get(b.technik) ?? 0) >= (techRank.get('t-geteilt') ?? 2));
 
   function domainPenalty(b: Baustein): number {
     const raw = currentRawText;
@@ -553,53 +584,47 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     wantedFunctions: string[],
     extra = 0,
     maxStepMin?: number,
-    varietyPenalty = 0
-  ): number[] {
-    const g = bestGrade(b);
-    const contrastPenalty = hasNegativeEvidence(b) ? 1 : 0;
-    const budgetPenalty =
-      maxStepMin != null && b.dauerMin > maxStepMin ? Math.ceil((b.dauerMin - maxStepMin) / 3) : 0;
-    const domPenalty = domainPenalty(b);
-    const wantedAnsatz = list(a.ansatz);
-    const ansatzPenalty =
-      wantedAnsatz.length === 0 ? 0 : wantedAnsatz.some((code) => (b.ansatz || []).includes(code)) ? 0 : 1;
+    varietyPenalty = 0,
+    hardCapMin?: number
+  ): Ranked {
+    const misses = (wanted: string[], has: string[] | undefined) =>
+      wanted.length === 0 || wanted.some((code) => (has || []).includes(code)) ? 0 : 1;
     const wantedGuidance = list(a.anleitung);
-    const guidancePenalty =
-      wantedGuidance.length === 0 ? 0 : wantedGuidance.some((code) => (b.anleitung || []).includes(code)) ? 0 : 1;
-    const unstructuredPenalty =
-      wantedGuidance.includes('explizit') && (b.interaktion || []).includes('kleingruppe-unstrukturiert') ? 1 : 0;
-    const wantedInter = list(a.interaktion);
-    const interPenalty =
-      wantedInter.length === 0 ? 0 : wantedInter.some((code) => (b.interaktion || []).includes(code)) ? 0 : 1;
-    const wantedEng = list(a.engagement);
-    const engPenalty =
-      wantedEng.length === 0 ? 0 : wantedEng.some((code) => (b.engagement || []).includes(code)) ? 0 : 1;
     const wantedRange = list(a.reichweite);
-    const rangePenalty = wantedRange.length === 0 ? 0 : wantedRange.includes(b.reichweite) ? 0 : 1;
-    const softFilterPenalty = guidancePenalty + unstructuredPenalty + interPenalty + engPenalty + rangePenalty;
-    const semScore = currentSemanticScores.get(b.kennung) ?? 0;
-    const semanticTier = semScore >= 0.55 ? 0 : semScore >= 0.35 ? 1 : 2;
-    return [
-      extra,
-      passung(b, a).length ? 1 : 0,
-      contrastPenalty,
-      domPenalty,
-      budgetPenalty,
-      varietyPenalty,
-      ansatzPenalty,
-      softFilterPenalty,
-      g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length,
-      semanticTier,
-      b.status === 'kuratiert' ? 0 : 1,
-      wantedFunctions.length ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1 : 0,
-      b.vorbereitungMin
-    ];
+    const softFilterMisses =
+      misses(wantedGuidance, b.anleitung) +
+      (wantedGuidance.includes('explizit') && (b.interaktion || []).includes('kleingruppe-unstrukturiert') ? 1 : 0) +
+      misses(list(a.interaktion), b.interaktion) +
+      misses(list(a.engagement), b.engagement) +
+      (wantedRange.length === 0 || wantedRange.includes(b.reichweite) ? 0 : 1);
+    return {
+      b,
+      // Hard tiers: reaching the step target / reuse, fit warnings, negative evidence, domain mismatch.
+      // Last tier: the method's minimum duration does not fit into what is left of the lesson.
+      hard: [
+        extra,
+        passung(b, a).length ? 1 : 0,
+        hasNegativeEvidence(b) ? 1 : 0,
+        domainPenalty(b),
+        hardCapMin != null && b.dauerMin > hardCapMin ? 1 : 0
+      ],
+      soft: softScore({
+        ansatzMiss: misses(list(a.ansatz), b.ansatz) === 1,
+        softFilterMisses,
+        variety: varietyPenalty,
+        overBudgetMin: maxStepMin != null ? b.dauerMin - maxStepMin : 0,
+        techUnasked: needsUnaskedTech(b),
+        textRelevance: currentSemanticScores.get(b.kennung) ?? 0,
+        evidence: bestGrade(b),
+        draft: b.status !== 'kuratiert',
+        functionPosition: wantedFunctions.length
+          ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1
+          : 0,
+        vorbereitungMin: b.vorbereitungMin,
+        mentioned: currentMentions.has(b.kennung)
+      })
+    };
   }
-
-  const byRank = (x: { b: Baustein; rank: number[] }, y: { b: Baustein; rank: number[] }) => {
-    for (let i = 0; i < x.rank.length; i++) if (x.rank[i] !== y.rank[i]) return x.rank[i] - y.rank[i];
-    return x.b.name.localeCompare(y.b.name, 'de');
-  };
 
   const describe = (b: Baustein, a: MatchRequest, wanted: string[]): PhaseProposal => {
     const g = bestGrade(b);
@@ -607,6 +632,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const hit = b.lernfunktion.filter((f) => wanted.includes(f));
     if (hit.length) reasons.push('Lernfunktion: ' + hit.map((f) => label('lernfunktion', f)).join(', '));
     if ((b.nachbedingung || []).length) reasons.push('liefert: ' + states(b.nachbedingung).join(', '));
+    if (currentMentions.has(b.kennung)) reasons.unshift('im Text genannt');
     reasons.push(g ? `Evidenzgrad ${g}` : 'ohne Wirksamkeitsbeleg');
     return {
       baustein: b.kennung,
@@ -618,7 +644,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       liefert: states(b.nachbedingung),
       evidenzgrad: g,
       warnungen: passung(b, a),
-      gruende: reasons
+      gruende: reasons,
+      ...(currentMentions.has(b.kennung) ? { genannt: true } : {})
     };
   };
 
@@ -640,7 +667,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       rahmen: [] as Array<{ baustein: string; name: string; grund: string }>,
       anschluss: [] as Array<{ baustein: string; name: string; grund: string }>
     };
-    const hits: Array<{ b: Baustein; rank: number[] }> = [];
+    const hits: Ranked[] = [];
 
     data.bausteine.forEach((b) => {
       const gives = closure(b.nachbedingung || []);
@@ -664,21 +691,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           return;
         }
       }
-      hits.push({ b, rank: rankOf(b, a, fn) });
+      hits.push(rankOf(b, a, fn));
     });
 
-    hits.sort(byRank);
+    const ordered = order(hits, 0);
     const n = data.bausteine.length;
     return {
       modus: 'phase',
-      vorschlaege: hits.map((h) => describe(h.b, a, fn)),
+      vorschlaege: ordered.map((b) => describe(b, a, fn)),
       ausgeschlossen: out,
       zaehler: {
         katalog: n,
         nachFunktion: n - out.funktion,
         nachRahmen: n - out.funktion - out.rahmen.length,
         nachAnschluss: hits.length,
-        mitWarnung: hits.filter((h) => h.rank[1]).length
+        mitWarnung: hits.filter((h) => h.hard[1]).length
       }
     };
   }
@@ -695,26 +722,25 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     used: Set<string> | null,
     target?: string,
     maxStepMin?: number,
-    varietyPenaltyFn?: (b: Baustein) => number
+    varietyPenaltyFn?: (b: Baustein) => number,
+    hardCapMin?: number
   ): Baustein[] {
-    return data.bausteine
-      .filter((b) => (rang.get(b.reichweite) ?? 0) <= maxRang && b.lernfunktion.some((f) => functions.includes(f)) && !rahmen(b, a))
-      .map((b) => {
-        const reaches = !target || closure(b.nachbedingung || []).has(target);
-        return {
-          b,
-          rank: rankOf(
+    return order(
+      data.bausteine
+        .filter((b) => (rang.get(b.reichweite) ?? 0) <= maxRang && b.lernfunktion.some((f) => functions.includes(f)) && !rahmen(b, a))
+        .map((b) => {
+          const reaches = !target || closure(b.nachbedingung || []).has(target);
+          return rankOf(
             b,
             a,
             functions,
             (reaches ? 0 : 2) + (used && used.has(b.kennung) ? 1 : 0),
             maxStepMin,
-            varietyPenaltyFn ? varietyPenaltyFn(b) : 0
-          )
-        };
-      })
-      .sort(byRank)
-      .map((x) => x.b);
+            varietyPenaltyFn ? varietyPenaltyFn(b) : 0,
+            hardCapMin
+          );
+        })
+    );
   }
 
   function ablauf(a: MatchRequest, kette: Funktionskette): Omit<AblaufMatchResult, 'kriterien' | 'erkannt' | 'offen'> & { offen: string[] } {
@@ -801,37 +827,51 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const usedDurationSoFar = () =>
       teile.reduce((sum, node) => sum + (node.typ === 'Einsatz' ? node.dauerMin || 0 : 0), 0);
 
+    // Methods named in the request: reserve their minimum duration at the first chain step they can serve.
+    const mentioned = [...currentMentions].map((id) => blocks.get(id)).filter((b): b is Baustein => Boolean(b));
+    const floors: Array<number | undefined> = kette.schritte.map(() => undefined);
+    for (const b of mentioned) {
+      if (rahmen(b, a)) continue;
+      const at = kette.schritte.findIndex(
+        (st, i) =>
+          floors[i] == null && b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel)
+      );
+      if (at >= 0) floors[at] = b.dauerMin;
+    }
+    const reserveRec = wantsRecurrence && totalBudget != null && totalBudget >= 75 ? 15 : 0;
+    const budgets = totalBudget != null ? phaseBudgets(kette.schritte, totalBudget - reserveRec, floors) : null;
+    const anchoredAt = new Map<string, string>();
+
     kette.schritte.forEach((step, idx) => {
-      const remainingSteps = Math.max(1, kette.schritte.length - idx);
-      const reserveRec = wantsRecurrence && totalBudget != null && totalBudget >= 75 ? 15 : 0;
-      const stepCap =
-        totalBudget != null
-          ? Math.max(5, Math.floor((totalBudget - reserveRec - usedDurationSoFar()) / remainingSteps))
-          : undefined;
-      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, varietyPenaltyOf);
+      // Share of this step plus whatever earlier steps left unused.
+      const plannedBefore = budgets ? budgets.slice(0, idx).reduce((x, y) => x + y, 0) : 0;
+      const stepCap = budgets ? Math.max(5, budgets[idx] + Math.max(0, plannedBefore - usedDurationSoFar())) : undefined;
+      const reservedAfter = kette.schritte.slice(idx + 1).reduce((x, _st, k) => x + Math.max(5, floors[idx + 1 + k] ?? 0), 0);
+      const hardCap =
+        totalBudget != null ? Math.max(5, totalBudget - reserveRec - usedDurationSoFar() - reservedAfter) : undefined;
+      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, varietyPenaltyOf, hardCap);
       // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
       // reaching step.ziel, include any valid method that delivers step.ziel directly.
-      const fallbackCands = data.bausteine
-        .filter(
-          (b) =>
-            (rang.get(b.reichweite) ?? 0) <= 3 &&
-            !rahmen(b, a) &&
-            closure(b.nachbedingung || []).has(step.ziel) &&
-            !primaryCands.some((p) => p.kennung === b.kennung)
-        )
-        .map((b) => ({
-          b,
-          rank: rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b))
-        }))
-        .sort(byRank)
-        .map((x) => x.b);
+      const fallbackCands = order(
+        data.bausteine
+          .filter(
+            (b) =>
+              (rang.get(b.reichweite) ?? 0) <= 3 &&
+              !rahmen(b, a) &&
+              closure(b.nachbedingung || []).has(step.ziel) &&
+              !primaryCands.some((p) => p.kennung === b.kennung)
+          )
+          .map((b) => rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b), hardCap))
+      );
       const cands = primaryCands.concat(fallbackCands);
       let chosen: EinsatzNode | null = null;
       for (const b of cands) {
         for (const onlyMandatory of [true, false]) {
           if (!onlyMandatory && !(b.slot || []).some((s) => !s.pflicht)) continue;
           const initialDur =
-            stepCap != null ? Math.max(b.dauerMin, Math.min(midDuration(b), stepCap)) : midDuration(b);
+            stepCap != null && hardCap != null
+              ? Math.max(b.dauerMin, Math.min(b.dauerMax, stepCap, hardCap))
+              : midDuration(b);
           const n = fill(
             { typ: 'Einsatz', baustein: b.kennung, dauerMin: initialDur, kettenschritt: step.id },
             b,
@@ -851,6 +891,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         return;
       }
       teile.push(chosen);
+      if (currentMentions.has(chosen.baustein)) anchoredAt.set(chosen.baustein, step.label);
       recordUsed(chosen.baustein);
       (chosen.belegung || []).forEach((x) => {
         if (x.inhalt.typ === 'Einsatz') recordUsed(x.inhalt.baustein);
@@ -885,10 +926,64 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
     }
 
+    // Named methods that no chain step could take: add them as an extra phase where the validator allows it.
+    const verankert: Array<{ baustein: string; schritt: string }> = [];
+    const nichtVerankert: Array<{ baustein: string; grund: string }> = [];
+    const minTotal = (nodes: ArrangementNode[]) =>
+      nodes.reduce((sum, n) => {
+        if (n.typ === 'Einsatz') return sum + Math.max(blocks.get(n.baustein)!.dauerMin, slotSum(n));
+        if (n.typ === 'Wiederkehr') return sum + (n.dauerMin || 0) * (n.anzahl || 1);
+        return sum;
+      }, 0);
+    for (const b of mentioned) {
+      if (used.has(b.kennung)) {
+        verankert.push({ baustein: b.kennung, schritt: anchoredAt.get(b.kennung) || 'Teil einer Phase' });
+        continue;
+      }
+      const frame = rahmen(b, a);
+      if (frame) {
+        nichtVerankert.push({ baustein: b.kennung, grund: frame });
+        continue;
+      }
+      if ((rang.get(b.reichweite) ?? 0) > 3) {
+        nichtVerankert.push({ baustein: b.kennung, grund: 'Reichweite größer als ein einzelner Ablauf' });
+        continue;
+      }
+      const node = fill({ typ: 'Einsatz', baustein: b.kennung, dauerMin: b.dauerMin }, b, true);
+      if (totalBudget != null && minTotal(teile) + (node.dauerMin || 0) > totalBudget) {
+        nichtVerankert.push({ baustein: b.kennung, grund: `Zeitbudget reicht nicht (braucht mindestens ${b.dauerMin} min zusätzlich)` });
+        continue;
+      }
+      let placed = false;
+      for (let pos = 1; pos <= teile.length && !placed; pos++) {
+        if (teile[pos - 1].typ === 'Wiederkehr') continue;
+        const trial = [...teile.slice(0, pos), node, ...teile.slice(pos)];
+        if (judge(trial).fehler === 0) {
+          const before = teile[pos - 1];
+          teile.splice(pos, 0, node);
+          recordUsed(b.kennung);
+          const prev = before.typ === 'Einsatz' ? blocks.get(before.baustein)?.name : undefined;
+          verankert.push({ baustein: b.kennung, schritt: prev ? `Zusatzphase nach „${prev}“` : 'Zusatzphase' });
+          schritte.splice(Math.min(pos, schritte.length), 0, {
+            schritt: 'zusatz',
+            label: 'Zusatzphase (im Text genannt)',
+            ziel: states(b.nachbedingung).join(', '),
+            baustein: b.kennung,
+            name: b.name,
+            slots: [],
+            alternativen: []
+          });
+          placed = true;
+        }
+      }
+      if (!placed) nichtVerankert.push({ baustein: b.kennung, grund: 'Voraussetzungen der Methode sind an keiner Stelle des Ablaufs erfüllt' });
+    }
+
     const arrangement = wrap(teile);
     if (given(a.zeitMin)) {
-      arrangement.kontext!.zeitbudgetMin = Number(a.zeitMin);
-      if (validator.validate(arrangement).dauerMin > Number(a.zeitMin)) {
+      const budget = Number(a.zeitMin);
+      arrangement.kontext!.zeitbudgetMin = budget;
+      if (validator.validate(arrangement).dauerMin > budget) {
         const shrink = (n: ArrangementNode) => {
           if (n.typ === 'Einsatz') {
             (n.belegung || []).forEach((x) => shrink(x.inhalt));
@@ -897,7 +992,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         };
         if (arrangement.ablauf.typ === 'Sequenz') arrangement.ablauf.teile.forEach(shrink);
       }
+      // Use the lesson time: spread what is left over the chosen methods, up to each method's maximum.
+      const total = validator.validate(arrangement).dauerMin;
+      const plain = teile.filter((n): n is EinsatzNode => n.typ === 'Einsatz' && !(n.belegung || []).length);
+      if (total < budget && plain.length) {
+        const cur = plain.map((n) => n.dauerMin || blocks.get(n.baustein)!.dauerMin);
+        const grown = stretch(
+          plain.map((n, i) => ({ min: blocks.get(n.baustein)!.dauerMin, max: blocks.get(n.baustein)!.dauerMax, cur: cur[i] })),
+          cur.reduce((x, y) => x + y, 0) + (budget - total)
+        );
+        plain.forEach((n, i) => (n.dauerMin = grown[i]));
+      }
     }
+    const annahmen = currentTechAsked
+      ? []
+      : ['Keine Angabe zur Ausstattung: Methoden ohne Internet, KI und Einzelgeräte werden bevorzugt.'];
 
     const r = validator.validate(arrangement);
     return {
@@ -905,6 +1014,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       kette: { id: kette.id, label: kette.label },
       schritte,
       offen,
+      verankert,
+      nichtVerankert,
+      annahmen,
       arrangement,
       pruefung: {
         gueltig: r.gueltig,
@@ -914,6 +1026,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
     };
   }
+
+  // Topic part of the request: numbers and framing words removed, so "45 Minuten" vs "90 Minuten" keeps the seed.
+  const topicSeed = (folded: string) =>
+    folded
+      .replace(/[^a-z]+/g, ' ')
+      .split(' ')
+      .filter((w) => w.length > 2 && !FRAME_WORDS.has(w))
+      .join(' ');
 
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
@@ -927,7 +1047,19 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       Object.keys(anfrage).forEach((k) => {
         if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
       });
-      const fromText = (feld: string) => !given(anfrage[feld]) && gelesen.erkannt.find((e) => e.feld === feld);
+      currentVariante = given(a.variante) ? Number(a.variante) : 0;
+      delete a.variante;
+      currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(String(anfrage.text)).map((m) => m.kennung) : []);
+      currentSeed = topicSeed(currentRawText);
+      // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
+      currentTechAsked =
+        given(a.maxTechnik) ||
+        Boolean(a.ohneInternet) ||
+        Boolean(a.ohneKI) ||
+        list(a.ansatz).includes('digital-ki') ||
+        list(a.raumzeit).some((r) => r === 'distanz' || r === 'asynchron') ||
+        /\b(?:digital\w*|online|ki|internet|app|apps)\b/.test(currentRawText);
+      const fromText = (feld: string) => (given(anfrage[feld]) ? undefined : gelesen.erkannt.find((e) => e.feld === feld));
       const guessedFn = Boolean(fromText('lernfunktion')?.beleg.startsWith('semantisch'));
       const hasPhase = (list(a.lernfunktion).length && !guessedFn) || list(a.liefert).length;
       const isFullLessonBudget = given(a.zeitMin) && Number(a.zeitMin) >= 45;
@@ -974,6 +1106,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     } finally {
       currentRawText = '';
       currentSemanticScores = new Map();
+      currentMentions = new Set();
+      currentSeed = '';
+      currentVariante = 0;
+      currentTechAsked = false;
     }
   }
 
