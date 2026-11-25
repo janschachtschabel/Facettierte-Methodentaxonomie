@@ -260,4 +260,25 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(ids(other)).toContain('rollenspiel');
     expect(ids(other).join('>')).not.toBe(ids(plan).join('>'));
   });
+
+  it('antwortet auf ungültige Planangaben mit 400 statt 500', async () => {
+    const bad = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Bruchrechnen 45 Minuten', maxTechnik: 'quatsch' } });
+    expect(bad.statusCode).toBe(400);
+    expect(bad.json().fehler).toContain('maxTechnik');
+    const badTime = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Bruchrechnen', zeitMin: -5 } });
+    expect(badTime.statusCode).toBe(400);
+    for (const payload of [
+      { text: 'Bruchrechnen 45 Minuten', gruppen: 'abc' },
+      { text: 'Bruchrechnen 45 Minuten', fach: 5 },
+      { text: 'Bruchrechnen 45 Minuten', gruppen: [{ label: 'ohne id' }] }
+    ]) {
+      const r = await app.inject({ method: 'POST', url: '/api/v1/plan', payload });
+      expect(r.statusCode).toBe(400);
+      expect(typeof r.json().fehler).toBe('string');
+    }
+    const kompakt = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Bruchrechnen Klasse 6, 45 Minuten', umfang: 'kompakt' } });
+    expect(kompakt.statusCode).toBe(200);
+    expect(kompakt.json().llmBriefing).toBeUndefined();
+    expect(kompakt.json().thematischeTabelle.length).toBeGreaterThan(0);
+  });
 });

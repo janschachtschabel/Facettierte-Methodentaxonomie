@@ -112,6 +112,22 @@ Die Einstufungen stehen zur Durchsicht in `docs/datenpflege/2026-11-25-stufe2-vo
 Weiter offen: Der Einstieg im Konzeptaufbau ist bei 45 Minuten fast immer das Ampelspiel, weil nur wenige
 kurze Methoden „Fehlvorstellungen sichtbar“ liefern.
 
+## Ergebnis Stufe 3 (gemessen am 2026-11-25)
+
+| Punkt | Vorher | Nachher |
+| --- | --- | --- |
+| MCP-Fehler | Text mit `fehler`, ohne Kennzeichen | `isError: true` |
+| Erlaubte Werte in MCP-Tools | freie Zeichenketten | Enum aus dem Vokabular |
+| `POST /api/v1/plan` mit ungültigem Wert | HTTP 500 | HTTP 400 mit Meldung |
+| `build_scenario_plan`, 45-Minuten-Anfrage | 51 KB | 19 KB (kompakt), `umfang: "voll"` wie bisher |
+| `match_scenario`, Einzelphase | 77 Vorschläge, 28 KB | 10 Vorschläge, `limit` wählbar |
+| Teilgruppen aus dem Text im Plan | immer drei Standardgruppen | genannte Gruppen mit Anzahl plus Regelgruppe |
+| Themenerkennung | Reste wie „, , 26 Schüler, ohne Tablets“ | nur das Thema, eine Fassung für Server und Web |
+| Katalogsuche | Evidenzgrad, dann Alphabet | Namens- und Synonymtreffer zuerst |
+| Baukasten bei eigener Eingabe | Vorlagen-Ablauf bleibt stehen | leerer Ablauf |
+| Anderer Vorschlag | nur über die API (`variante`) | Schaltfläche im Baukasten |
+| „mit DaZ“ in der Lerngruppe | als Fach Sprachen gelesen | Merkmal der Lerngruppe |
+
 ## Nicht-Ziele
 
 Kein Sprachmodell in der Zuordnung, keine Änderung an den Regeln R-00 bis R-12, keine Datenänderung in Stufe 1.

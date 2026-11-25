@@ -2,11 +2,13 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createSearch, createValidator, type Arrangement, type CatalogBundle, type FmtData } from '@fmt/core';
+import { createSearch, createMatcher, createValidator, type Arrangement, type CatalogBundle, type FmtData } from '@fmt/core';
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
   createChainPreset,
+  createEmptyArrangement,
+  findNextVariant,
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
   exportArrangementOnePageSheet,
@@ -562,4 +564,35 @@ describe('Modular Scenario Planner Tree Operations', () => {
       expect(importedHtml.project.arrangement.typ).toBe('Arrangement');
     }
   });
+
+describe('Stufe 3: eigene Eingabe und anderer Vorschlag', () => {
+  it('liefert einen leeren freien Ablauf ohne Vorlagenreste', () => {
+    const empty = createEmptyArrangement(BUNDLE);
+    expect(empty.zieltyp).toBeUndefined();
+    expect(empty.kontext).toBeUndefined();
+    expect(empty.ablauf).toEqual({ typ: 'Sequenz', teile: [] });
+    expect(empty.name).toBe('Freier Ablauf');
+  });
+
+  it('findet den nächsten Vorschlag mit anderer Methodenfolge', () => {
+    const matcher = createMatcher(DATA, VALIDATOR);
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten';
+    const run = (variante: number) => matcher.zuordnen({ text, variante });
+    const first = run(0);
+    expect(first.modus).toBe('ablauf');
+    if (first.modus !== 'ablauf' || !first.arrangement) return;
+    const next = findNextVariant(run, first.arrangement, 0);
+    expect(next).not.toBeNull();
+    expect(next!.variante).toBeGreaterThan(0);
+    expect(JSON.stringify(next!.arrangement.ablauf)).not.toBe(JSON.stringify(first.arrangement.ablauf));
+    // deterministic: same call, same answer
+    expect(findNextVariant(run, first.arrangement, 0)!.variante).toBe(next!.variante);
+  });
+
+  it('meldet, wenn es keinen anderen Vorschlag gibt', () => {
+    const arr = createChainPreset('konzeptaufbau', BUNDLE);
+    const same = () => ({ modus: 'ablauf', arrangement: arr }) as never;
+    expect(findNextVariant(same, arr, 0)).toBeNull();
+  });
+});
 });

@@ -2,6 +2,7 @@ import {
   FMT_GUARDRAILS,
   adaptScenario,
   computeMultiGroupSynthesis,
+  detectLearnerGroupsFromText,
   scoreDifferentiationMatrix,
   type AdaptScenarioInput,
   type Arrangement,
@@ -415,6 +416,8 @@ export interface ScenarioPlanArgs {
   /** 0 = first proposal; higher values give the next equally suitable combination. */
   variante?: number;
   includeWloOer?: boolean;
+  /** kompakt leaves out llmBriefing, maschinenlesbar and other long blocks; default voll. */
+  umfang?: 'kompakt' | 'voll';
   gruppen?: Array<{
     id: string;
     label: string;
@@ -423,6 +426,59 @@ export interface ScenarioPlanArgs {
     profile?: string;
     selectedValues?: Record<string, string>;
   }>;
+}
+
+type PlanGroup = NonNullable<ScenarioPlanArgs['gruppen']>[number];
+
+/** Whole-class statements such as "geringes Vorwissen" only count as a subgroup when a headcount is given. */
+const CLASS_WIDE_GROUP_IDS = new Set(['vorwissen-gering', 'motivation-gering']);
+
+/** Persona that supplies the remaining traits of a named group; its own detected traits take precedence. */
+const GROUP_PERSONA: Record<string, string> = {
+  daz: 'languageAndCulture',
+  vertiefung: 'highPerforming',
+  lrs: 'foerderLernen',
+  'foerder-lernen': 'foerderLernen',
+  adhs: 'foerderEmSoz',
+  autismus: 'foerderEmSoz'
+};
+
+/**
+ * Subgroups the text names (e.g. "5 DaZ-Kinder, 4 leistungsstarke") plus the remaining regular group.
+ * Empty when the text names none, so the caller falls back to the three standard groups.
+ */
+export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[] {
+  const named = detectLearnerGroupsFromText(text).groups.filter((g) => !CLASS_WIDE_GROUP_IDS.has(g.id) || g.count);
+  if (!named.length) return [];
+  const counted = named.reduce((sum, g) => sum + (g.count || 0), 0);
+  const allCounted = named.every((g) => g.count);
+  // The regular group holds whoever is left. It is dropped when the named groups already fill the class.
+  const rest = groupSize && allCounted ? groupSize - counted : undefined;
+  const regel =
+    named.some((g) => g.id === 'regel') || rest === 0
+      ? []
+      : [{ id: 'regel', label: 'Regelniveau', personaId: 'average', ...(rest && rest > 0 ? { count: rest } : {}) }];
+  return [
+    ...named.map((g) => ({ id: g.id, label: g.label, count: g.count, personaId: GROUP_PERSONA[g.id], selectedValues: g.selectedValues })),
+    ...regel
+  ];
+}
+
+/** Fields only needed for the caller's own LLM run or for the Baukasten import; left out in compact answers. */
+const PLAN_FULL_ONLY = ['llmBriefing', 'maschinenlesbar', 'skalenVorfilterung', 'erkannteMatrixSignale', 'udlBasis', 'konflikte', 'engine'] as const;
+
+export function compactScenarioPlan<T extends Record<string, unknown>>(plan: T): Partial<T> & { hinweisUmfang?: string } {
+  if ('fehler' in plan) return plan;
+  const out: Record<string, unknown> = { ...plan };
+  for (const key of PLAN_FULL_ONLY) delete out[key];
+  if (Array.isArray(out.verbindlicheUmsetzungsregeln)) {
+    out.verbindlicheUmsetzungsregeln = (out.verbindlicheUmsetzungsregeln as string[])
+      .filter((r) => !r.startsWith('BAUKASTEN-IMPORT'))
+      .map((r) => r.replace(' und `maschinenlesbar.arrangement`', ''));
+  }
+  out.hinweisUmfang =
+    'Kompakte Antwort. Mit umfang: "voll" kommen zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis und konflikte.';
+  return out as Partial<T> & { hinweisUmfang?: string };
 }
 
 /**
@@ -483,33 +539,34 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   }
 
   const detectedTraits = classification.matrixMerkmale;
-  const activeGroups =
-    args.gruppen && args.gruppen.length
-      ? args.gruppen
-      : [
-          {
-            id: 'basis',
-            label: 'Basisunterstützung & Sprachsensibel',
-            personaId:
-              detectedTraits.suggestedPersonaId && detectedTraits.suggestedPersonaId !== 'highPerforming'
-                ? detectedTraits.suggestedPersonaId
-                : 'languageAndCulture',
-            selectedValues:
-              detectedTraits.signals.length > 0 && detectedTraits.suggestedPersonaId !== 'highPerforming'
-                ? detectedTraits.selectedValues
-                : undefined
-          },
-          { id: 'regel', label: 'Regelniveau', personaId: 'average' },
-          {
-            id: 'vertiefung',
-            label: 'Vertiefung & Leistungsstark',
-            personaId: 'highPerforming',
-            selectedValues:
-              detectedTraits.signals.length > 0 && detectedTraits.suggestedPersonaId === 'highPerforming'
-                ? detectedTraits.selectedValues
-                : undefined
-          }
-        ];
+  const defaultGroups: PlanGroup[] = [
+    {
+      id: 'basis',
+      label: 'Basisunterstützung & Sprachsensibel',
+      personaId:
+        detectedTraits.suggestedPersonaId && detectedTraits.suggestedPersonaId !== 'highPerforming'
+          ? detectedTraits.suggestedPersonaId
+          : 'languageAndCulture',
+      selectedValues:
+        detectedTraits.signals.length > 0 && detectedTraits.suggestedPersonaId !== 'highPerforming'
+          ? detectedTraits.selectedValues
+          : undefined
+    },
+    { id: 'regel', label: 'Regelniveau', personaId: 'average' },
+    {
+      id: 'vertiefung',
+      label: 'Vertiefung & Leistungsstark',
+      personaId: 'highPerforming',
+      selectedValues:
+        detectedTraits.signals.length > 0 && detectedTraits.suggestedPersonaId === 'highPerforming'
+          ? detectedTraits.selectedValues
+          : undefined
+    }
+  ];
+  const groupSize = args.gruppe ?? (typeof matched.kriterien.gruppe === 'number' ? matched.kriterien.gruppe : undefined);
+  const namedGroups = subgroupsFromText(args.text, groupSize);
+  const activeGroups: PlanGroup[] =
+    args.gruppen && args.gruppen.length ? args.gruppen : namedGroups.length ? namedGroups : defaultGroups;
 
   const effectiveMaxTechnik =
     args.maxTechnik || (typeof matched.kriterien.maxTechnik === 'string' ? matched.kriterien.maxTechnik : undefined);
@@ -520,7 +577,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
 
   const groupMatrices = activeGroups.map((g) => {
     const scored = scoreDifferentiationMatrix({
-      personaId: g.personaId || 'average',
+      // Named groups carry their own traits; the average persona would dilute them.
+      personaId: g.personaId || (g.selectedValues ? undefined : 'average'),
       selectedValues: g.selectedValues,
       limit: 6,
       maxTechnik: effectiveMaxTechnik,
@@ -548,7 +606,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       id: g.id,
       label: g.label,
       count: g.count,
-      personaId: g.personaId || 'average',
+      // Named groups carry their own traits; the average persona would dilute them.
+      personaId: g.personaId || (g.selectedValues ? undefined : 'average'),
       selectedValues: g.selectedValues
     })),
     {
@@ -622,7 +681,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.4`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
   ];
 
-  return {
+  const plan = {
     verbindlicheUmsetzungsregeln,
     dauerMs,
     engine: classification.engine,
@@ -658,6 +717,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     },
     leitplanken: FMT_GUARDRAILS
   };
+  return args.umfang === 'kompakt' ? compactScenarioPlan(plan) : plan;
 }
 
 /**

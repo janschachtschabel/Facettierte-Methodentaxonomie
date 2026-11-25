@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import {
   DIFF_MATRIX_PERSONAS,
   DIFF_MATRIX_VARIABLES,
+  FmtRequestError,
   QUICK_LEARNER_GROUP_PROFILES,
   getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
@@ -219,11 +220,26 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!text) {
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" für die Szenario-Vorfilterung übergeben.' });
     }
-    return buildScenarioPlanZeroLlm(store, {
-      ...(body as ScenarioPlanArgs),
-      text,
-      includeWloOer: Boolean(body?.includeWloOer)
-    });
+    const b = body as Record<string, unknown>;
+    const badText = ['fach', 'thema', 'lernziele', 'didaktischerAnsatz'].find((k) => b[k] != null && typeof b[k] !== 'string');
+    if (badText) return reply.code(400).send({ fehler: `Feld „${badText}“: erwartet wird Text.` });
+    const isGroup = (g: unknown) =>
+      !!g && typeof g === 'object' && typeof (g as { id?: unknown }).id === 'string' && typeof (g as { label?: unknown }).label === 'string';
+    if (b.gruppen != null && !(Array.isArray(b.gruppen) && b.gruppen.every(isGroup))) {
+      return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
+    }
+    try {
+      return await buildScenarioPlanZeroLlm(store, {
+        ...(body as ScenarioPlanArgs),
+        text,
+        includeWloOer: Boolean(body?.includeWloOer),
+        umfang: body?.umfang === 'kompakt' ? 'kompakt' : 'voll'
+      });
+    } catch (e) {
+      // Only requests the caller can fix become 400; anything else stays a server error.
+      if (e instanceof FmtRequestError) return reply.code(400).send({ fehler: e.message });
+      throw e;
+    }
   });
 
   app.get('/api/v1/differentiation/meta', async () => ({

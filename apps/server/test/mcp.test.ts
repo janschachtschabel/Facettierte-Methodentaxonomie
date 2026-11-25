@@ -159,10 +159,21 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(planJson.pruefung.gueltig).toBe(true);
     expect(planJson.pruefung.dauerMin).toBeLessThanOrEqual(90);
     expect(planJson.thematischeTabelle.length).toBeGreaterThan(0);
-    expect(planJson.llmBriefing.systemPrompt).toContain('FMT');
-    expect(planJson.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
-    expect(planJson.maschinenlesbar.schemaVersion).toBe('1.4');
-    expect(planJson.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
+    expect(planJson.llmBriefing).toBeUndefined();
+    expect(planJson.maschinenlesbar).toBeUndefined();
+    expect((planRes.content as Array<{ text: string }>)[0].text.length).toBeLessThan(30000);
+
+    const planVollRes = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: { text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen', umfang: 'voll' }
+    });
+    const planJsonKompakt = planJson;
+    expect(planJsonKompakt.thematischeTabelle.length).toBeGreaterThan(0);
+    const planVoll = JSON.parse((planVollRes.content as Array<{ text: string }>)[0].text);
+    expect(planVoll.llmBriefing.systemPrompt).toContain('FMT');
+    expect(planVoll.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
+    expect(planVoll.maschinenlesbar.schemaVersion).toBe('1.4');
+    expect(planVoll.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
 
     // Regression test from live ChatGPT MCP session: Grundschule Mathematik Bruchteile 45 min analog
     const gsPlanRes = await client.callTool({
@@ -196,7 +207,9 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(allMatrixTops.some((m) => /digital|online/i.test(m))).toBe(false);
     // 4. Binding client-LLM contract & structured methodenDetails must be returned top-level
     expect(Array.isArray(gsPlan.verbindlicheUmsetzungsregeln)).toBe(true);
-    expect(gsPlan.verbindlicheUmsetzungsregeln.length).toBeGreaterThanOrEqual(4);
+    // Compact answers omit the Baukasten import rule together with the `maschinenlesbar` block
+    expect(gsPlan.verbindlicheUmsetzungsregeln.length).toBe(3);
+    expect(JSON.stringify(gsPlan.verbindlicheUmsetzungsregeln)).not.toContain('maschinenlesbar');
     expect(Array.isArray(gsPlan.methodenDetails)).toBe(true);
     expect(gsPlan.methodenDetails.length).toBe(gsPlan.thematischeTabelle.length);
     expect(gsPlan.methodenDetails[0].status).toBeTruthy();
@@ -338,5 +351,81 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const rules = await client.readResource({ uri: 'fmt://rules' });
     const parsedRules = JSON.parse((rules.contents[0] as { text: string }).text);
     expect(parsedRules.regeln.length).toBe(13);
+  });
+
+  it('kennzeichnet Fehler mit isError', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const unknown = await client.callTool({ name: 'get_method', arguments: { kennung: 'gibt-es-nicht' } });
+    expect(unknown.isError).toBe(true);
+    expect(parse(unknown).fehler).toContain('gibt-es-nicht');
+
+    const cmp = await client.callTool({ name: 'compare_methods', arguments: { methodeA: 'abrufquiz', methodeB: 'nope' } });
+    expect(cmp.isError).toBe(true);
+
+    const path = await client.callTool({
+      name: 'suggest_replacements',
+      arguments: { arrangement: { typ: 'Arrangement', name: 'x', reichweite: 'r3', ablauf: { typ: 'Sequenz', teile: [] } }, pfad: '/ablauf/teile/9' }
+    });
+    expect(path.isError).toBe(true);
+
+    const ok = await client.callTool({ name: 'get_method', arguments: { kennung: 'abrufquiz' } });
+    expect(ok.isError).toBeFalsy();
+  });
+
+  it('nennt erlaubte Werte als Enum und weist unbekannte Werte ab', async () => {
+    const { tools } = await client.listTools();
+    const props = (name: string) => (tools.find((t) => t.name === name)!.inputSchema.properties || {}) as Record<string, { enum?: string[]; anyOf?: unknown[] }>;
+    const match = props('match_scenario');
+    expect(match.zieltyp.enum).toContain('konzeptaufbau');
+    expect(match.maxTechnik.enum).toContain('t-keine');
+    expect(match.bildungsstufe.enum).toContain('sek1');
+    expect(match.vorwissen.enum).toEqual(expect.arrayContaining(['gering', 'mittel', 'hoch']));
+    expect(JSON.stringify(match.ansatz)).toContain('kooperativ');
+    const plan = props('build_scenario_plan');
+    expect(plan.maxTechnik.enum).toContain('t-keine');
+    expect(plan.bildungsstufe.enum).toContain('primar');
+
+    const bad = await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg', maxTechnik: 'quatsch' } });
+    expect(bad.isError).toBe(true);
+    expect((bad.content as Array<{ text: string }>)[0].text).toContain('maxTechnik');
+  });
+
+  it('kürzt die Vorschlagsliste von match_scenario', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const std = parse(await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg Bruchrechnen Klasse 6' } }));
+    expect(std.modus).toBe('phase');
+    expect(std.vorschlaege.length).toBe(10);
+    expect(std.vorschlaegeGesamt).toBeGreaterThan(10);
+    const three = parse(await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg Bruchrechnen Klasse 6', limit: 3 } }));
+    expect(three.vorschlaege.length).toBe(3);
+    expect(three.vorschlaege[0].baustein).toBe(std.vorschlaege[0].baustein);
+  });
+
+  it('übernimmt im Text genannte Teilgruppen in den Szenarioplan', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const plan = parse(
+      await client.callTool({
+        name: 'build_scenario_plan',
+        arguments: { text: 'Mathematik Klasse 7, 28 Kinder, davon 5 DaZ-Kinder, 2 mit ADHS und 4 sehr leistungsstarke Kinder, Bruchrechnen, 45 Minuten' }
+      })
+    );
+    const groups = plan.lerngruppenUndMatrix as Array<{ id: string; count?: number }>;
+    expect(groups.find((g) => g.id === 'daz')?.count).toBe(5);
+    expect(groups.find((g) => g.id === 'vertiefung')?.count).toBe(4);
+    expect(groups.find((g) => g.id === 'regel')?.count).toBe(17);
+    // Each named group gets its own measures, not those of the average learner
+    const top = (id: string) => (plan.lerngruppenUndMatrix as Array<{ id: string; matrixTop: string[] }>).find((g) => g.id === id)!.matrixTop.join(' | ');
+    expect(top('vertiefung')).toMatch(/Hohe Anforderungen|Erweiterte Ziele|Anspruchsvolle/);
+    expect(top('vertiefung')).not.toBe(top('daz'));
+    expect(top('daz')).not.toMatch(/Mittlere Anforderungen|Standardziele/);
+
+    const alle = parse(
+      await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Mathematik Klasse 7, 25 Kinder, davon 25 DaZ-Kinder, Bruchrechnen, 45 Minuten' } })
+    );
+    expect((alle.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toEqual(['daz']);
+    expect(plan.erkannteKriterien.fachbereich).toBe('mathe-informatik');
+
+    const ohne = parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Mathematik Klasse 7, Bruchrechnen, 45 Minuten' } }));
+    expect((ohne.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toEqual(['basis', 'regel', 'vertiefung']);
   });
 });

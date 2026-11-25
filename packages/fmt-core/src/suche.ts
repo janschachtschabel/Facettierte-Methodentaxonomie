@@ -148,7 +148,27 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       const g = bestGrade(b);
       return g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length;
     };
-    return hits.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'de'));
+    // With a search text, hits in the name come first: whole words, then word beginnings and endings
+    // (German compounds such as Rollen-spiel), then synonyms, then chance substrings ("Lösungsbei-spiel-e").
+    const query = words.join(' ');
+    const tokens = (x: string) => fold(x).split(/[^a-z0-9]+/).filter(Boolean);
+    const textRank = (b: Baustein): number => {
+      if (!words.length) return 0;
+      const name = fold(b.name);
+      const nameWords = tokens(b.name);
+      const alt = [...(b.alternativname || []), ...(b.variante || [])];
+      if (name === query || tokens(b.kennung).join(' ') === query) return 0;
+      if (words.every((w) => nameWords.includes(w))) return 1;
+      if (alt.some((x) => fold(x) === query)) return 2;
+      if (words.every((w) => nameWords.some((n) => n.startsWith(w) || n.endsWith(w)))) return 3;
+      if (alt.some((x) => words.every((w) => tokens(x).includes(w)))) return 4;
+      if (words.every((w) => name.includes(w))) return 5;
+      return 6;
+    };
+    const tr = new Map(hits.map((b) => [b.kennung, textRank(b)]));
+    return hits.sort(
+      (a, b) => tr.get(a.kennung)! - tr.get(b.kennung)! || rank(a) - rank(b) || a.name.localeCompare(b.name, 'de')
+    );
   }
 
   function ersatz(
