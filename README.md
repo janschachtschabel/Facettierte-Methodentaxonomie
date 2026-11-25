@@ -92,7 +92,7 @@ cd Facettierte-Methodentaxonomie
 
 npm ci
 npm run build      # baut @fmt/core, dist-data/ (289 Methoden + 25 SKOS), @fmt/web und @fmt/server
-npm test           # führt alle 136 automatisierten Tests aus
+npm test           # führt alle 141 automatisierten Tests aus
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -222,7 +222,7 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (136 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (141 Tests) |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
 | `npm run mcp:stdio` | Startet den lokalen MCP-Server über `stdin`/`stdout` |
 | `npm run download:m2v` | Lädt optional `JanSchachtschabel/m2v-qwen3-4b-256-edu` nach `models/` |

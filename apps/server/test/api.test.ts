@@ -300,6 +300,15 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(f.json().erkannteKriterien.fachbereich).toBe('gesellschaft');
     expect(f.json().fachErkannt.uri).toBe('http://w3id.org/openeduhub/vocabs/discipline/510');
 
+    // The stage read from the text decides whether a university subject in the field is recognised
+    const u = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Vorlesung Thermodynamik, 90 Minuten, 120 Studierende', fach: 'Maschinenbau' } });
+    expect(u.json().fachErkannt).toMatchObject({ quelle: 'hochschulfach', fachbereich: 'nawi-technik' });
+    expect(u.json().erkannteKriterien.fachbereich).toBe('nawi-technik');
+    // An unknown subject field is not replaced by a subject guessed from the text
+    const w = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Die Wirtschaft der DDR, 45 Minuten, Klasse 10', fach: 'WAT' } });
+    expect(w.json().fach).toBe('WAT');
+    expect(w.json().fachErkannt).toBeNull();
+
     const none = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Teamregeln vereinbaren, 45 Minuten' } });
     expect(none.json().fachErkannt).toBeNull();
   });
@@ -311,7 +320,10 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(resolveFachUri('Erdkunde', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/220');
     expect(resolveFachUri('Ethik / Philosophie', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/160');
     expect(resolveFachUri('Nachhaltigkeit (BNE)', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/64018');
-    expect(resolveFachUri('Mathematik')).toBe('http://w3id.org/openeduhub/vocabs/discipline/380');
+    // buildApp wires the vocabulary lookup as the default
+    expect(resolveFachUri('Türkisch')).toBe('http://w3id.org/openeduhub/vocabs/discipline/20008');
+    expect(resolveFachUri('Mathematik', null)).toBe('http://w3id.org/openeduhub/vocabs/discipline/380');
+    expect(resolveFachUri('Türkisch', null)).toBeNull();
     expect(resolveFachUri('Quatschfach', lookup)).toBeNull();
   });
 });

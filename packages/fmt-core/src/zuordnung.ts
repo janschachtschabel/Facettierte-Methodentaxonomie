@@ -508,10 +508,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
     }
 
-    // The hand-tuned rules above come first. The OEH vocabularies add the subjects those rules do not know
-    // and name the subject itself for the WLO search.
+    // The OEH vocabularies name the subject itself (for the WLO search) and cover subjects the rules above do not know.
     const fach = subjects.erkenne(text || '', stufe || (kriterien.bildungsstufe as string | undefined)) || undefined;
-    if (fach && fach.fachbereich !== 'uebergreifend') take('fachbereich', fach.fachbereich, fach.beleg);
+    if (fach && fach.fachbereich !== 'uebergreifend') {
+      // The detector only reports a subject the text frames as such ("Biologie Klasse 8"), so it beats a rule
+      // that fired on a subject word inside the topic ("Sport und Ernährung").
+      delete kriterien.fachbereich;
+      const stale = erkannt.findIndex((e) => e.feld === 'fachbereich');
+      if (stale >= 0) erkannt.splice(stale, 1);
+      take('fachbereich', fach.fachbereich, fach.beleg);
+    }
 
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))
       .map((f) => f.feld)

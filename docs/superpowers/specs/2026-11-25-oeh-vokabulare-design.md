@@ -19,20 +19,24 @@ Helfen fertige Vokabulare für Bildungsstufe, Schulfach und Hochschulfach, oder 
 ## Umsetzung (nur Erkennung, keine Angabe an Methoden)
 
 - `data/crosswalk/oeh-faecher.json`: alle Schul- und Hochschulfächer mit OEH-Kennung, Bezeichnung und FMT-Fachbereich.
-  Studienfächer erben vom Studienbereich, 20 Fächer weichen ab. Liste zur Durchsicht:
+  Studienfächer erben vom Studienbereich, 5 Fächer weichen ab. Liste zur Durchsicht:
   `docs/datenpflege/2026-11-25-oeh-fachzuordnung.md`.
-- `packages/fmt-core/src/fach.ts`: `createSubjectDetector()` liest das Fach aus dem Text. Regeln:
-  Fach neben einer Rahmenangabe („Geschichte Klasse 7“, „Musikunterricht“) vor Fachwort im Thema („Kunst der Renaissance“),
-  Hochschulfächer nur bei Bildungsstufe Hochschule, Alltagswörter und Lerngruppenmerkmale zählen nicht.
-- Die bisherigen Textregeln für den Fachbereich bleiben vorrangig. Das Vokabular ergänzt Fächer, die sie nicht kennen
-  (z. B. Türkisch, Psychologie, Maschinenbau, Betriebswirtschaftslehre), und liefert das Fach selbst.
+- `packages/fmt-core/src/fach.ts`: `createSubjectDetector()` liest das Fach aus dem Text. Ein Fachwort zählt nur,
+  wenn der Text es als Fach rahmt: neben Klasse, Kurs oder Niveau („Geschichte Klasse 7“, „Spanisch A1“), als
+  Zusammensetzung („Musikunterricht“, „Informatik-AG“), als eigener Abschnitt („…, Mathematik, …“, „Physik: Dichte“)
+  oder nach einem Veranstaltungswort („Seminar Soziale Arbeit, …“). Ein Fachwort im Thema („Politik der Weimarer
+  Republik“, „die Chemie stimmt nicht“) zählt nicht. Hochschulfächer werden nur bei Bildungsstufe Hochschule gelesen.
+- Ein so erkanntes Fach bestimmt den Fachbereich und geht den älteren Textregeln vor. Diese bleiben für Texte ohne
+  gerahmtes Fach bestehen. Ein ausdrücklich übergebener Fachbereich gewinnt weiterhin.
 - Ergebnis von `zuordnen()` und `lesen()` nennt `fach` (Quelle, Kennung, URI, Bezeichnung, Fachbereich).
   `/api/v1/classify` gibt `fach` aus, `/api/v1/plan` und `build_scenario_plan` geben `fachErkannt` aus.
 - Die WLO-Suche löst Fachnamen über das Vokabular auf statt über eine Liste mit 30 Einträgen.
 
 ## Bekannte Grenzen
 
-- Zwei Quellen für den Fachbereich (Textregeln und Vokabular). Die Regeln enthalten Sonderfälle, die das Vokabular nicht abbildet.
+- Zwei Quellen für den Fachbereich (Textregeln und Vokabular). Das gerahmte Fach aus dem Vokabular hat Vorrang.
+- Veranstaltungstitel wie „Statistik für Psychologen“ rahmen das Fach nicht und bleiben unerkannt.
+- „Naturwissenschaften“ und „Nawi“ laufen unter dem OEH-Eintrag MINT. Für „Technik“ als Schulfach gibt es keinen OEH-Eintrag.
 - Themenwörter ohne Fachnamen („Bruchrechnen“) ergeben weiterhin keinen Fachbereich.
 - Die Zuordnung einzelner Studienbereiche ist eine Setzung (z. B. Geographie → Gesellschaft, Medizin → Naturwissenschaft und Technik).
 

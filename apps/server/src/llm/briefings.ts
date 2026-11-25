@@ -493,7 +493,11 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   const extracted = extractSubjectAndTopicFromText(args.text);
   const thema = args.thema?.trim() || extracted.thema || args.text.slice(0, 110);
   // A subject given as its own field counts like a subject named in the text.
-  const fachFeld = args.fach?.trim() ? store.matcher.lesen(args.fach, args.bildungsstufe) : null;
+  const stufe = args.bildungsstufe || (classification.kriterien.bildungsstufe as string | undefined);
+  const fachFeld = args.fach?.trim() ? store.subjects.erkenne(args.fach, stufe) : null;
+
+  // Subject words the vocabulary does not hold (e.g. "Naturwissenschaften") still reach the text rules.
+  const fachbereichAusFeld = args.fach?.trim() ? (store.matcher.lesen(args.fach).kriterien.fachbereich as string | undefined) : undefined;
 
   const matchReq: MatchRequest = {
     text: args.text,
@@ -512,7 +516,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI,
     variante: args.variante,
-    fachbereich: fachFeld?.kriterien.fachbereich as string | undefined
+    fachbereich: fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld
   };
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;
@@ -539,7 +543,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   }
 
   // Subject with OEH URI: from the own field if given, otherwise as named in the text.
-  const fachErkannt = fachFeld?.fach || matched.fach || null;
+  // A subject field the vocabulary does not know is not replaced by a guess from the text.
+  const fachErkannt = args.fach?.trim() ? fachFeld : matched.fach || null;
   const fach = args.fach?.trim() || extracted.fach || fachErkannt?.label || undefined;
 
   const detectedTraits = classification.matrixMerkmale;

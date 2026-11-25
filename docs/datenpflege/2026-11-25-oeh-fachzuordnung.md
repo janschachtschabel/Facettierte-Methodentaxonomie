@@ -38,9 +38,9 @@ Stand: 2026-11-25 · Datei: `data/crosswalk/oeh-faecher.json` · Die Zuordnung d
 | 20041 | Chinesisch | sprachen | Chinesisch |
 | 20090 | Esperanto | sprachen | Esperanto |
 | 220 | Geografie | gesellschaft | Geografie, Erdkunde, Geographie |
-| 240 | Geschichte | gesellschaft | Geschichte |
+| 240 | Geschichte | gesellschaft | Geschichte, Geschichtsunterricht, Geschichtsstunde |
 | 260 | Gesundheit | uebergreifend | Gesundheitserziehung, Gesundheitslehre |
-| 28002 | Deutsch als Zweitsprache | sprachen | Deutsch als Zweitsprache, Deutsch als Fremdsprache |
+| 28002 | Deutsch als Zweitsprache | sprachen | Deutsch als Zweitsprache, Deutsch als Fremdsprache, DaZ, DaF |
 | 28010 | Sachunterricht | nawi-technik | Sachunterricht, Heimatunterricht |
 | 320 | Informatik | mathe-informatik | Informatik |
 | 340 | Interkulturelle Bildung | gesellschaft | aus |
@@ -57,7 +57,7 @@ Stand: 2026-11-25 · Datei: `data/crosswalk/oeh-faecher.json` · Die Zuordnung d
 | 480 | Politik | gesellschaft | Politik, Politische Bildung |
 | 48005 | Gesellschaftskunde | gesellschaft | Gesellschaftskunde, Gemeinschaftskunde, Sozialkunde, Gesellschaftslehre, Sowi |
 | 50001 | Hauswirtschaft | beruf-praxis | Hauswirtschaft, Verbraucherbildung |
-| 50005 | Werken | aesthetik | Werkunterricht |
+| 50005 | Werken | aesthetik | Werken, Werkunterricht |
 | 510 | Psychologie | gesellschaft | Psychologie |
 | 520 | Religion | gesellschaft | Religion, Religionslehre |
 | 560 | Sexualerziehung | uebergreifend | Sexualerziehung |
@@ -70,7 +70,7 @@ Stand: 2026-11-25 · Datei: `data/crosswalk/oeh-faecher.json` · Die Zuordnung d
 | 720 | Allgemein | uebergreifend | aus |
 | 72001 | Zeitgemäße Bildung | uebergreifend | aus |
 | 72002 | Projektmanagement | beruf-praxis | Projektmanagement |
-| 72003 | Evidenzbasierte Medizin | beruf-praxis | Evidenzbasierte Medizin |
+| 72003 | Evidenzbasierte Medizin | nawi-technik | Evidenzbasierte Medizin |
 | 900 | Medienbildung | uebergreifend | Medienbildung |
 | 999 | Sonstiges | uebergreifend | aus |
 | niederdeutsch | Niederdeutsch | sprachen | Niederdeutsch, Platt |
@@ -148,6 +148,8 @@ Studienfächer erben den Fachbereich ihres Studienbereichs. Abweichungen stehen 
 
 | Studienfach | Studienbereich | Fachbereich des Studienbereichs | Fachbereich des Fachs |
 | --- | --- | --- | --- |
+| Arbeitslehre/Wirtschaftslehre | Studienbereich Wirtschaftswissenschaften | gesellschaft | beruf-praxis |
 | Sportmanagement/Sportökonomie | Studienbereich Wirtschaftswissenschaften | gesellschaft | sport |
 | Sachunterricht (einschl. Schulgarten) | Erziehungswissenschaften | gesellschaft | nawi-technik |
+| Landschaftsökologie/Biogeographie | Geographie | gesellschaft | nawi-technik |
 | Statistik | Mathematik, Naturwissenschaften allgemein | nawi-technik | mathe-informatik |

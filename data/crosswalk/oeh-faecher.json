@@ -261,7 +261,12 @@
    "id": "240",
    "uri": "http://w3id.org/openeduhub/vocabs/discipline/240",
    "label": "Geschichte",
-   "fachbereich": "gesellschaft"
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Geschichte",
+    "Geschichtsunterricht",
+    "Geschichtsstunde"
+   ]
   },
   {
    "id": "260",
@@ -289,7 +294,9 @@
    ],
    "begriffe": [
     "Deutsch als Zweitsprache",
-    "Deutsch als Fremdsprache"
+    "Deutsch als Fremdsprache",
+    "DaZ",
+    "DaF"
    ]
   },
   {
@@ -450,6 +457,7 @@
    "label": "Werken",
    "fachbereich": "aesthetik",
    "begriffe": [
+    "Werken",
     "Werkunterricht"
    ]
   },
@@ -560,7 +568,7 @@
    "id": "72003",
    "uri": "http://w3id.org/openeduhub/vocabs/discipline/72003",
    "label": "Evidenzbasierte Medizin",
-   "fachbereich": "beruf-praxis"
+   "fachbereich": "nawi-technik"
   },
   {
    "id": "900",
@@ -699,7 +707,7 @@
    "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n011",
    "label": "Arbeitslehre/Wirtschaftslehre",
    "ebene": 3,
-   "fachbereich": "gesellschaft",
+   "fachbereich": "beruf-praxis",
    "oberbegriff": "n30"
   },
   {
@@ -780,6 +788,9 @@
    "label": "Evang. Theologie, -Religionslehre",
    "ebene": 2,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Evangelische Theologie"
+   ],
    "oberbegriff": "n1"
   },
   {
@@ -796,6 +807,10 @@
    "label": "Betriebswirtschaftslehre",
    "ebene": 3,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Betriebswirtschaftslehre",
+    "BWL"
+   ],
    "oberbegriff": "n30"
   },
   {
@@ -860,6 +875,9 @@
    "label": "Kath. Theologie, -Religionslehre",
    "ebene": 2,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Katholische Theologie"
+   ],
    "oberbegriff": "n1"
   },
   {
@@ -1020,6 +1038,11 @@
    "label": "Erziehungswissenschaft (Pädagogik)",
    "ebene": 3,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Erziehungswissenschaft",
+    "Erziehungswissenschaften",
+    "Pädagogik"
+   ],
    "oberbegriff": "n33"
   },
   {
@@ -1028,6 +1051,9 @@
    "label": "Evang. Theologie, -Religionslehre",
    "ebene": 3,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Evangelische Theologie"
+   ],
    "oberbegriff": "n02"
   },
   {
@@ -1300,6 +1326,9 @@
    "label": "Kath. Theologie, -Religionslehre",
    "ebene": 3,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Katholische Theologie"
+   ],
    "oberbegriff": "n03"
   },
   {
@@ -1467,6 +1496,10 @@
    "label": "Medizin (Allgemein-Medizin)",
    "ebene": 3,
    "fachbereich": "nawi-technik",
+   "begriffe": [
+    "Medizin",
+    "Humanmedizin"
+   ],
    "oberbegriff": "n49"
   },
   {
@@ -1683,6 +1716,11 @@
    "label": "Rechtswissenschaft",
    "ebene": 3,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Rechtswissenschaft",
+    "Rechtswissenschaften",
+    "Jura"
+   ],
    "oberbegriff": "n28"
   },
   {
@@ -1995,6 +2033,10 @@
    "label": "Volkswirtschaftslehre",
    "ebene": 3,
    "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Volkswirtschaftslehre",
+    "VWL"
+   ],
    "oberbegriff": "n30"
   },
   {
@@ -2658,6 +2700,10 @@
    "label": "Deutsch als Fremdsprache oder als Zweitsprache",
    "ebene": 3,
    "fachbereich": "sprachen",
+   "begriffe": [
+    "Deutsch als Fremdsprache",
+    "Deutsch als Zweitsprache"
+   ],
    "oberbegriff": "n09"
   },
   {
@@ -2737,7 +2783,7 @@
    "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n283",
    "label": "Landschaftsökologie/Biogeographie",
    "ebene": 3,
-   "fachbereich": "gesellschaft",
+   "fachbereich": "nawi-technik",
    "oberbegriff": "n44"
   },
   {

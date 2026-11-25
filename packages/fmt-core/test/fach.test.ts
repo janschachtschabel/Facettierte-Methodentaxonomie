@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createSubjectDetector, createValidator } from '../src/index.js';
+import { termsOf } from '../src/fach.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -21,6 +22,27 @@ describe('OEH-Fachzuordnung (data/crosswalk/oeh-faecher.json)', () => {
     }
     const ids = D.faecher!.hochschulfaecher.map((f) => f.id);
     for (const f of D.faecher!.hochschulfaecher) if (f.oberbegriff) expect(ids).toContain(f.oberbegriff);
+  });
+});
+
+describe('Suchwörter aus den Vokabularen', () => {
+  it('enthalten keine Bruchstücke und decken die Hochschulfächer ab', () => {
+    const uni = D.faecher!.hochschulfaecher.filter((f) => f.ebene !== 1);
+    const all = uni.flatMap((f) => termsOf(f, true));
+    for (const t of all) {
+      expect(t, t).not.toMatch(/^-|-$|\.|^studienbereich/);
+      expect(t.length).toBeGreaterThanOrEqual(3);
+    }
+    const terms = (label: string) => termsOf(uni.find((f) => f.label === label)!, true);
+    expect(terms('Maschinenbau/-wesen')).toEqual(['maschinenbau']);
+    expect(terms('Medizin (Allgemein-Medizin)')).toContain('medizin');
+    expect(terms('Kunstgeschichte, Kunstwissenschaft')).toEqual(['kunstgeschichte', 'kunstwissenschaft']);
+    expect(terms('Transport-/Fördertechnik')).toEqual(['fordertechnik']);
+    expect(terms('Betriebswirtschaftslehre')).toContain('bwl');
+    expect(terms('Allgemeine Sprachwissenschaft/Indogermanistik')).toContain('indogermanistik');
+    // Only collective headings may stay without a search word
+    const without = uni.filter((f) => f.ebene === 3 && termsOf(f, true).length === 0).map((f) => f.label);
+    expect(without.every((l) => /allgemein|Interdisziplinäre|Lernbereich|Sonstige|Orientierungsstudium/.test(l)), without.join('; ')).toBe(true);
   });
 });
 
@@ -66,6 +88,46 @@ describe('Facherkennung aus dem Text', () => {
     expect(fach('')).toBeNull();
   });
 
+  it('liest ein Fachwort ohne Rahmenangabe nicht als Fach', () => {
+    for (const t of [
+      'Politik der Weimarer Republik, 90 Minuten',
+      'Die Chemie zwischen den Gruppenmitgliedern stimmt nicht, Teamtraining Klasse 8',
+      'Welche Rolle spielt Religion im Alltag, 45 Minuten',
+      'Die Geschichte von Hänsel und Gretel nacherzählen, Klasse 2',
+      'Der Reifen ist platt: Fahrradwerkstatt Klasse 6',
+      'Körperpflege und Hygiene, Klasse 2, 45 Minuten',
+      'Musik 20 Minuten hören, dann Vokabeln'
+    ]) {
+      expect(fach(t), t).toBeNull();
+    }
+    for (const t of [
+      'Seminar Classroom Management für Lehramtsstudierende, 90 Minuten',
+      'Hochschuldidaktik: Plastik im Meer, 90 Minuten',
+      'Seminar Regie führen im Klassenzimmer, Studierende, 90 Minuten',
+      'Seminar Gestaltung von Lernumgebungen, Hochschule',
+      'Seminar Neue Medien im Unterricht, Universität',
+      'Seminar Transport-Logistik, Hochschule',
+      'Seminar Wirtschafts-Ethik, Master'
+    ]) {
+      expect(fach(t, 'hochschule'), t).toBeNull();
+    }
+  });
+
+  it('erkennt übliche Schreibweisen', () => {
+    expect(fach('Geschichtsunterricht Klasse 8, Industrialisierung')).toMatchObject({ label: 'Geschichte' });
+    expect(fach('Physik-Unterricht Klasse 8')).toMatchObject({ label: 'Physik' });
+    expect(fach('Informatik-AG: Scratch, 6. Klasse')).toMatchObject({ label: 'Informatik' });
+    expect(fach('Werken Klasse 5, Holz sägen')).toMatchObject({ label: 'Werken', fachbereich: 'aesthetik' });
+    expect(fach('DaZ Klasse 5: Wortschatz Wohnen')).toMatchObject({ label: 'Deutsch als Zweitsprache' });
+    expect(fach('Bruchrechnen, Mathematik, 45 Minuten')).toMatchObject({ label: 'Mathematik' });
+    expect(fach('VHS Spanisch A1, Begrüßung')).toMatchObject({ label: 'Spanisch' });
+    expect(fach('Physik Klasse 8, Dichte, viele DaZ Schüler')).toMatchObject({ label: 'Physik' });
+    expect(fach('Seminar BWL, Kostenrechnung, 30 Studierende', 'hochschule')).toMatchObject({ label: 'Betriebswirtschaftslehre' });
+    expect(fach('Vorlesung Medizin, Anatomie des Herzens', 'hochschule')).toMatchObject({ fachbereich: 'nawi-technik' });
+    expect(fach('Seminar Kunstgeschichte, Impressionismus', 'hochschule')).toMatchObject({ fachbereich: 'aesthetik' });
+    expect(fach('Seminar Germanistik an der Uni, Lyrik', 'hochschule')).toMatchObject({ fachbereich: 'sprachen' });
+  });
+
   it('zieht das Fach mit Rahmenangabe einem Fachwort im Thema vor', () => {
     expect(fach('Einfluss der Religion im Mittelalter, Geschichte Klasse 7')).toMatchObject({ label: 'Geschichte' });
     expect(fach('Kunst der Renaissance, Geschichte Klasse 8')).toMatchObject({ label: 'Geschichte' });
@@ -90,6 +152,30 @@ describe('Zuordnung mit Facherkennung', () => {
     expect(fb('Mathematik Klasse 7, 28 Kinder, davon 5 mit DaZ, Bruchrechnen')).toBe('mathe-informatik');
     expect(fb('Fotosynthese Klasse 7, 5 DaZ-Kinder')).toBeUndefined();
     expect(fb('Bruchrechnen Klasse 6')).toBeUndefined();
+  });
+
+  it('richtet den Fachbereich nach dem erkannten Fach, auch wenn ein anderes Fachwort im Thema steht', () => {
+    for (const [t, area] of [
+      ['Sport und Ernährung, Biologie Klasse 8, 45 Minuten', 'nawi-technik'],
+      ['Die Kunst des Argumentierens, Deutsch Klasse 9', 'sprachen'],
+      ['Stunde mit Musik auflockern, Mathe Klasse 5', 'mathe-informatik'],
+      ['Die Geschichte der Mathematik, Projekt, Geschichte Klasse 10', 'gesellschaft']
+    ] as const) {
+      const r = M.lesen(t);
+      expect(r.kriterien.fachbereich, t).toBe(area);
+      expect(r.fach!.fachbereich, t).toBe(area);
+      expect(r.erkannt.filter((e) => e.feld === 'fachbereich').length).toBe(1);
+    }
+    // An explicitly given subject area still wins
+    const r = M.zuordnen({ text: 'Türkisch Klasse 7, Wegbeschreibung, 45 Minuten', fachbereich: 'mathe-informatik' });
+    expect(r.kriterien.fachbereich).toBe('mathe-informatik');
+  });
+
+  it('arbeitet ohne Fachvokabular wie bisher', () => {
+    const plain = createMatcher({ ...D, faecher: undefined }, createValidator(D));
+    expect(plain.lesen('Türkisch Klasse 7').fach).toBeUndefined();
+    expect(plain.lesen('Mathematik Klasse 7').kriterien.fachbereich).toBe('mathe-informatik');
+    expect(createSubjectDetector(undefined).erkenne('Mathematik Klasse 7')).toBeNull();
   });
 
   it('nennt das erkannte Fach im Ergebnis', () => {
