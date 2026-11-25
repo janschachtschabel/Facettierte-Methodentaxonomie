@@ -1,4 +1,5 @@
 import type { NeutralLearningScenario, ScenarioPhaseRow } from './scenarioModel.js';
+import { safeExternalUrl, safeOerList } from './safeUrl.js';
 
 const escXml = (s: string) =>
   String(s || '')
@@ -125,8 +126,8 @@ function buildPhaseHtmlPage(row: ScenarioPhaseRow, scenarioTitle: string): strin
         .join('')}</ul>`
     : '';
 
-  const oerHtml = row.oerResources.length
-    ? `<h2>Verknüpfte OER-Materialien (WirLernenOnline – inkl. wwwurl)</h2><ul>${row.oerResources
+  const oerHtml = safeOerList(row.oerResources).length
+    ? `<h2>Verknüpfte OER-Materialien (WirLernenOnline – inkl. wwwurl)</h2><ul>${safeOerList(row.oerResources)
         .map((o) => {
           const href = o.wwwurl || o.url;
           return `<li><a href="${escHtml(href)}" target="_blank" rel="noreferrer">${escHtml(o.title)}</a> (<code>${escHtml(href)}</code>)${
@@ -139,8 +140,8 @@ function buildPhaseHtmlPage(row: ScenarioPhaseRow, scenarioTitle: string): strin
   const sourcesHtml = (row.block?.quellen || []).length
     ? `<h2>Methoden-Quellen</h2><ul>${row.block!.quellen
         .map((q) =>
-          q.url
-            ? `<li><a href="${escHtml(q.url)}" target="_blank" rel="noreferrer">${escHtml(q.titel)}</a></li>`
+          safeExternalUrl(q.url)
+            ? `<li><a href="${escHtml(safeExternalUrl(q.url))}" target="_blank" rel="noreferrer">${escHtml(q.titel)}</a></li>`
             : `<li>${escHtml(q.titel)}</li>`
         )
         .join('')}</ul>`
@@ -216,7 +217,7 @@ export function exportScenarioToImscc(
     files.push({ path: href, content: buildPhaseHtmlPage(row, scenario.metadata.title) });
 
     let childLinks = '';
-    row.oerResources.forEach((oer, oi) => {
+    safeOerList(row.oerResources).forEach((oer, oi) => {
       const linkItemId = `item_oer_${idx + 1}_${oi + 1}`;
       const linkResId = `res_oer_${idx + 1}_${oi + 1}`;
       const linkHref = `web_resources/oer_${idx + 1}_${oi + 1}.xml`;
@@ -338,7 +339,7 @@ export function exportScenarioToMoodleXml(
     </activity>`);
     actId++;
 
-    row.oerResources.forEach((oer) => {
+    safeOerList(row.oerResources).forEach((oer) => {
       const href = oer.wwwurl || oer.url;
       activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="url" contextid="${actId + 1000}">
       <url id="${actId}">

@@ -12,6 +12,7 @@ import {
   type ValidationResult,
   type WiederkehrNode
 } from '@fmt/core';
+import { safeOerList } from './safeUrl.js';
 import { escHtml, markdownToHtml, renderInlineMarkdownHtml } from './markdownMath.js';
 
 const clone = <T>(o: T): T => JSON.parse(JSON.stringify(o)) as T;
@@ -1341,7 +1342,7 @@ export function exportArrangementOnePageSheet(
   })();
 
   const allOer = scenarioRows.flatMap((r) =>
-    r.oerResources.map((o) => ({
+    safeOerList(r.oerResources).map((o) => ({
       phase: `${r.orderLabel} · ${r.methodName}`,
       title: o.title,
       href: o.wwwurl || o.url || '',

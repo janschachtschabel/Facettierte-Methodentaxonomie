@@ -20,6 +20,7 @@ import {
   type DifferentiateBriefingPayload,
   type LlmBriefingPacket
 } from '../llm/briefings.js';
+import { InvalidRequestError, MAX_TEXT_CHARS, isMaterialGroupList, tooLongMessage } from './validation.js';
 
 export interface ThematicTableRow {
   key: string;
@@ -405,9 +406,12 @@ export async function elaborateScenarioCore(
   const subTimeoutMs = Math.max(config.llmTimeoutMs, 60000);
 
   // Split thematic table into small parallel batches (max 3 phases per batch) so each call finishes quickly & reliably
+  // At most MAX_LLM_CHUNKS calls per request: a long arrangement must not fan out into dozens of paid
+  // LLM calls behind a single rate-limited request. Phases beyond the cap keep the deterministic rows.
   const CHUNK_SIZE = 3;
+  const MAX_LLM_CHUNKS = 8;
   const phaseChunks: ThematicTableRow[][] = [];
-  for (let i = 0; i < fallbackTable.length; i += CHUNK_SIZE) {
+  for (let i = 0; i < fallbackTable.length && phaseChunks.length < MAX_LLM_CHUNKS; i += CHUNK_SIZE) {
     phaseChunks.push(fallbackTable.slice(i, i + CHUNK_SIZE));
   }
 
@@ -653,10 +657,13 @@ export async function generateMaterialCore(
   baustein: string;
   llmBriefing?: LlmBriefingPacket;
 }> {
-  const methodId = (body.baustein || '').trim();
+  const methodId = typeof body.baustein === 'string' ? body.baustein.trim() : '';
   const block = store.blocksById.get(methodId);
   if (!block) {
-    throw new Error('Bitte einen gültigen FMT-Methodenbaustein auswählen.');
+    throw new InvalidRequestError('Bitte einen gültigen FMT-Methodenbaustein auswählen.');
+  }
+  if (body.gruppen != null && !isMaterialGroupList(body.gruppen)) {
+    throw new InvalidRequestError('Feld „gruppen“: erwartet wird eine Liste von Objekten mit label.');
   }
 
   const materialTyp = body.materialTyp || 'arbeitsblatt';
@@ -1012,6 +1019,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       if (task === 'translate') {
         const text = typeof payload.text === 'string' ? payload.text.trim() : '';
         if (!text) return reply.code(400).send({ fehler: 'Bitte payload.text übergeben.' });
+        if (text.length > MAX_TEXT_CHARS) return reply.code(400).send({ fehler: tooLongMessage('payload.text') });
         const b = buildTranslateBriefing(store, text);
         return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
       }
@@ -1229,7 +1237,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       const res = await generateMaterialCore(store, config, override, body as MaterialPayload);
       return reply.send({ ...res, leitplanken: FMT_GUARDRAILS });
     } catch (e) {
-      if (e instanceof ByokValidationError) return reply.code(400).send({ fehler: e.message });
+      if (e instanceof ByokValidationError || e instanceof InvalidRequestError) return reply.code(400).send({ fehler: e.message });
       return reply.code(502).send({
         fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.'
       });

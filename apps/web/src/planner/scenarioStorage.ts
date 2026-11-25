@@ -1,5 +1,6 @@
 import type { Arrangement } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
+import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
   GeneratedMaterialItem,
   LearnerGroup,
@@ -251,27 +252,32 @@ export function importScenarioProjectJson(
           : null;
 
     // Normalize OER from either oerByStep OR API/MCP wloOerRessourcen
+    // Imported files may come from anyone: keep only OER entries with http(s)/mailto links.
     let oerByStep: Record<string, OerResource[]> | undefined =
       parsed.oerByStep && typeof parsed.oerByStep === 'object' && !Array.isArray(parsed.oerByStep)
-        ? (parsed.oerByStep as Record<string, OerResource[]>)
+        ? Object.fromEntries(
+            Object.entries(parsed.oerByStep as Record<string, OerResource[]>).map(([k, v]) => [k, safeOerList(v)])
+          )
         : undefined;
     if (!oerByStep && Array.isArray(parsed.wloOerRessourcen) && parsed.wloOerRessourcen.length > 0) {
       const firstKey = thematicRows?.[0]?.key || 'step-0';
       oerByStep = {
-        [firstKey]: (parsed.wloOerRessourcen as Array<Record<string, unknown>>).map((o, i) => {
-          const href = String(o.wwwurl || o.url || '');
-          return {
-            id: `imported-oer-${i}`,
-            title: String(o.titel || o.title || 'WLO-OER'),
-            description: '',
-            url: href,
-            wwwurl: href,
-            wloRenderUrl: typeof o.wloRenderUrl === 'string' ? o.wloRenderUrl : null,
-            license: typeof o.lizenz === 'string' ? o.lizenz : null,
-            resourceType: typeof o.medientyp === 'string' ? o.medientyp : null,
-            source: 'wlo'
-          };
-        })
+        [firstKey]: (parsed.wloOerRessourcen as Array<Record<string, unknown>>)
+          .filter((o) => !!o && typeof o === 'object' && !!safeExternalUrl(o.wwwurl || o.url))
+          .map((o, i) => {
+            const href = safeExternalUrl(o.wwwurl || o.url);
+            return {
+              id: `imported-oer-${i}`,
+              title: String(o.titel || o.title || 'WLO-OER'),
+              description: '',
+              url: href,
+              wwwurl: href,
+              wloRenderUrl: safeExternalUrl(o.wloRenderUrl) || null,
+              license: typeof o.lizenz === 'string' ? o.lizenz : null,
+              resourceType: typeof o.medientyp === 'string' ? o.medientyp : null,
+              source: 'wlo'
+            };
+          })
       };
     }
 
