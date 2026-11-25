@@ -7,6 +7,7 @@ import {
   type Baustein,
   type CatalogBundle,
   type EinsatzNode,
+  type MatchResult,
   type SequenzNode,
   type ValidationResult,
   type WiederkehrNode
@@ -76,6 +77,38 @@ const E = (baustein: string, dauerMin: number, extra?: Partial<EinsatzNode>): Ei
 });
 
 const fill = (slotKennung: string, inhalt: ArrangementNode) => ({ slotKennung, inhalt });
+
+/** A free flow without any template content, shown when the user starts from an own description. */
+export function createEmptyArrangement(bundle: CatalogBundle): Arrangement {
+  return {
+    '@context': bundle.NS + 'context.jsonld',
+    '@id': bundle.NS + 'plan/entwurf',
+    typ: 'Arrangement',
+    name: 'Freier Ablauf',
+    reichweite: 'r3',
+    ablauf: { typ: 'Sequenz', teile: [] }
+  };
+}
+
+/**
+ * "Anderer Vorschlag": asks the matcher for the following variants until one has a different flow.
+ * Returns null when the next few variants all repeat the current flow.
+ */
+export function findNextVariant(
+  zuordnen: (variante: number) => MatchResult,
+  current: Arrangement,
+  currentVariante: number,
+  maxTries = 6
+): { variante: number; result: MatchResult; arrangement: Arrangement } | null {
+  const now = JSON.stringify(current.ablauf);
+  for (let v = currentVariante + 1; v <= currentVariante + maxTries; v++) {
+    const result = zuordnen(v);
+    if (result.modus === 'ablauf' && result.arrangement && JSON.stringify(result.arrangement.ablauf) !== now) {
+      return { variante: v, result, arrangement: result.arrangement };
+    }
+  }
+  return null;
+}
 
 export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arrangement {
   const kette = bundle.ketten.find((k) => k.id === zieltyp);

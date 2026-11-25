@@ -92,7 +92,7 @@ cd Facettierte-Methodentaxonomie
 
 npm ci
 npm run build      # baut @fmt/core, dist-data/ (289 Methoden + 25 SKOS), @fmt/web und @fmt/server
-npm test           # führt alle 107 automatisierten Tests aus
+npm test           # führt alle 123 automatisierten Tests aus
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -119,7 +119,7 @@ npm run dev:web    # Terminal 2: Vite Dev-Server (Proxy zu 8080)
 | `http://localhost:8080/` | Web-App (Methodenkatalog, Szenario-Baukasten, Vergleich, Systematik) |
 | `http://localhost:8080/mcp` | Remote-MCP-Server (Streamable HTTP, 14 Zero-LLM-Tools) |
 | `http://localhost:8080/api/v1/meta` | Status, Version, Hash, Methodenanzahl, Klassifikations-Engine & LLM-Status |
-| `http://localhost:8080/api/v1/plan` | Ein-Schritt-Zero-LLM-Vorfilterung inkl. `llmBriefing` (`POST`) |
+| `http://localhost:8080/api/v1/plan` | Ein-Schritt-Zero-LLM-Vorfilterung inkl. `llmBriefing` (`POST`); `umfang: "kompakt"` lässt die langen Blöcke weg, ungültige Angaben ergeben HTTP 400 |
 | `http://localhost:8080/api/v1/classify` | Hybride Freitext-Klassifikation auf 6 Skalen & Matrix-Merkmale (`POST`) |
 | `http://localhost:8080/bausteine/katalog.jsonld` | Linked-Data-Gesamtkatalog (JSON-LD, CC BY 4.0) |
 | `http://localhost:8080/healthz` | Healthcheck (`200 OK`) |
@@ -179,6 +179,8 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 
 Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche, 5-Stufen-Zuordnung, Regelprüfung, Binnendifferenzierungsmatrix, hybride Freitext-Klassifikation) und liefern bei komplexen Aufgaben ein fertiges **`llmBriefing`** für das aufrufende Enduser-LLM.
 
+Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `match_scenario` liefert im Modus `phase` höchstens `limit` Vorschläge (Standard 10) und nennt die Gesamtzahl in `vorschlaegeGesamt`. `build_scenario_plan` antwortet standardmäßig kompakt (rund 19 KB statt 51 KB); `umfang: "voll"` ergänzt `llmBriefing`, `maschinenlesbar` für den Baukasten-Import, `udlBasis` und `konflikte`. Im Text genannte Teilgruppen (z. B. „5 DaZ-Kinder, 4 leistungsstarke“) werden als Lerngruppen übernommen.
+
 ### Remote MCP (`Streamable HTTP` – z. B. hinter Hostinger HTTPS)
 
 ```json
@@ -219,7 +221,7 @@ Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche,
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (107 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (123 Tests) |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
 | `npm run mcp:stdio` | Startet den lokalen MCP-Server über `stdin`/`stdout` |
 | `npm run download:m2v` | Lädt optional `JanSchachtschabel/m2v-qwen3-4b-256-edu` nach `models/` |

@@ -17,6 +17,8 @@ import {
   appendBlockToArrangement,
   collectUsedBlocks,
   createChainPreset,
+  createEmptyArrangement,
+  findNextVariant,
   exportArrangementHtmlHandout,
   exportArrangementOnePageSheet
 } from '../planner/arrangementOps.js';
@@ -230,6 +232,8 @@ export function PlannerPage() {
   );
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [matchNotice, setMatchNotice] = useState<string | null>(null);
+  // Counter behind „Anderer Vorschlag“: 0 is the first proposal for the current text.
+  const [variante, setVariante] = useState(0);
   const [busyAi, setBusyAi] = useState(false);
   const [listening, setListening] = useState(false);
 
@@ -422,7 +426,16 @@ export function PlannerPage() {
    */
   const handleScenarioTextChange = (nextText: string) => {
     setScenarioText(nextText);
+    setVariante(0);
     if (presetContextSource) {
+      // The template flow belongs to the template text; an own description starts from an empty flow.
+      setArrangement(createEmptyArrangement(bundle));
+      setMatchResult(null);
+      setThematicRows(null);
+      setElaboration(null);
+      setOerByStep({});
+      setGeneratedMaterials([]);
+      setAiDiffByStep({});
       setPresetContextSource(null);
       setFach('');
       setThema('');
@@ -436,7 +449,7 @@ export function PlannerPage() {
       setOhneKI(false);
       setRaumzeitFilter('');
       setGroups(STANDARD_LEARNER_GROUPS);
-      setMatchNotice('Vorlagen-Felder wurden für deine eigene Eingabe zurückgesetzt.');
+      setMatchNotice('Vorlage und Vorlagen-Felder wurden für deine eigene Eingabe zurückgesetzt.');
     }
   };
 
@@ -598,6 +611,7 @@ export function PlannerPage() {
     setMatchNotice(null);
     const detectedMatrixTriggers = syncTopicFromScenarioText();
     const res = matcher.zuordnen(buildStructuredMatchRequest());
+    setVariante(0);
     setMatchResult(res);
     const matrixHint = detectedMatrixTriggers.length
       ? ` · Matrix-Merkmale automatisch erkannt (${detectedMatrixTriggers.join(', ')})`
@@ -613,6 +627,28 @@ export function PlannerPage() {
         `Einzelphase erkannt: ${res.vorschlaege.length} passende Bausteine gefunden (unten anklicken zum Übernehmen)${matrixHint}.`
       );
     }
+  };
+
+  /** Next equally suitable flow for the same text; the matcher stays deterministic per variant number. */
+  const runOtherProposal = () => {
+    const next = findNextVariant(
+      (v) => matcher.zuordnen({ ...buildStructuredMatchRequest(), variante: v }),
+      arrangement,
+      variante
+    );
+    if (!next) {
+      setMatchNotice('Für diese Angaben gibt es keinen weiteren gleichwertigen Vorschlag. Ändere Text, Ansatz oder Zeit für andere Abläufe.');
+      return;
+    }
+    setVariante(next.variante);
+    setMatchResult(next.result);
+    setArrangement(next.arrangement);
+    setThematicRows(null);
+    setElaboration(null);
+    setOerByStep({});
+    setGeneratedMaterials([]);
+    setAiDiffByStep({});
+    setMatchNotice(`Anderer Vorschlag (Variante ${next.variante + 1}) für denselben Text. Der Ablauf steht in Schritt 2.`);
   };
 
   const runAiTranslate = async () => {
@@ -643,6 +679,7 @@ export function PlannerPage() {
         }
       }
       syncTopicFromScenarioText(json.erkanntesFach, json.erkanntesThema);
+      setVariante(0);
       if (json.ergebnis) setMatchResult(json.ergebnis);
       if (json.ergebnis?.modus === 'ablauf' && json.ergebnis?.arrangement) {
         setArrangement(json.ergebnis.arrangement as Arrangement);
@@ -1237,6 +1274,16 @@ export function PlannerPage() {
               <button type="button" className="btn" onClick={runDeterministicMatch}>
                 ⚡ Sofort per Regeln zuordnen (&lt;1 ms)
               </button>
+              {matchResult?.modus === 'ablauf' && matchResult.arrangement && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={runOtherProposal}
+                  title="Liefert für denselben Text einen anderen, gleichwertig passenden Ablauf"
+                >
+                  🔀 Anderer Vorschlag
+                </button>
+              )}
               <button type="button" className="btn btn-sm" onClick={toggleDictation}>
                 {listening ? '🔴 Aufnahme läuft…' : '🎤 Diktieren'}
               </button>
