@@ -1039,7 +1039,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
     currentSemanticScores = new Map(
-      given(anfrage.text) ? semantic.rankMethods(String(anfrage.text), 35).map((h) => [h.kennung, h.score]) : []
+      // Text relevance is measured on the topic words only: "Klasse 8" or "45 Minuten" must not favour a method.
+      given(anfrage.text)
+        ? semantic
+            .rankMethods(
+              String(anfrage.text)
+                .split(/[^\p{L}]+/u)
+                .filter((w) => w.length > 2 && !FRAME_WORDS.has(fold(w)))
+                .join(' '),
+              35
+            )
+            .map((h) => [h.kennung, h.score])
+        : []
     );
     try {
       const gelesen = given(anfrage.text) ? lesen(String(anfrage.text)) : { kriterien: {}, erkannt: [], offen: [] };

@@ -106,3 +106,52 @@ describe('Referenzsatz: Qualität der Methodenvorschläge', () => {
     }
   });
 });
+
+describe('Randfälle der Zuordnung', () => {
+  const durationOf = (r: MatchResult) =>
+    r.modus === 'ablauf' ? (r.pruefung?.berechnet as { dauerMin?: number } | undefined)?.dauerMin : undefined;
+
+  it('text ohne rahmenangabe: Einzelphase mit Vorschlägen, kein Absturz', () => {
+    const r = M.zuordnen({ text: 'Fotosynthese' });
+    expect(r.modus).toBe('phase');
+    if (r.modus === 'phase') expect(r.vorschlaege.length).toBeGreaterThan(0);
+  });
+
+  it('genannte methode, die der rahmen ausschliesst: nicht verankert, mit Grund', () => {
+    const r = M.zuordnen({ text: 'Deutsch Klasse 9: Erörterung als Gruppenpuzzle, 90 Minuten, 3 Schüler' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(blocksOf(r)).not.toContain('gruppenpuzzle');
+      const miss = (r.nichtVerankert || []).find((n) => n.baustein === 'gruppenpuzzle');
+      expect(miss?.grund).toBeTruthy();
+      expect(r.pruefung?.gueltig).toBe(true);
+    }
+  });
+
+  it('zwei genannte methoden: beide im Ablauf oder die zweite mit Grund abgelehnt', () => {
+    const r = M.zuordnen({ text: 'Politik Klasse 10: Tempolimit mit Fishbowl und Pro-Contra-Debatte, 90 Minuten, 24 Schüler' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      const used = blocksOf(r);
+      for (const id of ['fishbowl', 'pro-contra-debatte']) {
+        const refused = (r.nichtVerankert || []).some((n) => n.baustein === id && n.grund);
+        expect(used.includes(id) || refused, id).toBe(true);
+      }
+      expect(used.some((id) => id === 'fishbowl' || id === 'pro-contra-debatte')).toBe(true);
+      expect(r.pruefung?.gueltig).toBe(true);
+    }
+  });
+
+  it('sehr kleines budget: Ablauf bleibt gültig', () => {
+    const r = M.zuordnen({ text: 'Mathematik Klasse 8: Prozentrechnung', modus: 'ablauf', zeitMin: 20 });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') expect(r.pruefung?.gueltig).toBe(true);
+  });
+
+  it('variante: negativ oder nicht ganzzahlig wird abgelehnt, gültige Werte ändern den Vorschlag', () => {
+    expect(() => M.zuordnen({ text: szenarioText('Chemie', 'Säuren und Basen', 45), variante: -1 })).toThrow(/variante/);
+    expect(() => M.zuordnen({ text: szenarioText('Chemie', 'Säuren und Basen', 45), variante: 1.5 })).toThrow(/variante/);
+    const seqs = new Set([0, 1, 2, 3].map((v) => sequenceOf(M.zuordnen({ text: szenarioText('Chemie', 'Säuren und Basen', 45), variante: v }))));
+    expect(seqs.size).toBeGreaterThanOrEqual(2);
+  });
+});
