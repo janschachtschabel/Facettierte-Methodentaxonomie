@@ -20,6 +20,7 @@ import type { FmtValidator } from './validate.js';
 import { createSemanticClassifier } from './semantic.js';
 import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 import { createMentionDetector } from './mentions.js';
+import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 
@@ -55,10 +56,13 @@ const fold = (s: string) =>
 
 export interface FmtMatcher {
   zuordnen(anfrage?: MatchRequest): MatchResult;
-  lesen(text: string): {
+  /** `stufe`: bildungsstufe the caller already knows; decides whether university subjects are read. */
+  lesen(text: string, stufe?: string): {
     kriterien: Record<string, unknown>;
     erkannt: Array<{ feld: string; wert: unknown; beleg: string }>;
     offen: string[];
+    /** Subject named in the text, with its OEH URI (school subject or Destatis university subject). */
+    fach?: DetectedSubject;
   };
   felder(): MatchFieldDef[];
   schema(): Record<string, unknown>;
@@ -418,7 +422,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['digital-ki', /digital\w*\s+lern\w*|ki-?tutor|ki-?gestutzt|podcast|erklarvideo|stop-?motion|wiki\b|interaktiv\w*\s+whiteboard/]
   ];
 
-  function lesen(text: string) {
+  const subjects = createSubjectDetector(data.faecher);
+
+  function lesen(text: string, stufe?: string) {
     const t = fold(text || '');
     const kriterien: Record<string, unknown> = {};
     const erkannt: Array<{ feld: string; wert: unknown; beleg: string }> = [];
@@ -502,10 +508,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
     }
 
+    // The hand-tuned rules above come first. The OEH vocabularies add the subjects those rules do not know
+    // and name the subject itself for the WLO search.
+    const fach = subjects.erkenne(text || '', stufe || (kriterien.bildungsstufe as string | undefined)) || undefined;
+    if (fach && fach.fachbereich !== 'uebergreifend') take('fachbereich', fach.fachbereich, fach.beleg);
+
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))
       .map((f) => f.feld)
       .filter((f) => !(f === 'zieltyp' && 'zielart' in kriterien) && !(f === 'zielart' && 'zieltyp' in kriterien));
-    return { kriterien, erkannt, offen };
+    return fach ? { kriterien, erkannt, offen, fach } : { kriterien, erkannt, offen };
   }
 
   function rahmen(b: Baustein, a: MatchRequest): string | null {
@@ -1129,7 +1140,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         : []
     );
     try {
-      const gelesen = given(anfrage.text) ? lesen(String(anfrage.text)) : { kriterien: {}, erkannt: [], offen: [] };
+      const gelesen: ReturnType<typeof lesen> = given(anfrage.text)
+        ? lesen(String(anfrage.text), given(anfrage.bildungsstufe) ? String(anfrage.bildungsstufe) : undefined)
+        : { kriterien: {}, erkannt: [], offen: [] };
       const a: MatchRequest = { ...gelesen.kriterien };
       Object.keys(anfrage).forEach((k) => {
         if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
@@ -1166,7 +1179,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const head = {
         kriterien: a,
         erkannt: gelesen.erkannt,
-        offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld)
+        offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld),
+        ...(gelesen.fach ? { fach: gelesen.fach } : {})
       };
       if (modus === 'phase') {
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }));

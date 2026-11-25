@@ -17,7 +17,10 @@ import {
   type MatrixTraitDetectionResult,
   type ScaleHit,
   type ScaleName,
-  type SemanticMethodHit
+  type SemanticMethodHit,
+  type DetectedSubject,
+  type FmtSubjectDetector,
+  createSubjectDetector
 } from '@fmt/core';
 import { loadModel2VecClassifier, type Model2VecClassifier } from './embeddings/model2vec.js';
 
@@ -31,6 +34,8 @@ export interface HybridTextClassification {
   skalen: Record<ScaleName, ScaleHit[]>;
   methodenVorschlaege: SemanticMethodHit[];
   matrixMerkmale: MatrixTraitDetectionResult;
+  /** Subject named in the text with its OEH URI, or null. */
+  fach: DetectedSubject | null;
 }
 
 export interface CatalogStore {
@@ -38,6 +43,8 @@ export interface CatalogStore {
   bundleJson: string;
   etag: string;
   data: FmtData;
+  /** Recognises school and university subjects (OEH vocabularies) in a text. */
+  subjects: FmtSubjectDetector;
   validator: FmtValidator;
   search: FmtSearch;
   matcher: FmtMatcher;
@@ -74,9 +81,11 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     facetten: bundle.facetten,
     ketten: bundle.ketten,
     bausteine: bundle.bausteine,
-    beispiele: bundle.beispiele
+    beispiele: bundle.beispiele,
+    faecher: bundle.faecher
   };
 
+  const subjects = createSubjectDetector(data.faecher);
   const validator = createValidator(data);
   const search = createSearch(data, validator);
   const matcher = createMatcher(data, validator);
@@ -151,7 +160,8 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
       offen: parsed.offen,
       skalen,
       methodenVorschlaege,
-      matrixMerkmale
+      matrixMerkmale,
+      fach: parsed.fach ?? null
     };
   };
 
@@ -190,6 +200,7 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     search,
     matcher,
     semantic,
+    subjects,
     model2vec,
     classifyText,
     blocksById,

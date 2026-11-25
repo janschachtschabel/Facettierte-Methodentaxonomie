@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type { OehSubjectCrosswalk } from './fach.js';
 import type { Arrangement, Baustein, FacetMeta, FmtData, FmtMeta, Funktionskette, Scheme } from './types.js';
 
 export function loadFmtData(dataDir: string): FmtData {
@@ -22,6 +23,10 @@ export function loadFmtData(dataDir: string): FmtData {
     .sort()
     .map((f) => JSON.parse(fs.readFileSync(path.join(beispieleDir, f), 'utf8')) as Arrangement);
 
+  const faecherPath = path.join(dataDir, 'crosswalk', 'oeh-faecher.json');
+  const faecherFile = fs.existsSync(faecherPath) ? readJson<OehSubjectCrosswalk>('crosswalk/oeh-faecher.json') : undefined;
+  const faecher = faecherFile && { schulfaecher: faecherFile.schulfaecher, hochschulfaecher: faecherFile.hochschulfaecher };
+
   return {
     VERSION: meta.version,
     NS: meta.NS,
@@ -33,6 +38,7 @@ export function loadFmtData(dataDir: string): FmtData {
     facetten: vocab.facetten,
     ketten,
     bausteine,
-    beispiele
+    beispiele,
+    faecher
   };
 }
