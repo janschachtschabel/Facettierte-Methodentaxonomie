@@ -117,6 +117,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       }
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
+      const wantedArea = list(k.fachbereich);
+      if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
 
       const ranges = list(k.reichweite);
       if (ranges.length && !ranges.includes(b.reichweite)) return false;

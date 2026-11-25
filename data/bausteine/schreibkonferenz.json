@@ -13,6 +13,13 @@
     "kooperativ",
     "reflexion"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Kooperatives Schreiben & Schreibkonferenz",

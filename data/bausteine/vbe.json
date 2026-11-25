@@ -11,6 +11,14 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "mint"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "aesthetik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schülerexperiment",

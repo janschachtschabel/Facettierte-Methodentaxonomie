@@ -14,6 +14,14 @@
     "digital-ki",
     "visualisierung"
   ],
+  "fachbereich": [
+    "aesthetik",
+    "sprachen",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Stop-Motion",

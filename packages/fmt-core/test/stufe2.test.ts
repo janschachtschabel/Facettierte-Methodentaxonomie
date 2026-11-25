@@ -97,3 +97,51 @@ describe('D4: Ketten für Urteilsbildung, Bewegung und Produktion', () => {
     expect(chainOf(M.zuordnen({ text: 'Deutsch Klasse 8: Kommasetzung, 45 Minuten' }))).toBe('prozedur');
   });
 });
+
+describe('D1: Fachbereich', () => {
+  const AREAS = ['mint', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis', 'uebergreifend'];
+  const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
+
+  it('Vokabular und Befüllung: jede Methode hat mindestens einen gültigen Fachbereich', () => {
+    const scheme = D.schemes.find((s) => s.id === 'fachbereich');
+    expect((scheme?.werte || []).map((w) => w.id)).toEqual(AREAS);
+    for (const b of D.bausteine) {
+      expect(b.fachbereich?.length, b.kennung).toBeGreaterThan(0);
+      for (const f of [...(b.fachbereich || []), ...(b.fachbereichUngeeignet || [])]) expect(AREAS, b.kennung).toContain(f);
+      expect((b.fachbereichUngeeignet || []).includes('uebergreifend'), b.kennung).toBe(false);
+      for (const f of b.fachbereichUngeeignet || []) expect(b.fachbereich, `${b.kennung}: ${f} zugleich geeignet und ungeeignet`).not.toContain(f);
+    }
+  });
+
+  it('liest den Fachbereich aus dem Fach im Text', () => {
+    const area = (text: string) => M.lesen(text).kriterien.fachbereich;
+    expect(area('Physik Klasse 8: Stromkreis, 45 Minuten')).toBe('mint');
+    expect(area('Englisch Klasse 8: Simple Past, 45 Minuten')).toBe('sprachen');
+    expect(area('Geschichte Klasse 8: Weimarer Republik, 45 Minuten')).toBe('gesellschaft');
+    expect(area('Deutsch Klasse 8: Kurzgeschichten analysieren, 45 Minuten')).toBe('sprachen');
+    expect(area('Musik Klasse 8: Dur und Moll, 45 Minuten')).toBe('aesthetik');
+    expect(area('Sport Klasse 8: Weitsprung, 45 Minuten')).toBe('sport');
+    expect(area('Berufsschule Pflege: Kommunikation mit Angehörigen, 90 Minuten')).toBe('beruf-praxis');
+    expect(area('Einstieg mit Tablets, ohne Technik, 10 Minuten')).toBeUndefined();
+  });
+
+  it('schlägt keine Methode vor, die für den Fachbereich ungeeignet ist', () => {
+    for (const [f, t] of THEMEN) {
+      for (const min of [45, 90]) {
+        const text = szenarioText(f, t, min);
+        const area = M.lesen(text).kriterien.fachbereich as string | undefined;
+        if (!area) continue;
+        for (const id of steps(M.zuordnen({ text }))) {
+          expect(byId.get(id)?.fachbereichUngeeignet || [], `${text}: ${id}`).not.toContain(area);
+        }
+      }
+    }
+  });
+
+  it('bevorzugt fachtypische Methoden: Sport erhält Bewegungsmethoden, Physik bei 90 Minuten eine MINT-Methode', () => {
+    const sport = steps(M.zuordnen({ text: 'Sport Klasse 8: Weitsprung, 90 Minuten' }));
+    expect(sport.filter((id) => byId.get(id)?.fachbereich?.includes('sport')).length).toBeGreaterThanOrEqual(2);
+    const physik = steps(M.zuordnen({ text: 'Physik Klasse 8: Stromkreis, 90 Minuten' }));
+    expect(physik.some((id) => byId.get(id)?.fachbereich?.includes('mint'))).toBe(true);
+  });
+});

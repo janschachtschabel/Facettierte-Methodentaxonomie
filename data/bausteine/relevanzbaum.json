@@ -7,6 +7,13 @@
     "visualisierung",
     "forschend"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Ein komplexes Gesamtziel wird hierarchisch in Teilziele, Teilprobleme und konkrete Maßnahmen aufgegliedert und nach Wichtigkeit gewichtet.",
   "alternativname": [
     "Zielbaum",

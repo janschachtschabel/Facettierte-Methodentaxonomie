@@ -12,6 +12,14 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "mint",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schülerexperiment",

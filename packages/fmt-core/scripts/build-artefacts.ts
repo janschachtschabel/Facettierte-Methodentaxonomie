@@ -32,7 +32,9 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['technik', 'technikbedarf', false],
   ['zieltyp', 'funktionskette', false],
   ['grad', 'evidenzgrad', false],
-  ['ansatz', 'ansatz', true]
+  ['ansatz', 'ansatz', true],
+  ['fachbereich', 'fachbereich', true],
+  ['fachbereichUngeeignet', 'fachbereich', true]
 ];
 
 const STEUERUNG_DIMS = ['organisation', 'lernweg', 'inhalt', 'sozial', 'bewertung'];
@@ -362,6 +364,7 @@ export function buildSchema(D: FmtData) {
       'kurzbeschreibung',
       'status',
       'ansatz',
+      'fachbereich',
       'quellen',
       'reichweite',
       'lernfunktion',
@@ -382,6 +385,8 @@ export function buildSchema(D: FmtData) {
       kurzbeschreibung: { type: 'string', minLength: 10 },
       status: { enum: ['kuratiert', 'entwurf'] },
       ansatz: Object.assign({ minItems: 1 }, vocabProp.ansatz),
+      fachbereich: Object.assign({ minItems: 1 }, vocabProp.fachbereich),
+      fachbereichUngeeignet: vocabProp.fachbereichUngeeignet,
       quellen: {
         type: 'array',
         minItems: 1,

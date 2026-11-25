@@ -8,6 +8,9 @@
     "diagnose-feedback",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Ein mit sokratischen Leitplanken konfigurierter KI-Tutor gibt schrittweise Hinweise statt Komplettlösungen; der Lernerfolg wird anschließend zwingend ohne KI geprüft.",
   "alternativname": [
     "KI-Mastery-Tutor",

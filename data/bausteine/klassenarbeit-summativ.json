@@ -12,6 +12,12 @@
   "ansatz": [
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Klassenarbeit",

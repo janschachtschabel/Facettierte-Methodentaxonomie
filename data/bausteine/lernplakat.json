@@ -13,6 +13,13 @@
     "visualisierung",
     "kooperativ"
   ],
+  "fachbereich": [
+    "aesthetik",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Plakat",

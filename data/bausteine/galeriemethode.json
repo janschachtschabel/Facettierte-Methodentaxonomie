@@ -7,6 +7,13 @@
     "visualisierung",
     "kreativ"
   ],
+  "fachbereich": [
+    "aesthetik",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Einzeln gezeichnete Lösungsskizzen werden aufgehängt, gemeinsam betrachtet und danach in einer zweiten Zeichenrunde unter Nutzung der Peer-Ideen verfeinert.",
   "alternativname": [
     "Galerie-Kreativmethode",

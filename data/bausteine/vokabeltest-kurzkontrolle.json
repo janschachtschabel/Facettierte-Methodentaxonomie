@@ -13,6 +13,13 @@
     "diagnose-feedback",
     "uebung"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "aesthetik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Vokabeltrainer",

@@ -7,6 +7,9 @@
     "spiel-simulation",
     "forschend"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Teams lösen an aufeinanderfolgenden Stationen fachliche Rätsel, deren Lösungen den Hinweis oder Code für die nächste Station liefern.",
   "alternativname": [
     "Lernrallye",

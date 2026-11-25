@@ -7,6 +7,12 @@
     "uebung",
     "digital-ki"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Algorithmisch getaktete digitale Karteikarten wiederholen Fakten, Vokabeln und Konzepte genau vor dem Vergessen – verschachtelt über Themen hinweg.",
   "alternativname": [
     "Spaced Repetition",

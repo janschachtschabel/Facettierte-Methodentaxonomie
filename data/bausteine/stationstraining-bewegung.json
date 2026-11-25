@@ -7,6 +7,14 @@
     "uebung",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sprachen",
+    "gesellschaft"
+  ],
   "kurzbeschreibung": "Zeitlich getakteter Durchlauf durch differenzierte Bewegungs- oder Fertigkeitsstationen mit unmittelbarer Selbst- und Partnerkorrektur.",
   "alternativname": [
     "Zirkeltraining",

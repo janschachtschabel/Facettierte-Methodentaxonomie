@@ -7,6 +7,13 @@
     "visualisierung",
     "kreativ"
   ],
+  "fachbereich": [
+    "sprachen",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Kurzes, unkontrolliertes Niederschreiben spontaner Gedankenketten als künstlerisch-literarischer Einstieg oder Perspektivöffnung.",
   "alternativname": [
     "Écriture automatique"

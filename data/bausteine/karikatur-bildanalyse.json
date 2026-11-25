@@ -13,6 +13,15 @@
     "visualisierung",
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "aesthetik",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Karikatur",

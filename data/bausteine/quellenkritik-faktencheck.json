@@ -13,6 +13,13 @@
     "forschend",
     "digital-ki"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Herr Kalt: Qualität von Websites und Wikipedia-Artikeln beurteilen",

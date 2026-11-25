@@ -7,6 +7,9 @@
     "digital-ki",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Ein auf Leitplanken eingestellter Chatbot übernimmt eine historische, literarische oder berufliche Gesprächsrolle; Lernende führen ein quellenkritisches Interview.",
   "alternativname": [
     "KI-Rollenspiel",

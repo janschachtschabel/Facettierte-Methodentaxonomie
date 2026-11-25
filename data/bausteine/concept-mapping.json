@@ -12,6 +12,12 @@
   "ansatz": [
     "visualisierung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Concept-Map",

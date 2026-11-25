@@ -6,6 +6,13 @@
   "ansatz": [
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Sportlich-strukturiertes Debattierformat mit vier Zweierteams (eröffnende/ergänzende Regierung und Opposition), Zwischenfragen und Jury-Feedback.",
   "alternativname": [
     "BPS-Debatte",

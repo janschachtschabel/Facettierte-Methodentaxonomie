@@ -11,6 +11,12 @@
   "ansatz": [
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Placemat Activity",

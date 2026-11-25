@@ -12,6 +12,13 @@
     "visualisierung",
     "forschend"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: SWOT-Analyse",

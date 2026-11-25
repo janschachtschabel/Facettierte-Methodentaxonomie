@@ -12,6 +12,10 @@
   "ansatz": [
     "uebung"
   ],
+  "fachbereich": [
+    "mint",
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Interleaving",

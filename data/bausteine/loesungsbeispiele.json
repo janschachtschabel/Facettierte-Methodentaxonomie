@@ -13,6 +13,14 @@
     "instruktion",
     "uebung"
   ],
+  "fachbereich": [
+    "mint",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "aesthetik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lernen aus Lösungsbeispielen",

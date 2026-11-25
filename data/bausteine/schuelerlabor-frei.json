@@ -12,6 +12,15 @@
     "offen",
     "forschend"
   ],
+  "fachbereich": [
+    "mint"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schülerlabor",

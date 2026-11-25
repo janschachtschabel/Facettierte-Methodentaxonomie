@@ -12,6 +12,13 @@
     "visualisierung",
     "kreativ"
   ],
+  "fachbereich": [
+    "aesthetik",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Sketchnotes",

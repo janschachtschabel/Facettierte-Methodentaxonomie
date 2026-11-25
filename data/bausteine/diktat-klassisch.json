@@ -12,6 +12,15 @@
     "diagnose-feedback",
     "instruktion"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "gesellschaft",
+    "aesthetik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Diktat",

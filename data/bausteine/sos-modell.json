@@ -13,6 +13,13 @@
     "forschend",
     "instruktion"
   ],
+  "fachbereich": [
+    "mint",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: S-O-S-Modell (Sammeln – Ordnen – Systematisieren)",

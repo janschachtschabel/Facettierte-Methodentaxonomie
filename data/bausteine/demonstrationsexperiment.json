@@ -13,6 +13,15 @@
     "instruktion",
     "forschend"
   ],
+  "fachbereich": [
+    "mint"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Demonstrationsexperiment",

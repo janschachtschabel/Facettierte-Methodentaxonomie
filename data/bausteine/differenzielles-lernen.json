@@ -7,6 +7,15 @@
     "uebung",
     "forschend"
   ],
+  "fachbereich": [
+    "sport",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sprachen",
+    "gesellschaft"
+  ],
   "kurzbeschreibung": "Statt starrer Wiederholung derselben Idealbewegung variieren Lernende bewusst Parameter (Tempo, Rhythmus, Ausgangslage), um selbstorganisiert stabile Bewegungsmuster aufzubauen.",
   "alternativname": [
     "Differenzielles Bewegungslernen"

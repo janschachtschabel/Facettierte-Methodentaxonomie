@@ -12,6 +12,12 @@
     "diagnose-feedback",
     "digital-ki"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Multiple Choice",

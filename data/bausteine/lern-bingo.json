@@ -13,6 +13,12 @@
     "spiel-simulation",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Bingo im Unterricht",

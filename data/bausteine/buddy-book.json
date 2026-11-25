@@ -15,6 +15,12 @@
     "uebung",
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Buddy Book (Falt- und Schneidevorlage)",

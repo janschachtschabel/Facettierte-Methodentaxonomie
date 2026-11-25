@@ -7,6 +7,14 @@
     "kreativ",
     "forschend"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "mint",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Ein Problem wird in Parameter (Zeilen) und deren Ausprägungen (Spalten) zerlegt; neue Kombinationen ergeben systematisch neuartige Lösungswege.",
   "alternativname": [
     "Morphologischer Kasten",

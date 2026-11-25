@@ -12,6 +12,15 @@
   "ansatz": [
     "uebung"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "gesellschaft",
+    "aesthetik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Laufdiktat",

@@ -13,6 +13,8 @@ export interface SoftScoreParts {
   variety: number;
   /** Minutes by which the method's minimum duration exceeds the phase budget (0 when it fits). */
   overBudgetMin: number;
+  /** Minutes by which the method's maximum duration stays below the phase budget (0 when it can fill the phase). */
+  underBudgetMin?: number;
   /** Method needs internet, AI or one device per learner although the request says nothing about equipment. */
   techUnasked: boolean;
   /** Text relevance 0..1 (1 = method text matches the request well). */
@@ -22,6 +24,8 @@ export interface SoftScoreParts {
   /** Position of the method's primary function among the wanted functions (0 = first / not applicable). */
   functionPosition: number;
   vorbereitungMin: number;
+  /** Fit to the requested subject area: at home there, neutral (no area asked or method is cross-subject), or foreign. */
+  fachbereich?: 'passt' | 'neutral' | 'fremd';
   /** The request names this method. */
   mentioned: boolean;
 }
@@ -32,12 +36,16 @@ export const SOFT_WEIGHTS = {
   variety: 2,
   overBudgetPer5Min: 1,
   overBudgetMax: 4,
+  underBudgetPer10Min: 1,
+  underBudgetMax: 3,
   techUnasked: 3,
   textDistance: 2,
   evidence: { A: 0, B: 0.5, C: 1, none: 1.5 },
   draft: 0.5,
   functionPosition: 0.3,
   vorbereitungPerMin: 0.005,
+  fachbereichPasst: -0.5,
+  fachbereichFremd: 1.5,
   mentioned: -10
 } as const;
 
@@ -52,12 +60,14 @@ export function softScore(p: SoftScoreParts): number {
     p.softFilterMisses * w.softFilterMiss +
     p.variety * w.variety +
     Math.min(w.overBudgetMax, Math.ceil(Math.max(0, p.overBudgetMin) / 5) * w.overBudgetPer5Min) +
+    Math.min(w.underBudgetMax, Math.floor(Math.max(0, p.underBudgetMin ?? 0) / 10) * w.underBudgetPer10Min) +
     (p.techUnasked ? w.techUnasked : 0) +
     (1 - Math.max(0, Math.min(1, p.textRelevance))) * w.textDistance +
     w.evidence[p.evidence ?? 'none'] +
     (p.draft ? w.draft : 0) +
     p.functionPosition * w.functionPosition +
     Math.min(60, Math.max(0, p.vorbereitungMin)) * w.vorbereitungPerMin +
+    (p.fachbereich === 'passt' ? w.fachbereichPasst : p.fachbereich === 'fremd' ? w.fachbereichFremd : 0) +
     (p.mentioned ? w.mentioned : 0)
   );
 }

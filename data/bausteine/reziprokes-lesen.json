@@ -13,6 +13,15 @@
     "kooperativ",
     "visualisierung"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "aesthetik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Reziprokes Lehren",

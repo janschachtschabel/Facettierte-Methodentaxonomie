@@ -13,6 +13,12 @@
   "ansatz": [
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lerntagebuch",

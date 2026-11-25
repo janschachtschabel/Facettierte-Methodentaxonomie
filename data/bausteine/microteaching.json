@@ -7,6 +7,12 @@
     "kooperativ",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Kurze, fokussierte Lehr- oder Präsentationssequenz (5–10 Min.) vor kleiner Gruppe mit kriteriengeleitetem Feedback und direkter Wiederholung.",
   "alternativname": [
     "Mikro-Lehrprobe",

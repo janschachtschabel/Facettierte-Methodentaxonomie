@@ -12,6 +12,15 @@
   "ansatz": [
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Standbild",

@@ -7,6 +7,14 @@
     "instruktion",
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "aesthetik",
+    "sport"
+  ],
   "kurzbeschreibung": "Hochstrukturiertes gemeinsames Lautlesen (Tutor + Tutand oder im Chor) zur systematischen Steigerung von Leseflüssigkeit und Leseverständnis.",
   "alternativname": [
     "Tandemlesen",

@@ -12,6 +12,14 @@
   "ansatz": [
     "instruktion"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Vorlesen",

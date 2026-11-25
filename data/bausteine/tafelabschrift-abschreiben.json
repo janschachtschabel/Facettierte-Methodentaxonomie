@@ -11,6 +11,12 @@
   "ansatz": [
     "instruktion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Abschreiben",

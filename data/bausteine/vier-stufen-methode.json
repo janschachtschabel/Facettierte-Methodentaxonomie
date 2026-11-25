@@ -7,6 +7,15 @@
     "instruktion",
     "uebung"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "sport",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "gesellschaft",
+    "sprachen"
+  ],
   "kurzbeschreibung": "Klassische berufspädagogische Fertigkeitsvermittlung in vier Stufen: Vorbereiten, Vormachen & Erklären, Nachmachen & Erklären lassen, selbstständiges Üben.",
   "alternativname": [
     "4-Stufen-Methode",

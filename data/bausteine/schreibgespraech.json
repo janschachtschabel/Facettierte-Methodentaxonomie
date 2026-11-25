@@ -13,6 +13,12 @@
     "kooperativ",
     "diskurs"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schreibgespräch",

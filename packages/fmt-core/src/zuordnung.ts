@@ -219,6 +219,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       stufe: 4,
       bedeutung: 'Bildungsstufe',
       werte: opts(values(scheme('bildungsstufe')))
+    },
+    {
+      feld: 'fachbereich',
+      typ: 'code',
+      stufe: 4,
+      bedeutung: 'Fächergruppe des Unterrichts; fachtypische Methoden werden bevorzugt, ungeeignete zurückgestellt',
+      werte: opts(values(scheme('fachbereich')).filter((w) => w.id !== 'uebergreifend'))
     }
   ];
 
@@ -309,6 +316,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['maxTechnik', /beamer|projektor|smartboard|digitale\s+tafel/, () => 't-projektion'],
     ['ohneInternet', /ohne\s+(?:internet|wlan|netz)|kein\s+(?:internet|wlan)|offline/, () => true],
     ['ohneKI', /ohne\s+ki\b|keine\s+ki\b/, () => true],
+    // Subject area from the subject named in the text. Order matters: the first rule that matches wins.
+    ['fachbereich', /\bberufsschul\w*|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege\w*|\bpraxisanleit\w*|\bunterweisung\b/, () => 'beruf-praxis'],
+    ['fachbereich', /\bsport(?:unterricht|stunde)?\b|\bschwimmunterricht\b/, () => 'sport'],
+    ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)?\b|\bwerken\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
+    ['fachbereich', /\bdeutsch(?:unterricht)?\b|\benglisch\w*|\bfranzosisch\w*|\bspanisch\w*|\blatein\w*|\bitalienisch\w*|\brussisch\w*|\bdaz\b|\bdaf\b|\bfremdsprach\w*/, () => 'sprachen'],
+    ['fachbereich', /\bmathe(?:matik)?\w*|\bphysik\w*|\bchemie\w*|\bbio(?:logie)?\b|\bbiologieunterricht\b|\binformatik\w*|\bnaturwissenschaft\w*|\bnawi\b|\bsachunterricht\b|\bastronomie\b|\btechnik\s+klasse\b|\btechnikunterricht\b/, () => 'mint'],
+    ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen))|\bgeschichtsunterricht\b|\bpolitik\w*|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft\w*|\bethik\w*|\breligion\w*|\bphilosophie\w*|\bsowi\b/, () => 'gesellschaft'],
     ['maxVorbereitung', /ohne\s+vorbereitung|sofort\s+einsetzbar|spontan/, () => 5],
     ['maxVorbereitung', /wenig\s+vorbereitung|kurz\w*\s+vorbereitung/, () => 15],
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
@@ -545,6 +559,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentSeed = '';
   let currentVariante = 0;
   let currentTechAsked = false;
+  let currentArea = '';
   const mentionDetector = createMentionDetector(data);
   type Ranked = { b: Baustein; hard: number[]; soft: number };
   const order = (items: Ranked[], tolerance?: number): Baustein[] =>
@@ -617,7 +632,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         extra,
         passung(b, a).length ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
-        domainPenalty(b),
+        domainPenalty(b) || (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0),
         hardCapMin != null && b.dauerMin > hardCapMin ? 1 : 0
       ],
       soft: softScore({
@@ -625,7 +640,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         softFilterMisses,
         variety: varietyPenalty,
         overBudgetMin: maxStepMin != null ? b.dauerMin - maxStepMin : 0,
+        underBudgetMin: maxStepMin != null ? maxStepMin - b.dauerMax : 0,
         techUnasked: needsUnaskedTech(b),
+        fachbereich: !currentArea
+          ? 'neutral'
+          : (b.fachbereich || []).includes(currentArea)
+            ? 'passt'
+            : !b.fachbereich || b.fachbereich.includes('uebergreifend')
+              ? 'neutral'
+              : 'fremd',
         textRelevance: currentSemanticScores.get(b.kennung) ?? 0,
         evidence: bestGrade(b),
         draft: b.status !== 'kuratiert',
@@ -1082,6 +1105,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       delete a.variante;
       currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(String(anfrage.text)).map((m) => m.kennung) : []);
       currentSeed = topicSeed(currentRawText);
+      currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
       // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
       currentTechAsked =
         given(a.maxTechnik) ||
@@ -1120,7 +1144,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           ['offen', 'projektlernen'],
           ['diskurs', 'urteilsbildung']
         ];
-        const inferredId = byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
+        const inferredId =
+          a.fachbereich === 'sport' ? 'fertigkeit-bewegung' : byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
         const fallbackChain = chains.get(inferredId) || chains.get('konzeptaufbau');
         if (fallbackChain) ketten = [fallbackChain];
       }
@@ -1141,6 +1166,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentSeed = '';
       currentVariante = 0;
       currentTechAsked = false;
+      currentArea = '';
     }
   }
 

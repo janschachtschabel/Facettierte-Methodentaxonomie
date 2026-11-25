@@ -14,6 +14,13 @@
     "spiel-simulation",
     "digital-ki"
   ],
+  "fachbereich": [
+    "mint",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Simulation",

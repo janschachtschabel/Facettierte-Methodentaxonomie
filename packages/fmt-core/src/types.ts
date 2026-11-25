@@ -170,6 +170,10 @@ export interface Baustein {
   slot?: SlotDef[];
   dauerMin: number;
   dauerMax: number;
+  /** Subject areas where the method is at home; 'uebergreifend' = no subject binding. */
+  fachbereich?: string[];
+  /** Subject areas where the method does not fit. */
+  fachbereichUngeeignet?: string[];
   geeignetBeiVorwissen?: string[];
   ungeeignetBeiStufe?: string[];
   problem: string;

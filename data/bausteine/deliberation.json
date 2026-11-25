@@ -6,6 +6,13 @@
   "ansatz": [
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Ausgeloste Kleingruppen prüfen sachliche Pro-/Contra-Dossiers zu einer gesellschaftlichen Streitfrage und erarbeiten eine begründete Empfehlung.",
   "alternativname": [
     "Schul-Bürgerrat",

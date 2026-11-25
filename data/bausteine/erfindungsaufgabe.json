@@ -11,6 +11,12 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "mint"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Schwartz et al. (2011): Practicing versus inventing with contrasting cases",

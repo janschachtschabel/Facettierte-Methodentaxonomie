@@ -13,6 +13,15 @@
     "spiel-simulation",
     "diskurs"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Switch (Improvisationstheater & Rollenwechsel)",

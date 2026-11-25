@@ -7,6 +7,14 @@
     "forschend",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "mint"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "sport"
+  ],
   "kurzbeschreibung": "Teams lösen ein naturwissenschaftlich-technisches Konstruktionsproblem mit begrenztem Material unter Zeitdruck und testen ihre Prototypen live.",
   "alternativname": [
     "Konstruktionsaufgabe",

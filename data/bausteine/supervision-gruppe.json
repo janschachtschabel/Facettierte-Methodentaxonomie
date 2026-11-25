@@ -7,6 +7,12 @@
     "reflexion",
     "kooperativ"
   ],
+  "fachbereich": [
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Moderierte Gruppenreflexion beruflicher oder sozialer Lernsituationen zur Klärung von Rollen, Konflikten und professionellem Handeln.",
   "alternativname": [
     "Fallreflexion",

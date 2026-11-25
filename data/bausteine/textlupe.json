@@ -13,6 +13,13 @@
     "diagnose-feedback",
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Peer Assessment (Textfeedback)",

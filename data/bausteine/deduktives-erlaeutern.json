@@ -6,6 +6,13 @@
   "ansatz": [
     "instruktion"
   ],
+  "fachbereich": [
+    "mint",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Allgemeines Prinzip oder Regel wird zuerst klar formuliert und anschließend systematisch auf konkrete Anwendungsfälle übertragen.",
   "alternativname": [
     "Deduktives Verfahren",

@@ -59,3 +59,30 @@ describe('Bewertung der Kandidaten', () => {
     expect(pickOrder(items, 'x', 0, 0)).toEqual(['a', 'b']);
   });
 });
+
+describe('softScore: phase filling and subject area', () => {
+  const base = {
+    ansatzMiss: false,
+    softFilterMisses: 0,
+    variety: 0,
+    overBudgetMin: 0,
+    techUnasked: false,
+    textRelevance: 0,
+    evidence: 'A' as const,
+    draft: false,
+    functionPosition: 0,
+    vorbereitungMin: 0,
+    mentioned: false
+  };
+  it('a method that cannot fill the phase scores worse, capped at 3', async () => {
+    const { softScore } = await import('../src/ranking.js');
+    expect(softScore({ ...base, underBudgetMin: 9 })).toBe(softScore(base));
+    expect(softScore({ ...base, underBudgetMin: 20 }) - softScore(base)).toBe(2);
+    expect(softScore({ ...base, underBudgetMin: 80 }) - softScore(base)).toBe(3);
+  });
+  it('subject area: at home is better than neutral, foreign is worse', async () => {
+    const { softScore } = await import('../src/ranking.js');
+    expect(softScore({ ...base, fachbereich: 'passt' })).toBeLessThan(softScore({ ...base, fachbereich: 'neutral' }));
+    expect(softScore({ ...base, fachbereich: 'fremd' })).toBeGreaterThan(softScore({ ...base, fachbereich: 'neutral' }));
+  });
+});

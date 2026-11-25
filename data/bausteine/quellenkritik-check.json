@@ -15,6 +15,13 @@
     "forschend",
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "herr-kalt.de: Die Qualität von Websites und Wikipedia-Artikeln beurteilen",

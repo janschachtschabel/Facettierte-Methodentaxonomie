@@ -7,6 +7,13 @@
     "forschend",
     "visualisierung"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Einflussfaktoren eines Systems werden in einer Matrix paarweise bewertet, um aktive, passive, kritische und träge Systemgrößen zu erkennen.",
   "alternativname": [
     "Einflussmatrix",

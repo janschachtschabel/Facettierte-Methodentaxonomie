@@ -7,6 +7,15 @@
     "spiel-simulation",
     "kreativ"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mint",
+    "sport"
+  ],
   "kurzbeschreibung": "Spontanes szenisches Ausgestalten einer Konflikt-, Alltags- oder historischen Situation ohne festes Skript zur Förderung von Sprachfluss und Empathie.",
   "alternativname": [
     "Improvisationstheater",

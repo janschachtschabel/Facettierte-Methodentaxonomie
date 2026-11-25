@@ -14,6 +14,16 @@
     "kreativ",
     "forschend"
   ],
+  "fachbereich": [
+    "mint",
+    "aesthetik",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: FabLab",
