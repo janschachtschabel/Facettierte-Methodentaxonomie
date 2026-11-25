@@ -148,7 +148,24 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       const g = bestGrade(b);
       return g ? GRADE_ORDER.indexOf(g) : GRADE_ORDER.length;
     };
-    return hits.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'de'));
+    // With a search text, hits in name or synonym come before hits in description or function words.
+    const query = words.join(' ');
+    const textRank = (b: Baustein): number => {
+      if (!words.length) return 0;
+      const name = fold(b.name);
+      const kennung = fold(b.kennung).replace(/-/g, ' ');
+      const alt = [...(b.alternativname || []), ...(b.variante || [])].map((x) => fold(x));
+      if (name === query || kennung === query || alt.includes(query)) return 0;
+      if (name.startsWith(query)) return 1;
+      if (words.every((w) => name.includes(w))) return 2;
+      if (alt.some((x) => words.every((w) => x.includes(w)))) return 3;
+      if (words.every((w) => kennung.includes(w))) return 4;
+      return 5;
+    };
+    const tr = new Map(hits.map((b) => [b.kennung, textRank(b)]));
+    return hits.sort(
+      (a, b) => tr.get(a.kennung)! - tr.get(b.kennung)! || rank(a) - rank(b) || a.name.localeCompare(b.name, 'de')
+    );
   }
 
   function ersatz(

@@ -64,6 +64,14 @@ export interface FmtMatcher {
   schema(): Record<string, unknown>;
 }
 
+/** A request the caller can fix: unknown field or value outside the vocabulary. */
+export class FmtRequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FmtRequestError';
+  }
+}
+
 export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatcher {
   const scheme = (id: string): Scheme => data.schemes.find((s) => s.id === id)!;
   const values = (s: Scheme): VocabValue[] => s.werte || (s.gruppen || []).flatMap((g) => g.werte);
@@ -259,18 +267,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   function check(a: MatchRequest) {
     Object.keys(a).forEach((key) => {
       const f = FIELDS.find((x) => x.feld === key);
-      if (!f) throw new Error(`Unbekanntes Feld „${key}“. Erlaubt: ${FIELDS.map((x) => x.feld).join(', ')}.`);
+      if (!f) throw new FmtRequestError(`Unbekanntes Feld „${key}“. Erlaubt: ${FIELDS.map((x) => x.feld).join(', ')}.`);
       if (f.typ === 'integer' && given(a[key]) && !(Number.isInteger(Number(a[key])) && Number(a[key]) >= 0)) {
-        throw new Error(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
+        throw new FmtRequestError(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
       }
       if (key === 'zeitMin' && given(a[key]) && Number(a[key]) > MAX_BUDGET_MIN) {
-        throw new Error(`Feld „zeitMin“: höchstens ${MAX_BUDGET_MIN} Minuten.`);
+        throw new FmtRequestError(`Feld „zeitMin“: höchstens ${MAX_BUDGET_MIN} Minuten.`);
       }
       if (!f.werte) return;
       const allowed = f.werte.map((w) => w.code);
       list(a[key]).forEach((v) => {
         if (!allowed.includes(v)) {
-          throw new Error(`Feld „${key}“: unbekannter Wert „${v}“. Erlaubt: ${allowed.join(', ')}.`);
+          throw new FmtRequestError(`Feld „${key}“: unbekannter Wert „${v}“. Erlaubt: ${allowed.join(', ')}.`);
         }
       });
     });
@@ -326,7 +334,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['fachbereich', /\bberufsschul\w*|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege(?:schule|ausbildung|fachkr\w*|kurs)\b|\bpraxisanleit\w*|\bunterweisung\b/, () => 'beruf-praxis'],
     ['fachbereich', /\bsport(?:unterricht|stunde)?\b|\bschwimmunterricht\b/, () => 'sport'],
     ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)\b|\bwerkunterricht\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
-    ['fachbereich', /\b(?:deutsch|englisch|franzosisch|spanisch|latein|italienisch|russisch)(?:unterricht|stunde)?\b(?!-)|\bdaz\b|\bdaf\b|\bfremdsprach\w*/, () => 'sprachen'],
+    ['fachbereich', /\b(?:deutsch|englisch|franzosisch|spanisch|latein|italienisch|russisch)(?:unterricht|stunde)?\b(?!-)|\bda[zf]-?(?:unterricht|kurs|klasse|stunde|forderung)\b|(?<!\bmit\s)(?<!\d\s)(?<!\bund\s)(?<!\boder\s)\bda[zf]\b(?!-)|\bfremdsprach\w*/, () => 'sprachen'],
     ['fachbereich', /\bmathe(?:matik)?(?:unterricht|stunde)?\b|\binformatik(?:unterricht)?\b|\bgeometrie\b|\balgebra\b/, () => 'mathe-informatik'],
     ['fachbereich', /\b(?:physik|chemie|biologie|bio)(?:unterricht|stunde)?\b|\bnaturwissenschaft\w*|\bnawi\b|\bsachunterricht\b|\bastronomie\b|\btechnik\s+klasse\b|\btechnikunterricht\b/, () => 'nawi-technik'],
     ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen))|\bgeschichtsunterricht\b|\bpolitik(?:unterricht)?\b|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft(?:slehre|skunde)?\b|\bethik(?:unterricht)?\b|\breligion(?:sunterricht|slehre)?\b|\bphilosophie(?:unterricht)?\b|\bsowi\b/, () => 'gesellschaft'],

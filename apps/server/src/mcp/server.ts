@@ -35,9 +35,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     version: store.bundle.version
   });
 
+  // Compact JSON: indentation adds about a quarter to the size and tells a client model nothing.
   const textResult = (obj: unknown) => ({
-    content: [{ type: 'text' as const, text: JSON.stringify(obj, null, 2) }]
+    content: [{ type: 'text' as const, text: JSON.stringify(obj) }]
   });
+  /** Errors carry isError so a client can tell them from results without reading the text. */
+  const errorResult = (fehler: string) => ({
+    content: [{ type: 'text' as const, text: JSON.stringify({ fehler }) }],
+    isError: true
+  });
+
+  // Allowed codes come from the matcher's own field list, so tool schemas and checks cannot drift apart.
+  const fieldCodes = (feld: string) =>
+    (store.matcher.felder().find((f) => f.feld === feld)?.werte || []).map((w) => w.code) as [string, ...string[]];
+  const code = (feld: string) => z.enum(fieldCodes(feld));
+  const codes = (feld: string) => z.union([code(feld), z.array(code(feld))]);
 
   // 1. search_methods
   server.tool(
@@ -45,23 +57,23 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     `Facettierte Suche über alle ${store.bundle.bausteine.length} FMT-Unterrichtsmethoden (Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Zeit, Gruppengröße, Technik, Evidenzgrad).`,
     {
       text: z.string().optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
-      lernfunktion: z.union([z.string(), z.array(z.string())]).optional(),
-      engagement: z.union([z.string(), z.array(z.string())]).optional(),
-      anleitung: z.union([z.string(), z.array(z.string())]).optional(),
-      interaktion: z.union([z.string(), z.array(z.string())]).optional(),
-      raumzeit: z.union([z.string(), z.array(z.string())]).optional(),
-      reichweite: z.union([z.string(), z.array(z.string())]).optional(),
-      ansatz: z.union([z.string(), z.array(z.string())]).optional(),
+      lernfunktion: codes('lernfunktion').optional(),
+      engagement: codes('engagement').optional(),
+      anleitung: codes('anleitung').optional(),
+      interaktion: codes('interaktion').optional(),
+      raumzeit: codes('raumzeit').optional(),
+      reichweite: codes('reichweite').optional(),
+      ansatz: codes('ansatz').optional(),
       status: z.enum(['kuratiert', 'entwurf']).optional(),
-      liefert: z.union([z.string(), z.array(z.string())]).optional(),
-      vorhanden: z.union([z.string(), z.array(z.string())]).optional(),
+      liefert: codes('liefert').optional(),
+      vorhanden: codes('vorhanden').optional(),
       maxDauer: z.number().int().min(0).optional(),
       gruppe: z.number().int().min(1).optional(),
-      maxTechnik: z.string().optional(),
+      maxTechnik: code('maxTechnik').optional(),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
-      bildungsstufe: z.string().optional(),
-      vorwissen: z.string().optional(),
+      bildungsstufe: code('bildungsstufe').optional(),
+      vorwissen: code('vorwissen').optional(),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
       limit: z.number().int().min(1).max(100).optional().default(20)
     },
@@ -112,7 +124,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     },
     async ({ kennung }) => {
       const b = store.blocksById.get(kennung);
-      if (!b) return textResult({ fehler: `Unbekannter Baustein „${kennung}“.` });
+      if (!b) return errorResult(`Unbekannter Baustein „${kennung}“.`);
       return textResult({
         ...b,
         creator: store.bundle.creator,
@@ -134,7 +146,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       const a = store.blocksById.get(methodeA);
       const b = store.blocksById.get(methodeB);
       if (!a || !b) {
-        return textResult({ fehler: `Unbekannte Kennung: ${!a ? methodeA : methodeB}` });
+        return errorResult(`Unbekannte Kennung: ${!a ? methodeA : methodeB}`);
       }
       const unterschiede: Array<{ facette: string; label: string; a: unknown; b: unknown }> = [];
       const gemeinsam: string[] = [];
@@ -157,11 +169,6 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   );
 
   // Allowed subject areas come from the vocabulary, not from a copy in this file.
-  const fachbereichCodes = (store.matcher.felder().find((f) => f.feld === 'fachbereich')?.werte || []).map((w) => w.code) as [
-    string,
-    ...string[]
-  ];
-
   // 4. match_scenario
   server.tool(
     'match_scenario',
@@ -169,35 +176,46 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     {
       text: z.string().optional(),
       modus: z.enum(['phase', 'ablauf']).optional(),
-      zieltyp: z.string().optional(),
-      zielart: z.string().optional(),
-      ansatz: z.union([z.string(), z.array(z.string())]).optional().describe('Didaktischer Ansatz, z. B. "forschend", "kooperativ", "instruktion"'),
-      lernfunktion: z.union([z.string(), z.array(z.string())]).optional(),
-      anleitung: z.union([z.string(), z.array(z.string())]).optional(),
-      engagement: z.union([z.string(), z.array(z.string())]).optional(),
-      interaktion: z.union([z.string(), z.array(z.string())]).optional(),
-      reichweite: z.union([z.string(), z.array(z.string())]).optional(),
-      liefert: z.union([z.string(), z.array(z.string())]).optional(),
+      zieltyp: code('zieltyp').optional(),
+      zielart: code('zielart').optional(),
+      ansatz: codes('ansatz').optional().describe('Didaktischer Ansatz, z. B. "forschend", "kooperativ", "instruktion"'),
+      lernfunktion: codes('lernfunktion').optional(),
+      anleitung: codes('anleitung').optional(),
+      engagement: codes('engagement').optional(),
+      interaktion: codes('interaktion').optional(),
+      reichweite: codes('reichweite').optional(),
+      liefert: codes('liefert').optional(),
       zeitMin: z.number().int().min(0).optional(),
       gruppe: z.number().int().min(1).optional(),
-      maxTechnik: z.string().optional(),
+      maxTechnik: code('maxTechnik').optional(),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
-      raumzeit: z.union([z.string(), z.array(z.string())]).optional(),
-      vorhanden: z.union([z.string(), z.array(z.string())]).optional(),
-      vorwissen: z.string().optional(),
+      raumzeit: codes('raumzeit').optional(),
+      vorhanden: codes('vorhanden').optional(),
+      vorwissen: code('vorwissen').optional(),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
-      bildungsstufe: z.string().optional(),
-      fachbereich: z
-        .enum(fachbereichCodes)
+      bildungsstufe: code('bildungsstufe').optional(),
+      fachbereich: code('fachbereich')
         .optional()
-        .describe('Fächergruppe; wird sonst aus dem Fach im Text gelesen')
+        .describe('Fächergruppe; wird sonst aus dem Fach im Text gelesen'),
+      limit: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
+        .optional()
+        .default(10)
+        .describe('Höchstzahl der Vorschläge im Modus phase; vorschlaegeGesamt nennt die Zahl aller passenden Bausteine')
     },
-    async (args) => {
+    async ({ limit, ...args }) => {
       try {
         const t0 = process.hrtime.bigint();
-        const res = store.matcher.zuordnen(args as MatchRequest);
+        const full = store.matcher.zuordnen(args as MatchRequest);
+        const res =
+          full.modus === 'phase'
+            ? { ...full, vorschlaege: full.vorschlaege.slice(0, limit), vorschlaegeGesamt: full.vorschlaege.length }
+            : full;
         const text = typeof args.text === 'string' ? args.text.trim() : '';
         const extra = text
           ? {
@@ -208,7 +226,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
         return textResult({ ...res, dauerMs, ...extra, leitplanken: FMT_GUARDRAILS });
       } catch (e) {
-        return textResult({ fehler: e instanceof Error ? e.message : 'Ungültige Anfrage.' });
+        return errorResult(e instanceof Error ? e.message : 'Ungültige Anfrage.');
       }
     }
   );
@@ -225,7 +243,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         const res = store.validator.validate(arrangement as unknown as Arrangement, store.exampleRegistry);
         return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
       } catch (e) {
-        return textResult({ fehler: e instanceof Error ? e.message : 'Ungültiges Arrangement.' });
+        return errorResult(e instanceof Error ? e.message : 'Ungültiges Arrangement.');
       }
     }
   );
@@ -247,7 +265,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           kandidaten
         });
       } catch (e) {
-        return textResult({ fehler: e instanceof Error ? e.message : 'Ungültiger Pfad.' });
+        return errorResult(e instanceof Error ? e.message : 'Ungültiger Pfad.');
       }
     }
   );
@@ -263,10 +281,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       if (scheme) {
         const found = store.bundle.schemes.find((s) => s.id === scheme);
         if (!found) {
-          return textResult({
-            fehler: `Unbekanntes Schema „${scheme}“.`,
-            verfuegbar: store.bundle.schemes.map((s) => s.id)
-          });
+          return {
+            ...textResult({ fehler: `Unbekanntes Schema „${scheme}“.`, verfuegbar: store.bundle.schemes.map((s) => s.id) }),
+            isError: true
+          };
         }
         return textResult({
           id: found.id,
@@ -303,7 +321,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         const res = await searchWloOer(args);
         return textResult(res);
       } catch (e) {
-        return textResult({ fehler: e instanceof Error ? e.message : 'WLO-OER-Suche fehlgeschlagen.' });
+        return errorResult(e instanceof Error ? e.message : 'WLO-OER-Suche fehlgeschlagen.');
       }
     }
   );
@@ -379,28 +397,33 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 10. build_scenario_plan (Ultra-fast Zero-LLM pre-filtering + matrix + optional WLO OER + caller LLM briefing!)
   server.tool(
     'build_scenario_plan',
-    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, JSON-LD `maschinenlesbar` für den Baukasten-Import und `verbindlicheUmsetzungsregeln`). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
+    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, `verbindlicheUmsetzungsregeln`; mit `umfang: "voll"` zusätzlich `llmBriefing` und JSON-LD `maschinenlesbar` für den Baukasten-Import). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
     {
       text: z.string().describe('Beschreibung des Unterrichtsvorhabens'),
       fach: z.string().optional(),
       thema: z.string().optional(),
       lernziele: z.string().optional(),
       didaktischerAnsatz: z.string().optional(),
-      ansatz: z.union([z.string(), z.array(z.string())]).optional(),
-      anleitung: z.union([z.string(), z.array(z.string())]).optional(),
-      engagement: z.union([z.string(), z.array(z.string())]).optional(),
-      interaktion: z.union([z.string(), z.array(z.string())]).optional(),
-      reichweite: z.union([z.string(), z.array(z.string())]).optional(),
+      ansatz: codes('ansatz').optional(),
+      anleitung: codes('anleitung').optional(),
+      engagement: codes('engagement').optional(),
+      interaktion: codes('interaktion').optional(),
+      reichweite: codes('reichweite').optional(),
       zeitMin: z.number().int().min(10).optional(),
       gruppe: z.number().int().min(1).optional(),
-      bildungsstufe: z.string().optional(),
-      vorwissen: z.string().optional(),
-      maxTechnik: z.string().optional(),
+      bildungsstufe: code('bildungsstufe').optional(),
+      vorwissen: code('vorwissen').optional(),
+      maxTechnik: code('maxTechnik').optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),
+      umfang: z
+        .enum(['kompakt', 'voll'])
+        .optional()
+        .default('kompakt')
+        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen. voll: zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
       gruppen: z
         .array(
           z.object({
@@ -414,8 +437,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
     },
     async (args) => {
-      const plan = await buildScenarioPlanZeroLlm(store, args);
-      return textResult(plan);
+      try {
+        const plan = await buildScenarioPlanZeroLlm(store, args);
+        return 'fehler' in plan && typeof plan.fehler === 'string' ? { ...textResult(plan), isError: true } : textResult(plan);
+      } catch (e) {
+        return errorResult(e instanceof Error ? e.message : 'Szenarioplan fehlgeschlagen.');
+      }
     }
   );
 
@@ -471,7 +498,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           leitplanken: FMT_GUARDRAILS
         });
       } catch (e) {
-        return textResult({ fehler: e instanceof Error ? e.message : 'Ausarbeitung fehlgeschlagen.' });
+        return errorResult(e instanceof Error ? e.message : 'Ausarbeitung fehlgeschlagen.');
       }
     }
   );
@@ -512,7 +539,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           leitplanken: FMT_GUARDRAILS
         });
       } catch (e) {
-        return textResult({ fehler: e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.' });
+        return errorResult(e instanceof Error ? e.message : 'Materialgenerierung fehlgeschlagen.');
       }
     }
   );
