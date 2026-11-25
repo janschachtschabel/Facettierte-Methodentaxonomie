@@ -276,13 +276,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['bildungsstufe', /oberstufe|sekundarstufe\s*(?:ii|2)\b|sek\.?\s*(?:ii|2)\b|gymnasiale\s+oberstufe/, () => 'sek2'],
     ['bildungsstufe', /sekundarstufe\s*(?:i|1)\b|sek\.?\s*(?:i|1)\b|mittelstufe|realschule|gesamtschule|hauptschule/, () => 'sek1'],
     ['bildungsstufe', /berufsschul|berufsbildung|auszubildende|azubi/, () => 'berufsbildung'],
+    ['bildungsstufe', /erwachsenenbildung|volkshochschul|\bvhs\b|weiterbildung|fortbildung/, () => 'erwachsenenbildung'],
     ['bildungsstufe', /hochschul|studierende|universitat|vorlesung|seminar/, () => 'hochschule'],
-    ['bildungsstufe', /erwachsenenbildung|volkshochschul|weiterbildung/, () => 'erwachsenenbildung'],
     ['gruppe', /(\d{1,3})\s*(?:schuler\w*|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus)\b/, (m) => Number(m[1])],
     ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|anfanger/, () => 'gering'],
     ['vorwissen', /(?:viel|gut\w*|hoh\w*|solide\w*)\s+(?:vorwissen|vorkenntnis\w*)|fortgeschritten/, () => 'hoch'],
     ['vorwissen', /(?:etwas|mittler\w*)\s+(?:vorwissen|vorkenntnis\w*)|grundkenntnis/, () => 'mittel'],
-    ['maxTechnik', /ohne\s+(?:gerate|technik|digitale\s+\w+)|nur\s+(?:tafel|papier)|keine\s+(?:gerate|tablets|computer|technik)|analog\b/, () => 't-keine'],
+    [
+      'maxTechnik',
+      /(?:ohne|keine?)\s+(?:digitale\s+)?(?:gerate|endgerate|technik|tablets?|ipads?|laptops?|computer|medien)\b|ohne\s+digitale\s+\w+|nur\s+(?:tafel|papier)|\banalog\b/,
+      () => 't-keine'
+    ],
     ['maxTechnik', /tablets?\b|laptops?\b|ipads?\b|computerraum|endgerat/, () => 't-einzeln'],
     ['maxTechnik', /beamer|projektor|smartboard|digitale\s+tafel/, () => 't-projektion'],
     ['ohneInternet', /ohne\s+(?:internet|wlan|netz)|kein\s+(?:internet|wlan)|offline/, () => true],
@@ -309,17 +313,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zieltyp', /problemlos|probleme?\s+losen|offene\s+aufgabe|transferaufgabe/, () => 'problemloesen'],
     ['zieltyp', /\b5\s?e\b|forschend/, () => 'fuenf-e'],
     ['zieltyp', /\bfaktenwissen\b/, () => 'faktenwissen'],
-    ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge/, () => 'prozeduren'],
+    [
+      'zielart',
+      /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b/,
+      () => 'psychomotorik'
+    ],
+    ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|\bschreiben\b|programmier|kommasetzung|rechtschreib/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen/, () => 'fakten'],
     ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
-    ['modus', /reihe|einheit|sequenz|wochen|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|modul|ablauf|seminar\b|vorlesung\b|workshop\b|online-?kurs\b|sitzung\b/, () => 'ablauf']
+    [
+      'modus',
+      /\b(?:unterrichts)?reihe\b|\b(?:unterrichts|lern)?einheit\b|\bsequenz\b|\bwochen\b|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|\b(?:lern)?modul\b|\b(?:stunden|unterrichts)?ablauf\b|seminar\b|vorlesung\b|workshop\b|online-?kurs\b|sitzung\b/,
+      () => 'ablauf'
+    ]
   ];
 
   // Multi-value approach rules covering ALL 12 FMT ansatz codes + all 22 common "… Lernen" approaches (incl. Lernen durch Lehren)
   const ANSATZ_RULES: Array<[string, RegExp]> = [
     [
       'forschend',
-      /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|hypothese\w*|situationsorientiert\w*|kompetenzorientiert\w*|konstruktivistisch\w*|handlungsorientiert\w*/
+      /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|\bhypothesen?\b|situationsorientiert\w*|kompetenzorientiert\w*|konstruktivistisch\w*|handlungsorientiert\w*/
     ],
     [
       'kooperativ',
@@ -335,7 +348,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'spiel-simulation',
-      /spielerisch\w*|simulationsbasiert\w*|erfahrungsbasiert\w*|handlungsorientiert\w*|situationsorientiert\w*|gamification|planspiel|rollenspiel|simulation|spiel\b|quizspiel/
+      /spielerisch\w*|simulationsbasiert\w*|erfahrungsbasiert\w*|handlungsorientiert\w*|situationsorientiert\w*|gamification|planspiel|rollenspiel|simulation|\b(?:lern)?spiele?\b|quizspiel/
     ],
     ['diskurs', /debatt\w*|diskurs\w*|dialogisch\w*|diskussion|pro-?contra|streitgesprach|argumentier\w*/],
     ['kreativ', /kreativ\w*|brainstorming|ideen\s+sammeln|erfinden|design\s+thinking|geschichten\s+schreiben/],
@@ -609,10 +622,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
   };
 
-  function phase(a: MatchRequest): Omit<PhaseMatchResult, 'kriterien' | 'erkannt' | 'offen'> {
+  /**
+   * `soft` names criteria that were only inferred from free text (topic words, semantic guess).
+   * They still order the proposals but must not remove candidates.
+   */
+  function phase(
+    a: MatchRequest,
+    soft: { zielart?: boolean; lernfunktion?: boolean } = {}
+  ): Omit<PhaseMatchResult, 'kriterien' | 'erkannt' | 'offen'> {
     const fn = list(a.lernfunktion);
+    const filterFn = soft.lernfunktion ? [] : fn;
     const want = list(a.liefert);
-    const art = list(a.zielart);
+    const art = soft.zielart ? [] : list(a.zielart);
     const have = a.vorhanden !== undefined ? closure(list(a.vorhanden)) : null;
     const out = {
       funktion: 0,
@@ -624,7 +645,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     data.bausteine.forEach((b) => {
       const gives = closure(b.nachbedingung || []);
       if (
-        (fn.length && !fn.some((f) => b.lernfunktion.includes(f))) ||
+        (filterFn.length && !filterFn.some((f) => b.lernfunktion.includes(f))) ||
         (want.length && !want.every((z) => gives.has(z))) ||
         (art.length && !art.some((z) => (b.aufgabe || []).includes(z)))
       ) {
@@ -906,26 +927,38 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       Object.keys(anfrage).forEach((k) => {
         if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
       });
-      const hasPhase = list(a.lernfunktion).length || list(a.liefert).length;
+      const fromText = (feld: string) => !given(anfrage[feld]) && gelesen.erkannt.find((e) => e.feld === feld);
+      const guessedFn = Boolean(fromText('lernfunktion')?.beleg.startsWith('semantisch'));
+      const hasPhase = (list(a.lernfunktion).length && !guessedFn) || list(a.liefert).length;
       const isFullLessonBudget = given(a.zeitMin) && Number(a.zeitMin) >= 45;
-      const modus = a.modus || (a.zieltyp || (a.zielart && (!hasPhase || isFullLessonBudget)) ? 'ablauf' : 'phase');
+      // A stated lesson length without an explicit phase word ("Einstieg", "Sicherung") means a whole lesson.
+      const isLessonWithoutPhaseWord = given(anfrage.text) && given(a.zeitMin) && Number(a.zeitMin) >= 40 && !hasPhase;
+      const modus =
+        a.modus ||
+        (a.zieltyp || (a.zielart && (!hasPhase || isFullLessonBudget)) || isLessonWithoutPhaseWord ? 'ablauf' : 'phase');
       const head = {
         kriterien: a,
         erkannt: gelesen.erkannt,
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld)
       };
-      if (modus === 'phase') return Object.assign(head, phase(a));
+      if (modus === 'phase') {
+        return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }));
+      }
       let ketten = a.zieltyp
         ? [chains.get(a.zieltyp)!].filter(Boolean)
         : data.ketten.filter((k) => (k.zielart || []).includes(String(a.zielart)));
       if (!ketten.length && given(anfrage.text)) {
         const ansatzList = list(a.ansatz);
-        const inferredId = ansatzList.includes('forschend')
-          ? 'fuenf-e'
-          : ansatzList.includes('uebung')
-            ? 'prozedur'
-            : 'konzeptaufbau';
-        const fallbackChain = chains.get(inferredId);
+        const byAnsatz: Array<[string, string]> = [
+          ['forschend', 'fuenf-e'],
+          ['uebung', 'prozedur'],
+          ['instruktion', 'direkte-instruktion'],
+          ['kooperativ', 'kooperatives-lernen'],
+          ['offen', 'projektlernen'],
+          ['diskurs', 'problemloesen']
+        ];
+        const inferredId = byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
+        const fallbackChain = chains.get(inferredId) || chains.get('konzeptaufbau');
         if (fallbackChain) ketten = [fallbackChain];
       }
       if (!ketten.length) {
