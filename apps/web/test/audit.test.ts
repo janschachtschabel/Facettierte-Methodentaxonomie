@@ -83,4 +83,19 @@ describe('Audit 2026-11: exports only link http(s) and mailto URLs', () => {
     if (!res.ok) return;
     expect(Object.values(res.project.oerByStep || {}).flat()).toEqual([]);
   });
+
+  it('nulls unsafe secondary links of imported OER entries', () => {
+    const arr = createChainPreset(BUNDLE.ketten[0].id, BUNDLE);
+    const res = importScenarioProjectJson(
+      JSON.stringify({
+        arrangement: arr,
+        oerByStep: { 'step-0': [{ id: 'x', title: 'Gut', url: 'https://a.de', wwwurl: 'https://a.de', wloRenderUrl: 'javascript:alert(1)', previewUrl: 'javascript:x', source: 'wlo' }] }
+      })
+    );
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    const [o] = Object.values(res.project.oerByStep || {}).flat();
+    expect(o.wloRenderUrl).toBeNull();
+    expect((o as { previewUrl?: unknown }).previewUrl).toBeNull();
+  });
 });

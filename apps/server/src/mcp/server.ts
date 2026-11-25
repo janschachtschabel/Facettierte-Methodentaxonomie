@@ -485,6 +485,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           oerRessourcen: args.oerRessourcen
         };
         if (args.useServerLlm && effectiveConfig.llmApiKey) {
+          if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
+            return errorResult('Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.');
+          }
           if (!serverLlmBudget(effectiveConfig).tryTake()) return errorResult(LLM_BUDGET_EXCEEDED);
           const res = await elaborateScenarioCore(store, effectiveConfig, {}, payload);
           return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
@@ -532,6 +535,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       try {
         const t0 = process.hrtime.bigint();
         const mode = args.useServerLlm && effectiveConfig.llmApiKey ? 'ki' : 'template';
+        // Check the input before spending a server-LLM slot on a request that would fail anyway.
+        if (mode === 'ki' && !store.blocksById.has(args.baustein.trim())) {
+          return errorResult('Bitte einen gültigen FMT-Methodenbaustein auswählen.');
+        }
         if (mode === 'ki' && !serverLlmBudget(effectiveConfig).tryTake()) return errorResult(LLM_BUDGET_EXCEEDED);
         const res = await generateMaterialCore(store, effectiveConfig, {}, { ...args, mode });
         const briefing = buildMaterialBriefing(store, args);
