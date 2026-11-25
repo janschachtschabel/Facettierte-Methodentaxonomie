@@ -95,6 +95,7 @@
     "vorwissen-aktiviert"
   ],
   "nachbedingung": [
+    "loesungsversuche",
     "transfer-gezeigt"
   ],
   "kernkomponente": [

@@ -93,9 +93,11 @@
   "sequenz": [
     "geblockt"
   ],
-  "vorbedingung": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
   "nachbedingung": [
-    "konzept-gesichert",
+    "problem-erschlossen",
     "transfer-gezeigt"
   ],
   "kernkomponente": [

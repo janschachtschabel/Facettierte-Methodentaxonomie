@@ -86,12 +86,14 @@
     "authentisch"
   ],
   "sequenz": [
-    "instruktion-vor-problem"
+    "instruktion-vor-problem",
+    "problem-vor-instruktion"
   ],
   "vorbedingung": [
-    "konzept-gesichert"
+    "vorwissen-aktiviert"
   ],
   "nachbedingung": [
+    "loesungsversuche",
     "transfer-gezeigt"
   ],
   "kernkomponente": [

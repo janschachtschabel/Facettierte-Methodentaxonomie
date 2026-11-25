@@ -86,7 +86,9 @@
   "sequenz": [
     "geblockt"
   ],
-  "vorbedingung": [],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
   "nachbedingung": [
     "transfer-gezeigt"
   ],

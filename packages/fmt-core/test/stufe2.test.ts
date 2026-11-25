@@ -167,3 +167,29 @@ describe('D2: Evidenzbezug', () => {
     expect(rankingGrade(placemat.evidenz)).toBe('B');
   });
 });
+
+describe('D5: Vor- und Nachbedingungen der Kernmethoden', () => {
+  const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
+  const anchored = (r: MatchResult, id: string) =>
+    r.modus === 'ablauf' ? (r.verankert || []).find((v) => v.baustein === id)?.schritt : undefined;
+
+  it('das Schülerexperiment kann die Erkundungsphase tragen', () => {
+    const r = M.zuordnen({ text: 'Physik Klasse 8: Dichte forschend-entdeckend mit Schülerexperimenten, Doppelstunde, 24 Schüler' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('fuenf-e');
+    expect(anchored(r, 'experiment')).toMatch(/^Explore/);
+    if (r.modus === 'ablauf') expect(r.pruefung?.gueltig).toBe(true);
+  });
+
+  it('die Fishbowl trägt die Kontroverse in der Urteilsbildung', () => {
+    const r = M.zuordnen({ text: 'Ethik Klasse 10: Sterbehilfe als Fishbowl diskutieren, 90 Minuten, 24 Schüler' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('urteilsbildung');
+    expect(anchored(r, 'fishbowl')).toMatch(/^Kontrovers/);
+  });
+
+  it('Analyse- und Präsentationsformate setzen Inhalte voraus', () => {
+    for (const id of ['karikatur-bildanalyse', 'swot-analyse', 'pecha-kucha', 'stegreiftheater']) {
+      expect(byId.get(id)?.vorbedingung?.length, id).toBeGreaterThan(0);
+    }
+    expect(byId.get('karikatur-bildanalyse')?.nachbedingung).not.toContain('konzept-gesichert');
+  });
+});

@@ -102,6 +102,7 @@
   ],
   "nachbedingung": [
     "problem-erschlossen",
+    "loesungsversuche",
     "konzept-gesichert"
   ],
   "kernkomponente": [

@@ -95,7 +95,7 @@
     "ki-keine"
   ],
   "vorbedingung": [
-    "vorwissen-aktiviert"
+    "erstwissen-ungesichert"
   ],
   "nachbedingung": [
     "transfer-gezeigt"

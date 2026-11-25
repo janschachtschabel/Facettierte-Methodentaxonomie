@@ -93,7 +93,8 @@
   ],
   "nachbedingung": [
     "transfer-gezeigt",
-    "lernstand-diagnostiziert"
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
   ],
   "kernkomponente": [
     {

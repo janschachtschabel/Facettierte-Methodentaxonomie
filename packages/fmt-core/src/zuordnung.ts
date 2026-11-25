@@ -556,6 +556,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentRawText = '';
   let currentSemanticScores = new Map<string, number>();
   let currentMentions = new Set<string>();
+  let currentAnchorStep = new Map<string, number>();
+  let currentStepIndex = -1;
   let currentSeed = '';
   let currentVariante = 0;
   let currentTechAsked = false;
@@ -656,7 +658,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1
           : 0,
         vorbereitungMin: b.vorbereitungMin,
-        mentioned: currentMentions.has(b.kennung)
+        // A named method gets its bonus at the step reserved for it, not at an earlier step it could also serve.
+        mentioned:
+          currentMentions.has(b.kennung) &&
+          (!currentAnchorStep.has(b.kennung) || currentAnchorStep.get(b.kennung) === currentStepIndex)
       })
     };
   }
@@ -867,11 +872,19 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const floors: Array<number | undefined> = kette.schritte.map(() => undefined);
     for (const b of mentioned) {
       if (rahmen(b, a)) continue;
-      const at = kette.schritte.findIndex(
-        (st, i) =>
-          floors[i] == null && b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel)
-      );
-      if (at >= 0) floors[at] = b.dauerMin;
+      // Prefer the step whose target the method delivers directly, main phases first; otherwise the first step it can serve.
+      const fits = kette.schritte
+        .map((st, i) => ({ st, i }))
+        .filter(
+          ({ st, i }) =>
+            floors[i] == null && b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel)
+        );
+      const direct = fits.filter(({ st }) => (b.nachbedingung || []).includes(st.ziel));
+      const at = (direct.find(({ st }) => st.rolle === 'haupt') || direct[0] || fits[0])?.i ?? -1;
+      if (at >= 0) {
+        floors[at] = b.dauerMin;
+        currentAnchorStep.set(b.kennung, at);
+      }
     }
     // A single session cannot hold repetitions that are days apart: they are planned for later sessions.
     const recurrenceOutside = totalBudget != null && totalBudget <= SINGLE_SESSION_MAX_MIN;
@@ -880,6 +893,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const anchoredAt = new Map<string, string>();
 
     kette.schritte.forEach((step, idx) => {
+      currentStepIndex = idx;
       // Share of this step plus whatever earlier steps left unused.
       const plannedBefore = budgets ? budgets.slice(0, idx).reduce((x, y) => x + y, 0) : 0;
       const stepCap = budgets ? Math.max(5, budgets[idx] + Math.max(0, plannedBefore - usedDurationSoFar())) : undefined;
@@ -952,6 +966,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       });
     });
 
+    currentStepIndex = -1;
     if (wantsRecurrence) {
       const recCands = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert');
       const rec =
@@ -1163,6 +1178,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
+      currentAnchorStep = new Map();
+      currentStepIndex = -1;
       currentSeed = '';
       currentVariante = 0;
       currentTechAsked = false;

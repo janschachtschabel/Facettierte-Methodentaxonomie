@@ -32,7 +32,8 @@
   "reichweite": "r2",
   "lernfunktion": [
     "verstehen",
-    "metakognition"
+    "metakognition",
+    "anwendung"
   ],
   "engagement": [
     "interaktiv",
@@ -89,7 +90,8 @@
   ],
   "nachbedingung": [
     "problem-erschlossen",
-    "konzept-gesichert"
+    "konzept-gesichert",
+    "transfer-gezeigt"
   ],
   "kernkomponente": [
     {
