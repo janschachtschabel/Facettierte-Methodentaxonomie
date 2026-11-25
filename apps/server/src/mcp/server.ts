@@ -27,6 +27,8 @@ import {
   buildMaterialBriefing,
   buildScenarioPlanZeroLlm
 } from '../llm/briefings.js';
+import { LLM_BUDGET_EXCEEDED, serverLlmBudget } from '../llm/budget.js';
+import { MAX_TEXT_CHARS } from '../routes/validation.js';
 
 export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): McpServer {
   const effectiveConfig = config ?? loadConfig();
@@ -56,7 +58,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'search_methods',
     `Facettierte Suche über alle ${store.bundle.bausteine.length} FMT-Unterrichtsmethoden (Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Zeit, Gruppengröße, Technik, Evidenzgrad).`,
     {
-      text: z.string().optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
+      text: z.string().max(MAX_TEXT_CHARS).optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
       lernfunktion: codes('lernfunktion').optional(),
       engagement: codes('engagement').optional(),
       anleitung: codes('anleitung').optional(),
@@ -174,7 +176,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'match_scenario',
     'Deterministische 5-Stufen-Zuordnung für eine Phase oder eine geprüfte modulare Unterrichtsreihe inkl. didaktischem Ansatz (ohne Halluzinationen, <1 ms).',
     {
-      text: z.string().optional(),
+      text: z.string().max(MAX_TEXT_CHARS).optional(),
       modus: z.enum(['phase', 'ablauf']).optional(),
       zieltyp: code('zieltyp').optional(),
       zielart: code('zielart').optional(),
@@ -236,7 +238,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'validate_arrangement',
     'Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]).',
     {
-      arrangement: z.record(z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
+      arrangement: z.record(z.string(), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
     },
     async ({ arrangement }) => {
       try {
@@ -253,7 +255,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'suggest_replacements',
     'Berechnet formal gültige Ersatzbausteine an einem Knotenpfad eines Arrangements (jeder Kandidat live gegen R-00..R-12 geprüft).',
     {
-      arrangement: z.record(z.unknown()),
+      arrangement: z.record(z.string(), z.unknown()),
       pfad: z.string().describe('JSON-Pfad des Knotens, z. B. "/ablauf/teile/0" oder "/ablauf/haupt/teile/1"')
     },
     async ({ arrangement, pfad }) => {
@@ -340,7 +342,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Vordefinierte Schüler-Persona'),
       selectedValues: z
-        .record(z.string())
+        .record(z.string(), z.string())
         .optional()
         .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"}); Liste per list_differentiation_options abrufbar'),
       minScore: z.number().int().optional(),
@@ -399,7 +401,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'build_scenario_plan',
     'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, `verbindlicheUmsetzungsregeln`; mit `umfang: "voll"` zusätzlich `llmBriefing` und JSON-LD `maschinenlesbar` für den Baukasten-Import). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
     {
-      text: z.string().describe('Beschreibung des Unterrichtsvorhabens'),
+      text: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung des Unterrichtsvorhabens'),
       fach: z.string().optional(),
       thema: z.string().optional(),
       lernziele: z.string().optional(),
@@ -451,7 +453,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'elaborate_scenario',
     'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann.',
     {
-      arrangement: z.record(z.unknown()).describe('FMT-Arrangement JSON-LD'),
+      arrangement: z.record(z.string(), z.unknown()).describe('FMT-Arrangement JSON-LD'),
       fach: z.string().optional(),
       thema: z.string().optional(),
       didaktischerAnsatz: z.string().optional(),
@@ -483,6 +485,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           oerRessourcen: args.oerRessourcen
         };
         if (args.useServerLlm && effectiveConfig.llmApiKey) {
+          if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
+            return errorResult('Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.');
+          }
+          if (!serverLlmBudget(effectiveConfig).tryTake()) return errorResult(LLM_BUDGET_EXCEEDED);
           const res = await elaborateScenarioCore(store, effectiveConfig, {}, payload);
           return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
         }
@@ -529,6 +535,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       try {
         const t0 = process.hrtime.bigint();
         const mode = args.useServerLlm && effectiveConfig.llmApiKey ? 'ki' : 'template';
+        // Check the input before spending a server-LLM slot on a request that would fail anyway.
+        if (mode === 'ki' && !store.blocksById.has(args.baustein.trim())) {
+          return errorResult('Bitte einen gültigen FMT-Methodenbaustein auswählen.');
+        }
+        if (mode === 'ki' && !serverLlmBudget(effectiveConfig).tryTake()) return errorResult(LLM_BUDGET_EXCEEDED);
         const res = await generateMaterialCore(store, effectiveConfig, {}, { ...args, mode });
         const briefing = buildMaterialBriefing(store, args);
         const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
@@ -549,7 +560,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'classify_scenario_text',
     'Klassifiziert einen freien deutschen Szenariotext extrem schnell ohne LLM (Regeln + BM25/Trigram + optional lokales Model2Vec-Embedding) auf FMT-Filterskalen, Fach/Thema, passende Methoden und Binnendifferenzierungsmatrix-Merkmale.',
     {
-      text: z.string().describe('Freitext-Beschreibung der Unterrichtsidee inkl. Rahmen, Lernziel und Lerngruppenhinweisen')
+      text: z.string().max(MAX_TEXT_CHARS).describe('Freitext-Beschreibung der Unterrichtsidee inkl. Rahmen, Lernziel und Lerngruppenhinweisen')
     },
     async ({ text }) => {
       const extracted = extractSubjectAndTopicFromText(text);
@@ -572,13 +583,14 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'adapt_scenario',
     'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden sowie ein fertiges `llmBriefing`.',
     {
-      scenarioText: z.string().optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
+      scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
       baustein: z.string().optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
       lerngruppenText: z
         .string()
+        .max(MAX_TEXT_CHARS)
         .optional()
         .describe('Freitext zu Lernvoraussetzungen / Teilgruppen, z. B. "26 Kinder: 5 DaZ, 2 ADHS, 4 sehr leistungsstark"'),
-      arrangement: z.record(z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
+      arrangement: z.record(z.string(), z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
       phasen: z
         .array(
           z.object({
@@ -599,7 +611,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             label: z.string(),
             count: z.number().int().min(1).optional(),
             personaId: z.string().optional(),
-            selectedValues: z.record(z.string()).optional(),
+            selectedValues: z.record(z.string(), z.string()).optional(),
             text: z.string().optional()
           })
         )

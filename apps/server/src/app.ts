@@ -66,9 +66,9 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       index: ['index.html'],
       setHeaders: (res, filePath) => {
         if (filePath.includes(`${path.sep}assets${path.sep}`)) {
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+          res.header('Cache-Control', 'public, max-age=31536000, immutable');
         } else if (filePath.endsWith('index.html')) {
-          res.setHeader('Cache-Control', 'no-cache');
+          res.header('Cache-Control', 'no-cache');
         }
       }
     });

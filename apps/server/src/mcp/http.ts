@@ -6,7 +6,9 @@ import { createFmtMcpServer } from './server.js';
 
 export function registerMcpHttpRoutes(app: FastifyInstance, store: CatalogStore, config?: ServerConfig) {
   // Stateless Streamable HTTP MCP endpoint: safe across restarts, scalable, zero session memory leaks
-  app.all('/mcp', async (req, reply) => {
+  // Every JSON-RPC message is one POST; the limit is generous for clients but stops request floods.
+  const mcpRateLimit = { rateLimit: { max: Math.max(120, (config?.llmRateLimitPerMin ?? 20) * 6), timeWindow: '1 minute' } };
+  app.all('/mcp', { config: mcpRateLimit }, async (req, reply) => {
     if (req.method !== 'POST' && req.method !== 'GET' && req.method !== 'DELETE') {
       return reply.code(405).send({ fehler: 'Methode nicht erlaubt.' });
     }

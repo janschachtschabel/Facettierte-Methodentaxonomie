@@ -1,4 +1,5 @@
 import katex from 'katex';
+import { safeExternalUrl } from './safeUrl.js';
 
 export type MathOutputMode = 'htmlAndMathml' | 'mathml';
 
@@ -28,10 +29,10 @@ function renderKatex(expr: string, displayMode: boolean, mathOutput: MathOutputM
   }
 }
 
+export { safeExternalUrl };
+
 function safeHref(url: string): string | null {
-  const trimmed = url.trim();
-  if (/^(?:https?:\/\/|mailto:)/i.test(trimmed)) return trimmed;
-  return null;
+  return safeExternalUrl(url) || null;
 }
 
 /**
@@ -48,7 +49,8 @@ export function renderInlineMarkdownHtml(raw: string, mathOutput: MathOutputMode
     return `\u0000TOK${idx}\u0000`;
   };
 
-  let s = raw;
+  // NUL marks our own placeholders below; input must not be able to forge one.
+  let s = raw.replace(/\u0000/g, '');
 
   // 1. Inline code spans (`...`)
   s = s.replace(/`([^`\n]+)`/g, (_m, code: string) => stash(`<code>${escHtml(code)}</code>`));
@@ -80,7 +82,7 @@ export function renderInlineMarkdownHtml(raw: string, mathOutput: MathOutputMode
   s = escHtml(s);
 
   // 7. Auto-link bare https:// URLs
-  s = s.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)]+)/g, (_m, lead: string, rawUrl: string) => {
+  s = s.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)\u0000]+)/g, (_m, lead: string, rawUrl: string) => {
     let url = rawUrl;
     let trail = '';
     while (/[.,;:!?]$/.test(url)) {

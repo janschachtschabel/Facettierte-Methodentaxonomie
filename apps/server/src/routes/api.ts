@@ -19,6 +19,7 @@ import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
+import { MAX_TEXT_CHARS, firstTooLongText, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
   const fieldsMap = new Map(store.matcher.felder().map((f) => [f.feld, f]));
@@ -43,6 +44,9 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
   };
 
   const handleMatch = (anfrage: MatchRequest, reply: FastifyReply) => {
+    if (typeof anfrage.text === 'string' && anfrage.text.length > MAX_TEXT_CHARS) {
+      return reply.code(400).send({ fehler: tooLongMessage('text') });
+    }
     const t0 = process.hrtime.bigint();
     try {
       const r = store.matcher.zuordnen(anfrage);
@@ -206,6 +210,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!text) {
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" zur Klassifikation übergeben.' });
     }
+    if (text.length > MAX_TEXT_CHARS) return reply.code(400).send({ fehler: tooLongMessage('text') });
     const extracted = extractSubjectAndTopicFromText(text);
     return {
       ...store.classifyText(text),
@@ -220,6 +225,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!text) {
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" für die Szenario-Vorfilterung übergeben.' });
     }
+    if (text.length > MAX_TEXT_CHARS) return reply.code(400).send({ fehler: tooLongMessage('text') });
     const b = body as Record<string, unknown>;
     const badText = ['fach', 'thema', 'lernziele', 'didaktischerAnsatz'].find((k) => b[k] != null && typeof b[k] !== 'string');
     if (badText) return reply.code(400).send({ fehler: `Feld „${badText}“: erwartet wird Text.` });
@@ -250,6 +256,18 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
 
   app.post('/api/v1/adapt', async (req, reply) => {
     const body = (req.body || {}) as Partial<AdaptScenarioInput & { text?: string }>;
+    const notText = ['scenarioText', 'text', 'lerngruppenText', 'baustein', 'fach', 'thema', 'bildungsstufe', 'maxTechnik'].find(
+      (k) => (body as Record<string, unknown>)[k] != null && typeof (body as Record<string, unknown>)[k] !== 'string'
+    );
+    if (notText) return reply.code(400).send({ fehler: `Feld „${notText}“: erwartet wird Text.` });
+    const longField = firstTooLongText(body, ['scenarioText', 'text', 'lerngruppenText']);
+    if (longField) return reply.code(400).send({ fehler: tooLongMessage(longField) });
+    if (body.gruppen != null && !isGroupList(body.gruppen)) {
+      return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
+    }
+    if (body.phasen != null && !isPhaseList(body.phasen)) {
+      return reply.code(400).send({ fehler: 'Feld „phasen“: erwartet wird eine Liste von Objekten mit phaseLabel.' });
+    }
     const hasScenario =
       (typeof body.scenarioText === 'string' && body.scenarioText.trim().length > 0) ||
       (typeof body.text === 'string' && body.text.trim().length > 0) ||

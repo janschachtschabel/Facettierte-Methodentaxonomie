@@ -47,7 +47,7 @@ export function resolveLlmTarget(config: ServerConfig, override?: LlmOverride): 
   }
 
   const rawProviderInput = override?.provider?.trim().toLowerCase() || '';
-  if (rawProviderInput && rawProviderInput !== 'server' && !(rawProviderInput in BYOK_PROVIDERS)) {
+  if (rawProviderInput && rawProviderInput !== 'server' && !Object.hasOwn(BYOK_PROVIDERS, rawProviderInput)) {
     throw new ByokValidationError(
       `Ungültiger BYOK-Provider. Erlaubt: server, ${Object.keys(BYOK_PROVIDERS).join(', ')}. Freie URLs werden aus Sicherheitsgründen nicht über den Server geproxyt.`
     );

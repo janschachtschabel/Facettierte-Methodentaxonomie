@@ -139,8 +139,10 @@ export function resolveFachUri(fach: string, lookup: ((name: string) => string |
     .replace(/ü/g, 'ue')
     .replace(/ß/g, 'ss');
   if (!norm) return null;
-  if (FACH_TO_TAXON_URI[norm]) return FACH_TO_TAXON_URI[norm];
-  const hit = Object.keys(FACH_TO_TAXON_URI).find((k) => norm.includes(k));
+  if (Object.hasOwn(FACH_TO_TAXON_URI, norm)) return FACH_TO_TAXON_URI[norm];
+  // A key must start a word ("Mathematikdidaktik" → mathe), not sit inside one ("Transport" ≠ sport).
+  const words = norm.split(/[^a-z]+/).filter(Boolean);
+  const hit = Object.keys(FACH_TO_TAXON_URI).find((k) => words.some((w) => w.startsWith(k)));
   return hit ? FACH_TO_TAXON_URI[hit] : null;
 }
 
@@ -267,8 +269,8 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
   }
 
   const fachUri = resolveFachUri(fach);
-  const ctxUri = STAGE_TO_WLO_CONTEXT[bildungsstufe] || null;
-  const lrtUri = CONTENT_TYPE_TO_LRT_URI[inhaltstyp] || null;
+  const ctxUri = Object.hasOwn(STAGE_TO_WLO_CONTEXT, bildungsstufe) ? STAGE_TO_WLO_CONTEXT[bildungsstufe] : null;
+  const lrtUri = Object.hasOwn(CONTENT_TYPE_TO_LRT_URI, inhaltstyp) ? CONTENT_TYPE_TO_LRT_URI[inhaltstyp] : null;
 
   const cacheKey = crypto
     .createHash('sha256')

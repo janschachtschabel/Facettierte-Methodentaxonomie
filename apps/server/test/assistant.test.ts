@@ -482,4 +482,24 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(briefMat.json().fallbackMaterial).toContain('Fotosynthese');
     expect(briefMat.json().llmBriefing.userPrompt).toContain('MATERIALTYP: quiz');
   });
+  it('caps the number of parallel LLM sub-prompts for very long arrangements (cost amplification guard)', async () => {
+    mockBehavior = 'valid';
+    const callsBefore = mockCalls;
+    const arrangement = {
+      '@context': 'https://w3id.org/fmt/context.jsonld',
+      typ: 'Arrangement',
+      name: 'Sehr lange Reihe',
+      ablauf: { typ: 'Sequenz', teile: Array.from({ length: 60 }, () => ({ typ: 'Einsatz', baustein: 'abrufquiz' })) }
+    };
+    const res = await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/elaborate',
+      payload: { arrangement, thema: 'Lange Reihe ' + Date.now(), fach: 'Mathematik' }
+    });
+    expect(res.statusCode).toBe(200);
+    const j = res.json();
+    expect(j.thematischeTabelle.length).toBe(60);
+    expect(j.meta.teilprompts).toBeLessThanOrEqual(9);
+    expect(mockCalls - callsBefore).toBeLessThanOrEqual(9);
+  });
 });

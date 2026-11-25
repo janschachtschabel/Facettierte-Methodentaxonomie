@@ -9,6 +9,7 @@ import {
   type EinsatzNode
 } from '@fmt/core';
 import { getMainSequence } from './arrangementOps.js';
+import { safeOerList } from './safeUrl.js';
 
 export interface LearnerGroup {
   id: string;
@@ -387,7 +388,7 @@ export function buildScenarioRows(
       materials: b?.material || [],
       differentiation: diff,
       subgroupMethods: resolveSubgroupMethods(key),
-      oerResources: oerByStep[key] || [],
+      oerResources: safeOerList(oerByStep[key]),
       generatedMaterials: generatedMaterials.filter((m) => m.stepKey === key),
       block: b
     };
@@ -469,7 +470,7 @@ export function buildScenarioRows(
       materials: b?.material || [],
       differentiation: aiDiffByStep['wiederkehr']?.length ? aiDiffByStep['wiederkehr'] : buildDeterministicDiffHints(b, groups),
       subgroupMethods: resolveSubgroupMethods('wiederkehr'),
-      oerResources: oerByStep['wiederkehr'] || [],
+      oerResources: safeOerList(oerByStep['wiederkehr']),
       generatedMaterials: generatedMaterials.filter((m) => m.stepKey === 'wiederkehr'),
       block: b
     });
