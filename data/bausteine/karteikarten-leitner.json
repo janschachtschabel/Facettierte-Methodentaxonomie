@@ -13,6 +13,12 @@
   "ansatz": [
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lernkartei",
@@ -135,6 +141,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Verteilter Abruf zeigt robuste, große Behaltensvorteile gegenüber massiertem Wiederlesen",
       "quelle": "Cepeda et al. 2006; Rowland 2014; Dunlosky et al. 2013",
       "geltung": "Schule und Hochschule, international; besonders stark für Fakten, Begriffe und Vokabeln"

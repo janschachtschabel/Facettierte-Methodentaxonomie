@@ -281,13 +281,13 @@ curl -s -X POST http://localhost:8080/api/v1/assistant/briefing \
 ### Übersicht aller 14 MCP-Tools (`/mcp` & `stdio`)
 
 1. `classify_scenario_text` – Hybride Freitext-Klassifikation (6 Skalen, Fach/Thema, Methoden, Matrix-Merkmale)
-2. `search_methods` – Facettierte Suche über alle 290 Methoden inkl. semantischer Vorschläge
+2. `search_methods` – Facettierte Suche über alle 289 Methoden inkl. semantischer Vorschläge
 3. `get_method` – Vollständiges 13-Facetten-Profil inkl. Durchführung, Risiken, Evidenz & Quellen
 4. `compare_methods` – Facette-für-Facette-Vergleich zweier Bausteine
 5. `match_scenario` – Deterministische 5-Stufen-Zuordnung inkl. Matrix-Signalen
 6. `validate_arrangement` – Regelprüfung `R-00` bis `R-12` inkl. Grundlagen (`formal`, `[E]`, `[S]`, `[A]`)
 7. `suggest_replacements` – Formal gültige Ersatzkandidaten an einem Knotenpfad
-8. `list_vocabularies` – Alle 24 SKOS-Vokabulare, Funktionsketten & Differenzierungs-Personas
+8. `list_vocabularies` – Alle 25 SKOS-Vokabulare, Funktionsketten & Differenzierungs-Personas
 9. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline Prod (`redaktion.openeduhub.net`) inkl. `wwwurl`
 10. `score_differentiation_matrix` – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, Ebenen-/Technikfilter) & alternative Methoden für Teilgruppen
 11. `adapt_scenario` – Szenario-Anpassung & Binnendifferenzierung für freie Chat-Entwürfe & FMT-Arrangements (UDL-Basis, Zielkonflikte + Auflösungen, Phasen-Impulse, FMT-Methoden & `llmBriefing`, auch als `POST /api/v1/adapt`)

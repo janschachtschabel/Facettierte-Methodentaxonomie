@@ -6,6 +6,12 @@
   "ansatz": [
     "instruktion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Zusammenhängender, systematischer Fachvortrag für größere Gruppen zur raschen Übersicht über ein Themenfeld – als Kontrast- und Basiselement mit R-08-Bewusstsein.",
   "alternativname": [
     "Fachvorlesung",
@@ -112,6 +118,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Reine Vorlesungen schneiden in MINT-Hochschulkursen im Mittel schwächer ab als aktivierende Formate (g ≈ −0,47).",
       "quelle": "Freeman et al. 2014",
       "geltung": "Hochschule, MINT-Fächer",

@@ -7,6 +7,14 @@
     "forschend",
     "visualisierung"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "nawi-technik",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Ein Problem wird am „Fischkopf“ notiert; Haupt- und Nebenursachen werden systematisch an Kategorien-Gräten gesammelt und gewichtet.",
   "alternativname": [
     "Ishikawa-Diagramm",

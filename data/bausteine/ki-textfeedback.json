@@ -12,6 +12,13 @@
     "digital-ki",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Formatives Assessment",

@@ -6,6 +6,16 @@
   "ansatz": [
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "gesellschaft",
+    "aesthetik",
+    "sport"
+  ],
   "kurzbeschreibung": "Zwei Lernende mit unterschiedlichen Erstsprachen oder Stärken unterstützen sich wechselseitig zu gleichen Zeitanteilen beim authentischen Sprechen.",
   "alternativname": [
     "Sprachtandem",

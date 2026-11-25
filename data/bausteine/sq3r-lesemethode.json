@@ -12,6 +12,15 @@
   "ansatz": [
     "visualisierung"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "aesthetik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: SQ3R",

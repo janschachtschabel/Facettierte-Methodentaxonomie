@@ -7,6 +7,14 @@
     "offen",
     "kreativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "kurzbeschreibung": "Lernende verfassen authentische Texte zu eigenen Themen, überarbeiten sie in der Textkonferenz und veröffentlichen sie für echte Leser:innen.",
   "alternativname": [
     "Schuldruckerei",

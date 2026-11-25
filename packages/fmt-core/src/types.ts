@@ -76,6 +76,10 @@ export interface KettenSchritt {
   label: string;
   funktion: string[];
   ziel: string;
+  /** Didactic weight of the step: rand (opening/closing), haupt (main work), sicherung. */
+  rolle?: 'rand' | 'haupt' | 'sicherung';
+  /** Relative share of the time budget; the shares of a chain need not add up to 100. */
+  zeitanteil?: number;
 }
 
 export interface Funktionskette {
@@ -111,6 +115,8 @@ export interface Evidenzaussage {
   quelle: string;
   geltung: string;
   umstritten?: string;
+  /** methode: studies on this method itself; prinzip: derived from the underlying principle. */
+  evidenzBezug?: 'methode' | 'prinzip';
 }
 
 export interface Steuerungsprofil {
@@ -166,6 +172,10 @@ export interface Baustein {
   slot?: SlotDef[];
   dauerMin: number;
   dauerMax: number;
+  /** Subject areas where the method is at home; 'uebergreifend' = no subject binding. */
+  fachbereich?: string[];
+  /** Subject areas where the method does not fit. */
+  fachbereichUngeeignet?: string[];
   geeignetBeiVorwissen?: string[];
   ungeeignetBeiStufe?: string[];
   problem: string;
@@ -222,6 +232,8 @@ export interface WiederkehrNode {
   anzahl: number;
   abstand?: string;
   dauerMin?: number;
+  /** Repetitions take place in later sessions and do not count towards the time budget of this plan. */
+  ausserhalbBudget?: boolean;
 }
 
 export interface AlternativeNode {
@@ -310,6 +322,8 @@ export interface ValidationResult {
   dauerMin: number;
   reichweite: string;
   wiederkehr: Array<{ anzahl: number; baustein: string }>;
+  /** Minutes of distributed repetition planned for later sessions (not part of dauerMin). */
+  dauerAusserhalbMin?: number;
 }
 
 export interface SearchCriteria {
@@ -361,6 +375,8 @@ export interface MatchRequest {
   liefert?: string | string[];
   zeitMin?: number;
   gruppe?: number;
+  /** Index of an equivalent alternative proposal (0 = default). */
+  variante?: number;
   maxTechnik?: string;
   ohneInternet?: boolean;
   ohneKI?: boolean;
@@ -383,6 +399,8 @@ export interface PhaseProposal {
   evidenzgrad: EvidenceGrade | null;
   warnungen: string[];
   gruende: string[];
+  /** The request names this method. */
+  genannt?: boolean;
 }
 
 export interface AblaufSchrittResult {
@@ -425,10 +443,18 @@ export interface AblaufMatchResult extends MatchHead {
   kette?: { id: string; label: string };
   schritte?: AblaufSchrittResult[];
   offenSchritte?: string[];
+  /** Methods named in the request and where they were placed. */
+  verankert?: Array<{ baustein: string; schritt: string }>;
+  /** Methods named in the request that could not be placed, with the reason. */
+  nichtVerankert?: Array<{ baustein: string; grund: string }>;
+  /** Assumptions the matcher made because the request left something open. */
+  annahmen?: string[];
   arrangement?: Arrangement;
   pruefung?: {
     gueltig: boolean;
     dauerMin: number;
+    /** Minutes of distributed repetition planned for later sessions (not part of dauerMin). */
+    dauerAusserhalbMin?: number;
     endzustand: string[];
     meldungen: ValidationMessage[];
   };

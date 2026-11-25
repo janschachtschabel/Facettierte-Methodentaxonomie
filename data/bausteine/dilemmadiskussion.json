@@ -12,6 +12,13 @@
   "ansatz": [
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lawrence Kohlberg (Moralische Dilemmata)",
@@ -81,7 +88,8 @@
   "vorbedingung": [],
   "nachbedingung": [
     "problem-erschlossen",
-    "lernen-reflektiert"
+    "lernen-reflektiert",
+    "transfer-gezeigt"
   ],
   "kernkomponente": [
     {
@@ -128,6 +136,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Wiederholte positive Effekte auf moralische Urteilskompetenz bei konsequenter Umsetzung der KMDD",
       "quelle": "Lind 2015; Schlaefli, Rest & Thoma 1985",
       "geltung": "Schule und Hochschule, DACH und USA; Effekt hängt an Moderationsqualität"

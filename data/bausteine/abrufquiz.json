@@ -14,6 +14,9 @@
     "uebung",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia (en): Testing effect",
@@ -132,12 +135,14 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Testing-Effekt g ≈ 0,50–0,61; im regulären Unterricht g ≈ 0,50",
       "quelle": "Rowland 2014; Adesope et al. 2017; Yang et al. 2021",
       "geltung": "Labor und regulärer Unterricht, Schule und Hochschule; international"
     },
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Verteilte Wiederholung verbessert das Behalten gegenüber massierter",
       "quelle": "Cepeda et al. 2006; Dunlosky et al. 2013",
       "geltung": "Überwiegend Labor und Hochschule, USA"

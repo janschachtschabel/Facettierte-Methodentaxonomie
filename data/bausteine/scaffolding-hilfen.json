@@ -14,6 +14,9 @@
     "instruktion",
     "offen"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Scaffolding",
@@ -144,6 +147,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Scaffolding fördert Problemlösen und naturwissenschaftliches Lernen mittelstark, besonders bei geringem Vorwissen",
       "quelle": "Belland et al. 2017",
       "geltung": "MINT, Schule und Hochschule, international"

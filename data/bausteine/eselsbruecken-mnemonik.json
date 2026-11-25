@@ -7,6 +7,12 @@
     "uebung",
     "kreativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Lernende konstruieren eigene Akronyme, Merkverse oder Bildassoziationen, um schwer merkbare Fakten und Ausnahmeregeln dauerhaft abrufbar zu machen.",
   "alternativname": [
     "Eselsbrücken",

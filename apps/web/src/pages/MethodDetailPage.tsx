@@ -102,7 +102,17 @@ export function MethodDetailPage() {
                 {labelOf('lernfunktion', f)}
               </li>
             ))}
+            {(b.fachbereich || []).map((f) => (
+              <li key={`fb-${f}`} className="chip" title="Fachbereich">
+                {labelOf('fachbereich', f)}
+              </li>
+            ))}
           </ul>
+          {(b.fachbereichUngeeignet || []).length > 0 && (
+            <p className="muted" style={{ fontSize: 14, marginTop: -8 }}>
+              Weniger geeignet für: {(b.fachbereichUngeeignet || []).map((f) => labelOf('fachbereich', f)).join(', ')}
+            </p>
+          )}
 
           {/* Practical Quick-Facts */}
           <div
@@ -271,6 +281,12 @@ export function MethodDetailPage() {
                 <div className="muted" style={{ fontSize: 14, marginTop: 3 }}>
                   <strong>Geltung:</strong> {e.geltung}
                 </div>
+                {e.evidenzBezug && (
+                  <div className="muted" style={{ fontSize: 14, marginTop: 3 }}>
+                    <strong>Bezug:</strong>{' '}
+                    {e.evidenzBezug === 'methode' ? 'Studien zu dieser Methode' : 'abgeleitet vom zugrunde liegenden Wirkprinzip'}
+                  </div>
+                )}
                 {e.umstritten && (
                   <div style={{ fontSize: 14, marginTop: 3, color: 'var(--dB)' }}>
                     <strong>Gegenposition / Einordnung:</strong> {e.umstritten}

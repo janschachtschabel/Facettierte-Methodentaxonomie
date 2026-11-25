@@ -7,6 +7,15 @@
     "uebung",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sprachen",
+    "gesellschaft"
+  ],
   "kurzbeschreibung": "Zeitlich getakteter Durchlauf durch differenzierte Bewegungs- oder Fertigkeitsstationen mit unmittelbarer Selbst- und Partnerkorrektur.",
   "alternativname": [
     "Zirkeltraining",

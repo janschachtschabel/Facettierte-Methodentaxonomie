@@ -11,6 +11,9 @@
   "ansatz": [
     "kreativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Brainstorming",
@@ -123,6 +126,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Nominales Einzel-Brainwriting erzeugt oft mehr originelle Ideen als mündliches Gruppen-Brainstorming (Produktionsblockade)",
       "quelle": "Mullen, Johnson & Salas 1991",
       "geltung": "Sozialpsychologie, überwiegend Hochschule/Labor; stilles Vor-Sammeln empfehlenswert"

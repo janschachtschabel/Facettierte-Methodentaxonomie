@@ -12,6 +12,13 @@
     "kooperativ",
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Konstruktive Kontroverse",
@@ -134,6 +141,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Fördert begründetes Urteilen, Perspektivenübernahme und konzeptuelles Verständnis stärker als klassische Debatte oder Einzelarbeit",
       "quelle": "Johnson & Johnson 2009",
       "geltung": "Meta-Analyse eines Forschungsprogramms, Schule und Hochschule, überwiegend USA"

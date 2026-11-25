@@ -12,6 +12,9 @@
     "offen",
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Gruppenunterricht",
@@ -111,6 +114,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Unstrukturierte Gruppenarbeit bleibt empirisch deutlich hinter kooperativem Lernen mit positiver Abhängigkeit und individueller Verantwortlichkeit zurück.",
       "quelle": "Johnson & Johnson 2009; Slavin 1995",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

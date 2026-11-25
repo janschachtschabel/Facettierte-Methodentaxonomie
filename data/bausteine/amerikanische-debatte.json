@@ -11,6 +11,13 @@
   "ansatz": [
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Debatte",

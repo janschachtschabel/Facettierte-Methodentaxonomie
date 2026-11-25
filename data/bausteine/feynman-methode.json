@@ -7,6 +7,9 @@
     "uebung",
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Lernende erklären ein komplexes Konzept ohne Fachjargon so einfach, dass es ein Kind verstehen würde – Verständnisbrüche werden gezielt nachgearbeitet.",
   "alternativname": [
     "Feynman-Technik",
@@ -105,6 +108,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Kombiniert Selbsterklärung (g ≈ 0,55, Bisra et al. 2018) und Abrufpraxis (g ≈ 0,50, Yang et al. 2021).",
       "quelle": "Bisra et al. 2018; Fiorella & Mayer 2013",
       "geltung": "Sekundarstufe und Hochschule",

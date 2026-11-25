@@ -13,6 +13,11 @@
     "kooperativ",
     "uebung"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Zickzack-Dialog",
@@ -124,6 +129,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturierte mündliche Interaktionsroutinen mit Scaffolding fördern Sprachproduktion, Verständnissicherung und Beteiligung stiller Lernender",
       "quelle": "Long 1996 (Interaction Hypothesis); Mackey & Goo 2007",
       "geltung": "Fremdsprachen-, DaZ- und sprachsensibler Fachunterricht"

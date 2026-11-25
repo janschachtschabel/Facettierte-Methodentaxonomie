@@ -7,6 +7,13 @@
     "forschend",
     "kooperativ"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Kleingruppen lösen eine rätselhafte Leitfrage, indem sie ungeordnete Informationskärtchen sortieren, verknüpfen und ein Wirkungsnetz legen.",
   "alternativname": [
     "Mystery",
@@ -95,6 +102,7 @@
   ],
   "nachbedingung": [
     "problem-erschlossen",
+    "loesungsversuche",
     "konzept-gesichert"
   ],
   "kernkomponente": [

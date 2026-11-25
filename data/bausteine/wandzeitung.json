@@ -7,6 +7,12 @@
     "visualisierung",
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Großformatiges, fortlaufend ergänzbares Informations- und Meinungsplakat im Klassenraum zu einem aktuellen Unterrichts- oder Projektthema.",
   "alternativname": [
     "Themenwand",

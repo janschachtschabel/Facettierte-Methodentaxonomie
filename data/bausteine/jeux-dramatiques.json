@@ -7,6 +7,16 @@
     "spiel-simulation",
     "reflexion"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "kurzbeschreibung": "Nonverbales, wertfreies Ausdrucksspiel mit Tüchern und Requisiten zu Geschichten oder Themen ohne Publikumskritik – Fokus auf eigenem Erleben.",
   "alternativname": [
     "Ausdrucksspiel nach Chancerel"

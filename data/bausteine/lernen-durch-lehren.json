@@ -12,6 +12,9 @@
     "offen",
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lernen durch Lehren",
@@ -144,6 +147,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Lernen durch Lehren (insb. mit interaktivem Erklären) zeigt mittlere positive Effekte auf das eigene Verstehen (g ≈ 0,48)",
       "quelle": "Kobayashi 2019",
       "geltung": "Schule und Hochschule, international; Effekt stärker für die Lehrenden als für passive Zuhörende"

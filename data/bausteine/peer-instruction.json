@@ -12,6 +12,11 @@
     "kooperativ",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "mathe-informatik",
+    "nawi-technik",
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Peer Instruction",
@@ -149,6 +154,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Wiederholte deutliche Zugewinne beim Konzeptverständnis gegenüber traditionellen Vorlesungen",
       "quelle": "Crouch & Mazur 2001; Vickrey et al. 2015",
       "geltung": "Überwiegend Hochschule MINT, international; auch in der gymnasialen Oberstufe erprobt"

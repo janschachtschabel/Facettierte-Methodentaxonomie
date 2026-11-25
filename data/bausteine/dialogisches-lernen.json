@@ -7,6 +7,13 @@
     "reflexion",
     "forschend"
   ],
+  "fachbereich": [
+    "sprachen",
+    "mathe-informatik"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Zyklus aus Kernidee, offenem Auftrag, persönlichem Lernjournal („Ich mache das so“) und wertschätzender Rückmeldung hin zur fachlichen Konvention („Wie machen es die anderen?“).",
   "alternativname": [
     "Dialogische Didaktik",

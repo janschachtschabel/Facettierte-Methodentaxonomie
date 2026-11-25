@@ -13,6 +13,11 @@
     "spiel-simulation",
     "forschend"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "beruf-praxis",
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Planspiel",
@@ -168,6 +173,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Simulations- und Planspiele fördern Systemverständnis und Motivation, besonders bei sorgfältigem Debriefing",
       "quelle": "Sitzmann 2011; Vlachopoulos & Makri 2017",
       "geltung": "Sekundarstufe II, Berufsbildung und Hochschule, international"

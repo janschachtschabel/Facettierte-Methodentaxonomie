@@ -14,6 +14,14 @@
     "offen",
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Simulation globale",
@@ -140,6 +148,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Handlungs- und szenariobasierte Langzeitsimulationen steigern Lernmotivation, authentische Sprachproduktion und Transfer bei klarer Strukturierung",
       "quelle": "Debyser 1986; Yaiche 1996; Vlachopoulos & Makri 2017",
       "geltung": "Fremdsprachen-, DaZ-, Gesellschafts- und Projektunterricht ab Sekundarstufe I sowie Erwachsenenbildung"

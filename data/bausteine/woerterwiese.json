@@ -13,6 +13,14 @@
     "visualisierung",
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Wörterwiese",
@@ -122,6 +130,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Vorwissensaktivierung und explizite Wortschatz-Vorentlastung verbessern das Text- und Fachverständnis besonders bei sprachlich heterogenen Lerngruppen",
       "quelle": "Marzano 2004; Lesaux et al. 2010; Beck, McKeown & Kucan 2013",
       "geltung": "Sprachsensibler Fach- und Sprachunterricht in Primar- und Sekundarstufe; für das Format Wörterwiese speziell keine eigene Einzelstudie"

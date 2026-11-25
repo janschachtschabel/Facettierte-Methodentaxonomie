@@ -12,7 +12,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "fehlvorstellungen-sichtbar"
+        "ziel": "fehlvorstellungen-sichtbar",
+        "rolle": "rand",
+        "zeitanteil": 12
       },
       {
         "id": "k2",
@@ -20,7 +22,9 @@
         "funktion": [
           "verstehen"
         ],
-        "ziel": "konzept-gesichert"
+        "ziel": "konzept-gesichert",
+        "rolle": "haupt",
+        "zeitanteil": 35
       },
       {
         "id": "k3",
@@ -28,7 +32,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "wissen-konsolidiert"
+        "ziel": "wissen-konsolidiert",
+        "rolle": "sicherung",
+        "zeitanteil": 15
       },
       {
         "id": "k4",
@@ -37,7 +43,9 @@
           "anwendung",
           "problemloesen"
         ],
-        "ziel": "transfer-gezeigt"
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 28
       },
       {
         "id": "k5",
@@ -45,7 +53,9 @@
         "funktion": [
           "metakognition"
         ],
-        "ziel": "lernen-reflektiert"
+        "ziel": "lernen-reflektiert",
+        "rolle": "rand",
+        "zeitanteil": 10
       }
     ]
   },
@@ -53,8 +63,7 @@
     "id": "prozedur",
     "label": "Prozedur / Fertigkeit",
     "zielart": [
-      "prozeduren",
-      "psychomotorik"
+      "prozeduren"
     ],
     "relatedMatch": [
       "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-4",
@@ -67,7 +76,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "vorwissen-aktiviert"
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 10
       },
       {
         "id": "p2",
@@ -75,7 +86,9 @@
         "funktion": [
           "erwerb"
         ],
-        "ziel": "erstwissen-ungesichert"
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 25
       },
       {
         "id": "p3",
@@ -83,7 +96,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "prozedur-gelaeufig"
+        "ziel": "prozedur-gelaeufig",
+        "rolle": "haupt",
+        "zeitanteil": 45
       },
       {
         "id": "p4",
@@ -91,7 +106,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "wissen-konsolidiert"
+        "ziel": "wissen-konsolidiert",
+        "rolle": "sicherung",
+        "zeitanteil": 20
       }
     ]
   },
@@ -108,7 +125,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "problem-erschlossen"
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 12
       },
       {
         "id": "q2",
@@ -116,7 +135,9 @@
         "funktion": [
           "problemloesen"
         ],
-        "ziel": "loesungsversuche"
+        "ziel": "loesungsversuche",
+        "rolle": "haupt",
+        "zeitanteil": 33
       },
       {
         "id": "q3",
@@ -124,7 +145,9 @@
         "funktion": [
           "verstehen"
         ],
-        "ziel": "konzept-gesichert"
+        "ziel": "konzept-gesichert",
+        "rolle": "sicherung",
+        "zeitanteil": 25
       },
       {
         "id": "q4",
@@ -133,7 +156,9 @@
           "anwendung",
           "problemloesen"
         ],
-        "ziel": "transfer-gezeigt"
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 30
       }
     ]
   },
@@ -150,7 +175,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "vorwissen-aktiviert"
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 12
       },
       {
         "id": "f2",
@@ -158,7 +185,9 @@
         "funktion": [
           "erwerb"
         ],
-        "ziel": "erstwissen-ungesichert"
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 40
       },
       {
         "id": "f3",
@@ -166,7 +195,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "wissen-konsolidiert"
+        "ziel": "wissen-konsolidiert",
+        "rolle": "sicherung",
+        "zeitanteil": 33
       },
       {
         "id": "f4",
@@ -174,7 +205,9 @@
         "funktion": [
           "diagnose"
         ],
-        "ziel": "lernstand-diagnostiziert"
+        "ziel": "lernstand-diagnostiziert",
+        "rolle": "rand",
+        "zeitanteil": 15
       }
     ]
   },
@@ -194,7 +227,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "vorwissen-aktiviert"
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 10
       },
       {
         "id": "e2",
@@ -202,7 +237,9 @@
         "funktion": [
           "problemloesen"
         ],
-        "ziel": "loesungsversuche"
+        "ziel": "loesungsversuche",
+        "rolle": "haupt",
+        "zeitanteil": 32
       },
       {
         "id": "e3",
@@ -210,7 +247,9 @@
         "funktion": [
           "verstehen"
         ],
-        "ziel": "konzept-gesichert"
+        "ziel": "konzept-gesichert",
+        "rolle": "sicherung",
+        "zeitanteil": 23
       },
       {
         "id": "e4",
@@ -219,7 +258,9 @@
           "anwendung",
           "problemloesen"
         ],
-        "ziel": "transfer-gezeigt"
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 25
       },
       {
         "id": "e5",
@@ -227,7 +268,9 @@
         "funktion": [
           "diagnose"
         ],
-        "ziel": "lernstand-diagnostiziert"
+        "ziel": "lernstand-diagnostiziert",
+        "rolle": "rand",
+        "zeitanteil": 10
       }
     ]
   },
@@ -241,7 +284,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "problem-erschlossen"
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 12
       },
       {
         "id": "pbl2",
@@ -249,7 +294,9 @@
         "funktion": [
           "problemloesen"
         ],
-        "ziel": "loesungsversuche"
+        "ziel": "loesungsversuche",
+        "rolle": "haupt",
+        "zeitanteil": 30
       },
       {
         "id": "pbl3",
@@ -257,7 +304,9 @@
         "funktion": [
           "verstehen"
         ],
-        "ziel": "konzept-gesichert"
+        "ziel": "konzept-gesichert",
+        "rolle": "sicherung",
+        "zeitanteil": 25
       },
       {
         "id": "pbl4",
@@ -266,7 +315,9 @@
           "anwendung",
           "problemloesen"
         ],
-        "ziel": "transfer-gezeigt"
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 23
       },
       {
         "id": "pbl5",
@@ -274,7 +325,9 @@
         "funktion": [
           "metakognition"
         ],
-        "ziel": "lernen-reflektiert"
+        "ziel": "lernen-reflektiert",
+        "rolle": "rand",
+        "zeitanteil": 10
       }
     ]
   },
@@ -292,7 +345,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "vorwissen-aktiviert"
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 10
       },
       {
         "id": "di2",
@@ -300,7 +355,9 @@
         "funktion": [
           "erwerb"
         ],
-        "ziel": "erstwissen-ungesichert"
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 25
       },
       {
         "id": "di3",
@@ -308,7 +365,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "prozedur-gelaeufig"
+        "ziel": "prozedur-gelaeufig",
+        "rolle": "haupt",
+        "zeitanteil": 35
       },
       {
         "id": "di4",
@@ -316,7 +375,9 @@
         "funktion": [
           "diagnose"
         ],
-        "ziel": "lernstand-diagnostiziert"
+        "ziel": "lernstand-diagnostiziert",
+        "rolle": "rand",
+        "zeitanteil": 10
       },
       {
         "id": "di5",
@@ -324,7 +385,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "wissen-konsolidiert"
+        "ziel": "wissen-konsolidiert",
+        "rolle": "sicherung",
+        "zeitanteil": 20
       }
     ]
   },
@@ -338,7 +401,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "vorwissen-aktiviert"
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 12
       },
       {
         "id": "ko2",
@@ -347,7 +412,9 @@
           "erwerb",
           "verstehen"
         ],
-        "ziel": "erstwissen-ungesichert"
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 50
       },
       {
         "id": "ko3",
@@ -355,7 +422,9 @@
         "funktion": [
           "konsolidierung"
         ],
-        "ziel": "wissen-konsolidiert"
+        "ziel": "wissen-konsolidiert",
+        "rolle": "sicherung",
+        "zeitanteil": 25
       },
       {
         "id": "ko4",
@@ -364,7 +433,9 @@
           "diagnose",
           "metakognition"
         ],
-        "ziel": "lernstand-diagnostiziert"
+        "ziel": "lernstand-diagnostiziert",
+        "rolle": "rand",
+        "zeitanteil": 13
       }
     ]
   },
@@ -378,7 +449,9 @@
         "funktion": [
           "orientierung"
         ],
-        "ziel": "problem-erschlossen"
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 12
       },
       {
         "id": "pr2",
@@ -387,7 +460,9 @@
           "verstehen",
           "erwerb"
         ],
-        "ziel": "konzept-gesichert"
+        "ziel": "konzept-gesichert",
+        "rolle": "haupt",
+        "zeitanteil": 28
       },
       {
         "id": "pr3",
@@ -396,7 +471,9 @@
           "anwendung",
           "problemloesen"
         ],
-        "ziel": "transfer-gezeigt"
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 48
       },
       {
         "id": "pr4",
@@ -404,7 +481,168 @@
         "funktion": [
           "metakognition"
         ],
-        "ziel": "lernen-reflektiert"
+        "ziel": "lernen-reflektiert",
+        "rolle": "rand",
+        "zeitanteil": 12
+      }
+    ]
+  },
+  {
+    "id": "urteilsbildung",
+    "label": "Urteilsbildung (Streitfrage – Argumente – Kontroverse – Urteil)",
+    "schritte": [
+      {
+        "id": "u1",
+        "label": "Streitfrage erschließen und erste Position beziehen",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 12
+      },
+      {
+        "id": "u2",
+        "label": "Sachwissen und Argumente erarbeiten",
+        "funktion": [
+          "erwerb",
+          "verstehen"
+        ],
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 28
+      },
+      {
+        "id": "u3",
+        "label": "Kontrovers diskutieren und abwägen",
+        "funktion": [
+          "anwendung",
+          "problemloesen",
+          "verstehen"
+        ],
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 45
+      },
+      {
+        "id": "u4",
+        "label": "Urteil begründen und reflektieren",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert",
+        "rolle": "sicherung",
+        "zeitanteil": 15
+      }
+    ]
+  },
+  {
+    "id": "fertigkeit-bewegung",
+    "label": "Bewegung und praktische Fertigkeit (Vormachen – Üben – Anwenden)",
+    "zielart": [
+      "psychomotorik"
+    ],
+    "schritte": [
+      {
+        "id": "b1",
+        "label": "Einstimmen und Bewegungsvorstellung aktivieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 12
+      },
+      {
+        "id": "b2",
+        "label": "Vormachen und erklären",
+        "funktion": [
+          "erwerb"
+        ],
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 18
+      },
+      {
+        "id": "b3",
+        "label": "Üben mit Rückmeldung",
+        "funktion": [
+          "konsolidierung",
+          "anwendung"
+        ],
+        "ziel": "prozedur-gelaeufig",
+        "rolle": "haupt",
+        "zeitanteil": 40
+      },
+      {
+        "id": "b4",
+        "label": "Anwenden in Spiel-, Gestaltungs- oder Ernstform",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 20
+      },
+      {
+        "id": "b5",
+        "label": "Auswerten",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert",
+        "rolle": "rand",
+        "zeitanteil": 10
+      }
+    ]
+  },
+  {
+    "id": "produktion",
+    "label": "Produktion (Schreiben, Gestalten, Programmieren)",
+    "schritte": [
+      {
+        "id": "pd1",
+        "label": "Auftrag, Anlass und Kriterien klären",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 10
+      },
+      {
+        "id": "pd2",
+        "label": "Vorbilder, Muster und Techniken erschließen",
+        "funktion": [
+          "erwerb",
+          "verstehen"
+        ],
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 22
+      },
+      {
+        "id": "pd3",
+        "label": "Entwerfen und ausarbeiten",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 48
+      },
+      {
+        "id": "pd4",
+        "label": "Rückmeldung einholen, überarbeiten und reflektieren",
+        "funktion": [
+          "metakognition",
+          "diagnose"
+        ],
+        "ziel": "lernen-reflektiert",
+        "rolle": "sicherung",
+        "zeitanteil": 20
       }
     ]
   }

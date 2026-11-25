@@ -12,6 +12,15 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "nawi-technik",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "mathe-informatik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schülerexperiment",
@@ -78,12 +87,14 @@
     "authentisch"
   ],
   "sequenz": [
-    "instruktion-vor-problem"
+    "instruktion-vor-problem",
+    "problem-vor-instruktion"
   ],
   "vorbedingung": [
-    "konzept-gesichert"
+    "vorwissen-aktiviert"
   ],
   "nachbedingung": [
+    "loesungsversuche",
     "transfer-gezeigt"
   ],
   "kernkomponente": [
@@ -145,6 +156,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Geleitetes Forschen ist wirksamer als ungeleitetes",
       "quelle": "Lazonder & Harmsen 2016; Alfieri et al. 2011",
       "geltung": "Schule und Hochschule, überwiegend Naturwissenschaften und Mathematik; international",

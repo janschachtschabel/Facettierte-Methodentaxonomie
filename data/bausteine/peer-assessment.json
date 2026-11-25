@@ -7,6 +7,9 @@
     "diagnose-feedback",
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Lernende begutachten Arbeitsergebnisse von Mitschüler:innen anhand klarer Qualitätskriterien und geben konkrete Überarbeitungshinweise.",
   "alternativname": [
     "Peer-Bewertung",
@@ -110,6 +113,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kriteriengeleitetes Peer Assessment zeigt positive Effekte auf Lernleistung (g ≈ 0,31), besonders mit Training und Rubrics.",
       "quelle": "Double et al. 2020",
       "geltung": "Schule und Hochschule",

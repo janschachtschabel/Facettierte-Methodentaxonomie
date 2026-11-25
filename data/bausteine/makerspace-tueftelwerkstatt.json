@@ -14,6 +14,17 @@
     "kreativ",
     "forschend"
   ],
+  "fachbereich": [
+    "nawi-technik",
+    "mathe-informatik",
+    "aesthetik",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: FabLab",
@@ -130,6 +141,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Fördert Kreativität, Problemlösekompetenz und MINT-Interesse, besonders wenn Prototypen anschließend fachlich reflektiert werden.",
       "quelle": "Papavlasopoulou et al. 2017; Blikstein 2013",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

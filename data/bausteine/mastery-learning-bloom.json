@@ -14,6 +14,9 @@
     "diagnose-feedback",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "reichweite": "r4",
   "lernfunktion": [
     "erwerb",
@@ -130,6 +133,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Mastery Learning erzielt konsistent mittlere bis hohe Leistungsgewinne (d ≈ 0,58) und verringert Leistungsstreuung.",
       "quelle": "Kulik, Kulik & Bangert-Drowns (1990); Hattie (2009)",
       "geltung": "Schule und Hochschule in klar strukturierbaren Inhaltsbereichen; erfordert Zeitflexibilität."

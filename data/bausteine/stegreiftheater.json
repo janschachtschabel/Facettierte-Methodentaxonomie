@@ -7,6 +7,16 @@
     "spiel-simulation",
     "kreativ"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "kurzbeschreibung": "Spontanes szenisches Ausgestalten einer Konflikt-, Alltags- oder historischen Situation ohne festes Skript zur Förderung von Sprachfluss und Empathie.",
   "alternativname": [
     "Improvisationstheater",
@@ -86,7 +96,7 @@
     "ki-keine"
   ],
   "vorbedingung": [
-    "vorwissen-aktiviert"
+    "erstwissen-ungesichert"
   ],
   "nachbedingung": [
     "transfer-gezeigt"

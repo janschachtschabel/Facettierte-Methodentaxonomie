@@ -32,7 +32,9 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['technik', 'technikbedarf', false],
   ['zieltyp', 'funktionskette', false],
   ['grad', 'evidenzgrad', false],
-  ['ansatz', 'ansatz', true]
+  ['ansatz', 'ansatz', true],
+  ['fachbereich', 'fachbereich', true],
+  ['fachbereichUngeeignet', 'fachbereich', true]
 ];
 
 const STEUERUNG_DIMS = ['organisation', 'lernweg', 'inhalt', 'sozial', 'bewertung'];
@@ -245,6 +247,7 @@ export function buildContext(D: FmtData) {
     hinweis: 'fmt:hinweis',
     geltung: 'fmt:geltung',
     umstritten: 'fmt:umstritten',
+    evidenzBezug: 'fmt:evidenzBezug',
     alternativname: { '@id': 'skos:altLabel', '@container': '@set' },
     problem: 'fmt:problem',
     raum: 'fmt:raum',
@@ -274,6 +277,7 @@ export function buildContext(D: FmtData) {
     pflicht: { '@id': 'fmt:pflicht', '@type': 'xsd:boolean' },
     nachKernphase: { '@id': 'fmt:nachKernphase', '@type': 'xsd:boolean' },
     abstand: { '@id': 'fmt:abstand', '@type': 'xsd:duration' },
+    ausserhalbBudget: { '@id': 'fmt:ausserhalbBudget', '@type': 'xsd:boolean' },
     qualitaetsrisiko: { '@id': 'fmt:qualitaetsrisiko', '@container': '@set' },
     weggelassen: { '@id': 'fmt:weggelassen', '@container': '@set' },
     kernkomponente: { '@id': 'fmt:kernkomponente', '@container': '@set' },
@@ -361,6 +365,7 @@ export function buildSchema(D: FmtData) {
       'kurzbeschreibung',
       'status',
       'ansatz',
+      'fachbereich',
       'quellen',
       'reichweite',
       'lernfunktion',
@@ -381,6 +386,8 @@ export function buildSchema(D: FmtData) {
       kurzbeschreibung: { type: 'string', minLength: 10 },
       status: { enum: ['kuratiert', 'entwurf'] },
       ansatz: Object.assign({ minItems: 1 }, vocabProp.ansatz),
+      fachbereich: Object.assign({ minItems: 1 }, vocabProp.fachbereich),
+      fachbereichUngeeignet: vocabProp.fachbereichUngeeignet,
       quellen: {
         type: 'array',
         minItems: 1,
@@ -480,7 +487,8 @@ export function buildSchema(D: FmtData) {
             befund: { type: 'string' },
             quelle: { type: 'string' },
             geltung: { type: 'string' },
-            umstritten: { type: 'string' }
+            umstritten: { type: 'string' },
+            evidenzBezug: { enum: ['methode', 'prinzip'] }
           }
         }
       }
@@ -517,7 +525,8 @@ export function buildSchema(D: FmtData) {
         baustein: { $ref: '#/$defs/code_baustein' },
         anzahl: { type: 'integer', minimum: 1 },
         abstand: { type: 'string', pattern: '^P' },
-        dauerMin: { type: 'integer', minimum: 0 }
+        dauerMin: { type: 'integer', minimum: 0 },
+        ausserhalbBudget: { type: 'boolean' }
       }),
       node('Alternative', ['optionen'], {
         kriterium: { type: 'string' },

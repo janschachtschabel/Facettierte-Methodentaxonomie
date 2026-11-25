@@ -12,6 +12,12 @@
     "kreativ",
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Methode 635",

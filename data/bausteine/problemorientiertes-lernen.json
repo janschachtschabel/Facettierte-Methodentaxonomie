@@ -13,6 +13,9 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Problembasiertes Lernen",
@@ -172,6 +175,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Positiver Effekt auf Anwendungsfähigkeiten (ES ≈ 0,46), geringfügig negativ bis neutral bei reinem Faktenwissen",
       "quelle": "Dochy et al. 2003",
       "geltung": "Überwiegend Hochschule (Medizin, Berufsbildung); Übertragung auf Sek I eingeschränkt"

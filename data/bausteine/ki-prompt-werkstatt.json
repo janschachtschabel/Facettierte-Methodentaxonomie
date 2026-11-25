@@ -7,6 +7,9 @@
     "digital-ki",
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Lernende formulieren präzise Fach-Prompts für ein Sprachmodell, prüfen dessen Ausgaben systematisch auf Fehler/Halluzinationen und überarbeiten selbstständig ohne KI.",
   "alternativname": [
     "Prompt-Labor",

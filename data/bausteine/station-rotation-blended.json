@@ -13,6 +13,9 @@
     "offen",
     "instruktion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "reichweite": "r3",
   "lernfunktion": [
     "erwerb",
@@ -130,6 +133,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Blended-Learning-Rotationsmodelle zeigen gegenüber rein analogem Unterricht kleine bis mittlere Leistungsgewinne bei besserer Individualisierung.",
       "quelle": "Means et al. (2013); Christensen Institute Blended Learning Taxonomy",
       "geltung": "Primar- und Sekundarstufe; bereits mit einem Drittel-Gerätesatz umsetzbar."

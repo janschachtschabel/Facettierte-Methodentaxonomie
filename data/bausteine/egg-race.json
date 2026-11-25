@@ -7,6 +7,14 @@
     "forschend",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "sport"
+  ],
   "kurzbeschreibung": "Teams lösen ein naturwissenschaftlich-technisches Konstruktionsproblem mit begrenztem Material unter Zeitdruck und testen ihre Prototypen live.",
   "alternativname": [
     "Konstruktionsaufgabe",

@@ -11,6 +11,9 @@
   "ansatz": [
     "instruktion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Selbsterklärung",
@@ -127,6 +130,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Selbsterklärung g ≈ 0,55",
       "quelle": "Bisra et al. 2018; Rittle-Johnson et al. 2017",
       "geltung": "Schule und Hochschule, überwiegend Nordamerika; Rittle-Johnson et al.: Mathematik",

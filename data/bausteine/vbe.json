@@ -11,6 +11,15 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "aesthetik",
+    "sport",
+    "mathe-informatik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schülerexperiment",

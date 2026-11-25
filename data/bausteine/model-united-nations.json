@@ -7,6 +7,15 @@
     "diskurs",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "aesthetik",
+    "sport"
+  ],
   "kurzbeschreibung": "Internationale Konferenzsimulation, in der Lernende als Delegierte verschiedener Staaten Positionspapiere verfassen, verhandeln und Resolutionen verabschieden.",
   "alternativname": [
     "UN-Simulation",

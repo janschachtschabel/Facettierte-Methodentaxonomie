@@ -11,6 +11,9 @@
   "ansatz": [
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Metakognition",
@@ -102,6 +105,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Prompts im Lerntagebuch fördern Lernstrategien und Lernerfolg",
       "quelle": "Nückles et al. 2020",
       "geltung": "Ein Forschungsprogramm (16 Experimente), keine unabhängige Meta-Analyse"

@@ -239,6 +239,55 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
     };
   }
 
+  if (zieltyp === 'urteilsbildung') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'mittel', zeitbudgetMin: 90 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('positionslinie', 10, { kettenschritt: 'u1' }),
+          E('lehrgespraech', 20, { kettenschritt: 'u2' }),
+          E('pro-contra-debatte', 45, { kettenschritt: 'u3' }),
+          E('reflexionsprompt', 10, { kettenschritt: 'u4' })
+        ]
+      }
+    };
+  }
+
+  if (zieltyp === 'fertigkeit-bewegung') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'gering', zeitbudgetMin: 90 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('gebundene-musik-rhythmus', 10, { kettenschritt: 'b1' }),
+          E('demonstration-nachmachen', 15, { kettenschritt: 'b2' }),
+          E('stationstraining-bewegung', 35, { kettenschritt: 'b3' }),
+          E('differenzielles-lernen', 20, { kettenschritt: 'b4' }),
+          E('blitzlicht', 8, { kettenschritt: 'b5' })
+        ]
+      }
+    };
+  }
+
+  if (zieltyp === 'produktion') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'mittel', zeitbudgetMin: 90 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('stummer-impuls', 8, { kettenschritt: 'pd1' }),
+          E('lehrgespraech', 17, { kettenschritt: 'pd2' }),
+          E('kreatives-schreiben', 40, { kettenschritt: 'pd3' }),
+          E('textlupe', 25, { kettenschritt: 'pd4' })
+        ]
+      }
+    };
+  }
+
   // faktenwissen or fallback
   return {
     ...base,
@@ -456,7 +505,7 @@ export function setParallelBlock(arr: Arrangement, block: Baustein | null, dauer
 
 export function setRecurrence(
   arr: Arrangement,
-  spec: { baustein: string; anzahl: number; abstand: string; dauerMin: number } | null
+  spec: { baustein: string; anzahl: number; abstand: string; dauerMin: number; ausserhalbBudget?: boolean } | null
 ): Arrangement {
   return withMainSequence(arr, (teile) => {
     const without = teile.filter((t) => t.typ !== 'Wiederkehr');
@@ -466,7 +515,8 @@ export function setRecurrence(
       baustein: spec.baustein,
       anzahl: spec.anzahl,
       abstand: spec.abstand || 'P2D',
-      dauerMin: spec.dauerMin
+      dauerMin: spec.dauerMin,
+      ...(spec.ausserhalbBudget ? { ausserhalbBudget: true } : {})
     };
     return [...without, wk];
   });
@@ -727,7 +777,7 @@ export function exportArrangementMarkdown(
       } else if (node.typ === 'Wiederkehr') {
         const b = blocksById.get(node.baustein);
         lines.push(
-          `${idx + 1}. **Verteilte Wiederkehr:** ${b?.name || node.baustein} (${node.anzahl}×, Abstand ${node.abstand || 'P2D'}, je ${node.dauerMin ?? '?'} min)`
+          `${idx + 1}. **Verteilte Wiederkehr:** ${b?.name || node.baustein} (${node.anzahl}×, Abstand ${node.abstand || 'P2D'}, je ${node.dauerMin ?? '?'} min${node.ausserhalbBudget ? ', in Folgestunden' : ''})`
         );
       } else if (node.typ === 'Verweis') {
         lines.push(`${idx + 1}. **Verweis:** ${node.arrangement}`);

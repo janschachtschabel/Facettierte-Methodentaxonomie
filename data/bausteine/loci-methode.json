@@ -7,6 +7,12 @@
     "uebung",
     "visualisierung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Lerninhalte oder Reihenfolgen werden als bildhafte Vorstellungen an vertraute Stationen eines bekannten Weges oder Raumes geknüpft.",
   "alternativname": [
     "Gedächtnispalast",

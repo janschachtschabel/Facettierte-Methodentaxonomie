@@ -13,6 +13,9 @@
     "spiel-simulation",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Kofferpacken",
@@ -121,6 +124,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Aktives mündliches Abrufen (Retrieval Practice) stärkt kurz- und mittelfristiges Behalten von Begriffen deutlich gegenüber reinem Wiederlesen",
       "quelle": "Roediger & Karpicke 2006; Adesope et al. 2017",
       "geltung": "Begriffs-, Fakten- und Wortschatzsicherung in Primar-, Sekundar- und Sprachunterricht"

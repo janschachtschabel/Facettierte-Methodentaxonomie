@@ -13,6 +13,12 @@
   "ansatz": [
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lerntagebuch",
@@ -130,6 +136,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Lerntagebuch mit kognitiven und metakognitiven Prompts fördert Lernerfolg",
       "quelle": "Nückles et al. 2020",
       "geltung": "Ein Forschungsprogramm (16 Experimente), keine unabhängige Meta-Analyse"

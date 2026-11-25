@@ -13,6 +13,14 @@
     "kooperativ",
     "reflexion"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Kooperatives Schreiben & Schreibkonferenz",
@@ -133,6 +141,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Kriteriengeleitetes Peer-Feedback und angeleitete Textüberarbeitung zeigen deutliche positive Effekte auf die Schreibqualität (ES ≈ 0,50–0,75)",
       "quelle": "Graham & Perin 2007; Graham, Harris & Hebert 2011; Huisman et al. 2019",
       "geltung": "Schreibunterricht Sekundarstufe und Primarstufe bei klaren Feedbackkriterien und vorherigem Modellieren"

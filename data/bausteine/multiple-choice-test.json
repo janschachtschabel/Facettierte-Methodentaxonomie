@@ -12,6 +12,12 @@
     "diagnose-feedback",
     "digital-ki"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Multiple Choice",
@@ -121,6 +127,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Gut konstruierte MC-Tests mit diagnostischen Distraktoren nutzen den Testeffekt und decken Fehlvorstellungen schnell auf.",
       "quelle": "Roediger & Marsh 2005; Butler 2018",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

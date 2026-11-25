@@ -117,6 +117,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       }
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
+      const wantedArea = list(k.fachbereich);
+      if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
 
       const ranges = list(k.reichweite);
       if (ranges.length && !ranges.includes(b.reichweite)) return false;
@@ -163,6 +165,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       kettenschritt?: string;
       anzahl?: number;
       abstand?: string;
+      ausserhalbBudget?: boolean;
     };
     if (!node || !node.baustein) throw new Error('Kein Einsatz an ' + pfad);
 
@@ -176,7 +179,9 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
         at.holder[at.key] = Object.assign(
           { typ: node.typ === 'Wiederkehr' ? 'Wiederkehr' : 'Einsatz', baustein: b.kennung, dauerMin },
           node.kettenschritt ? { kettenschritt: node.kettenschritt } : {},
-          node.typ === 'Wiederkehr' ? { anzahl: node.anzahl, abstand: node.abstand } : {}
+          node.typ === 'Wiederkehr'
+            ? { anzahl: node.anzahl, abstand: node.abstand, ...(node.ausserhalbBudget ? { ausserhalbBudget: true } : {}) }
+            : {}
         );
         const r = validator.validate(copy, registry);
         if (r.gueltig) {

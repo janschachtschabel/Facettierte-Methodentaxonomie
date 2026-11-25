@@ -7,6 +7,13 @@
     "forschend",
     "diskurs"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Fördernde und hemmende Kräfte einer Veränderung oder Entscheidung werden grafisch gegenübergestellt und in ihrer Stärke gewichtet.",
   "alternativname": [
     "Force Field Analysis",

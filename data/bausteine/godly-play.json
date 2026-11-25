@@ -7,6 +7,14 @@
     "spiel-simulation",
     "reflexion"
   ],
+  "fachbereich": [
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "kurzbeschreibung": "Ruhige, haptische Erzählung mit einfachen Bodenbild-Figuren, gefolgt von offenen „Ich frage mich…“-Impulsen und freier kreativer Antwortphase.",
   "alternativname": [
     "Bodenbild-Methode",

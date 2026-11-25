@@ -11,6 +11,9 @@
   "ansatz": [
     "digital-ki"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Bastani et al. (2025): Generative AI without guardrails can harm learning (Preprint / arXiv)",

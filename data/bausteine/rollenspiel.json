@@ -12,6 +12,14 @@
     "spiel-simulation",
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Rollenspiel (Pädagogik)",

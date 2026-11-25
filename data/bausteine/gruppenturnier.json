@@ -13,6 +13,9 @@
     "spiel-simulation",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Kooperatives Lernen",
@@ -136,6 +139,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Positive Effekte strukturierter kooperativer Turnierformen mit individueller Verantwortlichkeit",
       "quelle": "Johnson, Johnson & Stanne 2000; Kyndt et al. 2013",
       "geltung": "Schule, überwiegend USA und Europa"

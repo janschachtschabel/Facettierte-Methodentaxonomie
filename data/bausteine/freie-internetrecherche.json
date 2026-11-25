@@ -12,6 +12,12 @@
     "offen",
     "digital-ki"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Suchmaschine",
@@ -112,6 +118,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Unangeleitete Recherche ohne Such- und Prüfgerüst führt bei Novizen zu kognitiver Überlastung und geringem Lernerfolg.",
       "quelle": "Kirschner, Sweller & Clark 2006; Alfieri et al. 2011",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

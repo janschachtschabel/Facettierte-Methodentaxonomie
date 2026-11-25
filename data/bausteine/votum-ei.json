@@ -13,6 +13,9 @@
     "reflexion",
     "visualisierung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Votum-Ei",
@@ -123,6 +126,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Regelmäßiges formatives Lern- und Unterrichtsfeedback wirkt lernförderlich, wenn die Ergebnisse zur Anpassung des weiteren Unterrichts genutzt werden",
       "quelle": "Hattie & Timperley 2007; Black & Wiliam 2009",
       "geltung": "Schule und Erwachsenenbildung; für das Votum-Ei speziell liegt keine eigene Einzelstudie vor"

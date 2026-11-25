@@ -7,6 +7,15 @@
     "instruktion",
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "aesthetik",
+    "sport"
+  ],
   "kurzbeschreibung": "Hochstrukturiertes gemeinsames Lautlesen (Tutor + Tutand oder im Chor) zur systematischen Steigerung von Leseflüssigkeit und Leseverständnis.",
   "alternativname": [
     "Tandemlesen",
@@ -116,6 +125,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Strukturierte Lautlesetandems gehören zu den empirisch am besten belegten Verfahren zur Förderung der Leseflüssigkeit.",
       "quelle": "Rosebrock et al. 2011; National Reading Panel 2000",
       "geltung": "Primarstufe und Sekundarstufe I, Deutsch & Fremdsprachen",

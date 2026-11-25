@@ -14,6 +14,14 @@
     "digital-ki",
     "kooperativ"
   ],
+  "fachbereich": [
+    "aesthetik",
+    "sprachen",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Podcast",

@@ -1103,6 +1103,53 @@
           "definition": "Digital unterstützte, hybride und KI-begleitete Lernarrangements"
         }
       ]
+    },
+    {
+      "id": "fachbereich",
+      "titel": "Fachbereich",
+      "beschreibung": "Grobe Fächergruppe, in der eine Methode typischerweise eingesetzt wird. Ergänzt die 13 Facetten für die fachgerechte Auswahl; „übergreifend“ steht für Methoden ohne Fachbindung.",
+      "werte": [
+        {
+          "id": "mathe-informatik",
+          "label": "Mathematik und Informatik",
+          "definition": "Mathematik, Informatik"
+        },
+        {
+          "id": "nawi-technik",
+          "label": "Naturwissenschaften und Technik",
+          "definition": "Physik, Chemie, Biologie, Technik, naturwissenschaftlicher Sachunterricht"
+        },
+        {
+          "id": "sprachen",
+          "label": "Sprachen",
+          "definition": "Deutsch, Fremdsprachen, Deutsch als Zweitsprache, Literatur"
+        },
+        {
+          "id": "gesellschaft",
+          "label": "Gesellschaft",
+          "definition": "Geschichte, Politik, Erdkunde, Wirtschaft, Ethik, Religion, Philosophie"
+        },
+        {
+          "id": "aesthetik",
+          "label": "Ästhetische Fächer",
+          "definition": "Kunst, Musik, Theater, Gestalten"
+        },
+        {
+          "id": "sport",
+          "label": "Sport und Bewegung",
+          "definition": "Sportunterricht und andere Lernsituationen mit Bewegungslernen"
+        },
+        {
+          "id": "beruf-praxis",
+          "label": "Beruf und Praxis",
+          "definition": "Berufliche Bildung, Lernfelder, praktische Unterweisung, Aus- und Weiterbildung von Fachkräften"
+        },
+        {
+          "id": "uebergreifend",
+          "label": "Fachübergreifend",
+          "definition": "Ohne Fachbindung in allen Fächern einsetzbar"
+        }
+      ]
     }
   ],
   "facetten": [

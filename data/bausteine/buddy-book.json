@@ -15,6 +15,12 @@
     "uebung",
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Buddy Book (Falt- und Schneidevorlage)",
@@ -127,6 +133,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Aktives Zusammenfassen und visuelles Strukturieren in eigenen Worten (generative Lernstrategien) fördern Behalten und Verständnis deutlich (ES ≈ 0,50)",
       "quelle": "Fiorella & Mayer 2015; Dunlosky et al. 2013",
       "geltung": "Generative Zusammenfassungs- und Visualisierungsstrategien allgemein; für Buddy Books speziell liegt keine eigene Meta-Analyse vor"

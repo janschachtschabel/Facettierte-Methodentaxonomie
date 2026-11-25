@@ -7,6 +7,14 @@
     "forschend",
     "visualisierung"
   ],
+  "fachbereich": [
+    "beruf-praxis",
+    "mathe-informatik"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "sprachen"
+  ],
   "kurzbeschreibung": "Arbeitspakete eines Projekts werden mit Dauern, Abhängigkeiten und kritischem Pfad als grafischer Ablaufplan strukturiert.",
   "alternativname": [
     "Projekt-Netzplan",

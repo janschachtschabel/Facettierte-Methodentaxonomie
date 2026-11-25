@@ -14,6 +14,14 @@
     "digital-ki",
     "visualisierung"
   ],
+  "fachbereich": [
+    "aesthetik",
+    "sprachen",
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Stop-Motion",
@@ -141,6 +149,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Selbstständiges Erstellen von Erklärungen und multimedialen Lernprodukten fördert tiefes Verstehen (Learning by Explaining / Generative Learning)",
       "quelle": "Fiorella & Mayer 2016 (Educational Psychology Review)",
       "geltung": "Sekundarstufe und Hochschule, fächerübergreifend"

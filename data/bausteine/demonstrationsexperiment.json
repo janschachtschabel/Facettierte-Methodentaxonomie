@@ -13,6 +13,16 @@
     "instruktion",
     "forschend"
   ],
+  "fachbereich": [
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik",
+    "sport",
+    "mathe-informatik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Demonstrationsexperiment",

@@ -7,6 +7,9 @@
     "spiel-simulation",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Spieltypische Designelemente (Quests, Fortschrittsbalken, kooperative Boss-Aufgaben, direktes Feedback) rahmen eine Übungs- oder Projektphase motivierend ein.",
   "alternativname": [
     "Spielifizierung",
@@ -107,6 +110,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Gamification zeigt kleine bis mittlere positive Effekte auf Motivation und Lernleistung (g ≈ 0,46), stark abhängig vom Design.",
       "quelle": "Sailer & Homner 2020",
       "geltung": "Schule und Hochschule",

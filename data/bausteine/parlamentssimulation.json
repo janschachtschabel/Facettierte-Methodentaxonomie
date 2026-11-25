@@ -7,6 +7,15 @@
     "diskurs",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "aesthetik",
+    "sport"
+  ],
   "kurzbeschreibung": "Lernende durchlaufen als Fraktionen, Ausschüsse und Präsidium ein reales Gesetzgebungsverfahren vom Antrag bis zur Schlussabstimmung.",
   "alternativname": [
     "Gesetzgebungssimulation",

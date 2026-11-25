@@ -13,6 +13,9 @@
     "kooperativ",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Autogrammjagd",
@@ -120,6 +123,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturierte kooperative Abruf- und Austauschformate erhöhen Aktivierung und gegenseitige Erklärqualität im Vergleich zu reinem Frontalabfragen",
       "quelle": "Kagan & Kagan 2009; Kyndt et al. 2013",
       "geltung": "Schulische und erwachsenenbildnerische Gruppen mit klarem fachlichem Auftrag"

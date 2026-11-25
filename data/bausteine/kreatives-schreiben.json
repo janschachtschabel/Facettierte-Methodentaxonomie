@@ -7,6 +7,14 @@
     "visualisierung",
     "kreativ"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "kurzbeschreibung": "Lernende verarbeiten Fachinhalte oder literarische Stoffe in produktiven Textformen (Brief, Tagebucheintrag, Perspektivwechsel, Dialog).",
   "alternativname": [
     "Produktionsorientiertes Schreiben",
@@ -88,6 +96,7 @@
     "vorwissen-aktiviert"
   ],
   "nachbedingung": [
+    "loesungsversuche",
     "transfer-gezeigt"
   ],
   "kernkomponente": [

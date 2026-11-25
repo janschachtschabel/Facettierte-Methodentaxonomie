@@ -12,6 +12,9 @@
   "ansatz": [
     "instruktion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Direkte Instruktion",
@@ -185,6 +188,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kleinschrittige Instruktion mit geleiteter Übung: gleichgerichtete Befunde der Prozess-Produkt-Forschung; eine Meta-Analyse liegt nur für die DI-Curricula vor",
       "quelle": "Rosenshine 2012; Stockard et al. 2018",
       "geltung": "Stockard et al. betrifft ausschließlich Engelmanns Direct-Instruction-Curricula (v. a. USA), nicht dieses Muster"

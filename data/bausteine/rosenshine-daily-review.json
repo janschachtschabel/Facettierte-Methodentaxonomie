@@ -14,6 +14,9 @@
     "uebung",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "reichweite": "r1",
   "lernfunktion": [
     "orientierung",
@@ -117,6 +120,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Regelmäßiger kurzer Abruf zu Stundenbeginn stärkt Langzeitbehalten und reduziert kognitive Überlastung beim Anknüpfen neuen Wissens.",
       "quelle": "Rosenshine (2012): Principles of Instruction; Roediger & Karpicke (2006)",
       "geltung": "Allgemeinbildende Schule und Hochschule, besonders bei aufbauenden Fächern."

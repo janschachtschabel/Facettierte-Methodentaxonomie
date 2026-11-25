@@ -7,6 +7,12 @@
     "kooperativ",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Kurze, fokussierte Lehr- oder Präsentationssequenz (5–10 Min.) vor kleiner Gruppe mit kriteriengeleitetem Feedback und direkter Wiederholung.",
   "alternativname": [
     "Mikro-Lehrprobe",
@@ -113,6 +119,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Microteaching zählt zu den gut belegten Trainingsformaten in der Lehrer- und Präsentationsbildung.",
       "quelle": "Hattie 2009; Allen & Ryan 1969",
       "geltung": "Hochschule, Lehramts- und Berufsbildung",

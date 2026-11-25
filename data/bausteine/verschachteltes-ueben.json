@@ -12,6 +12,11 @@
   "ansatz": [
     "uebung"
   ],
+  "fachbereich": [
+    "mathe-informatik",
+    "nawi-technik",
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Interleaving",
@@ -137,6 +142,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Positiver Gesamteffekt (g ≈ 0,42), besonders deutlich in Mathematik und bei visuell unterscheidbaren Kategorien",
       "quelle": "Brunmair & Richter 2019; Rohrer et al. 2020",
       "geltung": "Schule und Hochschule, international; Effekt variiert je nach Fachdomäne",

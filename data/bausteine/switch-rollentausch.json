@@ -13,6 +13,16 @@
     "spiel-simulation",
     "diskurs"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Switch (Improvisationstheater & Rollenwechsel)",
@@ -130,6 +140,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Perspektivwechsel- und Rollenspielverfahren fördern Argumentationsfähigkeit, Empathie und mündliche Sprachflüssigkeit",
       "quelle": "Johnson & Johnson 2009 (Constructive Controversy); Lee et al. 2015 (Drama-Based Pedagogy)",
       "geltung": "Sprach-, Ethik-, Politik- und Gesellschaftsunterricht bei klarer Rahmenhandlung und Nachbesprechung"

@@ -13,6 +13,9 @@
     "reflexion",
     "offen"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Kompetenzraster",
@@ -136,6 +139,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Transparente Erfolgskriterien und kriteriengeleitete Selbsteinschätzung stärken formatives Feedback und Selbstregulation",
       "quelle": "Black & Wiliam 2009; Hattie 2009",
       "geltung": "Primar- und Sekundarstufe, fächerübergreifend"

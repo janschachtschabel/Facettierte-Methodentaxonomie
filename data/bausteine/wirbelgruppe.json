@@ -12,6 +12,9 @@
     "kooperativ",
     "diskurs"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Wirbelgruppe",
@@ -126,6 +129,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturierte kooperative Austauschformate mit individueller Erklärpflicht fördern Verständnis und Beteiligungsbreite (ES ≈ 0,54)",
       "quelle": "Kyndt et al. 2013; Johnson & Johnson 2009",
       "geltung": "Kooperatives Lernen in Schule und Erwachsenenbildung; für die Wirbelgruppe speziell keine eigene Einzelstudie"

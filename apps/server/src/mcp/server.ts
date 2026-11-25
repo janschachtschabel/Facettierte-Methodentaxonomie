@@ -156,6 +156,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     }
   );
 
+  // Allowed subject areas come from the vocabulary, not from a copy in this file.
+  const fachbereichCodes = (store.matcher.felder().find((f) => f.feld === 'fachbereich')?.werte || []).map((w) => w.code) as [
+    string,
+    ...string[]
+  ];
+
   // 4. match_scenario
   server.tool(
     'match_scenario',
@@ -181,7 +187,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       raumzeit: z.union([z.string(), z.array(z.string())]).optional(),
       vorhanden: z.union([z.string(), z.array(z.string())]).optional(),
       vorwissen: z.string().optional(),
-      bildungsstufe: z.string().optional()
+      variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
+      bildungsstufe: z.string().optional(),
+      fachbereich: z
+        .enum(fachbereichCodes)
+        .optional()
+        .describe('Fächergruppe; wird sonst aus dem Fach im Text gelesen')
     },
     async (args) => {
       try {
@@ -386,6 +397,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       vorwissen: z.string().optional(),
       maxTechnik: z.string().optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
+      variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),

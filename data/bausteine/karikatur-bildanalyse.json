@@ -13,6 +13,16 @@
     "visualisierung",
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "aesthetik",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Karikatur",
@@ -84,9 +94,11 @@
   "sequenz": [
     "geblockt"
   ],
-  "vorbedingung": [],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
   "nachbedingung": [
-    "konzept-gesichert",
+    "problem-erschlossen",
     "transfer-gezeigt"
   ],
   "kernkomponente": [

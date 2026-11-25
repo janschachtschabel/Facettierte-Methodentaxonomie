@@ -13,6 +13,9 @@
     "instruktion",
     "visualisierung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Advance Organizer",
@@ -123,6 +126,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Kleine bis mittlere positive Effekte auf Behalten und Verstehen komplexer Inhalte",
       "quelle": "Luiten, Ames & Ackerson 1980",
       "geltung": "Ältere Meta-Analyse, Schule und Hochschule, USA"

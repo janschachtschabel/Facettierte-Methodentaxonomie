@@ -13,6 +13,9 @@
     "instruktion",
     "forschend"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Exkursion",
@@ -119,6 +122,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Außerschulische Lernorte steigern situatives Interesse; kognitiver Lernerfolg hängt stark von Vor- und Nachbereitung ab.",
       "quelle": "DeWitt & Storksdieck 2008",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",

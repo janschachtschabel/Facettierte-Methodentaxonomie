@@ -7,6 +7,9 @@
     "uebung",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Regelmäßiger 5-Minuten-Stundenstart mischt gezielt 1 Frage von gestern, 1 von letzter Woche und 1 aus dem letzten Monat (verschachtelt & verteilt).",
   "alternativname": [
     "Cumulative Review",
@@ -115,6 +118,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Kombiniert Abrufpraxis (Yang et al. 2021), Verteilung (Cepeda et al. 2006) und Verschachtelung (Brunmair & Richter 2019).",
       "quelle": "Cepeda et al. 2006; Yang et al. 2021; Brunmair & Richter 2019",
       "geltung": "Schule und Hochschule, insb. Mathematik, Sprachen & MINT",

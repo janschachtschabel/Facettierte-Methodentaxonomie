@@ -12,6 +12,12 @@
   "ansatz": [
     "visualisierung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Concept-Map",
@@ -138,6 +144,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Concept Mapping zeigt konsistente mittlere Vorteile gegenüber reinem Lesen oder Zusammenfassen (g ≈ 0,58)",
       "quelle": "Nesbit & Adesope 2006; Schroeder et al. 2018",
       "geltung": "Schule und Hochschule, fachübergreifend, international; eigenes Erstellen wirkt stärker als bloßes Studieren"

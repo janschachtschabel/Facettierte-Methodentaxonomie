@@ -13,6 +13,9 @@
     "forschend",
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "reichweite": "r3",
   "lernfunktion": [
     "orientierung",
@@ -131,6 +134,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "PBL stärkt langfristige Anwendungskompetenz und Problemlösefähigkeit, erfordert aber bei Anfängern gezielte Strukturhilfen.",
       "quelle": "Dochy et al. (2003); Strobel & van Barneveld (2009)",
       "geltung": "Sekundarstufe II, Berufsbildung und Hochschule; bei geringem Vorwissen Scaffolding nötig."

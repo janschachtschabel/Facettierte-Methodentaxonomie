@@ -13,6 +13,9 @@
     "reflexion",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Lehrerfortbildung BW: Schülercoaching",
@@ -137,6 +140,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Individuelle Lernberatung und zielorientiertes Coaching unterstützen Selbstwirksamkeit und Selbstregulation",
       "quelle": "Hardeland 2015; Dignath & Büttner 2008",
       "geltung": "Sekundarstufe, Berufsbildung und Hochschule"

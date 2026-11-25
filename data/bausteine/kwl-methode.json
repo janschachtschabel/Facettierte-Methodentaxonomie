@@ -13,6 +13,12 @@
     "forschend",
     "reflexion"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia (en): KWL table",

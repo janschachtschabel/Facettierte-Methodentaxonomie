@@ -6,6 +6,9 @@
   "ansatz": [
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Kleingruppen bearbeiten unterschiedliche Teilaspekte eines Gesamtthemas mit klaren Rollen und führen ihre Ergebnisse anschließend zusammen.",
   "alternativname": [
     "Gruppenarbeit",
@@ -108,6 +111,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturierte kooperative Gruppenarbeit zeigt konsistent mittlere positive Effekte auf Leistung (ES ≈ 0,54).",
       "quelle": "Kyndt et al. 2013; Johnson & Johnson 2009",
       "geltung": "Schule und Hochschule",

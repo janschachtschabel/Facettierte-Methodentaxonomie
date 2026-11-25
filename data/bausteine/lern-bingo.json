@@ -13,6 +13,12 @@
     "spiel-simulation",
     "uebung"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Bingo im Unterricht",
@@ -125,6 +131,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Spielerisch eingebettete Abrufübungen verbinden den positiven Testing-Effekt mit erhöhter kurzfristiger Motivation",
       "quelle": "Roediger & Karpicke 2006; Sailer & Homner 2020",
       "geltung": "Fakten-, Wortschatz- und Begriffskonsolidierung in Schule und Erwachsenenbildung"

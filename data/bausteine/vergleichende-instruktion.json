@@ -12,6 +12,9 @@
     "instruktion",
     "forschend"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Sinha & Kapur (2021): When problem solving followed by instruction works (RER)",
@@ -112,6 +115,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Problemlösen vor Instruktion: g ≈ 0,36 insgesamt, g ≈ 0,37–0,58 bei hoher Treue zu den PF-Prinzipien",
       "quelle": "Sinha & Kapur 2021",
       "geltung": "Überwiegend Mathematik und Naturwissenschaften, Klasse 6 bis Hochschule; international"

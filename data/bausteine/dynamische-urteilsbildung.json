@@ -7,6 +7,13 @@
     "diskurs",
     "reflexion"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "kurzbeschreibung": "Systematische Schrittfolge aus Wahrnehmen, Fragen, Abwägen von Wertmaßstäben und revidierbarer Urteilsfindung zu strittigen Fragen.",
   "alternativname": [
     "Urteilsbildung im Dialog"

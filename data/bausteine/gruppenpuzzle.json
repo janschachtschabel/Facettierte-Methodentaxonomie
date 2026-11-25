@@ -12,6 +12,9 @@
   "ansatz": [
     "kooperativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Gruppenpuzzle",
@@ -147,12 +150,14 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Kooperatives Lernen wirkt positiv auf Leistung (ES ≈ 0,54)",
       "quelle": "Kyndt et al. 2013; Johnson, Johnson & Stanne 2000",
       "geltung": "Kooperatives Lernen allgemein, Primar- bis Tertiärbereich"
     },
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Jigsaw im Besonderen: inkonsistente Effekte, hohe Varianz zwischen den Studien",
       "quelle": "Cochon Drouet et al. 2023",
       "geltung": "Schule und Hochschule, international"

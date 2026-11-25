@@ -13,6 +13,13 @@
     "diagnose-feedback",
     "kooperativ"
   ],
+  "fachbereich": [
+    "sprachen",
+    "gesellschaft"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Peer Assessment (Textfeedback)",
@@ -86,7 +93,8 @@
   ],
   "nachbedingung": [
     "transfer-gezeigt",
-    "lernstand-diagnostiziert"
+    "lernstand-diagnostiziert",
+    "lernen-reflektiert"
   ],
   "kernkomponente": [
     {
@@ -135,6 +143,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Kriteriengeleitetes Peer-Feedback im Schreibprozess verbessert die Textqualität (ES ≈ 0,30–0,50)",
       "quelle": "Graham, Hebert & Harris 2015",
       "geltung": "Schreibdidaktik, Schule (Primar und Sek), international"

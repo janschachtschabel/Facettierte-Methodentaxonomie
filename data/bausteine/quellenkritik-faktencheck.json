@@ -13,6 +13,13 @@
     "forschend",
     "digital-ki"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Herr Kalt: Qualität von Websites und Wikipedia-Artikeln beurteilen",
@@ -140,6 +147,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Explizites Training in Lateral Reading verbessert die Beurteilung digitaler Informationsquellen signifikant",
       "quelle": "Wineburg et al. 2022 (Journal of Educational Psychology); Brodsky et al. 2021",
       "geltung": "Sekundarstufe und Hochschule, digitaler Medienkontext"

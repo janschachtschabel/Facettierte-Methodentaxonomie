@@ -722,7 +722,17 @@ export function PartiturView({
                 if (!e.target.value) onChange(setRecurrence(arrangement, null));
                 else {
                   const b = blocksById.get(e.target.value)!;
-                  onChange(setRecurrence(arrangement, { baustein: b.kennung, anzahl: wkNode?.anzahl || 3, abstand: wkNode?.abstand || 'P2D', dauerMin: b.dauerMin }));
+                  onChange(
+                    setRecurrence(arrangement, {
+                      baustein: b.kennung,
+                      anzahl: wkNode?.anzahl || 3,
+                      abstand: wkNode?.abstand || 'P2D',
+                      dauerMin: b.dauerMin,
+                      ausserhalbBudget: wkNode
+                        ? Boolean(wkNode.ausserhalbBudget)
+                        : (arrangement.kontext?.zeitbudgetMin ?? 0) > 0 && (arrangement.kontext?.zeitbudgetMin ?? 0) <= 180
+                    })
+                  );
                 }
               }}
             >
@@ -749,13 +759,34 @@ export function PartiturView({
                       baustein: wkNode.baustein,
                       anzahl: Math.max(1, Number(e.target.value) || 1),
                       abstand: wkNode.abstand || 'P2D',
-                      dauerMin: wkNode.dauerMin || 6
+                      dauerMin: wkNode.dauerMin || 6,
+                      ausserhalbBudget: Boolean(wkNode.ausserhalbBudget)
                     })
                   )
                 }
               />
             )}
           </div>
+          {wkNode && (
+            <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, marginTop: 6 }}>
+              <input
+                type="checkbox"
+                checked={Boolean(wkNode.ausserhalbBudget)}
+                onChange={(e) =>
+                  onChange(
+                    setRecurrence(arrangement, {
+                      baustein: wkNode.baustein,
+                      anzahl: wkNode.anzahl,
+                      abstand: wkNode.abstand || 'P2D',
+                      dauerMin: wkNode.dauerMin || 6,
+                      ausserhalbBudget: e.target.checked
+                    })
+                  )
+                }
+              />
+              in Folgestunden (zählt nicht zum Zeitbudget)
+            </label>
+          )}
         </div>
       </div>
     </div>

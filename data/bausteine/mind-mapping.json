@@ -12,6 +12,12 @@
     "visualisierung",
     "kreativ"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Mindmap",

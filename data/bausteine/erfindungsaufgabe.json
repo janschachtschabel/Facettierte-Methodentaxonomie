@@ -11,6 +11,13 @@
   "ansatz": [
     "forschend"
   ],
+  "fachbereich": [
+    "mathe-informatik",
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Schwartz et al. (2011): Practicing versus inventing with contrasting cases",

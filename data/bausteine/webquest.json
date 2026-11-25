@@ -12,6 +12,12 @@
     "forschend",
     "digital-ki"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: WebQuest",

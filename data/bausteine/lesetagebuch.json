@@ -13,6 +13,15 @@
     "reflexion",
     "offen"
   ],
+  "fachbereich": [
+    "sprachen"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "nawi-technik",
+    "aesthetik",
+    "sport"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lesetagebuch",

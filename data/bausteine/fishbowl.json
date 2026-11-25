@@ -11,6 +11,11 @@
   "ansatz": [
     "diskurs"
   ],
+  "fachbereich": [
+    "gesellschaft",
+    "sprachen",
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Fishbowl (Diskussionsmethode)",
@@ -27,7 +32,8 @@
   "reichweite": "r2",
   "lernfunktion": [
     "verstehen",
-    "metakognition"
+    "metakognition",
+    "anwendung"
   ],
   "engagement": [
     "interaktiv",
@@ -84,7 +90,8 @@
   ],
   "nachbedingung": [
     "problem-erschlossen",
-    "konzept-gesichert"
+    "konzept-gesichert",
+    "transfer-gezeigt"
   ],
   "kernkomponente": [
     {

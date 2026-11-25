@@ -14,6 +14,9 @@
     "forschend",
     "diagnose-feedback"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "reichweite": "r3",
   "lernfunktion": [
     "diagnose",
@@ -130,6 +133,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Team-Based Learning erzielt signifikante Verbesserungen bei Konzeptverständnis, Anwendungsleistung und Beteiligung gegenüber klassischen Vorlesungen.",
       "quelle": "Swanson et al. (2019): Meta-Analysis of Team-Based Learning; Fatmi et al. (2013): Effectiveness of TBL in Health Professions Education",
       "geltung": "Sekundarstufe II, Berufsbildung und Hochschule (auch in großen Gruppen)."

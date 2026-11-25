@@ -13,6 +13,15 @@
     "instruktion",
     "uebung"
   ],
+  "fachbereich": [
+    "mathe-informatik",
+    "nawi-technik",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "aesthetik"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lernen aus Lösungsbeispielen",
@@ -142,6 +151,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "methode",
       "befund": "Lösungsbeispiele g ≈ 0,48 auf Mathematikleistung",
       "quelle": "Barbieri et al. 2023",
       "geltung": "Mathematik, Primarstufe bis Hochschule",
@@ -149,6 +159,7 @@
     },
     {
       "grad": "A",
+      "evidenzBezug": "prinzip",
       "befund": "Expertise-Reversal: Der Vorteil starker Anleitung kehrt sich mit wachsendem Vorwissen um",
       "quelle": "Kalyuga et al. 2003; Tetzlaff et al. 2025",
       "geltung": "Schule und Hochschule, überwiegend MINT; international"

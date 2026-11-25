@@ -7,6 +7,9 @@
     "digital-ki",
     "offen"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "kurzbeschreibung": "Didaktisch verzahnte Kombination aus asynchronen Online-Phasen (Input, Selbsttests, Foren) und synchronen Präsenzphasen (Vertiefung, Diskurs, Anwendung).",
   "alternativname": [
     "Integriertes Lernen",
@@ -102,6 +105,7 @@
   "evidenz": [
     {
       "grad": "A",
+      "evidenzBezug": "methode",
       "befund": "Blended Learning zeigt im Mittel kleine bis mittlere Vorteile gegenüber reinem Präsenz- oder reinem Online-Unterricht (g ≈ 0,33).",
       "quelle": "Means et al. 2013; Bernard et al. 2014",
       "geltung": "Hochschule und Sekundarstufe II/Berufsbildung",

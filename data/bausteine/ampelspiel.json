@@ -12,6 +12,9 @@
     "diagnose-feedback",
     "diskurs"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch Lernen: Ampelspiel",
@@ -126,6 +129,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "All-Student-Response-Systeme (gleichzeitige Rückmeldung aller Lernenden) stärken formative Diagnose und Beteiligung",
       "quelle": "Wiliam 2011 (Embedded Formative Assessment)",
       "geltung": "Schule, fächerübergreifend"

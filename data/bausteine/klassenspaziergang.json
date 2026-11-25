@@ -14,6 +14,9 @@
     "kooperativ",
     "spiel-simulation"
   ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Klassenspaziergang",
@@ -123,6 +126,7 @@
   "evidenz": [
     {
       "grad": "B",
+      "evidenzBezug": "prinzip",
       "befund": "Strukturierte Partnerinteraktion mit hoher individueller Sprechzeit steigert kognitive Aktivierung und Behaltensleistung; kurze Bewegungsunterbrechungen unterstützen Aufmerksamkeit",
       "quelle": "Chi & Wylie 2014 (ICAP); Erwin et al. 2012",
       "geltung": "Schulische Präsenzsettings mit klarer Aufgabenbindung; für den Klassenspaziergang speziell keine isolierte Meta-Analyse"
