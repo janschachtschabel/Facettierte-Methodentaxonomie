@@ -385,10 +385,9 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(plan.maxTechnik.enum).toContain('t-keine');
     expect(plan.bildungsstufe.enum).toContain('primar');
 
-    const bad = await client
-      .callTool({ name: 'match_scenario', arguments: { text: 'Einstieg', maxTechnik: 'quatsch' } })
-      .catch((e: Error) => ({ isError: true, content: [{ text: e.message }] }));
+    const bad = await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg', maxTechnik: 'quatsch' } });
     expect(bad.isError).toBe(true);
+    expect((bad.content as Array<{ text: string }>)[0].text).toContain('maxTechnik');
   });
 
   it('kürzt die Vorschlagsliste von match_scenario', async () => {
@@ -414,6 +413,16 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(groups.find((g) => g.id === 'daz')?.count).toBe(5);
     expect(groups.find((g) => g.id === 'vertiefung')?.count).toBe(4);
     expect(groups.find((g) => g.id === 'regel')?.count).toBe(17);
+    // Each named group gets its own measures, not those of the average learner
+    const top = (id: string) => (plan.lerngruppenUndMatrix as Array<{ id: string; matrixTop: string[] }>).find((g) => g.id === id)!.matrixTop.join(' | ');
+    expect(top('vertiefung')).toMatch(/Hohe Anforderungen|Erweiterte Ziele|Anspruchsvolle/);
+    expect(top('vertiefung')).not.toBe(top('daz'));
+    expect(top('daz')).not.toMatch(/Mittlere Anforderungen|Standardziele/);
+
+    const alle = parse(
+      await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Mathematik Klasse 7, 25 Kinder, davon 25 DaZ-Kinder, Bruchrechnen, 45 Minuten' } })
+    );
+    expect((alle.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toEqual(['daz']);
     expect(plan.erkannteKriterien.fachbereich).toBe('mathe-informatik');
 
     const ohne = parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Mathematik Klasse 7, Bruchrechnen, 45 Minuten' } }));

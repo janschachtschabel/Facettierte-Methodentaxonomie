@@ -433,6 +433,16 @@ type PlanGroup = NonNullable<ScenarioPlanArgs['gruppen']>[number];
 /** Whole-class statements such as "geringes Vorwissen" only count as a subgroup when a headcount is given. */
 const CLASS_WIDE_GROUP_IDS = new Set(['vorwissen-gering', 'motivation-gering']);
 
+/** Persona that supplies the remaining traits of a named group; its own detected traits take precedence. */
+const GROUP_PERSONA: Record<string, string> = {
+  daz: 'languageAndCulture',
+  vertiefung: 'highPerforming',
+  lrs: 'foerderLernen',
+  'foerder-lernen': 'foerderLernen',
+  adhs: 'foerderEmSoz',
+  autismus: 'foerderEmSoz'
+};
+
 /**
  * Subgroups the text names (e.g. "5 DaZ-Kinder, 4 leistungsstarke") plus the remaining regular group.
  * Empty when the text names none, so the caller falls back to the three standard groups.
@@ -441,12 +451,16 @@ export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[]
   const named = detectLearnerGroupsFromText(text).groups.filter((g) => !CLASS_WIDE_GROUP_IDS.has(g.id) || g.count);
   if (!named.length) return [];
   const counted = named.reduce((sum, g) => sum + (g.count || 0), 0);
-  const rest = groupSize && named.every((g) => g.count) && groupSize > counted ? groupSize - counted : undefined;
-  return [
-    ...named.map((g) => ({ id: g.id, label: g.label, count: g.count, selectedValues: g.selectedValues })),
-    ...(named.some((g) => g.id === 'regel')
+  const allCounted = named.every((g) => g.count);
+  // The regular group holds whoever is left. It is dropped when the named groups already fill the class.
+  const rest = groupSize && allCounted ? groupSize - counted : undefined;
+  const regel =
+    named.some((g) => g.id === 'regel') || rest === 0
       ? []
-      : [{ id: 'regel', label: 'Regelniveau', personaId: 'average', ...(rest ? { count: rest } : {}) }])
+      : [{ id: 'regel', label: 'Regelniveau', personaId: 'average', ...(rest && rest > 0 ? { count: rest } : {}) }];
+  return [
+    ...named.map((g) => ({ id: g.id, label: g.label, count: g.count, personaId: GROUP_PERSONA[g.id], selectedValues: g.selectedValues })),
+    ...regel
   ];
 }
 
@@ -563,7 +577,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
 
   const groupMatrices = activeGroups.map((g) => {
     const scored = scoreDifferentiationMatrix({
-      personaId: g.personaId || 'average',
+      // Named groups carry their own traits; the average persona would dilute them.
+      personaId: g.personaId || (g.selectedValues ? undefined : 'average'),
       selectedValues: g.selectedValues,
       limit: 6,
       maxTechnik: effectiveMaxTechnik,
@@ -591,7 +606,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       id: g.id,
       label: g.label,
       count: g.count,
-      personaId: g.personaId || 'average',
+      // Named groups carry their own traits; the average persona would dilute them.
+      personaId: g.personaId || (g.selectedValues ? undefined : 'average'),
       selectedValues: g.selectedValues
     })),
     {

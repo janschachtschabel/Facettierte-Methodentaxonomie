@@ -271,11 +271,17 @@ export function PlannerPage() {
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // Snapshot of the template flow as loaded. Only a flow that still equals it is cleared on own input,
+  // so imported, saved or hand-edited flows are never wiped.
+  const templateFlowRef = useRef<string | null>(null);
+  // Request for which `variante` counts; a changed request starts again at the first proposal.
+  const variantKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!bundle) return;
     if (!arrangement) {
       let initial = createChainPreset('konzeptaufbau', bundle);
+      templateFlowRef.current = JSON.stringify(initial);
       if (pendingPlannerBlock) {
         const queued = consumePendingPlannerBlock();
         const b = queued ? blocksById.get(queued) : null;
@@ -426,9 +432,9 @@ export function PlannerPage() {
    */
   const handleScenarioTextChange = (nextText: string) => {
     setScenarioText(nextText);
-    setVariante(0);
-    if (presetContextSource) {
-      // The template flow belongs to the template text; an own description starts from an empty flow.
+    if (templateFlowRef.current && JSON.stringify(arrangement) === templateFlowRef.current) {
+      // The untouched template flow belongs to the template text; an own description starts from an empty flow.
+      templateFlowRef.current = null;
       setArrangement(createEmptyArrangement(bundle));
       setMatchResult(null);
       setThematicRows(null);
@@ -436,6 +442,9 @@ export function PlannerPage() {
       setOerByStep({});
       setGeneratedMaterials([]);
       setAiDiffByStep({});
+      setMatchNotice('Der Vorlagen-Ablauf wurde für deine eigene Eingabe geleert.');
+    }
+    if (presetContextSource) {
       setPresetContextSource(null);
       setFach('');
       setThema('');
@@ -554,6 +563,7 @@ export function PlannerPage() {
       vorwissen: p.vorwissen,
       zeitbudgetMin: p.zeitMin
     };
+    templateFlowRef.current = JSON.stringify(preset);
     setArrangement(preset);
     setMatchResult(null);
     setThematicRows(null);
@@ -631,11 +641,11 @@ export function PlannerPage() {
 
   /** Next equally suitable flow for the same text; the matcher stays deterministic per variant number. */
   const runOtherProposal = () => {
-    const next = findNextVariant(
-      (v) => matcher.zuordnen({ ...buildStructuredMatchRequest(), variante: v }),
-      arrangement,
-      variante
-    );
+    const request = buildStructuredMatchRequest();
+    const key = JSON.stringify(request);
+    const from = variantKeyRef.current === key ? variante : 0;
+    variantKeyRef.current = key;
+    const next = findNextVariant((v) => matcher.zuordnen({ ...request, variante: v }), arrangement, from);
     if (!next) {
       setMatchNotice('Für diese Angaben gibt es keinen weiteren gleichwertigen Vorschlag. Ändere Text, Ansatz oder Zeit für andere Abläufe.');
       return;
@@ -648,7 +658,7 @@ export function PlannerPage() {
     setOerByStep({});
     setGeneratedMaterials([]);
     setAiDiffByStep({});
-    setMatchNotice(`Anderer Vorschlag (Variante ${next.variante + 1}) für denselben Text. Der Ablauf steht in Schritt 2.`);
+    setMatchNotice(`Anderer Vorschlag (Variante ${next.variante + 1}) für dieselben Angaben. Der Ablauf steht in Schritt 2.`);
   };
 
   const runAiTranslate = async () => {
