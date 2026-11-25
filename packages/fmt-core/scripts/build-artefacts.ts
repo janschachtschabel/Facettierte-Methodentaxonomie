@@ -642,7 +642,8 @@ export function buildAllArtefacts(rootDir: string) {
     ketten: D.ketten,
     bausteine: D.bausteine,
     beispiele: D.beispiele,
-    oeh
+    oeh,
+    faecher: D.faecher
   });
   const versionHash = crypto.createHash('sha256').update(hashPayload).digest('hex');
 
@@ -661,7 +662,8 @@ export function buildAllArtefacts(rootDir: string) {
     bausteine: D.bausteine,
     beispiele: D.beispiele,
     oeh,
-    rules: FMT_RULES
+    rules: FMT_RULES,
+    faecher: D.faecher
   };
   write('catalog.bundle.json', json(bundle));
   return { version: D.VERSION, versionHash, blocks: D.bausteine.length, schemes: D.schemes.length + 1 };

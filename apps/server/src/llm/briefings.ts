@@ -491,8 +491,13 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   const t0 = process.hrtime.bigint();
   const classification = store.classifyText(args.text);
   const extracted = extractSubjectAndTopicFromText(args.text);
-  const fach = args.fach?.trim() || extracted.fach || undefined;
   const thema = args.thema?.trim() || extracted.thema || args.text.slice(0, 110);
+  // A subject given as its own field counts like a subject named in the text.
+  const stufe = args.bildungsstufe || (classification.kriterien.bildungsstufe as string | undefined);
+  const fachFeld = args.fach?.trim() ? store.subjects.erkenne(args.fach, stufe) : null;
+
+  // Subject words the vocabulary does not hold (e.g. "Naturwissenschaften") still reach the text rules.
+  const fachbereichAusFeld = args.fach?.trim() ? (store.matcher.lesen(args.fach).kriterien.fachbereich as string | undefined) : undefined;
 
   const matchReq: MatchRequest = {
     text: args.text,
@@ -511,8 +516,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI,
     variante: args.variante,
-    // A subject given as its own field counts like a subject named in the text.
-    fachbereich: args.fach ? (store.matcher.lesen(args.fach).kriterien.fachbereich as string | undefined) : undefined
+    fachbereich: fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld
   };
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;
@@ -537,6 +541,11 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       ergebnis: matched
     };
   }
+
+  // Subject with OEH URI: from the own field if given, otherwise as named in the text.
+  // A subject field the vocabulary does not know is not replaced by a guess from the text.
+  const fachErkannt = args.fach?.trim() ? fachFeld : matched.fach || null;
+  const fach = args.fach?.trim() || extracted.fach || fachErkannt?.label || undefined;
 
   const detectedTraits = classification.matrixMerkmale;
   const defaultGroups: PlanGroup[] = [
@@ -686,6 +695,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     dauerMs,
     engine: classification.engine,
     fach: fach || null,
+    fachErkannt,
     thema: thema || null,
     angenommenerZieltyp,
     erkannteKriterien: matched.kriterien,

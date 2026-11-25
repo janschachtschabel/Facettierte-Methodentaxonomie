@@ -121,7 +121,16 @@ export function sanitizeWloSearchWord(raw: string): string {
   return (tokens.length ? tokens.join(' ') : raw.trim()).slice(0, 120);
 }
 
-function resolveFachUri(fach: string): string | null {
+/** Looks a subject name up in the OEH discipline vocabulary; set once at start from the catalogue. */
+let subjectLookup: ((name: string) => string | null) | null = null;
+export function setWloSubjectLookup(lookup: (name: string) => string | null): void {
+  subjectLookup = lookup;
+}
+
+/** OEH discipline URI for a subject name: the vocabulary first, the short built-in list as fallback. */
+export function resolveFachUri(fach: string, lookup: ((name: string) => string | null) | null = subjectLookup): string | null {
+  const viaVocabulary = fach.trim() && lookup ? lookup(fach) : null;
+  if (viaVocabulary) return viaVocabulary;
   const norm = fach
     .trim()
     .toLowerCase()

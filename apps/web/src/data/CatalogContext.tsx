@@ -186,7 +186,8 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         facetten: bundle.facetten,
         ketten: bundle.ketten,
         bausteine: bundle.bausteine,
-        beispiele: bundle.beispiele
+        beispiele: bundle.beispiele,
+        faecher: bundle.faecher
       };
       const validator = createValidator(data);
       const search = createSearch(data, validator);

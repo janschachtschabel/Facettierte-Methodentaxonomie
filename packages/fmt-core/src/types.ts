@@ -1,3 +1,4 @@
+import type { DetectedSubject, OehSubjectCrosswalk } from './fach.js';
 export type PiktogrammId =
   | 'vortrag'
   | 'dialog'
@@ -297,6 +298,8 @@ export interface FmtData {
   ketten: Funktionskette[];
   bausteine: Baustein[];
   beispiele: Arrangement[];
+  /** OEH school and university subjects mapped to FMT subject areas (recognition layer, optional). */
+  faecher?: OehSubjectCrosswalk;
 }
 
 export interface RuleMeta {
@@ -418,6 +421,8 @@ export interface MatchHead {
   erkannt: Array<{ feld: string; wert: unknown; beleg: string }>;
   offen: string[];
   dauerMs?: number;
+  /** Subject named in the request text, with its OEH URI. */
+  fach?: DetectedSubject;
 }
 
 export interface PhaseMatchResult extends MatchHead {
@@ -479,4 +484,5 @@ export interface CatalogBundle {
   beispiele: Arrangement[];
   oeh: Record<string, string>;
   rules: RuleMeta[];
+  faecher?: OehSubjectCrosswalk;
 }

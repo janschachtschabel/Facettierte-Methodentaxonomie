@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
+import { loadCatalogStore } from '../src/catalog-store.js';
+import { resolveFachUri } from '../src/routes/oer.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
@@ -280,5 +282,48 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(kompakt.statusCode).toBe(200);
     expect(kompakt.json().llmBriefing).toBeUndefined();
     expect(kompakt.json().thematischeTabelle.length).toBeGreaterThan(0);
+  });
+
+  it('nennt das erkannte Fach mit OEH-Kennung und nutzt es für den Fachbereich', async () => {
+    const c = await app.inject({ method: 'POST', url: '/api/v1/classify', payload: { text: 'Türkisch Klasse 7, Wegbeschreibung, 45 Minuten' } });
+    expect(c.json().fach).toMatchObject({ label: 'Türkisch', uri: 'http://w3id.org/openeduhub/vocabs/discipline/20008', fachbereich: 'sprachen' });
+    expect(c.json().kriterien.fachbereich).toBe('sprachen');
+
+    const p = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Vorlesung Maschinenbau, Thermodynamik, 90 Minuten, 120 Studierende' } });
+    expect(p.statusCode).toBe(200);
+    expect(p.json().fachErkannt).toMatchObject({ quelle: 'hochschulfach', fachbereich: 'nawi-technik' });
+    expect(p.json().fach).toBe('Maschinenbau/-wesen');
+    expect(p.json().erkannteKriterien.fachbereich).toBe('nawi-technik');
+
+    // A subject given as its own field is looked up the same way
+    const f = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Konditionierung, 90 Minuten, Kurs 11', fach: 'Psychologie' } });
+    expect(f.json().erkannteKriterien.fachbereich).toBe('gesellschaft');
+    expect(f.json().fachErkannt.uri).toBe('http://w3id.org/openeduhub/vocabs/discipline/510');
+
+    // The stage read from the text decides whether a university subject in the field is recognised
+    const u = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Vorlesung Thermodynamik, 90 Minuten, 120 Studierende', fach: 'Maschinenbau' } });
+    expect(u.json().fachErkannt).toMatchObject({ quelle: 'hochschulfach', fachbereich: 'nawi-technik' });
+    expect(u.json().erkannteKriterien.fachbereich).toBe('nawi-technik');
+    // An unknown subject field is not replaced by a subject guessed from the text
+    const w = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Die Wirtschaft der DDR, 45 Minuten, Klasse 10', fach: 'WAT' } });
+    expect(w.json().fach).toBe('WAT');
+    expect(w.json().fachErkannt).toBeNull();
+
+    const none = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Teamregeln vereinbaren, 45 Minuten' } });
+    expect(none.json().fachErkannt).toBeNull();
+  });
+
+  it('löst Fachnamen für die WLO-Suche über das OEH-Vokabular auf', async () => {
+    const store = await loadCatalogStore(DIST_DATA);
+    const lookup = (name: string) => store.subjects.schulfachUri(name);
+    expect(resolveFachUri('Italienisch', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/20004');
+    expect(resolveFachUri('Erdkunde', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/220');
+    expect(resolveFachUri('Ethik / Philosophie', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/160');
+    expect(resolveFachUri('Nachhaltigkeit (BNE)', lookup)).toBe('http://w3id.org/openeduhub/vocabs/discipline/64018');
+    // buildApp wires the vocabulary lookup as the default
+    expect(resolveFachUri('Türkisch')).toBe('http://w3id.org/openeduhub/vocabs/discipline/20008');
+    expect(resolveFachUri('Mathematik', null)).toBe('http://w3id.org/openeduhub/vocabs/discipline/380');
+    expect(resolveFachUri('Türkisch', null)).toBeNull();
+    expect(resolveFachUri('Quatschfach', lookup)).toBeNull();
   });
 });

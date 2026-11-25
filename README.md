@@ -92,7 +92,7 @@ cd Facettierte-Methodentaxonomie
 
 npm ci
 npm run build      # baut @fmt/core, dist-data/ (289 Methoden + 25 SKOS), @fmt/web und @fmt/server
-npm test           # führt alle 126 automatisierten Tests aus
+npm test           # führt alle 141 automatisierten Tests aus
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -211,6 +211,7 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 ## Architektur, Verzeichnisse & Skripte
 
 - `data/` – Single Source of Truth unter **CC BY 4.0** (`meta.json`, `vocab.json`, `ketten.json`, `crosswalk/`, `beispiele/`, `bausteine/*.json` mit **289 Methoden**)
+- `data/crosswalk/oeh-faecher.json` – Erkennungsschicht: 70 OEH-Schulfächer und 344 Hochschulfächer (Destatis) mit Zuordnung zu den acht FMT-Fachbereichen. Ein im Text genanntes Fach liefert Fachbereich und OEH-Kennung; an Methoden hängen keine Einzelfächer.
 - `packages/fmt-core/` – Abhängigkeitsfreier TypeScript-Kern (`validate`, `suche`, `zuordnung`, `semantic`, `differentiationMatrix`) & Artefakt-Generator (`dist-data/`)
 - `apps/server/` – Fastify-Server (Static SPA, REST API inkl. `/api/v1/classify`, `/api/v1/plan`, `/api/v1/assistant/briefing`, Linked Data + `w3id.org`, MCP Streamable HTTP + `stdio`, optionales Model2Vec & OpenAI-kompatibles LLM)
 - `apps/web/` – React + TypeScript + Vite SPA mit Browser-Cache-Sync, 4-Schritte-Szenario-Studio, globalen **⚙ KI-Einstellungen** (Proxy + Browser-Direktmodus) und KaTeX/Markdown-Export
@@ -221,7 +222,7 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (126 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (141 Tests) |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
 | `npm run mcp:stdio` | Startet den lokalen MCP-Server über `stdin`/`stdout` |
 | `npm run download:m2v` | Lädt optional `JanSchachtschabel/m2v-qwen3-4b-256-edu` nach `models/` |

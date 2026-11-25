@@ -1,0 +1,3392 @@
+{
+ "titel": "Zuordnung der OEH/WLO-Fachvokabulare zu den FMT-Fachbereichen",
+ "beschreibung": "Erkennungs- und Mapping-Schicht: Ein im Anfragetext genanntes Schul- oder Hochschulfach wird auf einen der acht FMT-Fachbereiche abgebildet und liefert die OEH-Kennung für die WLO-Suche. Methoden tragen weiterhin nur den Fachbereich, keine Einzelfächer.",
+ "abgerufen": "2026-11-25",
+ "quellen": {
+  "schulfaecher": {
+   "vokabular": "http://w3id.org/openeduhub/vocabs/discipline/",
+   "lizenz": "CC0 1.0"
+  },
+  "hochschulfaecher": {
+   "vokabular": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/",
+   "hinweis": "Destatis-Systematik der Fächergruppen, Studienbereiche und Studienfächer"
+  }
+ },
+ "schulfaecher": [
+  {
+   "id": "020",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/020",
+   "label": "Arbeitslehre",
+   "fachbereich": "beruf-praxis",
+   "alt": [
+    "Arbeit, Wirtschaft, Technik",
+    "Polytechnik",
+    "Polytechnischer Unterricht"
+   ],
+   "begriffe": [
+    "Arbeitslehre",
+    "Polytechnik"
+   ]
+  },
+  {
+   "id": "040",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/040",
+   "label": "Berufliche Bildung",
+   "fachbereich": "beruf-praxis",
+   "alt": [
+    "Berufsausbildung"
+   ],
+   "erkennung": false
+  },
+  {
+   "id": "04001",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04001",
+   "label": "Agrarwirtschaft",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "04002",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04002",
+   "label": "Bautechnik",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "04003",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04003",
+   "label": "MINT",
+   "fachbereich": "nawi-technik",
+   "alt": [
+    "Chemie, Physik, Biologie",
+    "Naturwissenschaften"
+   ],
+   "begriffe": [
+    "MINT",
+    "Naturwissenschaften",
+    "Nawi"
+   ]
+  },
+  {
+   "id": "04005",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04005",
+   "label": "Elektrotechnik",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "04006",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04006",
+   "label": "Ernährung und Hauswirtschaft",
+   "fachbereich": "beruf-praxis",
+   "begriffe": [
+    "Ernährung und Hauswirtschaft",
+    "Ernährungslehre"
+   ]
+  },
+  {
+   "id": "04007",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04007",
+   "label": "Farbtechnik und Raumgestaltung",
+   "fachbereich": "beruf-praxis",
+   "alt": [
+    "Raumgestaltung"
+   ]
+  },
+  {
+   "id": "04009",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04009",
+   "label": "Holztechnik",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "04010",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04010",
+   "label": "Körperpflege",
+   "fachbereich": "beruf-praxis",
+   "begriffe": [
+    "Körperpflege"
+   ]
+  },
+  {
+   "id": "04011",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04011",
+   "label": "Metalltechnik",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "04012",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04012",
+   "label": "Textiltechnik und Bekleidung",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "04013",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04013",
+   "label": "Wirtschaft und Verwaltung",
+   "fachbereich": "beruf-praxis",
+   "begriffe": [
+    "Wirtschaft und Verwaltung"
+   ]
+  },
+  {
+   "id": "04014",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/04014",
+   "label": "Arbeitssicherheit",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "060",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/060",
+   "label": "Kunst",
+   "fachbereich": "aesthetik",
+   "alt": [
+    "Kunsterziehung"
+   ]
+  },
+  {
+   "id": "080",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/080",
+   "label": "Biologie",
+   "fachbereich": "nawi-technik",
+   "begriffe": [
+    "Biologie",
+    "Bio"
+   ]
+  },
+  {
+   "id": "100",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/100",
+   "label": "Chemie",
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "120",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/120",
+   "label": "Deutsch",
+   "fachbereich": "sprachen",
+   "alt": [
+    "Muttersprache"
+   ],
+   "begriffe": [
+    "Deutsch"
+   ]
+  },
+  {
+   "id": "12002",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/12002",
+   "label": "Darstellendes Spiel",
+   "fachbereich": "aesthetik"
+  },
+  {
+   "id": "160",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/160",
+   "label": "Ethik",
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "20001",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20001",
+   "label": "Englisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20002",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20002",
+   "label": "Französisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20003",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20003",
+   "label": "Alt-Griechisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20004",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20004",
+   "label": "Italienisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20005",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20005",
+   "label": "Latein",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20006",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20006",
+   "label": "Russisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20007",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20007",
+   "label": "Spanisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20008",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20008",
+   "label": "Türkisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20009",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20009",
+   "label": "Sorbisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20041",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20041",
+   "label": "Chinesisch",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "20090",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/20090",
+   "label": "Esperanto",
+   "fachbereich": "sprachen"
+  },
+  {
+   "id": "220",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/220",
+   "label": "Geografie",
+   "fachbereich": "gesellschaft",
+   "alt": [
+    "Erdkunde",
+    "Geographie"
+   ]
+  },
+  {
+   "id": "240",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/240",
+   "label": "Geschichte",
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Geschichte",
+    "Geschichtsunterricht",
+    "Geschichtsstunde"
+   ]
+  },
+  {
+   "id": "260",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/260",
+   "label": "Gesundheit",
+   "fachbereich": "uebergreifend",
+   "alt": [
+    "Gesundheitserziehung"
+   ],
+   "begriffe": [
+    "Gesundheitserziehung",
+    "Gesundheitslehre"
+   ]
+  },
+  {
+   "id": "28002",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/28002",
+   "label": "Deutsch als Zweitsprache",
+   "fachbereich": "sprachen",
+   "alt": [
+    "DaF",
+    "DaZ",
+    "Deutsch als Fremdsprache",
+    "Deutsch als Zweit- / Fremdsprache"
+   ],
+   "begriffe": [
+    "Deutsch als Zweitsprache",
+    "Deutsch als Fremdsprache",
+    "DaZ",
+    "DaF"
+   ]
+  },
+  {
+   "id": "28010",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/28010",
+   "label": "Sachunterricht",
+   "fachbereich": "nawi-technik",
+   "alt": [
+    "Heimatunterricht"
+   ]
+  },
+  {
+   "id": "320",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/320",
+   "label": "Informatik",
+   "fachbereich": "mathe-informatik",
+   "alt": [
+    "Informations- und Kommunikationstechnologie"
+   ],
+   "begriffe": [
+    "Informatik"
+   ]
+  },
+  {
+   "id": "340",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/340",
+   "label": "Interkulturelle Bildung",
+   "fachbereich": "gesellschaft",
+   "erkennung": false
+  },
+  {
+   "id": "380",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/380",
+   "label": "Mathematik",
+   "fachbereich": "mathe-informatik",
+   "alt": [
+    "Mathe"
+   ],
+   "begriffe": [
+    "Mathematik",
+    "Mathe"
+   ]
+  },
+  {
+   "id": "400",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/400",
+   "label": "Mediendidaktik",
+   "fachbereich": "uebergreifend",
+   "alt": [
+    "Medienerziehung"
+   ]
+  },
+  {
+   "id": "420",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/420",
+   "label": "Musik",
+   "fachbereich": "aesthetik"
+  },
+  {
+   "id": "440",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/440",
+   "label": "Pädagogik",
+   "fachbereich": "gesellschaft",
+   "alt": [
+    "Erziehungswissenschaften"
+   ],
+   "begriffe": [
+    "Pädagogik",
+    "Erziehungswissenschaft",
+    "Erziehungswissenschaften"
+   ]
+  },
+  {
+   "id": "44006",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/44006",
+   "label": "Sonderpädagogik",
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "44007",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/44007",
+   "label": "Sozialpädagogik",
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "44099",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/44099",
+   "label": "Open Educational Resources",
+   "fachbereich": "uebergreifend",
+   "alt": [
+    "OER"
+   ],
+   "erkennung": false
+  },
+  {
+   "id": "450",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/450",
+   "label": "Philosophie",
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "460",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/460",
+   "label": "Physik",
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "46014",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/46014",
+   "label": "Astronomie",
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "480",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/480",
+   "label": "Politik",
+   "fachbereich": "gesellschaft",
+   "alt": [
+    "Politische Bildung"
+   ],
+   "begriffe": [
+    "Politik",
+    "Politische Bildung"
+   ]
+  },
+  {
+   "id": "48005",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/48005",
+   "label": "Gesellschaftskunde",
+   "fachbereich": "gesellschaft",
+   "alt": [
+    "Gesellschaftspolitische Gegenwartsfragen"
+   ],
+   "begriffe": [
+    "Gesellschaftskunde",
+    "Gemeinschaftskunde",
+    "Sozialkunde",
+    "Gesellschaftslehre",
+    "Sowi"
+   ]
+  },
+  {
+   "id": "50001",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/50001",
+   "label": "Hauswirtschaft",
+   "fachbereich": "beruf-praxis",
+   "alt": [
+    "Verbraucherbildung"
+   ],
+   "begriffe": [
+    "Hauswirtschaft",
+    "Verbraucherbildung"
+   ]
+  },
+  {
+   "id": "50005",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/50005",
+   "label": "Werken",
+   "fachbereich": "aesthetik",
+   "begriffe": [
+    "Werken",
+    "Werkunterricht"
+   ]
+  },
+  {
+   "id": "510",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/510",
+   "label": "Psychologie",
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "520",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/520",
+   "label": "Religion",
+   "fachbereich": "gesellschaft",
+   "alt": [
+    "Religionsunterricht"
+   ],
+   "begriffe": [
+    "Religion",
+    "Religionslehre"
+   ]
+  },
+  {
+   "id": "560",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/560",
+   "label": "Sexualerziehung",
+   "fachbereich": "uebergreifend"
+  },
+  {
+   "id": "600",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/600",
+   "label": "Sport",
+   "fachbereich": "sport",
+   "alt": [
+    "Sportunterricht"
+   ]
+  },
+  {
+   "id": "640",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/640",
+   "label": "Umweltgefährdung, Umweltschutz",
+   "fachbereich": "nawi-technik",
+   "alt": [
+    "Umwelterziehung"
+   ],
+   "begriffe": [
+    "Umwelterziehung",
+    "Umweltbildung"
+   ]
+  },
+  {
+   "id": "64018",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/64018",
+   "label": "Nachhaltigkeit",
+   "fachbereich": "uebergreifend"
+  },
+  {
+   "id": "660",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/660",
+   "label": "Verkehrserziehung",
+   "fachbereich": "uebergreifend"
+  },
+  {
+   "id": "680",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/680",
+   "label": "Weiterbildung",
+   "fachbereich": "uebergreifend",
+   "erkennung": false
+  },
+  {
+   "id": "700",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/700",
+   "label": "Wirtschaftskunde",
+   "fachbereich": "gesellschaft",
+   "alt": [
+    "Wirtschaftswissenschaften"
+   ],
+   "begriffe": [
+    "Wirtschaftskunde",
+    "Wirtschaftslehre",
+    "Wirtschaft"
+   ]
+  },
+  {
+   "id": "720",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/720",
+   "label": "Allgemein",
+   "fachbereich": "uebergreifend",
+   "alt": [
+    "Sonstiges"
+   ],
+   "erkennung": false
+  },
+  {
+   "id": "72001",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/72001",
+   "label": "Zeitgemäße Bildung",
+   "fachbereich": "uebergreifend",
+   "erkennung": false
+  },
+  {
+   "id": "72002",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/72002",
+   "label": "Projektmanagement",
+   "fachbereich": "beruf-praxis"
+  },
+  {
+   "id": "72003",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/72003",
+   "label": "Evidenzbasierte Medizin",
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "900",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/900",
+   "label": "Medienbildung",
+   "fachbereich": "uebergreifend"
+  },
+  {
+   "id": "999",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/999",
+   "label": "Sonstiges",
+   "fachbereich": "uebergreifend",
+   "erkennung": false
+  },
+  {
+   "id": "niederdeutsch",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/niederdeutsch",
+   "label": "Niederdeutsch",
+   "fachbereich": "sprachen",
+   "alt": [
+    "Platt"
+   ]
+  },
+  {
+   "id": "oeh01",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/oeh01",
+   "label": "Arbeit, Ernährung, Soziales",
+   "fachbereich": "beruf-praxis",
+   "erkennung": false
+  },
+  {
+   "id": "oeh04010",
+   "uri": "http://w3id.org/openeduhub/vocabs/discipline/oeh04010",
+   "label": "Mechatronik",
+   "fachbereich": "beruf-praxis"
+  }
+ ],
+ "hochschulfaecher": [
+  {
+   "id": "n0",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n0",
+   "label": "Fachübergreifend",
+   "ebene": 1,
+   "fachbereich": "uebergreifend"
+  },
+  {
+   "id": "n001",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n001",
+   "label": "Ägyptologie",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n002",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n002",
+   "label": "Afrikanistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n003",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n003",
+   "label": "Agrarwissenschaft/Landwirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n004",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n004",
+   "label": "Interdisziplinäre Studien (Schwerpunkt Geisteswissenschaften)",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n01"
+  },
+  {
+   "id": "n005",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n005",
+   "label": "Klassische Philologie",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n08"
+  },
+  {
+   "id": "n006",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n006",
+   "label": "Amerikanistik/Amerikakunde",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n10"
+  },
+  {
+   "id": "n007",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n007",
+   "label": "Angewandte Kunst",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n76"
+  },
+  {
+   "id": "n008",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n008",
+   "label": "Anglistik/Englisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n10"
+  },
+  {
+   "id": "n009",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n009",
+   "label": "Anthropologie (Humanbiologie)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n42"
+  },
+  {
+   "id": "n01",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n01",
+   "label": "Geisteswissenschaften allgemein",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n010",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n010",
+   "label": "Arabisch/Arabistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n011",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n011",
+   "label": "Arbeitslehre/Wirtschaftslehre",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n012",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n012",
+   "label": "Archäologie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n0128",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n0128",
+   "label": "Physik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n39"
+  },
+  {
+   "id": "n013",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n013",
+   "label": "Architektur",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n66"
+  },
+  {
+   "id": "n014",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n014",
+   "label": "Astrophysik und Astronomie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n39"
+  },
+  {
+   "id": "n015",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n015",
+   "label": "Außereuropäische Sprachen und Kulturen in Ozeanien und Amerika",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n016",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n016",
+   "label": "Baltistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n017",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n017",
+   "label": "Bauingenieurwesen/Ingenieurbau",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n68"
+  },
+  {
+   "id": "n018",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n018",
+   "label": "Berufsbezogene Fremdsprachenausbildung",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n07"
+  },
+  {
+   "id": "n019",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n019",
+   "label": "Orientierungsstudium MINT",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n36"
+  },
+  {
+   "id": "n02",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n02",
+   "label": "Evang. Theologie, -Religionslehre",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Evangelische Theologie"
+   ],
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n020",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n020",
+   "label": "Bergbau/Bergtechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n62"
+  },
+  {
+   "id": "n021",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n021",
+   "label": "Betriebswirtschaftslehre",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Betriebswirtschaftslehre",
+    "BWL"
+   ],
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n022",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n022",
+   "label": "Informations- und Bibliothekswissenschaften (nicht für Verwaltungsfachhochschulen)",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n06"
+  },
+  {
+   "id": "n023",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n023",
+   "label": "Bildende Kunst/Graphik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n75"
+  },
+  {
+   "id": "n024",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n024",
+   "label": "Europäische Ethnologie und Kulturwissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n14"
+  },
+  {
+   "id": "n025",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n025",
+   "label": "Biochemie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n40"
+  },
+  {
+   "id": "n026",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n026",
+   "label": "Biologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n42"
+  },
+  {
+   "id": "n028",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n028",
+   "label": "Brauwesen/Getränketechnologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n029",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n029",
+   "label": "Sportwissenschaft",
+   "ebene": 3,
+   "fachbereich": "sport",
+   "oberbegriff": "n22"
+  },
+  {
+   "id": "n03",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n03",
+   "label": "Kath. Theologie, -Religionslehre",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Katholische Theologie"
+   ],
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n030",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n030",
+   "label": "Interdisziplinäre Studien (Schwerpunkt Rechts-, Wirtschafts- und Sozialwissenschaften)",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n23"
+  },
+  {
+   "id": "n031",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n031",
+   "label": "Byzantinistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n08"
+  },
+  {
+   "id": "n032",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n032",
+   "label": "Chemie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n40"
+  },
+  {
+   "id": "n033",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n033",
+   "label": "Chemie-Ingenieurwesen/Chemieverfahrenstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n034",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n034",
+   "label": "Dänisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n09"
+  },
+  {
+   "id": "n035",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n035",
+   "label": "Darstellende Kunst/Bühnenkunst/Regie",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n77"
+  },
+  {
+   "id": "n036",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n036",
+   "label": "Sonstige Regionalwissenschaften",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n24"
+  },
+  {
+   "id": "n037",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n037",
+   "label": "Archiv- und Dokumentationswissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n06"
+  },
+  {
+   "id": "n038",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n038",
+   "label": "Lateinamerika-Studien",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n24"
+  },
+  {
+   "id": "n039",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n039",
+   "label": "Geowissenschaften allgemein",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n04",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n04",
+   "label": "Studienbereich Philosophie",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n040",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n040",
+   "label": "Interdisziplinäre Studien (Schwerpunkt Kunst, Kunstwissenschaft)",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n74"
+  },
+  {
+   "id": "n042",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n042",
+   "label": "Wirtschaftsrecht",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n28"
+  },
+  {
+   "id": "n043",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n043",
+   "label": "Neugriechisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n08"
+  },
+  {
+   "id": "n044",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n044",
+   "label": "Ost- und Südosteuropa-Studien",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n24"
+  },
+  {
+   "id": "n048",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n048",
+   "label": "Elektrotechnik/Elektronik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n64"
+  },
+  {
+   "id": "n049",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n049",
+   "label": "Interdisziplinäre Studien (Schwerpunkt Naturwissenschaften)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n36"
+  },
+  {
+   "id": "n05",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n05",
+   "label": "Studienbereich Geschichte",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n050",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n050",
+   "label": "Geographie/Erdkunde",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n44"
+  },
+  {
+   "id": "n052",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n052",
+   "label": "Erziehungswissenschaft (Pädagogik)",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Erziehungswissenschaft",
+    "Erziehungswissenschaften",
+    "Pädagogik"
+   ],
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n053",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n053",
+   "label": "Evang. Theologie, -Religionslehre",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Evangelische Theologie"
+   ],
+   "oberbegriff": "n02"
+  },
+  {
+   "id": "n054",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n054",
+   "label": "Film und Fernsehen",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n77"
+  },
+  {
+   "id": "n055",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n055",
+   "label": "Orientierungsstudium Gesellschaftswissenschaften",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n23"
+  },
+  {
+   "id": "n056",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n056",
+   "label": "Finno-Ugristik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n057",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n057",
+   "label": "Luft- und Raumfahrttechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n65"
+  },
+  {
+   "id": "n058",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n058",
+   "label": "Forstwissenschaft, -wirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n59"
+  },
+  {
+   "id": "n059",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n059",
+   "label": "Französisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n11"
+  },
+  {
+   "id": "n06",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n06",
+   "label": "Informations- und Bibliothekswissenschaften",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n060",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n060",
+   "label": "Gartenbau",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n061",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n061",
+   "label": "Meliorationswesen",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n57"
+  },
+  {
+   "id": "n064",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n064",
+   "label": "Naturschutz",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n57"
+  },
+  {
+   "id": "n065",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n065",
+   "label": "Geologie/Paläontologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n066",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n066",
+   "label": "Geophysik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n067",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n067",
+   "label": "Germanistik/Deutsch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n09"
+  },
+  {
+   "id": "n068",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n068",
+   "label": "Geschichte",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n069",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n069",
+   "label": "Graphikdesign/Kommunikationsgestaltung",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n76"
+  },
+  {
+   "id": "n07",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n07",
+   "label": "Allgemeine und vergleichende Literatur- und Sprachwissenschaft",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n070",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n070",
+   "label": "Griechisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n08"
+  },
+  {
+   "id": "n071",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n071",
+   "label": "Haushalts- und Ernährungswissenschaft",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n60"
+  },
+  {
+   "id": "n072",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n072",
+   "label": "Interdisziplinäre Studien (Schwerpunkt Ingenieurwissenschaften)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n073",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n073",
+   "label": "Judaistik/Hebräisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n074",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n074",
+   "label": "Transport-/Fördertechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n075",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n075",
+   "label": "Holzwirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n59"
+  },
+  {
+   "id": "n076",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n076",
+   "label": "Hütten- und Gießereiwesen",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n62"
+  },
+  {
+   "id": "n077",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n077",
+   "label": "Wasserwirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n68"
+  },
+  {
+   "id": "n078",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n078",
+   "label": "Indologie",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n079",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n079",
+   "label": "Informatik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n08",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n08",
+   "label": "Altphilologie (klass. Philologie), Neugriechisch",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n080",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n080",
+   "label": "Instrumentalmusik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n081",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n081",
+   "label": "Iranistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n082",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n082",
+   "label": "Holz-/Fasertechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n083",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n083",
+   "label": "Islamwissenschaft",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n084",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n084",
+   "label": "Italienisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n11"
+  },
+  {
+   "id": "n085",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n085",
+   "label": "Japanologie",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n086",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n086",
+   "label": "Kath. Theologie, -Religionslehre",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Katholische Theologie"
+   ],
+   "oberbegriff": "n03"
+  },
+  {
+   "id": "n088",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n088",
+   "label": "Optoelektronik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n64"
+  },
+  {
+   "id": "n089",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n089",
+   "label": "Verkehrsingenieurwesen",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n65"
+  },
+  {
+   "id": "n09",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n09",
+   "label": "Germanistik (Deutsch, germanische Sprachen ohne Anglistik)",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n090",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n090",
+   "label": "Lernbereich Geisteswissenschaften",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n01"
+  },
+  {
+   "id": "n091",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n091",
+   "label": "Kunsterziehung",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n74"
+  },
+  {
+   "id": "n092",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n092",
+   "label": "Kunstgeschichte, Kunstwissenschaft",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n74"
+  },
+  {
+   "id": "n093",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n093",
+   "label": "Landespflege/Landschaftsgestaltung",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n57"
+  },
+  {
+   "id": "n094",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n094",
+   "label": "Wasserbau",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n68"
+  },
+  {
+   "id": "n095",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n095",
+   "label": "Latein",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n08"
+  },
+  {
+   "id": "n096",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n096",
+   "label": "Lebensmittelchemie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n40"
+  },
+  {
+   "id": "n097",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n097",
+   "label": "Lebensmitteltechnologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n098",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n098",
+   "label": "Sportpädagogik/Sportpsychologie",
+   "ebene": 3,
+   "fachbereich": "sport",
+   "oberbegriff": "n22"
+  },
+  {
+   "id": "n1",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n1",
+   "label": "Geisteswissenschaften",
+   "ebene": 1,
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "n10",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n10",
+   "label": "Anglistik, Amerikanistik",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n101",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n101",
+   "label": "Restaurierungskunde",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n74"
+  },
+  {
+   "id": "n102",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n102",
+   "label": "Schauspiel",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n77"
+  },
+  {
+   "id": "n103",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n103",
+   "label": "Markscheidewesen",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n62"
+  },
+  {
+   "id": "n104",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n104",
+   "label": "Maschinenbau/-wesen",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n105",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n105",
+   "label": "Mathematik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n37"
+  },
+  {
+   "id": "n106",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n106",
+   "label": "Tanzpädagogik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n77"
+  },
+  {
+   "id": "n107",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n107",
+   "label": "Medizin (Allgemein-Medizin)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "begriffe": [
+    "Medizin",
+    "Humanmedizin"
+   ],
+   "oberbegriff": "n49"
+  },
+  {
+   "id": "n108",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n108",
+   "label": "Metalltechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n11",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n11",
+   "label": "Romanistik",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n110",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n110",
+   "label": "Meteorologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n111",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n111",
+   "label": "Mineralogie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n113",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n113",
+   "label": "Musikerziehung",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n114",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n114",
+   "label": "Musikwissenschaft/-geschichte",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n115",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n115",
+   "label": "Grundschul-/Primarstufenpädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n116",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n116",
+   "label": "Textilgestaltung",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n76"
+  },
+  {
+   "id": "n117",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n117",
+   "label": "Ausländerpädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n118",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n118",
+   "label": "Technomathematik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n37"
+  },
+  {
+   "id": "n119",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n119",
+   "label": "Niederländisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n09"
+  },
+  {
+   "id": "n12",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n12",
+   "label": "Slawistik, Baltistik, Finno-Ugristik",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n120",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n120",
+   "label": "Nordistik/Skandinavistik (Nordische Philologie, Einzelsprachen a.n.g.)",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n09"
+  },
+  {
+   "id": "n121",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n121",
+   "label": "Medieninformatik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n122",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n122",
+   "label": "Orientalistik/Altorientalistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n123",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n123",
+   "label": "Ingenieurinformatik/Technische Informatik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n124",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n124",
+   "label": "Ozeanographie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n125",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n125",
+   "label": "Agrarökonomie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n126",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n126",
+   "label": "Pharmazie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n41"
+  },
+  {
+   "id": "n127",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n127",
+   "label": "Philosophie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n04"
+  },
+  {
+   "id": "n129",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n129",
+   "label": "Politikwissenschaft/Politologie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n25"
+  },
+  {
+   "id": "n13",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n13",
+   "label": "Sonstige Sprach- und Kulturwissenschaften",
+   "ebene": 2,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n130",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n130",
+   "label": "Westslawisch (allgemein und a.n.g.)",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n131",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n131",
+   "label": "Portugiesisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n11"
+  },
+  {
+   "id": "n132",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n132",
+   "label": "Psychologie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n32"
+  },
+  {
+   "id": "n134",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n134",
+   "label": "Raumplanung",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n67"
+  },
+  {
+   "id": "n135",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n135",
+   "label": "Rechtswissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Rechtswissenschaft",
+    "Rechtswissenschaften",
+    "Jura"
+   ],
+   "oberbegriff": "n28"
+  },
+  {
+   "id": "n136",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n136",
+   "label": "Religionswissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n04"
+  },
+  {
+   "id": "n137",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n137",
+   "label": "Romanistik (Roman. Philologie, Einzelsprachen a.n.g.)",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n11"
+  },
+  {
+   "id": "n138",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n138",
+   "label": "Agrarbiologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n139",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n139",
+   "label": "Russisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n14",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n14",
+   "label": "Kulturwissenschaften i.e.S.",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n140",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n140",
+   "label": "Angewandte Systemwissenschaften",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n141",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n141",
+   "label": "Abfallwirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n142",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n142",
+   "label": "Schiffbau/Schiffstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n65"
+  },
+  {
+   "id": "n143",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n143",
+   "label": "Augenoptik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n144",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n144",
+   "label": "Technische Kybernetik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n145",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n145",
+   "label": "Sinologie/Koreanistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n146",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n146",
+   "label": "Slawistik (Slaw. Philologie)",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n147",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n147",
+   "label": "Sozialkunde",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n26"
+  },
+  {
+   "id": "n148",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n148",
+   "label": "Sozialwissenschaften",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n26"
+  },
+  {
+   "id": "n149",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n149",
+   "label": "Soziologie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n26"
+  },
+  {
+   "id": "n150",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n150",
+   "label": "Spanisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n11"
+  },
+  {
+   "id": "n152",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n152",
+   "label": "Allgemeine Sprachwissenschaft/Indogermanistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n07"
+  },
+  {
+   "id": "n153",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n153",
+   "label": "Südslawisch (Bulgarisch, Serbokroatisch Slowenisch usw.)",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n154",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n154",
+   "label": "Lernbereich Gesellschaftslehre",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n23"
+  },
+  {
+   "id": "n155",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n155",
+   "label": "Theaterwissenschaft",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n77"
+  },
+  {
+   "id": "n156",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n156",
+   "label": "Tiermedizin/Veterinärmedizin",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n51"
+  },
+  {
+   "id": "n157",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n157",
+   "label": "Mikroelektronik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n64"
+  },
+  {
+   "id": "n158",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n158",
+   "label": "Turkologie",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n159",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n159",
+   "label": "Edelstein- und Schmuckdesign",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n76"
+  },
+  {
+   "id": "n160",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n160",
+   "label": "Computerlinguistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n07"
+  },
+  {
+   "id": "n161",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n161",
+   "label": "Diakoniewissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n02"
+  },
+  {
+   "id": "n162",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n162",
+   "label": "Caritaswissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n03"
+  },
+  {
+   "id": "n163",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n163",
+   "label": "Rhythmik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n164",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n164",
+   "label": "Jazz und Popularmusik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n165",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n165",
+   "label": "Orchestermusik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n166",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n166",
+   "label": "Sportmanagement/Sportökonomie",
+   "ebene": 3,
+   "fachbereich": "sport",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n167",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n167",
+   "label": "Europäische Wirtschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n168",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n168",
+   "label": "Justizvollzug",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n169",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n169",
+   "label": "Ethik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n04"
+  },
+  {
+   "id": "n171",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n171",
+   "label": "Vermessungswesen (Geodäsie)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n69"
+  },
+  {
+   "id": "n172",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n172",
+   "label": "Verwaltungswissenschaft/-wesen",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n173",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n173",
+   "label": "Ethnologie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n14"
+  },
+  {
+   "id": "n174",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n174",
+   "label": "Volkskunde",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n14"
+  },
+  {
+   "id": "n175",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n175",
+   "label": "Volkswirtschaftslehre",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "begriffe": [
+    "Volkswirtschaftslehre",
+    "VWL"
+   ],
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n176",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n176",
+   "label": "Werkerziehung",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n76"
+  },
+  {
+   "id": "n177",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n177",
+   "label": "Werkstofftechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n72"
+  },
+  {
+   "id": "n178",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n178",
+   "label": "Wirtschafts-/Sozialgeographie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n44"
+  },
+  {
+   "id": "n179",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n179",
+   "label": "Wirtschaftsingenieurwesen mit wirtschaftswissenschaftlichem Schwerpunkt",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n31"
+  },
+  {
+   "id": "n18",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n18",
+   "label": "Islamische Studien/Islamische Theologie",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n180",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n180",
+   "label": "Kaukasistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n181",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n181",
+   "label": "Wirtschaftspädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n182",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n182",
+   "label": "Internationale Betriebswirtschaft/Management",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n183",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n183",
+   "label": "Wirtschafts-/Sozialgeschichte",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n184",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n184",
+   "label": "Wirtschaftswissenschaften",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n185",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n185",
+   "label": "Zahnmedizin",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n50"
+  },
+  {
+   "id": "n186",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n186",
+   "label": "Lernbereich Naturwissenschaften/Sachunterricht",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n36"
+  },
+  {
+   "id": "n187",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n187",
+   "label": "Asiatische Sprachen und Kulturen/Asienwissenschaften",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n13"
+  },
+  {
+   "id": "n188",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n188",
+   "label": "Allgemeine Literaturwissenschaft",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n07"
+  },
+  {
+   "id": "n189",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n189",
+   "label": "Niederdeutsch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n09"
+  },
+  {
+   "id": "n19",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n19",
+   "label": "Medienwissenschaft",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n1"
+  },
+  {
+   "id": "n190",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n190",
+   "label": "Sonderpädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n191",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n191",
+   "label": "Komposition",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n192",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n192",
+   "label": "Dirigieren",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n193",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n193",
+   "label": "Kirchenmusik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n194",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n194",
+   "label": "Tonmeister",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n195",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n195",
+   "label": "Gesundheitspädagogik",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n48"
+  },
+  {
+   "id": "n197",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n197",
+   "label": "Holzbau",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n68"
+  },
+  {
+   "id": "n199",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n199",
+   "label": "Lernbereich Technik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n2",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n2",
+   "label": "Sport",
+   "ebene": 1,
+   "fachbereich": "sport"
+  },
+  {
+   "id": "n200",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n200",
+   "label": "Computer- und Kommunikationstechniken",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n201",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n201",
+   "label": "Werken (technisch)/Technologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n202",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n202",
+   "label": "Fertigungs-/Produktionstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n203",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n203",
+   "label": "Industriedesign/Produktgestaltung",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n76"
+  },
+  {
+   "id": "n204",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n204",
+   "label": "Malerei",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n75"
+  },
+  {
+   "id": "n205",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n205",
+   "label": "Bildhauerei/Plastik",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n75"
+  },
+  {
+   "id": "n206",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n206",
+   "label": "Polnisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n207",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n207",
+   "label": "Sorabistik",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n208",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n208",
+   "label": "Soziale Arbeit",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n27"
+  },
+  {
+   "id": "n209",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n209",
+   "label": "Tschechisch",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n12"
+  },
+  {
+   "id": "n210",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n210",
+   "label": "Verkehrswirtschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n211",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n211",
+   "label": "Energieverfahrenstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n212",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n212",
+   "label": "Feinwerktechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n213",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n213",
+   "label": "Versorgungstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n215",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n215",
+   "label": "Gesundheitstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n216",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n216",
+   "label": "Glastechnik/Keramik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n219",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n219",
+   "label": "Kunststofftechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n22",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n22",
+   "label": "Sport, Sportwissenschaft",
+   "ebene": 2,
+   "fachbereich": "sport",
+   "oberbegriff": "n2"
+  },
+  {
+   "id": "n220",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n220",
+   "label": "Milch- und Molkereiwirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n221",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n221",
+   "label": "Bioinformatik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n222",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n222",
+   "label": "Kommunikations- und Informationstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n64"
+  },
+  {
+   "id": "n223",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n223",
+   "label": "Nautik/Seefahrt",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n65"
+  },
+  {
+   "id": "n224",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n224",
+   "label": "Physikalische Technik/Mechanische Verfahrenstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n225",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n225",
+   "label": "Textil- und Bekleidungstechnik/-gewerbe",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n226",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n226",
+   "label": "Verfahrenstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n227",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n227",
+   "label": "Weinbau und Kellerwirtschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n23",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n23",
+   "label": "Rechts-, Wirtschafts- und Sozialwissenschaften allgemein",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n230",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n230",
+   "label": "Gesang",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n78"
+  },
+  {
+   "id": "n231",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n231",
+   "label": "Druck- und Reproduktionstechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n232",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n232",
+   "label": "Gesundheitswissenschaft/-management",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n48"
+  },
+  {
+   "id": "n233",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n233",
+   "label": "Nichtärztliche Heilberufe/Therapien",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n48"
+  },
+  {
+   "id": "n234",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n234",
+   "label": "Pflegewissenschaft/-management",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n48"
+  },
+  {
+   "id": "n235",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n235",
+   "label": "Fahrzeugtechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n65"
+  },
+  {
+   "id": "n24",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n24",
+   "label": "Regionalwissenschaften",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n242",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n242",
+   "label": "Innenarchitektur",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n66"
+  },
+  {
+   "id": "n245",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n245",
+   "label": "Sozialpädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n27"
+  },
+  {
+   "id": "n247",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n247",
+   "label": "Medizinische Informatik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n25",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n25",
+   "label": "Politikwissenschaft",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n253",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n253",
+   "label": "Sozialwesen",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n27"
+  },
+  {
+   "id": "n254",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n254",
+   "label": "Sachunterricht (einschl. Schulgarten)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n255",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n255",
+   "label": "Archivwesen",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n256",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n256",
+   "label": "Rechtspflege",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n257",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n257",
+   "label": "Arbeits- und Berufsberatung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n258",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n258",
+   "label": "Arbeitsverwaltung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n259",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n259",
+   "label": "Auswärtige Angelegenheiten",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n26",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n26",
+   "label": "Sozialwissenschaften/Soziologie",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n260",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n260",
+   "label": "Bundeswehrverwaltung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n261",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n261",
+   "label": "Innere Verwaltung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n262",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n262",
+   "label": "Bibliothekswesen",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n263",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n263",
+   "label": "Polizei/Verfassungsschutz",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n264",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n264",
+   "label": "Sozialversicherung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n265",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n265",
+   "label": "Bankwesen",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n266",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n266",
+   "label": "Finanzverwaltung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n268",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n268",
+   "label": "Verkehrswesen",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n269",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n269",
+   "label": "Zoll- und Steuerverwaltung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n29"
+  },
+  {
+   "id": "n27",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n27",
+   "label": "Studienbereich Sozialwesen",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n270",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n270",
+   "label": "Berufs- und Wirtschaftspädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n271",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n271",
+   "label": "Deutsch als Fremdsprache oder als Zweitsprache",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "begriffe": [
+    "Deutsch als Fremdsprache",
+    "Deutsch als Zweitsprache"
+   ],
+   "oberbegriff": "n09"
+  },
+  {
+   "id": "n272",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n272",
+   "label": "Alte Geschichte",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n273",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n273",
+   "label": "Mittlere und neuere Geschichte",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n274",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n274",
+   "label": "Tourismuswirtschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n275",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n275",
+   "label": "Wissenschaftsgeschichte/Technikgeschichte",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n276",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n276",
+   "label": "Wirtschaftsmathematik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n37"
+  },
+  {
+   "id": "n277",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n277",
+   "label": "Wirtschaftsinformatik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n71"
+  },
+  {
+   "id": "n28",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n28",
+   "label": "Rechtswissenschaften",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n280",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n280",
+   "label": "Kartographie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n69"
+  },
+  {
+   "id": "n282",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n282",
+   "label": "Biotechnologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n42"
+  },
+  {
+   "id": "n283",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n283",
+   "label": "Landschaftsökologie/Biogeographie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n44"
+  },
+  {
+   "id": "n284",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n284",
+   "label": "Angewandte Sprachwissenschaft",
+   "ebene": 3,
+   "fachbereich": "sprachen",
+   "oberbegriff": "n07"
+  },
+  {
+   "id": "n286",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n286",
+   "label": "Mikrosystemtechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n64"
+  },
+  {
+   "id": "n287",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n287",
+   "label": "Neue Medien",
+   "ebene": 3,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n75"
+  },
+  {
+   "id": "n29",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n29",
+   "label": "Verwaltungswissenschaften",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n292",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n292",
+   "label": "Islamische Studien/Islamische Theologie",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n18"
+  },
+  {
+   "id": "n294",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n294",
+   "label": "Materialwissenschaft",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n72"
+  },
+  {
+   "id": "n3",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n3",
+   "label": "Rechts-, Wirtschafts- und Sozialwissenschaften",
+   "ebene": 1,
+   "fachbereich": "gesellschaft"
+  },
+  {
+   "id": "n30",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n30",
+   "label": "Studienbereich Wirtschaftswissenschaften",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n300",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n300",
+   "label": "Biomedizin",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n42"
+  },
+  {
+   "id": "n302",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n302",
+   "label": "Medienwissenschaft",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n19"
+  },
+  {
+   "id": "n303",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n303",
+   "label": "Kommunikationswissenschaft/Publizistik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n34"
+  },
+  {
+   "id": "n304",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n304",
+   "label": "Medienwirtschaft/Medienmanagement",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n30"
+  },
+  {
+   "id": "n305",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n305",
+   "label": "Medientechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n31",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n31",
+   "label": "Studienbereich Wirtschaftsingenieurwesen mit wirtschaftswissenschaftlichem Schwerpunkt",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n310",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n310",
+   "label": "Regenerative Energien",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n312",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n312",
+   "label": "Statistik",
+   "ebene": 3,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n36"
+  },
+  {
+   "id": "n316",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n316",
+   "label": "Elektrische Energietechnik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n64"
+  },
+  {
+   "id": "n32",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n32",
+   "label": "Studienbereich Psychologie",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n320",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n320",
+   "label": "Ernährungswissenschaft",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n60"
+  },
+  {
+   "id": "n321",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n321",
+   "label": "Erwachsenenbildung und außerschulische Jugendbildung",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n33",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n33",
+   "label": "Erziehungswissenschaften",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n333",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n333",
+   "label": "Haushaltswissenschaft",
+   "ebene": 3,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n60"
+  },
+  {
+   "id": "n34",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n34",
+   "label": "Kommunikationswissenschaft/Publizistik",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n3"
+  },
+  {
+   "id": "n353",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n353",
+   "label": "Pflanzenproduktion",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n36",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n36",
+   "label": "Mathematik, Naturwissenschaften allgemein",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n361",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n361",
+   "label": "Schulpädagogik",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n365",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n365",
+   "label": "Pädagogik der frühen Kindheit",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n33"
+  },
+  {
+   "id": "n37",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n37",
+   "label": "Mathematik",
+   "ebene": 2,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n370",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n370",
+   "label": "Wirtschaftsingenieurwesen mit ingenieurwissenschaftlichem Schwerpunkt",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n70"
+  },
+  {
+   "id": "n371",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n371",
+   "label": "Tierproduktion",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n58"
+  },
+  {
+   "id": "n380",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n380",
+   "label": "Mechatronik",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n61"
+  },
+  {
+   "id": "n385",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n385",
+   "label": "Geoökologie",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n43"
+  },
+  {
+   "id": "n39",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n39",
+   "label": "Physik, Astronomie",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n390",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n390",
+   "label": "Archäometrie (Ingenieurarchäologie)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n62"
+  },
+  {
+   "id": "n4",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n4",
+   "label": "Mathematik, Naturwissenschaften",
+   "ebene": 1,
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "n40",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n40",
+   "label": "Studienbereich Chemie",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n41",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n41",
+   "label": "Studienbereich Pharmazie",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n42",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n42",
+   "label": "Studienbereich Biologie",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n429",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n429",
+   "label": "Stahlbau",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n68"
+  },
+  {
+   "id": "n43",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n43",
+   "label": "Geowissenschaften (ohne Geographie)",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n44",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n44",
+   "label": "Geographie",
+   "ebene": 2,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n4"
+  },
+  {
+   "id": "n457",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n457",
+   "label": "Umwelttechnik (einschl. Recycling)",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n63"
+  },
+  {
+   "id": "n458",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n458",
+   "label": "Umweltschutz",
+   "ebene": 3,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n67"
+  },
+  {
+   "id": "n464",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n464",
+   "label": "Facility Management",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n31"
+  },
+  {
+   "id": "n48",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n48",
+   "label": "Gesundheitswissenschaften allgemein",
+   "ebene": 2,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n5"
+  },
+  {
+   "id": "n49",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n49",
+   "label": "Humanmedizin (ohne Zahnmedizin)",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n5"
+  },
+  {
+   "id": "n5",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n5",
+   "label": "Humanmedizin/Gesundheitswissenschaften",
+   "ebene": 1,
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "n50",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n50",
+   "label": "Studienbereich Zahnmedizin",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n5"
+  },
+  {
+   "id": "n51",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n51",
+   "label": "Veterinärmedizin",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n7"
+  },
+  {
+   "id": "n544",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n544",
+   "label": "Evang. Religionspädagogik, kirchliche Bildungsarbeit",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n02"
+  },
+  {
+   "id": "n545",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n545",
+   "label": "Kath. Religionspädagogik, kirchliche Bildungsarbeit",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n03"
+  },
+  {
+   "id": "n548",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n548",
+   "label": "Ur- und Frühgeschichte",
+   "ebene": 3,
+   "fachbereich": "gesellschaft",
+   "oberbegriff": "n05"
+  },
+  {
+   "id": "n57",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n57",
+   "label": "Landespflege, Umweltgestaltung",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n7"
+  },
+  {
+   "id": "n58",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n58",
+   "label": "Agrarwissenschaften, Lebensmittel- und Getränketechnologie",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n7"
+  },
+  {
+   "id": "n59",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n59",
+   "label": "Forstwissenschaft, Holzwirtschaft",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n7"
+  },
+  {
+   "id": "n60",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n60",
+   "label": "Ernährungs- und Haushaltswissenschaften",
+   "ebene": 2,
+   "fachbereich": "beruf-praxis",
+   "oberbegriff": "n7"
+  },
+  {
+   "id": "n61",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n61",
+   "label": "Ingenieurwesen allgemein",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n62",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n62",
+   "label": "Bergbau, Hüttenwesen",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n63",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n63",
+   "label": "Maschinenbau/Verfahrenstechnik",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n64",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n64",
+   "label": "Elektrotechnik und Informationstechnik",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n65",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n65",
+   "label": "Verkehrstechnik, Nautik",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n66",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n66",
+   "label": "Architektur, Innenarchitektur",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n67",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n67",
+   "label": "Studienbereich Raumplanung",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n68",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n68",
+   "label": "Bauingenieurwesen",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n69",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n69",
+   "label": "Vermessungswesen",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n7",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n7",
+   "label": "Agrar-, Forst- und Ernährungswissenschaften, Veterinärmedizin",
+   "ebene": 1,
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "n70",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n70",
+   "label": "Studienbereich Wirtschaftsingenieurwesen mit ingenieurwissenschaftlichem Schwerpunkt",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n71",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n71",
+   "label": "Studienbereich Informatik",
+   "ebene": 2,
+   "fachbereich": "mathe-informatik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n72",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n72",
+   "label": "Materialwissenschaft und Werkstofftechnik",
+   "ebene": 2,
+   "fachbereich": "nawi-technik",
+   "oberbegriff": "n8"
+  },
+  {
+   "id": "n74",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n74",
+   "label": "Kunst, Kunstwissenschaft allgemein",
+   "ebene": 2,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n9"
+  },
+  {
+   "id": "n75",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n75",
+   "label": "Studienbereich Bildende Kunst",
+   "ebene": 2,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n9"
+  },
+  {
+   "id": "n76",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n76",
+   "label": "Gestaltung",
+   "ebene": 2,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n9"
+  },
+  {
+   "id": "n77",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n77",
+   "label": "Darstellende Kunst, Film und Fernsehen, Theaterwissenschaft",
+   "ebene": 2,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n9"
+  },
+  {
+   "id": "n78",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n78",
+   "label": "Musik, Musikwissenschaft",
+   "ebene": 2,
+   "fachbereich": "aesthetik",
+   "oberbegriff": "n9"
+  },
+  {
+   "id": "n8",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n8",
+   "label": "Ingenieurwissenschaften",
+   "ebene": 1,
+   "fachbereich": "nawi-technik"
+  },
+  {
+   "id": "n9",
+   "uri": "http://w3id.org/openeduhub/vocabs/hochschulfaechersystematik/n9",
+   "label": "Kunst, Kunstwissenschaft",
+   "ebene": 1,
+   "fachbereich": "aesthetik"
+  }
+ ]
+}
