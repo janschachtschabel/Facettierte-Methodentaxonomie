@@ -98,11 +98,21 @@ Suche nach Relevanz sortieren, Themenerkennung bereinigen.
 | Genannte Methode im Ablauf | 0 von 6 | 6 von 6 |
 | Genutzte Zeit bei 45 und 90 min | 62–100 % | 100 % |
 
-Offen bleibt nach Stufe 1: Der Einstieg (häufig „Ampelspiel“) und die Transferphase bei 45 Minuten
-(„Blitz-Anwendung“) wechseln kaum, weil nur wenige Methoden das Schrittziel in der knappen Zeit erreichen.
-Die Auswahl ist außerdem noch nicht fachgerecht (Sport, Kunst, Musik erhalten Abläufe wie Sachfächer) und
-R-07 warnt weiter bei 45 Minuten. Das lösen D1, D3, D4 und D7 aus Stufe 2.
+## Ergebnis Stufe 2 (D1 bis D7, gemessen am 2026-11-25)
+
+| Messung | Nach Stufe 1 | Nach Stufe 2 |
+| --- | --- | --- |
+| Verschiedene Abläufe, 30 Themen × 45 min | 21 | 24 |
+| Verschiedene Methoden, 45 min / 90 min | 19 / 37 | 26 / 42 |
+| R-07-Warnung bei 45 min | 30 von 30 | 0 von 30 |
+| Eigene Kette für Sport, Produktion, Urteilsbildung | nein | ja |
+| Für den Fachbereich ungeeignete Methode im Ablauf | nicht geprüft | 0 |
+
+Die Einstufungen stehen zur Durchsicht in `docs/datenpflege/2026-11-25-stufe2-vorschlaege.md`.
+Weiter offen: Der Einstieg im Konzeptaufbau ist bei 45 Minuten fast immer das Ampelspiel, weil nur wenige
+kurze Methoden „Fehlvorstellungen sichtbar“ liefern. `mint` trennt Mathematik nicht von den Naturwissenschaften.
 
 ## Nicht-Ziele
 
 Kein Sprachmodell in der Zuordnung, keine Änderung an den Regeln R-00 bis R-12, keine Datenänderung in Stufe 1.
+Stufe 2 ergänzt R-07 und die Dauerberechnung um `ausserhalbBudget`; die Regeln selbst bleiben.

@@ -1,6 +1,6 @@
 # Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, REST-API & MCP-Server
 
-Eine offene, maschinenlesbare **Datenbank für 290 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
+Eine offene, maschinenlesbare **Datenbank für 289 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
 
 - **Autor (Inhalte, Taxonomie & Grafiken):** Jan Schachtschabel
 - **Inhalts- & Datenlizenz:** [CC BY 4.0](LICENSE-CONTENT.md) (`https://creativecommons.org/licenses/by/4.0/`)
@@ -11,7 +11,7 @@ Eine offene, maschinenlesbare **Datenbank für 290 Unterrichtsmethoden** im deut
 
 ## Funktionsumfang
 
-- **Methodenkatalog (290 Methoden, 24 SKOS-Vokabulare):** Kuratierte Kernbausteine + breit gestreute Ersterfassungen über alle 12 didaktischen Ansätze, Granularitätsebenen (`R1`–`R4`) und Facetten – jeweils mit vollständigem 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Kernkomponenten, Qualitätsrisiken, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Mini-Ablaufgrafik und geprüften freien Quellen.
+- **Methodenkatalog (289 Methoden, 25 SKOS-Vokabulare):** Kuratierte Kernbausteine + breit gestreute Ersterfassungen über alle 12 didaktischen Ansätze, Granularitätsebenen (`R1`–`R4`) und Facetten – jeweils mit vollständigem 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Kernkomponenten, Qualitätsrisiken, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Mini-Ablaufgrafik und geprüften freien Quellen.
 - **Zero-LLM-First (`< 5 ms`, 0 € Betriebskosten):**
   - Facettierte Suche, 5-Stufen-Zuordnung (`lesen()` + `zuordnen()`), 13-Regeln-Validator (`R-00`–`R-12`), Binnendifferenzierungsmatrix (115 Variablen × 172 Maßnahmen), 7 druckfertige Material-Strukturvorlagen und hybride Freitext-Klassifikation (`POST /api/v1/classify`, `POST /api/v1/plan`) laufen **komplett ohne Sprachmodell**.
   - Optionales statisches deutsches Bildungs-Embedding (**`JanSchachtschabel/m2v-qwen3-4b-256-edu`**, Apache-2.0) direkt in reinem Node.js ohne Python/ONNX nachladbar (`npm run download:m2v`).
@@ -91,8 +91,8 @@ git clone https://github.com/janschachtschabel/Facettierte-Methodentaxonomie.git
 cd Facettierte-Methodentaxonomie
 
 npm ci
-npm run build      # baut @fmt/core, dist-data/ (290 Methoden + 24 SKOS), @fmt/web und @fmt/server
-npm test           # führt alle 85 automatisierten Tests aus
+npm run build      # baut @fmt/core, dist-data/ (289 Methoden + 25 SKOS), @fmt/web und @fmt/server
+npm test           # führt alle 103 automatisierten Tests aus
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -208,7 +208,7 @@ Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche,
 
 ## Architektur, Verzeichnisse & Skripte
 
-- `data/` – Single Source of Truth unter **CC BY 4.0** (`meta.json`, `vocab.json`, `ketten.json`, `crosswalk/`, `beispiele/`, `bausteine/*.json` mit **290 Methoden**)
+- `data/` – Single Source of Truth unter **CC BY 4.0** (`meta.json`, `vocab.json`, `ketten.json`, `crosswalk/`, `beispiele/`, `bausteine/*.json` mit **289 Methoden**)
 - `packages/fmt-core/` – Abhängigkeitsfreier TypeScript-Kern (`validate`, `suche`, `zuordnung`, `semantic`, `differentiationMatrix`) & Artefakt-Generator (`dist-data/`)
 - `apps/server/` – Fastify-Server (Static SPA, REST API inkl. `/api/v1/classify`, `/api/v1/plan`, `/api/v1/assistant/briefing`, Linked Data + `w3id.org`, MCP Streamable HTTP + `stdio`, optionales Model2Vec & OpenAI-kompatibles LLM)
 - `apps/web/` – React + TypeScript + Vite SPA mit Browser-Cache-Sync, 4-Schritte-Szenario-Studio, globalen **⚙ KI-Einstellungen** (Proxy + Browser-Direktmodus) und KaTeX/Markdown-Export
@@ -219,7 +219,7 @@ Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche,
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (85 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (103 Tests) |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
 | `npm run mcp:stdio` | Startet den lokalen MCP-Server über `stdin`/`stdout` |
 | `npm run download:m2v` | Lädt optional `JanSchachtschabel/m2v-qwen3-4b-256-edu` nach `models/` |

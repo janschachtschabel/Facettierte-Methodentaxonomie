@@ -501,8 +501,10 @@ export function buildScenarioRows(
       orderLabel: '◆',
       stepIndex: seq.teile.indexOf(wk),
       isNestedSlot: false,
-      phaseLabel: `Verteilte Wiederkehr (${wk.anzahl}×, Abstand ${wk.abstand || 'P2D'})`,
-      durationMin: (wk.dauerMin ?? b?.dauerMin ?? 6) * wk.anzahl,
+      phaseLabel: wk.ausserhalbBudget
+        ? `Verteilte Wiederkehr in Folgestunden (${wk.anzahl}× je ${wk.dauerMin ?? b?.dauerMin ?? 6} min, Abstand ${wk.abstand || 'P2D'})`
+        : `Verteilte Wiederkehr (${wk.anzahl}×, Abstand ${wk.abstand || 'P2D'})`,
+      durationMin: wk.ausserhalbBudget ? 0 : (wk.dauerMin ?? b?.dauerMin ?? 6) * wk.anzahl,
       orientationRange: b ? `je ${b.dauerMin}–${b.dauerMax} min` : undefined,
       methodId: wk.baustein,
       methodName: b?.name || wk.baustein,

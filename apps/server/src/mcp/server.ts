@@ -182,7 +182,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       vorhanden: z.union([z.string(), z.array(z.string())]).optional(),
       vorwissen: z.string().optional(),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
-      bildungsstufe: z.string().optional()
+      bildungsstufe: z.string().optional(),
+      fachbereich: z
+        .enum(['mint', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis'])
+        .optional()
+        .describe('Fächergruppe; wird sonst aus dem Fach im Text gelesen')
     },
     async (args) => {
       try {

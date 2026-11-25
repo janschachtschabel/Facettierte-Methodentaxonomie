@@ -454,7 +454,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     maxVorbereitung: args.maxVorbereitung,
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI,
-    variante: args.variante
+    variante: args.variante,
+    // A subject given as its own field counts like a subject named in the text.
+    fachbereich: args.fach ? (store.matcher.lesen(args.fach).kriterien.fachbereich as string | undefined) : undefined
   };
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;

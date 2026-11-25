@@ -453,6 +453,8 @@ export interface AblaufMatchResult extends MatchHead {
   pruefung?: {
     gueltig: boolean;
     dauerMin: number;
+    /** Minutes of distributed repetition planned for later sessions (not part of dauerMin). */
+    dauerAusserhalbMin?: number;
     endzustand: string[];
     meldungen: ValidationMessage[];
   };

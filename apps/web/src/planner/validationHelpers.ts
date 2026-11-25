@@ -200,7 +200,15 @@ export function explainValidationMessage(
       if (blocksById.has('abrufquiz')) {
         quickFix = {
           label: 'Verteilte Wiederkehr (3× Abrufquiz) aktivieren',
-          apply: (a) => setRecurrence(a, { baustein: 'abrufquiz', anzahl: 3, abstand: 'P2D', dauerMin: 6 })
+          // In a single session the repetitions belong to later sessions and must not eat the time budget.
+          apply: (a) =>
+            setRecurrence(a, {
+              baustein: 'abrufquiz',
+              anzahl: 3,
+              abstand: 'P2D',
+              dauerMin: 6,
+              ausserhalbBudget: (a.kontext?.zeitbudgetMin ?? 0) > 0 && (a.kontext?.zeitbudgetMin ?? 0) <= 180
+            })
         };
       }
       break;

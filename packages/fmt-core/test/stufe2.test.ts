@@ -43,7 +43,10 @@ describe('D7: Wiederkehr außerhalb des Zeitbudgets', () => {
     for (const [f, t] of THEMEN) {
       const r = M.zuordnen({ text: szenarioText(f, t, 45) });
       expect(rules(r), `${f}: ${t}`).not.toContain('R-07');
-      if (r.modus === 'ablauf') expect(r.pruefung?.dauerMin).toBeLessThanOrEqual(45);
+      if (r.modus === "ablauf") {
+        expect(r.pruefung?.dauerMin).toBeLessThanOrEqual(45);
+        if (topLevel(r).some((n) => n.typ === "Wiederkehr")) expect(r.pruefung?.dauerAusserhalbMin).toBeGreaterThan(0);
+      }
       const rec = topLevel(r).filter((n) => n.typ === 'Wiederkehr');
       for (const n of rec) expect(n.typ === 'Wiederkehr' && n.ausserhalbBudget).toBe(true);
     }

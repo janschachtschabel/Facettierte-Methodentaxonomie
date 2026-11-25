@@ -1079,6 +1079,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       pruefung: {
         gueltig: r.gueltig,
         dauerMin: r.dauerMin,
+        ...(r.dauerAusserhalbMin ? { dauerAusserhalbMin: r.dauerAusserhalbMin } : {}),
         endzustand: states(r.endzustand),
         meldungen: r.meldungen
       }
