@@ -156,6 +156,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     }
   );
 
+  // Allowed subject areas come from the vocabulary, not from a copy in this file.
+  const fachbereichCodes = (store.matcher.felder().find((f) => f.feld === 'fachbereich')?.werte || []).map((w) => w.code) as [
+    string,
+    ...string[]
+  ];
+
   // 4. match_scenario
   server.tool(
     'match_scenario',
@@ -184,7 +190,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       bildungsstufe: z.string().optional(),
       fachbereich: z
-        .enum(['mathe-informatik', 'nawi-technik', 'sprachen', 'gesellschaft', 'aesthetik', 'sport', 'beruf-praxis'])
+        .enum(fachbereichCodes)
         .optional()
         .describe('Fächergruppe; wird sonst aus dem Fach im Text gelesen')
     },

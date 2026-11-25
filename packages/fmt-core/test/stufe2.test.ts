@@ -201,3 +201,43 @@ describe('D5: Vor- und Nachbedingungen der Kernmethoden', () => {
     expect(byId.get('karikatur-bildanalyse')?.nachbedingung).not.toContain('konzept-gesichert');
   });
 });
+
+describe('Review: Textregeln lösen nicht auf Alltagsverben aus', () => {
+  const read = (text: string) => M.lesen(text).kriterien;
+
+  it('zieltyp produktion und urteilsbildung brauchen ein Produkt bzw. ein Debattenwort', () => {
+    for (const text of [
+      'Wie kann ich den Einstieg in die Stunde gestalten? 10 Minuten',
+      'Mathe Klasse 6, 45 Minuten: Bruchrechnen üben, am Ende Ergebnisse diskutieren',
+      'Mathe Klasse 8: Graphen zeichnen, 45 Minuten',
+      'Die Schüler schreiben morgen eine Klassenarbeit, Wiederholung Brüche 45 Minuten',
+      'Kurze Diskussion zum Einstieg, 5 Minuten'
+    ]) {
+      expect(read(text).zieltyp, text).toBeUndefined();
+    }
+    expect(M.zuordnen({ text: 'Wie kann ich den Einstieg in die Stunde gestalten? 10 Minuten' }).modus).toBe('phase');
+    expect(M.zuordnen({ text: 'Kurze Diskussion zum Einstieg, 5 Minuten' }).modus).toBe('phase');
+    expect(read('Kunst Klasse 7: ein Plakat gestalten, 90 Minuten').zieltyp).toBe('produktion');
+    expect(read('Deutsch Klasse 9: einen Kommentar schreiben, 90 Minuten').zieltyp).toBe('produktion');
+  });
+
+  it('eine ausdrücklich gesetzte Zielart hat Vorrang vor einem aus dem Text gelesenen Zieltyp', () => {
+    const r = M.zuordnen({ text: 'Deutsch Klasse 8: Pro-Contra-Debatte zur Kommasetzung, 45 Minuten', zielart: 'prozeduren' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('prozedur');
+  });
+
+  it('fachbereich: Adjektive und Alltagswörter sind kein Fach', () => {
+    expect(read('Geschichte Klasse 8, 90 Minuten: Französische Revolution').fachbereich).toBe('gesellschaft');
+    expect(read('Erdkunde Klasse 9: Lateinamerika, 45 Minuten').fachbereich).toBe('gesellschaft');
+    expect(read('Politik Klasse 10: deutsch-französische Beziehungen, 45 Minuten').fachbereich).toBe('gesellschaft');
+    expect(read('Biologie Klasse 7: Pflege von Zimmerpflanzen, 45 Minuten').fachbereich).toBe('nawi-technik');
+    expect(read('Deutsch Klasse 6: mit Werken von Kästner, 45 Minuten').fachbereich).toBe('sprachen');
+    expect(read('Französisch Klasse 8: passé composé, 45 Minuten').fachbereich).toBe('sprachen');
+    expect(read('Latein Klasse 8: Ablativus absolutus, 45 Minuten').fachbereich).toBe('sprachen');
+  });
+
+  it('zeitMin hat eine Obergrenze', () => {
+    expect(() => M.zuordnen({ zieltyp: 'produktion', zeitMin: 1e8 })).toThrow(/zeitMin/);
+    expect(M.zuordnen({ zieltyp: 'produktion', zeitMin: 3000 }).modus).toBe('ablauf');
+  });
+});

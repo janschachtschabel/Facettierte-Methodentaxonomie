@@ -33,6 +33,8 @@ const SLOT_CANDIDATES = 8;
 const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
 /** Up to this budget a plan is one session (a double period plus breaks at most). */
 const SINGLE_SESSION_MAX_MIN = 180;
+/** Upper bound for a time budget (about a school year of one subject); keeps the allocation loops bounded. */
+const MAX_BUDGET_MIN = 20000;
 const AI_ROLES = new Set([
   'tutor',
   'dialogpartner',
@@ -261,6 +263,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       if (f.typ === 'integer' && given(a[key]) && !(Number.isInteger(Number(a[key])) && Number(a[key]) >= 0)) {
         throw new Error(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
       }
+      if (key === 'zeitMin' && given(a[key]) && Number(a[key]) > MAX_BUDGET_MIN) {
+        throw new Error(`Feld „zeitMin“: höchstens ${MAX_BUDGET_MIN} Minuten.`);
+      }
       if (!f.werte) return;
       const allowed = f.werte.map((w) => w.code);
       list(a[key]).forEach((v) => {
@@ -317,13 +322,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['ohneInternet', /ohne\s+(?:internet|wlan|netz)|kein\s+(?:internet|wlan)|offline/, () => true],
     ['ohneKI', /ohne\s+ki\b|keine\s+ki\b/, () => true],
     // Subject area from the subject named in the text. Order matters: the first rule that matches wins.
-    ['fachbereich', /\bberufsschul\w*|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege\w*|\bpraxisanleit\w*|\bunterweisung\b/, () => 'beruf-praxis'],
+    // Subject nouns only: adjectives ("französische Revolution") and everyday words ("Pflege von …") are no subject.
+    ['fachbereich', /\bberufsschul\w*|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege(?:schule|ausbildung|fachkr\w*|kurs)\b|\bpraxisanleit\w*|\bunterweisung\b/, () => 'beruf-praxis'],
     ['fachbereich', /\bsport(?:unterricht|stunde)?\b|\bschwimmunterricht\b/, () => 'sport'],
-    ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)?\b|\bwerken\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
-    ['fachbereich', /\bdeutsch(?:unterricht)?\b|\benglisch\w*|\bfranzosisch\w*|\bspanisch\w*|\blatein\w*|\bitalienisch\w*|\brussisch\w*|\bdaz\b|\bdaf\b|\bfremdsprach\w*/, () => 'sprachen'],
-    ['fachbereich', /\bmathe(?:matik)?\w*|\binformatik\w*|\bgeometrie\b|\balgebra\b/, () => 'mathe-informatik'],
-    ['fachbereich', /\bphysik\w*|\bchemie\w*|\bbio(?:logie)?\b|\bbiologieunterricht\b|\bnaturwissenschaft\w*|\bnawi\b|\bsachunterricht\b|\bastronomie\b|\btechnik\s+klasse\b|\btechnikunterricht\b/, () => 'nawi-technik'],
-    ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen))|\bgeschichtsunterricht\b|\bpolitik\w*|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft\w*|\bethik\w*|\breligion\w*|\bphilosophie\w*|\bsowi\b/, () => 'gesellschaft'],
+    ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)\b|\bwerkunterricht\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
+    ['fachbereich', /\b(?:deutsch|englisch|franzosisch|spanisch|latein|italienisch|russisch)(?:unterricht|stunde)?\b(?!-)|\bdaz\b|\bdaf\b|\bfremdsprach\w*/, () => 'sprachen'],
+    ['fachbereich', /\bmathe(?:matik)?(?:unterricht|stunde)?\b|\binformatik(?:unterricht)?\b|\bgeometrie\b|\balgebra\b/, () => 'mathe-informatik'],
+    ['fachbereich', /\b(?:physik|chemie|biologie|bio)(?:unterricht|stunde)?\b|\bnaturwissenschaft\w*|\bnawi\b|\bsachunterricht\b|\bastronomie\b|\btechnik\s+klasse\b|\btechnikunterricht\b/, () => 'nawi-technik'],
+    ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen))|\bgeschichtsunterricht\b|\bpolitik(?:unterricht)?\b|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft(?:slehre|skunde)?\b|\bethik(?:unterricht)?\b|\breligion(?:sunterricht|slehre)?\b|\bphilosophie(?:unterricht)?\b|\bsowi\b/, () => 'gesellschaft'],
     ['maxVorbereitung', /ohne\s+vorbereitung|sofort\s+einsetzbar|spontan/, () => 5],
     ['maxVorbereitung', /wenig\s+vorbereitung|kurz\w*\s+vorbereitung/, () => 15],
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
@@ -346,14 +352,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zieltyp', /problemlos|probleme?\s+losen|offene\s+aufgabe|transferaufgabe/, () => 'problemloesen'],
     ['zieltyp', /\b5\s?e\b|forschend/, () => 'fuenf-e'],
     ['zieltyp', /\bfaktenwissen\b/, () => 'faktenwissen'],
+    // Debate words only: plain "diskutieren" or "Diskussion" describe a moment in any lesson, not its goal.
     [
       'zieltyp',
-      /urteilsbildung|\bdebatt\w*|streitfrage|\bpro\W+(?:und\W+)?contra\b|kontrovers\w*|\bdiskutier\w*|\bdiskussion\b|podiumsdiskussion|fishbowl/,
+      /urteilsbildung|\bdebatt\w*|streitfrage|\bpro\W+(?:und\W+)?contra\b|\bkontrovers\w*|podiumsdiskussion|fishbowl/,
       () => 'urteilsbildung'
     ],
+    // A product must be named: "schreiben", "zeichnen" or "gestalten" alone are everyday verbs.
     [
       'zieltyp',
-      /\bschreiben\b|\bverfassen\b|programmier\w*|\bzeichnen\b|\bmalen\b|\bgestalten\b|\bkomponieren\b|\bentwerfen\b|\b(?:plakat|podcast|film|video|collage|website|erklarvideo)\w*\s+(?:erstellen|produzieren|drehen|bauen)\b/,
+      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b/,
       () => 'produktion'
     ],
     [
@@ -1118,6 +1126,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       Object.keys(anfrage).forEach((k) => {
         if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
       });
+      // What the caller states beats what the text suggests: an explicit zielart drops a zieltyp read from the text.
+      const zieltypFromText = !given(anfrage.zieltyp) && given(a.zieltyp);
+      if (zieltypFromText && given(anfrage.zielart)) delete a.zieltyp;
       currentVariante = given(a.variante) ? Number(a.variante) : 0;
       delete a.variante;
       currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(String(anfrage.text)).map((m) => m.kennung) : []);
@@ -1139,7 +1150,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const isLessonWithoutPhaseWord = given(anfrage.text) && given(a.zeitMin) && Number(a.zeitMin) >= 40 && !hasPhase;
       const modus =
         a.modus ||
-        (a.zieltyp || (a.zielart && (!hasPhase || isFullLessonBudget)) || isLessonWithoutPhaseWord ? 'ablauf' : 'phase');
+        ((given(a.zieltyp) && !zieltypFromText) ||
+        ((a.zielart || a.zieltyp) && (!hasPhase || isFullLessonBudget)) ||
+        isLessonWithoutPhaseWord
+          ? 'ablauf'
+          : 'phase');
       const head = {
         kriterien: a,
         erkannt: gelesen.erkannt,
