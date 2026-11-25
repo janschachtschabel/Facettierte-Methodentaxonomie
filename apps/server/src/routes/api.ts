@@ -256,6 +256,10 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
 
   app.post('/api/v1/adapt', async (req, reply) => {
     const body = (req.body || {}) as Partial<AdaptScenarioInput & { text?: string }>;
+    const notText = ['scenarioText', 'text', 'lerngruppenText', 'baustein', 'fach', 'thema', 'bildungsstufe', 'maxTechnik'].find(
+      (k) => (body as Record<string, unknown>)[k] != null && typeof (body as Record<string, unknown>)[k] !== 'string'
+    );
+    if (notText) return reply.code(400).send({ fehler: `Feld „${notText}“: erwartet wird Text.` });
     const longField = firstTooLongText(body, ['scenarioText', 'text', 'lerngruppenText']);
     if (longField) return reply.code(400).send({ fehler: tooLongMessage(longField) });
     if (body.gruppen != null && !isGroupList(body.gruppen)) {

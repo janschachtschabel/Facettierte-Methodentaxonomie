@@ -61,7 +61,10 @@ describe('Audit 2026-11: input hardening', () => {
       { baustein: 'abrufquiz', gruppen: [null] },
       { baustein: 'abrufquiz', gruppen: [{ id: 1 }] },
       { phasen: [null], gruppen: [null] },
-      { scenarioText: 'Einstieg', phasen: 'x' }
+      { scenarioText: 'Einstieg', phasen: 'x' },
+      { scenarioText: 'DaZ Mathe', fach: 5 },
+      { scenarioText: 'DaZ Mathe', thema: ['x'] },
+      { scenarioText: 'DaZ Mathe', bildungsstufe: {} }
     ]) {
       const res = await app.inject({ method: 'POST', url: '/api/v1/adapt', payload });
       expect(res.statusCode, JSON.stringify(payload)).toBe(400);
