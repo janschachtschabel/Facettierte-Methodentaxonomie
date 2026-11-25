@@ -49,3 +49,51 @@ describe('D7: Wiederkehr außerhalb des Zeitbudgets', () => {
     }
   });
 });
+
+describe('D3: Kettenschritte tragen Rolle und Zeitanteil', () => {
+  it('jeder Schritt hat rolle und zeitanteil, jede Kette eine Hauptphase', () => {
+    for (const k of D.ketten) {
+      for (const s of k.schritte) {
+        expect(['rand', 'haupt', 'sicherung'], `${k.id}/${s.id}`).toContain(s.rolle);
+        expect(s.zeitanteil, `${k.id}/${s.id}`).toBeGreaterThan(0);
+      }
+      expect(k.schritte.some((s) => s.rolle === 'haupt'), k.id).toBe(true);
+    }
+  });
+
+  it('die Hauptphase erhält bei 90 Minuten die meiste Zeit', () => {
+    const r = M.zuordnen({ text: 'Geschichte Klasse 9: Industrialisierung, 90 Minuten', zieltyp: 'kooperatives-lernen' });
+    expect(r.modus).toBe('ablauf');
+    const nodes = topLevel(r).filter((n) => n.typ === 'Einsatz');
+    const dur = nodes.map((n) => (n.typ === 'Einsatz' ? n.dauerMin || 0 : 0));
+    expect(dur[1]).toBe(Math.max(...dur));
+    expect(dur[1]).toBeGreaterThanOrEqual(35);
+  });
+});
+
+describe('D4: Ketten für Urteilsbildung, Bewegung und Produktion', () => {
+  const chainOf = (r: MatchResult) => (r.modus === 'ablauf' ? r.kette?.id : undefined);
+
+  it('alle drei Ketten ergeben bei 45 und 90 Minuten gültige Abläufe', () => {
+    for (const zieltyp of ['urteilsbildung', 'fertigkeit-bewegung', 'produktion']) {
+      for (const zeitMin of [45, 90]) {
+        const r = M.zuordnen({ zieltyp, zeitMin, gruppe: 24, bildungsstufe: 'sek1' });
+        expect(r.modus).toBe('ablauf');
+        if (r.modus === 'ablauf') {
+          expect(r.pruefung?.gueltig, `${zieltyp} ${zeitMin}: ${JSON.stringify(r.pruefung?.meldungen)}`).toBe(true);
+          expect(r.offen).toEqual([]);
+          expect(r.pruefung?.dauerMin).toBeLessThanOrEqual(zeitMin);
+        }
+      }
+    }
+  });
+
+  it('der Text wählt die passende Kette', () => {
+    expect(chainOf(M.zuordnen({ text: 'Sport Klasse 8: Weitsprung, 45 Minuten' }))).toBe('fertigkeit-bewegung');
+    expect(chainOf(M.zuordnen({ text: 'Politik Klasse 10: Tempolimit, Pro-Contra-Debatte, 90 Minuten, 24 Schüler' }))).toBe('urteilsbildung');
+    expect(chainOf(M.zuordnen({ text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten' }))).toBe('produktion');
+    expect(chainOf(M.zuordnen({ text: 'Kunst Klasse 8: Perspektive zeichnen, 45 Minuten' }))).toBe('produktion');
+    expect(chainOf(M.zuordnen({ text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten' }))).toBe('produktion');
+    expect(chainOf(M.zuordnen({ text: 'Deutsch Klasse 8: Kommasetzung, 45 Minuten' }))).toBe('prozedur');
+  });
+});

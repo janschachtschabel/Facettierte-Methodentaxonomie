@@ -76,6 +76,10 @@ export interface KettenSchritt {
   label: string;
   funktion: string[];
   ziel: string;
+  /** Didactic weight of the step: rand (opening/closing), haupt (main work), sicherung. */
+  rolle?: 'rand' | 'haupt' | 'sicherung';
+  /** Relative share of the time budget; the shares of a chain need not add up to 100. */
+  zeitanteil?: number;
 }
 
 export interface Funktionskette {

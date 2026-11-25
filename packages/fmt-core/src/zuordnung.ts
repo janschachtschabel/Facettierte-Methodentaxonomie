@@ -332,11 +332,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zieltyp', /\b5\s?e\b|forschend/, () => 'fuenf-e'],
     ['zieltyp', /\bfaktenwissen\b/, () => 'faktenwissen'],
     [
+      'zieltyp',
+      /urteilsbildung|\bdebatt\w*|streitfrage|\bpro\W+(?:und\W+)?contra\b|kontrovers\w*|\bdiskutier\w*|\bdiskussion\b|podiumsdiskussion|fishbowl/,
+      () => 'urteilsbildung'
+    ],
+    [
+      'zieltyp',
+      /\bschreiben\b|\bverfassen\b|programmier\w*|\bzeichnen\b|\bmalen\b|\bgestalten\b|\bkomponieren\b|\bentwerfen\b|\b(?:plakat|podcast|film|video|collage|website|erklarvideo)\w*\s+(?:erstellen|produzieren|drehen|bauen)\b/,
+      () => 'produktion'
+    ],
+    [
       'zielart',
       /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b/,
       () => 'psychomotorik'
     ],
-    ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|\bschreiben\b|programmier|kommasetzung|rechtschreib/, () => 'prozeduren'],
+    ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen/, () => 'fakten'],
     ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
     [
@@ -1108,7 +1118,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           ['instruktion', 'direkte-instruktion'],
           ['kooperativ', 'kooperatives-lernen'],
           ['offen', 'projektlernen'],
-          ['diskurs', 'problemloesen']
+          ['diskurs', 'urteilsbildung']
         ];
         const inferredId = byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
         const fallbackChain = chains.get(inferredId) || chains.get('konzeptaufbau');

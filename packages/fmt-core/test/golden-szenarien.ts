@@ -48,8 +48,8 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Chemie Klasse 9: Maßeinheiten und Stoffmenge einführen', erwartet: {}, nicht: { modus: 'ablauf' } },
   { text: 'Online-Seminar Erwachsenenbildung Zeitmanagement, 12 Teilnehmende, 60 Minuten', erwartet: { bildungsstufe: 'erwachsenenbildung', gruppe: 12 } },
   { text: 'Volkshochschule Kurs Spanisch für Anfänger', erwartet: { bildungsstufe: 'erwachsenenbildung' } },
-  { text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten', erwartet: { zielart: 'prozeduren', zeitMin: 90 } },
-  { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zielart: 'prozeduren' } }
+  { text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten', erwartet: { zieltyp: 'produktion', zeitMin: 90 } },
+  { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zieltyp: 'produktion' } }
 ];
 
 /** Requests that name a method; the plan must contain it. */

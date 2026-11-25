@@ -23,14 +23,15 @@ const MIN_STEP = 5;
  * The sum never exceeds `budget` unless the floors alone already do.
  */
 export function phaseBudgets(
-  steps: Array<{ funktion: string[] }>,
+  steps: Array<{ funktion: string[]; zeitanteil?: number }>,
   budget: number,
   floors: Array<number | undefined> = []
 ): number[] {
   const n = steps.length;
   if (!n) return [];
   const floor = steps.map((_, i) => Math.max(MIN_STEP, floors[i] ?? 0));
-  const weights = steps.map((s) => FUNCTION_SHARE[s.funktion[0]] ?? 15);
+  // Data first (ketten.json), learning function as fallback for chains without shares.
+  const weights = steps.map((s) => (s.zeitanteil && s.zeitanteil > 0 ? s.zeitanteil : (FUNCTION_SHARE[s.funktion[0]] ?? 15)));
   const totalWeight = weights.reduce((a, b) => a + b, 0);
   const out = [...floor];
   let rest = budget - out.reduce((a, b) => a + b, 0);

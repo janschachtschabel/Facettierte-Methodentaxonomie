@@ -49,3 +49,15 @@ describe('Zeit nach Phasenrolle', () => {
     expect(stretch([{ min: 5, max: 30, cur: 20 }], 15)).toEqual([20]);
   });
 });
+
+describe('phaseBudgets with data shares', () => {
+  it('uses zeitanteil from the chain step before the learning function', async () => {
+    const { phaseBudgets } = await import('../src/zeitverteilung.js');
+    const steps = [
+      { funktion: ['orientierung'], zeitanteil: 10 },
+      { funktion: ['orientierung'], zeitanteil: 70 },
+      { funktion: ['verstehen'], zeitanteil: 20 }
+    ];
+    expect(phaseBudgets(steps, 100)).toEqual([10, 70, 20]);
+  });
+});
