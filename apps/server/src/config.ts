@@ -15,6 +15,8 @@ export interface ServerConfig {
   llmTimeoutMs: number;
   llmCacheMax: number;
   llmCacheTtlMs: number;
+  /** Per-IP limit per minute for the compute endpoints without LLM (match, plan, adapt …). */
+  apiRateLimitPerMin: number;
 }
 
 const HOSTNAME_RE =
@@ -39,6 +41,20 @@ export function validateDomainHost(raw?: string): string | null {
     );
   }
   return trimmed;
+}
+
+/**
+ * Startup hint: behind Traefik (DOMAIN set) without TRUST_PROXY every request seems to come from the proxy,
+ * so all users share one rate-limit bucket.
+ */
+export function proxyHint(domain: string | null, trustProxy: number | boolean | undefined): string | null {
+  if (!domain || trustProxy) return null;
+  return '[FMT] Hinweis: DOMAIN ist gesetzt, TRUST_PROXY aber nicht. Hinter einem Reverse Proxy teilen sich dann alle Nutzer ein Ratelimit. Für Traefik TRUST_PROXY=1 setzen.';
+}
+
+function positiveInt(raw: string | undefined, fallback: number): number {
+  const n = Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : fallback;
 }
 
 function parseTrustProxy(raw?: string): number | boolean {
@@ -82,6 +98,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     llmRateLimitPerMin: Number(env.LLM_RATE_LIMIT_PER_MIN) || 20,
     llmTimeoutMs: Number(env.LLM_TIMEOUT_MS) || 90000,
     llmCacheMax: Number(env.LLM_CACHE_MAX) || 500,
-    llmCacheTtlMs: Number(env.LLM_CACHE_TTL_MS) || 3600000
+    llmCacheTtlMs: Number(env.LLM_CACHE_TTL_MS) || 3600000,
+    apiRateLimitPerMin: positiveInt(env.API_RATE_LIMIT_PER_MIN, 300)
   };
 }

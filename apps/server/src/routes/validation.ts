@@ -11,12 +11,6 @@ export class InvalidRequestError extends Error {}
 
 const isObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 
-/** Name of the first field whose text exceeds MAX_TEXT_CHARS, or null. */
-export function firstTooLongText(obj: unknown, fields: string[]): string | null {
-  if (!isObject(obj)) return null;
-  return fields.find((f) => typeof obj[f] === 'string' && (obj[f] as string).length > MAX_TEXT_CHARS) ?? null;
-}
-
 export function tooLongMessage(field: string): string {
   return `Feld „${field}“ ist zu lang (max. ${MAX_TEXT_CHARS} Zeichen).`;
 }
@@ -34,4 +28,26 @@ export function isPhaseList(v: unknown): boolean {
 /** Groups for material generation: objects with a string label. */
 export function isMaterialGroupList(v: unknown): boolean {
   return Array.isArray(v) && v.every((g) => isObject(g) && typeof g.label === 'string');
+}
+
+/**
+ * Path of the first string anywhere in a JSON value that exceeds MAX_TEXT_CHARS, e.g. "gruppen[0].text", or null.
+ * Depth is bounded so a deeply nested body cannot exhaust the stack.
+ */
+export function findTooLongString(value: unknown, path = '', depth = 0): string | null {
+  if (typeof value === 'string') return value.length > MAX_TEXT_CHARS ? path || '(Text)' : null;
+  if (!value || typeof value !== 'object' || depth > 64) return null;
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      const hit = findTooLongString(value[i], `${path}[${i}]`, depth + 1);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  for (const [k, v] of Object.entries(value)) {
+    if (k.length > MAX_TEXT_CHARS) return path ? `${path}.(Schlüssel)` : '(Schlüssel)';
+    const hit = findTooLongString(v, path ? `${path}.${k}` : k, depth + 1);
+    if (hit) return hit;
+  }
+  return null;
 }

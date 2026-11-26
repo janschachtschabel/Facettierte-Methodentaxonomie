@@ -223,6 +223,7 @@ Für eine noch stärkere rein semantische Freitext-zu-Filter-Klassifikation ohne
 | `LLM_REASONING_EFFORT` | `low` / `medium` / `high` | `low` | Server | Parameter für OpenAI GPT-5/GPT-6/o-Serie |
 | `LLM_ALLOW_BYOK` | `true` / `false` | `true` | Server | Aktiviert/deaktiviert Server-Proxy-BYOK (Allowlist) |
 | `LLM_RATE_LIMIT_PER_MIN` | Integer | `20` | Server | Rate-Limit pro IP und Minute auf `/api/v1/assistant/*` |
+| `API_RATE_LIMIT_PER_MIN` | Integer | `300` | Server | Rate-Limit pro IP und Minute auf die Rechen-Endpunkte ohne LLM (`/api/v1/match`, `/plan`, `/adapt` …) |
 | `LLM_TIMEOUT_MS` | Integer (ms) | `90000` | Server | Timeout für LLM-Upstream-Anfragen |
 | `LLM_CACHE_MAX` | Integer | `500` | Server | Maximale LRU-Cache-Größe für Server-LLM-Antworten |
 | `LLM_CACHE_TTL_MS` | Integer (ms) | `3600000` | Server | Cache-Lebensdauer in ms (1 Stunde) |

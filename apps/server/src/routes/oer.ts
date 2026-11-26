@@ -121,6 +121,9 @@ export function sanitizeWloSearchWord(raw: string): string {
   return (tokens.length ? tokens.join(' ') : raw.trim()).slice(0, 120);
 }
 
+/** Prefixes that form school subject compounds: Schulsport, Wahlpflichtinformatik, Leistungskursmathematik … */
+const SUBJECT_PREFIXES = ['schul', 'wahlpflicht', 'wahl', 'leistungskurs', 'grundkurs', 'profil', 'zusatz', 'fach'];
+
 /** Looks a subject name up in the OEH discipline vocabulary; set once at start from the catalogue. */
 let subjectLookup: ((name: string) => string | null) | null = null;
 export function setWloSubjectLookup(lookup: (name: string) => string | null): void {
@@ -140,9 +143,11 @@ export function resolveFachUri(fach: string, lookup: ((name: string) => string |
     .replace(/ß/g, 'ss');
   if (!norm) return null;
   if (Object.hasOwn(FACH_TO_TAXON_URI, norm)) return FACH_TO_TAXON_URI[norm];
-  // A key must start a word ("Mathematikdidaktik" → mathe), not sit inside one ("Transport" ≠ sport).
+  // A key must start a word ("Mathematikdidaktik" → mathe) or follow a school prefix ("Schulsport" → sport),
+  // but must not sit anywhere inside a word ("Transport" ≠ sport).
   const words = norm.split(/[^a-z]+/).filter(Boolean);
-  const hit = Object.keys(FACH_TO_TAXON_URI).find((k) => words.some((w) => w.startsWith(k)));
+  const startsAfterPrefix = (w: string, k: string) => SUBJECT_PREFIXES.some((p) => w.startsWith(p + k));
+  const hit = Object.keys(FACH_TO_TAXON_URI).find((k) => words.some((w) => w.startsWith(k) || startsAfterPrefix(w, k)));
   return hit ? FACH_TO_TAXON_URI[hit] : null;
 }
 

@@ -122,7 +122,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'get_method',
     'Liefert das vollständige 13-Facetten-Profil, Durchführungsschritte, Schnittstellen, Kernkomponenten, Qualitätsrisiken, Evidenz (mit Geltung) und freie Quellen einer Methode.',
     {
-      kennung: z.string().describe('Eindeutige Kennung der Methode, z. B. "gruppenpuzzle" oder "abrufquiz"')
+      kennung: z.string().max(MAX_TEXT_CHARS).describe('Eindeutige Kennung der Methode, z. B. "gruppenpuzzle" oder "abrufquiz"')
     },
     async ({ kennung }) => {
       const b = store.blocksById.get(kennung);
@@ -141,8 +141,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'compare_methods',
     'Vergleicht zwei FMT-Bausteine Facette für Facette und hebt gezielt alle Unterschiede hervor.',
     {
-      methodeA: z.string(),
-      methodeB: z.string()
+      methodeA: z.string().max(MAX_TEXT_CHARS),
+      methodeB: z.string().max(MAX_TEXT_CHARS)
     },
     async ({ methodeA, methodeB }) => {
       const a = store.blocksById.get(methodeA);
@@ -238,7 +238,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'validate_arrangement',
     'Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]).',
     {
-      arrangement: z.record(z.string(), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
+      arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
     },
     async ({ arrangement }) => {
       try {
@@ -255,8 +255,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'suggest_replacements',
     'Berechnet formal gültige Ersatzbausteine an einem Knotenpfad eines Arrangements (jeder Kandidat live gegen R-00..R-12 geprüft).',
     {
-      arrangement: z.record(z.string(), z.unknown()),
-      pfad: z.string().describe('JSON-Pfad des Knotens, z. B. "/ablauf/teile/0" oder "/ablauf/haupt/teile/1"')
+      arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()),
+      pfad: z.string().max(MAX_TEXT_CHARS).describe('JSON-Pfad des Knotens, z. B. "/ablauf/teile/0" oder "/ablauf/haupt/teile/1"')
     },
     async ({ arrangement, pfad }) => {
       try {
@@ -277,7 +277,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'list_vocabularies',
     'Listet alle FMT-Vokabulare, Funktionsketten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
     {
-      scheme: z.string().optional().describe('Optional: Schema-ID wie "lernfunktion", "ansatz", "lernzustand", "bildungsstufe"')
+      scheme: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Schema-ID wie "lernfunktion", "ansatz", "lernzustand", "bildungsstufe"')
     },
     async ({ scheme }) => {
       if (scheme) {
@@ -309,8 +309,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'search_wlo_oer',
     'Sucht freie Bildungsmaterialien (OER) live auf der WirLernenOnline-Produktionsinstanz (redaktion.openeduhub.net) mit offiziellen Fach-, Bildungsstufen- und Medientyp-URIs. Liefert für jeden Treffer explizit die wwwurl.',
     {
-      query: z.string().describe('Suchbegriff oder Thema (z. B. "Bruchrechnen", "Dichte", "Fotosynthese")'),
-      fach: z.string().optional().describe('Fachname (z. B. "Mathematik", "Physik", "Biologie", "Deutsch")'),
+      query: z.string().max(MAX_TEXT_CHARS).describe('Suchbegriff oder Thema (z. B. "Bruchrechnen", "Dichte", "Fotosynthese")'),
+      fach: z.string().max(MAX_TEXT_CHARS).optional().describe('Fachname (z. B. "Mathematik", "Physik", "Biologie", "Deutsch")'),
       bildungsstufe: z.enum(['primar', 'sek1', 'sek2', 'berufsbildung', 'hochschule', 'erwachsenenbildung']).optional(),
       inhaltstyp: z
         .enum(['arbeitsblatt', 'uebung', 'video', 'interaktiv', 'experiment', 'quiz', 'rollenspiel', 'fallstudie', 'handout', 'lernspiel'])
@@ -342,12 +342,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Vordefinierte Schüler-Persona'),
       selectedValues: z
-        .record(z.string(), z.string())
+        .record(z.string().max(MAX_TEXT_CHARS), z.string().max(MAX_TEXT_CHARS))
         .optional()
         .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"}); Liste per list_differentiation_options abrufbar'),
       minScore: z.number().int().optional(),
       limit: z.number().int().min(1).max(40).optional().default(12),
-      maxTechnik: z.string().optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
+      maxTechnik: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
       ohneInternet: z.boolean().optional().describe('Optional: true filtert online-abhängige Maßnahmen heraus'),
       ohneKI: z.boolean().optional().describe('Optional: true schließt KI-abhängige Maßnahmen aus'),
       includeSystemMeasures: z
@@ -356,8 +356,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .default(false)
         .describe('Standard false (blendet Schul-/Systemmaßnahmen wie Förderstunden/Noten aus); true zeigt alle 3 Ebenen'),
       maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional().describe('Optional: maximaler Vorbereitungsaufwand'),
-      bildungsstufe: z.string().optional().describe('Optional: Bildungsstufe (z. B. "primar", "sek1") zur Filterung von Alternativmethoden'),
-      baustein: z.string().optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen')
+      bildungsstufe: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Bildungsstufe (z. B. "primar", "sek1") zur Filterung von Alternativmethoden'),
+      baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen')
     },
     async ({ quickProfileId, personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures, maxAufwand, bildungsstufe, baustein }) => {
       const quickProfile = quickProfileId
@@ -402,10 +402,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, `verbindlicheUmsetzungsregeln`; mit `umfang: "voll"` zusätzlich `llmBriefing` und JSON-LD `maschinenlesbar` für den Baukasten-Import). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
     {
       text: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung des Unterrichtsvorhabens'),
-      fach: z.string().optional(),
-      thema: z.string().optional(),
-      lernziele: z.string().optional(),
-      didaktischerAnsatz: z.string().optional(),
+      fach: z.string().max(MAX_TEXT_CHARS).optional(),
+      thema: z.string().max(MAX_TEXT_CHARS).optional(),
+      lernziele: z.string().max(MAX_TEXT_CHARS).optional(),
+      didaktischerAnsatz: z.string().max(MAX_TEXT_CHARS).optional(),
       ansatz: codes('ansatz').optional(),
       anleitung: codes('anleitung').optional(),
       engagement: codes('engagement').optional(),
@@ -429,11 +429,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       gruppen: z
         .array(
           z.object({
-            id: z.string(),
-            label: z.string(),
+            id: z.string().max(MAX_TEXT_CHARS),
+            label: z.string().max(MAX_TEXT_CHARS),
             count: z.number().int().min(1).optional(),
-            personaId: z.string().optional(),
-            profile: z.string().optional()
+            personaId: z.string().max(MAX_TEXT_CHARS).optional(),
+            profile: z.string().max(MAX_TEXT_CHARS).optional()
           })
         )
         .optional()
@@ -453,16 +453,16 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'elaborate_scenario',
     'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann.',
     {
-      arrangement: z.record(z.string(), z.unknown()).describe('FMT-Arrangement JSON-LD'),
-      fach: z.string().optional(),
-      thema: z.string().optional(),
-      didaktischerAnsatz: z.string().optional(),
-      akteure: z.string().optional(),
-      lernziele: z.string().optional(),
-      problemstellung: z.string().optional(),
-      hinweise: z.string().optional(),
+      arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement JSON-LD'),
+      fach: z.string().max(MAX_TEXT_CHARS).optional(),
+      thema: z.string().max(MAX_TEXT_CHARS).optional(),
+      didaktischerAnsatz: z.string().max(MAX_TEXT_CHARS).optional(),
+      akteure: z.string().max(MAX_TEXT_CHARS).optional(),
+      lernziele: z.string().max(MAX_TEXT_CHARS).optional(),
+      problemstellung: z.string().max(MAX_TEXT_CHARS).optional(),
+      hinweise: z.string().max(MAX_TEXT_CHARS).optional(),
       oerRessourcen: z
-        .array(z.object({ stepKey: z.string().optional(), titel: z.string(), wwwurl: z.string() }))
+        .array(z.object({ stepKey: z.string().max(MAX_TEXT_CHARS).optional(), titel: z.string().max(MAX_TEXT_CHARS), wwwurl: z.string().max(MAX_TEXT_CHARS) }))
         .optional(),
       useServerLlm: z
         .boolean()
@@ -514,17 +514,17 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'generate_phase_material',
     'Erstellt in <2 ms deterministisch eine druckfertige Material-Strukturvorlage (Arbeitsblatt, Infoblatt, Quiz, Checkliste, Versuchsanleitung, Diskussionskarten, Glossar) plus ein fertiges llmBriefing für die fachliche Ausformulierung im Enduser-LLM.',
     {
-      baustein: z.string().describe('FMT-Methodenkennung, z. B. "loesungsbeispiele" oder "abrufquiz"'),
-      fach: z.string().optional(),
-      thema: z.string().optional(),
-      bildungsstufe: z.string().optional(),
-      phaseLabel: z.string().optional(),
+      baustein: z.string().max(MAX_TEXT_CHARS).describe('FMT-Methodenkennung, z. B. "loesungsbeispiele" oder "abrufquiz"'),
+      fach: z.string().max(MAX_TEXT_CHARS).optional(),
+      thema: z.string().max(MAX_TEXT_CHARS).optional(),
+      bildungsstufe: z.string().max(MAX_TEXT_CHARS).optional(),
+      phaseLabel: z.string().max(MAX_TEXT_CHARS).optional(),
       dauerMin: z.number().int().min(1).optional(),
       materialTyp: z
         .enum(['arbeitsblatt', 'infoblatt', 'quiz', 'checkliste', 'versuchsanleitung', 'diskussionskarten', 'glossar'])
         .optional()
         .default('arbeitsblatt'),
-      hinweise: z.string().optional(),
+      hinweise: z.string().max(MAX_TEXT_CHARS).optional(),
       useServerLlm: z
         .boolean()
         .optional()
@@ -584,22 +584,22 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden sowie ein fertiges `llmBriefing`.',
     {
       scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
-      baustein: z.string().optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
+      baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
       lerngruppenText: z
         .string()
         .max(MAX_TEXT_CHARS)
         .optional()
         .describe('Freitext zu Lernvoraussetzungen / Teilgruppen, z. B. "26 Kinder: 5 DaZ, 2 ADHS, 4 sehr leistungsstark"'),
-      arrangement: z.record(z.string(), z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
+      arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).optional().describe('Optional: bestehendes FMT-Arrangement JSON-LD aus dem Baukasten oder build_scenario_plan'),
       phasen: z
         .array(
           z.object({
-            key: z.string().optional(),
-            phaseLabel: z.string(),
+            key: z.string().max(MAX_TEXT_CHARS).optional(),
+            phaseLabel: z.string().max(MAX_TEXT_CHARS),
             durationMin: z.number().int().min(1).optional(),
-            baustein: z.string().optional(),
-            lernfunktion: z.string().optional(),
-            beschreibung: z.string().optional()
+            baustein: z.string().max(MAX_TEXT_CHARS).optional(),
+            lernfunktion: z.string().max(MAX_TEXT_CHARS).optional(),
+            beschreibung: z.string().max(MAX_TEXT_CHARS).optional()
           })
         )
         .optional()
@@ -607,21 +607,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       gruppen: z
         .array(
           z.object({
-            id: z.string(),
-            label: z.string(),
+            id: z.string().max(MAX_TEXT_CHARS),
+            label: z.string().max(MAX_TEXT_CHARS),
             count: z.number().int().min(1).optional(),
-            personaId: z.string().optional(),
-            selectedValues: z.record(z.string(), z.string()).optional(),
-            text: z.string().optional()
+            personaId: z.string().max(MAX_TEXT_CHARS).optional(),
+            selectedValues: z.record(z.string().max(MAX_TEXT_CHARS), z.string().max(MAX_TEXT_CHARS)).optional(),
+            text: z.string().max(MAX_TEXT_CHARS).optional()
           })
         )
         .optional()
         .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen (IDs über list_differentiation_options abrufbar)'),
-      fach: z.string().optional(),
-      thema: z.string().optional(),
-      bildungsstufe: z.string().optional(),
+      fach: z.string().max(MAX_TEXT_CHARS).optional(),
+      thema: z.string().max(MAX_TEXT_CHARS).optional(),
+      bildungsstufe: z.string().max(MAX_TEXT_CHARS).optional(),
       zeitMin: z.number().int().min(5).optional(),
-      maxTechnik: z.string().optional().describe('z. B. "t-keine" (nur analog), "t-projektion", "t-einzeln"'),
+      maxTechnik: z.string().max(MAX_TEXT_CHARS).optional().describe('z. B. "t-keine" (nur analog), "t-projektion", "t-einzeln"'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional(),
@@ -647,6 +647,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     {
       oberkategorie: z
         .string()
+        .max(MAX_TEXT_CHARS)
         .optional()
         .describe('Optional: Filter auf eine Oberkategorie der Lernvoraussetzungen (z. B. "kognitive", "sprache-kultur", "foerderbedarf")')
     },
@@ -772,7 +773,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'design_learning_scenario',
     'Leitet einen KI-Agent an, ein Lehr-/Lernszenario deterministisch über FMT-Tools inkl. Binnendifferenzierungsmatrix & WLO-OER zu komponieren.',
     {
-      szenario: z.string().describe('Beschreibung von Thema, Bildungsstufe, Zeit, Gruppengröße und Ziel')
+      szenario: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung von Thema, Bildungsstufe, Zeit, Gruppengröße und Ziel')
     },
     async ({ szenario }) => ({
       messages: [
@@ -798,7 +799,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'audit_lesson_plan',
     'Prüft einen bestehenden Unterrichtsentwurf anhand der 13 FMT-Regeln und schlägt formal gültige Alternativen vor.',
     {
-      entwurf: z.string().describe('Beschreibung oder JSON-LD eines Unterrichtsablaufs')
+      entwurf: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung oder JSON-LD eines Unterrichtsablaufs')
     },
     async ({ entwurf }) => ({
       messages: [
@@ -819,8 +820,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'adapt_lesson_differentiation',
     'Passt einen beliebigen Unterrichtsentwurf oder eine einzelne Methode unabhängig vom FMT-Baukasten an heterogene Lernvoraussetzungen an (UDL, Zielkonflikte, Teilgruppen & Methodenkontext).',
     {
-      szenario: z.string().describe('Beschreibung der geplanten Stunde, Aktivität oder Methode'),
-      lerngruppe: z.string().describe('Beschreibung der Lerngruppe / Voraussetzungen (z. B. DaZ, ADHS, LRS, Leistungsstarke)')
+      szenario: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung der geplanten Stunde, Aktivität oder Methode'),
+      lerngruppe: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung der Lerngruppe / Voraussetzungen (z. B. DaZ, ADHS, LRS, Leistungsstarke)')
     },
     async ({ szenario, lerngruppe }) => ({
       messages: [

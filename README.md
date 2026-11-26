@@ -161,6 +161,7 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 | `LLM_REASONING_EFFORT` | `low` | Reasoning-Stufe für OpenAI-Reasoning-Modelle (`low`, `medium`, `high`). |
 | `LLM_ALLOW_BYOK` | `true` | Erlaubt Nutzern den Server-Proxy für freigegebene Provider (`openai`, `gemini`, `mistral`, `openrouter`, `groq`, `academiccloud`, `deepseek`, `together`). Eigene/lokale URLs (Ollama, LM Studio, LiteLLM) verbinden sich sicherheitshalber direkt aus dem Browser (SSRF-Schutz). |
 | `LLM_RATE_LIMIT_PER_MIN` | `20` | Maximale KI-Anfragen pro Minute und Client-IP auf `/api/v1/assistant/*`. |
+| `API_RATE_LIMIT_PER_MIN` | `300` | Maximale Anfragen pro Minute und Client-IP auf die Rechen-Endpunkte ohne LLM (match, plan, adapt, classify, validate …). |
 | `LLM_TIMEOUT_MS` | `90000` | Upstream-Timeout in Millisekunden für Server-LLM-Aufrufe. |
 | `LLM_CACHE_MAX` | `500` | Maximale Anzahl Einträge im In-Memory-LRU-Cache für Server-LLM-Antworten (BYOK-Anfragen werden nie geteilt gecacht). |
 | `LLM_CACHE_TTL_MS` | `3600000` | Gültigkeitsdauer (TTL) des LLM-Caches in Millisekunden (`3600000` = 1 Stunde). |

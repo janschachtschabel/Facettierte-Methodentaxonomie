@@ -20,7 +20,7 @@ import {
   type DifferentiateBriefingPayload,
   type LlmBriefingPacket
 } from '../llm/briefings.js';
-import { InvalidRequestError, MAX_TEXT_CHARS, isMaterialGroupList, tooLongMessage } from './validation.js';
+import { InvalidRequestError, isMaterialGroupList } from './validation.js';
 
 export interface ThematicTableRow {
   key: string;
@@ -1019,7 +1019,6 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       if (task === 'translate') {
         const text = typeof payload.text === 'string' ? payload.text.trim() : '';
         if (!text) return reply.code(400).send({ fehler: 'Bitte payload.text übergeben.' });
-        if (text.length > MAX_TEXT_CHARS) return reply.code(400).send({ fehler: tooLongMessage('payload.text') });
         const b = buildTranslateBriefing(store, text);
         return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
       }
