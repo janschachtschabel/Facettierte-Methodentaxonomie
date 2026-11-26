@@ -77,6 +77,12 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     bausteine: store.bundle.bausteine.length
   }));
 
+  const schemeValues = (id: string) => {
+    const s = store.bundle.schemes.find((x) => x.id === id);
+    const werte = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
+    return werte.map((w) => ({ id: w.id, label: w.label }));
+  };
+
   app.get('/api/v1/meta', async (_req, reply) => {
     reply.header('Cache-Control', 'no-cache');
     return {
@@ -94,6 +100,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       wfelder: store.bundle.wfelder,
       arten: store.bundle.arten,
       merkmale: store.bundle.merkmale,
+      raumtypen: schemeValues('raumtyp'),
+      zielarten: schemeValues('zielart'),
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
@@ -138,7 +146,10 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       'liefert',
       'ansatz',
       'status',
-      'fachbereich'
+      'fachbereich',
+      'raumbedarf',
+      'schriftbedarf',
+      'ohneRaumbedarf'
     ]);
     for (const [k, raw] of Object.entries(q)) {
       if (raw == null || raw === '') continue;

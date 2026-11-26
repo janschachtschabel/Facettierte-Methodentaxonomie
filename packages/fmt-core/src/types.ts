@@ -443,6 +443,12 @@ export interface SearchCriteria {
   fuerFachbereich?: string;
   /** Room type (vocab raumtyp): only methods whose Raumbedarf it meets. */
   raum?: string;
+  /** Methods that need at least one of these room properties (vocab raumbedarf). */
+  raumbedarf?: string | string[];
+  /** Methods that need at least one of these writing/reading abilities (vocab schriftbedarf). */
+  schriftbedarf?: string | string[];
+  /** Methods that need none of these room properties. */
+  ohneRaumbedarf?: string | string[];
   [facet: string]: unknown;
 }
 

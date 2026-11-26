@@ -419,6 +419,15 @@ export interface ScenarioPlanArgs {
   maxVorbereitung?: number;
   ohneInternet?: boolean;
   ohneKI?: boolean;
+  zielart?: string;
+  raum?: string;
+  /** Former name of raum. */
+  lernort?: string;
+  raumBietet?: string | string[];
+  fachausstattungArt?: string;
+  ohneSchrift?: string | string[];
+  termine?: number;
+  nachweis?: string;
   /** 0 = first proposal; higher values give the next equally suitable combination. */
   variante?: number;
   includeWloOer?: boolean;
@@ -522,6 +531,13 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI,
     variante: args.variante,
+    zielart: args.zielart,
+    raum: args.raum || args.lernort,
+    raumBietet: args.raumBietet,
+    fachausstattungArt: args.fachausstattungArt,
+    ohneSchrift: args.ohneSchrift,
+    termine: args.termine,
+    nachweis: args.nachweis,
     fachbereich:
       args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld)
   };
@@ -759,6 +775,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     nichtVerankert: matched.nichtVerankert || [],
     annahmen: matched.annahmen || [],
     hinweise: matched.hinweise || [],
+    pflichtangaben: matched.pflichtangaben,
     methodenDetails,
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
     konflikte: multiGroupSynthesis.konflikte.slice(0, 4),

@@ -34,6 +34,9 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
     expect(wert('dauerMin', 'wfeld')).toBe('zeit');
     expect(wert('vorbereitungMin', 'aussageart')).toBe('bedarf');
     expect(text).not.toMatch(/fmt:ebene/);
+    expect(text).toMatch(/fmt:raumbedarf a rdf:Property/);
+    expect(wert('raumbedarf', 'aussageart')).toBe('bedarf');
+    expect(text.toLowerCase()).not.toContain('lernort');
   });
 
   it('parses all SKOS vocabularies and ontology as valid Turtle with creator & CC-BY 4.0 license', () => {

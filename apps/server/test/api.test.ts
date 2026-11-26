@@ -65,6 +65,28 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(meta.wfelder).toHaveLength(9);
     expect(meta.arten.map((a: { id: string }) => a.id)).toEqual(['bauweise', 'beitrag', 'bedarf', 'eignung', 'einordnung']);
     expect(meta.merkmale.map((m: { feld: string }) => m.feld)).toContain('raumbedarf');
+    expect(meta.raumtypen.map((r: { id: string }) => r.id)).toEqual(expect.arrayContaining(['klassenraum', 'draussen', 'fachraum']));
+    expect(meta.zielarten).toHaveLength(9);
+  });
+
+  it('/methods filtert nach Raumbedarf, Schriftbedarf und ohneRaumbedarf', async () => {
+    const get = async (q: string) => (await app.inject({ method: 'GET', url: '/api/v1/methods?' + q })).json();
+    const alle = await get('');
+    const mitRaum = await get('raumbedarf=bewegungsflaeche');
+    expect(mitRaum.anzahl).toBeGreaterThan(0);
+    expect(mitRaum.anzahl).toBeLessThan(alle.anzahl);
+    expect(mitRaum.treffer.every((b: { raumbedarf?: string[] }) => (b.raumbedarf || []).includes('bewegungsflaeche'))).toBe(true);
+    const ohne = await get('ohneRaumbedarf=bewegungsflaeche');
+    expect(ohne.treffer.some((b: { raumbedarf?: string[] }) => (b.raumbedarf || []).includes('bewegungsflaeche'))).toBe(false);
+    expect(ohne.anzahl + mitRaum.anzahl).toBe(alle.anzahl);
+    const schrift = await get('schriftbedarf=schreiben');
+    expect(schrift.treffer.every((b: { schriftbedarf?: string[] }) => (b.schriftbedarf || []).includes('schreiben'))).toBe(true);
+  });
+
+  it('POST /match nimmt lernort weiter an', async () => {
+    const r = await app.inject({ method: 'POST', url: '/api/v1/match', payload: { text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' } });
+    expect(r.statusCode).toBe(200);
+    expect(r.json().kriterien.raum).toBe('draussen');
   });
 
   it('supports ETag and 304 Not Modified on /api/v1/catalog', async () => {

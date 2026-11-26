@@ -118,6 +118,13 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
         const wanted = list(k[f]);
         if (wanted.length && !wanted.some((v) => ((b[f] as string[] | undefined) || []).includes(v))) return false;
       }
+      // Bedarf of the method: any of the named values is needed; ohneRaumbedarf drops methods needing one of them.
+      for (const f of ['raumbedarf', 'schriftbedarf'] as const) {
+        const wanted = list(k[f]);
+        if (wanted.length && !wanted.some((v) => (b[f] || []).includes(v))) return false;
+      }
+      const without = list(k.ohneRaumbedarf);
+      if (without.length && (b.raumbedarf || []).some((v) => without.includes(v))) return false;
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
       const wantedArea = list(k.fachbereich);

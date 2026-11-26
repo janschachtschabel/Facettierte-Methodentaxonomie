@@ -81,6 +81,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneKI: z.boolean().optional(),
       bildungsstufe: code('bildungsstufe').optional(),
       vorwissen: code('vorwissen').optional(),
+      raum: code('raum').optional().describe('Raumtyp: nur Methoden, deren Raumbedarf er deckt'),
+      raumbedarf: codes('raumBietet').optional().describe('Nur Methoden, die mindestens eine dieser Raumeigenschaften brauchen'),
+      ohneRaumbedarf: codes('raumBietet').optional().describe('Nur Methoden, die keine dieser Raumeigenschaften brauchen'),
+      schriftbedarf: codes('ohneSchrift').optional().describe('Nur Methoden, die Lesen oder Schreiben brauchen'),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
       fachbereich: codes('fachbereich')
         .optional()
@@ -198,7 +202,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       text: z.string().max(MAX_TEXT_CHARS).optional(),
       modus: z.enum(['phase', 'ablauf']).optional(),
       zieltyp: code('zieltyp').optional(),
-      zielart: code('zielart').optional(),
+      zielart: code('zielart').optional().describe('Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung'),
       ansatz: codes('ansatz').optional().describe('Didaktischer Ansatz, z. B. "forschend", "kooperativ", "instruktion"'),
       lernfunktion: codes('lernfunktion').optional(),
       anleitung: codes('anleitung').optional(),
@@ -216,7 +220,14 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       raum: code('raum')
         .optional()
         .describe('Raum der Stunde; wird sonst aus dem Text gelesen. Methoden, deren Raumbedarf er nicht deckt, scheiden aus.'),
-      lernort: code('raum').optional().describe('Veraltet: wie raum'),
+      // Former name of raum: stays accepted for old clients, deliberately without a description.
+      lernort: code('raum').optional(),
+      raumBietet: codes('raumBietet')
+        .optional()
+        .describe('Raumeigenschaften, die der Raum zusätzlich zum Raumtyp bietet (z. B. Bewegungsfläche, Wandfläche)'),
+      fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
+      termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
+      nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
       ohneSchrift: codes('ohneSchrift')
         .optional()
         .describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
@@ -450,6 +461,17 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
+      zielart: code('zielart').optional().describe('Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung'),
+      raum: code('raum')
+        .optional()
+        .describe('Raum der Stunde; wird sonst aus dem Text gelesen. Methoden, deren Raumbedarf er nicht deckt, scheiden aus.'),
+      // Former name of raum: stays accepted for old clients, deliberately without a description.
+      lernort: code('raum').optional(),
+      raumBietet: codes('raumBietet').optional().describe('Raumeigenschaften, die der Raum zusätzlich zum Raumtyp bietet'),
+      fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
+      ohneSchrift: codes('ohneSchrift').optional().describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
+      termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
+      nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),
       umfang: z
         .enum(['kompakt', 'voll'])

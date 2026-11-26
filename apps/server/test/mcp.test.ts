@@ -119,6 +119,12 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(raumJson.kriterien.ohneSchrift).toEqual(['schreiben']);
     expect(aliasJson.schritte).toEqual(raumJson.schritte);
 
+    const kompakt = await client.callTool({ name: 'build_scenario_plan', arguments: { text, umfang: 'kompakt', raum: 'draussen', termine: 1 } });
+    expect(kompakt.isError).toBeFalsy();
+    const kompaktJson = JSON.parse((kompakt.content as Array<{ text: string }>)[0].text);
+    expect(kompaktJson.pflichtangaben).toBeDefined();
+    expect(kompaktJson.erkannteKriterien.raum).toBe('draussen');
+
     const valRes = await client.callTool({
       name: 'validate_arrangement',
       arguments: { arrangement: matchJson.arrangement }
@@ -392,6 +398,17 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(match.bildungsstufe.enum).toContain('sek1');
     expect(match.vorwissen.enum).toEqual(expect.arrayContaining(['gering', 'mittel', 'hoch']));
     expect(JSON.stringify(match.ansatz)).toContain('kooperativ');
+    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'nachweis', 'zielart']) {
+      expect(match[f], 'match_scenario ' + f).toBeDefined();
+      expect(props('build_scenario_plan')[f], 'build_scenario_plan ' + f).toBeDefined();
+    }
+    expect(match.zielart.enum).toEqual(expect.arrayContaining(['fakten', 'konzepte', 'prozeduren', 'problemloesen', 'bewegung', 'kondition', 'urteilen', 'gestalten', 'handlung']));
+    const toolList = tools.filter((t) => ['match_scenario', 'build_scenario_plan'].includes(t.name));
+    for (const t of toolList) {
+      expect(t.description!.toLowerCase()).not.toContain('lernort');
+      const descs = Object.values((t.inputSchema.properties || {}) as Record<string, { description?: string }>).map((p) => p.description || '');
+      expect(descs.join(' ').toLowerCase()).not.toContain('lernort');
+    }
     const plan = props('build_scenario_plan');
     expect(plan.maxTechnik.enum).toContain('t-keine');
     expect(plan.bildungsstufe.enum).toContain('primar');
