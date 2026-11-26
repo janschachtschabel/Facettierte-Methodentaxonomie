@@ -16,7 +16,7 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
   let mockBaseUrl = '';
   let mockCalls = 0;
   let lastMockBody: Record<string, unknown> | null = null;
-  let mockBehavior: 'valid' | 'bad-json' | 'hallucinated-enum' | 'error' = 'valid';
+  let mockBehavior: 'valid' | 'ablauf' | 'bad-json' | 'hallucinated-enum' | 'error' = 'valid';
   let appWithKey: FastifyInstance;
   let appNoKey: FastifyInstance;
 
@@ -60,6 +60,8 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
               ]
             }
           });
+        } else if (mockBehavior === 'ablauf') {
+          content = JSON.stringify({ modus: 'ablauf', zieltyp: 'kooperatives-lernen', zeitMin: 90 });
         } else if (mockBehavior === 'bad-json') {
           content = 'Das ist kein JSON!';
         } else if (mockBehavior === 'hallucinated-enum') {
@@ -153,6 +155,21 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(r2.statusCode).toBe(200);
     expect(r2.json().gecacht).toBe(true);
     expect(mockCalls).toBe(1);
+  });
+
+  it('keeps the request text in the AI path, so named methods still count (Runde 5, P1)', async () => {
+    mockBehavior = 'ablauf';
+    const r = await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/translate',
+      payload: { text: 'Geschichte Klasse 9, Industrialisierung mit einem Gruppenpuzzle erarbeiten, 90 Minuten' }
+    });
+    expect(r.statusCode).toBe(200);
+    const j = r.json();
+    expect(j.quelle).toBe('llm');
+    expect(j.anfrage.text).toContain('Gruppenpuzzle');
+    expect(JSON.stringify(j.ergebnis.arrangement)).toContain('"gruppenpuzzle"');
+    mockBehavior = 'valid';
   });
 
   it('falls back cleanly to deterministic lesen() on bad JSON, hallucinated enums, or upstream error (Review Focus #2)', async () => {

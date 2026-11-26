@@ -979,12 +979,13 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       if (!validateAnfrage(parsed) || Object.keys(parsed).length === 0) {
         return fallback('LLM-Ausgabe entsprach nicht dem FMT-Schema – Regel-Zuordnung als Fallback genutzt.');
       }
-      const ruleParsed = store.matcher.lesen(text).kriterien;
-      const merged: Record<string, unknown> = { ...ruleParsed, ...parsed };
+      // The text stays in the request, so the matcher reads it exactly as in the rule path (named methods,
+      // negations, topic, subgroups). The LLM fields are explicit fields and take precedence over that reading.
+      const merged: Record<string, unknown> = { ...parsed, text };
       if (!merged.modus && (merged.zieltyp || merged.zielart) && !merged.lernfunktion && !merged.liefert) {
         merged.modus = 'ablauf';
       }
-      const anfrage = (validateAnfrage(merged) ? merged : parsed) as MatchRequest;
+      const anfrage = (validateAnfrage(merged) ? merged : { ...parsed, text }) as MatchRequest;
       const ergebnis = store.matcher.zuordnen(anfrage);
       if (!target.isByok) translateCache.set(cacheKey, { anfrage });
       return reply.send({
