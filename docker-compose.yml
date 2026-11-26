@@ -2,6 +2,12 @@ services:
   fmt:
     image: ${FMT_IMAGE:-ghcr.io/janschachtschabel/facettierte-methodentaxonomie:latest}
     restart: unless-stopped
+    # Logs stay small and are overwritten continuously (see the privacy page).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "${HOST_BIND:-0.0.0.0}:${HOST_PORT:-8120}:8080"
     environment:
@@ -22,15 +28,6 @@ services:
       LLM_TIMEOUT_MS: "${LLM_TIMEOUT_MS:-90000}"
       LLM_CACHE_MAX: "${LLM_CACHE_MAX:-500}"
       LLM_CACHE_TTL_MS: "${LLM_CACHE_TTL_MS:-3600000}"
-      # Optional: Kontaktformular im Impressum (Versand per SMTP; ohne SMTP_HOST meldet das Formular "nicht eingerichtet")
-      SMTP_HOST: "${SMTP_HOST:-}"
-      SMTP_PORT: "${SMTP_PORT:-587}"
-      SMTP_SECURE: "${SMTP_SECURE:-false}"
-      SMTP_USER: "${SMTP_USER:-}"
-      SMTP_PASS: "${SMTP_PASS:-}"
-      CONTACT_FROM: "${CONTACT_FROM:-}"
-      CONTACT_TO: "${CONTACT_TO:-}"
-      CONTACT_RATE_LIMIT_PER_HOUR: "${CONTACT_RATE_LIMIT_PER_HOUR:-10}"
       # Optional: lokales Model2Vec-Modell im Volume (/app/models/m2v-qwen3-4b-256-edu)
       FMT_M2V_MODEL_DIR: "${FMT_M2V_MODEL_DIR:-/app/models/m2v-qwen3-4b-256-edu}"
     volumes:

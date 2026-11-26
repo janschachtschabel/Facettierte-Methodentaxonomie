@@ -410,7 +410,49 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
   }
 }
 
+/** Only preview images of the WLO production instance are passed through; nothing else can be fetched. */
+export function isWloPreviewUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.origin === WLO_PROD_ORIGIN && u.pathname.startsWith('/edu-sharing/') && !u.username && !u.password;
+  } catch {
+    return false;
+  }
+}
+
+const PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
+
 export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
+  // Preview images of WLO hits travel through this server: the visitor's browser never contacts WLO itself.
+  app.get(
+    '/api/v1/oer/vorschau',
+    { config: { rateLimit: { max: 600, timeWindow: '1 minute' } } },
+    async (req, reply) => {
+      const raw = String((req.query as { u?: unknown })?.u ?? '');
+      if (!isWloPreviewUrl(raw)) return reply.code(400).send({ fehler: 'Nur Vorschaubilder von WirLernenOnline.' });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch(raw, { signal: controller.signal, redirect: 'error', headers: { Accept: 'image/*' } });
+        const type = res.headers.get('content-type') || '';
+        if (!res.ok || !/^image\/(png|jpe?g|gif|webp|svg\+xml)\b/i.test(type)) return reply.code(404).send({ fehler: 'Kein Vorschaubild.' });
+        const buf = Buffer.from(await res.arrayBuffer());
+        if (buf.length > PREVIEW_MAX_BYTES) return reply.code(404).send({ fehler: 'Vorschaubild zu groß.' });
+        return reply
+          .header('Content-Type', type)
+          .header('Cache-Control', 'public, max-age=86400')
+          .header('X-Content-Type-Options', 'nosniff')
+          // SVG may carry scripts; it is only ever shown as an image, never as a document.
+          .header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+          .send(buf);
+      } catch {
+        return reply.code(502).send({ fehler: 'Vorschaubild nicht erreichbar.' });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+  );
+
   app.post(
     '/api/v1/oer/wlo-search',
     {

@@ -141,6 +141,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
               GitHub
             </a>
             <Link to="/impressum">Impressum &amp; Kontakt</Link>
+            <Link to="/datenschutz">Datenschutz</Link>
+            <Link to="/nutzungsbedingungen">Nutzungsbedingungen</Link>
           </div>
         </div>
       </footer>

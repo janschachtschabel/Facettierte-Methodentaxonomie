@@ -1,82 +1,42 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { EmailAddress, useContactAddress, usePageTitle } from '../components/LegalShared.js';
 
-const LIMITS = { name: 120, email: 254, betreff: 150, nachricht: 5000 };
+/** Mail programs cut long mailto links; the message stays well below that. */
+const LIMITS = { name: 120, betreff: 150, nachricht: 1500 };
 
-type Address = { teile: [string, string]; formularAktiv: boolean };
-
-/**
- * The e-mail address is not part of the page source or the script bundle: the page fetches it in parts from
- * the server when it opens and shows it as plain text (no mailto link), so simple address harvesters do not
- * find it. If the server cannot be reached, a spelled-out form keeps the address available for people.
- */
-function EmailAddress({ address }: { address: string | null | undefined }) {
-  if (address === undefined) return <span className="muted">wird geladen …</span>;
-  if (address === null) {
-    return (
-      <span>
-        info (at) {['schachtschabel', 'net'].join(' (Punkt) ')}
-      </span>
-    );
-  }
-  const [local, domain] = address.split('\u0040');
-  return (
-    <span>
-      {local}
-      <span>@</span>
-      {domain}
-    </span>
-  );
+/** Builds the mailto link; exported for tests. */
+export function buildMailto(address: string, v: { name: string; betreff: string; nachricht: string }): string {
+  const subject = `[FMT] ${v.betreff.trim() || 'Nachricht über die Methodendatenbank'}`;
+  const body = `${v.nachricht.trim()}${v.name.trim() ? `\n\n${v.name.trim()}` : ''}`;
+  return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-function ContactForm({ formActive }: { formActive: boolean | null }) {
-  const openedAt = useRef(Date.now());
-  const [values, setValues] = useState({ name: '', email: '', betreff: '', nachricht: '', website: '' });
-  const [consent, setConsent] = useState(false);
-  const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
-  const [error, setError] = useState<string | null>(null);
+/**
+ * The form does not send anything itself: it opens the visitor's own mail program with the message filled in,
+ * and the visitor sends it from there. This website neither receives nor stores the text.
+ */
+function ContactForm({ address }: { address: string | null | undefined }) {
+  const [values, setValues] = useState({ name: '', betreff: '', nachricht: '' });
+  const [opened, setOpened] = useState(false);
   const set = (k: keyof typeof values) => (e: { target: { value: string } }) => setValues((v) => ({ ...v, [k]: e.target.value }));
 
-  const submit = async (e: FormEvent) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setState('sending');
-    try {
-      const res = await fetch('/api/v1/kontakt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, einverstanden: consent, geoeffnetUm: openedAt.current })
-      });
-      const data = (await res.json().catch(() => ({}))) as { gesendet?: boolean; fehler?: string };
-      if (!res.ok || !data.gesendet) throw new Error(data.fehler || 'Die Nachricht konnte nicht gesendet werden.');
-      setState('sent');
-    } catch (err) {
-      setState('idle');
-      setError(err instanceof Error ? err.message : 'Die Nachricht konnte nicht gesendet werden.');
-    }
+    if (!address) return;
+    window.location.href = buildMailto(address, values);
+    setOpened(true);
   };
 
-  if (state === 'sent') {
-    return (
-      <div className="msg msg-ok" role="status" style={{ marginTop: 12 }}>
-        Danke für deine Nachricht! Sie ist angekommen, eine Antwort kommt an die angegebene E-Mail-Adresse.
-      </div>
-    );
-  }
-
   return (
-    <form className="contact-form" onSubmit={submit} noValidate={false}>
-      {formActive === false && (
-        <div className="msg msg-err" role="status">
-          Das Formular ist auf diesem Server noch nicht eingerichtet. Bitte schreibe solange per E-Mail.
-        </div>
-      )}
+    <form className="contact-form" onSubmit={submit}>
+      <p className="muted" style={{ margin: 0, fontSize: 14.5 }}>
+        Das Formular verschickt nichts selbst: Es öffnet dein E-Mail-Programm mit der vorbereiteten Nachricht, und du
+        sendest sie von dort ab. Diese Website empfängt und speichert den Text nicht.
+      </p>
       <label>
-        Name
-        <input type="text" required maxLength={LIMITS.name} autoComplete="name" value={values.name} onChange={set('name')} />
-      </label>
-      <label>
-        E-Mail-Adresse für die Antwort
-        <input type="email" required maxLength={LIMITS.email} autoComplete="email" value={values.email} onChange={set('email')} />
+        Dein Name (optional)
+        <input type="text" maxLength={LIMITS.name} autoComplete="name" value={values.name} onChange={set('name')} />
       </label>
       <label>
         Betreff (optional)
@@ -84,29 +44,22 @@ function ContactForm({ formActive }: { formActive: boolean | null }) {
       </label>
       <label>
         Nachricht
-        <textarea required minLength={10} maxLength={LIMITS.nachricht} rows={7} value={values.nachricht} onChange={set('nachricht')} />
+        <textarea required maxLength={LIMITS.nachricht} rows={7} value={values.nachricht} onChange={set('nachricht')} />
       </label>
-      <div className="hp" aria-hidden="true">
-        <label>
-          Website
-          <input type="text" tabIndex={-1} autoComplete="off" value={values.website} onChange={set('website')} />
-        </label>
-      </div>
-      <label className="consent">
-        <input type="checkbox" required checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        <span>
-          Ich bin einverstanden, dass meine Angaben zur Beantwortung meiner Anfrage verarbeitet werden. Mehr dazu im
-          Hinweis unten.
-        </span>
-      </label>
-      {error && (
-        <div className="msg msg-err" role="alert">
-          {error}
+      {address === null && (
+        <div className="msg msg-err" role="status">
+          Die Adresse konnte gerade nicht geladen werden. Bitte schreibe an die oben ausgeschriebene Adresse.
+        </div>
+      )}
+      {opened && (
+        <div className="msg msg-ok" role="status">
+          Dein E-Mail-Programm sollte sich jetzt mit der Nachricht geöffnet haben. Falls nicht, schreibe bitte direkt an
+          die Adresse oben.
         </div>
       )}
       <div>
-        <button type="submit" className="btn btn-primary" disabled={state === 'sending' || !consent}>
-          {state === 'sending' ? 'Wird gesendet …' : 'Nachricht senden'}
+        <button type="submit" className="btn btn-primary" disabled={!address || !values.nachricht.trim()}>
+          Im E-Mail-Programm öffnen
         </button>
       </div>
     </form>
@@ -114,29 +67,8 @@ function ContactForm({ formActive }: { formActive: boolean | null }) {
 }
 
 export function ImpressumPage() {
-  const [formActive, setFormActive] = useState<boolean | null>(null);
-  const [address, setAddress] = useState<string | null | undefined>(undefined);
-  useEffect(() => {
-    let alive = true;
-    fetch('/api/v1/kontakt/adresse')
-      .then((res) => (res.ok ? (res.json() as Promise<Address>) : Promise.reject(new Error())))
-      .then((data) => {
-        if (!alive) return;
-        setAddress(data.teile.join('\u0040'));
-        setFormActive(data.formularAktiv);
-      })
-      .catch(() => alive && setAddress(null));
-    return () => {
-      alive = false;
-    };
-  }, []);
-  useEffect(() => {
-    const previous = document.title;
-    document.title = 'Impressum & Kontakt · FMT Methodendatenbank';
-    return () => {
-      document.title = previous;
-    };
-  }, []);
+  const { address } = useContactAddress();
+  usePageTitle('Impressum & Kontakt');
 
   return (
     <div className="page-section impressum">
@@ -166,14 +98,11 @@ export function ImpressumPage() {
       <h2 id="kontakt" style={{ marginTop: 32 }}>
         Kontaktformular
       </h2>
-      <ContactForm formActive={formActive} />
+      <ContactForm address={address} />
 
-      <h3 style={{ marginTop: 28 }}>Hinweis zum Kontaktformular</h3>
-      <p className="muted" style={{ fontSize: 14.5 }}>
-        Name, E-Mail-Adresse, Betreff und Nachricht werden nur genutzt, um deine Anfrage zu beantworten (Art. 6 Abs. 1
-        lit. b und f DSGVO). Der Server speichert sie nicht, sondern leitet sie einmalig per E-Mail an Jan Schachtschabel
-        weiter. Zum Schutz vor Missbrauch wird die Zahl der Nachrichten je IP-Adresse kurzzeitig begrenzt. Du kannst
-        jederzeit Auskunft über deine Daten und ihre Löschung verlangen.
+      <p className="muted" style={{ fontSize: 14.5, marginTop: 20 }}>
+        Wie mit deiner E-Mail umgegangen wird, steht in der <Link to="/datenschutz">Datenschutzerklärung</Link>. Für
+        die Nutzung der Methodendatenbank gelten die <Link to="/nutzungsbedingungen">Nutzungsbedingungen</Link>.
       </p>
     </div>
   );
