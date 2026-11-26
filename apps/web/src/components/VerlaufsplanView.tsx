@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein } from '@fmt/core';
 import { EvidenceBadge } from './EvidenceBadge.js';
@@ -16,6 +16,10 @@ interface Props {
   maxTechnik?: string;
   ohneInternet?: boolean;
   ohneKI?: boolean;
+  /** Heading and lead; step 3 reuses the table as "updated plan". */
+  heading?: string;
+  lead?: ReactNode;
+  editLabel?: string;
 }
 
 const RANGE_READABLE: Record<string, string> = {
@@ -38,7 +42,10 @@ export function VerlaufsplanView({
   onOpenResourcesForStep,
   maxTechnik,
   ohneInternet,
-  ohneKI
+  ohneKI,
+  heading,
+  lead,
+  editLabel
 }: Props) {
   const [editMode, setEditMode] = useState(false);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(null);
@@ -103,17 +110,16 @@ export function VerlaufsplanView({
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <strong style={{ fontFamily: 'var(--display)', fontSize: 17 }}>
-              📋 Methodisches Konzept: Rollen &amp; FMT-Verlaufsgerüst
-            </strong>
-            <span className="status-badge">Schritt 2 · Struktur &amp; Akteure</span>
-          </div>
-          <p className="muted" style={{ fontSize: 13.5, margin: '4px 0 0' }}>
-            Zeigt den <strong>Ablauf und die Rollen aus der FMT-Methodendatenbank</strong> (ohne KI).
-            Herkunft der Hinweise: <span className="status-badge" style={{ fontSize: 11 }}>FMT</span> Methodenbeschreibung ·{' '}
-            <span className="status-badge" style={{ fontSize: 11 }}>Matrix</span> Punkte-Matrix ·{' '}
-            <span className="status-badge" style={{ fontSize: 11 }}>KI</span> optional in Schritt 3 konkretisiert.
+          <strong style={{ fontFamily: 'var(--display)', fontSize: 17 }}>
+            {heading || 'Dein Ablauf für die ganze Klasse'}
+          </strong>
+          <p className="muted" style={{ fontSize: 13.5, margin: '4px 0 0', maxWidth: 760 }}>
+            {lead || (
+              <>
+                Jede Zeile ist eine Phase mit ihrer Methode: was die Lehrkraft tut und was die Lernenden tun. Alle Angaben
+                stammen aus der Methodendatenbank, ohne KI.
+              </>
+            )}
           </p>
         </div>
 
@@ -125,7 +131,7 @@ export function VerlaufsplanView({
             setEditingRowKey(null);
           }}
         >
-          {editMode ? '✓ Bearbeitung beenden' : '✏ Rollen & Parallel-Methoden anpassen'}
+          {editMode ? '✓ Bearbeitung beenden' : editLabel || '✏ Hinweise bearbeiten'}
         </button>
       </div>
 
@@ -285,7 +291,7 @@ export function VerlaufsplanView({
                                 fontSize: 12
                               }}
                             >
-                              🔀 <strong>Parallele Methode:</strong>{' '}
+                              🔀 <strong>Eigene Methode für diese Gruppe:</strong>{' '}
                               <Link to={`/methoden/${altMethod.methodId}`}>{altMethod.methodName}</Link>
                             </div>
                           )}

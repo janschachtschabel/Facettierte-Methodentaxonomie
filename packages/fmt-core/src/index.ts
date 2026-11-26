@@ -8,6 +8,7 @@ export { createMatcher, FmtRequestError } from './zuordnung.js';
 export type { FmtMatcher } from './zuordnung.js';
 export * from './differentiationMatrix.js';
 export * from './adaptScenario.js';
+export * from './methodAdjustments.js';
 export * from './semantic.js';
 export { createMentionDetector } from './mentions.js';
 export type { FmtMentionDetector, MethodMention } from './mentions.js';

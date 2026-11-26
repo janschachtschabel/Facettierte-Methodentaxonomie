@@ -114,7 +114,7 @@ describe('DifferentiationPage (/differenzierung)', () => {
     expect(screen.getByText(/In Baukasten übernehmen \(Schritt 3\)/i)).toBeTruthy();
   });
 
-  it('DifferentiationMatrixPanel in Baukasten Step 3 starts with Standardgruppe and unlocks UDL/conflicts on chip click', () => {
+  it('DifferentiationMatrixPanel in Baukasten Step 3 starts with the Regelgruppe and unlocks UDL/conflicts on chip click', () => {
     function Harness() {
       const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
       return (
@@ -139,21 +139,22 @@ describe('DifferentiationPage (/differenzierung)', () => {
     }
 
     render(<Harness />);
-    expect(screen.getAllByText(/Standardgruppe \(Regelniveau\)/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/Regelgruppe \(ganze Klasse\)/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/bisher nur die Regelgruppe/i)).toBeTruthy();
     expect(screen.queryByRole('tab', { name: /1\. Basis für alle/i })).toBeNull();
 
     // Clicking a subgroup chip immediately activates differentiation tabs & visible active-selection bar with balanced headcount
     fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/i }));
     expect(screen.getByRole('region', { name: /Aktive Teilgruppen im Konzept/i })).toBeTruthy();
-    expect(screen.getByText(/26 Lernende gesamt/i)).toBeTruthy();
+    expect(screen.getByText(/Regelgruppe und 1 Teilgruppe · 26 Lernende/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /Teilgruppe DaZ & Sprachsensibel entfernen/i })).toBeTruthy();
     expect(screen.getByRole('tab', { name: /1\. Basis für alle/i })).toBeTruthy();
     expect(screen.getByRole('tab', { name: /2\. Zielkonflikte/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Alle Teilgruppen entfernen/i })).toBeTruthy();
 
-    // Removing the subgroup via its clear × button restores the single Standardgruppe cleanly
+    // Removing the subgroup via its clear × button restores the single Regelgruppe cleanly
     fireEvent.click(screen.getByRole('button', { name: /Teilgruppe DaZ & Sprachsensibel entfernen/i }));
     expect(screen.queryByRole('tab', { name: /1\. Basis für alle/i })).toBeNull();
-    expect(screen.getByText(/1 Gruppe · 26 Lernende gesamt/i)).toBeTruthy();
+    expect(screen.getByText(/bisher nur die Regelgruppe · 26 Lernende/i)).toBeTruthy();
   });
 });

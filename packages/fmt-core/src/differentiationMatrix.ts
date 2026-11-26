@@ -405,6 +405,34 @@ export function scoreMethodAgainstFmtBridges(b: Baustein, measures: readonly Mat
 }
 
 /**
+ * How well a method meets a learner group's needs from the matrix (guidance, facet bridges, scaffolding, enrichment).
+ * Only group-related signals count here, so two methods can be compared for the same group.
+ */
+export function scoreMethodForGroup(b: Baustein, matrixResult: MatrixScoreResult): { fit: number; reasons: string[] } {
+  let fit = 0;
+  const reasons: string[] = [];
+  const wantGuidance = matrixResult.didacticProfile.preferredGuidance;
+  if (b.anleitung.includes(wantGuidance)) {
+    fit += 4;
+    reasons.push(`passt zum Lenkungsbedarf (${wantGuidance})`);
+  }
+  const bridge = scoreMethodAgainstFmtBridges(b, matrixResult.topRecommendations);
+  if (bridge.hits > 0) {
+    fit += Math.min(4, bridge.hits);
+    reasons.push(`FMT-Facetten-Brücke (${bridge.matchedLabels.slice(0, 2).join(', ')})`);
+  }
+  if (matrixResult.didacticProfile.needsScaffolding && (b.adaptivitaet.includes('diff-prozess') || b.adaptivitaet.includes('diff-tempo'))) {
+    fit += 2;
+    reasons.push('bietet Hilfestufen / Tempoanpassung');
+  }
+  if (matrixResult.didacticProfile.benefitsFromEnrichment && (b.engagement.includes('konstruktiv') || b.engagement.includes('interaktiv'))) {
+    fit += 2;
+    reasons.push('ermöglicht vertiefende Konstruktion/Transfer');
+  }
+  return { fit, reasons };
+}
+
+/**
  * Recommends concrete alternative FMT catalog methods for a subgroup in a given phase,
  * strictly enforcing matching Lernfunktion (purpose), compatible granularity (rang <= current),
  * tech/offline/KI/stage constraints, generic FMT-facet domain coherence (no psychomotor/play-simulation swaps
@@ -426,7 +454,6 @@ export function suggestAlternativeMethodsForGroup(
   const curKat = new Set(currentBlock.kategorie || []);
   const curIsPsychomotor = curAufgabe.has('psychomotorik');
   const curIsPlaySim = curAnsatz.has('spiel-simulation');
-  const wantGuidance = matrixResult.didacticProfile.preferredGuidance;
   const curRank = RANGE_ORDER[currentBlock.reichweite] ?? 2;
   const maxDur = Math.max(phaseDurationMin ?? currentBlock.dauerMax, currentBlock.dauerMax) * 1.5;
   const maxTechRank = constraints?.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 3) : 3;
@@ -457,25 +484,9 @@ export function suggestAlternativeMethodsForGroup(
       return true;
     })
     .map((b) => {
-      let fit = 0;
-      const reasons: string[] = [];
-      if (b.anleitung.includes(wantGuidance)) {
-        fit += 4;
-        reasons.push(`passt zum Lenkungsbedarf (${wantGuidance})`);
-      }
-      const bridge = scoreMethodAgainstFmtBridges(b, matrixResult.topRecommendations);
-      if (bridge.hits > 0) {
-        fit += Math.min(4, bridge.hits);
-        reasons.push(`FMT-Facetten-Brücke (${bridge.matchedLabels.slice(0, 2).join(', ')})`);
-      }
-      if (matrixResult.didacticProfile.needsScaffolding && (b.adaptivitaet.includes('diff-prozess') || b.adaptivitaet.includes('diff-tempo'))) {
-        fit += 2;
-        reasons.push('bietet Hilfestufen / Tempoanpassung');
-      }
-      if (matrixResult.didacticProfile.benefitsFromEnrichment && (b.engagement.includes('konstruktiv') || b.engagement.includes('interaktiv'))) {
-        fit += 2;
-        reasons.push('ermöglicht vertiefende Konstruktion/Transfer');
-      }
+      const groupFit = scoreMethodForGroup(b, matrixResult);
+      let fit = groupFit.fit;
+      const reasons = [...groupFit.reasons];
       // Domain/approach coherence bonus with the replaced method
       if ((b.aufgabe || []).some((a) => curAufgabe.has(a))) fit += 2;
       if ((b.ansatz || []).some((a) => curAnsatz.has(a))) fit += 1;

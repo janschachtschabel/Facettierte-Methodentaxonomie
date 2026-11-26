@@ -122,7 +122,7 @@ export const MATERIAL_TYPES: MaterialTypeOption[] = [
 export const STANDARD_LEARNER_GROUPS: LearnerGroup[] = [
   {
     id: 'regel',
-    label: 'Standardgruppe (Regelniveau)',
+    label: 'Regelgruppe (ganze Klasse)',
     profile: 'Gesamtgruppe ohne gesonderte Teilgruppen – Kernanforderung gemäß FMT-Konzept',
     focus: 'regel',
     active: true,
@@ -166,7 +166,7 @@ export const DEFAULT_LEARNER_GROUPS: LearnerGroup[] = [
   },
   {
     id: 'regel',
-    label: 'Regelniveau (Hauptgruppe)',
+    label: 'Regelgruppe',
     profile: 'Kernanforderung gemäß Lehrplan und FMT-Baustein',
     focus: 'regel',
     active: true,

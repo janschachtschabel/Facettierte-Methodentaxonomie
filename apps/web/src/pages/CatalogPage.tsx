@@ -415,30 +415,30 @@ export function CatalogPage() {
                   <ProfileRadarSvg baustein={b} facetten={bundle.facetten} mode="mini" />
                 </div>
 
+                {/* Fixed line counts keep diagram, text and tags at the same height in every card */}
                 <div>
-                  <Link to={`/methoden/${b.kennung}`} className="method-card-title">
+                  <Link to={`/methoden/${b.kennung}`} className="method-card-title" title={b.name}>
                     {b.name}
                   </Link>
-                  {b.alternativname?.length > 0 && (
-                    <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>
-                      {b.alternativname.slice(0, 3).join(' · ')}
-                    </div>
-                  )}
+                  <div className="muted method-card-alt" title={(b.alternativname || []).join(' · ') || undefined}>
+                    {(b.alternativname || []).slice(0, 3).join(' · ') || '\u00a0'}
+                  </div>
                 </div>
 
                 <MethodCardDiagram baustein={b} labelOf={labelOf} />
 
                 <p className="method-card-desc">{b.kurzbeschreibung}</p>
 
-                <ul className="chips">
-                  {b.lernfunktion.slice(0, 3).map((f) => (
-                    <li key={f} className="chip chip-a">
-                      {labelOf('lernfunktion', f)}
-                    </li>
-                  ))}
+                <ul className="chips method-card-chips">
+                  {/* Guidance first: with two fixed rows a third learning function may be cut, never the guidance */}
                   {b.anleitung.slice(0, 1).map((a) => (
                     <li key={a} className="chip chip-b">
                       {labelOf('anleitung', a)}
+                    </li>
+                  ))}
+                  {b.lernfunktion.slice(0, 3).map((f) => (
+                    <li key={f} className="chip chip-a">
+                      {labelOf('lernfunktion', f)}
                     </li>
                   ))}
                 </ul>

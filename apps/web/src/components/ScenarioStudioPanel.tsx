@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { scoreDifferentiationMatrix, type Arrangement, type Baustein, type ValidationResult } from '@fmt/core';
 import { InlineMarkdown, SimpleMarkdown } from './SimpleMarkdown.js';
@@ -38,6 +38,8 @@ interface Props {
   activeResourceTab: StudioTab;
   onResourceTabChange: (tab: StudioTab) => void;
   totalClassSize?: number;
+  /** Step 3 only: content between group picker and detail tabs. */
+  diffMiddleSlot?: ReactNode;
   focusedStepKey: string | null;
   onSelectStepKey?: (stepKey: string) => void;
   arrangement: Arrangement;
@@ -91,6 +93,7 @@ export function ScenarioStudioPanel({
   activeResourceTab,
   onResourceTabChange,
   totalClassSize,
+  diffMiddleSlot,
   focusedStepKey,
   onSelectStepKey,
   arrangement,
@@ -573,13 +576,12 @@ export function ScenarioStudioPanel({
           ohneInternet={ohneInternet}
           ohneKI={ohneKI}
           totalClassSize={totalClassSize}
+          middleSlot={diffMiddleSlot}
         />
         {onNextStep && (
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--rule)' }}>
             <button type="button" className="btn btn-primary" onClick={onNextStep}>
-              {isStandardOnly
-                ? 'Ohne Differenzierung weiter zu Schritt 4: WLO-OER & Material →'
-                : 'Weiter zu Schritt 4: WLO-OER & Material →'}
+              {isStandardOnly ? 'Ohne Differenzierung weiter zu Material →' : 'Weiter zu Material →'}
             </button>
           </div>
         )}
