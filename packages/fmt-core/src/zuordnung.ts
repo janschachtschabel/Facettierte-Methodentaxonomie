@@ -60,7 +60,7 @@ const fold = (s: string) =>
  * "Klassenarbeit vorbereiten" or "Vorbereitung auf den Test" do not match.
  */
 export const LEISTUNGSKONTROLLE =
-  /\bleistungs(?:kontroll|uberprufung|nachweis|messung|test|feststellung|bewertung|abfrage)\w*|\blern(?:ziel|erfolgs|stands)?(?:kontroll|uberprufung)\w*|\blernstandserhebung\w*|(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|nach)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|einen|eine|zur|zum)\s+){0,2})\b(?:test|tests|kurztest|vokabeltest|sporttest|abschlusstest|cooper-?test|klassenarbeit|klausur)\b(?!\s+(?:vor|nach)bereit\w*|\s+(?:nach)?besprechen)|\bbenot(?:ung\w*|et\w*|en)\b/;
+  /\bleistungs(?:kontroll|uberprufung|nachweis|messung|test|feststellung|bewertung|abfrage)\w*|\blern(?:ziel|erfolgs|stands)?(?:kontroll|uberprufung)\w*|\blernstandserhebung\w*|(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|nach)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|einen|eine|zur|zum)\s+){0,2})\b(?:test|tests|kurztest|vokabeltest|sporttest|abschlusstest|cooper-?test|klassenarbeit|klausur)\b(?!\s+(?:vor|nach)bereit\w*|\s+(?:nach)?besprechen)|\bbenot(?:ung\w*|et\w*|en)\b|\bnoten(?:gebung|vergabe)\b|(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|nach|tipps|angst|ablauf|simulation|ubung|uben)\s+(?:(?:auf|fur|vor|der|die|den|das|dem|eine|einer|zur|zum)\s+){0,2}(?:\w+e[nrs]?\s+)?)\b(?:schriftlich|mundlich|praktisch)\w*\s+(?:uberprufung|prufung|abfrage|lernkontrolle)(?:en)?\b(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben|simulieren|erklaren))/;
 
 /**
  * Removes negated phrases ("keine Gruppenarbeit", "ohne Experimente", "bitte keine Diskussion im Plenum")
@@ -992,6 +992,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         });
     // Openings are interchangeable within a wider margin: the topic decides among those that fit the opening's time,
     // so the same few do not open every lesson and a long opener does not take time from the main phases.
+    // A check that opens the lesson is no exit ticket.
+    if (currentStepRole === 'pruefung' && currentStepIndex === 0) {
+      return order(ranked.map((x) => ({ ...x, hard: [...x.hard, /^exit-|ausstieg/.test(x.b.kennung) ? 1 : 0] })));
+    }
     if (!opening) return order(ranked);
     const fitsTime = (b: Baustein) => maxStepMin == null || b.dauerMin <= maxStepMin;
     return order(
@@ -1006,12 +1010,37 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
    * Chain steps for this request. A requested check (liefert: lernstand-diagnostiziert) uses the chain's own
    * check step or gets an added step before the closing reflection.
    */
+  /** The text puts the check before the rest of the lesson. */
+  const checkFirst = (folded: string) => {
+    const text = withoutNegated(folded);
+    const m = LEISTUNGSKONTROLLE.exec(text);
+    if (!m) return false;
+    const before = text.slice(Math.max(0, m.index - 40), m.index);
+    const after = text.slice(m.index + m[0].length, m.index + m[0].length + 40);
+    // "am Ende ein Test, danach Hausaufgaben" or "Test zu Beginn der nächsten Stunde ankündigen" keep the check at the end.
+    if (/\b(?:am\s+ende|zum\s+(?:schluss|abschluss)|am\s+schluss|abschliessend|schliesslich)\b/.test(before + ' ' + after)) return false;
+    if (/\b(?:nachste\w*|kommende\w*)\s+(?:stunde|woche)|\bankundig/.test(after)) return false;
+    const opener = /\b(?:zu\s+beginn|am\s+anfang|zum\s+(?:einstieg|start|stundenbeginn)|zuerst)\s+(?:(?:ein|eine|einen|einer|kurz\w*|schriftlich\w*|mundlich\w*)\s+){0,2}$/;
+    const thenRest = /^\s*,?\s*(?:und\s+)?(?:danach|anschliessend|im\s+anschluss|dann)\b/;
+    return opener.test(before) || thenRest.test(after);
+  };
+
+  /** A check that opens a movement lesson still comes after the warm-up. */
+  const firstAfterWarmUp = (kette: Funktionskette, steps: PlanStep[]) =>
+    (kette.zielart || []).includes('psychomotorik') && steps[0]?.rolle === 'rand' && steps[0].funktion.includes('orientierung') ? 1 : 0;
+
   function planSteps(kette: Funktionskette, a: MatchRequest): PlanStep[] {
     let steps: PlanStep[] = kette.schritte.map((st) => ({ ...st }));
     if (list(a.liefert).includes('lernstand-diagnostiziert')) {
       const own = steps.find((st) => st.ziel === 'lernstand-diagnostiziert');
-      if (own) own.pruefung = true;
-      else {
+      if (own) {
+        own.pruefung = true;
+        if (checkFirst(currentRawText)) {
+          const rest = steps.filter((st) => st !== own);
+          const at = firstAfterWarmUp(kette, rest);
+          steps = [...rest.slice(0, at), own, ...rest.slice(at)];
+        }
+      } else {
         const check: PlanStep = {
           id: 'leistungskontrolle',
           label: 'Leistung oder Lernstand überprüfen',
@@ -1023,7 +1052,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           zusatz: true
         };
         const last = steps[steps.length - 1];
-        const at = last && last.rolle === 'rand' && last.funktion.includes('metakognition') ? steps.length - 1 : steps.length;
+        const atEnd = last && last.rolle === 'rand' && last.funktion.includes('metakognition') ? steps.length - 1 : steps.length;
+        // "Vokabeltest und danach neue Lektion" or "zu Beginn ein Test": the check opens the lesson.
+        const at = checkFirst(currentRawText) ? firstAfterWarmUp(kette, steps) : atEnd;
         steps.splice(at, 0, check);
       }
     }
@@ -1120,6 +1151,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     // Methods named in the request: reserve their minimum duration at the first chain step they can serve.
     const mentioned = [...currentMentions].map((id) => blocks.get(id)).filter((b): b is Baustein => Boolean(b));
+    // Anchors belong to this chain's steps; a second planning pass with another chain starts afresh.
+    currentAnchorStep = new Map();
     const floors: Array<number | undefined> = steps.map(() => undefined);
     for (const b of mentioned) {
       if (rahmen(b, a)) continue;
@@ -1352,6 +1385,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       .filter((w) => w.length > 2 && !FRAME_WORDS.has(w))
       .join(' ');
 
+  /** Wishes that narrow the choice without changing the setting; relaxed in this order when no valid plan is possible. */
+  const RELAXABLE: Array<[string, string]> = [
+    ['maxVorbereitung', 'wenig Vorbereitung'],
+    ['anleitung', 'Anleitungsgrad'],
+    ['engagement', 'Aktivitätsform'],
+    ['interaktion', 'Sozialform'],
+    ['reichweite', 'Reichweite'],
+    ['ansatz', 'didaktischer Ansatz']
+  ];
+
   /** Room of the lesson and whether its main phases should be practical. A stated classroom turns the practice preference off. */
   function setRoom(a: MatchRequest, psychomotor: boolean) {
     currentLernort = given(a.lernort)
@@ -1394,7 +1437,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       if (zieltypFromText && given(anfrage.zielart)) delete a.zieltyp;
       currentVariante = given(a.variante) ? Number(a.variante) : 0;
       delete a.variante;
-      currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(String(anfrage.text)).map((m) => m.kennung) : []);
+      // Methods named in a negated phrase ("keine Gruppenarbeit") are no wish for them.
+      currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)).map((m) => m.kennung) : []);
       currentSeed = topicSeed(currentRawText);
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
       currentNegatedInteractions = negatedInteractions(currentRawText);
@@ -1441,10 +1485,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }));
       }
       let chainGuessed = false;
+      let chainInferred = false;
       let ketten = a.zieltyp
         ? [chains.get(a.zieltyp)!].filter(Boolean)
         : data.ketten.filter((k) => (k.zielart || []).includes(String(a.zielart)));
       if (!ketten.length && given(anfrage.text)) {
+        chainInferred = true;
         const ansatzList = list(a.ansatz);
         const byAnsatz: Array<[string, string]> = [
           ['forschend', 'fuenf-e'],
@@ -1490,6 +1536,68 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             annahmen: [...(retry.annahmen || []), `Ablauf „${tried}“ war mit diesem Rahmen nicht vollständig planbar; stattdessen „${general.label}“.`]
           });
           ketten = [general];
+        }
+      }
+      // A method the text names but the inferred chain has no time for: try a chain with a step it can fill.
+      const crowdedOut = chainInferred
+        ? (res.nichtVerankert || []).filter((n) => n.grund.startsWith('Zeitbudget')).map((n) => blocks.get(n.baustein)!)
+        : [];
+      const triedChains = new Set<string>();
+      const placedBefore = (res.verankert || []).map((v) => v.baustein);
+      for (const b of crowdedOut) {
+        const tried = ketten[0];
+        triedChains.add(tried.id);
+        // Only chains of the same kind of goal: a movement chain for a movement lesson, a classroom chain otherwise.
+        const psychomotorTried = (tried.zielart || []).includes('psychomotorik');
+        const fitsChain = (k: Funktionskette) =>
+          !triedChains.has(k.id) &&
+          (k.zielart || []).includes('psychomotorik') === psychomotorTried &&
+          k.schritte.some((st) => b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel));
+        // The general concept chain first, then the others in catalogue order.
+        const retryOrder = [...data.ketten].sort((x, y) => Number(y.id === 'konzeptaufbau') - Number(x.id === 'konzeptaufbau'));
+        for (const k of retryOrder.filter(fitsChain)) {
+          triedChains.add(k.id);
+          setRoom(a, (k.zielart || []).includes('psychomotorik'));
+          const retry = ablauf(a, k);
+          const inTime = !given(a.zeitMin) || (retry.pruefung?.dauerMin ?? 0) <= Number(a.zeitMin);
+          const placed = new Set((retry.verankert || []).map((v) => v.baustein));
+          if (retry.pruefung?.gueltig && inTime && placed.has(b.kennung) && placedBefore.every((id) => placed.has(id))) {
+            res = Object.assign(retry, {
+              annahmen: [
+                ...(retry.annahmen || []),
+                `„${b.name}“ passte zeitlich nicht in den Ablauf „${tried.label}“; stattdessen „${k.label}“.`
+              ]
+            });
+            ketten = [k];
+            break;
+          }
+        }
+        if (ketten[0] !== tried) break;
+      }
+      setRoom(a, (ketten[0].zielart || []).includes('psychomotorik'));
+      // Still no valid plan: relax one wish at a time that only narrows the choice, and say which one.
+      // Only an uncovered function (R-04) can be helped this way; wishes the caller stated as fields stay.
+      const uncovered = (res.pruefung?.meldungen || []).some((x) => x.regel === 'R-04' && x.schwere === 'Fehler');
+      if (!res.pruefung?.gueltig && uncovered) {
+        const placedBefore = (res.verankert || []).map((v) => v.baustein);
+        for (const [feld, label] of RELAXABLE) {
+          if (!given(a[feld]) || given(anfrage[feld])) continue;
+          const relaxed: MatchRequest = { ...a };
+          delete relaxed[feld];
+          setRoom(relaxed, (ketten[0].zielart || []).includes('psychomotorik'));
+          const retry = ablauf(relaxed, ketten[0]);
+          const inTime = !given(a.zeitMin) || (retry.pruefung?.dauerMin ?? 0) <= Number(a.zeitMin);
+          const placed = new Set((retry.verankert || []).map((v) => v.baustein));
+          if (retry.pruefung?.gueltig && inTime && placedBefore.every((id) => placed.has(id))) {
+            setRoom(a, (ketten[0].zielart || []).includes('psychomotorik'));
+            res = Object.assign(retry, {
+              annahmen: [
+                ...(retry.annahmen || []),
+                `Mit der Vorgabe „${label}“ (${feld}) war kein vollständiger Ablauf möglich; der Vorschlag hält sie nicht ein.`
+              ]
+            });
+            break;
+          }
         }
       }
       return Object.assign(head, res, {

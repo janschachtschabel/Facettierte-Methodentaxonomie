@@ -249,3 +249,55 @@ describe('Lernort, Verneinung und Abwechslung', () => {
     expect(Math.max(...counts.values()) / first.length).toBeLessThanOrEqual(0.5);
   });
 });
+
+describe('Mehrfachwünsche und Ausweichen', () => {
+  it('Prüfung am Anfang: „zu Beginn ein Test, dann …“ stellt die Prüfung an den Anfang', () => {
+    for (const text of ['Mathe Klasse 7, zu Beginn ein kurzer Test, dann Prozentrechnung, 45 Minuten', 'Französisch Klasse 7, Vokabeltest und danach neue Lektion einführen, 45 Minuten']) {
+      const r = M.zuordnen({ text });
+      expect(r.modus, text).toBe('ablauf');
+      if (r.modus === 'ablauf') {
+        const first = D.bausteine.find((b) => b.kennung === r.schritte?.[0]?.baustein)!;
+        expect(first.lernfunktion[0], text).toBe('diagnose');
+        expect(r.pruefung?.gueltig, text).toBe(true);
+      }
+    }
+  });
+
+  it('Prüfung bleibt am Ende: „am Ende ein Test, danach …“, „erst am Ende“, Sport nach dem Aufwärmen', () => {
+    const lastCheck = (text: string) => {
+      const r = M.zuordnen({ text });
+      if (r.modus !== 'ablauf') return false;
+      const first = D.bausteine.find((b) => b.kennung === r.schritte?.[0]?.baustein)!;
+      return first.lernfunktion[0] !== 'diagnose';
+    };
+    expect(lastCheck('Mathe Klasse 7 Prozentrechnung, am Ende ein Test, danach Hausaufgaben, 45 Minuten')).toBe(true);
+    expect(lastCheck('Mathe Klasse 7 Prozentrechnung, erst am Ende ein kurzer Test, 45 Minuten')).toBe(true);
+    expect(lastCheck('Englisch Klasse 7 Vokabeln, Vokabeltest dann am Ende, 45 Minuten')).toBe(true);
+    expect(lastCheck('Sport Klasse 9, zuerst Aufwärmen, dann Cooper-Test, 45 Minuten')).toBe(true);
+  });
+
+  it('genannte Methode ohne Zeit im geschätzten Ablauf: anderer Ablauf, in dem sie Platz hat, mit Annahme', () => {
+    const r = M.zuordnen({ text: 'Kaufleute im Einzelhandel: Reklamationsgespräch führen, 45 Minuten, Rollenspiel' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(blocksOf(r)).toContain('rollenspiel');
+      expect(r.pruefung?.gueltig).toBe(true);
+      expect(r.pruefung?.dauerMin).toBeLessThanOrEqual(45);
+      expect((r.annahmen || []).some((x) => x.includes('passte zeitlich nicht'))).toBe(true);
+    }
+  });
+
+  it('kein gültiger Ablauf mit einer einengenden Vorgabe: Vorgabe gelockert und genannt', () => {
+    const r = M.zuordnen({ text: 'Vertretungsstunde Klasse 8 fachfremd, 45 Minuten, ohne Vorbereitung, egal welches Thema' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(r.pruefung?.gueltig).toBe(true);
+      expect((r.annahmen || []).some((x) => x.includes('hält sie nicht ein'))).toBe(true);
+    }
+  });
+
+  it('verneint genannte Methode wird nicht eingeplant: „keine Gruppenarbeit“', () => {
+    const r = M.zuordnen({ text: 'Geschichte Klasse 10 Weimarer Republik, 60 Minuten, keine Gruppenarbeit' });
+    expect(blocksOf(r)).not.toContain('gruppenarbeit-klassisch');
+  });
+});
