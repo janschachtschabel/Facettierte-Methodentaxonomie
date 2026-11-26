@@ -10,11 +10,11 @@ export const REIHE3: Qualitaetsfall[] = [
   { id: 'r3-ort-erdkunde-bach-90', text: 'Erdkunde Klasse 7 Exkursion an den Bach: Gewässergüte bestimmen, 90 Minuten, draußen', erwartet: { kriterien: { raum: 'draussen', zeitMin: 90, bildungsstufe: 'sek1' }, nichtKriterien: { ansatz: ['spiel-simulation'] } } },
   { id: 'r3-ort-bio-schulgarten-45', text: 'Bio Klasse 5 im Schulgarten: Pflanzen bestimmen, 45 Minuten', erwartet: { kriterien: { raum: 'draussen', fachbereich: 'nawi-technik' } } },
   { id: 'r3-ort-gs-wald-90', text: 'Waldtag mit der 2. Klasse, Tiere im Wald entdecken, 90 Minuten', erwartet: { kriterien: { raum: 'draussen', bildungsstufe: 'primar' } } },
-  { id: 'r3-ort-museum-60', text: 'Geschichte 9. Klasse Museumsbesuch zur Industrialisierung vorbereiten und durchführen, 60 Minuten im Museum', erwartet: { kriterien: { raum: 'draussen', fachbereich: 'gesellschaft' } } },
+  { id: 'r3-ort-museum-60', text: 'Geschichte 9. Klasse Museumsbesuch zur Industrialisierung vorbereiten und durchführen, 60 Minuten im Museum', erwartet: { kriterien: { raum: 'ausserschulisch', fachbereich: 'gesellschaft' } } },
   { id: 'r3-ort-hoersaal-bwl-90', text: 'Vorlesung BWL im Hörsaal, 180 Studierende, Kostenrechnung, 90 Minuten, trotzdem etwas Aktivierung', erwartet: { kriterien: { raum: 'hoersaal', bildungsstufe: 'hochschule', gruppe: 180 } } },
-  { id: 'r3-ort-chemie-labor-90', text: 'Chemie Q1 Titration im Labor, Schülerversuch, Doppelstunde', erwartet: { praxis: true, kriterien: { raum: 'fachraum', bildungsstufe: 'sek2', zeitMin: 90 } } },
-  { id: 'r3-ort-technik-werkstatt-90', text: 'Technik Klasse 8 in der Werkstatt: Vogelhaus sägen und bohren, 90 Minuten', erwartet: { praxis: true, kriterien: { raum: 'fachraum', fachbereich: 'nawi-technik' } } },
-  { id: 'r3-ort-hauswirtschaft-kueche-90', text: 'Hauswirtschaft Klasse 9 in der Lehrküche: Pizza backen und Hygiene beachten, 90 Minuten', erwartet: { praxis: true, kriterien: { raum: 'fachraum' } } },
+  { id: 'r3-ort-chemie-labor-90', text: 'Chemie Q1 Titration im Labor, Schülerversuch, Doppelstunde', erwartet: { praxis: true, kriterien: { raum: 'fachraum-nawi', bildungsstufe: 'sek2', zeitMin: 90 } } },
+  { id: 'r3-ort-technik-werkstatt-90', text: 'Technik Klasse 8 in der Werkstatt: Vogelhaus sägen und bohren, 90 Minuten', erwartet: { praxis: true, kriterien: { raum: 'werkraum', fachbereich: 'nawi-technik' } } },
+  { id: 'r3-ort-hauswirtschaft-kueche-90', text: 'Hauswirtschaft Klasse 9 in der Lehrküche: Pizza backen und Hygiene beachten, 90 Minuten', erwartet: { praxis: true, kriterien: { raum: 'lehrkueche' } } },
   { id: 'r3-ort-sport-draussen-45', text: 'Sport Klasse 6 auf dem Sportplatz: Sprint und Staffellauf, 45 Minuten', erwartet: { praxis: true, kriterien: { fachbereich: 'sport', raum: 'draussen' } } },
 
   // Primarstufe
