@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator, extractSubjectAndTopic } from '../src/index.js';
 import { QUALITAETSFAELLE } from './qualitaet/faelle.js';
+import { REIHE2 } from './qualitaet/faelle-reihe2.js';
 import { pruefeFall, variabilitaet } from './qualitaet/pruefen.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -39,5 +40,11 @@ describe('Qualitätstest: Thema aus der Anfrage', () => {
     ['Musikunterricht Klasse 5: Rhythmus klatschen, 45 Minuten', 'Musik', 'Rhythmus klatschen']
   ])('%s', (text, fach, thema) => {
     expect(extractSubjectAndTopic(text)).toEqual({ fach, thema });
+  });
+});
+
+describe('Testreihe 2 (nur Bericht)', () => {
+  it('alle Anfragen laufen ohne Fehler durch', () => {
+    for (const f of REIHE2) expect(() => pruefeFall(f, M, D), f.id).not.toThrow();
   });
 });
