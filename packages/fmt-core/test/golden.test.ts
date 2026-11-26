@@ -379,9 +379,9 @@ describe('Prüfung am Stundenanfang und Lesen praktischer Fächer', () => {
   });
 
   it.each([
-    ['Darstellendes Spiel Klasse 10: Improvisation und Szenenarbeit, 90 Minuten', 'psychomotorik'],
-    ['Chemie Anfangsunterricht Klasse 7: Sicherheitsregeln im Labor und Brenner anzünden, 45 Minuten', 'psychomotorik'],
-    ['Seniorenkurs: Smartphone Grundlagen, WhatsApp nutzen, 90 Minuten, 8 Teilnehmende', 'psychomotorik'],
+    ['Darstellendes Spiel Klasse 10: Improvisation und Szenenarbeit, 90 Minuten', 'bewegung'],
+    ['Chemie Anfangsunterricht Klasse 7: Sicherheitsregeln im Labor und Brenner anzünden, 45 Minuten', 'bewegung'],
+    ['Seniorenkurs: Smartphone Grundlagen, WhatsApp nutzen, 90 Minuten, 8 Teilnehmende', 'bewegung'],
     ['Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, draußen, 45 Minuten', 'prozeduren']
   ])('%s → Zielart %s', (text, zielart) => {
     expect(M.lesen(text).kriterien.zielart).toBe(zielart);
@@ -406,7 +406,7 @@ describe('Keine Fehlgriffe durch Alltagswörter (Review)', () => {
     'Geschichte Klasse 9: Handy Grundlagen der Quellenkritik, 45 Minuten',
     'Englisch: Lehrkraft muss improvisieren, Vokabeln wiederholen, 45 Minuten'
   ])('%s: keine Bewegungs- oder Praxisstunde', (text) => {
-    expect(M.lesen(text).kriterien.zielart).not.toBe('psychomotorik');
+    expect(M.lesen(text).kriterien.zielart).not.toBe('bewegung');
   });
 
   it('ein mitgegebener Zustand „vorhanden“ erreicht den Kontext des Ablaufs', () => {

@@ -17,6 +17,12 @@ export interface Fallergebnis {
   befunde: Befund[];
 }
 
+/** Old codes in quality cases and the codes the text reading gives for them since FMT 2.0 (goal kinds, room types). */
+const ALTE_CODES: Record<string, Record<string, string[]>> = {
+  zielart: { psychomotorik: ['bewegung', 'kondition'], einstellungen: ['urteilen'] },
+  raum: { fachraum: ['fachraum-nawi', 'musikraum', 'werkraum', 'lehrkueche'], draussen: ['ausserschulisch'] }
+};
+
 /** Method suits a gym, a workshop or a practice room: movement, hands-on work or a practice subject. */
 export const istPraxismethode = (b: Baustein) =>
   (b.aufgabe || []).includes('psychomotorik') ||
@@ -171,11 +177,15 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
     add('verneinung', drin.length === 0, `gelesener Ansatz trotz Verneinung: ${drin.join(', ')}`);
   }
   const kriterienFehler: string[] = [];
+  // Cases written before FMT 2.0 name old codes; the text now reads the more precise code they stand for.
+  const gleich = (feld: string, ist: unknown, soll: unknown) =>
+    JSON.stringify(ist) === JSON.stringify(soll) ||
+    (typeof soll === 'string' && (ALTE_CODES[feld]?.[soll] || []).includes(String(ist)));
   for (const [feld, wert] of Object.entries(e.kriterien || {})) {
-    if (JSON.stringify(k[feld]) !== JSON.stringify(wert)) kriterienFehler.push(`${feld}=${JSON.stringify(k[feld])} statt ${JSON.stringify(wert)}`);
+    if (!gleich(feld, k[feld], wert)) kriterienFehler.push(`${feld}=${JSON.stringify(k[feld])} statt ${JSON.stringify(wert)}`);
   }
   for (const [feld, wert] of Object.entries(e.nichtKriterien || {})) {
-    if (JSON.stringify(k[feld]) === JSON.stringify(wert)) kriterienFehler.push(`${feld}=${JSON.stringify(wert)} fälschlich gelesen`);
+    if (gleich(feld, k[feld], wert)) kriterienFehler.push(`${feld}=${JSON.stringify(wert)} fälschlich gelesen`);
   }
   if (e.kriterien || e.nichtKriterien) add('kriterien', kriterienFehler.length === 0, kriterienFehler.join('; '));
 

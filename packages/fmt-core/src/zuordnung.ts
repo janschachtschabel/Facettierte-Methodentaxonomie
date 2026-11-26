@@ -25,7 +25,7 @@ import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
 import { schriftFehlt } from './bedarf.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
-import { bewegungsKette, passtZielart } from './zielart.js';
+import { bewegungsKette, normZielart, passtZielart, waehleKette } from './zielart.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -204,8 +204,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       feld: 'zielart',
       typ: 'code',
       stufe: 1,
-      bedeutung: 'Art des Lernziels; daraus folgt der Zieltyp',
-      werte: opts(group('aufgabenstruktur', 'wissensart'))
+      bedeutung: 'Art des Lernziels; daraus folgt der Zieltyp. Die alten Wissensart-Codes werden weiter angenommen.',
+      werte: [
+        ...opts(values(scheme('zielart'))),
+        ...opts(group('aufgabenstruktur', 'wissensart'))
+          .filter((w) => !values(scheme('zielart')).some((z) => z.id === w.code))
+          .map((w) => ({ ...w, label: `${w.label} (alter Code)` }))
+      ]
     },
     {
       feld: 'ansatz',
@@ -288,6 +293,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('raumtyp')))
     },
     {
+      feld: 'raumBietet',
+      typ: 'codes',
+      bedeutung: 'Raumeigenschaften, die der Raum abweichend vom Raumtyp bietet (z. B. Bewegungsfläche, Wandfläche)',
+      werte: opts(values(scheme('raumbedarf')))
+    },
+    {
+      feld: 'fachausstattungArt',
+      typ: 'code',
+      bedeutung: 'Art der Fachausstattung, die der Raum bietet (Sport, Musik, Labor, Werkstatt, Küche, Rechner)',
+      werte: opts(values(scheme('fachausstattungart')))
+    },
+    {
       feld: 'ohneSchrift',
       typ: 'codes',
       stufe: 2,
@@ -297,6 +314,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         { code: 'schreiben', label: 'Schreiben' }
       ]
     },
+    { feld: 'termine', typ: 'integer', bedeutung: 'Anzahl der Termine (Sitzungen, Stunden) der Einheit' },
     {
       feld: 'vorhanden',
       typ: 'codes',
@@ -352,9 +370,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
   }
 
-  function check(a: MatchRequest) {
+  /** Validates a request and returns it with old zielart codes normalised; the former field lernort is checked as raum. */
+  function check(a: MatchRequest): MatchRequest {
     Object.keys(a).forEach((key) => {
-      const f = FIELDS.find((x) => x.feld === key);
+      const f = FIELDS.find((x) => x.feld === (key === 'lernort' ? 'raum' : key));
       if (!f) throw new FmtRequestError(`Unbekanntes Feld „${key}“. Erlaubt: ${FIELDS.map((x) => x.feld).join(', ')}.`);
       if (f.typ === 'integer' && given(a[key]) && !(Number.isInteger(Number(a[key])) && Number(a[key]) >= 0)) {
         throw new FmtRequestError(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
@@ -370,6 +389,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         }
       });
     });
+    return given(a.zielart) ? { ...a, zielart: normZielart(String(a.zielart)) } : a;
   }
 
   const functionWords: Array<[string, string]> = values(scheme('lernfunktion'))
@@ -386,12 +406,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       ['lernstand', 'diagnose']
     ]);
 
-  /** The action verb names the kind of lesson when no learning goal type is stated ("aushandeln" → judgement). */
-  const VERB_CHAINS: Array<[RegExp, string]> = [
-    [/\b(?:diskutier|debattier|beurteil|bewert|erorter|aushandel|abwag)\w*|\bstellung\s+(?:nehmen|beziehen)|\bstreit\w*\s+(?:in\s+der\s+klasse\s+)?(?:besprechen|klaren|schlichten)|\b(?:fake\s*news|falschmeldung\w*)\s+erkennen/, 'urteilsbildung'],
-    [/\bfall(?:bearbeitung|arbeit|studie|analyse)\w*|\bfalle?\s+(?:losen|bearbeiten)/, 'problemloesen'],
-    [/\bprojekt(?:tag|woche|arbeit|unterricht)\w*|\b(?:netzwerk|event|fest|ausflug|budget)\w*\s+planen\b/, 'projektlernen'],
-    [/\b(?:ausprobier|erkund|untersuch|experimentier)\w*|\b(?:pflanzen|baume|tiere|vogel|gesteine|stoffe)\w*\s+(?:\w+\s+){0,3}bestimmen\b/, 'fuenf-e']
+  /** The action verb names the goal kind (and approach) when no learning goal is stated ("aushandeln" → judgement). */
+  const VERB_CHAINS: Array<[RegExp, { zielart: string; ansatz?: string[] }]> = [
+    [/\b(?:diskutier|debattier|beurteil|bewert|erorter|aushandel|abwag)\w*|\bstellung\s+(?:nehmen|beziehen)|\bstreit\w*\s+(?:in\s+der\s+klasse\s+)?(?:besprechen|klaren|schlichten)|\b(?:fake\s*news|falschmeldung\w*)\s+erkennen/, { zielart: 'urteilen' }],
+    [/\bfall(?:bearbeitung|arbeit|studie|analyse)\w*|\bfalle?\s+(?:losen|bearbeiten)/, { zielart: 'problemloesen' }],
+    [/\bprojekt(?:tag|woche|arbeit|unterricht)\w*|\b(?:netzwerk|event|fest|ausflug|budget)\w*\s+planen\b/, { zielart: 'gestalten', ansatz: ['offen'] }],
+    [/\b(?:ausprobier|erkund|untersuch|experimentier)\w*|\b(?:pflanzen|baume|tiere|vogel|gesteine|stoffe)\w*\s+(?:\w+\s+){0,3}bestimmen\b/, { zielart: 'konzepte', ansatz: ['forschend'] }]
   ];
   /** Activity verbs that describe a whole lesson as well as a phase. */
   const ACTIVITY_WORD = /^(?:uben|ubt|wiederhol|festig|trainier|automatisier)/;
@@ -406,6 +426,30 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const STANDARD_STUNDE_MIN = 45;
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
   const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
+  /** Goal kinds of a movement lesson (the old knowledge-type code psychomotorik). */
+  const BEWEGUNG_ZIELARTEN = new Set(['bewegung', 'kondition']);
+  /**
+   * Room class the planning paths still work with: the special rooms of FMT 2.0 count as fachraum, a place outside
+   * school as draussen; a computer room or an online room is planned like a classroom without a stated room ('').
+   */
+  const RAUM_KLASSE: Record<string, string> = {
+    'fachraum-nawi': 'fachraum',
+    musikraum: 'fachraum',
+    werkraum: 'fachraum',
+    lehrkueche: 'fachraum',
+    computerraum: '',
+    ausserschulisch: 'draussen',
+    digital: ''
+  };
+  /** Knowledge types (D1) of a goal kind, from the zielart scheme; an old knowledge-type code stands for itself. */
+  const wissensartenDerZielart = (code: string): string[] => {
+    const w = values(scheme('zielart')).find((x) => x.id === code) as (VocabValue & { wissensart?: string[] }) | undefined;
+    return w?.wissensart?.length ? w.wissensart : [code];
+  };
+  const raumKlasse = (raum: unknown) => (given(raum) ? (RAUM_KLASSE[String(raum)] ?? String(raum)) : '');
+  const ZAHLWORT: Record<string, number> = {
+    zwei: 2, drei: 3, vier: 4, funf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwolf: 12
+  };
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
     // Multiplicative durations first (e.g. "2 x 45 Minuten", "3 × 45 min")
@@ -452,7 +496,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       /(?<![\d])(?<!\b(?:davon|darunter)\s)(\d{1,3})\s*(?:schuler(?:innen|in|n)?\b|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus|azubis?|auszubildende\w*|lehrkrafte|mitarbeitende\w*|students|pupils)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*|unterstutzung|hilfe\w*|forderung))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
       (m) => Number(m[1])
     ],
-    ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|anfanger/, () => 'gering'],
+    ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|(?<!lese)anfanger/, () => 'gering'],
     ['vorwissen', /(?:viel|gut\w*|hoh\w*|solide\w*)\s+(?:vorwissen|vorkenntnis\w*)|fortgeschritten/, () => 'hoch'],
     ['vorwissen', /(?:etwas|mittler\w*)\s+(?:vorwissen|vorkenntnis\w*)|grundkenntnis/, () => 'mittel'],
     [
@@ -479,24 +523,52 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['maxVorbereitung', /wenig\s+vorbereitung|kurz\w*\s+vorbereitung/, () => 15],
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
     ['raumzeit', /online|distanz|videokonferenz|fernunterricht/, () => ['distanz']],
+    // Number of sessions of a unit ("über 4 Termine", "6 Sitzungen", "3 Doppelstunden").
+    [
+      'termine',
+      new RegExp(`\\b(?:uber\\s+)?(\\d{1,2}|${Object.keys(ZAHLWORT).join('|')})\\s+(?:termine|sitzungen|doppelstunden)\\b`),
+      (m) => ZAHLWORT[m[1]] ?? Number(m[1])
+    ],
     // The room must be named as a place ("im Labor", "auf dem Schulhof"); "Wortschatz in der Küche" or "Tiere im Wald" is a topic.
     ['raum', /\bim\s+klassen(?:raum|zimmer)\b|\bsporttheorie\b|\btheoriestunde\b/, () => 'klassenraum'],
     ['raum', /\bhorsaal\w*|(?<!\bzur\s)\bvorlesung\b(?!\s+(?:vor|nach)\w*)/, () => 'hoersaal'],
     ['raum', /\b(?:turn|sport|gymnastik)halle\b|\bin\s+der\s+halle\b|\bsportplatz\b|\bgymnastikraum\b/, () => 'bewegungsraum'],
+    // Named special rooms first; a bare room word counts only as its own list item ("…, Werkstatt, 180 Minuten").
     [
       'raum',
-      /\bim\s+(?:chemie|physik|bio(?:logie)?|fach)?(?:labor|fachraum|werkraum|ubungsraum|praxisraum|musikraum|makerspace)\b|\bin\s+der\s+(?:lehr|schul)?(?:werkstatt|ubungswerkstatt)\b|\blehrwerkstatt\b|\b(?:lehr|schul)kuche\b|\bskills?\s*-?lab\b|\blaborpraktikum\b|\ban\s+ubungskopf\w*|\ban\s+der\s+puppe\b/,
+      /\b(?:im|ins)\s+(?:chemie|physik|bio(?:logie)?|schul|fach)?labor\b|\blaborpraktikum\b|\bschulerlabor\b|\b(?:chemie|physik|bio(?:logie)?|nawi)(?:raum|saal|fachraum)\b|(?:^|[,;:]\s*)labor\s*(?:[,;.]|$)/,
+      () => 'fachraum-nawi'
+    ],
+    ['raum', /\bmusik(?:raum|saal)\b/, () => 'musikraum'],
+    [
+      'raum',
+      /\b(?:werk|kunst|technik)raum\b|\bin\s+der\s+(?:lehr|schul|ubungs)?werkstatt\b|\b(?:lehr|ubungs)werkstatt\b|(?:^|[,;:]\s*)werkstatt\s*(?:[,;.]|$)/,
+      () => 'werkraum'
+    ],
+    ['raum', /\b(?:lehr|schul)kuche\b/, () => 'lehrkueche'],
+    ['raum', /\b(?:computer|pc|rechner|edv)-?raum\b/, () => 'computerraum'],
+    [
+      'raum',
+      /\bim\s+(?:fachraum|ubungsraum|praxisraum|makerspace)\b|\bskills?\s*-?lab\b|\ban\s+ubungskopf\w*|\ban\s+der\s+puppe\b/,
       () => 'fachraum'
     ],
     [
       'raum',
-      /\bdraussen\b(?!\s+und\s+drinnen)|\bauf\s+dem\s+schulhof\b|\bim\s+freien\b|\bim\s+schulgarten\b|\bunterrichtsgang\b|\bausserschulisch\w*\s+lernort\w*|\b(?:auf|bei)\s+(?:der|einer)\s+exkursion\b/,
+      /\bdraussen\b(?!\s+und\s+drinnen)|\bauf\s+dem\s+schulhof\b|\bim\s+freien\b|\bim\s+schulgarten\b|\bunterrichtsgang\b|\b(?:auf|bei)\s+(?:der|einer)\s+exkursion\b/,
       () => 'draussen'
     ],
+    [
+      'raum',
+      /\b(?:am|an\s+einem|im)\s+ausserschulisch\w*\s+lernort\w*|\bausserschulisch\w*\s+lernort\w*|\bim\s+(?:ausbildungs)?betrieb\b|\bam\s+arbeitsplatz\b|\bim\s+museum\b/,
+      () => 'ausserschulisch'
+    ],
+    // Only when no other room is named (the first raum rule that matches wins); a theatre's seating is a topic.
+    ['raum', /\bfester?\s+bestuhlung\b(?!\s+(?:im|in\s+der|des|der)\s+(?:theater|oper|kino|kirche|konzert)\w*)/, () => 'hoersaal'],
+    ['raum', /\bonline\b|\bvideokonferenz\w*/, () => 'digital'],
     // Learners who cannot read yet cannot write either; "kann nicht schreiben" alone keeps reading.
     [
       'ohneSchrift',
-      /(?:konnen|kann)\s+(?:noch\s+)?nicht\s+lesen|\bnichtleser\w*|\bvor\s+dem\s+schriftspracherwerb\b|\banalphabet\w*/,
+      /(?:konnen|kann)\s+(?:noch\s+)?nicht\s+lesen|\bnichtleser\w*|\bleseanfanger\w*|\bnicht\s+alphabetisiert\b|\bvor\s+dem\s+schriftspracherwerb\b|\banalphabet\w*/,
       () => ['lesen', 'schreiben']
     ],
     ['ohneSchrift', /(?:konnen|kann)\s+(?:noch\s+)?nicht\s+schreiben/, () => ['schreiben']],
@@ -515,31 +587,32 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['zieltyp', /projektbasiert\w*|projektlernen|projektarbeit|handlungsorientiert\w*\s+projekt/, () => 'projektlernen'],
     ['zieltyp', /direkte?\s+instruktion|explicit\s+teaching|rosenshine/, () => 'direkte-instruktion'],
     ['zieltyp', /kooperatives?\s+lernen\s+(?:reihe|einheit|stunde|doppelstunde|ablauf)/, () => 'kooperatives-lernen'],
-    ['zieltyp', /problemlos|probleme?\s+losen|offene\s+aufgabe|transferaufgabe/, () => 'problemloesen'],
+    // Goal kinds named in the text (FMT 2.0); they come before the knowledge-type words below and win over them.
+    ['zielart', /problemlos|probleme?\s+losen|offene\s+aufgabe|transferaufgabe/, () => 'problemloesen'],
     ['zieltyp', /\b5\s?e\b|forschend/, () => 'fuenf-e'],
-    ['zieltyp', /\bfaktenwissen\b/, () => 'faktenwissen'],
+    ['zielart', /\bfaktenwissen\b/, () => 'fakten'],
     // Debate words only: plain "diskutieren" or "Diskussion" describe a moment in any lesson, not its goal.
     [
-      'zieltyp',
+      'zielart',
       /urteilsbildung|\bdebatt\w*|streitfrage|\bpro\W+(?:und\W+)?contra\b|\bkontrovers\w*|podiumsdiskussion|fishbowl/,
-      () => 'urteilsbildung'
+      () => 'urteilen'
     ],
     // Endurance, strength or fitness training follows the training chain, not "demonstrate – practise – apply".
     [
-      'zieltyp',
+      'zielart',
       /\b(?:ausdauer|kondition|kraft|fitness|intervall|zirkel)\w*training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkondition(?:straining|sschulung)?\b|\bcooper-?test\b|\bfitnesskurs\b/,
-      () => 'kondition-training'
+      () => 'kondition'
     ],
     // A product must be named: "schreiben", "zeichnen" or "gestalten" alone are everyday verbs.
     [
-      'zieltyp',
+      'zielart',
       /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\blinol(?:schnitt|druck)\w*|\b(?:sieb|hoch|tief)druck(?:verfahren|technik|en)?\b|\bradierung\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
-      () => 'produktion'
+      () => 'gestalten'
     ],
     [
       'zielart',
       /\bbewegungs(?:fertigkeit|lernen|aufgabe|schulung)\w*|\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste[-\s]hilfe\w*|\breanimation\b|\bhaare\s+schneiden\b|\b(?:zubereiten|backen|loten|feilen|bohren|mikroskopier\w*|servieren|eindecken|einstudieren)\b|\b(?:holz|metall|brett|leiste)\w*\s+(?:\w+\s+)?sagen\b|\bnahmaschine\w*|\b(?:gericht|suppe|rezept|menu)\w*\s+(?:\w+\s+)?kochen\b|\bkoch(?:praxis|kurs|unterricht)\b|\b(?:seitenlage|herzdruckmassage|handedesinfektion|ballgewohnung|yoga|pilates)\b|\b(?:an\s+ubungskopfen|am\s+modell\s+uben|an\s+der\s+puppe)\b|\blied\w*\s+singen\b|\bimprovisation(?:s(?:theater|ubung\w*|spiel\w*))?\b|\bimprotheater\b|\bszenenarbeit\b|\bszenisch\w*\s+(?:spiel|darstell|arbeit|gestalt)\w*|\bschauspiel(?:en|erisch\w*|unterricht|ubung\w*|training)\b|\btheater\s+spielen\b|\b(?:bunsen)?brenner\w*\s+(?:\w+\s+)?(?:anzunden|bedienen|handhaben)\b|\bpipettier\w*|\b\w+perspektive\s+zeichnen\b|\bzeichentechnik\w*|\bschraffier\w*|\btitrier\w*|\btitration\b|\breifen\w*wechsel\w*|\breifen\s+(?:\w+\s+)?wechseln\b|\b(?:smartphone|handy|tablet)s?\b(?:\s+[\w-]+){0,2}?\s+(?:bedienen|bedienung|einrichten)\b|\b(?:smartphone|handy|tablet)s?-?\s*grundlagen\s*(?:,|\.|$|fur|kurs)/,
-      () => 'psychomotorik'
+      () => 'bewegung'
     ],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib|\b(?:addier|subtrahier|multiplizier|dividier|vereinfach|umform)en\b|\b(?:bruch\w*|terme?)\s+(?:\w+\s+)?kurzen\b|schaltplan\w*\s+lesen|\b(?:arten|baum|baume|pflanzen|tiere|vogel|gesteine|blumen|insekten|pilze)\w*\s+bestimmen\b|\bbestimmungsschlussel\w*/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen|einmaleins|automatisier/, () => 'fakten'],
@@ -615,7 +688,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const mt = erkannt.findIndex((e) => e.feld === 'maxTechnik');
     if (
       mt >= 0 &&
-      (kriterien.zielart === 'psychomotorik' || kriterien.fachbereich === 'sport') &&
+      (BEWEGUNG_ZIELARTEN.has(String(kriterien.zielart)) || kriterien.fachbereich === 'sport') &&
       /^(?:ohne|keine?)\s+gerate$/.test(erkannt[mt].beleg)
     ) {
       delete kriterien.maxTechnik;
@@ -997,7 +1070,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const fn = list(a.lernfunktion);
     const filterFn = soft.lernfunktion ? [] : fn;
     const want = list(a.liefert);
-    const art = soft.zielart ? [] : list(a.zielart);
+    const art = soft.zielart ? [] : list(a.zielart).flatMap(wissensartenDerZielart);
     const have = a.vorhanden !== undefined ? closure(list(a.vorhanden)) : null;
     const out = {
       funktion: 0,
@@ -1520,8 +1593,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   /** Room of the lesson and whether its main phases should be practical. A stated classroom turns the practice preference off. */
   function setRoom(a: MatchRequest, psychomotor: boolean) {
-    currentRaum = given(a.raum)
-      ? String(a.raum)
+    currentRaum = raumKlasse(a.raum)
+      ? raumKlasse(a.raum)
       : a.fachbereich === 'sport'
         ? 'bewegungsraum'
         : psychomotor && (a.fachbereich === 'beruf-praxis' || a.fachbereich === 'nawi-technik')
@@ -1584,7 +1657,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const { lernort, ...rest } = anfrage;
       anfrage = given(rest.raum) || !given(lernort) ? rest : { ...rest, raum: lernort };
     }
-    check(anfrage);
+    anfrage = check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
     currentSemanticScores = new Map(
       // Text relevance is measured on the topic words only: "Klasse 8" or "45 Minuten" must not favour a method.
@@ -1620,10 +1693,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentSeed = topicSeed(currentRawText);
       // Conditioning is a sports goal: without a stated subject, the plan is a sports lesson;
       // read from the text in another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
-      if (a.zieltyp === 'kondition-training' && !given(a.fachbereich)) a.fachbereich = 'sport';
-      else if (a.zieltyp === 'kondition-training' && zieltypFromText && a.fachbereich !== 'sport') {
-        delete a.zieltyp;
-        if (a.zielart === 'psychomotorik' && !given(anfrage.zielart)) delete a.zielart;
+      const kondition = a.zieltyp === 'kondition-training' || (!given(a.zieltyp) && a.zielart === 'kondition');
+      if (kondition && !given(a.fachbereich)) a.fachbereich = 'sport';
+      else if (kondition && a.fachbereich !== 'sport') {
+        if (zieltypFromText) delete a.zieltyp;
+        if (a.zielart === 'kondition' && !given(anfrage.zielart)) delete a.zielart;
       }
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
       currentGestaltung = currentArea === 'sport' && GESTALTUNG.test(currentRawText);
@@ -1648,7 +1722,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
           const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
-          if (roomOnly && !(given(a.raum) || currentArea === 'sport' || a.zielart === 'psychomotorik')) return false;
+          const roomNamed = given(a.raum) && raumKlasse(a.raum) !== '';
+          if (roomOnly && !(roomNamed || currentArea === 'sport' || BEWEGUNG_ZIELARTEN.has(String(a.zielart)))) return false;
           // The note is given only once the method is really part of the result (see withUnusualNote).
           if (unusual) currentUnusualMentions.push(id);
           return true;
@@ -1691,7 +1766,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         ...(gelesen.fach ? { fach: gelesen.fach } : {})
       };
       if (modus === 'phase') {
-        setRoom(a, a.zielart === 'psychomotorik');
+        setRoom(a, BEWEGUNG_ZIELARTEN.has(String(a.zielart)));
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }));
       }
       let chainGuessed = false;
@@ -1711,7 +1786,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           ['diskurs', 'urteilsbildung']
         ];
         const practising = !guessedFn && list(a.lernfunktion)[0] === 'konsolidierung' ? 'prozedur' : '';
-        const byVerb = VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1] || '';
+        const verb = VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1];
+        const byVerb = verb ? waehleKette(data.ketten, verb)?.kette.id || '' : '';
         const inferredId =
           a.fachbereich === 'sport' && a.raum !== 'klassenraum'
             ? 'fertigkeit-bewegung'

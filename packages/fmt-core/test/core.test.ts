@@ -14,7 +14,7 @@ import {
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup
 } from '../src/index.js';
-import type { Arrangement } from '../src/types.js';
+import type { Arrangement, MatchResult } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -571,6 +571,51 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       const psychIds = (psych.schritte || []).map((s) => s.baustein);
       expect(histIds.join(',')).not.toBe(psychIds.join(','));
     }
+  });
+});
+
+describe('FMT 2.0: Anfragefelder und Leseregeln', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  const bausteineVon = (r: MatchResult) =>
+    r.modus === 'ablauf' ? (r.schritte || []).map((s) => s.baustein) : r.vorschlaege.map((v) => v.baustein);
+
+  it('alte Anfrage mit lernort und zielart psychomotorik ergibt denselben Ablauf wie die neue', () => {
+    const alt = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 90 Minuten', lernort: 'bewegungsraum', zielart: 'psychomotorik' });
+    const neu = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 90 Minuten', raum: 'bewegungsraum', zielart: 'bewegung' });
+    expect(bausteineVon(alt).length).toBeGreaterThan(0);
+    expect(bausteineVon(alt)).toEqual(bausteineVon(neu));
+  });
+
+  it('alte Codes in zielart werden umgewandelt; einstellungen führt zur Urteilsbildung', () => {
+    const r = M.zuordnen({ text: 'Ethik Klasse 10 Sterbehilfe, 90 Minuten', zielart: 'einstellungen' });
+    expect(r.kriterien.zielart).toBe('urteilen');
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('urteilsbildung');
+  });
+
+  it('neue Felder werden geprüft; lernort gilt, steht aber nicht in felder() und schema()', () => {
+    const felder = M.felder().map((f) => f.feld);
+    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine']) expect(felder).toContain(f);
+    expect(felder).not.toContain('lernort');
+    expect(Object.keys(M.schema().properties)).not.toContain('lernort');
+    const zielarten = M.felder().find((f) => f.feld === 'zielart')!.werte!.map((w) => w.code);
+    for (const z of ['fakten', 'konzepte', 'prozeduren', 'problemloesen', 'bewegung', 'kondition', 'urteilen', 'gestalten', 'handlung', 'einstellungen', 'psychomotorik', 'metakognitiv']) {
+      expect(zielarten).toContain(z);
+    }
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', raum: 'lehrkueche', raumBietet: ['stellflaeche'], fachausstattungArt: 'kueche', termine: 3 })).not.toThrow();
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', raumBietet: ['sofa'] })).toThrow(/raumBietet/);
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', lernort: 'kirche' })).toThrow(/kirche/);
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', termine: -1 })).toThrow(/termine/);
+  });
+
+  it.each([
+    ['Politik Klasse 10: Tempolimit diskutieren und beurteilen, 90 Minuten', 'urteilsbildung'],
+    ['Jura Klasse 11: Fallbearbeitung Kaufrecht, 90 Minuten', 'problemloesen'],
+    ['Klasse 8 Projekttag Müll, 90 Minuten', 'projektlernen'],
+    ['Biologie Klasse 6: Bäume im Park erkunden, 90 Minuten', 'fuenf-e']
+  ])('Handlungsverb ohne Zielangabe: %s → Ablauf %s', (text, kette) => {
+    const r = M.zuordnen({ text });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe(kette);
   });
 });
 

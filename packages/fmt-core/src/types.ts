@@ -484,6 +484,18 @@ export interface MatchRequest {
   ohneKI?: boolean;
   maxVorbereitung?: number;
   raumzeit?: string | string[];
+  /** Room type of the lesson (scheme raumtyp). */
+  raum?: string;
+  /** Former name of raum, still accepted. */
+  lernort?: string;
+  /** Room properties the room offers beyond its type (scheme raumbedarf). */
+  raumBietet?: string | string[];
+  /** Kind of special equipment the room offers (scheme fachausstattungart). */
+  fachausstattungArt?: string;
+  /** What the learners cannot do yet: lesen, schreiben. */
+  ohneSchrift?: string | string[];
+  /** Number of sessions of the unit. */
+  termine?: number;
   vorhanden?: string | string[];
   vorwissen?: string;
   bildungsstufe?: string;
