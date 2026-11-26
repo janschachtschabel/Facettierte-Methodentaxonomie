@@ -540,6 +540,25 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     angenommenerZieltyp = fallbackZieltyp;
     matched = store.matcher.zuordnen({ ...matchReq, zieltyp: fallbackZieltyp });
   }
+  // A frame too short for any lesson plan ("Abschlussreflexion, 10 Minuten") gets methods for one phase,
+  // like the Baukasten, instead of a plan that overruns the time.
+  const budget = typeof matched.kriterien.zeitMin === 'number' ? matched.kriterien.zeitMin : undefined;
+  if (matched.modus === 'ablauf' && budget != null && (matched.pruefung?.dauerMin ?? 0) > budget) {
+    const phase = store.matcher.zuordnen({ ...matchReq, modus: 'phase' });
+    if (phase.modus === 'phase' && phase.vorschlaege.length) {
+      return {
+        modus: 'phase' as const,
+        hinweis: `${budget} Minuten reichen nicht für einen vollständigen Ablauf (kürzester Vorschlag ${matched.pruefung?.dauerMin} min). Vorschläge für eine einzelne Phase; für einen Ablauf mehr Zeit angeben.`,
+        fach: args.fach?.trim() || extracted.fach || undefined,
+        thema,
+        erkannteKriterien: phase.kriterien,
+        vorschlaege: phase.vorschlaege.slice(0, 10),
+        vorschlaegeGesamt: phase.vorschlaege.length,
+        dauerMs: Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100,
+        leitplanken: FMT_GUARDRAILS
+      };
+    }
+  }
   if (matched.modus !== 'ablauf' || !matched.arrangement) {
     return {
       fehler: 'Konnte keinen vollständigen Ablauf zuordnen.',

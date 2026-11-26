@@ -385,6 +385,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   const semantic = createSemanticClassifier(data);
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
+  /** Lesson length assumed for a plan when the request names no time. */
+  const STANDARD_STUNDE_MIN = 45;
   const NEGATION_AWARE = new Set(['maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
@@ -1607,7 +1609,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           hinweis: `${Number(a.zeitMin)} Minuten reichen nicht für einen Ablauf „${ketten[0].label}“ mit ${phasen} Phasen. Vorschläge für eine einzelne Phase; für einen verkürzten Ablauf modus „ablauf“ angeben.`
         });
       }
+      // Without a time frame a plan would take every method at full length; assume one lesson instead.
+      const zeitAngenommen = !given(a.zeitMin);
+      if (zeitAngenommen) a.zeitMin = STANDARD_STUNDE_MIN;
       let res = ablauf(a, ketten[0]);
+      if (zeitAngenommen) {
+        res.annahmen = [...(res.annahmen || []), `Keine Zeitangabe: eine Stunde von ${STANDARD_STUNDE_MIN} Minuten angenommen.`];
+      }
       // A chain guessed from a verb that the frame cannot fill (e.g. too few people) gives way to the general concept chain.
       const general = chains.get('konzeptaufbau');
       if (chainGuessed && general && !res.pruefung?.gueltig) {
