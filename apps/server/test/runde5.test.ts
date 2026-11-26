@@ -30,6 +30,13 @@ describe('Runde 5: Szenarioplan in REST und MCP', () => {
     await app.close();
   });
 
+  it('Szenarioplan gibt die Hinweise der Zuordnung weiter (Sicherheitshinweis)', async () => {
+    const p = await plan({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
+    expect((p.hinweise || []).join(' ')).toMatch(/Sicherheitsregeln und Aufsicht/);
+    const m = await tool('build_scenario_plan', { text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
+    expect((m.json.hinweise || []).join(' ')).toMatch(/Sicherheitsregeln und Aufsicht/);
+  });
+
   it('P2: ohne Zeitangabe plant der Szenarioplan eine Stunde von 45 Minuten', async () => {
     const p = await plan({ text: 'Bruchrechnung Klasse 6' });
     expect(p.pruefung.dauerMin).toBeLessThanOrEqual(45);

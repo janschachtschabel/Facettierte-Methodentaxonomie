@@ -327,6 +327,22 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik.*unüblich/);
   });
 
+  it('Hinweis „unüblich“ nur, wenn die genannte Methode wirklich im Ablauf steht', () => {
+    const r = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Bruchrechnung Klasse 8, 45 Minuten' });
+    const placed = (r.modus === 'ablauf' ? r.verankert || [] : []).some((v) => v.baustein === 'differenzielles-lernen');
+    expect(placed || !(r.hinweise || []).some((h) => /auf deinen Wunsch im Ablauf/.test(h))).toBe(true);
+    const p = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Einstieg' });
+    expect((p.hinweise || []).some((h) => /im Ablauf/.test(h))).toBe(false);
+  });
+
+  it('genannter Hauptname im unpassenden Fach umgeht weder Raum- noch Diagnoseregel', () => {
+    // Room-only method (gym), named in a classroom maths lesson: no wish without a room or movement goal.
+    const r = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Bruchrechnung Klasse 8, 45 Minuten' });
+    expect(blocksOf(r)).not.toContain('differenzielles-lernen');
+    // Not a wish at all, so it is no wish that merely lacked time.
+    expect((r.modus === 'ablauf' ? r.nichtVerankert || [] : []).map((n) => n.baustein)).not.toContain('differenzielles-lernen');
+  });
+
   it('Synonym mit Alltagsbedeutung im unpassenden Fach: keine Methode, aber mit Grund unter nichtVerankert', () => {
     const r = M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
     expect(blocksOf(r)).not.toContain('sportmotorischer-test');

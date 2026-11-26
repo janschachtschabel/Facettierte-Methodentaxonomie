@@ -554,6 +554,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
         erkannteKriterien: phase.kriterien,
         vorschlaege: phase.vorschlaege.slice(0, 10),
         vorschlaegeGesamt: phase.vorschlaege.length,
+        hinweise: phase.hinweise || [],
         dauerMs: Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100,
         leitplanken: FMT_GUARDRAILS
       };
@@ -757,6 +758,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     verankert: matched.verankert || [],
     nichtVerankert: matched.nichtVerankert || [],
     annahmen: matched.annahmen || [],
+    hinweise: matched.hinweise || [],
     methodenDetails,
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
     konflikte: multiGroupSynthesis.konflikte.slice(0, 4),

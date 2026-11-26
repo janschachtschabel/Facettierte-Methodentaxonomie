@@ -94,6 +94,8 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Chemie Klasse 8, 24 Schüler, Säuren und Laugen', erwartet: { gruppe: 24 } },
   { text: 'Lehrküche: Messer sicher benutzen, Klasse 8, 45 Minuten', erwartet: { fachbereich: 'beruf-praxis', lernort: 'fachraum' } },
   { text: 'Kunst Klasse 7 Linolschnitt drucken, 90 Minuten', erwartet: { zieltyp: 'produktion', fachbereich: 'aesthetik' } },
+  { text: 'Hochdruckgebiete und Tiefdruckgebiete erklären, Erdkunde Klasse 7, 45 Minuten', erwartet: {}, nicht: { zieltyp: 'produktion' } },
+  { text: 'Kunst Klasse 9 Siebdruck auf T-Shirts, 90 Minuten', erwartet: { zieltyp: 'produktion' } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

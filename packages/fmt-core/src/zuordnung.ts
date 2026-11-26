@@ -514,7 +514,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A product must be named: "schreiben", "zeichnen" or "gestalten" alone are everyday verbs.
     [
       'zieltyp',
-      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\blinol(?:schnitt|druck)\w*|\b(?:sieb|hoch|tief)druck\w*|\bradierung\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
+      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\blinol(?:schnitt|druck)\w*|\b(?:sieb|hoch|tief)druck(?:verfahren|technik|en)?\b|\bradierung\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
       () => 'produktion'
     ],
     [
@@ -762,6 +762,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentMentions = new Set<string>();
   /** Named methods dropped because the subject marks them unsuitable, with the reason (for nichtVerankert). */
   let currentDroppedMentions: Array<{ baustein: string; grund: string }> = [];
+  /** Methods named by their own name although the subject marks them unsuitable. */
+  let currentUnusualMentions: string[] = [];
   let currentAnchorStep = new Map<string, number>();
   let currentStepIndex = -1;
   let currentSeed = '';
@@ -1533,14 +1535,27 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return r;
   }
 
-  function zuordnen(anfrage: MatchRequest = {}): MatchResult {
-    const r = planen(anfrage);
-    return withSafetyNote(r, lastRoom, lastArea);
+  /** Notes a named method that is unusual in the subject, when it is part of the result. */
+  function withUnusualNote(r: MatchResult, unusual: string[], area: string): MatchResult {
+    if (!unusual.length || !area) return r;
+    const chosen = new Set(chosenBlocks(r));
+    const where = r.modus === 'phase' ? 'unter den Vorschlägen' : 'im Ablauf';
+    const notes = unusual
+      .filter((id) => chosen.has(id))
+      .map((id) => `„${blocks.get(id)!.name}“ ist im Fachbereich ${label('fachbereich', area)} unüblich und steht auf deinen Wunsch ${where}.`);
+    if (notes.length) r.hinweise = [...notes, ...(r.hinweise || [])];
+    return r;
   }
 
-  /** Room and subject area of the last planning run, kept past its reset for the safety note. */
+  function zuordnen(anfrage: MatchRequest = {}): MatchResult {
+    const r = planen(anfrage);
+    return withSafetyNote(withUnusualNote(r, lastUnusual, lastArea), lastRoom, lastArea);
+  }
+
+  /** Room, subject area and unusual named methods of the last planning run, kept past their reset for the notes. */
   let lastRoom = '';
   let lastArea = '';
+  let lastUnusual: string[] = [];
 
   function planen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
@@ -1576,7 +1591,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const detected = given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)) : [];
       currentMentions = new Set(detected.map((m) => m.kennung));
       const mainMentions = new Set(detected.filter((m) => m.main).map((m) => m.kennung));
-      const hinweise: string[] = [];
       currentSeed = topicSeed(currentRawText);
       // Conditioning is a sports goal: without a stated subject, the plan is a sports lesson;
       // read from the text in another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
@@ -1596,20 +1610,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         [...currentMentions].filter((id) => {
           const b = blocks.get(id);
           if (!b) return false;
+          let unusual = false;
           if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) {
-            const area = label('fachbereich', currentArea);
-            // The method's own name is a wish: it stays, with a note. A synonym may be an everyday word.
-            if (mainMentions.has(id)) {
-              hinweise.push(`„${b.name}“ ist im Fachbereich ${area} unüblich und steht auf deinen Wunsch im Ablauf.`);
-              return true;
+            // The method's own name is a wish: it stays (subject to the checks below). A synonym may be an everyday word.
+            if (!mainMentions.has(id)) {
+              currentDroppedMentions.push({ baustein: id, grund: `im Fachbereich ${label('fachbereich', currentArea)} als ungeeignet markiert` });
+              return false;
             }
-            currentDroppedMentions.push({ baustein: id, grund: `im Fachbereich ${area} als ungeeignet markiert` });
-            return false;
+            unusual = true;
           }
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
           const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
           if (roomOnly && !(given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik')) return false;
+          // The note is given only once the method is really part of the result (see withUnusualNote).
+          if (unusual) currentUnusualMentions.push(id);
           return true;
         })
       );
@@ -1647,8 +1662,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         kriterien: a,
         erkannt: gelesen.erkannt,
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld),
-        ...(gelesen.fach ? { fach: gelesen.fach } : {}),
-        ...(hinweise.length ? { hinweise } : {})
+        ...(gelesen.fach ? { fach: gelesen.fach } : {})
       };
       if (modus === 'phase') {
         setRoom(a, a.zielart === 'psychomotorik');
@@ -1782,10 +1796,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     } finally {
       lastRoom = currentLernort;
       lastArea = currentArea;
+      lastUnusual = currentUnusualMentions;
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
       currentDroppedMentions = [];
+      currentUnusualMentions = [];
       currentAnchorStep = new Map();
       currentStepIndex = -1;
       currentSeed = '';
