@@ -11,7 +11,17 @@ export type PiktogrammId =
   | 'rolle'
   | 'visualisierung'
   | 'debatte'
-  | 'ki';
+  | 'ki'
+  | 'uebung'
+  | 'spiel'
+  | 'forschen'
+  | 'digital'
+  | 'kreativ'
+  | 'diskurs'
+  | 'kooperativ'
+  | 'offen'
+  | 'feedback'
+  | 'sprache';
 
 export const PIKTOGRAMME: readonly PiktogrammId[] = [
   'vortrag',
@@ -25,7 +35,17 @@ export const PIKTOGRAMME: readonly PiktogrammId[] = [
   'rolle',
   'visualisierung',
   'debatte',
-  'ki'
+  'ki',
+  'uebung',
+  'spiel',
+  'forschen',
+  'digital',
+  'kreativ',
+  'diskurs',
+  'kooperativ',
+  'offen',
+  'feedback',
+  'sprache'
 ] as const;
 
 export type EvidenceGrade = 'A' | 'B' | 'C';

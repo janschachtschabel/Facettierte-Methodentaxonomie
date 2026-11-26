@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { loadFmtData } from '../src/load-data.js';
 import {
   createValidator,
@@ -9,6 +10,7 @@ import {
   createSemanticClassifier,
   detectMatrixTraitsFromText,
   FMT_RULES,
+  PIKTOGRAMME,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup
 } from '../src/index.js';
@@ -566,5 +568,16 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       const psychIds = (psych.schritte || []).map((s) => s.baustein);
       expect(histIds.join(',')).not.toBe(psychIds.join(','));
     }
+  });
+});
+
+describe('Piktogramme', () => {
+  const D = loadFmtData(DATA_DIR);
+  it('jedes Piktogramm der Daten hat eine Zeichnung in der Oberfläche', () => {
+    const known = new Set<string>(PIKTOGRAMME);
+    const missing = [...new Set(D.bausteine.map((b) => b.piktogramm).filter(Boolean))].filter((p) => !known.has(p));
+    expect(missing).toEqual([]);
+    const svg = readFileSync(path.join(ROOT, 'apps/web/src/components/MethodPictogram.tsx'), 'utf8');
+    expect(PIKTOGRAMME.filter((p) => !svg.includes(`type === '${p}'`))).toEqual([]);
   });
 });
