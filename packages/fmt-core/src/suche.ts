@@ -6,7 +6,8 @@ import type {
   ReplacementCandidate,
   SearchCriteria
 } from './types.js';
-import { raumFehlt } from './einsatzprofil.js';
+import { raumFehlt } from './bedarf.js';
+import { baueSituation } from './situation.js';
 import type { FmtValidator } from './validate.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -141,7 +142,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (given(k.maxVorbereitung) && b.vorbereitungMin > Number(k.maxVorbereitung)) return false;
       if (given(k.maxTechnik) && (techRank.get(b.technik) ?? 0) > (techRank.get(String(k.maxTechnik)) ?? 0)) return false;
       if (k.ohneInternet && b.internet) return false;
-      if (given(k.raum) && raumFehlt(data, b, String(k.raum)).length) return false;
+      if (given(k.raum) && raumFehlt(b, baueSituation({ raum: String(k.raum) }, data)).length) return false;
       if (given(k.kategorie) && !(b.kategorie || []).includes(String(k.kategorie))) return false;
       if (k.vorwissen && b.geeignetBeiVorwissen && !b.geeignetBeiVorwissen.includes(k.vorwissen)) return false;
       if (k.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(k.bildungsstufe)) return false;

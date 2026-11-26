@@ -23,7 +23,7 @@ import { createMentionDetector } from './mentions.js';
 import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
-import { schriftFehlt } from './einsatzprofil.js';
+import { schriftFehlt } from './bedarf.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
