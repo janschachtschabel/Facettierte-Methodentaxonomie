@@ -773,6 +773,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     pruefung: matched.pruefung,
     verankert: matched.verankert || [],
     nichtVerankert: matched.nichtVerankert || [],
+    // Steps left open and why (uncovered need), and the form of proof the check is ordered by.
+    ...(matched.modus === 'ablauf' && matched.offenGruende?.length ? { offenGruende: matched.offenGruende } : {}),
+    ...(matched.nachweis ? { nachweis: matched.nachweis } : {}),
     annahmen: matched.annahmen || [],
     hinweise: matched.hinweise || [],
     pflichtangaben: matched.pflichtangaben,

@@ -146,6 +146,14 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const kompaktJson = JSON.parse((kompakt.content as Array<{ text: string }>)[0].text);
     expect(kompaktJson.pflichtangaben).toBeDefined();
     expect(kompaktJson.erkannteKriterien.raum).toBe('draussen');
+    const offen = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: { text: 'Sport Klasse 8, Ausdauerlauf, 45 Minuten', umfang: 'kompakt', raum: 'klassenraum', raumBietet: [], zielart: 'kondition', nachweis: 'praktisch' }
+    });
+    expect(offen.isError, JSON.stringify(offen.content)).toBeFalsy();
+    const offenJson = JSON.parse((offen.content as Array<{ text: string }>)[0].text);
+    expect(offenJson.offenGruende?.length).toBeGreaterThan(0);
+    expect(offenJson.nachweis?.formen).toContain('praktisch');
 
     const valRes = await client.callTool({
       name: 'validate_arrangement',

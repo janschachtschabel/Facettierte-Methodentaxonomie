@@ -88,6 +88,24 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(alias.anzahl).toBe(schrift.anzahl);
   });
 
+  it('POST /plan nennt offenGruende und nachweis, auch kompakt', async () => {
+    const payload = {
+      text: 'Sport Klasse 8, Ausdauerlauf, 45 Minuten',
+      fachbereich: 'sport',
+      raum: 'klassenraum',
+      raumBietet: [],
+      zielart: 'kondition',
+      nachweis: 'praktisch'
+    };
+    for (const umfang of ['voll', 'kompakt']) {
+      const r = (await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { ...payload, umfang } })).json();
+      expect(r.offenGruende?.length, umfang).toBeGreaterThan(0);
+      expect(r.offenGruende[0].grund).toContain('braucht: Bewegungsfläche');
+      expect(r.nachweis?.formen, umfang).toContain('praktisch');
+      expect(r.nachweis.quelle).toBe('anfrage');
+    }
+  });
+
   it('POST /match nimmt lernort weiter an', async () => {
     const r = await app.inject({ method: 'POST', url: '/api/v1/match', payload: { text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' } });
     expect(r.statusCode).toBe(200);

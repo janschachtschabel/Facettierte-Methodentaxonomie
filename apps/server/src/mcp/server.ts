@@ -63,7 +63,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     ...((store.bundle.schemes.find((s) => s.id === 'schriftbedarf')?.werte || []).map((w) => w.id) as string[]),
     'lesen',
     'schreiben'
-  ] as [string, ...string[]]);
+  ] as unknown as [string, ...string[]]);
 
   // 1. search_methods
   server.tool(
