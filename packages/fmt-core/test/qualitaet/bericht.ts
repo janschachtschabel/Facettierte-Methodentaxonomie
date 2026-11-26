@@ -8,13 +8,14 @@ import { loadFmtData } from '../../src/load-data.js';
 import { createMatcher, createValidator } from '../../src/index.js';
 import { QUALITAETSFAELLE } from './faelle.js';
 import { REIHE2 } from './faelle-reihe2.js';
+import { REIHE3 } from './faelle-reihe3.js';
 import { pruefeFall, variabilitaet } from './pruefen.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
 const M = createMatcher(D, createValidator(D));
-// `npm run qualitaet -- reihe2` reports the second test series.
-const faelle = process.argv.includes('reihe2') ? REIHE2 : QUALITAETSFAELLE;
+// `npm run qualitaet -- reihe2` (or `reihe3`) reports the second (third) test series.
+const faelle = process.argv.includes('reihe3') ? REIHE3 : process.argv.includes('reihe2') ? REIHE2 : QUALITAETSFAELLE;
 const ergebnisse = faelle.map((f) => pruefeFall(f, M, D));
 
 const zeilen = ['| Fall | Kette | Ablauf | Befund |', '|---|---|---|---|'];
