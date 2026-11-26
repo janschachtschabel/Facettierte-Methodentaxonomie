@@ -362,6 +362,8 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
 
     const minWanted = Math.min(4, maxItems);
     let hinweis: string | undefined;
+    // The subject filter only counts as applied while no query had to drop it.
+    let fachGelockert = false;
     let items = await queryEduSharing(buildCriteria(cleanWord, true, true, true), rawFetchLimit, controller.signal);
 
     // Progressive relaxation if strict URI combination yields fewer than 4 hits
@@ -376,6 +378,7 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
       if (items.length >= minWanted) hinweis = 'Bildungsstufen-Filter wurde für mehr Treffer gelockert.';
     }
     if (items.length < minWanted && fachUris.length) {
+      fachGelockert = true;
       const more = await queryEduSharing(buildCriteria(cleanWord, false, false, false), rawFetchLimit, controller.signal);
       items = mergeUnique(items, more);
       if (items.length >= minWanted) hinweis = 'Fach- und Stufenfilter wurden gelockert (offene Stichwortsuche in WLO Prod).';
@@ -390,13 +393,14 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
     }
     items = mergeUnique([], items);
 
-    wloCache.set(cacheKey, { items, hinweis, fachfilter });
+    const appliedFilter = fachGelockert ? undefined : fachfilter;
+    wloCache.set(cacheKey, { items, hinweis, fachfilter: appliedFilter });
     return {
       quelle: 'wlo',
       instanz: WLO_PROD_ORIGIN,
       gecacht: false,
       suchbegriff: cleanWord,
-      fachfilter,
+      fachfilter: appliedFilter,
       hinweis,
       anzahl: items.length,
       ergebnisse: items

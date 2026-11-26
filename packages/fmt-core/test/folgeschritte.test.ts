@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import {
+  adaptScenario,
   KennungIndex,
   migrateKennungen,
   oehDisciplinesForFachbereich,
@@ -55,6 +56,14 @@ describe('Zusätzliche Phasen für alle', () => {
   it('schlägt keine Lernstandsphase vor, wenn der Ablauf schon eine enthält', () => {
     const out = proposeAdditionalPhases(D.bausteine, [...PLAN, ...phases('exit-ticket')], [MAIN, quick('daz')]);
     expect(out.some((p) => p.art === 'lernstand')).toBe(false);
+  });
+
+  it('behält den Vorschlag fürs Ende, wenn der Einstieg übernommen ist', () => {
+    const first = proposeAdditionalPhases(D.bausteine, PLAN, [MAIN, quick('daz')]);
+    const start = first.find((p) => p.art === 'vorwissen')!;
+    const withStart = [...phases(start.kennung), ...PLAN];
+    const next = proposeAdditionalPhases(D.bausteine, withStart, [MAIN, quick('daz')]);
+    expect(next.map((p) => p.art)).toEqual(['lernstand']);
   });
 
   it('schlägt Gruppen mit Unterstützungsbedarf einen klar angeleiteten Vorwissens-Einstieg vor', () => {
@@ -167,6 +176,13 @@ describe('Frühere Kennungen', () => {
       ({ typ: 'Arrangement', name: 'P', reichweite: 'r3', ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: id, dauerMin: 15 }] } }) as never;
     const v = createValidator(D);
     expect(v.validate(plan('dreischritt-interview'), {})).toEqual(v.validate(plan('drei-schritt-interview'), {}));
+  });
+
+  it('kennt die frühere Kennung auch bei der Anpassung eines Szenarios', () => {
+    const run = (id: string) => adaptScenario(D, { baustein: id, lerngruppenText: '5 DaZ-Kinder' });
+    const alt = run('dreischritt-interview');
+    const neu = run('drei-schritt-interview');
+    expect(JSON.stringify({ ...alt, dauerMs: 0 }).length).toBe(JSON.stringify({ ...neu, dauerMs: 0 }).length);
   });
 
   it('zeigt nur auf vorhandene Methoden und nie von einer vorhandenen weg', () => {

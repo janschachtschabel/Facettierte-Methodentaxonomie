@@ -71,6 +71,23 @@ describe('Folgeschritte: Fachbereich als WLO-Filter und frühere Kennungen', () 
     expect(res.json().fachfilter.faecher.length).toBe(taxon!.values.length);
   });
 
+  it('nennt keinen Fachfilter, wenn die Suche ihn für mehr Treffer fallen lassen musste', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init: { body: string }) => {
+        const filtered = (JSON.parse(init.body).criteria as Array<{ property: string }>).some((c) => c.property === 'virtual:taxonid');
+        const nodes = filtered
+          ? []
+          : Array.from({ length: 5 }, (_, i) => ({ ref: { id: `o${i}` }, properties: { 'cclom:title': [`Offen ${i}`], 'ccm:wwwurl': [`https://example.org/offen/${i}`] } }));
+        return { ok: true, status: 200, json: async () => ({ nodes }) };
+      })
+    );
+    const res = await app.inject({ method: 'POST', url: '/api/v1/oer/wlo-search', payload: { query: 'Seltenesthema Folgeschritte', fachbereich: 'gesellschaft' } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().anzahl).toBe(5);
+    expect(res.json().fachfilter).toBeUndefined();
+  });
+
   it('sucht auch nur mit Fachbereich nicht ohne Suchbegriff', async () => {
     const res = await app.inject({ method: 'POST', url: '/api/v1/oer/wlo-search', payload: { fachbereich: 'sprachen' } });
     expect(res.statusCode).toBe(400);

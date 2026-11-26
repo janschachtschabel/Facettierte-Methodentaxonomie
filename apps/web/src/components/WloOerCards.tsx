@@ -93,7 +93,10 @@ export function WloOerCards({
       })
     });
     const json = await res.json();
-    if (!res.ok) throw new Error(json.fehler || 'WLO-Suche fehlgeschlagen.');
+    if (!res.ok) {
+      setFachfilter(null);
+      throw new Error(json.fehler || 'WLO-Suche fehlgeschlagen.');
+    }
     if (json.instanz) setInstanz(String(json.instanz));
     setFachfilter(json.fachfilter && Array.isArray(json.fachfilter.faecher) ? json.fachfilter : null);
     return {

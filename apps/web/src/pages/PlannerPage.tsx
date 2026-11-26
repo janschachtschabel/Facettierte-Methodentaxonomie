@@ -446,6 +446,20 @@ export function PlannerPage() {
     return labels.join(', ');
   }, [ansatzCodes, customAnsatzText, labelOf]);
 
+  // Subject area of the plan: from the proposal, otherwise read from subject and topic (examples, saved plans).
+  const planFachbereich = useMemo(() => {
+    const fromMatch = matchResult?.kriterien?.fachbereich;
+    if (typeof fromMatch === 'string' && fromMatch) return fromMatch;
+    const read = matcher && `${fach} ${thema}`.trim() ? matcher.lesen(`${fach}, ${thema}`).kriterien.fachbereich : undefined;
+    return typeof read === 'string' && read ? read : undefined;
+  }, [matchResult, matcher, fach, thema]);
+
+  // Plans stored before a method was merged or renamed: rewrite former ids once the catalogue is there.
+  useEffect(() => {
+    if (!bundle?.weiterleitungen) return;
+    setArrangement((prev) => (prev ? migrateKennungen(prev, bundle.weiterleitungen) : prev));
+  }, [bundle, arrangement]);
+
   // An edited flow moves or replaces phases; proposals made for the old phase are taken out again.
   useEffect(() => {
     const stale = outdatedAdjustments(scenarioRows, adjustmentsInForce(subgroupMethods, autoAdjustments));
@@ -511,52 +525,48 @@ export function PlannerPage() {
   };
 
   const subgroups = activeSubgroups(groups);
-  const groupSignature = adjustmentSignature(scenarioRows, groups, { maxTechnik, ohneInternet, ohneKI });
+  const groupSignature = adjustmentSignature(scenarioRows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
   // Subgroups without persona or matrix values cannot be checked; the result says so.
   const uncheckedSubgroups = subgroups.filter((g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues }));
   const adjustmentsNow = adjustmentsInForce(subgroupMethods, autoAdjustments);
-  // Subject area of the plan: from the proposal, otherwise read from subject and topic (examples, saved plans).
-  const planFachbereich = (() => {
-    const fromMatch = matchResult?.kriterien?.fachbereich;
-    if (typeof fromMatch === 'string' && fromMatch) return fromMatch;
-    const read = `${fach} ${thema}`.trim() ? matcher.lesen(`${fach}, ${thema}`).kriterien.fachbereich : undefined;
-    return typeof read === 'string' && read ? read : undefined;
-  })();
   // Added phases the teacher removed again in step 2 no longer count.
   const addedPhasesNow = addedPhases.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
 
-  /** Checks a flow against the subgroups: better fitting parallel methods and short phases the plan lacks. */
-  const checkFlow = (rows: typeof scenarioRows): MethodAdjustment[] => {
-    const constraints = {
-      maxTechnik: maxTechnik || undefined,
-      ohneInternet,
-      ohneKI,
-      bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
-      fachbereich: planFachbereich
-    };
-    const next = proposeMethodAdjustments(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), constraints);
-    setAutoAdjustments(next);
-    setExtraProposals(proposeAdditionalPhases(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), constraints));
-    setAdjustedFor(adjustmentSignature(rows, groups, { maxTechnik, ohneInternet, ohneKI }));
-    return next;
+  const checkConstraints = {
+    maxTechnik: maxTechnik || undefined,
+    ohneInternet,
+    ohneKI,
+    bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
+    fachbereich: planFachbereich
   };
+  const signatureOf = (rows: typeof scenarioRows) =>
+    adjustmentSignature(rows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
 
-  /** Step 3: enters the parallel methods for the subgroups and lists additional phases to take over. */
+  /** Step 3: enters better fitting parallel methods for the subgroups and lists short phases the plan lacks. */
   const runMethodAdjustment = () => {
-    const next = checkFlow(scenarioRows);
+    const phases = adjustmentPhases(scenarioRows);
+    const next = proposeMethodAdjustments(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints);
     setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
+    setAutoAdjustments(next);
+    setExtraProposals(proposeAdditionalPhases(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints));
+    setAdjustedFor(signatureOf(scenarioRows));
   };
 
   /**
-   * A phase was inserted (delta 1) or removed (delta -1) at `index`: everything stored per phase moves with it,
-   * and the changed flow is checked again so the list in step 3 matches what is shown below it.
+   * A phase was inserted (delta 1) or removed (delta -1) at `index`: everything stored per phase moves with it.
+   * Method swaps stay exactly as the teacher left them (taken-back ones are not entered again); only the list
+   * of additional phases is brought up to date. A result that was already out of date stays marked as such.
    */
   const applyFlowChange = (nextArrangement: Arrangement, index: number, delta: 1 | -1) => {
     const rows = buildScenarioRows(nextArrangement, bundle, blocksById, labelOf, groups, {}, {}, '', {}, []);
-    const shiftedAuto = shiftAdjustmentKeys(autoAdjustments, index, delta);
-    const next = checkFlow(rows);
+    const upToDate = adjustedFor !== null && adjustedFor === groupSignature;
     setArrangement(nextArrangement);
-    setSubgroupMethods((prev) => applyAdjustments(shiftStepKeys(prev, index, delta), shiftedAuto, next));
+    setAutoAdjustments((prev) => shiftAdjustmentKeys(prev, index, delta));
+    setSubgroupMethods((prev) => shiftStepKeys(prev, index, delta));
+    if (upToDate) {
+      setExtraProposals(proposeAdditionalPhases(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), checkConstraints));
+      setAdjustedFor(signatureOf(rows));
+    }
     setOerByStep((prev) => shiftStepKeys(prev, index, delta));
     setAiDiffByStep((prev) => shiftStepKeys(prev, index, delta));
     setGeneratedMaterials((prev) =>
@@ -565,9 +575,16 @@ export function PlannerPage() {
         return key ? [{ ...m, stepKey: key }] : [];
       })
     );
-    // Topic rows and the written-out scenario describe the old flow.
-    setThematicRows(null);
-    setElaboration(null);
+    // Topic rows keep their texts and move with their phases, like after any other edit of the flow.
+    setThematicRows((prev) =>
+      prev
+        ? prev.flatMap((r) => {
+            const key = Object.keys(shiftStepKeys({ [r.key]: true }, index, delta))[0];
+            return key ? [{ ...r, key }] : [];
+          })
+        : prev
+    );
+    setFocusedStepKey((prev) => (prev ? (Object.keys(shiftStepKeys({ [prev]: true }, index, delta))[0] ?? null) : prev));
   };
 
   const addProposedPhase = (p: AdditionalPhaseProposal) => {

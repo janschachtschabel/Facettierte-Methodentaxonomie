@@ -261,16 +261,12 @@ export function proposeAdditionalPhases(
   }
 
   // 2. Check at the end: with subgroups in the room the plan should show whether everyone reached the goal.
-  const hasCheck = plannedBlocks.some((b) => (b.nachbedingung || []).includes('lernstand-diagnostiziert'));
-  if (!hasCheck) {
+  // Methods made for the start of a lesson (entry ticket, daily review) are no check at its end.
+  const checksGoal = (b: Baustein) =>
+    (b.nachbedingung || []).includes('lernstand-diagnostiziert') && !(b.nachbedingung || []).includes('vorwissen-aktiviert');
+  if (!plannedBlocks.some(checksGoal)) {
     const b = pick(
-      // Methods made for the start of a lesson are no check at its end.
-      allBlocks.filter(
-        (x) =>
-          (x.nachbedingung || []).includes('lernstand-diagnostiziert') &&
-          x.lernfunktion[0] === 'diagnose' &&
-          !(x.nachbedingung || []).includes('vorwissen-aktiviert')
-      ),
+      allBlocks.filter((x) => checksGoal(x) && x.lernfunktion[0] === 'diagnose'),
       profiled
     );
     if (b) {

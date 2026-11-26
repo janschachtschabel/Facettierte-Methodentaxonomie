@@ -119,14 +119,18 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
 
     expect(screen.getByText(/Vorschlag: \d zusätzliche Phasen? für alle/)).toBeTruthy();
     const add = screen.getAllByRole('button', { name: /hinzufügen$/ });
+    // A swap the teacher took back stays taken back when a phase is added.
+    const undo = screen.queryByRole('button', { name: 'Alle Anpassungen zurücknehmen' });
+    if (undo) fireEvent.click(undo);
     const parallelBefore = screen.queryAllByText(/Eigene Methode für diese Gruppe/).length;
+    expect(parallelBefore).toBe(0);
     fireEvent.click(add[0]);
 
     // The phase is part of the flow now, the check ran again and nothing is reported as out of date.
     expect(screen.getByText(/1 Phase hinzugefügt:/)).toBeTruthy();
     expect(screen.queryByText(/Klicke auf „Erneut prüfen“/)).toBeNull();
     expect(screen.queryAllByRole('button', { name: /hinzufügen$/ }).length).toBe(add.length - 1);
-    expect(screen.queryAllByText(/Eigene Methode für diese Gruppe/).length).toBeGreaterThanOrEqual(parallelBefore);
+    expect(screen.queryAllByText(/Eigene Methode für diese Gruppe/).length).toBe(0);
     fireEvent.click(stepButton(2));
     expect(within(screen.getByRole('table')).getAllByRole('row').length).toBe(rowsBefore + 1);
 

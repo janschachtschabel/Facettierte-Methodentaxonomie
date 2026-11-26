@@ -13,10 +13,10 @@ import {
   type MatchRequest,
   type SearchCriteria
 } from '@fmt/core';
-import { resolveKennung } from '@fmt/core';
+import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import { loadConfig, type ServerConfig } from '../config.js';
-import { searchWloOer } from '../routes/oer.js';
+import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import {
   elaborateScenarioCore,
   extractSubjectAndTopicFromText,
@@ -33,6 +33,9 @@ import { MAX_TEXT_CHARS } from '../routes/validation.js';
 
 export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): McpServer {
   const effectiveConfig = config ?? loadConfig();
+  // The WLO search reads subjects and subject areas from the catalogue; set here so the stdio server has them too.
+  setWloSubjectLookup((name) => store.subjects.schulfachUri(name));
+  setWloAreaLookup((fachbereich) => oehDisciplinesForFachbereich(store.bundle.faecher, fachbereich).map((f) => f.uri));
   const server = new McpServer({
     name: 'fmt-methodendatenbank',
     version: store.bundle.version
