@@ -109,13 +109,23 @@ describe('W-Raster in der Oberfläche', () => {
     const alle = anzahl();
     expect(alle).toBe(BUNDLE.bausteine.length);
 
+    // Independent expectation: the lecture hall offers a writing place and a wall (vocab raumtyp), so only methods
+    // whose room needs are among these stay; a warm-up (Bewegungsfläche) goes, a lecture (no room need) stays.
     fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
-    const imHoersaal = CATALOG.search.suche({ raum: 'hoersaal' }).length;
+    const hoersaalBietet = new Set(['schreibplatz', 'wandflaeche']);
+    const imHoersaal = BUNDLE.bausteine.filter((b) => (b.raumbedarf || []).every((x) => hoersaalBietet.has(x))).length;
+    expect(imHoersaal).toBeGreaterThan(0);
     expect(imHoersaal).toBeLessThan(alle);
     expect(anzahl()).toBe(imHoersaal);
+    expect(screen.queryByText('Aufwärmen / Aufwärmspiel')).toBeNull();
+    expect(screen.getByText('Lehrervortrag (klassisch)')).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText('Raum'), { target: { value: '' } });
     fireEvent.click(screen.getByLabelText('ohne Lesen und Schreiben'));
-    expect(anzahl()).toBe(BUNDLE.bausteine.filter((b) => !(b.schriftbedarf || []).length).length);
+    // A learning journal (schreibt) goes; the warm-up (no reading or writing) is back.
+    expect(anzahl()).toBeGreaterThan(0);
+    expect(anzahl()).toBeLessThan(alle);
+    expect(screen.queryByText('Lerntagebuch mit Leitfragen (Prompts)')).toBeNull();
+    expect(screen.getByText('Aufwärmen / Aufwärmspiel')).toBeTruthy();
     }, 60_000);
 });
