@@ -30,6 +30,7 @@ import {
 } from '../llm/briefings.js';
 import { LLM_BUDGET_EXCEEDED, serverLlmBudget } from '../llm/budget.js';
 import { MAX_TEXT_CHARS } from '../routes/validation.js';
+import { applySubjectFilter } from '../routes/api.js';
 
 export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): McpServer {
   const effectiveConfig = config ?? loadConfig();
@@ -60,7 +61,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 1. search_methods
   server.tool(
     'search_methods',
-    `Facettierte Suche über alle ${store.bundle.bausteine.length} FMT-Unterrichtsmethoden (Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Zeit, Gruppengröße, Technik, Evidenzgrad).`,
+    `Facettierte Suche über alle ${store.bundle.bausteine.length} FMT-Unterrichtsmethoden (Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad).`,
     {
       text: z.string().max(MAX_TEXT_CHARS).optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
       lernfunktion: codes('lernfunktion').optional(),
@@ -81,10 +82,22 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       bildungsstufe: code('bildungsstufe').optional(),
       vorwissen: code('vorwissen').optional(),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
+      fachbereich: codes('fachbereich')
+        .optional()
+        .describe('Streng: nur Methoden, die diesem Fachbereich zugeordnet sind ("uebergreifend" = ohne Fachbindung)'),
+      fuerFachbereich: code('fachbereich')
+        .optional()
+        .describe('Passend für einen Fachbereich: Methoden des Bereichs und fachübergreifende, ohne die dafür ungeeigneten'),
+      fach: z
+        .string()
+        .max(MAX_TEXT_CHARS)
+        .optional()
+        .describe('Fachname (Schul- oder Hochschulfach, z. B. "Physik"); wirkt wie fuerFachbereich mit dem Fachbereich des Fachs'),
       limit: z.number().int().min(1).max(100).optional().default(20)
     },
     async ({ limit, ...criteria }) => {
       const t0 = process.hrtime.bigint();
+      const fachErkannt = applySubjectFilter(store, criteria as SearchCriteria);
       const hits = store.search.suche(criteria as SearchCriteria);
       const textQuery = typeof criteria.text === 'string' ? criteria.text.trim() : '';
       const semantic = textQuery && hits.length < 5 ? store.classifyText(textQuery) : null;
@@ -94,6 +107,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         anzahl: hits.length,
         angezeigt: Math.min(hits.length, limit),
         dauerMs,
+        ...(fachErkannt !== undefined ? { fachErkannt } : {}),
         treffer: hits.slice(0, limit).map((b) => ({
           kennung: b.kennung,
           name: b.name,
@@ -108,6 +122,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           engagement: b.engagement,
           vorbedingung: b.vorbedingung,
           nachbedingung: b.nachbedingung,
+          fachbereich: b.fachbereich || [],
           evidenzgrad: store.search.bestGrade(b)
         })),
         ...(semantic
@@ -406,10 +421,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 10. build_scenario_plan (Ultra-fast Zero-LLM pre-filtering + matrix + optional WLO OER + caller LLM briefing!)
   server.tool(
     'build_scenario_plan',
-    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, `verbindlicheUmsetzungsregeln`; mit `umfang: "voll"` zusätzlich `llmBriefing` und JSON-LD `maschinenlesbar` für den Baukasten-Import). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
+    'Komponiert in <5 ms ohne Server-LLM ein vollständiges, R-00..R-12-geprüftes Lehr-/Lernszenario (FMT-Methodenablauf, methodenDetails mit Durchführungsschritten/Risiken/Evidenz, technik-gefilterte Binnendifferenzierungsmatrix, zeitkonsistente thematischeTabelle, `teilgruppenMethoden` und `zusatzphasen` als Vorschläge wie Schritt 3 des Baukastens, `verbindlicheUmsetzungsregeln`; mit `umfang: "voll"` zusätzlich `llmBriefing` und JSON-LD `maschinenlesbar` für den Baukasten-Import). WICHTIG FÜR CLIENT-LLMs: Die zurückgegebenen FMT-Methoden (inkl. Durchführungsschritten, Kernkomponenten, Status, Risiken & Evidenz mit Geltung) methodentreu aufs Thema übertragen und exakte Phasendauern aus `thematischeTabelle` beibehalten; Abweichungen explizit kennzeichnen.',
     {
       text: z.string().max(MAX_TEXT_CHARS).describe('Beschreibung des Unterrichtsvorhabens'),
       fach: z.string().max(MAX_TEXT_CHARS).optional(),
+      fachbereich: code('fachbereich').optional().describe('FMT-Fachbereich; wird sonst aus dem Fach gelesen'),
       thema: z.string().max(MAX_TEXT_CHARS).optional(),
       lernziele: z.string().max(MAX_TEXT_CHARS).optional(),
       didaktischerAnsatz: z.string().max(MAX_TEXT_CHARS).optional(),
@@ -440,10 +456,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             label: z.string().max(MAX_TEXT_CHARS),
             count: z.number().int().min(1).optional(),
             personaId: z.string().max(MAX_TEXT_CHARS).optional(),
-            profile: z.string().max(MAX_TEXT_CHARS).optional()
+            profile: z.string().max(MAX_TEXT_CHARS).optional(),
+            selectedValues: z.record(z.string().max(MAX_TEXT_CHARS), z.string().max(MAX_TEXT_CHARS)).optional()
           })
         )
         .optional()
+        .describe('Optional: Lerngruppen; die Gruppe mit id "regel" ist die Regelgruppe und behält den Ablauf, die übrigen bekommen bei Bedarf `teilgruppenMethoden`')
     },
     async (args) => {
       try {
@@ -588,7 +606,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 14. adapt_scenario (Standalone & FMT-integrated Zero-LLM differentiation + UDL + conflict resolution)
   server.tool(
     'adapt_scenario',
-    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden sowie ein fertiges `llmBriefing`.',
+    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`.',
     {
       scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
       baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
@@ -623,12 +641,13 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           })
         )
         .optional()
-        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen (IDs über list_differentiation_options abrufbar)'),
-      fach: z.string().max(MAX_TEXT_CHARS).optional(),
+        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen (IDs über list_differentiation_options abrufbar). Die Gruppe mit id "regel" ist die Regelgruppe.'),
+      fach: z.string().max(MAX_TEXT_CHARS).optional().describe('Fachname; daraus wird der Fachbereich gelesen, wenn er fehlt'),
+      fachbereich: code('fachbereich').optional().describe('FMT-Fachbereich; Methoden, die dafür als ungeeignet markiert sind, werden nie vorgeschlagen'),
       thema: z.string().max(MAX_TEXT_CHARS).optional(),
-      bildungsstufe: z.string().max(MAX_TEXT_CHARS).optional(),
+      bildungsstufe: code('bildungsstufe').optional(),
       zeitMin: z.number().int().min(5).optional(),
-      maxTechnik: z.string().max(MAX_TEXT_CHARS).optional().describe('z. B. "t-keine" (nur analog), "t-projektion", "t-einzeln"'),
+      maxTechnik: code('maxTechnik').optional().describe('Höchster Technikbedarf: "t-keine" (nur analog), "t-projektion", "t-geteilt" (Geräte je Gruppe), "t-einzeln"'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional(),

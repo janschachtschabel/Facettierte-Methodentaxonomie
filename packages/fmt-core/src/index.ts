@@ -16,3 +16,4 @@ export { extractSubjectAndTopic } from './thema.js';
 export { createSubjectDetector, oehDisciplinesForFachbereich } from './fach.js';
 export type { DetectedSubject, FmtSubjectDetector, OehSubject, OehSubjectCrosswalk } from './fach.js';
 export * from './kennung.js';
+export * from './technik.js';

@@ -9,6 +9,7 @@ import {
   type MeasureTech
 } from './differentiationMetadata.js';
 import type { Baustein } from './types.js';
+import { TECH_RANK, techLimitRank } from './technik.js';
 
 export type { MeasureEffort, MeasureEnrichment, MeasureLevel, MeasureTech };
 export { getMeasureEnrichment, MEASURE_EFFORT_ORDER, MEASURE_LEVEL_ORDER };
@@ -375,7 +376,6 @@ export function scoreDifferentiationMatrix(input: ScoreMatrixInput = {}): Matrix
 
 const RANGE_ORDER: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
 
-const TECH_RANK: Record<string, number> = { 't-keine': 0, 't-projektion': 1, 't-einzeln': 2, 't-spezial': 3 };
 const AI_ROLES_SET = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
 
 /**
@@ -445,7 +445,7 @@ export function suggestAlternativeMethodsForGroup(
   allBlocks: Baustein[],
   limit = 5,
   phaseDurationMin?: number,
-  constraints?: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; bildungsstufe?: string }
+  constraints?: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; bildungsstufe?: string; fachbereich?: string }
 ): Array<{ kennung: string; name: string; reichweite: string; dauerMin: number; dauerMax: number; grund: string }> {
   if (!currentBlock) return [];
   const fns = new Set(currentBlock.lernfunktion || []);
@@ -456,7 +456,7 @@ export function suggestAlternativeMethodsForGroup(
   const curIsPlaySim = curAnsatz.has('spiel-simulation');
   const curRank = RANGE_ORDER[currentBlock.reichweite] ?? 2;
   const maxDur = Math.max(phaseDurationMin ?? currentBlock.dauerMax, currentBlock.dauerMax) * 1.5;
-  const maxTechRank = constraints?.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 3) : 3;
+  const maxTechRank = techLimitRank(constraints?.maxTechnik);
 
   const scored = allBlocks
     .filter((b) => {
@@ -466,6 +466,7 @@ export function suggestAlternativeMethodsForGroup(
       if (bRank > curRank) return false;
       if (b.dauerMin > maxDur) return false;
       if ((TECH_RANK[b.technik] ?? 0) > maxTechRank) return false;
+      if (constraints?.fachbereich && (b.fachbereichUngeeignet || []).includes(constraints.fachbereich)) return false;
       if (constraints?.ohneInternet && b.internet) return false;
       if (constraints?.ohneKI && (Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES_SET.has(r)))) return false;
       if (constraints?.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(constraints.bildungsstufe)) return false;

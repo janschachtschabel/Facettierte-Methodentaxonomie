@@ -165,6 +165,9 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 | `LLM_TIMEOUT_MS` | `90000` | Upstream-Timeout in Millisekunden für Server-LLM-Aufrufe. |
 | `LLM_CACHE_MAX` | `500` | Maximale Anzahl Einträge im In-Memory-LRU-Cache für Server-LLM-Antworten (BYOK-Anfragen werden nie geteilt gecacht). |
 | `LLM_CACHE_TTL_MS` | `3600000` | Gültigkeitsdauer (TTL) des LLM-Caches in Millisekunden (`3600000` = 1 Stunde). |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | *(leer)*, `587`, `false` | SMTP-Versand für das Kontaktformular im Impressum. Ohne `SMTP_HOST` meldet das Formular, dass es nicht eingerichtet ist. |
+| `CONTACT_FROM`, `CONTACT_TO` | `SMTP_USER`, Impressums-Adresse | Absender und Empfänger der Kontakt-Mails. |
+| `CONTACT_RATE_LIMIT_PER_HOUR` | `5` | Nachrichten pro Stunde und Client-IP über das Kontaktformular (dazu Honeypot und Mindest-Ausfüllzeit gegen Spam). |
 
 ### Klassifikation & Datenpfade
 

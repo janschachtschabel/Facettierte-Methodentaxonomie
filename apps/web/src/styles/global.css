@@ -193,6 +193,7 @@ input[type='text'],
 input[type='search'],
 input[type='number'],
 input[type='password'],
+input[type='email'],
 select,
 textarea {
   font-family: var(--text);
@@ -1319,4 +1320,58 @@ code {
   font-weight: 700;
   font-size: 14.5px;
   color: var(--dA);
+}
+
+/* Status messages (also used by the KI settings and the catalogue error) */
+.msg {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+.msg-ok {
+  border-color: var(--dC);
+  background: var(--dC-soft);
+}
+.msg-err {
+  border-color: var(--err);
+  background: var(--err-soft);
+}
+
+/* Impressum & contact form */
+.impressum {
+  max-width: 760px;
+}
+.impressum address {
+  font-style: normal;
+  line-height: 1.6;
+}
+.contact-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.contact-form label {
+  display: grid;
+  gap: 4px;
+  font-family: var(--display);
+  font-size: 14px;
+}
+.contact-form .consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-family: var(--text);
+  font-size: 14px;
+}
+.contact-form .consent input {
+  margin-top: 4px;
+}
+/* Honeypot: out of sight for people, still in the form for bots */
+.contact-form .hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }

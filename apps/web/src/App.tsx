@@ -8,6 +8,7 @@ import { PlannerPage } from './pages/PlannerPage.js';
 import { DifferentiationPage } from './pages/DifferentiationPage.js';
 import { SystematikPage } from './pages/SystematikPage.js';
 import { ApiMcpPage } from './pages/ApiMcpPage.js';
+import { ImpressumPage } from './pages/ImpressumPage.js';
 
 export function App() {
   return (
@@ -22,6 +23,7 @@ export function App() {
             <Route path="/differenzierung" element={<DifferentiationPage />} />
             <Route path="/systematik" element={<SystematikPage />} />
             <Route path="/api-mcp" element={<ApiMcpPage />} />
+            <Route path="/impressum" element={<ImpressumPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

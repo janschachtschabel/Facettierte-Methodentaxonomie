@@ -140,6 +140,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <a href="https://github.com/janschachtschabel/Facettierte-Methodentaxonomie" target="_blank" rel="noreferrer">
               GitHub
             </a>
+            <Link to="/impressum">Impressum &amp; Kontakt</Link>
           </div>
         </div>
       </footer>

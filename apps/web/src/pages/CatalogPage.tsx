@@ -34,7 +34,7 @@ export function CatalogPage() {
   const [showExpert, setShowExpert] = useState(false);
   const [filters, setFilters] = useState<SearchCriteria>(() => {
     const init: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe'] as const;
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich'] as const;
     for (const k of keys) {
       const v = searchParams.get(k);
       if (v) init[k] = k === 'maxDauer' ? Number(v) : v;
@@ -45,7 +45,7 @@ export function CatalogPage() {
   useEffect(() => {
     if (![...searchParams.keys()].length) return;
     const next: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe'] as const;
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich'] as const;
     for (const k of keys) {
       const v = searchParams.get(k);
       if (v) next[k] = k === 'maxDauer' ? Number(v) : v;
@@ -156,6 +156,23 @@ export function CatalogPage() {
                   {w.label}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label title="Zeigt Methoden dieses Fachbereichs und fachübergreifende Methoden, ohne die dafür ungeeigneten">
+            Fachbereich
+            <select
+              value={String(filters.fuerFachbereich || '')}
+              onChange={(e) => setFilter('fuerFachbereich', e.target.value)}
+            >
+              <option value="">alle</option>
+              {valuesOf('fachbereich')
+                .filter((w) => w.id !== 'uebergreifend')
+                .map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
             </select>
           </label>
 
@@ -385,7 +402,7 @@ export function CatalogPage() {
 
       {hits.length === 0 ? (
         <div className="card" style={{ padding: 24, textAlign: 'center' }}>
-          <p>Keine Methode erfüllt alle gewählten Kriterien. Lockern Sie einzelne Filter.</p>
+          <p>Keine Methode erfüllt alle gewählten Kriterien. Lockere einzelne Filter.</p>
           <button type="button" className="btn" onClick={() => setFilters({})}>
             Alle Filter zurücksetzen
           </button>

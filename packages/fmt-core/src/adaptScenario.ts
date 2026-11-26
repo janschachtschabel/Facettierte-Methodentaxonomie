@@ -14,6 +14,15 @@ import {
 } from './differentiationMatrix.js';
 import type { Arrangement, Baustein, FmtData } from './types.js';
 import { KennungIndex } from './kennung.js';
+import { TECH_RANK, techLimitRank } from './technik.js';
+import {
+  proposeAdditionalPhases,
+  proposeMethodAdjustments,
+  type AdditionalPhaseProposal,
+  type MethodAdjustment,
+  type MethodAdjustmentGroup,
+  type MethodAdjustmentPhase
+} from './methodAdjustments.js';
 
 export interface AdaptGroupInput {
   id: string;
@@ -31,6 +40,8 @@ export interface AdaptPhaseInput {
   baustein?: string;
   lernfunktion?: string;
   beschreibung?: string;
+  /** Container methods with filled slots and repetitions keep their method for every group. */
+  locked?: boolean;
 }
 
 export interface AdaptScenarioInput {
@@ -44,6 +55,8 @@ export interface AdaptScenarioInput {
   fach?: string;
   thema?: string;
   bildungsstufe?: string;
+  /** FMT subject area; methods marked unsuitable for it are never proposed. */
+  fachbereich?: string;
   zeitMin?: number;
   maxTechnik?: string;
   ohneInternet?: boolean;
@@ -279,6 +292,7 @@ export interface AdaptScenarioResult {
     fach: string | null;
     thema: string | null;
     bildungsstufe: string | null;
+    fachbereich: string | null;
     zeitMin: number | null;
     maxTechnik: string | null;
     ohneInternet: boolean;
@@ -291,6 +305,10 @@ export interface AdaptScenarioResult {
   konflikte: GroupConflict[];
   teilgruppen: AdaptedSubgroupResult[];
   phasenAnpassungen: PhaseAdaptationResult[];
+  /** Parallel methods for subgroups where the planned method fits them poorly (the regular group keeps the plan). */
+  teilgruppenMethoden: MethodAdjustment[];
+  /** Short extra phases for the whole class that the subgroups depend on (proposal, not applied). */
+  zusatzphasen: AdditionalPhaseProposal[];
   epistemischerHinweis: string;
 }
 
@@ -689,7 +707,8 @@ function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten'
         phaseLabel: (stepId && stepLabelById.get(stepId)) || (typeof n.titel === 'string' && n.titel) || `Phase ${out.length + 1}`,
         durationMin: typeof n.dauerMin === 'number' ? n.dauerMin : (b?.dauerMin ?? 15),
         baustein: n.baustein,
-        lernfunktion: (stepId && stepFnById.get(stepId)) || b?.lernfunktion?.[0] || 'verstehen'
+        lernfunktion: (stepId && stepFnById.get(stepId)) || b?.lernfunktion?.[0] || 'verstehen',
+        ...(Array.isArray(n.belegung) && n.belegung.length ? { locked: true } : {})
       });
       return;
     }
@@ -702,7 +721,8 @@ function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten'
         phaseLabel: n.ausserhalbBudget ? `Wiederkehr in Folgestunden (${count}× à ${single} min)` : `Wiederkehr (${count}× à ${single} min)`,
         durationMin: n.ausserhalbBudget ? 0 : single * count,
         baustein: n.baustein,
-        lernfunktion: 'konsolidierung'
+        lernfunktion: 'konsolidierung',
+        locked: true
       });
       return;
     }
@@ -715,17 +735,37 @@ function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten'
   return out;
 }
 
-const TECH_RANK_MAP: Record<string, number> = { 't-keine': 0, 't-projektion': 1, 't-einzeln': 2, 't-spezial': 3 };
+/**
+ * Phases of an arrangement as step 3 of the Baukasten checks them. Keys (step-0, step-1 …) follow the
+ * order of the thematic table, so proposals can be matched to its rows.
+ */
+export function phasesForAdjustment(
+  data: Pick<FmtData, 'bausteine' | 'ketten' | 'weiterleitungen'>,
+  arrangement: Arrangement
+): MethodAdjustmentPhase[] {
+  const blocksById: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
+  return extractPhasesFromArrangement(data, arrangement).map((p, i) => ({
+    key: p.key || `step-${i}`,
+    label: p.phaseLabel,
+    block: p.baustein ? blocksById.get(p.baustein) : undefined,
+    durationMin: p.durationMin,
+    locked: p.locked
+  }));
+}
+
+/** The regular group keeps the plan; every other group with a profile can get parallel methods. */
+export const isRegularGroupId = (id: string) => id === 'regel';
+
 const AI_ROLES_CHECK = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
 
 function recommendMethodsForPhase(
   allBlocks: Baustein[],
   lernfunktion: string,
   udlMeasures: MatrixRecommendation[],
-  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; bildungsstufe?: string; maxDur?: number },
+  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; bildungsstufe?: string; fachbereich?: string; maxDur?: number },
   limit = 3
 ): PhaseAdaptationResult['passendeFmtMethoden'] {
-  const maxTechRank = constraints.maxTechnik ? (TECH_RANK_MAP[constraints.maxTechnik] ?? 3) : 3;
+  const maxTechRank = techLimitRank(constraints.maxTechnik);
   const gradeRank = (b: Baustein) => {
     const grades = (b.evidenz || []).map((e) => e.grad);
     return grades.includes('A') ? 0 : grades.includes('B') ? 1 : grades.includes('C') ? 2 : 3;
@@ -738,10 +778,11 @@ function recommendMethodsForPhase(
   const candidates = allBlocks
     .filter((b) => {
       if (!b.lernfunktion.includes(lernfunktion)) return false;
-      if ((TECH_RANK_MAP[b.technik] ?? 0) > maxTechRank) return false;
+      if ((TECH_RANK[b.technik] ?? 0) > maxTechRank) return false;
       if (constraints.ohneInternet && b.internet) return false;
       if (constraints.ohneKI && (Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES_CHECK.has(r)))) return false;
       if (constraints.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(constraints.bildungsstufe)) return false;
+      if (constraints.fachbereich && (b.fachbereichUngeeignet || []).includes(constraints.fachbereich)) return false;
       if (constraints.maxDur && b.dauerMin > constraints.maxDur) return false;
       // Exclude negative-evidence contrast methods
       if (
@@ -884,7 +925,7 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     } else if (detected.groups.length === 1) {
       resolvedGroups = [
         detected.groups[0],
-        { id: 'regel', label: 'Regelniveau (übrige Klasse)', personaId: 'average' }
+        { id: 'regel', label: 'Regelgruppe (übrige Klasse)', personaId: 'average' }
       ];
       gruppenQuelle = 'erkannt+regelniveau';
     } else {
@@ -899,7 +940,7 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
             denkverarbeitung: 'denkverarbeitung-langsam'
           }
         },
-        { id: 'regel', label: 'Regelniveau', personaId: 'average' },
+        { id: 'regel', label: 'Regelgruppe', personaId: 'average' },
         { id: 'vertiefung', label: 'Vertiefung & Leistungsstark', personaId: 'highPerforming' }
       ];
       gruppenQuelle = 'standard-heterogenitaet';
@@ -1005,7 +1046,8 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
             maxTechnik,
             ohneInternet,
             ohneKI,
-            bildungsstufe: input.bildungsstufe
+            bildungsstufe: input.bildungsstufe,
+            fachbereich: input.fachbereich
           })
         : [];
       return {
@@ -1034,6 +1076,7 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
           ohneInternet,
           ohneKI,
           bildungsstufe: input.bildungsstufe,
+          fachbereich: input.fachbereich,
           maxDur: p.durationMin ? Math.max(p.durationMin, 15) : undefined
         });
 
@@ -1052,12 +1095,42 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     };
   });
 
+  const adjustmentPhases: MethodAdjustmentPhase[] = rawPhases.map((p, idx) => ({
+    key: p.key || `phase-${idx + 1}`,
+    label: p.phaseLabel,
+    block: p.baustein ? blocksById.get(p.baustein) : undefined,
+    durationMin: p.durationMin,
+    locked: p.locked
+  }));
+  const adjustmentGroups: MethodAdjustmentGroup[] = resolvedGroups.map((g) => ({
+    id: g.id,
+    label: g.label,
+    isMain: isRegularGroupId(g.id),
+    personaId: g.personaId,
+    selectedValues: g.selectedValues
+  }));
+  const adjustmentConstraints = {
+    maxTechnik,
+    ohneInternet,
+    ohneKI,
+    bildungsstufe: input.bildungsstufe || input.arrangement?.kontext?.bildungsstufe || undefined,
+    fachbereich: input.fachbereich
+  };
+  const withMethods = adjustmentPhases.some((p) => p.block);
+  const teilgruppenMethoden = withMethods
+    ? proposeMethodAdjustments(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints)
+    : [];
+  const zusatzphasen = withMethods
+    ? proposeAdditionalPhases(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints)
+    : [];
+
   return {
     dauerMs: Date.now() - t0,
     kontext: {
       fach: input.fach?.trim() || null,
       thema: input.thema?.trim() || null,
       bildungsstufe: input.bildungsstufe || input.arrangement?.kontext?.bildungsstufe || null,
+      fachbereich: input.fachbereich || null,
       zeitMin: input.zeitMin ?? input.arrangement?.kontext?.zeitbudgetMin ?? null,
       maxTechnik: maxTechnik || null,
       ohneInternet,
@@ -1070,6 +1143,8 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     konflikte: synthesis.konflikte,
     teilgruppen: synthesis.teilgruppen,
     phasenAnpassungen,
+    teilgruppenMethoden,
+    zusatzphasen,
     epistemischerHinweis: EPISTEMIC_MATRIX_NOTE
   };
 }

@@ -3,6 +3,10 @@ import {
   adaptScenario,
   computeMultiGroupSynthesis,
   detectLearnerGroupsFromText,
+  isRegularGroupId,
+  phasesForAdjustment,
+  proposeAdditionalPhases,
+  proposeMethodAdjustments,
   scoreDifferentiationMatrix,
   type AdaptScenarioInput,
   type Arrangement,
@@ -397,6 +401,8 @@ export function buildMaterialBriefing(store: CatalogStore, body: MaterialPayload
 export interface ScenarioPlanArgs {
   text: string;
   fach?: string;
+  /** FMT subject area; read from the subject when missing. */
+  fachbereich?: string;
   thema?: string;
   lernziele?: string;
   didaktischerAnsatz?: string;
@@ -457,7 +463,7 @@ export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[]
   const regel =
     named.some((g) => g.id === 'regel') || rest === 0
       ? []
-      : [{ id: 'regel', label: 'Regelniveau', personaId: 'average', ...(rest && rest > 0 ? { count: rest } : {}) }];
+      : [{ id: 'regel', label: 'Regelgruppe', personaId: 'average', ...(rest && rest > 0 ? { count: rest } : {}) }];
   return [
     ...named.map((g) => ({ id: g.id, label: g.label, count: g.count, personaId: GROUP_PERSONA[g.id], selectedValues: g.selectedValues })),
     ...regel
@@ -516,7 +522,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI,
     variante: args.variante,
-    fachbereich: fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld
+    fachbereich:
+      args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld)
   };
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;
@@ -561,7 +568,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
           ? detectedTraits.selectedValues
           : undefined
     },
-    { id: 'regel', label: 'Regelniveau', personaId: 'average' },
+    { id: 'regel', label: 'Regelgruppe', personaId: 'average' },
     {
       id: 'vertiefung',
       label: 'Vertiefung & Leistungsstark',
@@ -626,6 +633,29 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     }
   );
 
+  // Step 3 of the Baukasten: parallel methods for subgroups and short extra phases for everyone (proposals only).
+  const planFachbereich = matched.kriterien.fachbereich as string | undefined;
+  const adjustmentPhases = phasesForAdjustment(store.bundle, matched.arrangement);
+  // Groups read from the text are checked with their detected traits only, exactly as the Baukasten does
+  // (the persona added above for the matrix would steer the method check elsewhere than in the web app).
+  const fromText = activeGroups === namedGroups;
+  const adjustmentGroups = activeGroups.map((g) => ({
+    id: g.id,
+    label: g.label,
+    isMain: isRegularGroupId(g.id),
+    personaId: fromText && g.selectedValues && Object.keys(g.selectedValues).length ? undefined : g.personaId,
+    selectedValues: g.selectedValues
+  }));
+  const adjustmentConstraints = {
+    maxTechnik: effectiveMaxTechnik,
+    ohneInternet: effectiveOhneInternet,
+    ohneKI: effectiveOhneKI,
+    bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
+    fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined
+  };
+  const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints);
+  const zusatzphasen = proposeAdditionalPhases(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints);
+
   let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];
   if (args.includeWloOer && (thema || fach)) {
     try {
@@ -689,6 +719,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     'METHODENTREUE: Setze alle ausgewählten FMT-Methoden aus `methodenDetails` mit Kennung, Status (`kuratiert`/`entwurf`) sowie ihren originalen Durchführungsschritten und Kernkomponenten konkret auf das Thema um. Ersetze sie nicht stillschweigend durch freie Eigenphasen; begründe und markiere eventuelle Abweichungen explizit.',
     `ZEITKONSISTENZ: Übernimm exakt die geplanten Phasendauern aus \`thematischeTabelle\` (Summe = ${matched.pruefung?.dauerMin ?? briefing.pruefung.dauerMin} min, identisch mit \`pruefung.dauerMin\` und \`maschinenlesbar.arrangement\`).`,
     'TRANSPARENZ (MATRIX, RISIKEN & EVIDENZ): Weise Binnendifferenzierungs-Empfehlungen aus `lerngruppenUndMatrix` mit dem Hinweis aus, dass es sich um Punkte der FMT-Differenzierungsmatrix handelt (keine empirischen Effektstärken), und nenne Qualitätsrisiken sowie Evidenz immer zusammen mit ihrem Geltungsbereich.',
+    'TEILGRUPPEN & ZUSATZPHASEN: Die Regelgruppe folgt dem Ablauf. `teilgruppenMethoden` nennt je Phase (`stepKey` = Zeile in `thematischeTabelle`) parallele Methoden für einzelne Teilgruppen mit Grund; `zusatzphasen` sind kurze Phasen für die ganze Klasse (Anfang oder Ende). Beides sind Vorschläge: übernimm sie nur nach Rückfrage und nenne sie als solche.',
     'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.4`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
   ];
 
@@ -711,6 +742,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
     konflikte: multiGroupSynthesis.konflikte.slice(0, 4),
     lerngruppenUndMatrix: groupMatrices,
+    teilgruppenMethoden,
+    zusatzphasen,
     wloOerRessourcen: oerHits,
     thematischeTabelle: briefing.fallbackTable,
     llmBriefing: briefing.llmBriefing,
@@ -739,8 +772,15 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
 export function buildAdaptScenarioZeroLlm(store: CatalogStore, input: AdaptScenarioInput & { text?: string }) {
   const effectiveText = input.scenarioText?.trim() || input.text?.trim() || undefined;
   const extracted = effectiveText ? extractSubjectAndTopicFromText(effectiveText) : { fach: null, thema: null };
+  const fachName = input.fach?.trim() || extracted.fach || undefined;
+  const stufe = input.bildungsstufe || input.arrangement?.kontext?.bildungsstufe || undefined;
+  const fachErkannt = fachName ? store.subjects.erkenne(fachName, stufe) : null;
+  const fachbereich =
+    input.fachbereich ||
+    (fachErkannt && fachErkannt.fachbereich !== 'uebergreifend' ? fachErkannt.fachbereich : undefined);
   const result = adaptScenario(store.bundle, {
     ...input,
+    fachbereich,
     scenarioText: effectiveText,
     fach: input.fach?.trim() || extracted.fach || undefined,
     thema: input.thema?.trim() || extracted.thema || undefined
@@ -750,6 +790,7 @@ export function buildAdaptScenarioZeroLlm(store: CatalogStore, input: AdaptScena
     'UDL ZUERST: Beginne mit den gemeinsamen Basis-Maßnahmen aus `udlBasis` (sie helfen allen Teilgruppen gleichzeitig mit minimalem Mehraufwand) und übertrage deren `umsetzungsimpuls` konkret auf das Unterrichtsthema.',
     'KONFLIKTE AKTIV AUFLÖSEN: Nenne jeden erkannten Zielkonflikt aus `konflikte` offen und setze die zugehörige `aufloesungsstrategie` (z. B. gestufte Aufgabenkarten, parallele Lernwege, Sternchenaufgaben) konkret um.',
     'METHODENKERN WAHREN: Wenn eine Phase einen konkreten FMT-Baustein mit `methodenKontext` enthält, erhalte dessen `kernkomponente` und beachte den `methodenAnpassungshinweis`, statt die Methode durch allgemeine Standard-Tipps zu verwässern.',
+    'METHODENTAUSCH & ZUSATZPHASEN: `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, die Regelgruppe bleibt beim Plan) und `zusatzphasen` (kurze Phase für alle) sind Vorschläge. Stelle sie als Option dar, nicht als bereits geänderten Ablauf.',
     'TEILGRUPPEN & VERMEIDEN: Formuliere für jede Gruppe in `teilgruppen` konkrete, themenspezifische Hilfen bzw. Vertiefungen und beachte ausdrücklich die `vermeiden`-Hinweise.',
     'RAHMEN & EPISTEMIK: Beachte strikt die erkannten Technik-/Offline-Grenzen (`kontext.maxTechnik`, `kontext.ohneInternet`) und trenne klar zwischen der heuristischen Binnendifferenzierungsmatrix (-100 bis +100 %, keine Effektstärken) und empirischen FMT-Evidenzgraden (A–C mit Geltungsbereich).'
   ];
@@ -770,7 +811,9 @@ export function buildAdaptScenarioZeroLlm(store: CatalogStore, input: AdaptScena
     `\nUDL-BASIS:\n${JSON.stringify(result.udlBasis, null, 2)}\n` +
     `\nZIELKONFLIKTE:\n${JSON.stringify(result.konflikte, null, 2)}\n` +
     `\nTEILGRUPPEN:\n${JSON.stringify(result.teilgruppen, null, 2)}\n` +
-    `\nPHASEN-ANPASSUNGEN:\n${JSON.stringify(result.phasenAnpassungen, null, 2)}`;
+    `\nPHASEN-ANPASSUNGEN:\n${JSON.stringify(result.phasenAnpassungen, null, 2)}` +
+    (result.teilgruppenMethoden.length ? `\n\nPARALLELE METHODEN FÜR TEILGRUPPEN (Vorschlag):\n${JSON.stringify(result.teilgruppenMethoden, null, 2)}` : '') +
+    (result.zusatzphasen.length ? `\n\nZUSATZPHASEN FÜR ALLE (Vorschlag):\n${JSON.stringify(result.zusatzphasen, null, 2)}` : '');
 
   return {
     verbindlicheUmsetzungsregeln,

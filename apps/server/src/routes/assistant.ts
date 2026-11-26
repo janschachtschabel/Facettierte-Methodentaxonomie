@@ -1089,7 +1089,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     if (!target) {
       return reply.code(503).send({
-        fehler: 'Für die fachliche Ausgestaltung ist kein LLM-API-Key konfiguriert. Sie können in den KI-Einstellungen eine eigene OpenAI-kompatible Anbindung hinterlegen oder mode: "briefing" nutzen.'
+        fehler: 'Für die fachliche Ausgestaltung ist kein LLM-API-Key konfiguriert. In den KI-Einstellungen lässt sich eine eigene OpenAI-kompatible Anbindung hinterlegen oder mode: "briefing" nutzen.'
       });
     }
 

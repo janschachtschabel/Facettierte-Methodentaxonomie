@@ -13,6 +13,7 @@ import { registerAssistantRoutes } from './routes/assistant.js';
 import { oehDisciplinesForFachbereich } from '@fmt/core';
 import { registerOerRoutes, setWloAreaLookup, setWloSubjectLookup } from './routes/oer.js';
 import { registerMcpHttpRoutes } from './mcp/http.js';
+import { registerContactRoutes, type ContactSender } from './routes/contact.js';
 import { findTooLongString, tooLongMessage } from './routes/validation.js';
 
 export interface BuildAppOptions {
@@ -20,6 +21,8 @@ export interface BuildAppOptions {
   webDistDir?: string;
   config?: ServerConfig;
   logger?: boolean;
+  /** Replaces the SMTP delivery of the contact form (tests). */
+  contactSender?: ContactSender | null;
 }
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance & { fmtStore: CatalogStore }> {
@@ -81,6 +84,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   setWloSubjectLookup((name) => store.subjects.schulfachUri(name));
   setWloAreaLookup((fachbereich) => oehDisciplinesForFachbereich(store.bundle.faecher, fachbereich).map((f) => f.uri));
   registerOerRoutes(app, config);
+  if (options.contactSender !== undefined) registerContactRoutes(app, config, options.contactSender);
+  else registerContactRoutes(app, config);
   registerMcpHttpRoutes(app, store, config);
 
   const webDir = options.webDistDir;

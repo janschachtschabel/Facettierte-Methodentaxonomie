@@ -62,8 +62,8 @@ export function ApiMcpPage() {
           </p>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
             <li><code>classify_scenario_text</code> – Zero-LLM Freitext-Klassifikation (Regeln + BM25/Trigram + opt. Model2Vec) auf 6 Skalen, Fach/Thema &amp; Matrix-Merkmale</li>
-            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden inkl. semantischer Vorschläge</li>
-            <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen</li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden inkl. semantischer Vorschläge, auch nach <code>fach</code> oder <code>fachbereich</code></li>
+            <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen (frühere Kennungen werden weitergeleitet)</li>
             <li><code>compare_methods</code> – Facette-für-Facette-Differenzvergleich</li>
             <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung inkl. didaktischem Ansatz &amp; Matrix-Signalen</li>
             <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen</li>
@@ -72,8 +72,8 @@ export function ApiMcpPage() {
             <li><code>list_differentiation_options</code> – <strong>Eigenständiger Katalog</strong> aller 36 Lernvoraussetzungs-Variablen (115 Ausprägungen), 8 Schnellprofile, Personas &amp; Handlungsebenen (<code>GET /api/v1/differentiation/meta</code>)</li>
             <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code>, gefiltert nach Fach oder Fachbereich</li>
             <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, <code>quickProfileId</code>, Ebenen-/Technikfilter) &amp; alternative Teilgruppen-Methoden</li>
-            <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong> (für freie Chat-Entwürfe, einzelne <code>baustein</code>-Methoden &amp; FMT-Arrangements): UDL-Basis, Zielkonflikte + Auflösungen, Methoden-Kontext &amp; FMT-Methoden (<code>POST /api/v1/adapt</code>)</li>
-            <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) mit Matrix &amp; opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich <code>llmBriefing</code>, UDL/Konflikte und JSON-LD</li>
+            <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong> (für freie Chat-Entwürfe, einzelne <code>baustein</code>-Methoden &amp; FMT-Arrangements): UDL-Basis, Zielkonflikte + Auflösungen, Methoden-Kontext, FMT-Methoden sowie <code>teilgruppenMethoden</code> und <code>zusatzphasen</code> wie Schritt 3 des Baukastens (<code>POST /api/v1/adapt</code>)</li>
+            <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) mit Matrix, parallelen Methoden für Teilgruppen, Zusatzphasen für alle &amp; opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich <code>llmBriefing</code>, UDL/Konflikte und JSON-LD</li>
             <li><code>elaborate_scenario</code> – Deterministische Verlaufstabelle + <code>llmBriefing</code> für das Enduser-LLM</li>
             <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage (7 Typen) + <code>llmBriefing</code></li>
           </ul>
@@ -114,7 +114,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/plan</code></td>
-                <td>Zero-LLM End-to-End-Vorfilterung (&lt;5 ms): Arrangement, Matrix, Tabelle &amp; fertiges <code>llmBriefing</code></td>
+                <td>Zero-LLM End-to-End-Vorfilterung (&lt;5 ms): Arrangement, Matrix, Tabelle, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code> &amp; fertiges <code>llmBriefing</code> (mit <code>umfang: "voll"</code>)</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/briefing</code></td>
@@ -126,7 +126,25 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>GET /api/v1/methods?text=…&amp;lernfunktion=…</code></td>
-                <td>Facettierte Suche</td>
+                <td>
+                  Facettierte Suche. <code>fach=Physik</code> oder <code>fuerFachbereich=…</code>: Methoden des Fachbereichs und
+                  fachübergreifende, ohne ungeeignete; <code>fachbereich=a,b</code>: streng nur diese Fachbereiche
+                </td>
+              </tr>
+              <tr>
+                <td><code>GET /api/v1/methods/:kennung</code></td>
+                <td>Einzelne Methode; frühere Kennungen führen zur aktuellen Methode</td>
+              </tr>
+              <tr>
+                <td><code>POST /api/v1/adapt</code></td>
+                <td>
+                  Anpassung an Lerngruppen: UDL-Basis, Zielkonflikte, Maßnahmen je Phase, <code>teilgruppenMethoden</code> und{' '}
+                  <code>zusatzphasen</code> (Gruppe mit <code>id: "regel"</code> = Regelgruppe)
+                </td>
+              </tr>
+              <tr>
+                <td><code>GET /api/v1/differentiation/meta</code></td>
+                <td>Lernvoraussetzungs-Merkmale, Schnellprofile, Personas und Handlungsebenen</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/match</code> (Alias: <code>POST /zuordnung</code>)</td>
@@ -166,7 +184,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/differentiation/score</code></td>
-                <td>Deterministische Binnendifferenzierungsmatrix (−2..+2 Punkte, 115 Variablen × 172 Maßnahmen)</td>
+                <td>Deterministische Binnendifferenzierungsmatrix (115 Ausprägungen × 172 Maßnahmen, je Zelle −2..+2 Punkte, normalisiert −100..+100 %)</td>
               </tr>
             </tbody>
           </table>
