@@ -28,7 +28,7 @@ import { nutztRaum, raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type B
 import { baueSituation, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
-import { bewegungsKette, nachweisformen, normZielart, traegtWissensart, waehleKette, type Kettenwahl } from './zielart.js';
+import { bewegungsKette, nachweisformen, normZielart, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -900,6 +900,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentSituationKontext: { thema?: string; fachErkannt?: boolean } = {};
   /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
   let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
+  /** The chain step being filled binds the knowledge type (main or securing step with a knowledge type). */
+  let currentStepGebunden = false;
   const mentionDetector = createMentionDetector(data);
   type Ranked = { b: Baustein; hard: number[]; soft: number };
   const order = (items: Ranked[], tolerance?: number): Baustein[] =>
@@ -991,6 +993,19 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return (b.aufgabe || []).includes('psychomotorik') && (b.raumbedarf || []).some((x) => !klassenraum.has(x));
   };
 
+  /** Properties the lesson's room offers beyond a classroom (movement area, special equipment, a place outside). */
+  const raumBesonders = () => {
+    const klassenraum = raumBietet(data, 'klassenraum');
+    return [...currentSituation.bietet].filter((x) => !klassenraum.has(x));
+  };
+  /** The room offers properties a classroom lacks, and the method needs none of them. */
+  const raumUngenutzt = (b: Baustein) => {
+    const besonders = raumBesonders();
+    return besonders.length > 0 && !(b.raumbedarf || []).some((x) => besonders.includes(x));
+  };
+  /** Movement or hands-on method: carries the knowledge type psychomotorik or works enactively. */
+  const praxisMethode = (b: Baustein) => wissensartenVon(b).includes('psychomotorik') || (b.repraesentation || []).includes('enaktiv');
+
   function rankOf(
     b: Baustein,
     a: MatchRequest,
@@ -1053,16 +1068,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1
           : 0,
         vorbereitungMin: b.vorbereitungMin,
-        praxisFremd:
-          (currentPraxis || currentRaum === 'hoersaal') &&
-          !(currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(b, currentRaum) : isPraxisMethod(b))
-            ? currentStepRole === 'haupt'
-              ? 'haupt'
-              : 'rand'
-            : // A talk format that merely fits the gym (Fishbowl) is no practice phase: a practical method comes first.
-              currentPraxis && currentStepRole === 'haupt' && !isPraxisMethod(b)
-              ? 'rand'
-              : undefined,
+        // Room need orders: in a room that offers more than a classroom, a method that uses it comes first.
+        // In a bound step the knowledge type decides (Bindung); the room orders the other steps and single phases.
+        raumUngenutzt: !currentStepGebunden && raumUngenutzt(b) ? (currentStepRole === 'haupt' ? 'haupt' : 'rand') : undefined,
+        // Kept from praxisFremd (Abbau Zeile 2): in such a room a main step prefers movement or hands-on work, also when bound,
+        // because a room need does not tell a demonstration from a talk (r2-x-draussen-45, n04).
+        // A single phase (no chain step) counts like a main step.
+        ohnePraxisImHauptschritt: (currentStepRole === 'haupt' || currentStepIndex < 0) && raumBesonders().length > 0 && !praxisMethode(b),
         // A named method gets its bonus at the step reserved for it, not at an earlier step it could also serve.
         mentioned:
           currentMentions.has(b.kennung) &&
@@ -1449,6 +1461,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     steps.forEach((step, idx) => {
       currentStepIndex = idx;
       currentStepRole = step.id === checkStepId ? 'pruefung' : step.rolle || '';
+      currentStepGebunden = gebunden(step);
       // Share of this step plus whatever earlier steps left unused.
       const plannedBefore = budgets ? budgets.slice(0, idx).reduce((x, y) => x + y, 0) : 0;
       const stepCap = budgets ? Math.max(minStep, budgets[idx] + Math.max(0, plannedBefore - usedDurationSoFar())) : undefined;
@@ -1589,6 +1602,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     currentStepIndex = -1;
     currentStepRole = '';
+    currentStepGebunden = false;
     if (wantsRecurrence) {
       const recCands = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert');
       const rec =
@@ -2093,6 +2107,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentSituation = keineSituation();
       currentSituationKontext = {};
       currentStepRole = '';
+      currentStepGebunden = false;
     }
   }
 
