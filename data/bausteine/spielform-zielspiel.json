@@ -4,8 +4,8 @@
   "status": "entwurf",
   "piktogramm": "spiel",
   "ansatz": [
-    "uebung",
-    "spiel-simulation"
+    "spiel-simulation",
+    "uebung"
   ],
   "fachbereich": [
     "sport"
@@ -30,7 +30,7 @@
   ],
   "reichweite": "r2",
   "dauerMin": 5,
-  "dauerMax": 20,
+  "dauerMax": 30,
   "problem": "Geübte Bewegungen werden isoliert beherrscht, aber im Spiel unter Zeit- und Gegnerdruck nicht abgerufen.",
   "durchfuehrung": [
     "Spielform mit einer Regel wählen, die die geübte Technik belohnt (z. B. Punkt nur nach Pass)",

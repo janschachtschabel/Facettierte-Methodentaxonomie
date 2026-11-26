@@ -385,3 +385,29 @@ describe('Keine Fehlgriffe durch Alltagswörter (Review)', () => {
     expect(r.modus === 'ablauf' && r.arrangement?.kontext?.vorhanden).toEqual(['erstwissen-ungesichert']);
   });
 });
+
+describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', () => {
+  it('Tanz im Sport darf die Vorführung mit Rückmeldung nutzen', () => {
+    const r = M.zuordnen({ text: 'Sport 7: HipHop-Tanz eine kurze Choreo einstudieren, 45 Minuten' });
+    expect(blocksOf(r)).toContain('vorfuehrung-rueckmeldung');
+  });
+
+  it.each([
+    'Sport Klasse 7, Schwimmen Kraulbeine, 45 Minuten',
+    'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten',
+    'Sport Klasse 10: Distanz laufen und Tempo halten, 45 Minuten'
+  ])('%s: keine Vorführung aus den ästhetischen Fächern', (text) => {
+    expect(blocksOf(M.zuordnen({ text }))).not.toContain('vorfuehrung-rueckmeldung');
+  });
+
+  it('Volleyball übt die Technik, statt Ausdauer zu trainieren', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten' });
+    expect(blocksOf(r)).not.toContain('dauer-intervallmethode');
+  });
+
+  it('Fitness mit Theorie und Praxis: Spielform statt Sitzkreis, 90 Minuten gefüllt', () => {
+    const r = M.zuordnen({ text: 'Sport Oberstufe Fitness und Krafttraining, 90 Minuten, Theorie und Praxis' });
+    expect(blocksOf(r)).not.toContain('fishbowl');
+    expect(r.modus === 'ablauf' && r.pruefung?.dauerMin).toBeGreaterThanOrEqual(81);
+  });
+});

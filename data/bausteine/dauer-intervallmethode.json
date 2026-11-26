@@ -30,7 +30,7 @@
   ],
   "reichweite": "r2",
   "dauerMin": 12,
-  "dauerMax": 30,
+  "dauerMax": 45,
   "problem": "Ausdauer verbessert sich nur mit ausreichend langer, individuell passender Belastung; gemeinsames Tempo über- oder unterfordert viele.",
   "durchfuehrung": [
     "Methode wählen: gleichmäßiger Dauerlauf, Fahrtspiel oder Intervalle mit Pausen",
@@ -114,8 +114,7 @@
     "vorwissen-aktiviert"
   ],
   "nachbedingung": [
-    "prozedur-gelaeufig",
-    "wissen-konsolidiert"
+    "leistung-trainiert"
   ],
   "kernkomponente": [
     {
