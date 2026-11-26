@@ -362,3 +362,26 @@ describe('Prüfung am Stundenanfang und Lesen praktischer Fächer', () => {
     expect(M.lesen('Informatik Klasse 9, 45 Minuten, Tablets nutzen für Recherche').kriterien.zielart).toBeUndefined();
   });
 });
+
+describe('Keine Fehlgriffe durch Alltagswörter (Review)', () => {
+  it.each([
+    ['Wiederholungsstunde zur Vorbereitung auf die Klassenarbeit, Mathe Klasse 8, 90 Minuten', 'klassenarbeit-summativ'],
+    ['Deutsch Klasse 5: Schüler sollen ihre Geschichten vorlesen, 45 Minuten', 'vorlesen-lesung']
+  ])('%s: ohne %s', (text, id) => {
+    expect(blocksOf(M.zuordnen({ text }))).not.toContain(id);
+  });
+
+  it.each([
+    'Deutsch Klasse 11: Schillers Schauspiel Die Räuber analysieren, 90 Minuten',
+    'Mathe Klasse 6: mit dem Tablet Grundlagen der Bruchrechnung üben, 45 Minuten',
+    'Geschichte Klasse 9: Handy Grundlagen der Quellenkritik, 45 Minuten',
+    'Englisch: Lehrkraft muss improvisieren, Vokabeln wiederholen, 45 Minuten'
+  ])('%s: keine Bewegungs- oder Praxisstunde', (text) => {
+    expect(M.lesen(text).kriterien.zielart).not.toBe('psychomotorik');
+  });
+
+  it('ein mitgegebener Zustand „vorhanden“ erreicht den Kontext des Ablaufs', () => {
+    const r = M.zuordnen({ text: 'Mathe Klasse 8 Brüche, 45 Minuten', vorhanden: ['erstwissen-ungesichert'] });
+    expect(r.modus === 'ablauf' && r.arrangement?.kontext?.vorhanden).toEqual(['erstwissen-ungesichert']);
+  });
+});

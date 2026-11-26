@@ -508,7 +508,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'zielart',
-      /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste[-\s]hilfe\w*|\breanimation\b|\bhaare\s+schneiden\b|\b(?:zubereiten|backen|loten|feilen|bohren|mikroskopier\w*|servieren|eindecken|einstudieren)\b|\b(?:holz|metall|brett|leiste)\w*\s+(?:\w+\s+)?sagen\b|\bnahmaschine\w*|\b(?:gericht|suppe|rezept|menu)\w*\s+(?:\w+\s+)?kochen\b|\bkoch(?:praxis|kurs|unterricht)\b|\b(?:seitenlage|herzdruckmassage|handedesinfektion|ballgewohnung|yoga|pilates)\b|\b(?:an\s+ubungskopfen|am\s+modell\s+uben|an\s+der\s+puppe)\b|\blied\w*\s+singen\b|\bimprovis\w*|\bszenenarbeit\b|\bszenisch\w*\s+(?:spiel|darstell|arbeit|gestalt)\w*|\bschauspiel\w*|\btheater\s+spielen\b|\b(?:bunsen)?brenner\w*\s+(?:\w+\s+)?(?:anzunden|bedienen|handhaben)\b|\bpipettier\w*|\b(?:smartphone|handy|tablet)s?\b(?:\s+[\w-]+){0,2}?\s*,?\s+(?:grundlagen|bedienen|bedienung|einrichten)\b|\b(?:smartphone|handy|tablet)s?\s+(?:grundlagen|bedienen|bedienung|einrichten)\b/,
+      /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste[-\s]hilfe\w*|\breanimation\b|\bhaare\s+schneiden\b|\b(?:zubereiten|backen|loten|feilen|bohren|mikroskopier\w*|servieren|eindecken|einstudieren)\b|\b(?:holz|metall|brett|leiste)\w*\s+(?:\w+\s+)?sagen\b|\bnahmaschine\w*|\b(?:gericht|suppe|rezept|menu)\w*\s+(?:\w+\s+)?kochen\b|\bkoch(?:praxis|kurs|unterricht)\b|\b(?:seitenlage|herzdruckmassage|handedesinfektion|ballgewohnung|yoga|pilates)\b|\b(?:an\s+ubungskopfen|am\s+modell\s+uben|an\s+der\s+puppe)\b|\blied\w*\s+singen\b|\bimprovisation(?:s(?:theater|ubung\w*|spiel\w*))?\b|\bimprotheater\b|\bszenenarbeit\b|\bszenisch\w*\s+(?:spiel|darstell|arbeit|gestalt)\w*|\bschauspiel(?:en|erisch\w*|unterricht|ubung\w*|training)\b|\btheater\s+spielen\b|\b(?:bunsen)?brenner\w*\s+(?:\w+\s+)?(?:anzunden|bedienen|handhaben)\b|\bpipettier\w*|\b(?:smartphone|handy|tablet)s?\b(?:\s+[\w-]+){0,2}?\s+(?:bedienen|bedienung|einrichten)\b|\b(?:smartphone|handy|tablet)s?-?\s*grundlagen\s*(?:,|\.|$|fur|kurs)/,
       () => 'psychomotorik'
     ],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib|\b(?:addier|subtrahier|multiplizier|dividier|vereinfach|umform)en\b|\b(?:bruch\w*|terme?)\s+(?:\w+\s+)?kurzen\b|schaltplan\w*\s+lesen|\b(?:arten|baum|baume|pflanzen|tiere|vogel|gesteine|blumen|insekten|pilze)\w*\s+bestimmen\b|\bbestimmungsschlussel\w*/, () => 'prozeduren'],
@@ -1089,7 +1089,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     if (a.bildungsstufe) kontext.bildungsstufe = a.bildungsstufe;
     if (a.vorwissen) kontext.vorwissen = a.vorwissen;
     // A check at the start tests what earlier lessons taught: the group brings first knowledge with it.
-    if (list(a.liefert).includes('lernstand-diagnostiziert') && checkFirst(currentRawText)) kontext.vorhanden = ['erstwissen-ungesichert'];
+    const vorhanden = new Set(list(a.vorhanden));
+    if (list(a.liefert).includes('lernstand-diagnostiziert') && checkFirst(currentRawText)) vorhanden.add('erstwissen-ungesichert');
+    if (vorhanden.size) kontext.vorhanden = [...vorhanden];
     const wrap = (teile: ArrangementNode[]): Arrangement => ({
       '@context': data.NS + 'context.jsonld',
       '@id': data.NS + 'plan/vorschlag',
@@ -1501,6 +1503,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           const b = blocks.get(id);
           if (!b) return false;
           if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) return false;
+          // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
+          if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
           const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
           return !roomOnly || given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik';
         })
