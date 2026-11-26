@@ -47,7 +47,7 @@ export const SOFT_WEIGHTS = {
   functionPosition: 0.3,
   vorbereitungPerMin: 0.005,
   fachbereichPasst: -0.5,
-  fachbereichFremd: 1.5,
+  fachbereichFremd: 3,
   mentioned: -10,
   praxisFremdHaupt: 4,
   praxisFremdRand: 1.5

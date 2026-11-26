@@ -155,3 +155,39 @@ describe('Randfälle der Zuordnung', () => {
     expect(seqs.size).toBeGreaterThanOrEqual(2);
   });
 });
+
+describe('Stundenart aus dem Text', () => {
+  const chainOf = (text: string) => {
+    const r = M.zuordnen({ text });
+    return r.modus === 'ablauf' ? r.kette?.id : r.modus;
+  };
+
+  it('„üben“ in einer ganzen Stunde ergibt einen Ablauf, mit Phasenwort eine Einzelphase', () => {
+    expect(chainOf('Klasse 2 Deutsch, Lesen üben mit Silben, 45 min, 22 Kinder')).toBe('prozedur');
+    expect(chainOf('Englisch Klasse 7: Dialoge beim Einkaufen üben, 45 Minuten')).toBe('prozedur');
+    expect(M.zuordnen({ text: 'Englisch Klasse 7: Dialoge üben in der Sicherungsphase, 45 Minuten' }).modus).toBe('phase');
+  });
+
+  it('das Handlungsverb wählt die Kette, wenn keine Zielart genannt ist', () => {
+    expect(chainOf('Politik Klasse 7: Regeln in der Klasse demokratisch aushandeln, 45 Minuten')).toBe('urteilsbildung');
+    expect(chainOf('Jura Uni Seminar: Fallbearbeitung Kaufrecht, 90 Minuten, 30 Studierende')).toBe('problemloesen');
+    expect(chainOf('Fachinformatiker Lernfeld 3: Netzwerk planen, 90 Minuten')).toBe('projektlernen');
+    expect(chainOf('Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, 45 Minuten')).toBe('fuenf-e');
+    expect(chainOf('Geschichte Klasse 10 Weimarer Republik, 90 Minuten')).toBe('konzeptaufbau');
+    expect(chainOf('Deutsch Klasse 7: bestimmte Artikel wiederholen, 45 Minuten')).toBe('prozedur');
+    expect(chainOf('Einführungsphase Mathe: Ableitungen üben, 90 Minuten')).toBe('prozedur');
+  });
+
+  it('eine geratene Kette, die der Rahmen nicht füllen kann, weicht dem Konzeptaufbau', () => {
+    const r = M.zuordnen({ text: 'Geschichte Klasse 9 Weimarer Republik diskutieren, 45 Minuten, 2 Schüler' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(r.pruefung?.gueltig).toBe(true);
+      expect((r.annahmen || []).some((x) => x.includes('nicht vollständig planbar'))).toBe(true);
+    }
+  });
+
+  it('verneinte Verben wählen keine Kette', () => {
+    expect(chainOf('Ethik Klasse 9 Freundschaft, 45 Minuten, bitte nicht diskutieren')).not.toBe('urteilsbildung');
+  });
+});

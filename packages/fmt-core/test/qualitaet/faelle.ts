@@ -92,7 +92,11 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'pflege-unterweisung-60',
     text: 'Pflegeschule: Blutdruck messen nach der Vier-Stufen-Methode, 60 Minuten, 16 Auszubildende',
-    erwartet: { enthaelt: 'vier-stufen-methode', praxis: true }, bekannt: { praxis: LUECKE_ANWENDUNG } },
+    erwartet: { enthaelt: 'vier-stufen-methode', praxis: true },
+    bekannt: {
+      praxis: LUECKE_ANWENDUNG,
+      enthaelt: 'Vier-Stufen-Methode erlaubt höchstens 12 Personen; bei 16 Auszubildenden fehlt das Ausweichen in Teilgruppen'
+    } },
 
   // Performance and learning checks in other subjects.
   {
