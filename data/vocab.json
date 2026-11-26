@@ -860,6 +860,13 @@
           ]
         },
         {
+          "id": "leistung-trainiert",
+          "label": "Körperliche Leistungsfähigkeit trainiert",
+          "impliziert": [
+            "erstwissen-ungesichert"
+          ]
+        },
+        {
           "id": "wissen-konsolidiert",
           "label": "Wissen konsolidiert",
           "definition": "Durch Abruf oder Übung gefestigt; verteilte Wiederholung verlängert das Behalten",
