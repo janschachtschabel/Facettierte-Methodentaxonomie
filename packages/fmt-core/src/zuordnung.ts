@@ -1213,15 +1213,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
     if (!opening) return order(ranked);
     const fitsTime = (b: Baustein) => maxStepMin == null || b.dauerMin <= maxStepMin;
-    // The wider margin must not let a seated or another subject's opener into a practice lesson.
-    const offPractice = (x: Ranked) =>
-      currentPraxis && (x.b.fachbereich || []).length > 0 && !x.b.fachbereich!.includes('uebergreifend') && currentArea && !areaFits(x.b)
-        ? 1
-        : currentPraxis && !(currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(x.b, currentRaum) : isPraxisMethod(x.b))
-          ? 1
-          : 0;
+    // The wider margin must not let a seated opener that ignores the room (a talk in the gym) past one that uses the room
+    // or gets learners on their feet (movement, hands-on work, or a need for standing or moving space).
+    const sitzendImRaum = (b: Baustein) =>
+      raumUngenutzt(b) && !praxisMethode(b) && !(b.raumbedarf || []).some((x) => x === 'stellflaeche' || x === 'bewegungsflaeche');
     return order(
-      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1, offPractice(x)] })),
+      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1, sitzendImRaum(x.b) ? 1 : 0] })),
       OPENING_TOLERANCE
     );
   }
