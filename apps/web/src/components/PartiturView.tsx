@@ -156,7 +156,7 @@ export function PartiturView({
     <div className="partitur-track">
       {mainSteps.length === 0 && (
         <div className="card" style={{ padding: 20, textAlign: 'center' }}>
-          <p className="muted">Der Ablauf ist aktuell leer. Fügen Sie unten einen Baustein hinzu oder laden Sie eine Vorlage.</p>
+          <p className="muted">Der Ablauf ist aktuell leer. Füge unten einen Baustein hinzu oder lade eine Vorlage.</p>
         </div>
       )}
 

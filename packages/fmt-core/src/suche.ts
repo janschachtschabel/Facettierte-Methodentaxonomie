@@ -106,6 +106,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     const wantedAnsatz = list(k.ansatz);
     const wantedStatus = list(k.status);
 
+    const given = (v: unknown) => v != null && v !== '';
     const hits = data.bausteine.filter((b) => {
       if (words.length) {
         const hay = haystackById.get(b.kennung) || '';
@@ -119,6 +120,13 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
       const wantedArea = list(k.fachbereich);
       if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
+      // Fits a subject area: at home there or without subject binding, and not marked as unsuitable for it.
+      const fitArea = given(k.fuerFachbereich) ? String(k.fuerFachbereich) : '';
+      if (fitArea && fitArea !== 'uebergreifend') {
+        const areas = b.fachbereich || [];
+        if (!(areas.includes(fitArea) || areas.includes('uebergreifend') || !areas.length)) return false;
+        if ((b.fachbereichUngeeignet || []).includes(fitArea)) return false;
+      }
 
       const ranges = list(k.reichweite);
       if (ranges.length && !ranges.includes(b.reichweite)) return false;
@@ -128,7 +136,6 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
         const gives = closure(b.nachbedingung || []);
         if (!want.every((z) => gives.has(z))) return false;
       }
-      const given = (v: unknown) => v != null && v !== '';
       if (given(k.gruppe) && (Number(k.gruppe) < b.gruppeMin || Number(k.gruppe) > b.gruppeMax)) return false;
       if (given(k.maxVorbereitung) && b.vorbereitungMin > Number(k.maxVorbereitung)) return false;
       if (given(k.maxTechnik) && (techRank.get(b.technik) ?? 0) > (techRank.get(String(k.maxTechnik)) ?? 0)) return false;

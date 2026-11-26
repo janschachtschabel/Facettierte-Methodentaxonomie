@@ -21,6 +21,20 @@ import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanA
 import { extractSubjectAndTopicFromText } from './assistant.js';
 import { MAX_TEXT_CHARS, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
+/**
+ * A subject name (`fach`, e.g. "Mathematik" or "Physik") becomes the filter `fuerFachbereich`: methods of the
+ * subject area plus those without subject binding, without the ones marked unsuitable for it.
+ * Returns the recognised subject (null when unknown), or undefined when no subject was asked for.
+ */
+export function applySubjectFilter(store: CatalogStore, criteria: SearchCriteria) {
+  const fach = typeof criteria.fach === 'string' ? criteria.fach.trim() : '';
+  delete criteria.fach;
+  if (!fach) return undefined;
+  const erkannt = store.subjects.erkenne(fach, typeof criteria.bildungsstufe === 'string' ? criteria.bildungsstufe : undefined);
+  if (erkannt && erkannt.fachbereich !== 'uebergreifend' && !criteria.fuerFachbereich) criteria.fuerFachbereich = erkannt.fachbereich;
+  return erkannt;
+}
+
 export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
   const fieldsMap = new Map(store.matcher.felder().map((f) => [f.feld, f]));
 
@@ -120,7 +134,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       'vorhanden',
       'liefert',
       'ansatz',
-      'status'
+      'status',
+      'fachbereich'
     ]);
     for (const [k, raw] of Object.entries(q)) {
       if (raw == null || raw === '') continue;
@@ -133,6 +148,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       }
     }
     const t0 = process.hrtime.bigint();
+    const fachErkannt = applySubjectFilter(store, criteria);
     const hits = store.search.suche(criteria);
     const textQuery = typeof criteria.text === 'string' ? criteria.text.trim() : '';
     const semanticInfo =
@@ -144,6 +160,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       gesamt: store.bundle.bausteine.length,
       anzahl: hits.length,
       dauerMs,
+      ...(fachErkannt !== undefined ? { fachErkannt } : {}),
       treffer: hits,
       ...(semanticInfo
         ? {
@@ -225,7 +242,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" für die Szenario-Vorfilterung übergeben.' });
     }
     const b = body as Record<string, unknown>;
-    const badText = ['fach', 'thema', 'lernziele', 'didaktischerAnsatz'].find((k) => b[k] != null && typeof b[k] !== 'string');
+    const badText = ['fach', 'fachbereich', 'thema', 'lernziele', 'didaktischerAnsatz'].find((k) => b[k] != null && typeof b[k] !== 'string');
     if (badText) return reply.code(400).send({ fehler: `Feld „${badText}“: erwartet wird Text.` });
     const isGroup = (g: unknown) =>
       !!g && typeof g === 'object' && typeof (g as { id?: unknown }).id === 'string' && typeof (g as { label?: unknown }).label === 'string';
@@ -254,10 +271,20 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
 
   app.post('/api/v1/adapt', async (req, reply) => {
     const body = (req.body || {}) as Partial<AdaptScenarioInput & { text?: string }>;
-    const notText = ['scenarioText', 'text', 'lerngruppenText', 'baustein', 'fach', 'thema', 'bildungsstufe', 'maxTechnik'].find(
+    const notText = ['scenarioText', 'text', 'lerngruppenText', 'baustein', 'fach', 'fachbereich', 'thema', 'bildungsstufe', 'maxTechnik'].find(
       (k) => (body as Record<string, unknown>)[k] != null && typeof (body as Record<string, unknown>)[k] !== 'string'
     );
     if (notText) return reply.code(400).send({ fehler: `Feld „${notText}“: erwartet wird Text.` });
+    // Same codes as the MCP tool adapt_scenario accepts.
+    const badCode = (['maxTechnik', 'bildungsstufe', 'fachbereich'] as const).find((k) => {
+      const v = (body as Record<string, unknown>)[k];
+      const allowed = fieldsMap.get(k)?.werte?.map((w) => w.code);
+      return typeof v === 'string' && v !== '' && allowed && !allowed.includes(v);
+    });
+    if (badCode) {
+      const allowed = fieldsMap.get(badCode)!.werte!.map((w) => w.code).join(', ');
+      return reply.code(400).send({ fehler: `Feld „${badCode}“: unbekannter Wert. Erlaubt: ${allowed}.` });
+    }
     if (body.gruppen != null && !isGroupList(body.gruppen)) {
       return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
     }

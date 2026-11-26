@@ -17,7 +17,23 @@ export interface ServerConfig {
   llmCacheTtlMs: number;
   /** Per-IP limit per minute for the compute endpoints without LLM (match, plan, adapt …). */
   apiRateLimitPerMin: number;
+  /** Contact form: SMTP delivery. Without smtpHost the form answers that it is not set up. */
+  smtpHost?: string;
+  smtpPort?: number;
+  /** true = TLS from the start (port 465); false = STARTTLS where offered. */
+  smtpSecure?: boolean;
+  smtpUser?: string;
+  smtpPass?: string;
+  /** Sender address of the contact mails (has to be allowed by the SMTP account). */
+  contactFrom?: string;
+  /** Recipient of the contact mails; defaults to the address of the legal notice. */
+  contactTo?: string;
+  /** Messages per IP and hour through the contact form. */
+  contactRateLimitPerHour?: number;
 }
+
+/** Address of the legal notice. Only the server knows it; the web app asks for it on demand. */
+export const DEFAULT_CONTACT_TO = ['info', 'schachtschabel.net'].join('@');
 
 const HOSTNAME_RE =
   /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -99,6 +115,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     llmTimeoutMs: Number(env.LLM_TIMEOUT_MS) || 90000,
     llmCacheMax: Number(env.LLM_CACHE_MAX) || 500,
     llmCacheTtlMs: Number(env.LLM_CACHE_TTL_MS) || 3600000,
-    apiRateLimitPerMin: positiveInt(env.API_RATE_LIMIT_PER_MIN, 300)
+    apiRateLimitPerMin: positiveInt(env.API_RATE_LIMIT_PER_MIN, 300),
+    smtpHost: (env.SMTP_HOST || '').trim() || undefined,
+    smtpPort: positiveInt(env.SMTP_PORT, 587),
+    smtpSecure: (env.SMTP_SECURE || '').trim().toLowerCase() === 'true' || Number(env.SMTP_PORT) === 465,
+    smtpUser: (env.SMTP_USER || '').trim() || undefined,
+    smtpPass: env.SMTP_PASS || undefined,
+    contactFrom: (env.CONTACT_FROM || env.SMTP_USER || '').trim() || undefined,
+    contactTo: (env.CONTACT_TO || '').trim() || DEFAULT_CONTACT_TO,
+    contactRateLimitPerHour: positiveInt(env.CONTACT_RATE_LIMIT_PER_HOUR, 10)
   };
 }

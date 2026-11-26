@@ -348,6 +348,10 @@ export interface SearchCriteria {
   minEvidenz?: EvidenceGrade;
   ansatz?: string | string[];
   status?: BlockStatus | BlockStatus[];
+  /** Strict: methods assigned to one of these subject areas. */
+  fachbereich?: string | string[];
+  /** Methods that fit the area: assigned to it or without subject binding, never marked unsuitable for it. */
+  fuerFachbereich?: string;
   [facet: string]: unknown;
 }
 

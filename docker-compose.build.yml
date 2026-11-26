@@ -21,6 +21,15 @@ services:
       LLM_TIMEOUT_MS: "${LLM_TIMEOUT_MS:-90000}"
       LLM_CACHE_MAX: "${LLM_CACHE_MAX:-500}"
       LLM_CACHE_TTL_MS: "${LLM_CACHE_TTL_MS:-3600000}"
+      # Optional: Kontaktformular im Impressum (Versand per SMTP; ohne SMTP_HOST meldet das Formular "nicht eingerichtet")
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_SECURE: "${SMTP_SECURE:-false}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_PASS: "${SMTP_PASS:-}"
+      CONTACT_FROM: "${CONTACT_FROM:-}"
+      CONTACT_TO: "${CONTACT_TO:-}"
+      CONTACT_RATE_LIMIT_PER_HOUR: "${CONTACT_RATE_LIMIT_PER_HOUR:-10}"
       FMT_M2V_MODEL_DIR: "${FMT_M2V_MODEL_DIR:-/app/models/m2v-qwen3-4b-256-edu}"
     volumes:
       - fmt-models:/app/models

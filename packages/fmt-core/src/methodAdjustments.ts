@@ -1,4 +1,5 @@
 import type { Baustein } from './types.js';
+import { TECH_RANK } from './technik.js';
 import { scoreDifferentiationMatrix, scoreMethodForGroup, suggestAlternativeMethodsForGroup } from './differentiationMatrix.js';
 
 export interface MethodAdjustmentPhase {
@@ -50,7 +51,6 @@ const WEAK_FIT = 4;
 /** The alternative has to be clearly better, otherwise the plan stays as it is. */
 const MIN_GAIN = 3;
 
-const TECH_RANK: Record<string, number> = { 't-keine': 0, 't-projektion': 1, 't-geteilt': 2, 't-einzeln': 3, 't-spezial': 4 };
 const AI_ROLES = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
 const usesAi = (b: Baustein) => Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
 

@@ -208,7 +208,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     // 4. Binding client-LLM contract & structured methodenDetails must be returned top-level
     expect(Array.isArray(gsPlan.verbindlicheUmsetzungsregeln)).toBe(true);
     // Compact answers omit the Baukasten import rule together with the `maschinenlesbar` block
-    expect(gsPlan.verbindlicheUmsetzungsregeln.length).toBe(3);
+    expect(gsPlan.verbindlicheUmsetzungsregeln.length).toBe(4);
     expect(JSON.stringify(gsPlan.verbindlicheUmsetzungsregeln)).not.toContain('maschinenlesbar');
     expect(Array.isArray(gsPlan.methodenDetails)).toBe(true);
     expect(gsPlan.methodenDetails.length).toBe(gsPlan.thematischeTabelle.length);
