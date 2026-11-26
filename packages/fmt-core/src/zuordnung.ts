@@ -311,6 +311,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     },
     { feld: 'termine', typ: 'integer', bedeutung: 'Anzahl der Termine (Sitzungen, Stunden) der Einheit' },
     {
+      feld: 'nachweis',
+      typ: 'code',
+      bedeutung: 'Woran sich der Lernerfolg zeigen soll (schriftlich, mündlich, praktisch, Produkt); ordnet die Prüfmethode',
+      werte: opts(values(scheme('nachweisform')))
+    },
+    {
       feld: 'vorhanden',
       typ: 'codes',
       stufe: 3,
@@ -441,6 +447,28 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const w = values(scheme('zielart')).find((x) => x.id === code) as (VocabValue & { wissensart?: string[] }) | undefined;
     return w?.wissensart?.length ? w.wissensart : [code];
   };
+  /**
+   * Form of proof the check of the plan should yield (rule nachweis-passt-zum-ziel): stated in the request (field nachweis),
+   * else carried by the goal kind (zielart.nachweis), stated or of the chosen chain.
+   */
+  function nachweisWunsch(a: MatchRequest, kette?: Funktionskette): NonNullable<MatchResult['nachweis']> | null {
+    if (given(a.nachweis)) {
+      const form = String(a.nachweis);
+      return { formen: [form], quelle: 'anfrage', grund: `Nachweis „${label('nachweisform', form)}“ laut Anfrage.` };
+    }
+    const zielarten = given(a.zielart) ? [normZielart(String(a.zielart))!] : kette?.zielart || [];
+    for (const z of zielarten) {
+      const w = values(scheme('zielart')).find((x) => x.id === z);
+      if (w?.nachweis?.length) {
+        return {
+          formen: [...w.nachweis],
+          quelle: 'zielart',
+          grund: `Nachweis ${w.nachweis.map((f) => `„${label('nachweisform', f)}“`).join(' oder ')} aus der Zielart „${w.label}“.`
+        };
+      }
+    }
+    return null;
+  }
   const raumKlasse = (raum: unknown) => (given(raum) ? (RAUM_KLASSE[String(raum)] ?? String(raum)) : '');
   const ZAHLWORT: Record<string, number> = {
     zwei: 2, drei: 3, vier: 4, funf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwolf: 12
@@ -560,6 +588,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // Only when no other room is named (the first raum rule that matches wins); a theatre's seating is a topic.
     ['raum', /\bfester?\s+bestuhlung\b(?!\s+(?:im|in\s+der|des|der)\s+(?:theater|oper|kino|kirche|konzert)\w*)/, () => 'hoersaal'],
     ['raum', /\bonline\b|\bvideokonferenz\w*/, () => 'digital'],
+    // Form of proof: "Prüfungsform Klausur", "mündliche Prüfung", "praktische Prüfung", "Produkt abgeben".
+    ['nachweis', /\bklausur\w*|\bschriftlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'schriftlich'],
+    ['nachweis', /\bmundlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'muendlich'],
+    ['nachweis', /\bpraktisch\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'praktisch'],
+    ['nachweis', /\b(?:produkt|werkstuck|portfolio)\w*\s+(?:\w+\s+)?abgeben\b|\babgabe\s+(?:eines|des|der)\s+(?:produkt|werkstuck|portfolio)\w*/, () => 'produkt'],
     // Learners who cannot read yet cannot write either; "kann nicht schreiben" alone keeps reading.
     [
       'ohneSchrift',
@@ -1746,6 +1779,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let lastArea = '';
   let lastUnusual: string[] = [];
 
+  const mitNachweis = (n: MatchResult['nachweis'] | null) => (n ? { nachweis: n } : {});
+
   function planen(anfrage: MatchRequest = {}): MatchResult {
     // Former name of the room field, still accepted: "lernort" is free for the institution (school, company).
     if ('lernort' in anfrage) {
@@ -1875,7 +1910,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));
         setRoom(a, psychomotor);
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }), {
-          pflichtangaben: pflichtangaben(psychomotor)
+          pflichtangaben: pflichtangaben(psychomotor),
+          ...mitNachweis(nachweisWunsch(a))
         });
       }
       let chainGuessed = false;
@@ -1931,7 +1967,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       if (!given(a.modus) && given(a.zeitMin) && phasen * 5 > Number(a.zeitMin)) {
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }), {
           hinweis: `${Number(a.zeitMin)} Minuten reichen nicht für einen Ablauf „${ketten[0].label}“ mit ${phasen} Phasen. Vorschläge für eine einzelne Phase; für einen verkürzten Ablauf modus „ablauf“ angeben.`,
-          pflichtangaben: pflichtangaben(bewegungsKette(ketten[0]), zielAnnahmen)
+          pflichtangaben: pflichtangaben(bewegungsKette(ketten[0]), zielAnnahmen),
+          ...mitNachweis(nachweisWunsch(a, ketten[0]))
         });
       }
       // Without a time frame a plan would take every method at full length; assume one lesson instead.
@@ -2017,6 +2054,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
       return Object.assign(head, res, {
         weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label })),
+        ...mitNachweis(nachweisWunsch(a, ketten[0])),
         pflichtangaben: pflichtangaben(bewegungsKette(ketten[0]), [
           ...zielAnnahmen,
           ...(zeitAngenommen ? [{ feld: 'zeit', wert: STANDARD_STUNDE_MIN, grund: zeitAnnahme }] : [])

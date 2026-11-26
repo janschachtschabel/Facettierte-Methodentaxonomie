@@ -697,6 +697,17 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
     }
   });
 
+  it('Nachweis: aus der Anfrage (Klausur) oder aus der Zielart (Kondition: praktisch); unbekannte Form wird abgelehnt', () => {
+    const n15 = M.zuordnen({ text: 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur' });
+    expect(n15.kriterien.nachweis).toBe('schriftlich');
+    expect(n15.nachweis).toMatchObject({ formen: ['schriftlich'], quelle: 'anfrage' });
+    const n18 = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer mit Leistungskontrolle, Sportplatz, 45 Minuten' });
+    expect(n18.nachweis).toMatchObject({ formen: ['praktisch'], quelle: 'zielart' });
+    expect(M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' }).nachweis).toBeUndefined();
+    expect(M.felder().find((f) => f.feld === 'nachweis')!.werte!.map((w) => w.code)).toEqual(['schriftlich', 'muendlich', 'praktisch', 'produkt']);
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', nachweis: 'tanz' })).toThrow(/nachweis/);
+  });
+
   it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {
     const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
     expect(r.pflichtangaben?.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));

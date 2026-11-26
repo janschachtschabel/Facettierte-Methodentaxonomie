@@ -138,6 +138,12 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Biologie Klasse 8 Ökologie über 4 Termine, 45 Minuten', erwartet: { termine: 4 } },
   { text: 'VHS Kurs Spanisch für Anfänger, 6 Sitzungen, 90 Minuten', erwartet: { termine: 6 } },
   { text: 'Physik Klasse 9 Optik, 3 Doppelstunden', erwartet: { termine: 3 } },
+  // FMT 2.0 form of proof (field nachweis).
+  { text: 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur', erwartet: { nachweis: 'schriftlich' } },
+  { text: 'Englisch Klasse 10, Urlaubsplanung, mündliche Prüfung am Ende, 45 Minuten', erwartet: { nachweis: 'muendlich' } },
+  { text: 'Sport Klasse 10 Bodenturnen mit praktischer Prüfung, 90 Minuten', erwartet: { nachweis: 'praktisch' } },
+  { text: 'Kunst Klasse 8, Collage, am Ende das Produkt abgeben, 90 Minuten', erwartet: { nachweis: 'produkt' } },
+  { text: 'Mathematik Klasse 9, Funktionen, ohne Klausur, 45 Minuten', erwartet: {}, nicht: { nachweis: 'schriftlich' } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

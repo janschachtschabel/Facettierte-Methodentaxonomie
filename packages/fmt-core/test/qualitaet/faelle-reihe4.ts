@@ -97,7 +97,7 @@ export const REIHE4: Qualitaetsfall[] = [
     id: 'n15',
     text: 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur',
     erwartet: { planungsprofil: 'hochschule', nachweisform: 'schriftlich' },
-    bekannt: { nachweis: 'Paket A', profil: 'Paket D' }
+    bekannt: { profil: 'Paket D' }
   },
   {
     id: 'n16',
@@ -115,8 +115,7 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n18',
     text: 'Sport Klasse 8, Ausdauer mit Leistungskontrolle, Sportplatz, 45 Minuten',
-    erwartet: { leistungskontrolle: true, nachweisform: 'praktisch' },
-    bekannt: { nachweis: 'Paket A' }
+    erwartet: { leistungskontrolle: true, nachweisform: 'praktisch' }
   },
   { id: 'n19', text: 'Mathematik Klasse 5, Laufdiktat zu Bruchrechnen', erwartet: { enthaelt: 'laufdiktat' },
     bekannt: { fachpassung: 'Paket B' } },

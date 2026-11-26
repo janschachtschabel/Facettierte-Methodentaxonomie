@@ -536,6 +536,8 @@ export interface MatchHead {
   hinweise?: string[];
   /** Which of the six required details the request leaves open, and what was assumed instead (field, value, reason). */
   pflichtangaben?: Situation['pflichtangaben'];
+  /** Form of proof the check is ordered by (rule nachweis-passt-zum-ziel): stated in the request or carried by the goal kind. */
+  nachweis?: { formen: string[]; quelle: 'anfrage' | 'zielart'; grund: string };
 }
 
 export interface PhaseMatchResult extends MatchHead {
