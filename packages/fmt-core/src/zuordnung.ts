@@ -1795,11 +1795,20 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentMentions = new Set(detected.map((m) => m.kennung));
       const mainMentions = new Set(detected.filter((m) => m.main).map((m) => m.kennung));
       currentSeed = topicSeed(currentRawText);
-      // Conditioning is a sports goal: without a stated subject, the plan is a sports lesson;
-      // read from the text in another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
-      const kondition = a.zieltyp === 'kondition-training' || (!given(a.zieltyp) && a.zielart === 'kondition');
-      if (kondition && !given(a.fachbereich)) a.fachbereich = 'sport';
-      else if (kondition && a.fachbereich !== 'sport') {
+      // The goal kind conditioning (stated, or the goal kind of the stated chain) is a sports goal: without a stated
+      // subject, the subject area sport is assumed and named under pflichtangaben.angenommen; read from the text in
+      // another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
+      const zielartKette = given(a.zieltyp) ? chains.get(String(a.zieltyp))?.zielart || [] : [];
+      const kondition = zielartKette.includes('kondition') || (!given(a.zieltyp) && a.zielart === 'kondition');
+      const fachAnnahmen: Annahme[] = [];
+      if (kondition && !given(a.fachbereich)) {
+        a.fachbereich = 'sport';
+        fachAnnahmen.push({
+          feld: 'fachbereich',
+          wert: 'sport',
+          grund: 'Kein Fach angegeben: Sport angenommen, weil die Zielart Kondition ist.'
+        });
+      } else if (kondition && a.fachbereich !== 'sport') {
         if (zieltypFromText) delete a.zieltyp;
         if (a.zielart === 'kondition' && !given(anfrage.zielart)) delete a.zielart;
       }
@@ -1878,7 +1887,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const anfrageSituation = { ...a };
       const pflichtangaben = (psychomotor: boolean, extra: Annahme[] = []): Situation['pflichtangaben'] => {
         const p = baueSituation(anfrageSituation, data, { ...currentSituationKontext, psychomotorisch: psychomotor }).pflichtangaben;
-        return { fehlt: p.fehlt, angenommen: [...p.angenommen, ...extra] };
+        // An assumed subject area still counts as missing (like an assumed room); the room follows from it (gym).
+        const fehlt = fachAnnahmen.length && !currentSituationKontext.fachErkannt && !p.fehlt.includes('fach-und-thema') ? ['fach-und-thema' as const, ...p.fehlt] : p.fehlt;
+        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...extra] };
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));

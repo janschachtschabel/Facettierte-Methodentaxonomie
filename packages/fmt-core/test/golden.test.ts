@@ -364,6 +364,14 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     const r = M.zuordnen({ zieltyp: 'kondition-training', bildungsstufe: 'sek1' });
     expect(r.kriterien.fachbereich).toBe('sport');
     expect(r.modus === 'ablauf' && r.pruefung?.gueltig).toBe(true);
+    // FMT 2.0: the assumed subject area is named; the room follows from it.
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'fachbereich', wert: 'sport' }));
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'bewegungsraum' }));
+    expect(r.pflichtangaben?.fehlt).toContain('fach-und-thema');
+    const z = M.zuordnen({ zielart: 'kondition', bildungsstufe: 'sek1' });
+    expect(z.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'fachbereich', wert: 'sport' }));
+    const genannt = M.zuordnen({ zielart: 'kondition', fachbereich: 'sport', bildungsstufe: 'sek1' });
+    expect(genannt.pflichtangaben?.angenommen.map((x) => x.feld)).not.toContain('fachbereich');
   });
 });
 
