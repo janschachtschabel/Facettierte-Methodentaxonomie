@@ -102,8 +102,12 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
     }
 
     if (e.leistungskontrolle) {
+      // The check step: the chain's own check step or the added one (no chain step id); a later repetition does not count.
+      const kette = D.ketten.find((x) => x.id === r.kette?.id);
+      const istPruefschritt = (n: EinsatzNode) =>
+        !n.kettenschritt || kette?.schritte.find((st) => st.id === n.kettenschritt)?.ziel === 'lernstand-diagnostiziert';
       const letzte = haupt.slice(-2);
-      const prueft = letzte.some((n) => istPruefmethode(byId.get(n.baustein)!));
+      const prueft = letzte.some((n) => istPruefschritt(n) && istPruefmethode(byId.get(n.baustein)!));
       add('leistungskontrolle', prueft, `letzte Phasen: ${letzte.map((n) => n.baustein).join(', ')}`);
     }
     if (e.enthaelt) add('enthaelt', alle.some((n) => n.baustein === e.enthaelt), `${e.enthaelt} fehlt`);

@@ -171,6 +171,37 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
     erwartet: { kriterien: { gruppe: 25 } }
   },
 
+  // Regressions found in review: no check where none is asked, subjects survive negations, two-digit subgroup counts.
+  {
+    id: 'kein-check-benoetigen-45',
+    text: 'Mathe Klasse 7 Prozentrechnung, 45 Minuten, 3 Schüler benötigen Unterstützung',
+    erwartet: { nichtKriterien: { liefert: ['lernstand-diagnostiziert'] } }
+  },
+  { id: 'kein-check-ohne-benotung-45', text: 'Mathe Klasse 7 Prozentrechnung, 45 Minuten, ohne Benotung', erwartet: { nichtKriterien: { liefert: ['lernstand-diagnostiziert'] } } },
+  { id: 'kein-check-verneint-45', text: 'Mathe Klasse 7 Prozentrechnung, 45 Minuten, keine Leistungskontrolle', erwartet: { nichtKriterien: { liefert: ['lernstand-diagnostiziert'] } } },
+  { id: 'kein-check-vorbereitung-45', text: 'Deutsch Klasse 8, 45 Minuten, zur Vorbereitung der Klassenarbeit', erwartet: { nichtKriterien: { liefert: ['lernstand-diagnostiziert'] } } },
+  { id: 'kein-check-nachbesprechung-45', text: 'Deutsch Klasse 8 Erörterung, 45 Minuten, Nachbesprechung der Klassenarbeit', erwartet: { nichtKriterien: { liefert: ['lernstand-diagnostiziert'] } } },
+  { id: 'fach-nach-verneinung-45', text: 'Klasse 9, keine Vorkenntnisse in Chemie, Redoxreaktionen, 45 Minuten', erwartet: { kriterien: { fachbereich: 'nawi-technik' } } },
+  {
+    id: 'teilgruppe-zweistellig-45',
+    text: 'Klasse 5 Bruchrechnung, davon 12 Kinder nichtdeutscher Herkunft, 45 Minuten',
+    erwartet: { nichtKriterien: { gruppe: 2 } }
+  },
+  {
+    id: 'wunsch-nach-verneinung-45',
+    text: 'Klasse 7 Deutsch, 45 Minuten, keine Tablets und Gruppenarbeit bitte',
+    erwartet: { kriterien: { interaktion: ['kleingruppe-kooperativ'], maxTechnik: 't-keine' } }
+  },
+
+  {
+    id: 'kleingruppe-3-45',
+    text: 'Mathe Klasse 7 Prozentrechnung, 45 Minuten, 3 Schüler',
+    erwartet: { kriterien: { gruppe: 3 } },
+    bekannt: {
+      zeit: 'Für Gruppen unter 4 Personen bleibt im Einstieg „Fehlvorstellungen sichtbar machen“ nur Just-in-Time-Teaching (mind. 20 min); Datenvorschlag S9'
+    }
+  },
+
   // Named methods.
   {
     id: 'nennung-gruppenpuzzle-90',

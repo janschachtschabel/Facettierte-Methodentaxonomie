@@ -60,14 +60,14 @@ const fold = (s: string) =>
  * "Klassenarbeit vorbereiten" or "Vorbereitung auf den Test" do not match.
  */
 export const LEISTUNGSKONTROLLE =
-  /\bleistungs(?:kontroll|uberprufung|nachweis|messung|test|feststellung|bewertung|abfrage)\w*|\blern(?:ziel|erfolgs|stands)?(?:kontroll|uberprufung)\w*|\blernstandserhebung\w*|(?<!vorbereitung\s(?:auf|fur)\s(?:den|die|das|einen|eine)\s)\b(?:test|tests|kurztest|vokabeltest|sporttest|abschlusstest|cooper-?test|klassenarbeit|klausur)\b(?!\s+(?:vor|nach)bereit\w*)|\bbenot\w*/;
+  /\bleistungs(?:kontroll|uberprufung|nachweis|messung|test|feststellung|bewertung|abfrage)\w*|\blern(?:ziel|erfolgs|stands)?(?:kontroll|uberprufung)\w*|\blernstandserhebung\w*|(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|nach)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|einen|eine|zur|zum)\s+){0,2})\b(?:test|tests|kurztest|vokabeltest|sporttest|abschlusstest|cooper-?test|klassenarbeit|klausur)\b(?!\s+(?:vor|nach)bereit\w*|\s+(?:nach)?besprechen)|\bbenot(?:ung\w*|et\w*|en)\b/;
 
 /**
  * Removes negated phrases ("keine Gruppenarbeit", "ohne Experimente", "bitte keine Diskussion im Plenum")
  * from folded text, so that rules looking for what the request wants do not fire on what it rules out.
  */
 export const NEGATED_PHRASE =
-  /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen)\s+)*[a-z][\w-]*(?:\s+(?:und|oder)\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+(?:im|in\s+der|in|als)\s+[a-z][\w-]*)?/g;
+  /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
 export const withoutNegated = (folded: string) => folded.replace(NEGATED_PHRASE, ' ');
 
 /** Interaction forms a negated phrase rules out, e.g. "keine Gruppenarbeit" → kleingruppe-kooperativ. */
@@ -332,7 +332,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   const semantic = createSemanticClassifier(data);
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
-  const NEGATION_AWARE = new Set(['maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'liefert', 'zeitMin', 'gruppe']);
+  const NEGATION_AWARE = new Set(['maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
     // Multiplicative durations first (e.g. "2 x 45 Minuten", "3 × 45 min")
@@ -353,7 +353,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // "3 Schüler mit Förderbedarf" or "davon 4 mit DaZ" names a subgroup, not the size of the group.
     [
       'gruppe',
-      /(?<!davon\s)(?<!\bdarunter\s)(\d{1,3})\s*(?:schuler\w*|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
+      /(?<![\d])(?<!\b(?:davon|darunter)\s)(\d{1,3})\s*(?:schuler\w*|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*|unterstutzung|hilfe\w*|forderung))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
       (m) => Number(m[1])
     ],
     ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|anfanger/, () => 'gering'],
@@ -839,7 +839,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         nachFunktion: n - out.funktion,
         nachRahmen: n - out.funktion - out.rahmen.length,
         nachAnschluss: hits.length,
-        mitWarnung: hits.filter((h) => h.hard[1]).length
+        mitWarnung: hits.filter((h) => h.hard[2]).length
       }
     };
   }

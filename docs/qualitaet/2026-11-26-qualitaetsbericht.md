@@ -8,9 +8,9 @@
 
 ## Ergebnis der Suite
 
-39 realistische Anfragen (Sport, Musik, Kunst, Berufsschule, Pflege, MINT, Sprachen, Gesellschaft, Grundschule, Hochschule, Erwachsenenbildung; 20–90 Minuten; Leistungskontrollen, Verneinungen, Teilgruppen, genannte Methoden). Vorher 26 Befunde (bei den ersten 38 Fällen), nachher 0 offene Befunde und 11 bekannte Datenlücken (alle dieselbe: Transferphase in Praxisstunden).
+48 realistische Anfragen (Sport, Musik, Kunst, Berufsschule, Pflege, MINT, Sprachen, Gesellschaft, Grundschule, Hochschule, Erwachsenenbildung; 20–90 Minuten; Leistungskontrollen, Verneinungen, Teilgruppen, genannte Methoden, dazu Gegenproben aus dem Review wie „ohne Benotung“ oder „Nachbesprechung der Klassenarbeit“). Vorher 26 Befunde (bei den ersten 38 Fällen), nachher 0 offene Befunde und 12 bekannte Datenlücken (11-mal die Transferphase in Praxisstunden, einmal Kleinstgruppen).
 
-**Stärken:** gültige Abläufe und saubere Zeitlogik in allen Fällen; genannte Methoden werden eingebaut; gute Variabilität (34 verschiedene Abläufe, häufigster 6 %); Fachbereich und Bildungsstufe werden zuverlässig gelesen.
+**Stärken:** gültige Abläufe und saubere Zeitlogik in allen Fällen; genannte Methoden werden eingebaut; gute Variabilität (41 verschiedene Abläufe, häufigster 4 %); Fachbereich und Bildungsstufe werden zuverlässig gelesen.
 
 **Schwächen, die behoben sind:** Verneinungen wirkten als Wunsch („keine Gruppenarbeit“ ergab Gruppenarbeit, „ohne Experimente“ forschendes Lernen); „3 Schüler mit Förderbedarf“ wurde als Gruppengröße 3 gelesen; Leistungs- und Lernkontrollen fehlten im Ablauf; im Sport landeten Stillarbeit, Vortrag und Partnerpuzzle in den Hauptphasen; ein 20-Minuten-Ablauf dauerte 25 Minuten; Musik („Rhythmus klatschen“) und Berufspraxis („Reifenwechsel üben“) bekamen Konzeptaufbau oder nur Einzelphasen; das Thema enthielt Anfrage-Floskeln.
 
@@ -25,6 +25,7 @@
 - **S5 Cool-down mit Belastungsrückmeldung:** 3–8 min, Metakognition, Fachbereich sport.
 - **S6 Kette „Kondition und Training“:** Aufwärmen › Belastung › (Leistungsprüfung) › Abwärmen und Auswerten, Zielart Psychomotorik. Die bisherige Kette „Vormachen – Üben – Anwenden“ passt zu Technik, nicht zu Ausdauer und Kraft.
 - **S7 „Freispiel (Primar)“:** ungeeignet für Sek II, Berufsbildung, Hochschule und Erwachsenenbildung markieren.
+- **S9 Kleinstgruppen (unter 4 Personen):** kurze Einstiegsmethoden für „Fehlvorstellungen sichtbar machen“ mit gruppeMin 1 (z. B. Vorhersage-Aufgabe, Fehlerbild-Diagnose); heute bleibt nur Just-in-Time-Teaching mit 20 Minuten, der 45-Minuten-Ablauf läuft auf 50 Minuten (schon vor diesem PR so).
 - **S8 Programmierpraxis:** eine Methode für angeleitetes Programmieren (z. B. Pair Programming / Live Coding), Fachbereich mathe-informatik.
 
 ## Wiederholen
@@ -33,8 +34,8 @@
 
 ## Aktueller Bericht
 
-39 Fälle, 0 offene Befunde, 11 bekannte Datenlücken.
-Variabilität: 34 verschiedene Abläufe, häufigster 6 %; Sport: 10 verschiedene, häufigster 18 %.
+48 Fälle, 0 offene Befunde, 12 bekannte Datenlücken.
+Variabilität: 41 verschiedene Abläufe, häufigster 4 %; Sport: 10 verschiedene, häufigster 18 %.
 
 | Fall | Kette | Ablauf | Befund |
 |---|---|---|---|
@@ -74,6 +75,15 @@ Variabilität: 34 verschiedene Abläufe, häufigster 6 %; Sport: 10 verschiedene
 | neg-diskussion-45 | konzeptaufbau | schreibgespraech › vortrag-prompts › abrufquiz › blitz-anwendung › votum-ei (45 min) | ✓ |
 | teilgruppe-foerder-45 | direkte-instruktion | erotematik › lehrervortrag › blitz-anwendung › rosenshine-daily-review › karteikarten-leitner (45 min) | ✓ |
 | teilgruppe-daz-90 | kooperatives-lernen | woerterwiese › kooperatives-skript › lautleseverfahren › multiple-choice-test (90 min) | ✓ |
+| kein-check-benoetigen-45 | konzeptaufbau | ampelspiel › ki-tutor › flashcard-spaced-repetition › blitz-anwendung › votum-ei (45 min) | ✓ |
+| kein-check-ohne-benotung-45 | konzeptaufbau | ampelspiel › vortrag-prompts › karteikarten-leitner › blitz-anwendung › votum-ei (45 min) | ✓ |
+| kein-check-verneint-45 | konzeptaufbau | ampelspiel › wirbelgruppe › brain-dump › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
+| kein-check-vorbereitung-45 | konzeptaufbau | ampelspiel › vortrag-prompts › brain-dump › switch-rollentausch › reflexionsprompt (45 min) | ✓ |
+| kein-check-nachbesprechung-45 | konzeptaufbau | ampelspiel › wirbelgruppe › karteikarten-leitner › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
+| fach-nach-verneinung-45 | konzeptaufbau | ampelspiel › vortrag-prompts › karteikarten-leitner › blitz-anwendung › votum-ei (45 min) | ✓ |
+| teilgruppe-zweistellig-45 | konzeptaufbau | ampelspiel › wirbelgruppe › karteikarten-leitner › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
+| wunsch-nach-verneinung-45 | kooperatives-lernen | numbered-heads-together › gruppenarbeit-klassisch › kofferpacken › zwei-sterne-ein-wunsch (45 min) | ✓ |
+| kleingruppe-3-45 | konzeptaufbau | just-in-time-teaching › ki-tutor › abrufquiz › blitz-anwendung › reflexionsprompt (50 min) | ◐ zeit: 50 von 45 min (bekannt: Für Gruppen unter 4 Personen bleibt im Einstieg „Fehlvorstellungen sichtbar machen“ nur Just-in-Time-Teaching (mind. 20 min); Datenvorschlag S9) |
 | nennung-gruppenpuzzle-90 | kooperatives-lernen | murmelgruppe › gruppenpuzzle › partnerarbeit › beobachtungsbogen (90 min) | ✓ |
 | nennung-tps-45 | kooperatives-lernen | tps › partnerpuzzle › klassen-glossar › zwei-sterne-ein-wunsch (45 min) | ✓ |
 | nennung-stationen-sport-45 | fertigkeit-bewegung | gebundene-musik-rhythmus › demonstration-nachmachen › stationstraining-bewegung › blitz-anwendung › reflexionsprompt (45 min) | ◐ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 60 % (bekannt: Katalog hat keine kurze Spiel- oder Anwendungsform für Sport und Praxis (unter 15 min, liefert transfer-gezeigt); Datenvorschlag S1) |
