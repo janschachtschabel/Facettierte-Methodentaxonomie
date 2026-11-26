@@ -48,6 +48,24 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Chemie Klasse 9: Maßeinheiten und Stoffmenge einführen', erwartet: {}, nicht: { modus: 'ablauf' } },
   { text: 'Online-Seminar Erwachsenenbildung Zeitmanagement, 12 Teilnehmende, 60 Minuten', erwartet: { bildungsstufe: 'erwachsenenbildung', gruppe: 12 } },
   { text: 'Volkshochschule Kurs Spanisch für Anfänger', erwartet: { bildungsstufe: 'erwachsenenbildung' } },
+  // Frame words beyond "Klasse N": course stages, vocational training, clock hours, English requests.
+  { text: 'Deutsch Q1 Faust Szenenanalyse, 90 Minuten', erwartet: { bildungsstufe: 'sek2', fachbereich: 'sprachen' } },
+  { text: 'Berufsschule Elektroniker 1. Lehrjahr: Schaltpläne lesen, 90 Minuten', erwartet: { bildungsstufe: 'berufsbildung', fachbereich: 'beruf-praxis', zielart: 'prozeduren' } },
+  { text: 'Projekttag Nachhaltigkeit Klasse 9, 5 Zeitstunden', erwartet: { zeitMin: 300 } },
+  { text: 'Year 8 History lesson on the Industrial Revolution, 45 minutes', erwartet: { bildungsstufe: 'sek1', fachbereich: 'gesellschaft', zeitMin: 45 } },
+  { text: 'Jura Uni Seminar: Fallbearbeitung Kaufrecht, 90 Minuten, 30 Studierende', erwartet: { bildungsstufe: 'hochschule', fachbereich: 'gesellschaft', gruppe: 30 } },
+  { text: 'Fachinformatiker Lernfeld 3, 90 Minuten, 18 Azubis', erwartet: { bildungsstufe: 'berufsbildung', gruppe: 18 } },
+  { text: 'Grundschule 3. Klasse Einmaleins automatisieren, 30 Minuten', erwartet: { bildungsstufe: 'primar', fachbereich: 'mathe-informatik', zielart: 'fakten' } },
+  // Review regressions: numbers after a subject, everyday words that look like skills.
+  { text: 'Grundschule Mathe 20 Aufgaben zum Einmaleins, 45 Minuten', erwartet: { bildungsstufe: 'primar' } },
+  { text: 'Englisch 18 Azubis, Bewerbungsgespräch', erwartet: { bildungsstufe: 'berufsbildung', gruppe: 18 } },
+  { text: 'Sport 45 minutes Year 3', erwartet: { bildungsstufe: 'primar', zeitMin: 45 } },
+  { text: 'Mathe 1 Zeitstunde Klasse 9', erwartet: { zeitMin: 60 } },
+  { text: 'Deutsch Klasse 7: Was uns Bilder sagen, 45 Minuten', erwartet: {}, nicht: { zielart: 'psychomotorik' } },
+  { text: 'Deutsch Klasse 8 einen kurzen Text lesen, 45 Minuten', erwartet: {}, nicht: { zielart: 'prozeduren' } },
+  { text: 'Mathe Klasse 6 Brüche kürzen, 45 Minuten', erwartet: { zielart: 'prozeduren' } },
+  { text: 'Klasse 7 Religion: Medizinethik Organspende diskutieren, 45 Minuten', erwartet: { fachbereich: 'gesellschaft' } },
+  { text: 'Biologie: Vom Kind zum Erwachsenen, Pubertät', erwartet: {}, nicht: { bildungsstufe: 'erwachsenenbildung' } },
   { text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten', erwartet: { zieltyp: 'produktion', zeitMin: 90 } },
   { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zieltyp: 'produktion' } }
 ];
