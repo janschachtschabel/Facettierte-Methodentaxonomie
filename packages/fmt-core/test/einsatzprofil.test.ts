@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
+import { createSearch, createValidator } from '../src/index.js';
 import { raumBietet, raumFehlt, nutztRaum, schriftFehlt } from '../src/einsatzprofil.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -56,6 +57,12 @@ describe('Einsatzprofil: Raum und Schrift', () => {
     expect(nutztRaum(D, m(['bewegungsflaeche']), 'bewegungsraum')).toBe(true);
     expect(nutztRaum(D, m(['stellflaeche']), 'bewegungsraum')).toBe(false);
     expect(nutztRaum(D, m(['fachausstattung']), 'fachraum')).toBe(true);
+  });
+
+  it('Suche nach Raum liefert nur Methoden, deren Raumbedarf der Raum deckt', () => {
+    const hits = createSearch(D, createValidator(D)).suche({ raum: 'bewegungsraum' });
+    expect(hits.length).toBeGreaterThan(20);
+    for (const b of hits) expect(raumFehlt(D, b, 'bewegungsraum'), b.kennung).toEqual([]);
   });
 
   it('meldet fehlende Schriftsprache', () => {

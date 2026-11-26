@@ -411,6 +411,8 @@ export interface SearchCriteria {
   fachbereich?: string | string[];
   /** Methods that fit the area: assigned to it or without subject binding, never marked unsuitable for it. */
   fuerFachbereich?: string;
+  /** Room type (vocab raumtyp): only methods whose Raumbedarf it meets. */
+  raum?: string;
   [facet: string]: unknown;
 }
 

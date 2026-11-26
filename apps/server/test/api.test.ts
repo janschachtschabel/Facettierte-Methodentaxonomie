@@ -59,6 +59,12 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(body.llmConfigured).toBe(false);
   });
 
+  it('/meta nennt Ebenen und Einsatzmerkmale', async () => {
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/meta' })).json();
+    expect(meta.ebenen.map((e: { id: string }) => e.id)).toContain('bedarf');
+    expect(meta.einsatzprofil.map((m: { id: string }) => m.id)).toEqual(['BD1', 'BD2', 'BD3', 'BD4', 'BD5', 'BD6', 'EG1', 'EG2', 'EG3']);
+  });
+
   it('supports ETag and 304 Not Modified on /api/v1/catalog', async () => {
     const r1 = await app.inject({ method: 'GET', url: '/api/v1/catalog' });
     expect(r1.statusCode).toBe(200);

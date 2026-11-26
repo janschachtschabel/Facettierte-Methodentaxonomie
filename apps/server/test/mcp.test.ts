@@ -108,6 +108,17 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(matchJson.modus).toBe('ablauf');
     expect(matchJson.pruefung.gueltig).toBe(true);
 
+    // raum is the room field; lernort is still read as its alias and gives the same result.
+    const text = 'Biologie Klasse 7 Pflanzen, 45 Minuten';
+    const viaRaum = await client.callTool({ name: 'match_scenario', arguments: { text, raum: 'draussen', ohneSchrift: ['schreiben'] } });
+    const viaAlias = await client.callTool({ name: 'match_scenario', arguments: { text, lernort: 'draussen', ohneSchrift: ['schreiben'] } });
+    expect(viaRaum.isError).toBeFalsy();
+    const raumJson = JSON.parse((viaRaum.content as Array<{ text: string }>)[0].text);
+    const aliasJson = JSON.parse((viaAlias.content as Array<{ text: string }>)[0].text);
+    expect(raumJson.kriterien.raum).toBe('draussen');
+    expect(raumJson.kriterien.ohneSchrift).toEqual(['schreiben']);
+    expect(aliasJson.schritte).toEqual(raumJson.schritte);
+
     const valRes = await client.callTool({
       name: 'validate_arrangement',
       arguments: { arrangement: matchJson.arrangement }

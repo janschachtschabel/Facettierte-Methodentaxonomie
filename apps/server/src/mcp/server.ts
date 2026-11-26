@@ -213,9 +213,13 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneKI: z.boolean().optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
       raumzeit: codes('raumzeit').optional(),
-      lernort: code('lernort')
+      raum: code('raum')
         .optional()
-        .describe('Raum der Stunde; wird sonst aus dem Text gelesen (Sporthalle bei Sport)'),
+        .describe('Raum der Stunde; wird sonst aus dem Text gelesen. Methoden, deren Raumbedarf er nicht deckt, scheiden aus.'),
+      lernort: code('raum').optional().describe('Veraltet: wie raum'),
+      ohneSchrift: codes('ohneSchrift')
+        .optional()
+        .describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
       vorhanden: codes('vorhanden').optional(),
       vorwissen: code('vorwissen').optional(),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),

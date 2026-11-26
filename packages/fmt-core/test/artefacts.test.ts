@@ -21,6 +21,19 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
   const D = loadFmtData(DATA_DIR);
   const NS = D.NS;
 
+  it('Ontologie nennt je Eigenschaft die Ebene und enthält keine skos:Collection', () => {
+    const text = read('ontologie.ttl');
+    expect(text).not.toMatch(/skos:Collection/);
+    const quads = new Parser().parse(text);
+    const ebene = (p: string) =>
+      quads.find((q) => q.subject.value === NS + 'ns#' + p && q.predicate.value === NS + 'ns#ebene')?.object.value;
+    expect(ebene('fachbereich')).toBe('eignung');
+    expect(ebene('lernfunktion')).toBe('bauweise');
+    expect(ebene('dauerMin')).toBe('bedarf');
+    expect(ebene('vorbereitungMin')).toBe('bedarf');
+    expect(ebene('ebene')).toBeUndefined();
+  });
+
   it('parses all SKOS vocabularies and ontology as valid Turtle with creator & CC-BY 4.0 license', () => {
     const vocabFiles = fs.readdirSync(path.join(DIST, 'vocabs')).map((f) => 'vocabs/' + f);
     expect(vocabFiles.length).toBe(D.schemes.length + 1); // 23 schemes + funktionskette.ttl

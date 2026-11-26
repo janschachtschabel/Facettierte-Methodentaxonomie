@@ -91,6 +91,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       license: store.bundle.license,
       licenseName: store.bundle.licenseName,
       repository: store.bundle.repository,
+      ebenen: store.bundle.ebenen,
+      einsatzprofil: store.bundle.merkmale,
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
