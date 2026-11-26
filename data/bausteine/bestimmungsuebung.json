@@ -1,0 +1,153 @@
+{
+  "kennung": "bestimmungsuebung",
+  "name": "Bestimmungsübung mit Bestimmungsschlüssel",
+  "status": "entwurf",
+  "piktogramm": "lupe",
+  "ansatz": [
+    "forschend",
+    "uebung"
+  ],
+  "fachbereich": [
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "sprachen",
+    "aesthetik",
+    "mathe-informatik"
+  ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Lernende bestimmen echte Objekte (Pflanzen, Tiere, Gesteine) mit einem einfachen Bestimmungsschlüssel in Partnerarbeit und begründen ihre Zuordnung an Merkmalen.",
+  "alternativname": [
+    "Arten bestimmen",
+    "Bestimmungsschlüssel",
+    "Freilandbestimmung"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 15,
+  "dauerMax": 40,
+  "problem": "Merkmale und Ordnungssysteme bleiben abstrakt, wenn sie nicht am echten Objekt angewendet werden.",
+  "durchfuehrung": [
+    "Bestimmungsschlüssel einführen und an einem Beispiel vormachen",
+    "Paare bestimmen 3–5 Objekte und notieren die entscheidenden Merkmale",
+    "Unsichere Fälle im Plenum am Objekt klären"
+  ],
+  "material": [
+    "Bestimmungsschlüssel",
+    "Objekte oder Fundstellen",
+    "Lupe"
+  ],
+  "raum": "Schulhof, Schulgarten, Exkursionsort oder Fachraum",
+  "gruppeMin": 2,
+  "gruppeMax": 32,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "merkmal",
+      "name": "Zuordnung wird an Merkmalen begründet"
+    },
+    {
+      "kennung": "echt",
+      "name": "Echte Objekte statt Abbildungen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Zu komplexer Schlüssel für die Stufe",
+    "Raten statt Merkmalsprüfung"
+  ],
+  "hinweis": "Ergänzt nach Testreihe 2 der Szenariovorschläge (2026-11-26, Vorschlag S10–S12).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Arbeitsweise im Biologieunterricht; Originalbegegnung fördert Artenkenntnis, spezifische Wirksamkeitsstudien zur Methode sind selten.",
+      "quelle": "Killermann, Hiering & Starosta 2020 (Biologieunterricht heute)",
+      "evidenzBezug": "methode",
+      "geltung": "Biologie und Geographie, Primar bis Sek II",
+      "umstritten": "Lernzuwachs hängt stark vom Schlüssel und der Begleitung ab"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Killermann, W., Hiering, P. & Starosta, B. (2020): Biologieunterricht heute. Auer",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 1.55
+  }
+}

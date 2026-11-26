@@ -29,7 +29,7 @@
     "Abschlussspiel"
   ],
   "reichweite": "r2",
-  "dauerMin": 8,
+  "dauerMin": 5,
   "dauerMax": 20,
   "problem": "Geübte Bewegungen werden isoliert beherrscht, aber im Spiel unter Zeit- und Gegnerdruck nicht abgerufen.",
   "durchfuehrung": [

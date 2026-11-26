@@ -1,0 +1,142 @@
+{
+  "kennung": "live-abstimmung",
+  "name": "Live-Abstimmung (Audience Response)",
+  "status": "entwurf",
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback",
+    "instruktion"
+  ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "fachbereichUngeeignet": [],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
+  "kurzbeschreibung": "Eine Multiple-Choice-Frage zu typischen Fehlvorstellungen wird im Plenum beantwortet (Abstimmkarten, Handzeichen oder Clicker); das Ergebnis wird sofort gezeigt und besprochen.",
+  "alternativname": [
+    "Audience Response",
+    "Clicker-Frage",
+    "ARS-Frage"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 3,
+  "dauerMax": 10,
+  "problem": "In großen Gruppen bleibt unsichtbar, was die Mehrheit denkt und wo Fehlvorstellungen liegen.",
+  "durchfuehrung": [
+    "Frage mit 3–4 Antworten zeigen, Ablenker aus typischen Fehlvorstellungen",
+    "Alle stimmen gleichzeitig ab (Karten, Handzeichen oder App)",
+    "Verteilung zeigen, ein bis zwei Begründungen hören",
+    "Kurz klären oder mit Peer Instruction weitergehen"
+  ],
+  "material": [
+    "Frage auf Folie",
+    "Abstimmkarten A–D oder Abstimmungs-App"
+  ],
+  "raum": "Hörsaal oder Klassenraum",
+  "gruppeMin": 15,
+  "gruppeMax": 1000,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "lehrkraft",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "mikro"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert",
+    "fehlvorstellungen-sichtbar",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "ablenker",
+      "name": "Antworten aus typischen Fehlvorstellungen"
+    },
+    {
+      "kennung": "gleichzeitig",
+      "name": "Alle stimmen gleichzeitig ab"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Fragen prüfen nur Faktenwissen",
+    "Ergebnis wird gezeigt, aber nicht genutzt"
+  ],
+  "hinweis": "Ergänzt nach Testreihe 2 der Szenariovorschläge (2026-11-26, Vorschlag S10–S12).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Audience-Response-Systeme erhöhen Beteiligung und Leistung in großen Lehrveranstaltungen leicht bis mittel.",
+      "quelle": "Hunsu, Adesope & Bayly 2016 (Meta-Analyse Clicker)",
+      "evidenzBezug": "methode",
+      "geltung": "Hochschule und Sekundarstufe, große Gruppen",
+      "umstritten": "Effekt hängt an der Fragequalität und der Besprechung, nicht an der Technik"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Hunsu, N. J., Adesope, O. & Bayly, D. J. (2016): A meta-analysis of the effects of audience response systems (clicker-based technologies) on cognition and affect. Computers & Education 94",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 1.55
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "kennung": "teil-ganz-ueben",
+  "name": "Abschnittsweises Üben (Teil-Ganz-Methode)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung"
+  ],
+  "fachbereich": [
+    "aesthetik",
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "gesellschaft"
+  ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "fachraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Ein Lied, eine Choreografie oder ein Bewegungsablauf wird in kurze Abschnitte zerlegt, die nacheinander geübt und schrittweise zum Ganzen verbunden werden.",
+  "alternativname": [
+    "Teil-Ganz-Methode",
+    "Abschnittsweises Einüben",
+    "Vor- und Nachsingen in Abschnitten"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Längere Abläufe überfordern beim Üben im Ganzen; ohne Gliederung bleiben Fehler in schwierigen Stellen stehen.",
+  "durchfuehrung": [
+    "Ablauf in 3–5 Abschnitte gliedern, schwierige Stelle markieren",
+    "Abschnitt vormachen, gemeinsam wiederholen, dann allein oder in Gruppen",
+    "Abschnitte schrittweise verbinden (1, 1+2, 1+2+3 …)",
+    "Zum Schluss das Ganze ohne Hilfe"
+  ],
+  "material": [
+    "Gliederung des Ablaufs (Liedblatt, Zählzeiten, Skizze)",
+    "ggf. Musik oder Instrument"
+  ],
+  "raum": "Klassenraum, Musikraum oder Halle",
+  "gruppeMin": 1,
+  "gruppeMax": 32,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "erwerb"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "gliederung",
+      "name": "Sinnvolle Abschnitte, schwierige Stelle zuerst geübt"
+    },
+    {
+      "kennung": "verbinden",
+      "name": "Abschnitte werden schrittweise verbunden"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Abschnitte werden nie zum Ganzen verbunden",
+    "Zu lange Abschnitte für die Stufe"
+  ],
+  "hinweis": "Ergänzt nach Testreihe 2 der Szenariovorschläge (2026-11-26, Vorschlag S10–S12).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Teil-Ganz-Übung ist für komplexe, gut gliederbare Abläufe dem Ganzheitsüben überlegen; für stark verbundene Bewegungen gilt das nicht.",
+      "quelle": "Wickens et al. 2013 (Part-task training meta-analysis); Schmidt & Lee 2019",
+      "evidenzBezug": "prinzip",
+      "geltung": "Musik, Tanz, Sport, motorische Fertigkeiten",
+      "umstritten": "Bei fließenden Bewegungen (z. B. Wurf) kann Zerlegen den Ablauf stören"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wickens, C. D., Hutchins, S., Carolan, T. & Cumming, J. (2013): Effectiveness of part-task training and increasing-difficulty training strategies. Human Factors 55",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 1.55
+  }
+}

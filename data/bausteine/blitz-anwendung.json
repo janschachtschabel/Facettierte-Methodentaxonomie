@@ -34,7 +34,7 @@
   ],
   "raum": "Klassenraum",
   "gruppeMin": 1,
-  "gruppeMax": 200,
+  "gruppeMax": 400,
   "technik": "t-keine",
   "internet": false,
   "vorbereitungMin": 5,
