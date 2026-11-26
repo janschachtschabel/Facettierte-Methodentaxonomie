@@ -5,7 +5,7 @@ interface Props {
   size?: number;
 }
 
-/** 12 reduced editorial vector pictograms matching the FMT domain palette. */
+/** 22 reduced editorial vector pictograms, one per piktogramm value in the data matching the FMT domain palette. */
 export function MethodPictogram({ type, size = 34 }: Props) {
   const stroke = 'currentColor';
   return (
@@ -106,6 +106,81 @@ export function MethodPictogram({ type, size = 34 }: Props) {
           <rect x="10" y="10" width="16" height="16" rx="3" fill="var(--dD-soft)" stroke="var(--dD)" strokeWidth="1.6" />
           <circle cx="18" cy="18" r="3" fill="var(--dA)" />
           <path d="M14 6v4M22 6v4M14 26v4M22 26v4M6 14h4M6 22h4M26 14h4M26 22h4" stroke={stroke} strokeWidth="1.4" strokeLinecap="round" />
+        </>
+      )}
+      {type === 'uebung' && (
+        <>
+          <path d="M8 26l5-5 4 4 5-7 6 4" stroke="var(--dB)" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 9.5a6 6 0 0 1 10 0" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+          <path d="M19 6.5v3h-3" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <circle cx="26" cy="11" r="3" fill="var(--dB-soft)" stroke="var(--dB)" strokeWidth="1.4" />
+        </>
+      )}
+      {type === 'spiel' && (
+        <>
+          <rect x="8" y="10" width="13" height="13" rx="2.5" fill="var(--dA-soft)" stroke="var(--dA)" strokeWidth="1.5" transform="rotate(-10 14.5 16.5)" />
+          <circle cx="11.5" cy="13.5" r="1.2" fill={stroke} />
+          <circle cx="17.5" cy="19.5" r="1.2" fill={stroke} />
+          <circle cx="25" cy="24" r="4.5" fill="var(--dC-soft)" stroke="var(--dC)" strokeWidth="1.5" />
+        </>
+      )}
+      {type === 'forschen' && (
+        <>
+          <circle cx="15.5" cy="15.5" r="7" fill="var(--dC-soft)" stroke="var(--dC)" strokeWidth="1.6" />
+          <path d="M20.5 20.5l7 7" stroke={stroke} strokeWidth="2" strokeLinecap="round" />
+          <path d="M12.5 15.5a3 3 0 0 1 3-3" stroke={stroke} strokeWidth="1.3" strokeLinecap="round" />
+        </>
+      )}
+      {type === 'digital' && (
+        <>
+          <rect x="7" y="8" width="22" height="15" rx="2" fill="var(--dA-soft)" stroke="var(--dA)" strokeWidth="1.5" />
+          <path d="M14 28h8M18 23v5" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M14 13.5l-2.5 2 2.5 2M22 13.5l2.5 2-2.5 2" stroke={stroke} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        </>
+      )}
+      {type === 'kreativ' && (
+        <>
+          <path d="M18 7a7 7 0 0 0-4 12.7V23h8v-3.3A7 7 0 0 0 18 7z" fill="var(--dD-soft)" stroke="var(--dD)" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M15 26.5h6M16 29.5h4" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M6.5 12l2 .8M29.5 12l-2 .8M18 3.5v1.5" stroke={stroke} strokeWidth="1.3" strokeLinecap="round" />
+        </>
+      )}
+      {type === 'diskurs' && (
+        <>
+          <rect x="6" y="8" width="13" height="9" rx="3" fill="var(--dC-soft)" stroke="var(--dC)" strokeWidth="1.5" />
+          <rect x="17" y="14" width="13" height="9" rx="3" fill="var(--dB-soft)" stroke="var(--dB)" strokeWidth="1.5" />
+          <rect x="9" y="21" width="12" height="8" rx="3" fill="var(--dD-soft)" stroke="var(--dD)" strokeWidth="1.5" />
+          <path d="M10 12.5h5M21 18.5h5" stroke={stroke} strokeWidth="1.3" strokeLinecap="round" />
+        </>
+      )}
+      {type === 'kooperativ' && (
+        <>
+          <circle cx="12" cy="11" r="3" fill="var(--dA-soft)" stroke="var(--dA)" strokeWidth="1.5" />
+          <circle cx="24" cy="11" r="3" fill="var(--dC-soft)" stroke="var(--dC)" strokeWidth="1.5" />
+          <path d="M7 27c0-5 3-8 6-8l5 4 5-4c3 0 6 3 6 8" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </>
+      )}
+      {type === 'offen' && (
+        <>
+          <path d="M8 27V12l10-4 10 4v15" fill="var(--dB-soft)" stroke="var(--dB)" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M14 27v-8h8v8" fill="var(--paper)" stroke={stroke} strokeWidth="1.4" strokeLinejoin="round" />
+          <path d="M18 19l4-2" stroke={stroke} strokeWidth="1.4" strokeLinecap="round" />
+        </>
+      )}
+      {type === 'feedback' && (
+        <>
+          <rect x="6" y="8" width="20" height="13" rx="3" fill="var(--dA-soft)" stroke="var(--dA)" strokeWidth="1.5" />
+          <path d="M11 21v5l5-5" fill="var(--dA-soft)" stroke="var(--dA)" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M11 14.5l2.5 2.5 5-5" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="27" cy="25" r="3" fill="var(--dD-soft)" stroke="var(--dD)" strokeWidth="1.4" />
+        </>
+      )}
+      {type === 'sprache' && (
+        <>
+          <rect x="6" y="8" width="15" height="12" rx="2.5" fill="var(--dC-soft)" stroke="var(--dC)" strokeWidth="1.5" />
+          <rect x="15" y="16" width="15" height="12" rx="2.5" fill="var(--dA-soft)" stroke="var(--dA)" strokeWidth="1.5" />
+          <path d="M10.5 16.5l3-6 3 6M11.5 14.5h4" stroke={stroke} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M19.5 21h7M23 19.5v1.5M21 21c.8 2.5 2.8 4 5 4.5M25.5 21c-.8 2.5-2.8 4-5 4.5" stroke={stroke} strokeWidth="1.2" strokeLinecap="round" />
         </>
       )}
     </svg>
