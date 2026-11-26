@@ -56,7 +56,7 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'sport-ausdauer-lk-45',
     text: 'Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle',
-    erwartet: { kette: 'kondition-training', leistungskontrolle: true, praxis: true, kriterien: { zielart: 'psychomotorik' } } },
+    erwartet: { kette: 'kondition-training', leistungskontrolle: true, praxis: true, enthaelt: 'sportmotorischer-test', kriterien: { zielart: 'psychomotorik' } } },
   { id: 'sport-ausdauer-45', text: 'Sport Klasse 6, 45 Minuten Ausdauertraining', erwartet: { kette: 'kondition-training', praxis: true } },
   {
     id: 'sport-basketball-lk-45',

@@ -8,9 +8,9 @@ Umgesetzt in PR 12 (A: Anfragen lesen), PR 13 (B: Lernort und Thema), PR 14 (C: 
 |---|---|
 | vor PR 10 | Think-Pair-Share › Partnerpuzzle › Stillarbeit › Kurztransfer › Two Stars and a Wish |
 | nach PR 10 | Klassenspaziergang › Bewegungsdemonstration › Bodypercussion › Kurztransfer › Two Stars and a Wish › Reflexionsprompt |
-| jetzt | **Aufwärmen › Dauer- und Intervallmethode › Spielform/Zielspiel › Beobachtungsbogen (Leistungskontrolle) › Cool-down und Auswertung**, Kette „Kondition und Training“, 45 min, gültig |
+| jetzt | **Aufwärmen › Dauer- und Intervallmethode › Spielform/Zielspiel › sportmotorischer Test (Leistungskontrolle) › Cool-down und Auswertung**, Kette „Kondition und Training“, 45 min, gültig |
 
-Mit „Leistungsmessung“ oder „Cooper-Test“ im Text wird der sportmotorische Test gewählt (z. B. Weitsprung, Basketball). Ohne diesen Hinweis ist ein Beobachtungsbogen die Prüfphase.
+Eine sitzende Prüfmethode zählt in Praxisstunden wie eine sitzende Hauptphase, und der Prüfschritt bekommt die Zeit für einen praktischen Test.
 
 ## Kennzahlen
 
@@ -18,14 +18,14 @@ Mit „Leistungsmessung“ oder „Cooper-Test“ im Text wird der sportmotorisc
 |---|---|---|
 | Reihe 1 (48 Fälle, Gate): offene Befunde | 0 | 0 |
 | Reihe 1: bekannte Datenlücken | 12 | 4 |
-| Reihe 2 (63 Fälle): offene Befunde | 41 | 12 |
+| Reihe 2 (63 Fälle): offene Befunde | 41 | 10 |
 | Abläufe mit Kette Konzeptaufbau | 55 von 107 | 35 von 107 |
-| häufigste erste Methode | Ampelspiel 45 von 107 | Ampelspiel 17 von 107 |
+| häufigste erste Methode | Ampelspiel 45 von 107 | Ampelspiel 20 von 107 |
 | Methoden im Katalog | 289 | 298 |
 
 ## Was noch offen ist
 
-1. **Transferphase in Praxisstunden außerhalb des Sports** (Musik, Pflege, Darstellendes Spiel, Chemie, Senioren-Smartphone): Es fehlt eine kurze praktische Anwendungsform für diese Fächer. Darum steht dort oft die sitzende Kurztransfer-Aufgabe (6 von 12 Befunden).
+1. **Transferphase in Praxisstunden außerhalb des Sports** (Musik, Pflege, Darstellendes Spiel, Chemie, Senioren-Smartphone): Es fehlt eine kurze praktische Anwendungsform für diese Fächer. Darum steht dort oft die sitzende Kurztransfer-Aufgabe (8 von 10 Befunden, auch Handball und Tanz).
 2. **Dauer- und Intervallmethode als Übungsphase** in Ballspiel und Tanz: Sie liefert „Prozedur geläufig“ und passt damit formal in jede Übungsphase. Fachlich gehört sie zum Konditionstraining.
 3. **Vokabeltest Französisch:** Die Leistungskontrolle wird gelesen, aber im Ablauf von Lesemethoden verdrängt.
 4. **Vorlesung Ingenieurwesen, 250 Studierende:** bleibt ungültig (älterer Befund, Peer Instruction fällt im späteren Schritt heraus).
@@ -42,10 +42,10 @@ Variabilität: 43 verschiedene Abläufe, häufigster 4 %; Sport: 10 verschiedene
 
 | Fall | Kette | Ablauf | Befund |
 |---|---|---|---|
-| sport-ausdauer-lk-45 | kondition-training | aufwaermen › dauer-intervallmethode › spielform-zielspiel › beobachtungsbogen › cool-down-auswertung (45 min) | ✓ |
+| sport-ausdauer-lk-45 | kondition-training | aufwaermen › dauer-intervallmethode › spielform-zielspiel › sportmotorischer-test › cool-down-auswertung (45 min) | ✓ |
 | sport-ausdauer-45 | kondition-training | aufwaermen › dauer-intervallmethode › spielform-zielspiel › cool-down-auswertung (45 min) | ✓ |
 | sport-basketball-lk-45 | fertigkeit-bewegung | aufwaermen › demonstration-nachmachen › dauer-intervallmethode › blitz-anwendung › sportmotorischer-test › cool-down-auswertung (45 min) | ◐ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 83 % (bekannt: Katalog hat keine kurze Spiel- oder Anwendungsform für Sport und Praxis (unter 15 min, liefert transfer-gezeigt); Datenvorschlag S1) |
-| sport-turnen-90 | fertigkeit-bewegung | aufwaermen › demonstration-nachmachen › stationstraining-bewegung › spielform-zielspiel › cool-down-auswertung (90 min) | ✓ |
+| sport-turnen-90 | fertigkeit-bewegung | aufwaermen › demonstration-nachmachen › stationstraining-bewegung › differenzielles-lernen › cool-down-auswertung (90 min) | ✓ |
 | sport-fussball-20 | Einzelphase | sportmotorischer-test, demonstration-nachmachen, aufwaermen, dauer-intervallmethode | ✓ |
 | sport-schwimmen-45 | fertigkeit-bewegung | aufwaermen › demonstration-nachmachen › dauer-intervallmethode › spielform-zielspiel › cool-down-auswertung (45 min) | ✓ |
 | sport-volleyball-45 | fertigkeit-bewegung | aufwaermen › demonstration-nachmachen › dauer-intervallmethode › spielform-zielspiel › cool-down-auswertung (45 min) | ✓ |
@@ -57,13 +57,13 @@ Variabilität: 43 verschiedene Abläufe, häufigster 4 %; Sport: 10 verschiedene
 | kunst-malen-90 | produktion | positionslinie › demonstration-nachmachen › markt-der-moeglichkeiten › reflexionsprompt (90 min) | ✓ |
 | berufsschule-reifen-90 | fertigkeit-bewegung | stummer-impuls › vier-stufen-methode › praxisauftrag-arbeitsplatz › fall-simulation-osce › votum-ei (90 min) | ✓ |
 | pflege-unterweisung-60 | fertigkeit-bewegung | erotematik › demonstration-nachmachen › praxisauftrag-arbeitsplatz › blitz-anwendung › blitzlicht (60 min) | ◐ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 40 % (bekannt: Katalog hat keine kurze Spiel- oder Anwendungsform für Sport und Praxis (unter 15 min, liefert transfer-gezeigt); Datenvorschlag S1)<br>◐ enthaelt: vier-stufen-methode fehlt (bekannt: Vier-Stufen-Methode erlaubt höchstens 12 Personen; bei 16 Auszubildenden fehlt das Ausweichen in Teilgruppen) |
-| deutsch-lernkontrolle-45 | kooperatives-lernen | gruppenbildung-zufall › kooperatives-skript › zickzack-dialog › zwei-sterne-ein-wunsch (45 min) | ✓ |
+| deutsch-lernkontrolle-45 | kooperatives-lernen | gruppenbildung-zufall › kooperatives-skript › zickzack-dialog › exit-ticket (45 min) | ✓ |
 | physik-lernzielkontrolle-45 | konzeptaufbau | vorhersage-aufgabe › vortrag-prompts › karteikarten-leitner › blitz-anwendung › multiple-choice-test › selbstevaluation-bogen (45 min) | ✓ |
 | mathe-test-45 | konzeptaufbau | ampelspiel › vortrag-prompts › multiple-choice-test › blitz-anwendung › one-minute-paper › selbstevaluation-bogen (45 min) | ✓ |
-| englisch-vokabeltest-30 | faktenwissen | abc-liste › chorsprechen › abrufquiz › vokabeltest-kurzkontrolle (30 min) | ✓ |
-| bio-fotosynthese-45 | kooperatives-lernen | murmelgruppe › kooperatives-skript › klassen-glossar › zwei-sterne-ein-wunsch (45 min) | ✓ |
+| englisch-vokabeltest-30 | faktenwissen | clustering-schreiben › lehrervortrag › abrufquiz › vokabeltest-kurzkontrolle (30 min) | ✓ |
+| bio-fotosynthese-45 | kooperatives-lernen | abc-liste › kooperatives-skript › klassen-glossar › abrufquiz (45 min) | ✓ |
 | geschichte-weimar-90 | konzeptaufbau | ampelspiel › entdeckendes-lernen › abrufquiz › lernprodukt-galerie › reflexionsprompt (90 min) | ✓ |
-| politik-wahlrecht-90 | urteilsbildung | positionslinie › lehrgespraech › dynamische-urteilsbildung › switch-rollentausch (90 min) | ✓ |
+| politik-wahlrecht-90 | urteilsbildung | positionslinie › lehrgespraech › dynamische-urteilsbildung › reflexionsprompt (90 min) | ✓ |
 | sachunterricht-wasser-45 | konzeptaufbau | ampelspiel › vortrag-prompts › brain-dump › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
 | mathe-brueche-60 | prozedur | stummer-impuls › vortrag-prompts › loesungsbeispiele › karteikarten-leitner (60 min) | ✓ |
 | informatik-scratch-45 | produktion | stummer-impuls › aktives-zuhoeren › pair-programming › zwei-sterne-ein-wunsch (45 min) | ✓ |
@@ -76,8 +76,8 @@ Variabilität: 43 verschiedene Abläufe, häufigster 4 %; Sport: 10 verschiedene
 | neg-experimente-90 | konzeptaufbau | vier-ecken-methode › wirbelgruppe › karteikarten-leitner › pecha-kucha › votum-ei (90 min) | ✓ |
 | neg-tablets-45 | prozedur | impulsreferat › tafelbild-entwicklung › loesungsbeispiele › abrufquiz (45 min) | ✓ |
 | neg-diskussion-45 | konzeptaufbau | concept-cartoon › vortrag-prompts › abrufquiz › switch-rollentausch › votum-ei (45 min) | ✓ |
-| teilgruppe-foerder-45 | direkte-instruktion | erotematik › lehrervortrag › blitz-anwendung › rosenshine-daily-review › karteikarten-leitner (45 min) | ✓ |
-| teilgruppe-daz-90 | kooperatives-lernen | gruppenbildung-zufall › kooperatives-skript › lautleseverfahren › multiple-choice-test (90 min) | ✓ |
+| teilgruppe-foerder-45 | direkte-instruktion | erotematik › lehrervortrag › uebung-variation › brain-dump › numbered-heads-together (45 min) | ✓ |
+| teilgruppe-daz-90 | kooperatives-lernen | ampelspiel › kooperatives-skript › lern-bingo › brain-dump (90 min) | ✓ |
 | kein-check-benoetigen-45 | konzeptaufbau | ampelspiel › ki-tutor › flashcard-spaced-repetition › blitz-anwendung › votum-ei (45 min) | ✓ |
 | kein-check-ohne-benotung-45 | konzeptaufbau | ampelspiel › vortrag-prompts › karteikarten-leitner › blitz-anwendung › votum-ei (45 min) | ✓ |
 | kein-check-verneint-45 | konzeptaufbau | ampelspiel › wirbelgruppe › brain-dump › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
@@ -93,14 +93,14 @@ Variabilität: 43 verschiedene Abläufe, häufigster 4 %; Sport: 10 verschiedene
 
 ## Bericht Reihe 2
 
-63 Fälle, 12 offene Befunde, 0 bekannte Datenlücken.
-Variabilität: 61 verschiedene Abläufe, häufigster 3 %; Sport: 0 verschiedene, häufigster 0 %.
+63 Fälle, 10 offene Befunde, 0 bekannte Datenlücken.
+Variabilität: 62 verschiedene Abläufe, häufigster 2 %; Sport: 0 verschiedene, häufigster 0 %.
 
 | Fall | Kette | Ablauf | Befund |
 |---|---|---|---|
-| r2-gs-deutsch-lesen-45 | prozedur | rosenshine-daily-review › chorsprechen › einzelarbeit-uebung › abrufquiz (45 min) | ✓ |
+| r2-gs-deutsch-lesen-45 | prozedur | fantasiereise › lehrervortrag › uebung-variation › abrufquiz (45 min) | ✓ |
 | r2-gs-mathe-einmaleins-30 | faktenwissen | abc-liste › vortrag-prompts › karteikarten-leitner › spiral-wiederholung (30 min) | ✓ |
-| r2-gs-sachunterricht-strom-90 | fuenf-e | tps › experiment › wirbelgruppe › museumsgang › zwei-sterne-ein-wunsch (90 min) | ✓ |
+| r2-gs-sachunterricht-strom-90 | fuenf-e | tps › experiment › wirbelgruppe › museumsgang › exit-ticket (90 min) | ✓ |
 | r2-gs-sport-ballgewoehnung-45 | fertigkeit-bewegung | aufwaermen › demonstration-nachmachen › dauer-intervallmethode › spielform-zielspiel › cool-down-auswertung (45 min) | ✓ |
 | r2-gs-musik-lied-45 | fertigkeit-bewegung | gebundene-musik-rhythmus › demonstration-nachmachen › blitz-anwendung › verschachteltes-ueben › zwei-sterne-ein-wunsch (45 min) | ✗ praxis: Hauptphasen ohne Praxis: blitz-anwendung, verschachteltes-ueben; Praxisanteil 40 % |
 | r2-gs-kunst-collage-90 | produktion | stummer-impuls › demonstration-nachmachen › galeriemethode › lerntagebuch (90 min) | ✓ |
@@ -108,11 +108,11 @@ Variabilität: 61 verschiedene Abläufe, häufigster 3 %; Sport: 0 verschiedene,
 | r2-gs-englisch-farben-20 | Einzelphase | lern-bingo, switch-rollentausch, kofferpacken, stegreiftheater | ✓ |
 | r2-s1-mathe-wahrscheinlichkeit-45 | fuenf-e | vorhersage-aufgabe › kopfstandmethode › vortrag-prompts › blitz-anwendung › exit-ticket (45 min) | ✓ |
 | r2-s1-mathe-terme-lk-45 | prozedur | vorhersage-aufgabe › vortrag-prompts › blitz-anwendung › vokabeltest-kurzkontrolle › one-minute-paper (45 min) | ✓ |
-| r2-s1-deutsch-erzaehlung-90 | produktion | stummer-impuls › storytelling › kreatives-schreiben › lerntagebuch (90 min) | ✓ |
+| r2-s1-deutsch-erzaehlung-90 | produktion | positionslinie › text-exzerpieren › kreatives-schreiben › lerntagebuch (90 min) | ✓ |
 | r2-s1-deutsch-zeitung-60 | konzeptaufbau | ampelspiel › text-exzerpieren › brain-dump › pecha-kucha › votum-ei (60 min) | ✓ |
-| r2-s1-englisch-dialog-45 | prozedur | rosenshine-daily-review › text-exzerpieren › uebung-variation › abrufquiz (45 min) | ✓ |
+| r2-s1-englisch-dialog-45 | prozedur | ampelspiel › lehrervortrag › uebung-variation › abrufquiz (45 min) | ✓ |
 | r2-s1-franz-vokabeln-lk-45 | faktenwissen | ampelabfrage › vorlesen-lesung › text-exzerpieren › lautleseverfahren (45 min) | ✗ leistungskontrolle: letzte Phasen: text-exzerpieren, lautleseverfahren |
-| r2-s1-bio-mikroskop-90 | fertigkeit-bewegung | demonstrationsexperiment › lernen-am-modell › praxisauftrag-arbeitsplatz › museumsgang › aktives-zuhoeren (90 min) | ✗ praxis: Hauptphasen ohne Praxis: museumsgang; Praxisanteil 60 % |
+| r2-s1-bio-mikroskop-90 | fertigkeit-bewegung | demonstrationsexperiment › lernen-am-modell › praxisauftrag-arbeitsplatz › simulationsspiel-digital › reflexionsprompt (90 min) | ✓ |
 | r2-s1-chemie-sicherheit-45 | konzeptaufbau | vorhersage-aufgabe › simulationsspiel-digital › abrufquiz › blitz-anwendung › votum-ei (45 min) | ✗ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 20 % |
 | r2-s1-physik-hebel-45 | urteilsbildung | stummer-impuls › erotematik › experiment › blitzlicht (45 min) | ✓ |
 | r2-s1-geschichte-quellen-45 | konzeptaufbau | ampelspiel › wirbelgruppe › brain-dump › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
@@ -126,11 +126,11 @@ Variabilität: 61 verschiedene Abläufe, häufigster 3 %; Sport: 0 verschiedene,
 | r2-s1-sport-tanz-45 | fertigkeit-bewegung | gebundene-musik-rhythmus › demonstration-nachmachen › spielform-zielspiel › blitz-anwendung › cool-down-auswertung (45 min) | ✗ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 80 % |
 | r2-s1-ethik-gerechtigkeit-45 | fuenf-e | ampelspiel › kopfstandmethode › vortrag-prompts › blitz-anwendung › abrufquiz (45 min) | ✓ |
 | r2-s1-darstellendes-spiel-90 | konzeptaufbau | vier-ecken-methode › vortrag-prompts › kofferpacken › stegreiftheater › reflexionsprompt (90 min) | ✗ praxis: Hauptphasen ohne Praxis: vortrag-prompts; Praxisanteil 40 % |
-| r2-s1-medien-fakenews-45 | urteilsbildung | stummer-impuls › lehrervortrag › peer-feedback-rubric › selbstevaluation-bogen (45 min) | ✓ |
+| r2-s1-medien-fakenews-45 | urteilsbildung | stummer-impuls › erklaervideo › peer-feedback-rubric › selbstevaluation-bogen (45 min) | ✓ |
 | r2-s1-klassenleitung-45 | urteilsbildung | stummer-impuls › lehrervortrag › blitz-anwendung › zielscheiben-feedback (45 min) | ✓ |
-| r2-s2-mathe-ableitung-90 | direkte-instruktion | erotematik › lehrervortrag › loesungsbeispiele › rosenshine-daily-review › klassen-glossar (90 min) | ✓ |
+| r2-s2-mathe-ableitung-90 | direkte-instruktion | erotematik › lehrervortrag › loesungsbeispiele › abrufquiz › klassen-glossar (90 min) | ✓ |
 | r2-s2-deutsch-faust-90 | konzeptaufbau | vier-ecken-methode › kooperatives-skript › brain-dump › textlupe › reflexionsprompt (90 min) | ✓ |
-| r2-s2-englisch-klausur-90 | produktion | stummer-impuls › storytelling › kreatives-schreiben › lerntagebuch (90 min) | ✓ |
+| r2-s2-englisch-klausur-90 | produktion | positionslinie › lehrervortrag › kreatives-schreiben › lerntagebuch (90 min) | ✓ |
 | r2-s2-bio-genetik-60 | konzeptaufbau | ampelspiel › vortrag-prompts › abrufquiz › blitz-anwendung › beobachtungsbogen › reflexionsprompt (60 min) | ✓ |
 | r2-s2-philo-kant-90 | urteilsbildung | positionslinie › kraftfeldanalyse › british-parliamentary-debate › blitzlicht (90 min) | ✓ |
 | r2-s2-geschichte-kalter-krieg-45 | konzeptaufbau | concept-cartoon › vortrag-prompts › abrufquiz › blitz-anwendung › reflexionsprompt (45 min) | ✓ |
@@ -139,9 +139,9 @@ Variabilität: 61 verschiedene Abläufe, häufigster 3 %; Sport: 0 verschiedene,
 | r2-bb-elektro-schaltplan-90 | prozedur | stummer-impuls › sq3r-lesemethode › lerntheke › abrufquiz (90 min) | ✓ |
 | r2-bb-friseur-haare-90 | fertigkeit-bewegung | methode-66 › demonstration-nachmachen › praxisauftrag-arbeitsplatz › fall-simulation-osce › votum-ei (90 min) | ✓ |
 | r2-bb-kaufleute-reklamation-45 | urteilsbildung | stummer-impuls › lautes-denken › rollenspiel › votum-ei (45 min) | ✓ |
-| r2-bb-pflege-hygiene-lk-60 | fertigkeit-bewegung | vorhersage-aufgabe › vier-stufen-methode › demonstration-nachmachen › blitz-anwendung › fall-simulation-osce › reflexionsprompt (60 min) | ✗ fachpassung: vorhersage-aufgabe<br>✗ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 50 % |
-| r2-bb-gastro-service-90 | fertigkeit-bewegung | rosenshine-daily-review › demonstration-nachmachen › praxisauftrag-arbeitsplatz › experiment › votum-ei (90 min) | ✓ |
-| r2-bb-it-netzwerk-90 | projektlernen | stummer-impuls › thinking-at-the-edge › experiment › kompetenzraster-diagnose (90 min) | ✓ |
+| r2-bb-pflege-hygiene-lk-60 | fertigkeit-bewegung | tps › vier-stufen-methode › demonstration-nachmachen › blitz-anwendung › fall-simulation-osce › reflexionsprompt (60 min) | ✗ praxis: Hauptphasen ohne Praxis: blitz-anwendung; Praxisanteil 50 % |
+| r2-bb-gastro-service-90 | fertigkeit-bewegung | ampelspiel › demonstration-nachmachen › praxisauftrag-arbeitsplatz › fall-simulation-osce › votum-ei (90 min) | ✓ |
+| r2-bb-it-netzwerk-90 | projektlernen | stummer-impuls › vortrag-prompts › experiment › schuelercoaching (90 min) | ✓ |
 | r2-bb-ueba-metall-180 | fertigkeit-bewegung | ampelspiel › vier-stufen-methode › praxisauftrag-arbeitsplatz › experiment › reflexionsprompt (180 min) | ✓ |
 | r2-hs-jura-fall-90 | problemloesen | positionslinie › scamper › kooperatives-skript › peer-feedback-rubric (90 min) | ✓ |
 | r2-hs-medizin-anamnese-90 | prozedur | klassenspaziergang › vortrag-prompts › loesungsbeispiele › lern-bingo (90 min) | ✓ |
@@ -151,12 +151,12 @@ Variabilität: 61 verschiedene Abläufe, häufigster 3 %; Sport: 0 verschiedene,
 | r2-hs-online-statistik-60 | kooperatives-lernen | murmelgruppe › kooperatives-skript › brain-dump › peer-instruction (60 min) | ✓ |
 | r2-eb-vhs-deutschkurs-90 | konzeptaufbau | ampelspiel › sq3r-lesemethode › brain-dump › textlupe › votum-ei (90 min) | ✓ |
 | r2-eb-erste-hilfe-120 | fertigkeit-bewegung | impulsreferat › lernen-am-modell › praxisauftrag-arbeitsplatz › fall-simulation-osce › zielscheiben-feedback (120 min) | ✓ |
-| r2-eb-lehrerfortbildung-ki-90 | fuenf-e | wortwolke › planspiel-simulation-computer › ki-tutor › simulationsspiel-digital › multiple-choice-test (90 min) | ✓ |
+| r2-eb-lehrerfortbildung-ki-90 | fuenf-e | wortwolke › planspiel-simulation-computer › ki-tutor › peer-feedback-rubric › one-minute-paper (90 min) | ✓ |
 | r2-eb-firma-onboarding-60 | konzeptaufbau | concept-cartoon › kooperatives-skript › kofferpacken › blitz-anwendung › reflexionsprompt (60 min) | ✓ |
 | r2-eb-senioren-smartphone-90 | konzeptaufbau | concept-cartoon › entdeckendes-lernen › einzelarbeit-uebung › verschachteltes-ueben › votum-ei (90 min) | ✗ praxis: Hauptphasen ohne Praxis: verschachteltes-ueben; Praxisanteil 20 % |
 | r2-eb-yoga-60 | fertigkeit-bewegung | gebundene-musik-rhythmus › demonstration-nachmachen › dauer-intervallmethode › spielform-zielspiel › cool-down-auswertung (60 min) | ✓ |
 | r2-x-ohne-frontal-45 | konzeptaufbau | vorhersage-aufgabe › wirbelgruppe › brain-dump › blitz-anwendung › votum-ei (45 min) | ✓ |
-| r2-x-inklusion-45 | kooperatives-lernen | tps › partnerpuzzle › klassen-glossar › zwei-sterne-ein-wunsch (45 min) | ✓ |
+| r2-x-inklusion-45 | kooperatives-lernen | freewriting › kooperatives-skript › abrufquiz › vokabeltest-kurzkontrolle (45 min) | ✓ |
 | r2-x-vertretung-45 | konzeptaufbau | vorhersage-aufgabe › wirbelgruppe › spiral-wiederholung › blitz-anwendung › votum-ei (45 min) | ✓ |
 | r2-x-projekttag-300 | projektlernen | nominal-group-technique › strukturierte-kontroverse › waldpaedagogik › lerntagebuch (300 min) | ✓ |
 | r2-x-draussen-45 | fuenf-e | blitzlicht › osborn-checkliste › vortrag-prompts › blitz-anwendung › ampelabfrage (45 min) | ✗ praxis: Hauptphasen ohne Praxis: osborn-checkliste, blitz-anwendung; Praxisanteil 20 % |

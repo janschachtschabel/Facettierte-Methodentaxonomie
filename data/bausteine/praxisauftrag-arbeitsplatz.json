@@ -19,9 +19,9 @@
   ],
   "kurzbeschreibung": "Kurzer, realitätsnaher Arbeitsauftrag, den Lernende selbstständig am Arbeitsplatz, im Labor oder in der Werkstatt ausführen und anhand einer Checkliste selbst prüfen.",
   "alternativname": [
-    "Arbeitsauftrag",
     "Praktische Anwendungsaufgabe",
-    "Übungsauftrag an der Station"
+    "Übungsauftrag an der Station",
+    "Praxisauftrag"
   ],
   "reichweite": "r2",
   "dauerMin": 10,
