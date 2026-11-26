@@ -66,7 +66,12 @@ const AUSNAHMEN: Record<string, Partial<Pick<BedarfVorschlag, 'raumbedarf' | 'sc
 /** What every room type offers (vocab raumtyp, field bietet). */
 let BIETET: Record<string, string[]> = {};
 
-export function vorschlag(b: Baustein): BedarfVorschlag {
+export interface VorschlagOptionen {
+  /** Needs the room cap (a method cannot need what one of its rooms lacks) does not apply to. */
+  deckelAusnehmen?: string[];
+}
+
+export function vorschlag(b: Baustein, opts: VorschlagOptionen = {}): BedarfVorschlag {
   const text = [b.kurzbeschreibung, ...(b.durchfuehrung || []), ...(b.material || [])].join(' ').toLowerCase();
   const raum = (b.raum || '').toLowerCase();
   const material = (b.material || []).join(' ').toLowerCase();
@@ -110,7 +115,7 @@ export function vorschlag(b: Baustein): BedarfVorschlag {
   if (lernort.length && Object.keys(BIETET).length) {
     const ueberall = RAUM_ORDER.filter((x) => lernort.every((r) => (BIETET[r] || []).includes(x)));
     for (const x of [...braucht]) {
-      if (x !== 'aussenort' && !ueberall.includes(x)) {
+      if (x !== 'aussenort' && !(opts.deckelAusnehmen || []).includes(x) && !ueberall.includes(x)) {
         braucht.delete(x);
         gruende.push(`${x} entfällt: Raumtyp ${lernort.find((r) => !(BIETET[r] || []).includes(x))} bietet es nicht`);
       }
@@ -141,10 +146,10 @@ export function vorschlag(b: Baustein): BedarfVorschlag {
 }
 
 /** Proposal for every method of the catalogue. */
-export function vorschlagAlle(D: FmtData): Record<string, BedarfVorschlag> {
+export function vorschlagAlle(D: FmtData, opts: VorschlagOptionen = {}): Record<string, BedarfVorschlag> {
   BIETET = Object.fromEntries((D.schemes.find((x) => x.id === 'raumtyp')?.werte || []).map((w) => [w.id, w.bietet || []]));
   const out: Record<string, BedarfVorschlag> = {};
-  for (const b of D.bausteine) out[b.kennung] = vorschlag(b);
+  for (const b of D.bausteine) out[b.kennung] = vorschlag(b, opts);
   return out;
 }
 
