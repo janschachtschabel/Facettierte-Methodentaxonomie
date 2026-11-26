@@ -28,6 +28,8 @@ export interface SoftScoreParts {
   fachbereich?: 'passt' | 'neutral' | 'fremd';
   /** The request names this method. */
   mentioned: boolean;
+  /** A classroom method in a movement or practice lesson: in a main phase or in a framing phase. */
+  praxisFremd?: 'haupt' | 'rand';
 }
 
 export const SOFT_WEIGHTS = {
@@ -46,7 +48,9 @@ export const SOFT_WEIGHTS = {
   vorbereitungPerMin: 0.005,
   fachbereichPasst: -0.5,
   fachbereichFremd: 1.5,
-  mentioned: -10
+  mentioned: -10,
+  praxisFremdHaupt: 4,
+  praxisFremdRand: 1.5
 } as const;
 
 /**
@@ -79,7 +83,8 @@ export function softScore(p: SoftScoreParts): number {
     p.functionPosition * w.functionPosition +
     Math.min(60, Math.max(0, p.vorbereitungMin)) * w.vorbereitungPerMin +
     (p.fachbereich === 'passt' ? w.fachbereichPasst : p.fachbereich === 'fremd' ? w.fachbereichFremd : 0) +
-    (p.mentioned ? w.mentioned : 0)
+    (p.mentioned ? w.mentioned : 0) +
+    (p.praxisFremd === 'haupt' ? w.praxisFremdHaupt : p.praxisFremd === 'rand' ? w.praxisFremdRand : 0)
   );
 }
 

@@ -18,18 +18,19 @@ export const FUNCTION_SHARE: Record<string, number> = {
 const MIN_STEP = 5;
 
 /**
- * Budget per chain step. Each step gets at least 5 minutes and at least its floor (minimum duration of a
+ * Budget per chain step. Each step gets at least `minStep` minutes (default 5) and at least its floor (minimum duration of a
  * method anchored there); the rest is split by the weight of the step's primary function.
  * The sum never exceeds `budget` unless the floors alone already do.
  */
 export function phaseBudgets(
   steps: Array<{ funktion: string[]; zeitanteil?: number }>,
   budget: number,
-  floors: Array<number | undefined> = []
+  floors: Array<number | undefined> = [],
+  minStep = MIN_STEP
 ): number[] {
   const n = steps.length;
   if (!n) return [];
-  const floor = steps.map((_, i) => Math.max(MIN_STEP, floors[i] ?? 0));
+  const floor = steps.map((_, i) => Math.max(minStep, floors[i] ?? 0));
   // Data first (ketten.json), learning function as fallback for chains without shares.
   const weights = steps.map((s) => (s.zeitanteil && s.zeitanteil > 0 ? s.zeitanteil : (FUNCTION_SHARE[s.funktion[0]] ?? 15)));
   const totalWeight = weights.reduce((a, b) => a + b, 0);

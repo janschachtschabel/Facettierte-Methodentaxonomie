@@ -19,9 +19,9 @@ const SUBJECT_PATTERNS: Array<[RegExp, string]> = [
   [/\bwirtschaft\b|\bökonomie\b/i, 'Wirtschaft'],
   [/\bethik\b|\bphilosophie\b/i, 'Ethik / Philosophie'],
   [/\breligion\b/i, 'Religion'],
-  [/\bkunst\b/i, 'Kunst'],
-  [/\bmusik\b/i, 'Musik'],
-  [/\bsport\b/i, 'Sport'],
+  [/\bkunst(?:unterricht|stunde)?\b/i, 'Kunst'],
+  [/\bmusik(?:unterricht|stunde)?\b/i, 'Musik'],
+  [/\bsport(?:unterricht|stunde)?\b/i, 'Sport'],
   [/\bhauswirtschaft\b|\bernährung\b|\blebensmittel|\bverbraucherbildung/i, 'Ernährung & Verbraucherbildung'],
   [/\bnachhaltigkeit\b|\bbne\b/i, 'Nachhaltigkeit (BNE)'],
   [/\bsachunterricht\b/i, 'Sachunterricht'],
@@ -41,6 +41,10 @@ const SUBJECT_WORDS =
 const INLINE_FRAME: RegExp[] = [
   /\b(?:ich\s+(?:möchte|will|plane|brauche|suche)|wir\s+(?:möchten|wollen|planen)|bitte|plane\s+mir|erstelle\s+mir|gesucht\s+(?:ist|wird))\b/gi,
   /\b(?:lassen|durchführen|machen|unterrichten|behandeln|einführen)\s*(?=[,.;]|$)/gi,
+  // The request itself: "ein Szenario unterstellen für den …", "einen Stundenablauf planen zu …"
+  /\b(?:eine?[nm]?\s+)?(?:unterrichts)?(?:szenario|stundenablauf|ablauf|unterrichtsentwurf|stundenentwurf|verlaufsplan)\s+(?:(?:unterstellen|erstellen|planen|entwerfen|bauen|machen)\b(?:\s+(?:für|zu[mr]?)(?:\s+(?:den|die|das|eine[nr]?))?\b)?|(?:für|zu[mr]?)\b(?:\s+(?:den|die|das|eine[nr]?)\b)?)/gi,
+  // A check at the end is frame information, not the topic: "mit anschließender Leistungskontrolle"
+  /\b(?:mit\s+)?(?:(?:an|ab)schließende[rmn]?\s+|kurze[rmn]?\s+|einer?\s+)?(?:leistungs(?:kontrolle|überprüfung|messung|nachweis)|lern(?:ziel|erfolgs|stands)?kontrolle|lernstandserhebung|abschlusstest|kurztest)(?:\s+am\s+ende)?(?:\s+am\s+schluss)?\b/gi,
   /\b(?:problemorientiertes?|problembasiertes?|forschendes?|entdeckendes?|kooperatives?|projektbasiertes?|handlungsorientiertes?|offenes?)\s+lernen\b/gi,
   /\b(?:eine[rn]?\s+)?(?:direkte\s+instruktion|unterrichtsreihe|unterrichtseinheit|unterrichtsstunde|einzelstunde|doppelstunde|stunde|sequenz|modul)\b(?!\s+null)(?!-)/gi,
   /\b(?:mit\s+)?\d+\s*[x×]\s*\d+\s*(?:minuten|min\b\.?)/gi,
@@ -99,7 +103,7 @@ export function extractSubjectAndTopic(raw: string): { fach: string | null; them
   };
 
   const parts = text
-    .split(/[,;]|\.\s/)
+    .split(/[,;]|\.\s|\s[-–]\s/)
     .map(cleanPart)
     .filter((p) => p.length >= 2 && !DANGLING.test(p) && /[a-zäöüß]{2}/i.test(p));
 
