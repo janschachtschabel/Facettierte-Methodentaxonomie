@@ -1,0 +1,1272 @@
+{
+  "sport-ausdauer-lk-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "leistungskontrolle": true,
+    "enthaelt": true,
+    "kriterien": true
+  },
+  "sport-ausdauer-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "sport-basketball-lk-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "leistungskontrolle": true
+  },
+  "sport-turnen-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "sport-fussball-20": {
+    "modus": true,
+    "gueltig": true,
+    "praxis": true
+  },
+  "sport-schwimmen-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "sport-volleyball-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "sport-tanz-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "sport-zirkel-60-gs": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "sport-weitsprung-lk-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "leistungskontrolle": true,
+    "kriterien": true
+  },
+  "sport-ausdauer-foerder-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "musik-rhythmus-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "kunst-malen-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true
+  },
+  "berufsschule-reifen-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "pflege-unterweisung-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "enthaelt": false
+  },
+  "deutsch-lernkontrolle-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true
+  },
+  "physik-lernzielkontrolle-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true
+  },
+  "mathe-test-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true
+  },
+  "englisch-vokabeltest-30": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true
+  },
+  "bio-fotosynthese-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true
+  },
+  "geschichte-weimar-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true
+  },
+  "politik-wahlrecht-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true
+  },
+  "sachunterricht-wasser-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "mathe-brueche-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "informatik-scratch-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "hochschule-statistik-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true
+  },
+  "evb-zeitmanagement-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "chemie-saeuren-20": {
+    "modus": true,
+    "gueltig": true
+  },
+  "erdkunde-klima-30": {
+    "modus": true,
+    "gueltig": true
+  },
+  "neg-gruppenarbeit-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "verneinung": true,
+    "kriterien": true
+  },
+  "neg-partner-gruppe-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "verneinung": true
+  },
+  "neg-experimente-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "nicht": true,
+    "verneinung": true
+  },
+  "neg-tablets-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "neg-diskussion-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "verneinung": true
+  },
+  "teilgruppe-foerder-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "teilgruppe-daz-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "kein-check-benoetigen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "kein-check-ohne-benotung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "kein-check-verneint-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "kein-check-vorbereitung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "kein-check-nachbesprechung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "fach-nach-verneinung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "teilgruppe-zweistellig-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "wunsch-nach-verneinung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "kleingruppe-3-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "nennung-gruppenpuzzle-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "enthaelt": true
+  },
+  "nennung-tps-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "enthaelt": true
+  },
+  "nennung-stationen-sport-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "enthaelt": true
+  },
+  "r2-gs-deutsch-lesen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-gs-mathe-einmaleins-30": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-gs-sachunterricht-strom-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-gs-sport-ballgewoehnung-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-gs-musik-lied-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-gs-kunst-collage-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-gs-religion-feste-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-gs-englisch-farben-20": {
+    "modus": true,
+    "gueltig": true,
+    "kriterien": true
+  },
+  "r2-s1-mathe-wahrscheinlichkeit-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-mathe-terme-lk-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true
+  },
+  "r2-s1-deutsch-erzaehlung-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-deutsch-zeitung-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-englisch-dialog-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-franz-vokabeln-lk-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true,
+    "kriterien": true
+  },
+  "r2-s1-bio-mikroskop-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-s1-chemie-sicherheit-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-s1-physik-hebel-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-geschichte-quellen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-erdkunde-karte-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-politik-klassenrat-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-wirtschaft-taschengeld-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-informatik-binaer-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-technik-loeten-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-s1-hauswirtschaft-kochen-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-s1-sport-handball-lk-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "leistungskontrolle": true
+  },
+  "r2-s1-sport-tanz-45": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-s1-ethik-gerechtigkeit-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s1-darstellendes-spiel-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-s1-medien-fakenews-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r2-s1-klassenleitung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true
+  },
+  "r2-s2-mathe-ableitung-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s2-deutsch-faust-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s2-englisch-klausur-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s2-bio-genetik-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true,
+    "kriterien": true
+  },
+  "r2-s2-philo-kant-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-s2-geschichte-kalter-krieg-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "nicht": true
+  },
+  "r2-s2-kunst-portrait-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true
+  },
+  "r2-s2-sport-fitness-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-bb-elektro-schaltplan-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-bb-friseur-haare-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-bb-kaufleute-reklamation-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "enthaelt": true
+  },
+  "r2-bb-pflege-hygiene-lk-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "leistungskontrolle": true
+  },
+  "r2-bb-gastro-service-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-bb-it-netzwerk-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-bb-ueba-metall-180": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-hs-jura-fall-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-hs-medizin-anamnese-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-hs-ingenieur-vorlesung-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-hs-lehramt-mikro-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "enthaelt": true
+  },
+  "r2-hs-bwl-klausur-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-hs-online-statistik-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-eb-vhs-deutschkurs-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-eb-erste-hilfe-120": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-eb-lehrerfortbildung-ki-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r2-eb-firma-onboarding-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r2-eb-senioren-smartphone-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-eb-yoga-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r2-x-ohne-frontal-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "nicht": true,
+    "verneinung": true
+  },
+  "r2-x-inklusion-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r2-x-vertretung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r2-x-projekttag-300": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r2-x-draussen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true
+  },
+  "r2-x-englisch-sprachig-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-ort-erdkunde-bach-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": false
+  },
+  "r3-ort-bio-schulgarten-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-ort-gs-wald-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": false
+  },
+  "r3-ort-museum-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": false
+  },
+  "r3-ort-hoersaal-bwl-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-ort-chemie-labor-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-ort-technik-werkstatt-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-ort-hauswirtschaft-kueche-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-ort-sport-draussen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": false
+  },
+  "r3-gs-mathe-geld-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-gs-deutsch-diktat-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": false,
+    "kriterien": true
+  },
+  "r3-gs-sachunterricht-verkehr-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-gs-sport-turnen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-gs-morgenkreis-15": {
+    "modus": true,
+    "gueltig": true,
+    "kriterien": true
+  },
+  "r3-s1-mathe-pythagoras-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "verneinung": true,
+    "kriterien": true
+  },
+  "r3-s1-mathe-funktionen-test-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true,
+    "kriterien": true
+  },
+  "r3-s1-deutsch-gedicht-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s1-englisch-film-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s1-latein-uebersetzen-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s1-politik-wahl-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s1-ethik-dilemma-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s1-informatik-scratch-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": false,
+    "kriterien": true
+  },
+  "r3-s1-musik-trommeln-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-s1-kunst-perspektive-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-s1-physik-strom-inklusion-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s1-vertretung-30": {
+    "modus": false,
+    "gueltig": true,
+    "kriterien": true
+  },
+  "r3-s1-klassenrat-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": false
+  },
+  "r3-s2-geschichte-klausur-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s2-philo-kant-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s2-bio-genetik-flipped-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-s2-sport-volleyball-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-s2-deutsch-erorterung-90": {
+    "modus": true,
+    "gueltig": true,
+    "kette": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-bs-kfz-reifen-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-bs-einzelhandel-kunden-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-bs-pflege-blutdruck-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": true
+  },
+  "r3-bs-elektro-pruefung-45": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "leistungskontrolle": true,
+    "kriterien": true
+  },
+  "r3-bs-erzieher-portfolio-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": false
+  },
+  "r3-hs-seminar-referat-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r3-hs-mathe-uebung-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-hs-online-60": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-eb-vhs-spanisch-90": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "kriterien": true
+  },
+  "r3-eb-erstehilfe-120": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "fachpassung": true,
+    "praxis": true,
+    "kriterien": false
+  },
+  "r3-eb-workshop-team-180": {
+    "modus": true,
+    "gueltig": true,
+    "zeit": true,
+    "methodendauer": true,
+    "kriterien": true
+  },
+  "r3-kurz-bruchrechnung": {
+    "modus": false,
+    "gueltig": true,
+    "kriterien": true
+  },
+  "r3-kurz-einstieg-photosynthese": {
+    "modus": true,
+    "gueltig": true,
+    "kriterien": true
+  },
+  "r3-kurz-abschluss-reflexion-10": {
+    "modus": true,
+    "gueltig": true,
+    "kriterien": true
+  }
+}
