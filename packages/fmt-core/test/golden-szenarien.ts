@@ -87,7 +87,15 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Englisch Q1, 45 Minuten, Tipps für die mündliche Prüfung', erwartet: {}, nicht: { liefert: ['lernstand-diagnostiziert'] } },
   { text: 'Deutsch Klasse 9, 45 Minuten, mündliche Prüfungen', erwartet: { liefert: ['lernstand-diagnostiziert'] } },
   { text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten', erwartet: { zieltyp: 'produktion', zeitMin: 90 } },
-  { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zieltyp: 'produktion' } }
+  { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zieltyp: 'produktion' } },
+  { text: 'Bewegungsfertigkeit, Klasse 7, ohne Geräte', erwartet: { zielart: 'psychomotorik' }, nicht: { maxTechnik: 't-keine' } },
+  { text: 'Mathe Klasse 8 Bruchrechnen ohne Geräte, 45 Minuten', erwartet: { maxTechnik: 't-keine' } },
+  { text: 'Chemie Klasse 8 Schülerexperiment Säuren und Laugen, 90 Minuten', erwartet: { fachbereich: 'nawi-technik', zeitMin: 90 }, nicht: { gruppe: 8 } },
+  { text: 'Chemie Klasse 8, 24 Schüler, Säuren und Laugen', erwartet: { gruppe: 24 } },
+  { text: 'Lehrküche: Messer sicher benutzen, Klasse 8, 45 Minuten', erwartet: { fachbereich: 'beruf-praxis', lernort: 'fachraum' } },
+  { text: 'Kunst Klasse 7 Linolschnitt drucken, 90 Minuten', erwartet: { zieltyp: 'produktion', fachbereich: 'aesthetik' } },
+  { text: 'Hochdruckgebiete und Tiefdruckgebiete erklären, Erdkunde Klasse 7, 45 Minuten', erwartet: {}, nicht: { zieltyp: 'produktion' } },
+  { text: 'Kunst Klasse 9 Siebdruck auf T-Shirts, 90 Minuten', erwartet: { zieltyp: 'produktion' } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

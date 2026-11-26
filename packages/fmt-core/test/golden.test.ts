@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
-import { negatedMethods } from '../src/zuordnung.js';
+import { negatedMethods, SICHERHEITSHINWEIS } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
 
@@ -321,6 +321,34 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     for (const id of blocksOf(r)) expect(sportOnly, id).not.toContain(id);
   });
 
+  it('genannte Methode mit Hauptnamen bleibt trotz „ungeeignet im Fach“ im Ablauf, mit Hinweis', () => {
+    const r = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    expect((r.verankert || []).some((v) => v.baustein === 'laufdiktat')).toBe(true);
+    expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik.*unüblich/);
+  });
+
+  it('Hinweis „unüblich“ nur, wenn die genannte Methode wirklich im Ablauf steht', () => {
+    const r = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Bruchrechnung Klasse 8, 45 Minuten' });
+    const placed = (r.modus === 'ablauf' ? r.verankert || [] : []).some((v) => v.baustein === 'differenzielles-lernen');
+    expect(placed || !(r.hinweise || []).some((h) => /auf deinen Wunsch im Ablauf/.test(h))).toBe(true);
+    const p = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Einstieg' });
+    expect((p.hinweise || []).some((h) => /im Ablauf/.test(h))).toBe(false);
+  });
+
+  it('genannter Hauptname im unpassenden Fach umgeht weder Raum- noch Diagnoseregel', () => {
+    // Room-only method (gym), named in a classroom maths lesson: no wish without a room or movement goal.
+    const r = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Bruchrechnung Klasse 8, 45 Minuten' });
+    expect(blocksOf(r)).not.toContain('differenzielles-lernen');
+    // Not a wish at all, so it is no wish that merely lacked time.
+    expect((r.modus === 'ablauf' ? r.nichtVerankert || [] : []).map((n) => n.baustein)).not.toContain('differenzielles-lernen');
+  });
+
+  it('Synonym mit Alltagsbedeutung im unpassenden Fach: keine Methode, aber mit Grund unter nichtVerankert', () => {
+    const r = M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
+    expect(blocksOf(r)).not.toContain('sportmotorischer-test');
+    expect(r.nichtVerankert).toContainEqual({ baustein: 'sportmotorischer-test', grund: 'im Fachbereich Mathematik und Informatik als ungeeignet markiert' });
+  });
+
   it('Ausdauertraining mit Leistungskontrolle: Aufwärmen, Belastung, sportmotorischer Test, Cool-down', () => {
     const r = M.zuordnen({ text: 'Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle' });
     expect(r.modus).toBe('ablauf');
@@ -409,5 +437,21 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
     const r = M.zuordnen({ text: 'Sport Oberstufe Fitness und Krafttraining, 90 Minuten, Theorie und Praxis' });
     expect(blocksOf(r)).not.toContain('fishbowl');
     expect(r.modus === 'ablauf' && r.pruefung?.dauerMin).toBeGreaterThanOrEqual(81);
+  });
+});
+
+describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil Stufe 1)', () => {
+  it('Stufenwarnung nennt keine Evidenz, wo keine hinterlegt ist', () => {
+    const r = M.zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    const texte = r.modus === 'phase' ? r.vorschlaege.flatMap((v) => v.warnungen || []) : [];
+    expect(texte.join(' ')).toMatch(/Setzung der Redaktion/);
+    expect(texte.join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
+  });
+
+  it('praktische Arbeit im Fachraum bekommt den Sicherheitshinweis, eine Deutschstunde nicht', () => {
+    const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
+    expect(chemie.hinweise || []).toContain(SICHERHEITSHINWEIS);
+    const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
+    expect(deutsch.hinweise || []).not.toContain(SICHERHEITSHINWEIS);
   });
 });

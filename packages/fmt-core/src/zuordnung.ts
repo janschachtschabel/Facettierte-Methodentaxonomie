@@ -68,6 +68,12 @@ export const LEISTUNGSKONTROLLE =
  */
 export const NEGATED_PHRASE =
   /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen|in|im|auf|am)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
+/** Shown when practical work meets a lab, gym, outdoors or a practical subject; safety is no coded attribute. */
+export const SICHERHEITSHINWEIS =
+  'Praktische Arbeit: Sicherheitsregeln und Aufsicht nach den Vorgaben des Landes und der Schule beachten (zum Beispiel RiSU in Naturwissenschaften und Technik).';
+const PRACTICAL_ROOMS = new Set(['fachraum', 'bewegungsraum', 'draussen']);
+const PRACTICAL_AREAS = new Set(['nawi-technik', 'beruf-praxis', 'sport']);
+
 export const withoutNegated = (folded: string) => folded.replace(NEGATED_PHRASE, ' ');
 
 /** Interaction forms a negated phrase rules out, e.g. "keine Gruppenarbeit" → kleingruppe-kooperativ. */
@@ -384,6 +390,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     /\b(?:einstieg\w*|eroffnung|sicherung\w*|abschluss\w*|ausstieg|warm-?up|aufwarm\w*|stundenbeginn|stundenende|\w*phase|zum\s+(?:beginn|ende|schluss)|am\s+(?:anfang|ende|schluss)|zu\s+beginn)\b/;
 
   const semantic = createSemanticClassifier(data);
+  /** Lesson length assumed for a plan when the request names no time. */
+  const STANDARD_STUNDE_MIN = 45;
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
   const NEGATION_AWARE = new Set(['maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
@@ -429,7 +437,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // "3 Schüler mit Förderbedarf" or "davon 4 mit DaZ" names a subgroup, not the size of the group.
     [
       'gruppe',
-      /(?<![\d])(?<!\b(?:davon|darunter)\s)(\d{1,3})\s*(?:schuler\w*|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus|azubis?|auszubildende\w*|lehrkrafte|mitarbeitende\w*|students|pupils)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*|unterstutzung|hilfe\w*|forderung))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
+      /(?<![\d])(?<!\b(?:davon|darunter)\s)(\d{1,3})\s*(?:schuler(?:innen|in|n)?\b|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus|azubis?|auszubildende\w*|lehrkrafte|mitarbeitende\w*|students|pupils)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*|unterstutzung|hilfe\w*|forderung))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
       (m) => Number(m[1])
     ],
     ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|anfanger/, () => 'gering'],
@@ -448,7 +456,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['liefert', LEISTUNGSKONTROLLE, () => ['lernstand-diagnostiziert']],
     // Subject area from the subject named in the text. Order matters: the first rule that matches wins.
     // Subject nouns only: adjectives ("französische Revolution") and everyday words ("Pflege von …") are no subject.
-    ['fachbereich', /\bberufsschul\w*|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege(?:schule|ausbildung|fachkr\w*|kurs)\b|\bpraxisanleit\w*|\bunterweisung\b|\blehrjahr\b|\w+ausbildung\b|kaufleute|kaufmann|kauffrau|restaurantfach\w*|fachinformatiker|mechatroniker|elektroniker|friseur\w*|\berste[-\s]hilfe\w*|uberbetrieblich\w*/, () => 'beruf-praxis'],
+    ['fachbereich', /\bberufsschul\w*|\b(?:lehr|schul)kuche\b|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege(?:schule|ausbildung|fachkr\w*|kurs)\b|\bpraxisanleit\w*|\bunterweisung\b|\blehrjahr\b|\w+ausbildung\b|kaufleute|kaufmann|kauffrau|restaurantfach\w*|fachinformatiker|mechatroniker|elektroniker|friseur\w*|\berste[-\s]hilfe\w*|uberbetrieblich\w*/, () => 'beruf-praxis'],
     ['fachbereich', /\bsport(?:unterricht|stunde)?\b|\bschwimmunterricht\b|\byoga\b|\bpilates\b|\bfitnesskurs\b/, () => 'sport'],
     ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)\b|\bwerkunterricht\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
     ['fachbereich', /\b(?:deutsch|englisch|franzosisch|spanisch|latein|italienisch|russisch)(?:unterricht|stunde)?\b(?!-)|(?<!\b(?:mit|haben|hat|und|oder|viele|einige|mehrere|wenige|\d+)\s)(?<!,\s)\bda[zf]\b(?!-?\s?(?:kind|schuler|lernend|sus\b|anteil|hintergrund))(?!\s+(?:und|oder)\s)|\bfremdsprach\w*/, () => 'sprachen'],
@@ -506,12 +514,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A product must be named: "schreiben", "zeichnen" or "gestalten" alone are everyday verbs.
     [
       'zieltyp',
-      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
+      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\blinol(?:schnitt|druck)\w*|\b(?:sieb|hoch|tief)druck(?:verfahren|technik|en)?\b|\bradierung\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
       () => 'produktion'
     ],
     [
       'zielart',
-      /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste[-\s]hilfe\w*|\breanimation\b|\bhaare\s+schneiden\b|\b(?:zubereiten|backen|loten|feilen|bohren|mikroskopier\w*|servieren|eindecken|einstudieren)\b|\b(?:holz|metall|brett|leiste)\w*\s+(?:\w+\s+)?sagen\b|\bnahmaschine\w*|\b(?:gericht|suppe|rezept|menu)\w*\s+(?:\w+\s+)?kochen\b|\bkoch(?:praxis|kurs|unterricht)\b|\b(?:seitenlage|herzdruckmassage|handedesinfektion|ballgewohnung|yoga|pilates)\b|\b(?:an\s+ubungskopfen|am\s+modell\s+uben|an\s+der\s+puppe)\b|\blied\w*\s+singen\b|\bimprovisation(?:s(?:theater|ubung\w*|spiel\w*))?\b|\bimprotheater\b|\bszenenarbeit\b|\bszenisch\w*\s+(?:spiel|darstell|arbeit|gestalt)\w*|\bschauspiel(?:en|erisch\w*|unterricht|ubung\w*|training)\b|\btheater\s+spielen\b|\b(?:bunsen)?brenner\w*\s+(?:\w+\s+)?(?:anzunden|bedienen|handhaben)\b|\bpipettier\w*|\b(?:smartphone|handy|tablet)s?\b(?:\s+[\w-]+){0,2}?\s+(?:bedienen|bedienung|einrichten)\b|\b(?:smartphone|handy|tablet)s?-?\s*grundlagen\s*(?:,|\.|$|fur|kurs)/,
+      /\bbewegungs(?:fertigkeit|lernen|aufgabe|schulung)\w*|\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste[-\s]hilfe\w*|\breanimation\b|\bhaare\s+schneiden\b|\b(?:zubereiten|backen|loten|feilen|bohren|mikroskopier\w*|servieren|eindecken|einstudieren)\b|\b(?:holz|metall|brett|leiste)\w*\s+(?:\w+\s+)?sagen\b|\bnahmaschine\w*|\b(?:gericht|suppe|rezept|menu)\w*\s+(?:\w+\s+)?kochen\b|\bkoch(?:praxis|kurs|unterricht)\b|\b(?:seitenlage|herzdruckmassage|handedesinfektion|ballgewohnung|yoga|pilates)\b|\b(?:an\s+ubungskopfen|am\s+modell\s+uben|an\s+der\s+puppe)\b|\blied\w*\s+singen\b|\bimprovisation(?:s(?:theater|ubung\w*|spiel\w*))?\b|\bimprotheater\b|\bszenenarbeit\b|\bszenisch\w*\s+(?:spiel|darstell|arbeit|gestalt)\w*|\bschauspiel(?:en|erisch\w*|unterricht|ubung\w*|training)\b|\btheater\s+spielen\b|\b(?:bunsen)?brenner\w*\s+(?:\w+\s+)?(?:anzunden|bedienen|handhaben)\b|\bpipettier\w*|\b\w+perspektive\s+zeichnen\b|\bzeichentechnik\w*|\bschraffier\w*|\btitrier\w*|\btitration\b|\breifen\w*wechsel\w*|\breifen\s+(?:\w+\s+)?wechseln\b|\b(?:smartphone|handy|tablet)s?\b(?:\s+[\w-]+){0,2}?\s+(?:bedienen|bedienung|einrichten)\b|\b(?:smartphone|handy|tablet)s?-?\s*grundlagen\s*(?:,|\.|$|fur|kurs)/,
       () => 'psychomotorik'
     ],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib|\b(?:addier|subtrahier|multiplizier|dividier|vereinfach|umform)en\b|\b(?:bruch\w*|terme?)\s+(?:\w+\s+)?kurzen\b|schaltplan\w*\s+lesen|\b(?:arten|baum|baume|pflanzen|tiere|vogel|gesteine|blumen|insekten|pilze)\w*\s+bestimmen\b|\bbestimmungsschlussel\w*/, () => 'prozeduren'],
@@ -540,7 +548,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'offen',
-      /offene\w*\s+unterricht|freiarbeit|stationen|werkstatt|wochenplan|projektbasiert\w*|projektorientiert\w*|projektarbeit|selbstgesteuert\w*|individualisiert\w*|lernen\s+durch\s+lehren|\bldl\b/
+      /offene\w*\s+unterricht|freiarbeit|stationen|(?<!\bin\s+der\s+)(?<!lehr|schul|ubungs)werkstatt|wochenplan|projektbasiert\w*|projektorientiert\w*|projektarbeit|selbstgesteuert\w*|individualisiert\w*|lernen\s+durch\s+lehren|\bldl\b/
     ],
     [
       'spiel-simulation',
@@ -553,6 +561,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['diagnose-feedback', /diagnose|lernstand\w*|kurztest|abfrage|peer-?feedback|ruckmeldung\s+einholen|kompetenzorientiert\w*|individualisiert\w*/],
     ['reflexion', /reflexion|reflexiv\w*|reflektier\w*|selbstreguliert\w*|selbstgesteuert\w*|erfahrungsbasiert\w*|lerntagebuch|portfolio|selbsteinschatzung|lernprozess\s+bilanzier/],
     ['digital-ki', /digital\w*\s+lern\w*|ki-?tutor|ki-?gestutzt|podcast|erklarvideo|stop-?motion|wiki\b|interaktiv\w*\s+whiteboard/]
+  ];
+
+  // Topics that belong to one subject area, for requests that name no subject. Checked only after the
+  // subject rules and the OEH detector; terms are unambiguous school topics, not everyday words.
+  const THEMEN_FACHBEREICH: Array<[RegExp, string]> = [
+    [/\bpythagoras\b|\bbruch(?:rechn\w*|zahl\w*|teil\w*)|\bbruche\b|\blineare\w*\s+funktion\w*|\bquadratische\w*\s+(?:funktion|gleichung)\w*|\bgleichungs?\w*|\bprozentrechn\w*|\bdreisatz\b|\bterme?\b(?!\w)|\bwahrscheinlichkeit\w*|\bableitung\w*|\bintegralrechn\w*|\bvektor\w*|\bscratch\b|\bprogrammier\w*|\balgorithm\w*/, 'mathe-informatik'],
+    [/\b(?:photo|foto)synthese\b|\bgenetik\b|\bevolution\b|\bokosystem\w*|\bzellbiolog\w*|\bstromkreis\w*|\breihenschaltung\b|\bparallelschaltung\b|\btitration\b|\bmagnetismus\b|\bhebelgesetz\b|\bmikroskop\w*/, 'nawi-technik'],
+    [/\bgedicht\w*|\berorterung\w*|\brechtschreib\w*|\bgrammatik\w*|\bvokabel\w*|\bdiktat\w*|\baufsatz\w*|\bablativ\w*|\bnovelle\b|\benglish\b/, 'sprachen'],
+    [/\bindustrialisierung\b|\bweimarer\s+republik\b|\bdreissigjahrig\w*\s+krieg\w*|\bmittelalter\w*|\bkategorische\w*\s+imperativ\w*|\bparteiprogramm\w*|\bgewaltenteilung\b/, 'gesellschaft'],
+    [/\bturnen\b|\bleichtathletik\b|\bstaffellauf\w*|\brolle\s+(?:vorwarts|ruckwarts)\b|\b(?:volley|basket|hand|fuss)ball\w*/, 'sport'],
+    [/\bzentralperspektive\b|\bcollage\w*/, 'aesthetik']
   ];
 
   const subjects = createSubjectDetector(data.faecher);
@@ -573,6 +592,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const m = re.exec(NEGATION_AWARE.has(feld) ? t : tPos);
       if (m) take(feld, fn(m), m[0].trim());
     });
+    // "ohne Geräte" in a movement lesson means sports equipment, not digital devices.
+    const mt = erkannt.findIndex((e) => e.feld === 'maxTechnik');
+    if (
+      mt >= 0 &&
+      (kriterien.zielart === 'psychomotorik' || kriterien.fachbereich === 'sport') &&
+      /^(?:ohne|keine?)\s+gerate$/.test(erkannt[mt].beleg)
+    ) {
+      delete kriterien.maxTechnik;
+      erkannt.splice(mt, 1);
+    }
 
     // Collect all matched approaches (multi-label!)
     const ansatzHits: Array<{ code: string; beleg: string }> = [];
@@ -654,6 +683,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       take('fachbereich', fach.fachbereich, fach.beleg);
     }
 
+    // No subject named: a topic that belongs to one subject area ("Satz des Pythagoras", "Photosynthese") names it.
+    if (!('fachbereich' in kriterien)) {
+      const hit = THEMEN_FACHBEREICH.map(([re, fb]) => [re.exec(tPos), fb] as const).find(([m]) => m);
+      if (hit) take('fachbereich', hit[1], `Thema: ${hit[0]![0].trim()}`);
+    }
+
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))
       .map((f) => f.feld)
       .filter((f) => !(f === 'zieltyp' && 'zielart' in kriterien) && !(f === 'zielart' && 'zieltyp' in kriterien));
@@ -693,7 +728,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       w.push(`Für Vorwissen „${label('vorwissen', a.vorwissen)}“ nicht vorgesehen (Expertise-Reversal).`);
     }
     if (a.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(a.bildungsstufe)) {
-      w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ spricht die Evidenz dagegen.`);
+      w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ nicht vorgesehen (Setzung der Redaktion).`);
     } else if (a.bildungsstufe === 'primar' && hasSekHochschuleOnlyEvidence(b)) {
       w.push('Evidenz-Geltungsbereich beschränkt sich auf Sekundarstufe/Hochschule (für Primarstufe prüfen).');
     }
@@ -725,6 +760,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentRawText = '';
   let currentSemanticScores = new Map<string, number>();
   let currentMentions = new Set<string>();
+  /** Named methods dropped because the subject marks them unsuitable, with the reason (for nichtVerankert). */
+  let currentDroppedMentions: Array<{ baustein: string; grund: string }> = [];
+  /** Methods named by their own name although the subject marks them unsuitable. */
+  let currentUnusualMentions: string[] = [];
   let currentAnchorStep = new Map<string, number>();
   let currentStepIndex = -1;
   let currentSeed = '';
@@ -850,8 +889,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : 0,
         passung(b, a).length ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
-        domainPenalty(b) ||
-          (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0) ||
+        // A method the teacher named is a wish: neither its domain nor a subject that marks it unsuitable demotes it.
+        (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
+          (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
           // Without another room the lesson is in a classroom: a method that needs a gym or the outdoors does not fit.
           ((!currentLernort || currentLernort === 'klassenraum' || currentLernort === 'hoersaal') &&
           (b.lernort || []).length &&
@@ -1339,7 +1379,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     // Named methods that no chain step could take: add them as an extra phase where the validator allows it.
     const verankert: Array<{ baustein: string; schritt: string }> = [];
-    const nichtVerankert: Array<{ baustein: string; grund: string }> = [];
+    const nichtVerankert: Array<{ baustein: string; grund: string }> = [...currentDroppedMentions];
     const minTotal = (nodes: ArrangementNode[]) =>
       nodes.reduce((sum, n) => {
         if (n.typ === 'Einsatz') return sum + Math.max(blocks.get(n.baustein)!.dauerMin, slotSum(n));
@@ -1469,7 +1509,55 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     currentPraxis = currentLernort !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentLernort));
   }
 
+  /** Methods a result offers: the whole sequence, or the first six proposals of a single phase. */
+  function chosenBlocks(r: MatchResult): string[] {
+    if (r.modus === 'phase') return r.vorschlaege.slice(0, 6).map((v) => v.baustein);
+    const out: string[] = [];
+    const walk = (node: unknown) => {
+      if (!node || typeof node !== 'object') return;
+      const n = node as Record<string, unknown>;
+      if (typeof n.baustein === 'string') out.push(n.baustein);
+      for (const key of ['teile', 'begleitend', 'optionen']) if (Array.isArray(n[key])) (n[key] as unknown[]).forEach(walk);
+      if (Array.isArray(n.belegung)) n.belegung.forEach((x) => walk((x as { inhalt?: unknown }).inhalt));
+      if (n.haupt) walk(n.haupt);
+    };
+    walk(r.arrangement?.ablauf);
+    return out;
+  }
+
+  /** Adds the safety note when a practical method meets a practical room or subject. */
+  function withSafetyNote(r: MatchResult, room: string, area: string): MatchResult {
+    if (!PRACTICAL_ROOMS.has(room) && !PRACTICAL_AREAS.has(area)) return r;
+    const practical = chosenBlocks(r).some((id) => (blocks.get(id)?.repraesentation || []).includes('enaktiv'));
+    if (!practical) return r;
+    const hinweise = r.hinweise || [];
+    if (!hinweise.includes(SICHERHEITSHINWEIS)) r.hinweise = [...hinweise, SICHERHEITSHINWEIS];
+    return r;
+  }
+
+  /** Notes a named method that is unusual in the subject, when it is part of the result. */
+  function withUnusualNote(r: MatchResult, unusual: string[], area: string): MatchResult {
+    if (!unusual.length || !area) return r;
+    const chosen = new Set(chosenBlocks(r));
+    const where = r.modus === 'phase' ? 'unter den Vorschlägen' : 'im Ablauf';
+    const notes = unusual
+      .filter((id) => chosen.has(id))
+      .map((id) => `„${blocks.get(id)!.name}“ ist im Fachbereich ${label('fachbereich', area)} unüblich und steht auf deinen Wunsch ${where}.`);
+    if (notes.length) r.hinweise = [...notes, ...(r.hinweise || [])];
+    return r;
+  }
+
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
+    const r = planen(anfrage);
+    return withSafetyNote(withUnusualNote(r, lastUnusual, lastArea), lastRoom, lastArea);
+  }
+
+  /** Room, subject area and unusual named methods of the last planning run, kept past their reset for the notes. */
+  let lastRoom = '';
+  let lastArea = '';
+  let lastUnusual: string[] = [];
+
+  function planen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
     currentSemanticScores = new Map(
@@ -1500,7 +1588,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentVariante = given(a.variante) ? Number(a.variante) : 0;
       delete a.variante;
       // Methods named in a negated phrase ("keine Gruppenarbeit") are no wish for them.
-      currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)).map((m) => m.kennung) : []);
+      const detected = given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)) : [];
+      currentMentions = new Set(detected.map((m) => m.kennung));
+      const mainMentions = new Set(detected.filter((m) => m.main).map((m) => m.kennung));
       currentSeed = topicSeed(currentRawText);
       // Conditioning is a sports goal: without a stated subject, the plan is a sports lesson;
       // read from the text in another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
@@ -1520,11 +1610,22 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         [...currentMentions].filter((id) => {
           const b = blocks.get(id);
           if (!b) return false;
-          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) return false;
+          let unusual = false;
+          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) {
+            // The method's own name is a wish: it stays (subject to the checks below). A synonym may be an everyday word.
+            if (!mainMentions.has(id)) {
+              currentDroppedMentions.push({ baustein: id, grund: `im Fachbereich ${label('fachbereich', currentArea)} als ungeeignet markiert` });
+              return false;
+            }
+            unusual = true;
+          }
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
           const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
-          return !roomOnly || given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik';
+          if (roomOnly && !(given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik')) return false;
+          // The note is given only once the method is really part of the result (see withUnusualNote).
+          if (unusual) currentUnusualMentions.push(id);
+          return true;
         })
       );
       // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
@@ -1607,7 +1708,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           hinweis: `${Number(a.zeitMin)} Minuten reichen nicht für einen Ablauf „${ketten[0].label}“ mit ${phasen} Phasen. Vorschläge für eine einzelne Phase; für einen verkürzten Ablauf modus „ablauf“ angeben.`
         });
       }
+      // Without a time frame a plan would take every method at full length; assume one lesson instead.
+      const zeitAngenommen = !given(a.zeitMin);
+      if (zeitAngenommen) a.zeitMin = STANDARD_STUNDE_MIN;
       let res = ablauf(a, ketten[0]);
+      if (zeitAngenommen) {
+        res.annahmen = [...(res.annahmen || []), `Keine Zeitangabe: eine Stunde von ${STANDARD_STUNDE_MIN} Minuten angenommen.`];
+      }
       // A chain guessed from a verb that the frame cannot fill (e.g. too few people) gives way to the general concept chain.
       const general = chains.get('konzeptaufbau');
       if (chainGuessed && general && !res.pruefung?.gueltig) {
@@ -1687,9 +1794,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
       });
     } finally {
+      lastRoom = currentLernort;
+      lastArea = currentArea;
+      lastUnusual = currentUnusualMentions;
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
+      currentDroppedMentions = [];
+      currentUnusualMentions = [];
       currentAnchorStep = new Map();
       currentStepIndex = -1;
       currentSeed = '';

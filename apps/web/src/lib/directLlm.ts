@@ -262,7 +262,8 @@ export async function runDirectTranslate(byok: ByokSettings, text: string) {
   const parsed = extractJsonObject(raw);
   if (!parsed) throw new Error('Das eigene LLM hat kein gültiges JSON geliefert.');
   delete parsed.text;
-  const merged = { ...(briefing.vorfilterung?.kriterien || {}), ...parsed };
+  // The matcher reads the text as in the rule path; the LLM fields are explicit and take precedence.
+  const merged = { ...parsed, text };
   const matchRes = await fetch('/api/v1/match', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

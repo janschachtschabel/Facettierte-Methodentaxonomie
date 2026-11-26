@@ -40,6 +40,7 @@ import {
   mainGroupOnly,
   outdatedAdjustments
 } from '../planner/differentiationFlow.js';
+import { fachbereichFromField } from '../planner/fachFeld.js';
 import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
@@ -654,6 +655,9 @@ export function PlannerPage() {
     if (ohneInternet) req.ohneInternet = true;
     if (ohneKI) req.ohneKI = true;
     if (raumzeitFilter) req.raumzeit = [raumzeitFilter];
+    // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
+    const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
+    if (fbFeld) req.fachbereich = fbFeld;
     return req;
   };
 
