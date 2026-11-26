@@ -5,7 +5,7 @@ import { DEFAULT_CONTACT_TO, type ServerConfig } from '../config.js';
 export interface ContactMail {
   to: string;
   from: string;
-  replyTo: string;
+  replyTo: { name: string; address: string };
   subject: string;
   text: string;
 }
@@ -85,12 +85,14 @@ export function smtpSender(config: ServerConfig): ContactSender | null {
 
 export function registerContactRoutes(app: FastifyInstance, config: ServerConfig, sender: ContactSender | null = smtpSender(config)) {
   const to = config.contactTo || DEFAULT_CONTACT_TO;
-  const perHour = config.contactRateLimitPerHour || 5;
+  const perHour = config.contactRateLimitPerHour || 10;
+  if (!sender) app.log.warn('[FMT] Kontaktformular inaktiv: SMTP_HOST und CONTACT_FROM (oder SMTP_USER) setzen.');
 
   // The address is handed out on request only, so it never stands in the page source or the script bundle.
-  app.get('/api/v1/kontakt/adresse', { config: { rateLimit: { max: 30, timeWindow: '1 hour' } } }, async (_req, reply) => {
+  // It always answers the address of the legal notice; CONTACT_TO only changes where form messages go.
+  app.get('/api/v1/kontakt/adresse', { config: { rateLimit: { max: 120, timeWindow: '1 hour' } } }, async (_req, reply) => {
     reply.header('Cache-Control', 'no-store').header('X-Robots-Tag', 'noindex, nofollow');
-    const [local, domain] = to.split('@');
+    const [local, domain] = DEFAULT_CONTACT_TO.split('@');
     return { teile: [local, domain], formularAktiv: Boolean(sender) };
   });
 
@@ -108,7 +110,8 @@ export function registerContactRoutes(app: FastifyInstance, config: ServerConfig
       await sender({
         to,
         from: `FMT-Kontaktformular <${config.contactFrom}>`,
-        replyTo: `${check.name.replace(/["<>]/g, '')} <${check.email}>`,
+        // Object form: nodemailer quotes the name, so a name cannot smuggle in further addresses.
+        replyTo: { name: check.name, address: check.email },
         subject: `[FMT-Kontakt] ${check.betreff || 'Nachricht über das Kontaktformular'}`,
         text: `Name: ${check.name}\nE-Mail: ${check.email}\n\n${check.nachricht}\n\n— gesendet über das Kontaktformular der FMT-Methodendatenbank`
       });

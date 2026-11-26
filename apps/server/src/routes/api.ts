@@ -275,6 +275,16 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       (k) => (body as Record<string, unknown>)[k] != null && typeof (body as Record<string, unknown>)[k] !== 'string'
     );
     if (notText) return reply.code(400).send({ fehler: `Feld „${notText}“: erwartet wird Text.` });
+    // Same codes as the MCP tool adapt_scenario accepts.
+    const badCode = (['maxTechnik', 'bildungsstufe', 'fachbereich'] as const).find((k) => {
+      const v = (body as Record<string, unknown>)[k];
+      const allowed = fieldsMap.get(k)?.werte?.map((w) => w.code);
+      return typeof v === 'string' && v !== '' && allowed && !allowed.includes(v);
+    });
+    if (badCode) {
+      const allowed = fieldsMap.get(badCode)!.werte!.map((w) => w.code).join(', ');
+      return reply.code(400).send({ fehler: `Feld „${badCode}“: unbekannter Wert. Erlaubt: ${allowed}.` });
+    }
     if (body.gruppen != null && !isGroupList(body.gruppen)) {
       return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
     }

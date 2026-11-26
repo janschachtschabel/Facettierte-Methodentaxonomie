@@ -73,7 +73,7 @@ describe('Kontaktformular: Endpunkte', () => {
     expect(res.json()).toEqual({ gesendet: true });
     expect(sent).toHaveLength(1);
     expect(sent[0].to).toBe(['info', 'schachtschabel.net'].join('@'));
-    expect(sent[0].replyTo).toContain('erika@example.org');
+    expect(sent[0].replyTo).toEqual({ name: 'Erika Muster', address: 'erika@example.org' });
     expect(sent[0].subject).toContain('Frage zur Methode');
   });
 
@@ -94,6 +94,22 @@ describe('Kontaktformular: Endpunkte', () => {
     const res = await app.inject({ method: 'GET', url: '/api/v1/kontakt/adresse' });
     expect(res.json()).toEqual({ teile: ['info', 'schachtschabel.net'], formularAktiv: true });
     expect(res.headers['x-robots-tag']).toContain('noindex');
+  });
+
+  it('CONTACT_TO leitet nur die Nachrichten um, das Impressum zeigt weiter seine Adresse', async () => {
+    const mails: ContactMail[] = [];
+    const other = await buildApp({
+      distDataDir: DIST_DATA,
+      config: config({ contactTo: 'privat@example.org' }),
+      contactSender: async (m) => {
+        mails.push(m);
+      }
+    });
+    await other.ready();
+    expect((await other.inject({ method: 'GET', url: '/api/v1/kontakt/adresse' })).json().teile).toEqual(['info', 'schachtschabel.net']);
+    await other.inject({ method: 'POST', url: '/api/v1/kontakt', payload: valid() });
+    expect(mails[0].to).toBe('privat@example.org');
+    await other.close();
   });
 
   it('meldet 503, wenn kein SMTP eingerichtet ist', async () => {

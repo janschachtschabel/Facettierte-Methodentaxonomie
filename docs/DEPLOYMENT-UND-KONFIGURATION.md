@@ -233,7 +233,7 @@ Für eine noch stärkere rein semantische Freitext-zu-Filter-Klassifikation ohne
 | `SMTP_USER` / `SMTP_PASS` | String | *(leer)* | Server | Zugangsdaten des SMTP-Kontos |
 | `CONTACT_FROM` | E-Mail | `SMTP_USER` | Server | Absenderadresse der Kontakt-Mails; Antworten gehen per Reply-To an die Absenderin |
 | `CONTACT_TO` | E-Mail | Adresse aus dem Impressum | Server | Empfänger der Kontakt-Mails |
-| `CONTACT_RATE_LIMIT_PER_HOUR` | Integer | `5` | Server | Nachrichten pro IP und Stunde über das Kontaktformular |
+| `CONTACT_RATE_LIMIT_PER_HOUR` | Integer | `10` | Server | Nachrichten pro IP und Stunde über das Kontaktformular |
 | `FMT_M2V_MODEL_DIR` | Pfad oder `none` | `./models/m2v-qwen3-4b-256-edu` | Server + `download-m2v.mjs` | Speicherort für optionales Model2Vec-Modell |
 | `FMT_DATA_DIR` | Pfad | `<repo>/dist-data` | Server + `mcp:stdio` | Pfad zu den gebauten Katalog-Artefakten |
 | `FMT_WEB_DIR` | Pfad | `<repo>/apps/web/dist` | Server | Pfad zur gebauten Web-App |

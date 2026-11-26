@@ -167,7 +167,7 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 | `LLM_CACHE_TTL_MS` | `3600000` | Gültigkeitsdauer (TTL) des LLM-Caches in Millisekunden (`3600000` = 1 Stunde). |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | *(leer)*, `587`, `false` | SMTP-Versand für das Kontaktformular im Impressum. Ohne `SMTP_HOST` meldet das Formular, dass es nicht eingerichtet ist. |
 | `CONTACT_FROM`, `CONTACT_TO` | `SMTP_USER`, Impressums-Adresse | Absender und Empfänger der Kontakt-Mails. |
-| `CONTACT_RATE_LIMIT_PER_HOUR` | `5` | Nachrichten pro Stunde und Client-IP über das Kontaktformular (dazu Honeypot und Mindest-Ausfüllzeit gegen Spam). |
+| `CONTACT_RATE_LIMIT_PER_HOUR` | `10` | Nachrichten pro Stunde und Client-IP über das Kontaktformular (dazu Honeypot und Mindest-Ausfüllzeit gegen Spam). |
 
 ### Klassifikation & Datenpfade
 

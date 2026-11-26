@@ -5,38 +5,26 @@ const LIMITS = { name: 120, email: 254, betreff: 150, nachricht: 5000 };
 type Address = { teile: [string, string]; formularAktiv: boolean };
 
 /**
- * The e-mail address is not part of the page or the script bundle: it is fetched in parts from the
- * server only when a visitor asks for it, so simple address harvesters do not find it.
+ * The e-mail address is not part of the page source or the script bundle: the page fetches it in parts from
+ * the server when it opens and shows it as plain text (no mailto link), so simple address harvesters do not
+ * find it. If the server cannot be reached, a spelled-out form keeps the address available for people.
  */
-function EmailReveal({ onLoaded }: { onLoaded: (a: Address) => void }) {
-  const [address, setAddress] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const show = async () => {
-    setError(null);
-    try {
-      const res = await fetch('/api/v1/kontakt/adresse');
-      if (!res.ok) throw new Error();
-      const data = (await res.json()) as Address;
-      setAddress(data.teile.join('@'));
-      onLoaded(data);
-    } catch {
-      setError('Die Adresse konnte gerade nicht geladen werden. Bitte nutze das Kontaktformular.');
-    }
-  };
-  if (address) {
+function EmailAddress({ address }: { address: string | null | undefined }) {
+  if (address === undefined) return <span className="muted">wird geladen …</span>;
+  if (address === null) {
     return (
-      <a href={`mailto:${address}`} rel="nofollow">
-        {address}
-      </a>
+      <span>
+        info (at) {['schachtschabel', 'net'].join(' (Punkt) ')}
+      </span>
     );
   }
+  const [local, domain] = address.split('\u0040');
   return (
-    <>
-      <button type="button" className="btn btn-sm" onClick={show}>
-        E-Mail-Adresse anzeigen
-      </button>
-      {error && <span className="muted"> {error}</span>}
-    </>
+    <span>
+      {local}
+      <span>@</span>
+      {domain}
+    </span>
   );
 }
 
@@ -127,6 +115,21 @@ function ContactForm({ formActive }: { formActive: boolean | null }) {
 
 export function ImpressumPage() {
   const [formActive, setFormActive] = useState<boolean | null>(null);
+  const [address, setAddress] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/v1/kontakt/adresse')
+      .then((res) => (res.ok ? (res.json() as Promise<Address>) : Promise.reject(new Error())))
+      .then((data) => {
+        if (!alive) return;
+        setAddress(data.teile.join('\u0040'));
+        setFormActive(data.formularAktiv);
+      })
+      .catch(() => alive && setAddress(null));
+    return () => {
+      alive = false;
+    };
+  }, []);
   useEffect(() => {
     const previous = document.title;
     document.title = 'Impressum & Kontakt · FMT Methodendatenbank';
@@ -152,7 +155,7 @@ export function ImpressumPage() {
 
       <h2 style={{ marginTop: 24 }}>Kontakt</h2>
       <p>
-        E-Mail: <EmailReveal onLoaded={(a) => setFormActive(a.formularAktiv)} />
+        E-Mail: <EmailAddress address={address} />
         <br />
         oder über das Kontaktformular unten.
       </p>

@@ -14,4 +14,4 @@ export const TECH_RANK_MAX = 3;
 
 /** Rank of a limit; an unknown value sets no limit. */
 export const techLimitRank = (maxTechnik?: string): number =>
-  maxTechnik && maxTechnik in TECH_RANK ? TECH_RANK[maxTechnik] : TECH_RANK_MAX;
+  maxTechnik && Object.hasOwn(TECH_RANK, maxTechnik) ? TECH_RANK[maxTechnik] : TECH_RANK_MAX;

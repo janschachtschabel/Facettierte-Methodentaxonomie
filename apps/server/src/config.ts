@@ -123,6 +123,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     smtpPass: env.SMTP_PASS || undefined,
     contactFrom: (env.CONTACT_FROM || env.SMTP_USER || '').trim() || undefined,
     contactTo: (env.CONTACT_TO || '').trim() || DEFAULT_CONTACT_TO,
-    contactRateLimitPerHour: positiveInt(env.CONTACT_RATE_LIMIT_PER_HOUR, 5)
+    contactRateLimitPerHour: positiveInt(env.CONTACT_RATE_LIMIT_PER_HOUR, 10)
   };
 }

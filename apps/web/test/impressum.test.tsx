@@ -11,21 +11,31 @@ const json = (body: unknown, status = 200) =>
   Promise.resolve(new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }));
 
 describe('Impressum & Kontakt', () => {
-  it('zeigt Name und Anschrift, die E-Mail erst auf Klick', async () => {
+  it('zeigt Name, Anschrift und die vom Server geladene E-Mail als Text ohne mailto-Link', async () => {
     const fetchMock = vi.fn(() => json({ teile: ['info', 'example.org'], formularAktiv: true }));
     vi.stubGlobal('fetch', fetchMock);
     const { container } = render(<ImpressumPage />);
     expect(screen.getByText(/Steubenstr\. 34/)).toBeTruthy();
     expect(screen.getAllByText(/99423 Weimar/).length).toBeGreaterThan(0);
-    expect(container.innerHTML).not.toContain('@');
-    expect(fetchMock).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'E-Mail-Adresse anzeigen' }));
-    const link = await screen.findByRole('link', { name: 'info@example.org' });
-    expect(link.getAttribute('href')).toBe('mailto:info@example.org');
+    await waitFor(() => expect(container.textContent).toContain('info@example.org'));
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/kontakt/adresse');
+    expect(container.querySelector('a[href^="mailto:"]')).toBeNull();
+  });
+
+  it('zeigt bei nicht erreichbarem Server eine ausgeschriebene Adresse und meldet ein inaktives Formular sofort', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))));
+    const { container } = render(<ImpressumPage />);
+    await waitFor(() => expect(container.textContent).toContain('info (at) schachtschabel (Punkt) net'));
+    cleanup();
+    vi.stubGlobal('fetch', vi.fn(() => json({ teile: ['info', 'example.org'], formularAktiv: false })));
+    render(<ImpressumPage />);
+    await screen.findByText(/noch nicht eingerichtet/);
   });
 
   it('sendet das Formular mit Honeypot und Öffnungszeit und bestätigt den Versand', async () => {
-    const fetchMock = vi.fn((_url: string, _init?: RequestInit) => json({ gesendet: true }));
+    const fetchMock = vi.fn((url: string, _init?: RequestInit) =>
+      url === '/api/v1/kontakt/adresse' ? json({ teile: ['info', 'example.org'], formularAktiv: true }) : json({ gesendet: true })
+    );
     vi.stubGlobal('fetch', fetchMock);
     render(<ImpressumPage />);
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Erika' } });
@@ -36,7 +46,7 @@ describe('Impressum & Kontakt', () => {
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(send);
     await screen.findByText(/Danke für deine Nachricht/);
-    const [url, init] = fetchMock.mock.calls[0];
+    const [url, init] = fetchMock.mock.calls.find(([u]) => u === '/api/v1/kontakt')!;
     expect(url).toBe('/api/v1/kontakt');
     const body = JSON.parse(String(init?.body));
     expect(body).toMatchObject({ name: 'Erika', email: 'erika@example.org', einverstanden: true, website: '' });
@@ -44,7 +54,14 @@ describe('Impressum & Kontakt', () => {
   });
 
   it('zeigt die Fehlermeldung des Servers', async () => {
-    vi.stubGlobal('fetch', vi.fn(() => json({ fehler: 'Bitte gib eine gültige E-Mail-Adresse an.' }, 400)));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) =>
+        url === '/api/v1/kontakt/adresse'
+          ? json({ teile: ['info', 'example.org'], formularAktiv: true })
+          : json({ fehler: 'Bitte gib eine gültige E-Mail-Adresse an.' }, 400)
+      )
+    );
     render(<ImpressumPage />);
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Erika' } });
     fireEvent.change(screen.getByLabelText('Nachricht'), { target: { value: 'Eine Frage zum Gruppenpuzzle.' } });

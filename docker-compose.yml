@@ -30,7 +30,7 @@ services:
       SMTP_PASS: "${SMTP_PASS:-}"
       CONTACT_FROM: "${CONTACT_FROM:-}"
       CONTACT_TO: "${CONTACT_TO:-}"
-      CONTACT_RATE_LIMIT_PER_HOUR: "${CONTACT_RATE_LIMIT_PER_HOUR:-5}"
+      CONTACT_RATE_LIMIT_PER_HOUR: "${CONTACT_RATE_LIMIT_PER_HOUR:-10}"
       # Optional: lokales Model2Vec-Modell im Volume (/app/models/m2v-qwen3-4b-256-edu)
       FMT_M2V_MODEL_DIR: "${FMT_M2V_MODEL_DIR:-/app/models/m2v-qwen3-4b-256-edu}"
     volumes:

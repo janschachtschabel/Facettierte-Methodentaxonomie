@@ -84,6 +84,14 @@ describe('Abschlussaudit: REST und MCP unterstützen die neuen Zuordnungen gleic
     expect(mcp.json.zusatzphasen).toEqual(rest.zusatzphasen);
   });
 
+  it('Anpassung prüft Codes in REST wie in MCP', async () => {
+    const bad = await app.inject({ method: 'POST', url: '/api/v1/adapt', payload: { scenarioText: 'Stunde', maxTechnik: 'constructor' } });
+    expect(bad.statusCode).toBe(400);
+    const ok = await app.inject({ method: 'POST', url: '/api/v1/adapt', payload: { scenarioText: 'Stunde', maxTechnik: 't-geteilt', bildungsstufe: 'sek1' } });
+    expect(ok.statusCode).toBe(200);
+    expect((await tool('adapt_scenario', { scenarioText: 'Stunde', maxTechnik: 'constructor' })).isError).toBe(true);
+  });
+
   it('Methodensuche nach Fach und Fachbereich in REST und MCP', async () => {
     const strict = (await app.inject({ method: 'GET', url: '/api/v1/methods?fachbereich=sport,aesthetik' })).json();
     expect(strict.anzahl).toBeGreaterThan(6);
