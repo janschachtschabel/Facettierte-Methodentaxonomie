@@ -67,6 +67,29 @@ function staysWithinFrame(
   return true;
 }
 
+const GUIDANCE_REASON: Record<string, string> = {
+  explizit: 'führt klar angeleitet Schritt für Schritt',
+  geleitet: 'leitet an und lässt Spielraum',
+  offen: 'lässt mehr Freiraum für eigene Wege'
+};
+
+/** Reason in plain words for teachers, without facet codes. */
+function plainReason(
+  b: Baustein,
+  profile: { preferredGuidance: string; needsScaffolding: boolean; benefitsFromEnrichment: boolean }
+): string {
+  const parts: string[] = [];
+  if (b.anleitung.includes(profile.preferredGuidance)) parts.push(GUIDANCE_REASON[profile.preferredGuidance]);
+  if (profile.needsScaffolding && (b.adaptivitaet.includes('diff-prozess') || b.adaptivitaet.includes('diff-tempo'))) {
+    parts.push('bietet Hilfestufen oder eigenes Tempo');
+  }
+  if (profile.benefitsFromEnrichment && (b.engagement.includes('konstruktiv') || b.engagement.includes('interaktiv'))) {
+    parts.push('ermöglicht Vertiefung und Transfer');
+  }
+  if (!parts.length) parts.push('passt besser zu den empfohlenen Maßnahmen für diese Gruppe');
+  return parts.join(', ');
+}
+
 /**
  * Proposes parallel methods for learner subgroups where the planned method fits the group's needs poorly
  * and the catalogue holds a clearly better method for the same learning function.
@@ -120,7 +143,7 @@ export function proposeMethodAdjustments(
         vonName: p.block.name,
         zuKennung: best.c.kennung,
         zuName: best.c.name,
-        grund: best.group.reasons.join(', ')
+        grund: plainReason(best.block, matrix.didacticProfile)
       });
     }
   }

@@ -186,7 +186,7 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(c3.textContent).toContain('Basisunterstützung');
     expect(c3.textContent).toContain('Vertiefung');
     expect(c3.textContent).toContain('Szenario (R2)');
-    expect(c3.textContent).toContain('Parallele Methode');
+    expect(c3.textContent).toContain('Eigene Methode für diese Gruppe');
 
     // Verify TimelineBandSvg renders parallel subgroup swimlane AND supports interactive step selection
     let clickedStep = '';

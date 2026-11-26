@@ -3,7 +3,9 @@ import {
   detectLearnerGroupsFromText,
   detectMatrixTraitsFromText,
   FMT_GUARDRAILS,
+  proposeMethodAdjustments,
   type Arrangement,
+  type MethodAdjustment,
   type MatchRequest,
   type MatchResult
 } from '@fmt/core';
@@ -23,6 +25,14 @@ import {
   exportArrangementOnePageSheet
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
+import {
+  activeSubgroups,
+  adjustmentGroups,
+  adjustmentPhases,
+  adjustmentsInForce,
+  applyAdjustments,
+  mainGroupOnly
+} from '../planner/differentiationFlow.js';
 import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
@@ -227,9 +237,8 @@ export function PlannerPage() {
   const [resourceTab, setResourceTab] = useState<StudioTab>('oer');
   const [focusedStepKey, setFocusedStepKey] = useState<string | null>(null);
 
-  const [scenarioText, setScenarioText] = useState(
-    'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte'
-  );
+  // The Baukasten opens empty: no sample text, no preselected approach, no flow.
+  const [scenarioText, setScenarioText] = useState('');
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [matchNotice, setMatchNotice] = useState<string | null>(null);
   // Counter behind „Anderer Vorschlag“: 0 is the first proposal for the current text.
@@ -238,11 +247,11 @@ export function PlannerPage() {
   const [listening, setListening] = useState(false);
 
   // Optional structured context fields (aligned with Lernpfadeditor & directly wired to Matcher, Matrix, WLO & KI!)
-  const [fach, setFach] = useState('Physik');
-  const [thema, setThema] = useState('Dichte von Stoffen');
-  const [ansatzCodes, setAnsatzCodes] = useState<string[]>(['forschend']);
+  const [fach, setFach] = useState('');
+  const [thema, setThema] = useState('');
+  const [ansatzCodes, setAnsatzCodes] = useState<string[]>([]);
   const [showAllApproaches, setShowAllApproaches] = useState(false);
-  const [presetContextSource, setPresetContextSource] = useState<string | null>('initial');
+  const [presetContextSource, setPresetContextSource] = useState<string | null>(null);
   const [customAnsatzText, setCustomAnsatzText] = useState('');
   const [lehrkraefteInfo, setLehrkraefteInfo] = useState('1 Lehrkraft');
   const [lernziele, setLernziele] = useState('');
@@ -257,6 +266,9 @@ export function PlannerPage() {
   const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
   const [subgroupMethods, setSubgroupMethods] = useState<SubgroupMethodMap>({});
+  // Step 3 "Vorgehen anpassen": the proposals of the last run and the group selection they were made for.
+  const [autoAdjustments, setAutoAdjustments] = useState<MethodAdjustment[]>([]);
+  const [adjustedFor, setAdjustedFor] = useState<string | null>(null);
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
   const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterialItem[]>([]);
   const [thematicRows, setThematicRows] = useState<ThematicPhaseRow[] | null>(null);
@@ -280,8 +292,7 @@ export function PlannerPage() {
   useEffect(() => {
     if (!bundle) return;
     if (!arrangement) {
-      let initial = createChainPreset('konzeptaufbau', bundle);
-      templateFlowRef.current = JSON.stringify(initial);
+      let initial = createEmptyArrangement(bundle);
       if (pendingPlannerBlock) {
         const queued = consumePendingPlannerBlock();
         const b = queued ? blocksById.get(queued) : null;
@@ -437,12 +448,8 @@ export function PlannerPage() {
       templateFlowRef.current = null;
       setArrangement(createEmptyArrangement(bundle));
       setMatchResult(null);
-      setThematicRows(null);
-      setElaboration(null);
-      setOerByStep({});
-      setGeneratedMaterials([]);
-      setAiDiffByStep({});
-      setMatchNotice('Der Vorlagen-Ablauf wurde für deine eigene Eingabe geleert.');
+      resetFlowDerived();
+      setMatchNotice('Der Ablauf des Beispiels wurde für deine eigene Eingabe geleert.');
     }
     if (presetContextSource) {
       setPresetContextSource(null);
@@ -458,8 +465,44 @@ export function PlannerPage() {
       setOhneKI(false);
       setRaumzeitFilter('');
       setGroups(STANDARD_LEARNER_GROUPS);
-      setMatchNotice('Vorlage und Vorlagen-Felder wurden für deine eigene Eingabe zurückgesetzt.');
+      setMatchNotice('Das Beispiel wurde für deine eigene Eingabe zurückgesetzt.');
     }
+  };
+
+  /** Everything that is keyed by the steps of the current flow; a new flow starts without it. */
+  const resetFlowDerived = () => {
+    setThematicRows(null);
+    setElaboration(null);
+    setOerByStep({});
+    setGeneratedMaterials([]);
+    setAiDiffByStep({});
+    setSubgroupMethods({});
+    setAutoAdjustments([]);
+    setAdjustedFor(null);
+  };
+
+  const subgroups = activeSubgroups(groups);
+  const groupSignature = JSON.stringify(
+    subgroups.map((g) => [g.id, g.personaId || '', g.matrixValues || {}])
+  );
+  const adjustmentsNow = adjustmentsInForce(subgroupMethods, autoAdjustments);
+
+  /** Step 3: checks every phase against the subgroups and enters better fitting parallel methods. */
+  const runMethodAdjustment = () => {
+    const next = proposeMethodAdjustments(bundle.bausteine, adjustmentPhases(scenarioRows), adjustmentGroups(groups), {
+      maxTechnik: maxTechnik || undefined,
+      ohneInternet,
+      ohneKI,
+      bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
+      fachbereich: typeof matchResult?.kriterien?.fachbereich === 'string' ? matchResult.kriterien.fachbereich : undefined
+    });
+    setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
+    setAutoAdjustments(next);
+    setAdjustedFor(groupSignature);
+  };
+
+  const undoAdjustments = (list: MethodAdjustment[]) => {
+    setSubgroupMethods((prev) => applyAdjustments(prev, list, []));
   };
 
   const handleSubgroupMethodChange = (stepKey: string, groupId: string, methodId: string | null) => {
@@ -566,12 +609,8 @@ export function PlannerPage() {
     templateFlowRef.current = JSON.stringify(preset);
     setArrangement(preset);
     setMatchResult(null);
-    setThematicRows(null);
-    setElaboration(null);
-    setOerByStep({});
-    setGeneratedMaterials([]);
-    setAiDiffByStep({});
-    setMatchNotice(`Starter-Vorlage „${p.label}“ geladen (${p.zeitMin} min). Du kannst direkt zu Schritt 2 wechseln oder den Text oben frei überschreiben.`);
+    resetFlowDerived();
+    setMatchNotice(`Beispiel „${p.label}“ geladen. Sieh dir den Ablauf in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`);
   };
 
   const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null) => {
@@ -609,7 +648,7 @@ export function PlannerPage() {
         setGroups(
           hasRegel
             ? detectedGroups
-            : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelniveau (Hauptgruppe)', count: undefined }, ...detectedGroups]
+            : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelgruppe', count: undefined }, ...detectedGroups]
         );
       }
       return matrixHit.signals.map((s) => s.trigger).slice(0, 3);
@@ -623,18 +662,18 @@ export function PlannerPage() {
     const res = matcher.zuordnen(buildStructuredMatchRequest());
     setVariante(0);
     setMatchResult(res);
+    // Detected subgroups get their own notice in step 2; only the single-phase result mentions them here.
     const matrixHint = detectedMatrixTriggers.length
-      ? ` · Matrix-Merkmale automatisch erkannt (${detectedMatrixTriggers.join(', ')})`
+      ? ` Erkannte Teilgruppen (${[...new Set(detectedMatrixTriggers)].join(', ')}) kommen in Schritt 3 dazu.`
       : '';
     if (res.modus === 'ablauf' && res.arrangement) {
       setArrangement(res.arrangement);
-      setThematicRows(null);
-      setElaboration(null);
-      setMatchNotice(`Deterministisch in <1 ms komponiert (${res.kette?.label})${matrixHint}.`);
+      resetFlowDerived();
+      setMatchNotice(`Vorschlag für deinen Ablauf: ${res.kette?.label}. Du kannst ihn hier ansehen und anpassen.`);
       setStep(2);
     } else if (res.modus === 'phase') {
       setMatchNotice(
-        `Einzelphase erkannt: ${res.vorschlaege.length} passende Bausteine gefunden (unten anklicken zum Übernehmen)${matrixHint}.`
+        `Das klingt nach einer einzelnen Phase: ${res.vorschlaege.length} passende Methoden gefunden. Klicke unten eine an, um sie zu übernehmen.${matrixHint}`
       );
     }
   };
@@ -653,12 +692,8 @@ export function PlannerPage() {
     setVariante(next.variante);
     setMatchResult(next.result);
     setArrangement(next.arrangement);
-    setThematicRows(null);
-    setElaboration(null);
-    setOerByStep({});
-    setGeneratedMaterials([]);
-    setAiDiffByStep({});
-    setMatchNotice(`Anderer Vorschlag (Variante ${next.variante + 1}) für dieselben Angaben. Der Ablauf steht in Schritt 2.`);
+    resetFlowDerived();
+    setMatchNotice(`Anderer Vorschlag (Variante ${next.variante + 1}) für dieselben Angaben.`);
   };
 
   const runAiTranslate = async () => {
@@ -693,14 +728,13 @@ export function PlannerPage() {
       if (json.ergebnis) setMatchResult(json.ergebnis);
       if (json.ergebnis?.modus === 'ablauf' && json.ergebnis?.arrangement) {
         setArrangement(json.ergebnis.arrangement as Arrangement);
-        setThematicRows(null);
-        setElaboration(null);
+        resetFlowDerived();
         setStep(2);
       }
       setMatchNotice(
         json.quelle === 'llm'
-          ? `KI-Übersetzung (${byok.enabled && byok.directBrowser ? `Direkt: ${byok.model}` : json.gecacht ? 'aus Cache' : 'live'}) → deterministisch geprüft.`
-          : json.hinweis || 'Deterministische Regel-Zuordnung genutzt.'
+          ? 'Vorschlag für deinen Ablauf: von der KI verstanden, mit den Regeln der Methodendatenbank geprüft.'
+          : json.hinweis || 'Vorschlag für deinen Ablauf nach den Regeln der Methodendatenbank.'
       );
     } catch (e) {
       if (byok.enabled && byok.directBrowser) {
@@ -910,7 +944,9 @@ export function PlannerPage() {
     if (p.groups?.length) setGroups(p.groups);
     if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
     if (p.oerByStep) setOerByStep(p.oerByStep);
-    if (p.subgroupMethods) setSubgroupMethods(p.subgroupMethods);
+    setSubgroupMethods(p.subgroupMethods || {});
+    setAutoAdjustments([]);
+    setAdjustedFor(null);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
     if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
     if (p.elaboration !== undefined) setElaboration(p.elaboration);
@@ -954,59 +990,119 @@ export function PlannerPage() {
   const userLlmActive = isUserLlmConfigured(byok);
   const llmAvailable = Boolean(meta?.llmConfigured || userLlmActive);
   const totalAttachedOer = Object.values(oerByStep).reduce((s, list) => s + list.length, 0);
+  const hasFlow = scenarioRows.length > 0;
+  const canPropose = scenarioText.trim().length > 0;
+  // Class size as typed in "Mehr Angaben", else as recognised in the description.
+  const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
+  const step2Groups = mainGroupOnly(groups, classSize);
+  const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
+
+  const steps: Array<{ id: PlannerStep; label: string; sub: string; needsFlow: boolean }> = [
+    { id: 1, label: 'Vorhaben', sub: 'Beschreiben, was du unterrichten willst', needsFlow: false },
+    {
+      id: 2,
+      label: 'Methodisches Konzept',
+      sub: hasFlow ? `${scenarioRows.length} Phasen für die ganze Klasse` : 'Ablauf für die ganze Klasse',
+      needsFlow: false
+    },
+    {
+      id: 3,
+      label: 'Binnendifferenzierung',
+      sub: subgroups.length
+        ? `${subgroups.length} ${subgroups.length === 1 ? 'Teilgruppe' : 'Teilgruppen'}${adjustmentsNow.length ? ` · ${adjustmentsNow.length} Methoden angepasst` : ''}`
+        : 'Freiwillig: Teilgruppen berücksichtigen',
+      needsFlow: true
+    },
+    {
+      id: 4,
+      label: 'Material',
+      sub:
+        totalAttachedOer + generatedMaterials.length > 0
+          ? `${totalAttachedOer} freie Materialien · ${generatedMaterials.length} eigene`
+          : 'Freie Materialien finden, eigene erstellen',
+      needsFlow: true
+    },
+    { id: 5, label: 'Fertiges Szenario', sub: 'Ausformulieren, drucken, exportieren', needsFlow: true }
+  ];
 
   return (
     <div className="page-section">
       {/* Compact Header + Global Save / Print Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ marginBottom: 4 }}>Lehr- &amp; Lernszenario-Studio</h1>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', fontFamily: 'var(--display)', fontSize: 14 }}>
-            <strong>{thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name}</strong>
-            <span className="muted">·</span>
-            <span>
-              ⏱ {validation.dauerMin} min{arrangement.kontext?.zeitbudgetMin ? ` / ${arrangement.kontext.zeitbudgetMin} min` : ''}
-            </span>
-            <span className="muted">·</span>
-            <span style={{ fontWeight: 700, color: validation.gueltig ? 'var(--dC)' : 'var(--err)' }}>
-              {validation.gueltig ? '✓ Formal gültig' : `✕ ${nErr} Prüffehler`}
-              {nWarn > 0 ? ` (${nWarn} Hinweise)` : ''}
-            </span>
-          </div>
+          <h1 style={{ marginBottom: 4 }}>Szenario-Baukasten</h1>
+          {hasFlow ? (
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', fontFamily: 'var(--display)', fontSize: 14 }}>
+              <strong>{thema ? `${fach ? `${fach}: ` : ''}${thema}` : arrangement.name}</strong>
+              <span className="muted">·</span>
+              <span>
+                ⏱ {validation.dauerMin} min{arrangement.kontext?.zeitbudgetMin ? ` / ${arrangement.kontext.zeitbudgetMin} min` : ''}
+              </span>
+              <span className="muted">·</span>
+              <span style={{ fontWeight: 700, color: validation.gueltig ? 'var(--dC)' : 'var(--err)' }}>
+                {validation.gueltig ? '✓ Ablauf stimmig' : `✕ ${nErr} ${nErr === 1 ? 'Stelle' : 'Stellen'} zu prüfen`}
+                {nWarn > 0 ? ` (${nWarn} Hinweise)` : ''}
+              </span>
+            </div>
+          ) : (
+            <p className="muted" style={{ margin: 0, fontSize: 15 }}>
+              In fünf Schritten von der Idee zum fertigen Unterrichtsszenario.
+            </p>
+          )}
         </div>
 
-        <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-sm btn-primary" onClick={handlePrintPdf}>
-            🖨 PDF drucken
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={handlePrintOnePage}
-            title="Kompakte Pultvorlage / Spickzettel auf maximal 1 A4-Seite (Querformat)"
-          >
-            📄 Kurzablauf (1 A4)
-          </button>
-          <button type="button" className="btn btn-sm" onClick={() => handleSaveBrowser(false)}>
+        <div className="no-print" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <button type="button" className="btn btn-sm" disabled={!hasFlow} onClick={() => handleSaveBrowser(false)}>
             💾 Speichern
           </button>
           <button type="button" className="btn btn-sm" onClick={() => setShowSavedDrawer((s) => !s)}>
             📂 Gespeichert ({savedScenarios.length})
           </button>
-          <button type="button" className="btn btn-sm" onClick={handleDownloadProjectFile} title="Vollständiges Szenario maschinenlesbar als .fmt.json exportieren (wieder importierbar)">
-            ⬇ Export (.fmt.json)
-          </button>
-          <button type="button" className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Gespeicherte .fmt.json, API/MCP-Plan-JSON, JSON-LD oder HTML-Handout importieren">
-            ⬆ Import
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost"
-            onClick={() => setShowJsonImport((v) => !v)}
-            title="Maschinenlesbares Szenario-JSON (z. B. aus MCP, API oder .fmt.json) direkt einfügen"
-          >
-            📋 JSON einfügen
-          </button>
+          <details className="planner-more">
+            <summary className="btn btn-sm">Mehr ▾</summary>
+            <div className="planner-more-menu">
+              <button type="button" className="btn btn-sm" disabled={!hasFlow} onClick={handlePrintPdf}>
+                🖨 Als PDF drucken
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                disabled={!hasFlow}
+                onClick={handlePrintOnePage}
+                title="Kompakte Pultvorlage auf höchstens einer A4-Seite (Querformat)"
+              >
+                📄 Kurzablauf auf einer Seite
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                disabled={!hasFlow}
+                onClick={handleDownloadProjectFile}
+                title="Vollständiges Szenario als Datei sichern (.fmt.json, wieder importierbar)"
+              >
+                ⬇ Als Datei sichern
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => fileInputRef.current?.click()}
+                title="Gesicherte .fmt.json, API/MCP-Plan-JSON, JSON-LD oder HTML-Handout laden"
+              >
+                ⬆ Datei laden
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => setShowJsonImport((v) => !v)}
+                title="Maschinenlesbares Szenario-JSON (z. B. aus MCP, API oder .fmt.json) direkt einfügen"
+              >
+                📋 JSON einfügen
+              </button>
+              <button type="button" className="btn btn-sm" onClick={() => setLlmSettingsOpen(true)}>
+                {userLlmActive ? `🔑 KI (${byok.model || byok.provider})` : '⚙ KI verbinden'}
+              </button>
+            </div>
+          </details>
           <input
             ref={fileInputRef}
             type="file"
@@ -1018,9 +1114,6 @@ export function PlannerPage() {
               e.target.value = '';
             }}
           />
-          <button type="button" className="btn btn-sm btn-ghost" onClick={() => setLlmSettingsOpen(true)}>
-            {userLlmActive ? `🔑 KI (${byok.model || byok.provider})` : '⚙ KI-Anbindung'}
-          </button>
         </div>
       </div>
 
@@ -1127,68 +1220,31 @@ export function PlannerPage() {
         </section>
       )}
 
-      {/* Clean 4-Step Guided Navigation Bar */}
-      <nav
-        className="card no-print"
-        aria-label="Planungsschritte"
-        style={{
-          marginTop: 14,
-          padding: 8,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-          gap: 8
-        }}
-      >
-        {(
-          [
-            { id: 1 as const, label: '1. Szenario & Kontext', sub: 'Beschreibung, Ansatz & Rahmen' },
-            {
-              id: 2 as const,
-              label: `2. Methodisches Konzept (${scenarioRows.length})`,
-              sub: 'FMT-Rollen, Bausteine & Prüfer'
-            },
-            {
-              id: 3 as const,
-              label: '3. Binnendifferenzierung',
-              sub:
-                groups.filter((g) => g.active).length <= 1
-                  ? 'Standardgruppe · optional anpassen'
-                  : `${groups.filter((g) => g.active).length} Teilgruppen · UDL & Matrix`
-            },
-            {
-              id: 4 as const,
-              label: '4. WLO-OER & Material',
-              sub: `${totalAttachedOer} WLO-OER · ${generatedMaterials.length} KI-Materialien`
-            },
-            {
-              id: 5 as const,
-              label: '5. Szenario & Export',
-              sub: elaboration ? 'Tabelle + Text bereit' : 'Tabelle, Text, PDF/Word/LMS'
-            }
-          ] as const
-        ).map((s) => {
+      {/* Five guided steps; steps that need a flow stay locked until one exists */}
+      <nav className="card no-print planner-steps" aria-label="Planungsschritte">
+        {steps.map((s) => {
           const active = step === s.id;
+          const locked = s.needsFlow && !hasFlow;
           return (
             <button
               key={s.id}
               type="button"
+              className={`planner-step ${active ? 'is-active' : ''}`}
+              aria-current={active ? 'step' : undefined}
+              disabled={locked}
+              title={locked ? 'Erst in Schritt 1 einen Ablauf vorschlagen lassen' : undefined}
               onClick={() => setStep(s.id)}
-              style={{
-                textAlign: 'left',
-                padding: '10px 12px',
-                borderRadius: 6,
-                border: `1.5px solid ${active ? 'var(--dA)' : 'var(--grid)'}`,
-                background: active ? 'var(--dA-soft)' : 'var(--surface)',
-                cursor: 'pointer',
-                color: 'var(--ink)'
-              }}
             >
-              <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14.5, color: active ? 'var(--dA)' : 'var(--ink)' }}>
-                {s.label}
-              </div>
-              <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-                {s.sub}
-              </div>
+              <span className="planner-step-no" aria-hidden="true">
+                {s.id}
+              </span>
+              <span>
+                <span className="planner-step-label">
+                  <span className="sr-only">Schritt {s.id}: </span>
+                  {s.label}
+                </span>
+                <span className="planner-step-sub">{s.sub}</span>
+              </span>
             </button>
           );
         })}
@@ -1207,17 +1263,17 @@ export function PlannerPage() {
                 className="status-badge"
                 style={{ cursor: 'pointer' }}
                 onClick={() => setLlmSettingsOpen(true)}
-                title="KI-Einstellungen öffnen (OpenAI-kompatible Anbindung konfigurieren)"
+                title="KI-Einstellungen öffnen. Der Baukasten funktioniert auch ganz ohne KI."
               >
                 {llmAvailable
                   ? `✨ KI aktiv (${userLlmActive ? byok.model || byok.provider : meta?.llmModel || 'Server'})`
-                  : '⚡ Zero-LLM-Modus · Eigene KI verbinden ⚙'}
+                  : 'Arbeitet ohne KI · KI verbinden ⚙'}
               </button>
             </div>
 
-            <p className="muted" style={{ fontSize: 14, marginTop: 0, marginBottom: 10 }}>
-              Beschreibe dein Vorhaben in eigenen Worten, wähle bei Bedarf einen oder mehrere didaktische Ansätze direkt per Klick
-              oder starte mit einer geprüften Vorlage.
+            <p className="muted" style={{ fontSize: 14.5, marginTop: 0, marginBottom: 10, maxWidth: 760 }}>
+              Beschreibe dein Vorhaben in ein bis zwei Sätzen. Fach, Thema, Klasse und Zeit reichen schon. Daraus schlägt
+              dir der Baukasten einen Ablauf mit passenden Methoden vor.
             </p>
 
             <textarea
@@ -1226,25 +1282,110 @@ export function PlannerPage() {
               style={{ width: '100%' }}
               value={scenarioText}
               onChange={(e) => handleScenarioTextChange(e.target.value)}
-              placeholder="z. B. Mathematik Bruchrechnen Doppelstunde Klasse 6, problemorientiertes Lernen, 26 Lernende, 90 Minuten"
+              placeholder="z. B. Mathematik Klasse 6, Brüche addieren, Doppelstunde mit 90 Minuten, 26 Lernende"
             />
 
-            {/* Directly visible Didactic Approaches (no expanding required!) */}
-            <div style={{ marginTop: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 13.5 }}>
-                  Didaktischer Ansatz (optional – steuert Methodenauswahl &amp; KI direkt):
-                </span>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' }}>
+              {llmAvailable ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={busyAi || !canPropose}
+                    onClick={() => void runAiTranslate()}
+                  >
+                    {busyAi ? 'Vorschlag wird erstellt…' : '✨ Ablauf vorschlagen'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    disabled={!canPropose}
+                    onClick={runDeterministicMatch}
+                    title="Nutzt nur die festen Regeln der Methodendatenbank, ohne KI"
+                  >
+                    Ohne KI vorschlagen
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="btn btn-primary" disabled={!canPropose} onClick={runDeterministicMatch}>
+                  Ablauf vorschlagen →
+                </button>
+              )}
+              {matchResult?.modus === 'ablauf' && matchResult.arrangement && (
                 <button
                   type="button"
-                  className="diff-preset-link"
-                  onClick={() => setShowAllApproaches((s) => !s)}
+                  className="btn"
+                  onClick={runOtherProposal}
+                  title="Liefert für denselben Text einen anderen, gleichwertig passenden Ablauf"
                 >
+                  🔀 Anderer Vorschlag
+                </button>
+              )}
+              <button type="button" className="btn btn-sm" onClick={toggleDictation}>
+                {listening ? '🔴 Aufnahme läuft…' : '🎤 Diktieren'}
+              </button>
+              {hasFlow && (
+                <button type="button" className="btn btn-sm btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => setStep(2)}>
+                  Weiter zum Methodischen Konzept →
+                </button>
+              )}
+            </div>
+            {!canPropose && !hasFlow && (
+              <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
+                Schreib zuerst kurz, was du vorhast, oder starte unten mit einem Beispiel.
+              </p>
+            )}
+
+            {matchNotice && (
+              <p style={{ marginTop: 10, marginBottom: 0, fontFamily: 'var(--display)', fontWeight: 600, color: 'var(--dA)' }}>
+                {matchNotice}
+              </p>
+            )}
+
+            {matchResult && matchResult.modus === 'phase' && matchResult.vorschlaege.length > 0 && (
+              <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
+                <div style={{ fontFamily: 'var(--display)', fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
+                  Passende Methoden für diese Phase (Klick übernimmt sie in den Ablauf):
+                </div>
+                <ul className="chips">
+                  {matchResult.vorschlaege.slice(0, 12).map((v) => (
+                    <li key={v.baustein}>
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={() => {
+                          const b = blocksById.get(v.baustein);
+                          if (b) {
+                            setArrangement(appendBlockToArrangement(arrangement, b));
+                            setStep(2);
+                          }
+                        }}
+                      >
+                        + {v.name} ({v.dauerMin}–{v.dauerMax} min{v.evidenzgrad ? `, Grad ${v.evidenzgrad}` : ''})
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Didactic approach: optional, nothing preselected */}
+            <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                <span style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 13.5 }}>
+                  Didaktischer Ansatz (freiwillig)
+                </span>
+                <button type="button" className="diff-preset-link" onClick={() => setShowAllApproaches((s) => !s)}>
                   {showAllApproaches
                     ? 'Weniger Ansätze anzeigen ▲'
                     : `+ ${DIDACTIC_APPROACH_OPTIONS.filter((o) => !o.featured).length} weitere Ansätze anzeigen ▾`}
                 </button>
               </div>
+              <p className="muted" style={{ fontSize: 13, margin: '0 0 8px' }}>
+                {ansatzCodes.length === 0 && !customAnsatzText.trim()
+                  ? 'Nichts ausgewählt: Der Baukasten wählt die Methoden allein nach deiner Beschreibung. Klicke einen Ansatz an, wenn du eine Richtung vorgeben möchtest.'
+                  : 'Deine Auswahl lenkt die Methodenwahl in diese Richtung. Ein weiterer Klick nimmt sie wieder heraus.'}
+              </p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }} role="group" aria-label="Didaktische Ansätze auswählen">
                 {DIDACTIC_APPROACH_OPTIONS.filter((opt) => showAllApproaches || opt.featured || ansatzCodes.includes(opt.id)).map((opt) => {
                   const active = ansatzCodes.includes(opt.id);
@@ -1272,73 +1413,15 @@ export function PlannerPage() {
                     setPresetContextSource(null);
                     setCustomAnsatzText(e.target.value);
                   }}
-                  placeholder="Optional eigener didaktischer Ansatz (z. B. Service Learning, Flipped Classroom, Montessori)"
+                  placeholder="Eigener Ansatz (z. B. Service Learning, Flipped Classroom, Montessori)"
                 />
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
-              <button type="button" className="btn btn-primary" disabled={busyAi} onClick={() => void runAiTranslate()}>
-                ✨ {busyAi ? 'Analysiere Szenario…' : 'Mit KI verstehen & Ablauf bauen'}
-              </button>
-              <button type="button" className="btn" onClick={runDeterministicMatch}>
-                ⚡ Sofort per Regeln zuordnen (&lt;1 ms)
-              </button>
-              {matchResult?.modus === 'ablauf' && matchResult.arrangement && (
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={runOtherProposal}
-                  title="Liefert für denselben Text einen anderen, gleichwertig passenden Ablauf"
-                >
-                  🔀 Anderer Vorschlag
-                </button>
-              )}
-              <button type="button" className="btn btn-sm" onClick={toggleDictation}>
-                {listening ? '🔴 Aufnahme läuft…' : '🎤 Diktieren'}
-              </button>
-              <button type="button" className="btn btn-sm btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => setStep(2)}>
-                Weiter zu Schritt 2 (Methodisches Konzept) →
-              </button>
-            </div>
-
-            {matchNotice && (
-              <p style={{ marginTop: 10, marginBottom: 0, fontFamily: 'var(--display)', fontWeight: 600, color: 'var(--dA)' }}>
-                {matchNotice}
-              </p>
-            )}
-
-            {matchResult && matchResult.modus === 'phase' && matchResult.vorschlaege.length > 0 && (
-              <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--grid)' }}>
-                <div style={{ fontFamily: 'var(--display)', fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
-                  Einzelphase erkannt – passende Bausteine (Klick übernimmt in den Ablauf):
-                </div>
-                <ul className="chips">
-                  {matchResult.vorschlaege.slice(0, 12).map((v) => (
-                    <li key={v.baustein}>
-                      <button
-                        type="button"
-                        className="btn btn-sm"
-                        onClick={() => {
-                          const b = blocksById.get(v.baustein);
-                          if (b) {
-                            setArrangement(appendBlockToArrangement(arrangement, b));
-                            setStep(2);
-                          }
-                        }}
-                      >
-                        + {v.name} ({v.dauerMin}–{v.dauerMax} min{v.evidenzgrad ? `, Grad ${v.evidenzgrad}` : ''})
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Starter Templates Row */}
+            {/* Examples */}
             <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
               <div style={{ fontFamily: 'var(--display)', fontSize: 13.5, fontWeight: 700, marginBottom: 8 }}>
-                Schnellstart mit geprüften Vorlagen:
+                Oder mit einem Beispiel starten
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {STARTER_PRESETS.map((p) => (
@@ -1355,10 +1438,11 @@ export function PlannerPage() {
                       className="btn btn-sm btn-ghost"
                       onClick={() => {
                         setArrangement(JSON.parse(JSON.stringify(ex)) as Arrangement);
+                        resetFlowDerived();
                         setStep(2);
                       }}
                     >
-                      FMT-Beispiel: {ex.name}
+                      Musterablauf: {ex.name}
                     </button>
                   );
                 })}
@@ -1369,7 +1453,7 @@ export function PlannerPage() {
           {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              ⚙ Optional: Fach, Lernziele, Gruppengröße &amp; Technik verfeinern (fließen direkt in Planung, Matrix, KI &amp; WLO ein)
+              Mehr Angaben (freiwillig): Fach, Lernziele, Klassengröße, Technik
             </summary>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 14 }}>
@@ -1573,7 +1657,7 @@ export function PlannerPage() {
                   </label>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
-                  Bleibt die Klassengröße leer, übernimmt der Planer Zahlen direkt aus deinem Text (z. B. „6 Kinder“ oder „120 Studierende“). Teilgruppen für Binnendifferenzierung legst du in <strong>Schritt 3</strong> an.
+                  Bleibt die Klassengröße leer, übernimmt der Baukasten Zahlen aus deinem Text (z. B. „6 Kinder“ oder „120 Studierende“). Teilgruppen für die Binnendifferenzierung legst du erst in <strong>Schritt 3</strong> an.
                 </p>
               </div>
 
@@ -1663,50 +1747,90 @@ export function PlannerPage() {
       {/* =================================================================== */}
       {step === 2 && (
         <section style={{ marginTop: 16 }}>
+          <p className="planner-step-intro">
+            {hasFlow ? (
+              <>
+                <strong>So läuft dein Unterricht für die ganze Klasse ab.</strong> Prüfe die Phasen und Methoden und passe sie
+                bei Bedarf an. Teilgruppen kommen erst im nächsten Schritt dazu.
+              </>
+            ) : (
+              <>
+                <strong>Noch kein Ablauf.</strong> Lass dir in Schritt 1 einen vorschlagen oder stelle unten selbst Methoden
+                zusammen.
+              </>
+            )}
+          </p>
           <div className="card no-print" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <button
                 type="button"
-                className={`btn btn-sm ${viewMode === 'verlaufsplan' ? 'btn-primary' : ''}`}
+                className={`btn btn-sm ${viewMode === 'verlaufsplan' && hasFlow ? 'btn-primary' : ''}`}
+                disabled={!hasFlow}
                 onClick={() => setViewMode('verlaufsplan')}
               >
-                📋 Methodisches Konzept (Rollen)
+                📋 Übersicht
               </button>
               <button
                 type="button"
-                className={`btn btn-sm ${viewMode === 'partitur' ? 'btn-primary' : ''}`}
+                className={`btn btn-sm ${viewMode === 'partitur' || !hasFlow ? 'btn-primary' : ''}`}
                 onClick={() => setViewMode('partitur')}
               >
-                🧩 Bausteine &amp; Slots bearbeiten
+                🧩 Methoden tauschen und umstellen
               </button>
-              <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowLiveBand((s) => !s)}>
-                {showLiveBand ? '▲ Zeitband ausblenden' : '▼ Zeitband einblenden'}
-              </button>
-              {showLiveBand && (
+              {matchResult?.modus === 'ablauf' && matchResult.arrangement && (
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={runOtherProposal}
+                  title="Liefert für dieselben Angaben einen anderen, gleichwertig passenden Ablauf"
+                >
+                  🔀 Anderer Vorschlag
+                </button>
+              )}
+              {hasFlow && (
+                <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowLiveBand((s) => !s)}>
+                  {showLiveBand ? '▲ Zeitband ausblenden' : '▼ Zeitband einblenden'}
+                </button>
+              )}
+              {hasFlow && showLiveBand && (
                 <button type="button" className="btn btn-sm btn-ghost" onClick={exportSvg}>
                   ⬇ SVG
                 </button>
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-sm"
-                style={{
-                  borderColor: validation.gueltig ? 'var(--dC)' : 'var(--err)',
-                  color: validation.gueltig ? 'var(--dC)' : 'var(--err)'
-                }}
-                onClick={() => setShowValidationDetails((s) => !s)}
-              >
-                {validation.gueltig ? '✓ Prüfer: Gültig' : `✕ Prüfer: ${nErr} Fehler`}
-                {nWarn > 0 ? ` · ${nWarn} Hinweise` : ''} {showValidationDetails ? '▲' : '▼'}
-              </button>
-              <button type="button" className="btn btn-sm btn-primary" onClick={() => setStep(3)}>
-                Weiter zu Schritt 3: Binnendifferenzierung →
-              </button>
-            </div>
+            {hasFlow && (
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  style={{
+                    borderColor: validation.gueltig ? 'var(--dC)' : 'var(--err)',
+                    color: validation.gueltig ? 'var(--dC)' : 'var(--err)'
+                  }}
+                  onClick={() => setShowValidationDetails((s) => !s)}
+                >
+                  {validation.gueltig ? '✓ Ablauf stimmig' : `✕ ${nErr} zu prüfen`}
+                  {nWarn > 0 ? ` · ${nWarn} Hinweise` : ''} {showValidationDetails ? '▲' : '▼'}
+                </button>
+                <button type="button" className="btn btn-sm btn-primary" onClick={() => setStep(3)}>
+                  Weiter zur Binnendifferenzierung →
+                </button>
+              </div>
+            )}
           </div>
+
+          {matchNotice && (
+            <p className="planner-notice" role="status">
+              {matchNotice}
+            </p>
+          )}
+          {subgroups.length > 0 && hasFlow && (
+            <p className="planner-notice" role="status">
+              Teilgruppen ({subgroups.map((g) => g.label).join(', ')}) sind vorgemerkt. Hier siehst du den Ablauf für die
+              Regelgruppe, die Anpassungen für die Teilgruppen folgen in Schritt 3.
+            </p>
+          )}
 
           {(showValidationDetails || nErr > 0) && explainedMessages.length > 0 && (
             <div
@@ -1762,26 +1886,26 @@ export function PlannerPage() {
             </div>
           )}
 
-          {showLiveBand && (
+          {hasFlow && showLiveBand && (
             <div className="card" style={{ padding: 14, marginTop: 10 }}>
               <TimelineBandSvg
                 arrangement={arrangement}
                 blocksById={blocksById}
                 svgRef={svgRef}
-                groups={groups}
-                subgroupMethods={subgroupMethods}
+                groups={step2Groups}
+                subgroupMethods={{}}
                 ketten={bundle.ketten}
               />
             </div>
           )}
 
-          {viewMode === 'verlaufsplan' ? (
+          {viewMode === 'verlaufsplan' && hasFlow ? (
             <VerlaufsplanView
               rows={scenarioRows}
-              groups={groups}
+              groups={step2Groups}
               lehrkraefteInfo={lehrkraefteInfo}
               allBlocks={bundle.bausteine}
-              subgroupMethods={subgroupMethods}
+              subgroupMethods={{}}
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}
               onOpenResourcesForStep={(tab, k) => jumpToResources(tab, k)}
@@ -1811,39 +1935,122 @@ export function PlannerPage() {
       {/* =================================================================== */}
       {step === 3 && (
         <section style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="card no-print" style={{ padding: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                🧭 Dein Methodenkonzept im Überblick (Phase anklicken zum Hervorheben)
-              </strong>
-              {(() => {
-                const activeRow = scenarioRows.find((r) => r.key === (focusedStepKey || scenarioRows[0]?.key));
-                return activeRow ? (
-                  <span className="status-badge" style={{ borderColor: 'var(--dA)', color: 'var(--dA)' }}>
-                    Aktiv: {activeRow.orderLabel} · {activeRow.methodName} ({activeRow.durationMin} min)
-                  </span>
-                ) : null;
-              })()}
-            </div>
-            <TimelineBandSvg
-              arrangement={arrangement}
-              blocksById={blocksById}
-              svgRef={svgRef}
-              groups={groups}
-              subgroupMethods={subgroupMethods}
-              ketten={bundle.ketten}
-              selectedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
-              onSelectStep={(k) => setFocusedStepKey(k)}
-              oerByStep={oerByStep}
-              generatedMaterials={generatedMaterials}
-            />
-          </div>
-
+          <p className="planner-step-intro">
+            <strong>Braucht ein Teil deiner Lerngruppe etwas anderes?</strong> Wähle die Teilgruppen aus, lass das Vorgehen
+            daran anpassen und sieh dir den aktualisierten Ablauf an. Wenn alle gleich arbeiten, geh einfach weiter.
+          </p>
           <ScenarioStudioPanel
             mode="diff"
+            diffMiddleSlot={
+              subgroups.length > 0 ? (
+                <>
+                  <section className="planner-stage" aria-labelledby="planner-stage-adjust">
+                    <strong id="planner-stage-adjust" className="planner-stage-title">
+                      ② Methodisches Vorgehen anpassen
+                    </strong>
+                    <p className="muted" style={{ fontSize: 14, margin: '4px 0 10px', maxWidth: 760 }}>
+                      Der Baukasten prüft jede Phase: Passt die geplante Methode auch zu deinen Teilgruppen? Wo nicht, bekommt
+                      die Teilgruppe eine besser passende Methode, die parallel zur Klasse läuft. Die Regelgruppe behält ihren
+                      Ablauf.
+                    </p>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <button type="button" className="btn btn-primary" onClick={runMethodAdjustment}>
+                        {adjustedFor === null ? 'Vorgehen an die Teilgruppen anpassen' : '↻ Erneut prüfen'}
+                      </button>
+                      {adjustmentsNow.length > 0 && (
+                        <button type="button" className="btn btn-sm" onClick={() => undoAdjustments(adjustmentsNow)}>
+                          Alle Anpassungen zurücknehmen
+                        </button>
+                      )}
+                    </div>
+                    <div role="status" aria-live="polite">
+                      {adjustmentStale && (
+                        <p className="planner-notice" style={{ marginTop: 10 }}>
+                          Deine Teilgruppen haben sich geändert. Klicke auf „Erneut prüfen“, damit das Vorgehen dazu passt.
+                        </p>
+                      )}
+                      {adjustedFor !== null && !adjustmentStale && adjustmentsNow.length === 0 && (
+                        <p className="planner-notice" style={{ marginTop: 10 }}>
+                          {autoAdjustments.length === 0
+                            ? 'Geprüft: Die geplanten Methoden passen für alle Teilgruppen. Es reichen die Hinweise je Teilgruppe im Ablauf unten.'
+                            : 'Alle Anpassungen sind zurückgenommen. Es gilt wieder eine Methode je Phase für alle.'}
+                        </p>
+                      )}
+                      {adjustmentsNow.length > 0 && (
+                        <>
+                          <p style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, margin: '12px 0 6px' }}>
+                            {adjustmentsNow.length === 1
+                              ? '1 Methode angepasst:'
+                              : `${adjustmentsNow.length} Methoden angepasst:`}
+                          </p>
+                          <ul className="planner-adjust-list">
+                            {adjustmentsNow.map((a) => (
+                              <li key={`${a.stepKey}-${a.groupId}`}>
+                                <div>
+                                  <span className="muted">Phase {a.phaseLabel}</span>
+                                  <div>
+                                    <strong>{a.groupLabel}</strong> arbeitet mit <strong>{a.zuName}</strong> statt mit{' '}
+                                    {a.vonName}.
+                                  </div>
+                                  <div className="muted" style={{ fontSize: 13 }}>
+                                    Warum: {a.zuName} {a.grund}.
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm"
+                                  aria-label={`Anpassung für ${a.groupLabel} in Phase ${a.phaseLabel} zurücknehmen`}
+                                  onClick={() => undoAdjustments([a])}
+                                >
+                                  Zurücknehmen
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="planner-stage" aria-labelledby="planner-stage-updated">
+                    <strong id="planner-stage-updated" className="planner-stage-title">
+                      ③ Dein aktualisierter Ablauf
+                    </strong>
+                    <div style={{ marginTop: 8 }}>
+                      <TimelineBandSvg
+                        arrangement={arrangement}
+                        blocksById={blocksById}
+                        svgRef={svgRef}
+                        groups={groups}
+                        subgroupMethods={subgroupMethods}
+                        ketten={bundle.ketten}
+                        selectedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
+                        onSelectStep={(k) => setFocusedStepKey(k)}
+                      />
+                    </div>
+                    <VerlaufsplanView
+                      rows={scenarioRows}
+                      groups={groups}
+                      lehrkraefteInfo={lehrkraefteInfo}
+                      allBlocks={bundle.bausteine}
+                      subgroupMethods={subgroupMethods}
+                      onSubgroupMethodChange={handleSubgroupMethodChange}
+                      onEditDiffMeasure={handleEditDiffMeasure}
+                      onOpenResourcesForStep={(tab, k) => jumpToResources(tab, k)}
+                      maxTechnik={maxTechnik || undefined}
+                      ohneInternet={ohneInternet}
+                      ohneKI={ohneKI}
+                      heading="Ablauf mit allen Teilgruppen"
+                      lead="Je Teilgruppe eine Spalte: Hinweise zur Anpassung und, wo eingetragen, eine eigene Methode. Mit dem Stift an einer Phase änderst du Hinweise oder wählst selbst eine andere Methode."
+                      editLabel="✏ Hinweise und Methoden bearbeiten"
+                    />
+                  </section>
+                </>
+              ) : undefined
+            }
             activeResourceTab={resourceTab}
             onResourceTabChange={setResourceTab}
-            totalClassSize={Number(gruppeSize) || undefined}
+            totalClassSize={classSize}
             focusedStepKey={focusedStepKey || scenarioRows[0]?.key || null}
             onSelectStepKey={(k) => setFocusedStepKey(k)}
             arrangement={arrangement}
@@ -1895,9 +2102,6 @@ export function PlannerPage() {
             <button type="button" className="btn" onClick={() => setStep(2)}>
               ← Zurück zum Methodischen Konzept
             </button>
-            <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
-              Weiter zu Schritt 4: WLO-OER &amp; Material →
-            </button>
           </div>
         </section>
       )}
@@ -1910,7 +2114,7 @@ export function PlannerPage() {
           <div className="card no-print" style={{ padding: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
               <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                🧭 Ablauf-Orientierung (Baustein anklicken, um Ziel-Phase für OER &amp; Material zu wählen)
+                Für welche Phase suchst du Material? Klicke sie im Zeitband an.
               </strong>
               {(() => {
                 const activeRow = scenarioRows.find((r) => r.key === (focusedStepKey || scenarioRows[0]?.key));
@@ -1991,7 +2195,7 @@ export function PlannerPage() {
               ← Zurück zur Binnendifferenzierung
             </button>
             <button type="button" className="btn btn-primary" onClick={() => setStep(5)}>
-              Weiter zu Schritt 5: Fertiges thematisches Szenario &amp; Export →
+              Weiter zum fertigen Szenario →
             </button>
           </div>
         </section>
@@ -2064,7 +2268,7 @@ export function PlannerPage() {
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 14 }}>
             <button type="button" className="btn" onClick={() => setStep(4)}>
-              ← Zurück zu WLO-OER &amp; Material
+              ← Zurück zu Material
             </button>
           </div>
         </section>

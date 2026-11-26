@@ -64,12 +64,14 @@ const INFER_TEXT: Record<string, string> = {
   hoch: 'hoch-inferent, fachdidaktische Einschätzung über die Absicht des Designs'
 };
 
+const ROLE_LABEL: Record<string, string> = { rand: 'Rand', haupt: 'Haupt', sicherung: 'Sicherung' };
+
 const MATCH_STAGES = [
   ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', 'Zieltyp, Lernfunktion, gewünschter Lernzustand', 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
   ['2 Rahmen', 'Was ist praktisch möglich?', 'Zeit, Gruppengröße, Technik, Ort, Vorbereitung, ohne KI/Internet', 'schließt aus', 'formal'],
   ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
   ['4 Passung', 'Für wen passt es?', 'Vorwissen (Expertise-Reversal), Bildungsstufe', 'warnt', 'Tetzlaff et al. 2025; Sinha & Kapur 2021'],
-  ['5 Auswahl', 'Welcher der verbleibenden?', 'Ohne Warnung → Evidenzgrad → Hauptfunktion → Vorbereitung', 'ordnet (Lehrkraft entscheidet)', 'Setzung']
+  ['5 Auswahl', 'Welcher der verbleibenden?', 'Punktzahl aus Fachbereich, Ansatz, Anleitung, Zeit, Technik, Textnähe und Evidenz (Studie zur Methode vor abgeleitetem Prinzip); im Text genannte Methoden haben Vorrang', 'ordnet (Lehrkraft entscheidet)', 'Setzung']
 ];
 
 const LLM_BOUNDARY = [
@@ -560,6 +562,128 @@ export function SystematikPage() {
         </div>
       </section>
 
+      {/* 4b. Supplementary attributes beside the 13 facets (live from the data) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Ergänzende Merkmale neben den 13 Facetten</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Die 13 Facetten beschreiben, wie eine Methode didaktisch gebaut ist. Für eine fachgerechte Auswahl kommen drei
+          Merkmale hinzu. Sie verändern die Facetten nicht, sondern schärfen Auswahl, Rangfolge und Zeitverteilung.
+        </p>
+
+        <h3 style={{ marginTop: 22 }}>Fachbereich: Wo ist eine Methode zu Hause?</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Jede Methode trägt einen oder mehrere von acht Fachbereichen. „Fachübergreifend“ heißt: ohne Fachbindung überall
+          einsetzbar. Zusätzlich kann eine Methode Fachbereiche nennen, in denen sie nicht passt
+          ({bundle.bausteine.filter((b) => (b.fachbereichUngeeignet || []).length > 0).length} Methoden tun das). Bei der
+          Zuordnung rücken Methoden des erkannten Fachbereichs nach vorn, unpassende nach hinten.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Fachbereich</th>
+                <th>Umfasst</th>
+                <th>Methoden</th>
+              </tr>
+            </thead>
+            <tbody>
+              {valuesOf('fachbereich').map((w) => (
+                <tr key={w.id}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{w.label}</td>
+                  <td>{w.definition}</td>
+                  <td>{bundle.bausteine.filter((b) => (b.fachbereich || []).includes(w.id)).length}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          Einzelfächer hängen bewusst nicht an den Methoden. Nennt eine Anfrage ein Schul- oder Hochschulfach, bildet eine
+          Erkennungsschicht es über die Fachvokabulare von OpenEduHub/WLO auf einen der acht Fachbereiche ab. Dieselbe
+          Kennung dient der Suche nach freien Materialien.
+        </p>
+
+        <h3 style={{ marginTop: 22 }}>Evidenzbezug: Worauf stützt sich ein Befund?</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Jede Evidenzaussage nennt neben dem Grad A bis C auch ihren Bezug. So bleibt sichtbar, ob eine Methode selbst
+          untersucht wurde oder ob der Befund von einem Wirkprinzip auf sie übertragen ist.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Bezug</th>
+                <th>Bedeutung</th>
+                <th>Wirkung in der Rangfolge</th>
+                <th>Evidenzaussagen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>Methode</td>
+                <td>Studien haben genau diese Methode untersucht.</td>
+                <td>Der Grad zählt voll.</td>
+                <td>{bundle.bausteine.reduce((n, b) => n + (b.evidenz || []).filter((e) => e.evidenzBezug === 'methode').length, 0)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>Prinzip</td>
+                <td>Der Befund gilt einem Wirkprinzip, das die Methode umsetzt (z. B. Abrufübung).</td>
+                <td>Ein abgeleiteter Grad A zählt wie Grad B.</td>
+                <td>{bundle.bausteine.reduce((n, b) => n + (b.evidenz || []).filter((e) => e.evidenzBezug === 'prinzip').length, 0)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>Ohne Angabe</td>
+                <td>Noch nicht eingestuft (Ersterfassung).</td>
+                <td>Der Grad zählt wie angegeben.</td>
+                <td>{bundle.bausteine.reduce((n, b) => n + (b.evidenz || []).filter((e) => !e.evidenzBezug).length, 0)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style={{ marginTop: 22 }}>Kettenrollen und Zeitanteile: Wie viel Zeit bekommt welcher Schritt?</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Jeder Schritt einer Funktionskette hat eine Rolle: <strong>Rand</strong> (Einstieg oder Abschluss),{' '}
+          <strong>Haupt</strong> (die eigentliche Arbeit) oder <strong>Sicherung</strong>. Dazu kommt ein Zeitanteil. Daraus
+          verteilt die Zuordnung das Zeitbudget, statt alle Schritte gleich lang zu machen. Wiederholungen in Folgestunden
+          zählen nicht zum Budget der geplanten Stunde.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Funktionskette</th>
+                <th>Schritte mit Rolle und Zeitanteil</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bundle.ketten.map((k) => {
+                const total = k.schritte.reduce((n, st) => n + (st.zeitanteil || 0), 0);
+                return (
+                  <tr key={k.id}>
+                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{k.label}</td>
+                    <td>
+                      <ul className="chips">
+                        {k.schritte.map((st) => (
+                          <li
+                            key={st.id}
+                            className={`chip ${st.rolle === 'haupt' ? 'chip-a' : st.rolle === 'sicherung' ? 'chip-b' : ''}`}
+                            title={`Rolle: ${ROLE_LABEL[st.rolle || ''] || 'ohne Angabe'}`}
+                          >
+                            {st.label} · {ROLE_LABEL[st.rolle || ''] || 'ohne Rolle'}
+                            {st.zeitanteil && total ? ` · ${Math.round((st.zeitanteil / total) * 100)} %` : ''}
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* 5. 5 Stufen der Zuordnung & Rolle des Sprachmodells */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
         <h2>Zuordnung in 5 Stufen &amp; Rolle des Sprachmodells</h2>
@@ -592,6 +716,11 @@ export function SystematikPage() {
             </tbody>
           </table>
         </div>
+        <p style={{ maxWidth: '76ch', marginTop: 12 }}>
+          Liegen mehrere Methoden in Stufe 5 praktisch gleichauf, gelten sie als gleichwertig. Der Baukasten wählt dann für
+          dieselbe Anfrage immer dieselbe, und <strong>„Anderer Vorschlag“</strong> liefert die nächste gleichwertige
+          Kombination. Nennt die Anfrage eine Methode beim Namen, wird sie im passenden Schritt fest eingeplant.
+        </p>
         <div className="scroll" style={{ marginTop: 14 }}>
           <table>
             <thead>

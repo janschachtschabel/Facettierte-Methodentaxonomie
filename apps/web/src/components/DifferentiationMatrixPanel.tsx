@@ -1,4 +1,4 @@
-import { useMemo, useState, type KeyboardEvent } from 'react';
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   computeMultiGroupSynthesis,
@@ -42,6 +42,8 @@ interface Props {
   ohneInternet?: boolean;
   ohneKI?: boolean;
   totalClassSize?: number;
+  /** Rendered between the group picker and the detail tabs (step 3: adjust methods, updated plan). */
+  middleSlot?: ReactNode;
 }
 
 type PanelTab = 'udl' | 'konflikte' | 'gruppen' | 'phasen';
@@ -115,7 +117,8 @@ export function DifferentiationMatrixPanel({
   maxTechnik,
   ohneInternet,
   ohneKI,
-  totalClassSize
+  totalClassSize,
+  middleSlot
 }: Props) {
   const [selectedGroupId, setSelectedGroupId] = useState<string>(groups[0]?.id || 'regel');
   const [activeTab, setActiveTab] = useState<PanelTab>('udl');
@@ -195,8 +198,8 @@ export function DifferentiationMatrixPanel({
     }
 
     const baseList = groups.length > 0
-      ? groups.map((g) => (g.id === 'regel' ? { ...g, label: 'Regelniveau (Hauptgruppe)', active: true } : g))
-      : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelniveau (Hauptgruppe)', count: totalClassSize || 26 }];
+      ? groups.map((g) => (g.id === 'regel' ? { ...g, label: 'Regelgruppe', active: true } : g))
+      : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelgruppe', count: totalClassSize || 26 }];
 
     const nextGroup: LearnerGroup = {
       id: tpl.id,
@@ -243,7 +246,7 @@ export function DifferentiationMatrixPanel({
     const hasRegel = mapped.some((g) => g.focus === 'regel');
     const next = hasRegel
       ? mapped
-      : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelniveau (Hauptgruppe)' }, ...mapped];
+      : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelgruppe' }, ...mapped];
     onGroupsChange(rebalanceMainGroupCount(next, totalClassSize));
     setSelectedGroupId(mapped[0].id);
     setQuickText('');
@@ -290,23 +293,15 @@ export function DifferentiationMatrixPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <strong style={{ fontFamily: 'var(--display)', fontSize: 19 }}>
-            Binnendifferenzierung für dein Methodenkonzept
+            ① Wer in deiner Lerngruppe braucht etwas anderes?
           </strong>
           <p className="muted" style={{ fontSize: 14, margin: '4px 0 0', maxWidth: 740 }}>
             {isStandardOnly
-              ? 'Dein Konzept aus Schritt 2 gilt aktuell für die Standardgruppe (Regelniveau). Füge hier bei Bedarf Teilgruppen hinzu – oder gehe direkt weiter zu OER & Material.'
-              : 'Alle Anpassungen an Teilgruppen, Maßnahmen und Alternativ-Methoden fließen automatisch in Material (Schritt 4) und Entwurf/Druck (Schritt 5) ein.'}
+              ? 'Bisher gilt dein Ablauf für die ganze Klasse. Wähle hier Teilgruppen aus, wenn du differenzieren möchtest. Der Schritt ist freiwillig.'
+              : 'Für jede Teilgruppe bekommst du Hinweise je Phase. Alles fließt in Material (Schritt 4) und das fertige Szenario (Schritt 5) ein.'}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={includeSystemMeasures}
-              onChange={(e) => setIncludeSystemMeasures(e.target.checked)}
-            />
-            Schul-/Systemmaßnahmen
-          </label>
           <Link
             to="/differenzierung?source=planner"
             className="btn btn-sm"
@@ -321,8 +316,10 @@ export function DifferentiationMatrixPanel({
       <div className="diff-active-bar" role="region" aria-label="Aktive Teilgruppen im Konzept">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5, color: 'var(--dA)' }}>
-            Aktive Auswahl im Konzept ({activeGroups.length} {activeGroups.length === 1 ? 'Gruppe' : 'Teilgruppen'}
-            {totalLearners > 0 ? ` · ${totalLearners} Lernende gesamt` : ''}):
+            {isStandardOnly
+              ? 'Deine Lerngruppe: bisher nur die Regelgruppe'
+              : `Deine Lerngruppe: Regelgruppe und ${activeGroups.length - 1} ${activeGroups.length - 1 === 1 ? 'Teilgruppe' : 'Teilgruppen'}`}
+            {totalLearners > 0 && activeGroups.every((g) => (g.count || 0) > 0) ? ` · ${totalLearners} Lernende` : ''}
           </strong>
           {!isStandardOnly && (
             <button
@@ -331,7 +328,7 @@ export function DifferentiationMatrixPanel({
               onClick={resetToStandardGroup}
               title="Entfernt alle zusätzlichen Teilgruppen und kehrt zur einzelnen Standardgruppe zurück"
             >
-              ↺ Alle Teilgruppen entfernen (Standardgruppe)
+              ↺ Alle Teilgruppen entfernen
             </button>
           )}
         </div>
@@ -381,7 +378,7 @@ export function DifferentiationMatrixPanel({
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <strong style={{ fontFamily: 'var(--display)', fontSize: 14 }}>
-            Weitere Teilgruppen per Klick hinzufügen oder abwählen:
+            Teilgruppe per Klick hinzufügen oder wieder abwählen:
           </strong>
           <button type="button" className="diff-preset-link" onClick={applyClassicThreeGroups}>
             Vorlage laden: Basis · Regel · Vertiefung (3 Gruppen)
@@ -432,9 +429,24 @@ export function DifferentiationMatrixPanel({
         </div>
       </div>
 
-      {/* Unified Accessible 4-Tab Differentiation Workspace */}
+      {middleSlot}
+
+      {/* Detail workspace: collapsed by default so the three main stages stay in view */}
       {!isStandardOnly && (
-        <div>
+        <details className="diff-details">
+          <summary>
+            Mehr Details: Maßnahmen für alle, Zielkonflikte und Feinjustierung je Teilgruppe und Phase
+          </summary>
+          <label
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, cursor: 'pointer', margin: '10px 0' }}
+          >
+            <input
+              type="checkbox"
+              checked={includeSystemMeasures}
+              onChange={(e) => setIncludeSystemMeasures(e.target.checked)}
+            />
+            Auch Maßnahmen der Schulorganisation anzeigen
+          </label>
           <div
             className="diff-tabs"
             role="tablist"
@@ -981,7 +993,7 @@ export function DifferentiationMatrixPanel({
               </div>
             </div>
           )}
-        </div>
+        </details>
       )}
     </div>
   );
