@@ -12,6 +12,7 @@ import { registerLinkedDataRoutes } from './routes/linked-data.js';
 import { registerAssistantRoutes } from './routes/assistant.js';
 import { registerOerRoutes, setWloSubjectLookup } from './routes/oer.js';
 import { registerMcpHttpRoutes } from './mcp/http.js';
+import { findTooLongString, tooLongMessage } from './routes/validation.js';
 
 export interface BuildAppOptions {
   distDataDir: string;
@@ -45,8 +46,32 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
 
   await app.register(compress, { global: true, threshold: 1024 });
 
+  // Compute endpoints without their own (LLM) limit get a generous per-IP limit. Must be added before the
+  // rate-limit plugin so that the plugin's own onRoute hook already sees the injected config.
+  const isComputeRoute = (url: string, methods: string[]) =>
+    (url.startsWith('/api/v1/') || url === '/zuordnung') &&
+    (methods.includes('POST') || url === '/api/v1/match' || url === '/zuordnung');
+  app.addHook('onRoute', (route) => {
+    const methods = ([] as string[]).concat(route.method as string | string[]);
+    const cfg = (route.config ?? {}) as { rateLimit?: unknown };
+    if (!cfg.rateLimit && isComputeRoute(route.url, methods)) {
+      route.config = { ...cfg, rateLimit: { max: config.apiRateLimitPerMin || 300, timeWindow: '1 minute' } };
+    }
+  });
+
   await app.register(rateLimit, {
-    global: false
+    global: false,
+    errorResponseBuilder: (_req, ctx) => ({
+      statusCode: ctx.statusCode,
+      fehler: `Zu viele Anfragen – bitte in ${ctx.after} erneut versuchen.`
+    })
+  });
+
+  // No free-text string in a JSON body may exceed MAX_TEXT_CHARS (MCP checks this per tool schema).
+  app.addHook('preHandler', async (req, reply) => {
+    if (req.method !== 'POST' || !(req.url.startsWith('/api/') || req.url.startsWith('/zuordnung'))) return;
+    const field = findTooLongString(req.body);
+    if (field) return reply.code(400).send({ fehler: tooLongMessage(field) });
   });
 
   registerApiRoutes(app, store, config);
