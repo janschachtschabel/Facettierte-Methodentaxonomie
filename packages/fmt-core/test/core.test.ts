@@ -721,6 +721,14 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
     expect(nachweisformen(D.bausteine.find((b) => b.kennung === letzte!.baustein)!), letzte!.baustein).toContain('muendlich');
   });
 
+  it('ungeeignet im Fach Sport (Durchsicht 1) warnt; andere Fachbereiche bleiben in ihrer Rangstufe bis Paket B', () => {
+    const r = M.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'sport' }) as PhaseMatchResult;
+    const v = r.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
+    expect(v?.warnungen).toContain('Im Fachbereich Sport nicht vorgesehen (Durchsicht 1).');
+    const m = M.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
+    expect(m.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt')?.warnungen || []).toEqual([]);
+  });
+
   it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {
     const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
     expect(r.pflichtangaben?.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));

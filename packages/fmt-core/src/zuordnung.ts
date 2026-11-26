@@ -835,6 +835,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     if (a.vorwissen && b.geeignetBeiVorwissen && !b.geeignetBeiVorwissen.includes(a.vorwissen)) {
       w.push(`Für Vorwissen „${label('vorwissen', a.vorwissen)}“ nicht vorgesehen (Expertise-Reversal).`);
     }
+    // Reviewed in Durchsicht 1: an entry for sport warns and stands with the other warnings (W9); the other subject
+    // areas keep their own rank tier until their review (Paket B).
+    if (a.fachbereich === 'sport' && (b.fachbereichUngeeignet || []).includes('sport')) {
+      w.push('Im Fachbereich Sport nicht vorgesehen (Durchsicht 1).');
+    }
     if (a.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(a.bildungsstufe)) {
       w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ nicht vorgesehen (Setzung der Redaktion).`);
     } else if (a.bildungsstufe === 'primar' && hasSekHochschuleOnlyEvidence(b)) {
@@ -1000,7 +1005,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         hasNegativeEvidence(b) ? 1 : 0,
         // A method the teacher named is a wish: neither its domain nor a subject that marks it unsuitable demotes it.
         (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
-          (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
+          (currentArea && currentArea !== 'sport' && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
           // A room need the room does not offer: excludes when the room is stated (rahmen), orders when it is assumed.
           // An assumed room never takes a named method away (genannter-wunsch-bleibt).
           (raumFehlt(b, currentSituation).length && (currentSituation.raumGenannt || !currentMentions.has(b.kennung)) ? 1 : 0),
