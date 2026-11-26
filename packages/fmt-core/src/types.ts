@@ -142,12 +142,17 @@ export interface KettenSchritt {
   rolle?: 'rand' | 'haupt' | 'sicherung';
   /** Relative share of the time budget; the shares of a chain need not add up to 100. */
   zeitanteil?: number;
+  /** Knowledge types (D1) the step asks for; without it (edge steps) the step does not bind. */
+  wissensart?: string[];
 }
 
 export interface Funktionskette {
   id: string;
   label: string;
+  /** Goal kinds (vocab zielart) the chain serves. */
   zielart?: string[];
+  /** Approaches (vocab ansatz) that pick this chain among those of one goal kind. */
+  ansatz?: string[];
   closeMatch?: string | string[];
   relatedMatch?: string | string[];
   broadMatch?: string | string[];

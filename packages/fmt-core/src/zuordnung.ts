@@ -25,6 +25,7 @@ import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
 import { schriftFehlt } from './bedarf.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
+import { bewegungsKette, passtZielart } from './zielart.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -1121,7 +1122,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   /** A check that opens a movement lesson still comes after the warm-up. */
   const firstAfterWarmUp = (kette: Funktionskette, steps: PlanStep[]) =>
-    (kette.zielart || []).includes('psychomotorik') && steps[0]?.rolle === 'rand' && steps[0].funktion.includes('orientierung') ? 1 : 0;
+    bewegungsKette(kette) && steps[0]?.rolle === 'rand' && steps[0].funktion.includes('orientierung') ? 1 : 0;
 
   function planSteps(kette: Funktionskette, a: MatchRequest): PlanStep[] {
     let steps: PlanStep[] = kette.schritte.map((st) => ({ ...st }));
@@ -1697,7 +1698,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       let chainInferred = false;
       let ketten = a.zieltyp
         ? [chains.get(a.zieltyp)!].filter(Boolean)
-        : data.ketten.filter((k) => (k.zielart || []).includes(String(a.zielart)));
+        : data.ketten.filter((k) => passtZielart(k, a.zielart));
       if (!ketten.length && given(anfrage.text)) {
         chainInferred = true;
         const ansatzList = list(a.ansatz);
@@ -1725,7 +1726,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.'
         });
       }
-      setRoom(a, (ketten[0].zielart || []).includes('psychomotorik'));
+      setRoom(a, bewegungsKette(ketten[0]));
       // Too little time for the chain's phases (at least five minutes each): offer methods for one phase instead.
       const phasen = planSteps(ketten[0], a).length;
       if (!given(a.modus) && given(a.zeitMin) && phasen * 5 > Number(a.zeitMin)) {
@@ -1763,16 +1764,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const tried = ketten[0];
         triedChains.add(tried.id);
         // Only chains of the same kind of goal: a movement chain for a movement lesson, a classroom chain otherwise.
-        const psychomotorTried = (tried.zielart || []).includes('psychomotorik');
+        const psychomotorTried = bewegungsKette(tried);
         const fitsChain = (k: Funktionskette) =>
           !triedChains.has(k.id) &&
-          (k.zielart || []).includes('psychomotorik') === psychomotorTried &&
+          bewegungsKette(k) === psychomotorTried &&
           k.schritte.some((st) => b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel));
         // The general concept chain first, then the others in catalogue order.
         const retryOrder = [...data.ketten].sort((x, y) => Number(y.id === 'konzeptaufbau') - Number(x.id === 'konzeptaufbau'));
         for (const k of retryOrder.filter(fitsChain)) {
           triedChains.add(k.id);
-          setRoom(a, (k.zielart || []).includes('psychomotorik'));
+          setRoom(a, bewegungsKette(k));
           const retry = ablauf(a, k);
           const inTime = !given(a.zeitMin) || (retry.pruefung?.dauerMin ?? 0) <= Number(a.zeitMin);
           const placed = new Set((retry.verankert || []).map((v) => v.baustein));
@@ -1789,7 +1790,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         }
         if (ketten[0] !== tried) break;
       }
-      setRoom(a, (ketten[0].zielart || []).includes('psychomotorik'));
+      setRoom(a, bewegungsKette(ketten[0]));
       // Still no valid plan: relax one wish at a time that only narrows the choice, and say which one.
       // Only an uncovered function (R-04) can be helped this way; wishes the caller stated as fields stay.
       const uncovered = (res.pruefung?.meldungen || []).some((x) => x.regel === 'R-04' && x.schwere === 'Fehler');
@@ -1799,12 +1800,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           if (!given(a[feld]) || given(anfrage[feld])) continue;
           const relaxed: MatchRequest = { ...a };
           delete relaxed[feld];
-          setRoom(relaxed, (ketten[0].zielart || []).includes('psychomotorik'));
+          setRoom(relaxed, bewegungsKette(ketten[0]));
           const retry = ablauf(relaxed, ketten[0]);
           const inTime = !given(a.zeitMin) || (retry.pruefung?.dauerMin ?? 0) <= Number(a.zeitMin);
           const placed = new Set((retry.verankert || []).map((v) => v.baustein));
           if (retry.pruefung?.gueltig && inTime && placedBefore.every((id) => placed.has(id))) {
-            setRoom(a, (ketten[0].zielart || []).includes('psychomotorik'));
+            setRoom(a, bewegungsKette(ketten[0]));
             res = Object.assign(retry, {
               annahmen: [
                 ...(retry.annahmen || []),

@@ -19,6 +19,7 @@ export * from './kennung.js';
 export * from './technik.js';
 export { raumBietet, raumFehlt, nutztRaum, schriftFehlt, ungedeckterBedarf } from './bedarf.js';
 export type { BedarfLuecke } from './bedarf.js';
+export * from './zielart.js';
 export { baueSituation } from './situation.js';
 export type { Situation, Annahme, Pflichtangabe } from './situation.js';
 export * from './raster.js';
