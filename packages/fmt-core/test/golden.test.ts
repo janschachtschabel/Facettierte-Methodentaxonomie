@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
-import { negatedMethods } from '../src/zuordnung.js';
+import { negatedMethods, SICHERHEITSHINWEIS } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
 
@@ -421,5 +421,21 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
     const r = M.zuordnen({ text: 'Sport Oberstufe Fitness und Krafttraining, 90 Minuten, Theorie und Praxis' });
     expect(blocksOf(r)).not.toContain('fishbowl');
     expect(r.modus === 'ablauf' && r.pruefung?.dauerMin).toBeGreaterThanOrEqual(81);
+  });
+});
+
+describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil Stufe 1)', () => {
+  it('Stufenwarnung nennt keine Evidenz, wo keine hinterlegt ist', () => {
+    const r = M.zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    const texte = r.modus === 'phase' ? r.vorschlaege.flatMap((v) => v.warnungen || []) : [];
+    expect(texte.join(' ')).toMatch(/Setzung der Redaktion/);
+    expect(texte.join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
+  });
+
+  it('praktische Arbeit im Fachraum bekommt den Sicherheitshinweis, eine Deutschstunde nicht', () => {
+    const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
+    expect(chemie.hinweise || []).toContain(SICHERHEITSHINWEIS);
+    const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
+    expect(deutsch.hinweise || []).not.toContain(SICHERHEITSHINWEIS);
   });
 });

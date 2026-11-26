@@ -257,7 +257,7 @@ export function MethodDetailPage() {
                 {b.geeignetBeiVorwissen &&
                   `Vorwissen: ${b.geeignetBeiVorwissen.map((v) => labelOf('vorwissen', v)).join(', ')}. `}
                 {b.ungeeignetBeiStufe &&
-                  `Evidenz spricht gegen Einsatz in: ${b.ungeeignetBeiStufe.map((s) => labelOf('bildungsstufe', s)).join(', ')}.`}
+                  `Nicht vorgesehen für: ${b.ungeeignetBeiStufe.map((s) => labelOf('bildungsstufe', s)).join(', ')}.`}
               </p>
             )}
             {b.qualitaetsrisiko && b.qualitaetsrisiko.length > 0 && (

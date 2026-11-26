@@ -134,7 +134,7 @@ export function createValidator(data: FmtData): FmtValidator {
         add('R-06', 'Warnung', pfad, `„${b.name}“ ist für Vorwissen „${kontext.vorwissen}“ nicht vorgesehen (Expertise-Reversal).`);
       }
       if (b.ungeeignetBeiStufe && kontext.bildungsstufe && b.ungeeignetBeiStufe.includes(kontext.bildungsstufe)) {
-        add('R-06', 'Warnung', pfad, `„${b.name}“: Für die Bildungsstufe „${kontext.bildungsstufe}“ spricht die Evidenz gegen diesen Baustein.`);
+        add('R-06', 'Warnung', pfad, `„${b.name}“: Für die Bildungsstufe „${kontext.bildungsstufe}“ nicht vorgesehen (Setzung der Redaktion).`);
       }
     }
 

@@ -165,6 +165,9 @@ describe('FMT Core: Validator, Search, Matcher', () => {
       }
     );
     expect(primar.meldungen.some((m) => m.regel === 'R-06')).toBe(true);
+    const r06 = primar.meldungen.filter((m) => m.regel === 'R-06' && /Bildungsstufe/.test(m.meldung)).map((m) => m.meldung).join(' ');
+    expect(r06).toMatch(/nicht vorgesehen \(Setzung der Redaktion\)/);
+    expect(r06).not.toMatch(/Evidenz/);
   });
 
   it('searches by synonym, phase name, facet, ansatz, status, time, states, evidence and computes valid replacements', () => {

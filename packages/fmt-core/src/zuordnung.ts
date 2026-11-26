@@ -68,6 +68,12 @@ export const LEISTUNGSKONTROLLE =
  */
 export const NEGATED_PHRASE =
   /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen|in|im|auf|am)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
+/** Shown when practical work meets a lab, gym, outdoors or a practical subject; safety is no coded attribute. */
+export const SICHERHEITSHINWEIS =
+  'Praktische Arbeit: Sicherheitsregeln und Aufsicht nach den Vorgaben des Landes und der Schule beachten (zum Beispiel RiSU in Naturwissenschaften und Technik).';
+const PRACTICAL_ROOMS = new Set(['fachraum', 'bewegungsraum', 'draussen']);
+const PRACTICAL_AREAS = new Set(['nawi-technik', 'beruf-praxis', 'sport']);
+
 export const withoutNegated = (folded: string) => folded.replace(NEGATED_PHRASE, ' ');
 
 /** Interaction forms a negated phrase rules out, e.g. "keine Gruppenarbeit" → kleingruppe-kooperativ. */
@@ -722,7 +728,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       w.push(`Für Vorwissen „${label('vorwissen', a.vorwissen)}“ nicht vorgesehen (Expertise-Reversal).`);
     }
     if (a.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(a.bildungsstufe)) {
-      w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ spricht die Evidenz dagegen.`);
+      w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ nicht vorgesehen (Setzung der Redaktion).`);
     } else if (a.bildungsstufe === 'primar' && hasSekHochschuleOnlyEvidence(b)) {
       w.push('Evidenz-Geltungsbereich beschränkt sich auf Sekundarstufe/Hochschule (für Primarstufe prüfen).');
     }
@@ -1501,7 +1507,42 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     currentPraxis = currentLernort !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentLernort));
   }
 
+  /** Methods a result offers: the whole sequence, or the first six proposals of a single phase. */
+  function chosenBlocks(r: MatchResult): string[] {
+    if (r.modus === 'phase') return r.vorschlaege.slice(0, 6).map((v) => v.baustein);
+    const out: string[] = [];
+    const walk = (node: unknown) => {
+      if (!node || typeof node !== 'object') return;
+      const n = node as Record<string, unknown>;
+      if (typeof n.baustein === 'string') out.push(n.baustein);
+      for (const key of ['teile', 'begleitend', 'optionen']) if (Array.isArray(n[key])) (n[key] as unknown[]).forEach(walk);
+      if (Array.isArray(n.belegung)) n.belegung.forEach((x) => walk((x as { inhalt?: unknown }).inhalt));
+      if (n.haupt) walk(n.haupt);
+    };
+    walk(r.arrangement?.ablauf);
+    return out;
+  }
+
+  /** Adds the safety note when a practical method meets a practical room or subject. */
+  function withSafetyNote(r: MatchResult, room: string, area: string): MatchResult {
+    if (!PRACTICAL_ROOMS.has(room) && !PRACTICAL_AREAS.has(area)) return r;
+    const practical = chosenBlocks(r).some((id) => (blocks.get(id)?.repraesentation || []).includes('enaktiv'));
+    if (!practical) return r;
+    const hinweise = r.hinweise || [];
+    if (!hinweise.includes(SICHERHEITSHINWEIS)) r.hinweise = [...hinweise, SICHERHEITSHINWEIS];
+    return r;
+  }
+
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
+    const r = planen(anfrage);
+    return withSafetyNote(r, lastRoom, lastArea);
+  }
+
+  /** Room and subject area of the last planning run, kept past its reset for the safety note. */
+  let lastRoom = '';
+  let lastArea = '';
+
+  function planen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
     currentSemanticScores = new Map(
@@ -1739,6 +1780,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
       });
     } finally {
+      lastRoom = currentLernort;
+      lastArea = currentArea;
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
