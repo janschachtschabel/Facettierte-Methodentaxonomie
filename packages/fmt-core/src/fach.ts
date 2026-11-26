@@ -40,6 +40,16 @@ export interface FmtSubjectDetector {
   schulfachUri(name: string): string | null;
 }
 
+/**
+ * OEH school subjects (discipline vocabulary) that belong to an FMT subject area, e.g. to filter WLO content
+ * when a plan names the area but no single subject. 'uebergreifend' stands for no subject binding: no filter.
+ * Collective entries that are too generic to be recognised ("Allgemein", "Sonstiges") are left out.
+ */
+export function oehDisciplinesForFachbereich(crosswalk: OehSubjectCrosswalk | undefined, fachbereich: string | undefined): OehSubject[] {
+  if (!crosswalk || !fachbereich || fachbereich === 'uebergreifend') return [];
+  return crosswalk.schulfaecher.filter((s) => s.fachbereich === fachbereich && s.erkennung !== false);
+}
+
 const fold = (s: string) =>
   s
     .toLowerCase()

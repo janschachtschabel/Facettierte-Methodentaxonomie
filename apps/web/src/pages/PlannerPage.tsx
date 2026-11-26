@@ -4,7 +4,10 @@ import {
   detectMatrixTraitsFromText,
   FMT_GUARDRAILS,
   hasAdjustmentProfile,
+  migrateKennungen,
+  proposeAdditionalPhases,
   proposeMethodAdjustments,
+  type AdditionalPhaseProposal,
   type Arrangement,
   type MethodAdjustment,
   type MatchRequest,
@@ -26,6 +29,7 @@ import {
   exportArrangementOnePageSheet
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
+import { addExtraPhase, removeExtraPhase, shiftAdjustmentKeys, shiftStepKeys, type AddedPhase } from '../planner/extraPhases.js';
 import {
   activeSubgroups,
   adjustmentGroups,
@@ -273,6 +277,9 @@ export function PlannerPage() {
   // Step 3 "Vorgehen anpassen": the proposals of the last run and the group selection they were made for.
   const [autoAdjustments, setAutoAdjustments] = useState<MethodAdjustment[]>([]);
   const [adjustedFor, setAdjustedFor] = useState<string | null>(null);
+  // Step 3: short phases for the whole class, proposed by the last check and taken over by the teacher.
+  const [extraProposals, setExtraProposals] = useState<AdditionalPhaseProposal[]>([]);
+  const [addedPhases, setAddedPhases] = useState<AddedPhase[]>([]);
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
   const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterialItem[]>([]);
   const [thematicRows, setThematicRows] = useState<ThematicPhaseRow[] | null>(null);
@@ -360,7 +367,7 @@ export function PlannerPage() {
         // The page was left for /differenzierung and mounts anew: bring the flow back from the live draft.
         const draft = loadActivePlannerDraft();
         if (draft) {
-          setArrangement(draft.arrangement);
+          setArrangement(migrateKennungen(draft.arrangement, bundle?.weiterleitungen));
           setFach(draft.fach || '');
           setThema(draft.thema || '');
           setScenarioText(draft.scenarioText || '');
@@ -499,6 +506,8 @@ export function PlannerPage() {
     setSubgroupMethods({});
     setAutoAdjustments([]);
     setAdjustedFor(null);
+    setExtraProposals([]);
+    setAddedPhases([]);
   };
 
   const subgroups = activeSubgroups(groups);
@@ -506,19 +515,71 @@ export function PlannerPage() {
   // Subgroups without persona or matrix values cannot be checked; the result says so.
   const uncheckedSubgroups = subgroups.filter((g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues }));
   const adjustmentsNow = adjustmentsInForce(subgroupMethods, autoAdjustments);
+  // Subject area of the plan: from the proposal, otherwise read from subject and topic (examples, saved plans).
+  const planFachbereich = (() => {
+    const fromMatch = matchResult?.kriterien?.fachbereich;
+    if (typeof fromMatch === 'string' && fromMatch) return fromMatch;
+    const read = `${fach} ${thema}`.trim() ? matcher.lesen(`${fach}, ${thema}`).kriterien.fachbereich : undefined;
+    return typeof read === 'string' && read ? read : undefined;
+  })();
+  // Added phases the teacher removed again in step 2 no longer count.
+  const addedPhasesNow = addedPhases.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
 
-  /** Step 3: checks every phase against the subgroups and enters better fitting parallel methods. */
-  const runMethodAdjustment = () => {
-    const next = proposeMethodAdjustments(bundle.bausteine, adjustmentPhases(scenarioRows), adjustmentGroups(groups), {
+  /** Checks a flow against the subgroups: better fitting parallel methods and short phases the plan lacks. */
+  const checkFlow = (rows: typeof scenarioRows): MethodAdjustment[] => {
+    const constraints = {
       maxTechnik: maxTechnik || undefined,
       ohneInternet,
       ohneKI,
       bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
-      fachbereich: typeof matchResult?.kriterien?.fachbereich === 'string' ? matchResult.kriterien.fachbereich : undefined
-    });
-    setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
+      fachbereich: planFachbereich
+    };
+    const next = proposeMethodAdjustments(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), constraints);
     setAutoAdjustments(next);
-    setAdjustedFor(groupSignature);
+    setExtraProposals(proposeAdditionalPhases(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), constraints));
+    setAdjustedFor(adjustmentSignature(rows, groups, { maxTechnik, ohneInternet, ohneKI }));
+    return next;
+  };
+
+  /** Step 3: enters the parallel methods for the subgroups and lists additional phases to take over. */
+  const runMethodAdjustment = () => {
+    const next = checkFlow(scenarioRows);
+    setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
+  };
+
+  /**
+   * A phase was inserted (delta 1) or removed (delta -1) at `index`: everything stored per phase moves with it,
+   * and the changed flow is checked again so the list in step 3 matches what is shown below it.
+   */
+  const applyFlowChange = (nextArrangement: Arrangement, index: number, delta: 1 | -1) => {
+    const rows = buildScenarioRows(nextArrangement, bundle, blocksById, labelOf, groups, {}, {}, '', {}, []);
+    const shiftedAuto = shiftAdjustmentKeys(autoAdjustments, index, delta);
+    const next = checkFlow(rows);
+    setArrangement(nextArrangement);
+    setSubgroupMethods((prev) => applyAdjustments(shiftStepKeys(prev, index, delta), shiftedAuto, next));
+    setOerByStep((prev) => shiftStepKeys(prev, index, delta));
+    setAiDiffByStep((prev) => shiftStepKeys(prev, index, delta));
+    setGeneratedMaterials((prev) =>
+      prev.flatMap((m) => {
+        const key = Object.keys(shiftStepKeys({ [m.stepKey]: true }, index, delta))[0];
+        return key ? [{ ...m, stepKey: key }] : [];
+      })
+    );
+    // Topic rows and the written-out scenario describe the old flow.
+    setThematicRows(null);
+    setElaboration(null);
+  };
+
+  const addProposedPhase = (p: AdditionalPhaseProposal) => {
+    const res = addExtraPhase(arrangement, blocksById, p);
+    applyFlowChange(res.arrangement, res.index, 1);
+    setAddedPhases((prev) => [...prev.filter((a) => a.kennung !== res.added.kennung), res.added]);
+  };
+
+  const removeAddedPhase = (a: AddedPhase) => {
+    const res = removeExtraPhase(arrangement, a);
+    setAddedPhases((prev) => prev.filter((x) => x.kennung !== a.kennung));
+    if (res) applyFlowChange(res.arrangement, res.index, -1);
   };
 
   const undoAdjustments = (list: MethodAdjustment[]) => {
@@ -946,7 +1007,8 @@ export function PlannerPage() {
   };
 
   const applyImportedScenario = (p: Partial<SavedScenario> & { arrangement: Arrangement }, label: string, savedId: string | null = null) => {
-    setArrangement(p.arrangement);
+    // Plans saved before a method was merged or renamed keep working.
+    setArrangement(migrateKennungen(p.arrangement, bundle?.weiterleitungen));
     if (p.fach !== undefined) setFach(p.fach);
     if (p.thema !== undefined) setThema(p.thema);
     if (p.hinweise !== undefined) setHinweise(p.hinweise);
@@ -967,6 +1029,8 @@ export function PlannerPage() {
     setSubgroupMethods(p.subgroupMethods || {});
     setAutoAdjustments([]);
     setAdjustedFor(null);
+    setExtraProposals([]);
+    setAddedPhases([]);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
     if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
     if (p.elaboration !== undefined) setElaboration(p.elaboration);
@@ -1983,8 +2047,9 @@ export function PlannerPage() {
                     </strong>
                     <p className="muted" style={{ fontSize: 14, margin: '4px 0 10px', maxWidth: 760 }}>
                       Der Baukasten prüft jede Phase: Passt die geplante Methode auch zu deinen Teilgruppen? Wo nicht, bekommt
-                      die Teilgruppe eine besser passende Methode, die parallel zur Klasse läuft. Die Regelgruppe behält ihren
-                      Ablauf.
+                      die Teilgruppe eine besser passende Methode, die parallel zur Klasse läuft. Fehlt dem Ablauf etwas, das
+                      deine Teilgruppen brauchen, schlägt der Baukasten eine kurze zusätzliche Phase für alle vor. Die
+                      übernimmst du selbst.
                     </p>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                       <button type="button" className="btn btn-primary" onClick={runMethodAdjustment}>
@@ -2049,6 +2114,77 @@ export function PlannerPage() {
                           </ul>
                         </>
                       )}
+                      {!adjustmentStale && extraProposals.length > 0 && (
+                        <>
+                          <p style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, margin: '12px 0 6px' }}>
+                            {extraProposals.length === 1
+                              ? 'Vorschlag: 1 zusätzliche Phase für alle'
+                              : `Vorschlag: ${extraProposals.length} zusätzliche Phasen für alle`}
+                          </p>
+                          <ul className="planner-adjust-list">
+                            {extraProposals.map((p) => (
+                              <li key={p.kennung}>
+                                <div>
+                                  <span className="muted">
+                                    {p.position === 'anfang' ? 'Am Anfang' : 'Am Ende'} · {p.dauerMin} Minuten
+                                  </span>
+                                  <div>
+                                    <strong>{p.name}</strong> mit der ganzen Klasse
+                                  </div>
+                                  <div className="muted" style={{ fontSize: 13 }}>
+                                    Warum: {p.grund}
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm"
+                                  aria-label={`${p.name} ${p.position === 'anfang' ? 'am Anfang' : 'am Ende'} hinzufügen`}
+                                  onClick={() => addProposedPhase(p)}
+                                >
+                                  Hinzufügen
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      {addedPhasesNow.length > 0 && (
+                        <>
+                          <p style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, margin: '12px 0 6px' }}>
+                            {addedPhasesNow.length === 1 ? '1 Phase hinzugefügt:' : `${addedPhasesNow.length} Phasen hinzugefügt:`}
+                          </p>
+                          <ul className="planner-adjust-list">
+                            {addedPhasesNow.map((a) => {
+                              const given = a.donors.reduce((sum, d) => sum + d.minutes, 0);
+                              const from = a.donors.map((d) => `„${blocksById.get(d.kennung)?.name || d.kennung}“`).join(' und ');
+                              return (
+                                <li key={a.kennung}>
+                                  <div>
+                                    <div>
+                                      <strong>{a.name}</strong> für alle, {a.art === 'vorwissen' ? 'am Anfang' : 'am Ende'}
+                                    </div>
+                                    <div className="muted" style={{ fontSize: 13 }}>
+                                      {given >= a.dauerMin
+                                        ? `Die ${a.dauerMin} Minuten kommen aus ${a.donors.length === 1 ? 'der Phase' : 'den Phasen'} ${from}. Die Gesamtzeit bleibt gleich.`
+                                        : given > 0
+                                          ? `${given} Minuten kommen aus ${from}. Der Ablauf ist dadurch ${a.dauerMin - given} Minuten länger.`
+                                          : `Keine Phase kann Zeit abgeben. Der Ablauf ist dadurch ${a.dauerMin} Minuten länger.`}
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    aria-label={`${a.name} wieder entfernen`}
+                                    onClick={() => removeAddedPhase(a)}
+                                  >
+                                    Wieder entfernen
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </>
+                      )}
                     </div>
                   </section>
 
@@ -2101,6 +2237,7 @@ export function PlannerPage() {
             scenarioRows={scenarioRows}
             labelOf={labelOf}
             fach={fach}
+            fachbereich={planFachbereich}
             thema={thema}
             didaktischerAnsatz={didaktischerAnsatzLabel}
             lehrkraefteInfo={lehrkraefteInfo}
@@ -2193,6 +2330,7 @@ export function PlannerPage() {
             scenarioRows={scenarioRows}
             labelOf={labelOf}
             fach={fach}
+            fachbereich={planFachbereich}
             thema={thema}
             didaktischerAnsatz={didaktischerAnsatzLabel}
             lehrkraefteInfo={lehrkraefteInfo}
@@ -2269,6 +2407,7 @@ export function PlannerPage() {
             scenarioRows={scenarioRows}
             labelOf={labelOf}
             fach={fach}
+            fachbereich={planFachbereich}
             thema={thema}
             didaktischerAnsatz={didaktischerAnsatzLabel}
             lehrkraefteInfo={lehrkraefteInfo}

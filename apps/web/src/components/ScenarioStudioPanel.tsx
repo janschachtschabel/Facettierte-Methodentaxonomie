@@ -50,6 +50,8 @@ interface Props {
   scenarioRows: ScenarioPhaseRow[];
   labelOf: (schemeId: string, code: string) => string;
   fach: string;
+  /** FMT subject area of the plan; narrows the WLO search when no single subject is known. */
+  fachbereich?: string;
   thema: string;
   didaktischerAnsatz: string;
   lehrkraefteInfo: string;
@@ -104,6 +106,7 @@ export function ScenarioStudioPanel({
   scenarioRows,
   labelOf,
   fach,
+  fachbereich,
   thema,
   didaktischerAnsatz,
   lehrkraefteInfo,
@@ -643,6 +646,7 @@ export function ScenarioStudioPanel({
             initialStepKey={focusedStepKey || scenarioRows[0]?.key || 'step-0'}
             onTargetStepChange={onSelectStepKey}
             fach={fach}
+            fachbereich={fachbereich}
             thema={thema}
             bildungsstufe={arrangement.kontext?.bildungsstufe || ''}
             oerByStep={oerByStep}

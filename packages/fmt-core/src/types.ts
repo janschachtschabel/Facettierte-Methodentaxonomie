@@ -300,6 +300,8 @@ export interface FmtData {
   beispiele: Arrangement[];
   /** OEH school and university subjects mapped to FMT subject areas (recognition layer, optional). */
   faecher?: OehSubjectCrosswalk;
+  /** Former method ids that now point to another method (merged duplicates, renamed ids). */
+  weiterleitungen?: Record<string, string>;
 }
 
 export interface RuleMeta {
@@ -485,4 +487,5 @@ export interface CatalogBundle {
   oeh: Record<string, string>;
   rules: RuleMeta[];
   faecher?: OehSubjectCrosswalk;
+  weiterleitungen?: Record<string, string>;
 }

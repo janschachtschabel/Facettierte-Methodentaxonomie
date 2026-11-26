@@ -70,7 +70,7 @@ export function ApiMcpPage() {
             <li><code>suggest_replacements</code> – Formal gültige Ersatzkandidaten an einem Knotenpfad</li>
             <li><code>list_vocabularies</code> – Kontrollierte Codes, Funktionsketten &amp; Differenzierungs-Personas</li>
             <li><code>list_differentiation_options</code> – <strong>Eigenständiger Katalog</strong> aller 36 Lernvoraussetzungs-Variablen (115 Ausprägungen), 8 Schnellprofile, Personas &amp; Handlungsebenen (<code>GET /api/v1/differentiation/meta</code>)</li>
-            <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code></li>
+            <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code>, gefiltert nach Fach oder Fachbereich</li>
             <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, <code>quickProfileId</code>, Ebenen-/Technikfilter) &amp; alternative Teilgruppen-Methoden</li>
             <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong> (für freie Chat-Entwürfe, einzelne <code>baustein</code>-Methoden &amp; FMT-Arrangements): UDL-Basis, Zielkonflikte + Auflösungen, Methoden-Kontext &amp; FMT-Methoden (<code>POST /api/v1/adapt</code>)</li>
             <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) mit Matrix &amp; opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich <code>llmBriefing</code>, UDL/Konflikte und JSON-LD</li>
@@ -158,7 +158,11 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/oer/wlo-search</code></td>
-                <td>Live-OER-Suche auf WirLernenOnline Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code></td>
+                <td>
+                  Live-OER-Suche auf WirLernenOnline Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code>.
+                  Filter: <code>fach</code>, sonst <code>fachbereich</code> (alle OEH-Fächer des Bereichs), dazu{' '}
+                  <code>bildungsstufe</code> und <code>inhaltstyp</code>
+                </td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/differentiation/score</code></td>

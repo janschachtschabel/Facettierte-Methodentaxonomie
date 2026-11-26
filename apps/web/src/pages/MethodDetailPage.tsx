@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { FacetMeta } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
@@ -17,6 +17,8 @@ export function MethodDetailPage() {
 
   if (!bundle || !search) return <div className="page-section">Lade…</div>;
   const b = kennung ? blocksById.get(kennung) : undefined;
+  // An old link to a merged or renamed method leads to the current page.
+  if (b && kennung && b.kennung !== kennung) return <Navigate to={`/methoden/${encodeURIComponent(b.kennung)}`} replace />;
   if (!b) {
     return (
       <div className="page-section">

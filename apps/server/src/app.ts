@@ -10,7 +10,8 @@ import { loadConfig, type ServerConfig } from './config.js';
 import { registerApiRoutes } from './routes/api.js';
 import { registerLinkedDataRoutes } from './routes/linked-data.js';
 import { registerAssistantRoutes } from './routes/assistant.js';
-import { registerOerRoutes, setWloSubjectLookup } from './routes/oer.js';
+import { oehDisciplinesForFachbereich } from '@fmt/core';
+import { registerOerRoutes, setWloAreaLookup, setWloSubjectLookup } from './routes/oer.js';
 import { registerMcpHttpRoutes } from './mcp/http.js';
 import { findTooLongString, tooLongMessage } from './routes/validation.js';
 
@@ -78,6 +79,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerLinkedDataRoutes(app, store);
   registerAssistantRoutes(app, store, config);
   setWloSubjectLookup((name) => store.subjects.schulfachUri(name));
+  setWloAreaLookup((fachbereich) => oehDisciplinesForFachbereich(store.bundle.faecher, fachbereich).map((f) => f.uri));
   registerOerRoutes(app, config);
   registerMcpHttpRoutes(app, store, config);
 

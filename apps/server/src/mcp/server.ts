@@ -13,6 +13,7 @@ import {
   type MatchRequest,
   type SearchCriteria
 } from '@fmt/core';
+import { resolveKennung } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer } from '../routes/oer.js';
@@ -311,6 +312,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     {
       query: z.string().max(MAX_TEXT_CHARS).describe('Suchbegriff oder Thema (z. B. "Bruchrechnen", "Dichte", "Fotosynthese")'),
       fach: z.string().max(MAX_TEXT_CHARS).optional().describe('Fachname (z. B. "Mathematik", "Physik", "Biologie", "Deutsch")'),
+      fachbereich: code('fachbereich')
+        .optional()
+        .describe('FMT-Fachbereich. Ohne erkanntes Einzelfach filtert die Suche nach allen OEH-Fächern dieses Bereichs.'),
       bildungsstufe: z.enum(['primar', 'sek1', 'sek2', 'berufsbildung', 'hochschule', 'erwachsenenbildung']).optional(),
       inhaltstyp: z
         .enum(['arbeitsblatt', 'uebung', 'video', 'interaktiv', 'experiment', 'quiz', 'rollenspiel', 'fallstudie', 'handout', 'lernspiel'])
@@ -725,7 +729,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'method-detail',
     new ResourceTemplate('fmt://method/{kennung}', { list: undefined }),
     async (uri, { kennung }) => {
-      const id = String(kennung);
+      const id = resolveKennung(String(kennung), store.bundle.weiterleitungen);
       const ld = store.bausteineJsonld.get(id);
       return {
         contents: [

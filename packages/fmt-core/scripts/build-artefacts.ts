@@ -6,6 +6,7 @@ import { loadFmtData } from '../src/load-data.js';
 import { createValidator } from '../src/validate.js';
 import { createMatcher } from '../src/zuordnung.js';
 import { FMT_RULES } from '../src/rules.js';
+import { oehDisciplinesForFachbereich } from '../src/fach.js';
 import type { Arrangement, Baustein, CatalogBundle, FmtData, Scheme, VocabValue } from '../src/types.js';
 
 export const VOCAB_PROPS: Array<[string, string, boolean]> = [
@@ -74,6 +75,10 @@ export function schemeTtl(D: FmtData, s: Scheme): string {
       if (!vals) return;
       (Array.isArray(vals) ? vals : [vals]).forEach((iri) => lines.push(`  skos:${m} <${iri}>`));
     });
+    // Subject areas point to the OEH/WLO school subjects they cover (derived from the crosswalk).
+    if (scheme === 'fachbereich') {
+      oehDisciplinesForFachbereich(D.faecher, w.id).forEach((f) => lines.push(`  skos:narrowMatch <${f.uri}>`));
+    }
     if (w.rang != null) lines.push(`  fmt:rang ${w.rang}`);
     (w.impliziert || []).forEach((x) => lines.push(`  fmt:impliziert ${conceptIri(scheme, x)}`));
     return lines.join(' ;\n') + ' .\n';
@@ -643,7 +648,8 @@ export function buildAllArtefacts(rootDir: string) {
     bausteine: D.bausteine,
     beispiele: D.beispiele,
     oeh,
-    faecher: D.faecher
+    faecher: D.faecher,
+    weiterleitungen: D.weiterleitungen
   });
   const versionHash = crypto.createHash('sha256').update(hashPayload).digest('hex');
 
@@ -663,7 +669,8 @@ export function buildAllArtefacts(rootDir: string) {
     beispiele: D.beispiele,
     oeh,
     rules: FMT_RULES,
-    faecher: D.faecher
+    faecher: D.faecher,
+    weiterleitungen: D.weiterleitungen
   };
   write('catalog.bundle.json', json(bundle));
   return { version: D.VERSION, versionHash, blocks: D.bausteine.length, schemes: D.schemes.length + 1 };

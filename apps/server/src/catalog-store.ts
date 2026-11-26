@@ -22,6 +22,7 @@ import {
   type FmtSubjectDetector,
   createSubjectDetector
 } from '@fmt/core';
+import { KennungIndex } from '@fmt/core';
 import { loadModel2VecClassifier, type Model2VecClassifier } from './embeddings/model2vec.js';
 
 export interface HybridTextClassification {
@@ -82,7 +83,8 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     ketten: bundle.ketten,
     bausteine: bundle.bausteine,
     beispiele: bundle.beispiele,
-    faecher: bundle.faecher
+    faecher: bundle.faecher,
+    weiterleitungen: bundle.weiterleitungen
   };
 
   const subjects = createSubjectDetector(data.faecher);
@@ -165,7 +167,11 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     };
   };
 
-  const blocksById = new Map<string, Baustein>(bundle.bausteine.map((b) => [b.kennung, b]));
+  // Former ids of merged or renamed methods answer with the current method.
+  const blocksById: Map<string, Baustein> = new KennungIndex(
+    bundle.bausteine.map((b) => [b.kennung, b] as const),
+    bundle.weiterleitungen
+  );
   const exampleRegistry = new Map<string, Arrangement>(
     bundle.beispiele.filter((a) => Boolean(a['@id'])).map((a) => [a['@id']!, a])
   );

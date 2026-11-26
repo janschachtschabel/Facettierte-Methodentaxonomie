@@ -108,6 +108,36 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(within(screen.getByRole('table')).queryByText(/ADHS/)).toBeNull();
   });
 
+  it('schlägt in Schritt 3 zusätzliche Phasen für alle vor, fügt sie ein und nimmt sie wieder heraus', () => {
+    renderPlanner();
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    fireEvent.click(stepButton(2));
+    const rowsBefore = within(screen.getByRole('table')).getAllByRole('row').length;
+    fireEvent.click(stepButton(3));
+    fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Vorgehen an die Teilgruppen anpassen' }));
+
+    expect(screen.getByText(/Vorschlag: \d zusätzliche Phasen? für alle/)).toBeTruthy();
+    const add = screen.getAllByRole('button', { name: /hinzufügen$/ });
+    const parallelBefore = screen.queryAllByText(/Eigene Methode für diese Gruppe/).length;
+    fireEvent.click(add[0]);
+
+    // The phase is part of the flow now, the check ran again and nothing is reported as out of date.
+    expect(screen.getByText(/1 Phase hinzugefügt:/)).toBeTruthy();
+    expect(screen.queryByText(/Klicke auf „Erneut prüfen“/)).toBeNull();
+    expect(screen.queryAllByRole('button', { name: /hinzufügen$/ }).length).toBe(add.length - 1);
+    expect(screen.queryAllByText(/Eigene Methode für diese Gruppe/).length).toBeGreaterThanOrEqual(parallelBefore);
+    fireEvent.click(stepButton(2));
+    expect(within(screen.getByRole('table')).getAllByRole('row').length).toBe(rowsBefore + 1);
+
+    fireEvent.click(stepButton(3));
+    fireEvent.click(screen.getByRole('button', { name: /wieder entfernen$/ }));
+    expect(screen.queryByText(/Phase hinzugefügt:/)).toBeNull();
+    expect(screen.getAllByRole('button', { name: /hinzufügen$/ }).length).toBe(add.length);
+    fireEvent.click(stepButton(2));
+    expect(within(screen.getByRole('table')).getAllByRole('row').length).toBe(rowsBefore);
+  });
+
   it('ein Musterablauf ersetzt den vorherigen Vorschlag samt Hinweis und „Anderer Vorschlag“', () => {
     renderPlanner();
     propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten');

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   createMatcher,
+  KennungIndex,
   createSearch,
   createValidator,
   type Arrangement,
@@ -187,12 +188,17 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         ketten: bundle.ketten,
         bausteine: bundle.bausteine,
         beispiele: bundle.beispiele,
-        faecher: bundle.faecher
+        faecher: bundle.faecher,
+        weiterleitungen: bundle.weiterleitungen
       };
       const validator = createValidator(data);
       const search = createSearch(data, validator);
       const matcher = createMatcher(data, validator);
-      const blocksById = new Map(bundle.bausteine.map((b) => [b.kennung, b]));
+      // Former ids of merged or renamed methods answer with the current method.
+      const blocksById: Map<string, Baustein> = new KennungIndex(
+        bundle.bausteine.map((b) => [b.kennung, b] as const),
+        bundle.weiterleitungen
+      );
       const exampleRegistry = new Map(bundle.beispiele.filter((e) => e['@id']).map((e) => [e['@id']!, e]));
       const schemesMap = new Map(bundle.schemes.map((s) => [s.id, s]));
       const labelsMap = new Map<string, string>();
