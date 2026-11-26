@@ -571,7 +571,8 @@ export interface AblaufMatchResult extends MatchHead {
   /** Methods named in the request and where they were placed. */
   verankert?: Array<{ baustein: string; schritt: string }>;
   /** Methods named in the request that could not be placed, with the reason. */
-  nichtVerankert?: Array<{ baustein: string; grund: string }>;
+  /** `merkmal`: the method's field whose need the situation does not cover (e.g. 'raumbedarf'), when that is the reason. */
+  nichtVerankert?: Array<{ baustein: string; grund: string; merkmal?: string }>;
   /** Assumptions the matcher made because the request left something open. */
   annahmen?: string[];
   arrangement?: Arrangement;

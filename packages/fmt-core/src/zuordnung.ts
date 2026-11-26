@@ -1579,7 +1579,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     // Named methods that no chain step could take: add them as an extra phase where the validator allows it.
     const verankert: Array<{ baustein: string; schritt: string }> = [];
-    const nichtVerankert: Array<{ baustein: string; grund: string }> = [...currentDroppedMentions];
+    const nichtVerankert: Array<{ baustein: string; grund: string; merkmal?: string }> = [...currentDroppedMentions];
     const minTotal = (nodes: ArrangementNode[]) =>
       nodes.reduce((sum, n) => {
         if (n.typ === 'Einsatz') return sum + Math.max(blocks.get(n.baustein)!.dauerMin, slotSum(n));
@@ -1591,9 +1591,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         verankert.push({ baustein: b.kennung, schritt: anchoredAt.get(b.kennung) || 'Teil einer Phase' });
         continue;
       }
-      const frame = rahmen(b, a);
-      if (frame) {
-        nichtVerankert.push({ baustein: b.kennung, grund: frame });
+      // An uncovered need names the method's field (merkmal), e.g. raumbedarf in a stated lecture hall.
+      const luecke = rahmenLuecke(b, a);
+      if (luecke) {
+        nichtVerankert.push({ baustein: b.kennung, grund: luecke.grund, merkmal: luecke.merkmal });
         continue;
       }
       if ((rang.get(b.reichweite) ?? 0) > 3) {

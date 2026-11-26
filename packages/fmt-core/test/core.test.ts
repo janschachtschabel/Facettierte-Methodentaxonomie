@@ -634,8 +634,8 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
     expect(ablaufBausteine(r).length).toBeGreaterThan(0);
     expect(ablaufBausteine(r).filter((id) => stellflaeche.has(id))).toEqual([]);
     const nicht = (r as AblaufMatchResult).nichtVerankert || [];
-    expect(nicht).toContainEqual({ baustein: 'fishbowl', grund: 'braucht: Stellfläche' });
-    expect(nicht).toContainEqual({ baustein: 'kugellager', grund: 'braucht: Stellfläche' });
+    expect(nicht).toContainEqual({ baustein: 'fishbowl', grund: 'braucht: Stellfläche', merkmal: 'raumbedarf' });
+    expect(nicht).toContainEqual({ baustein: 'kugellager', grund: 'braucht: Stellfläche', merkmal: 'raumbedarf' });
   });
 
   it('Phase im Hörsaal: der Ausschluss nennt das Merkmal; ein angenommener Raum schließt nicht aus', () => {
