@@ -17,6 +17,11 @@
     "sprachen",
     "gesellschaft"
   ],
+  "lernort": [
+    "bewegungsraum",
+    "fachraum",
+    "draussen"
+  ],
   "kurzbeschreibung": "Statt starrer Wiederholung derselben Idealbewegung variieren Lernende bewusst Parameter (Tempo, Rhythmus, Ausgangslage), um selbstorganisiert stabile Bewegungsmuster aufzubauen.",
   "alternativname": [
     "Differenzielles Bewegungslernen"

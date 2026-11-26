@@ -23,6 +23,10 @@
     "nawi-technik",
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Switch (Improvisationstheater & Rollenwechsel)",

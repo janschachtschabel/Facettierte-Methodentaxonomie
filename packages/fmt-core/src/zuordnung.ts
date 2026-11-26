@@ -494,6 +494,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       /urteilsbildung|\bdebatt\w*|streitfrage|\bpro\W+(?:und\W+)?contra\b|\bkontrovers\w*|podiumsdiskussion|fishbowl/,
       () => 'urteilsbildung'
     ],
+    // Endurance, strength or fitness training follows the training chain, not "demonstrate – practise – apply".
+    [
+      'zieltyp',
+      /\b(?:ausdauer|kondition|kraft|fitness|intervall|zirkel)\w*training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkondition(?:straining|sschulung)?\b|\bcooper-?test\b|\bfitnesskurs\b/,
+      () => 'kondition-training'
+    ],
     // A product must be named: "schreiben", "zeichnen" or "gestalten" alone are everyday verbs.
     [
       'zieltyp',
@@ -728,6 +734,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentNegatedMethods = new Set<string>();
   /** The chain trains a movement or hands-on skill: classroom methods do not fit its main phases. */
   let currentPraxis = false;
+  /** The approach was only guessed from loose wording: a method without it loses less. */
+  let currentGuessedAnsatz = false;
   /** Room of the lesson: stated, or derived from the subject (sport → movement space). */
   let currentLernort = '';
   /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
@@ -834,13 +842,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : 0,
         passung(b, a).length ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
-        domainPenalty(b) || (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0),
+        domainPenalty(b) ||
+          (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0) ||
+          // Without another room the lesson is in a classroom: a method that needs a gym or the outdoors does not fit.
+          ((!currentLernort || currentLernort === 'klassenraum' || currentLernort === 'hoersaal') &&
+          (b.lernort || []).length &&
+          !b.lernort!.includes('klassenraum') &&
+          !b.lernort!.includes(currentLernort || 'klassenraum')
+            ? 1
+            : 0),
         // Graded: when nothing fits the rest of the lesson, the method that overshoots least comes first.
         hardCapMin != null && b.dauerMin > hardCapMin ? Math.ceil((b.dauerMin - hardCapMin) / 5) : 0
       ],
       soft: softScore({
-        ansatzMiss: misses(list(a.ansatz), b.ansatz) === 1,
-        softFilterMisses,
+        ansatzMiss: !currentGuessedAnsatz && misses(list(a.ansatz), b.ansatz) === 1,
+        softFilterMisses: softFilterMisses + (currentGuessedAnsatz ? misses(list(a.ansatz), b.ansatz) * 0.5 : 0),
         variety: varietyPenalty,
         overBudgetMin: maxStepMin != null ? b.dauerMin - maxStepMin : 0,
         underBudgetMin: maxStepMin != null ? maxStepMin - b.dauerMax : 0,
@@ -860,10 +876,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : 0,
         vorbereitungMin: b.vorbereitungMin,
         praxisFremd:
+          // A seated check in a practice lesson counts like a seated main phase: a movement test beats a self-assessment.
           (currentPraxis || currentLernort === 'hoersaal') &&
-          currentStepRole !== 'pruefung' &&
           !(currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(b, currentLernort) : isPraxisMethod(b))
-            ? currentStepRole === 'haupt'
+            ? currentStepRole === 'haupt' || currentStepRole === 'pruefung'
               ? 'haupt'
               : 'rand'
             : undefined,
@@ -998,8 +1014,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
     if (!opening) return order(ranked);
     const fitsTime = (b: Baustein) => maxStepMin == null || b.dauerMin <= maxStepMin;
+    // The wider margin must not let a seated or another subject's opener into a practice lesson.
+    const offPractice = (x: Ranked) =>
+      currentPraxis && (x.b.fachbereich || []).length > 0 && !x.b.fachbereich!.includes('uebergreifend') && currentArea && !x.b.fachbereich!.includes(currentArea)
+        ? 1
+        : currentPraxis && !(currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(x.b, currentLernort) : isPraxisMethod(x.b))
+          ? 1
+          : 0;
     return order(
-      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1] })),
+      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1, offPractice(x)] })),
       OPENING_TOLERANCE
     );
   }
@@ -1173,6 +1196,22 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A single session cannot hold repetitions that are days apart: they are planned for later sessions.
     const recurrenceOutside = totalBudget != null && totalBudget <= SINGLE_SESSION_MAX_MIN;
     const reserveRec = wantsRecurrence && !recurrenceOutside && totalBudget != null && totalBudget >= 75 ? 15 : 0;
+    // A requested check in a practice lesson needs the time of a practical test, not of a seated self-assessment.
+    const checkAt = steps.findIndex((st) => st.id === checkStepId);
+    if (checkAt >= 0 && floors[checkAt] == null && currentPraxis && totalBudget != null) {
+      const practical = data.bausteine.filter(
+        (b) =>
+          b.lernfunktion[0] === 'diagnose' &&
+          (b.nachbedingung || []).includes(steps[checkAt].ziel) &&
+          !rahmen(b, a) &&
+          !passung(b, a).length &&
+          (!currentArea || (b.fachbereich || []).includes(currentArea)) &&
+          (currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(b, currentLernort) : isPraxisMethod(b))
+      );
+      const need = practical.length ? Math.min(...practical.map((b) => b.dauerMin)) : 0;
+      const others = steps.reduce((x, _st, i) => x + (i === checkAt ? 0 : Math.max(minStep, floors[i] ?? 0)), 0);
+      if (need && need + others <= totalBudget - reserveRec) floors[checkAt] = need;
+    }
     const budgets = totalBudget != null ? phaseBudgets(steps, totalBudget - reserveRec, floors, minStep) : null;
     const anchoredAt = new Map<string, string>();
 
@@ -1440,11 +1479,28 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       // Methods named in a negated phrase ("keine Gruppenarbeit") are no wish for them.
       currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)).map((m) => m.kennung) : []);
       currentSeed = topicSeed(currentRawText);
+      // Conditioning is a sports goal: without a stated subject, the plan is a sports lesson;
+      // read from the text in another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
+      if (a.zieltyp === 'kondition-training' && !given(a.fachbereich)) a.fachbereich = 'sport';
+      else if (a.zieltyp === 'kondition-training' && zieltypFromText && a.fachbereich !== 'sport') {
+        delete a.zieltyp;
+        if (a.zielart === 'psychomotorik' && !given(anfrage.zielart)) delete a.zielart;
+      }
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
       currentNegatedInteractions = negatedInteractions(currentRawText);
       currentNegatedMethods = negatedMethods(currentRawText);
       // A method named only to rule it out ("kein Lehrervortrag") is no wish for it.
       currentMentions = new Set([...currentMentions].filter((id) => !currentNegatedMethods.has(id)));
+      // A name that also has an everyday meaning ("Leistungsmessung" in maths) is no wish for a method that does not fit the subject or room.
+      currentMentions = new Set(
+        [...currentMentions].filter((id) => {
+          const b = blocks.get(id);
+          if (!b) return false;
+          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) return false;
+          const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
+          return !roomOnly || given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik';
+        })
+      );
       // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
       currentTechAsked =
         given(a.maxTechnik) ||
@@ -1455,6 +1511,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         /\b(?:digital\w*|online|ki|internet|app|apps)\b/.test(currentRawText);
       const fromText = (feld: string) => (given(anfrage[feld]) ? undefined : gelesen.erkannt.find((e) => e.feld === feld));
       const guessedFn = Boolean(fromText('lernfunktion')?.beleg.startsWith('semantisch'));
+      currentGuessedAnsatz = Boolean(fromText('ansatz')?.beleg.startsWith('semantisch'));
       // "… mit anschließender Leistungskontrolle, 45 Minuten" plans a lesson that ends with a check, not the check alone.
       const checkInLesson = Boolean(fromText('liefert')) && given(a.zeitMin) && Number(a.zeitMin) >= 30;
       // "Lesen üben, 45 min" names an activity for the whole lesson; only a phase word ("Einstieg", "Sicherung") asks for one phase.
@@ -1616,6 +1673,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentNegatedInteractions = new Set();
       currentNegatedMethods = new Set();
       currentPraxis = false;
+      currentGuessedAnsatz = false;
       currentLernort = '';
       currentStepRole = '';
     }

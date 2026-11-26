@@ -17,6 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Bildung für nachhaltige Entwicklung",

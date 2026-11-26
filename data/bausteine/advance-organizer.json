@@ -16,6 +16,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Advance Organizer",

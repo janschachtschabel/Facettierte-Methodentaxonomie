@@ -21,6 +21,10 @@
     "sport",
     "aesthetik"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: SQ3R",

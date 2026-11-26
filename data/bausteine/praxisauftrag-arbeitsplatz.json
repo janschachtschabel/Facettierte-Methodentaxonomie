@@ -1,0 +1,156 @@
+{
+  "kennung": "praxisauftrag-arbeitsplatz",
+  "name": "Praxisauftrag am Arbeitsplatz",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung"
+  ],
+  "fachbereich": [
+    "beruf-praxis",
+    "nawi-technik",
+    "aesthetik"
+  ],
+  "fachbereichUngeeignet": [
+    "gesellschaft"
+  ],
+  "lernort": [
+    "fachraum"
+  ],
+  "kurzbeschreibung": "Kurzer, realitätsnaher Arbeitsauftrag, den Lernende selbstständig am Arbeitsplatz, im Labor oder in der Werkstatt ausführen und anhand einer Checkliste selbst prüfen.",
+  "alternativname": [
+    "Praktische Anwendungsaufgabe",
+    "Übungsauftrag an der Station",
+    "Praxisauftrag"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 10,
+  "dauerMax": 30,
+  "problem": "Nach Vormachen und Üben fehlt eine Phase, in der die Fertigkeit ohne Anleitung an einem neuen Fall gezeigt wird.",
+  "durchfuehrung": [
+    "Neuen, realistischen Auftrag mit klarem Ergebnis stellen (z. B. Bauteil löten, Präparat herstellen, Gericht anrichten)",
+    "Checkliste mit Qualitäts- und Sicherheitskriterien ausgeben",
+    "Lernende arbeiten selbstständig, die Lehrkraft beobachtet und greift nur bei Sicherheitsrisiken ein",
+    "Ergebnis mit der Checkliste selbst oder im Tandem prüfen"
+  ],
+  "material": [
+    "Arbeitsauftrag",
+    "Checkliste",
+    "Werkzeug, Geräte oder Material des Fachs"
+  ],
+  "raum": "Fachraum, Labor, Werkstatt oder Lehrküche",
+  "gruppeMin": 1,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 15,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "neuer-fall",
+      "name": "Neuer, realistischer Auftrag statt Wiederholung der Vorführung"
+    },
+    {
+      "kennung": "checkliste",
+      "name": "Selbstprüfung an Qualitäts- und Sicherheitskriterien"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Auftrag ohne Sicherheitsunterweisung",
+    "Checkliste prüft nur das Ergebnis, nicht den Ablauf"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierte Form der beruflichen Unterweisung (Phase des selbstständigen Ausführens); spezifische Wirksamkeitsstudien fehlen.",
+      "quelle": "Schelten 2005; Riedl 2011",
+      "geltung": "Berufliche Bildung, naturwissenschaftliche und gestalterische Praxisfächer",
+      "umstritten": "Wirkung hängt stark von Rückmeldung und Fallwahl ab",
+      "evidenzBezug": "methode"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Riedl, A. (2011): Didaktik der beruflichen Bildung. Steiner",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Schelten, A. (2005): Grundlagen der Arbeitspädagogik. Steiner",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 1.55
+  }
+}

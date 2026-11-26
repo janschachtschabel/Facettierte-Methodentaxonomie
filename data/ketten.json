@@ -598,6 +598,56 @@
     ]
   },
   {
+    "id": "kondition-training",
+    "label": "Kondition und Training (Aufwärmen – Belastung – Anwenden – Auswerten)",
+    "zielart": [
+      "psychomotorik"
+    ],
+    "schritte": [
+      {
+        "id": "t1",
+        "label": "Aufwärmen",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "vorwissen-aktiviert",
+        "rolle": "rand",
+        "zeitanteil": 15
+      },
+      {
+        "id": "t2",
+        "label": "Belastung nach Trainingsmethode",
+        "funktion": [
+          "konsolidierung",
+          "anwendung"
+        ],
+        "ziel": "prozedur-gelaeufig",
+        "rolle": "haupt",
+        "zeitanteil": 45
+      },
+      {
+        "id": "t3",
+        "label": "Anwenden in Spiel- oder Wettkampfform",
+        "funktion": [
+          "anwendung"
+        ],
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 25
+      },
+      {
+        "id": "t4",
+        "label": "Abwärmen und Belastung auswerten",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert",
+        "rolle": "rand",
+        "zeitanteil": 15
+      }
+    ]
+  },
+  {
     "id": "produktion",
     "label": "Produktion (Schreiben, Gestalten, Programmieren)",
     "schritte": [

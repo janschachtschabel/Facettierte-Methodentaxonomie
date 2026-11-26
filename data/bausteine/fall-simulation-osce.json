@@ -15,6 +15,11 @@
     "gesellschaft",
     "aesthetik"
   ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "fachraum"
+  ],
   "kurzbeschreibung": "Standardisierte Kurzsimulation einer realen Berufs- oder Gesprächssituation (5–10 Min.) mit Beobachtungs-Checkliste und unmittelbarem Kriterienfeedback.",
   "alternativname": [
     "OSCE-Station",

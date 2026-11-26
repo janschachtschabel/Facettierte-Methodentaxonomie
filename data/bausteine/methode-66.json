@@ -16,6 +16,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Discussion 66 (Methode 66)",

@@ -10,6 +10,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "kurzbeschreibung": "Modularer, zeit- und ortsunabhängiger Online-Kurs aus kurzen Erklärvideos, automatisierten Selbsttests, Diskussionsforen und Peer-Aufgaben.",
   "alternativname": [
     "MOOC",

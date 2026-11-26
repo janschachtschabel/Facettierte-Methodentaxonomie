@@ -10,6 +10,10 @@
   "fachbereich": [
     "beruf-praxis"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "kurzbeschreibung": "Berufsbildendes Modul, das Fachinhalte entlang realer beruflicher Handlungsfelder und authentischer Lernsituationen integriert.",
   "alternativname": [
     "Lernfeld-Konzept",

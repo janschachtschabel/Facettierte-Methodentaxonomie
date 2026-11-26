@@ -56,8 +56,8 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'sport-ausdauer-lk-45',
     text: 'Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle',
-    erwartet: { kette: 'fertigkeit-bewegung', leistungskontrolle: true, praxis: true, kriterien: { zielart: 'psychomotorik' } }, bekannt: { praxis: LUECKE_ANWENDUNG } },
-  { id: 'sport-ausdauer-45', text: 'Sport Klasse 6, 45 Minuten Ausdauertraining', erwartet: { kette: 'fertigkeit-bewegung', praxis: true }, bekannt: { praxis: LUECKE_ANWENDUNG } },
+    erwartet: { kette: 'kondition-training', leistungskontrolle: true, praxis: true, enthaelt: 'sportmotorischer-test', kriterien: { zielart: 'psychomotorik' } } },
+  { id: 'sport-ausdauer-45', text: 'Sport Klasse 6, 45 Minuten Ausdauertraining', erwartet: { kette: 'kondition-training', praxis: true } },
   {
     id: 'sport-basketball-lk-45',
     text: 'Sport Klasse 10: Leistungskontrolle Basketball Korbleger, 45 Minuten',
@@ -65,13 +65,13 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   { id: 'sport-turnen-90', text: 'Sport Klasse 5 Turnen am Boden, Rolle vorwärts, 90 Minuten', erwartet: { kette: 'fertigkeit-bewegung', praxis: true } },
   // Five phases do not fit into 20 minutes: methods for one phase, movement methods first.
   { id: 'sport-fussball-20', text: 'Sport Klasse 8 Fußball Passspiel, 20 Minuten', erwartet: { modus: 'phase', praxis: true } },
-  { id: 'sport-schwimmen-45', text: 'Sport Klasse 7, Schwimmen Kraulbeine, 45 Minuten', erwartet: { kette: 'fertigkeit-bewegung', praxis: true }, bekannt: { praxis: LUECKE_ANWENDUNG } },
-  { id: 'sport-volleyball-45', text: 'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten', erwartet: { kette: 'fertigkeit-bewegung', praxis: true }, bekannt: { praxis: LUECKE_ANWENDUNG } },
+  { id: 'sport-schwimmen-45', text: 'Sport Klasse 7, Schwimmen Kraulbeine, 45 Minuten', erwartet: { kette: 'fertigkeit-bewegung', praxis: true } },
+  { id: 'sport-volleyball-45', text: 'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten', erwartet: { kette: 'fertigkeit-bewegung', praxis: true } },
   { id: 'sport-tanz-90', text: 'Sport Klasse 9 Tanz: Choreografie entwickeln, 90 Minuten', erwartet: { kette: 'fertigkeit-bewegung', praxis: true } },
   {
     id: 'sport-zirkel-60-gs',
     text: 'Grundschule Klasse 3 Sport: Zirkeltraining Kraft und Koordination, 60 Minuten, 26 Kinder',
-    erwartet: { kette: 'fertigkeit-bewegung', praxis: true, kriterien: { gruppe: 26, bildungsstufe: 'primar' } }, bekannt: { praxis: LUECKE_ANWENDUNG } },
+    erwartet: { kette: 'kondition-training', praxis: true, kriterien: { gruppe: 26, bildungsstufe: 'primar' } } },
   {
     id: 'sport-weitsprung-lk-90',
     text: 'Sport Klasse 8 Weitsprung mit Leistungsmessung am Ende, Doppelstunde',
@@ -80,7 +80,7 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'sport-ausdauer-foerder-45',
     text: 'Sport Klasse 7 Ausdauerlauf, 45 Minuten, 24 Schüler, 2 Schüler mit Asthma',
-    erwartet: { kette: 'fertigkeit-bewegung', praxis: true, kriterien: { gruppe: 24 } }, bekannt: { praxis: LUECKE_ANWENDUNG } },
+    erwartet: { kette: 'kondition-training', praxis: true, kriterien: { gruppe: 24 } } },
 
   // Practical and arts subjects.
   { id: 'musik-rhythmus-45', text: 'Musik Klasse 5 Rhythmus klatschen und trommeln, 45 Minuten', erwartet: { praxis: true, kette: 'fertigkeit-bewegung' }, bekannt: { praxis: LUECKE_ANWENDUNG } },
@@ -88,7 +88,7 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'berufsschule-reifen-90',
     text: 'Berufsschule Kfz-Mechatroniker: Reifenwechsel in der Werkstatt üben, 90 Minuten',
-    erwartet: { praxis: true }, bekannt: { praxis: LUECKE_ANWENDUNG } },
+    erwartet: { praxis: true } },
   {
     id: 'pflege-unterweisung-60',
     text: 'Pflegeschule: Blutdruck messen nach der Vier-Stufen-Methode, 60 Minuten, 16 Auszubildende',
@@ -200,10 +200,7 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'kleingruppe-3-45',
     text: 'Mathe Klasse 7 Prozentrechnung, 45 Minuten, 3 Schüler',
-    erwartet: { kriterien: { gruppe: 3 } },
-    bekannt: {
-      zeit: 'Für Gruppen unter 4 Personen bleibt im Einstieg „Fehlvorstellungen sichtbar machen“ nur Just-in-Time-Teaching (mind. 20 min); Datenvorschlag S9'
-    }
+    erwartet: { kriterien: { gruppe: 3 } }
   },
 
   // Named methods.
@@ -216,5 +213,5 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'nennung-stationen-sport-45',
     text: 'Sport Klasse 6: Koordination im Zirkeltraining, 45 Minuten',
-    erwartet: { enthaelt: 'stationstraining-bewegung', praxis: true }, bekannt: { praxis: LUECKE_ANWENDUNG } }
+    erwartet: { enthaelt: 'stationstraining-bewegung', praxis: true } }
 ];

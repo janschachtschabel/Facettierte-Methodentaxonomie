@@ -1,0 +1,156 @@
+{
+  "kennung": "sportmotorischer-test",
+  "name": "Sportmotorischer Test / Leistungsmessung",
+  "status": "entwurf",
+  "piktogramm": "quiz",
+  "ansatz": [
+    "diagnose-feedback"
+  ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "sprachen",
+    "gesellschaft",
+    "nawi-technik",
+    "beruf-praxis",
+    "aesthetik"
+  ],
+  "lernort": [
+    "bewegungsraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Standardisierte Messung oder kriteriengeleitete Bewertung einer sportlichen Leistung (z. B. 6-Minuten-Lauf, Cooper-Test, Weitsprung, Technikbewertung mit Bewertungsbogen).",
+  "alternativname": [
+    "Leistungsmessung",
+    "Sporttest",
+    "Cooper-Test",
+    "Motoriktest"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 10,
+  "dauerMax": 25,
+  "problem": "Leistung und Lernfortschritt im Sport werden ohne festgelegte Kriterien und Messung nach Eindruck bewertet.",
+  "durchfuehrung": [
+    "Test und Kriterien vorab bekanntgeben (Strecke, Zeit, Bewertungsbogen)",
+    "Ablauf organisieren: Messstationen, Zeitnahme, Beobachtungspaare",
+    "Test durchführen, Ergebnisse festhalten",
+    "Ergebnisse mit Kriterien oder dem eigenen Vorwert vergleichen und kurz rückmelden"
+  ],
+  "material": [
+    "Stoppuhr oder Maßband",
+    "Bewertungsbogen",
+    "Ergebnisliste"
+  ],
+  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "summativ",
+    "diagnostisch",
+    "bn-kriterial",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "afb1",
+    "authentisch"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "nachbedingung": [
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "vorab-kriterien",
+      "name": "Kriterien und Ablauf vorab bekannt"
+    },
+    {
+      "kennung": "messung",
+      "name": "Objektive Messung oder Bewertungsbogen statt Eindruck"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Nur die absolute Leistung zählt, der individuelle Fortschritt nicht",
+    "Test ohne vorheriges Üben"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Standardisierte motorische Tests (z. B. Deutscher Motorik-Test) messen Ausdauer, Kraft und Koordination reliabel.",
+      "quelle": "Bös et al. 2009 (Deutscher Motorik-Test 6–18)",
+      "evidenzBezug": "prinzip",
+      "geltung": "Schulsport Primar bis Sek II",
+      "umstritten": "Benotung allein nach Normwerten benachteiligt körperlich weniger leistungsfähige Lernende"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Bös, K. et al. (2009): Deutscher Motorik-Test 6–18. Czwalina",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Wikipedia: Cooper-Test",
+      "url": "https://de.wikipedia.org/wiki/Cooper-Test",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.85,
+    "y": 1.1
+  }
+}

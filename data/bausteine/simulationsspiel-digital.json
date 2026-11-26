@@ -21,6 +21,10 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Simulation",

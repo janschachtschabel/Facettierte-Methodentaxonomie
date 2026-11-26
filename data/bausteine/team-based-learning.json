@@ -17,6 +17,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "reichweite": "r3",
   "lernfunktion": [
     "diagnose",

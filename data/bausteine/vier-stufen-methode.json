@@ -16,6 +16,12 @@
     "gesellschaft",
     "sprachen"
   ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "fachraum",
+    "draussen"
+  ],
   "kurzbeschreibung": "Klassische berufspädagogische Fertigkeitsvermittlung in vier Stufen: Vorbereiten, Vormachen & Erklären, Nachmachen & Erklären lassen, selbstständiges Üben.",
   "alternativname": [
     "4-Stufen-Methode",

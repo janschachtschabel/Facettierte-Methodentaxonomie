@@ -22,6 +22,10 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Stop-Motion",

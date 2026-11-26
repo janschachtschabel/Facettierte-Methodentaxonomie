@@ -1,0 +1,157 @@
+{
+  "kennung": "pair-programming",
+  "name": "Pair Programming mit Live Coding",
+  "status": "entwurf",
+  "piktogramm": "digital",
+  "ansatz": [
+    "kooperativ",
+    "uebung"
+  ],
+  "fachbereich": [
+    "mathe-informatik",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "sport"
+  ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
+  "kurzbeschreibung": "Die Lehrkraft programmiert eine Aufgabe laut denkend vor (Live Coding); danach lösen Paare eine ähnliche Aufgabe an einem Rechner mit festen Rollen Fahrer und Navigator, die regelmäßig wechseln.",
+  "alternativname": [
+    "Paarprogrammierung",
+    "Driver-Navigator"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Programmieranfänger sehen nur fertigen Code, nicht den Weg dorthin, und bleiben allein an Fehlern hängen.",
+  "durchfuehrung": [
+    "Live Coding: kleine Aufgabe vorprogrammieren, Gedanken und Fehler laut machen",
+    "Paare bilden, Rollen erklären: Fahrer tippt, Navigator denkt voraus und prüft",
+    "Ähnliche Aufgabe lösen, Rollen alle 7–10 Minuten wechseln",
+    "Zwei Lösungen kurz vergleichen und typische Fehler sammeln"
+  ],
+  "material": [
+    "Ein Rechner je Paar",
+    "Programmierumgebung",
+    "Aufgabenblatt"
+  ],
+  "raum": "Computerraum oder Klassenraum mit Geräten",
+  "gruppeMin": 2,
+  "gruppeMax": 32,
+  "technik": "t-geteilt",
+  "internet": false,
+  "vorbereitungMin": 20,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/24"
+  ],
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "interaktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "diff-tempo"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "system",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rollen",
+      "name": "Feste Rollen Fahrer und Navigator mit Wechsel"
+    },
+    {
+      "kennung": "vormachen",
+      "name": "Lautes Vorprogrammieren einschließlich Fehlern"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Ein Partner programmiert allein, der andere schaut zu",
+    "Live Coding ohne lautes Denken"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "A",
+      "befund": "Pair Programming verbessert in Einführungskursen Programmierleistung und Durchhaltequote; mittlere Effekte auf Codequalität.",
+      "quelle": "Umapathy & Ritzhaupt 2017 (Meta-Analyse); Hannay et al. 2009",
+      "geltung": "Informatik Sek II, Hochschule, berufliche Bildung",
+      "umstritten": "Effekte bei komplexen Aufgaben und heterogenen Paaren uneinheitlich",
+      "evidenzBezug": "methode"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Wikipedia: Paarprogrammierung",
+      "url": "https://de.wikipedia.org/wiki/Paarprogrammierung",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    },
+    {
+      "titel": "Umapathy, K. & Ritzhaupt, A. D. (2017): A Meta-Analysis of Pair-Programming in Computer Programming Courses. ACM TOCE 17(4)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 2.38
+  }
+}

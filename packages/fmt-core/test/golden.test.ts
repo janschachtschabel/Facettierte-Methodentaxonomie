@@ -287,17 +287,52 @@ describe('Mehrfachwünsche und Ausweichen', () => {
     }
   });
 
-  it('kein gültiger Ablauf mit einer einengenden Vorgabe: Vorgabe gelockert und genannt', () => {
+  it('einengende Vorgabe: gültiger Ablauf ohne offene Phasen; eine gelockerte Vorgabe wird genannt', () => {
+    // With the short openers (S9) this request no longer needs relaxing; any relaxation must still be named.
     const r = M.zuordnen({ text: 'Vertretungsstunde Klasse 8 fachfremd, 45 Minuten, ohne Vorbereitung, egal welches Thema' });
     expect(r.modus).toBe('ablauf');
     if (r.modus === 'ablauf') {
       expect(r.pruefung?.gueltig).toBe(true);
-      expect((r.annahmen || []).some((x) => x.includes('hält sie nicht ein'))).toBe(true);
+      expect(r.offen || []).toEqual([]);
+      for (const x of (r.annahmen || []).filter((y) => y.includes('hält sie nicht ein'))) expect(x).toMatch(/Vorgabe „.+“/);
     }
   });
 
   it('verneint genannte Methode wird nicht eingeplant: „keine Gruppenarbeit“', () => {
     const r = M.zuordnen({ text: 'Geschichte Klasse 10 Weimarer Republik, 60 Minuten, keine Gruppenarbeit' });
     expect(blocksOf(r)).not.toContain('gruppenarbeit-klassisch');
+  });
+});
+
+describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
+  const sportOnly = ['aufwaermen', 'cool-down-auswertung', 'spielform-zielspiel', 'sportmotorischer-test', 'dauer-intervallmethode', 'praxisauftrag-arbeitsplatz'];
+  it.each([
+    'Klimaerwärmung in Erdkunde Klasse 9, 45 Minuten',
+    'Treibhauseffekt und Erwärmung der Erde, Physik Klasse 8, 45 Minuten',
+    'Stundenausklang in Deutsch Klasse 7, Gedichtanalyse, 45 Minuten',
+    'Leistungsmessung in Mathe Klasse 8, 45 Minuten',
+    'Spielform im Englischunterricht Klasse 6, 45 Minuten',
+    'Gruppenarbeitsauftrag Geschichte Klasse 8, 45 Minuten',
+    'Arbeitsauftrag zum Bruchrechnen, Klasse 6, 45 Minuten',
+    'Konditionstraining im Fach Biologie, 45 Minuten'
+  ])('%s: keine Hallen- oder Werkstattmethode', (text) => {
+    const r = M.zuordnen({ text });
+    for (const id of blocksOf(r)) expect(sportOnly, id).not.toContain(id);
+  });
+
+  it('Ausdauertraining mit Leistungskontrolle: Aufwärmen, Belastung, sportmotorischer Test, Cool-down', () => {
+    const r = M.zuordnen({ text: 'Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(r.kette?.id).toBe('kondition-training');
+      expect(r.pruefung?.gueltig).toBe(true);
+      expect(blocksOf(r)).toEqual(expect.arrayContaining(['aufwaermen', 'dauer-intervallmethode', 'sportmotorischer-test', 'cool-down-auswertung']));
+    }
+  });
+
+  it('Konditionstraining ohne Fach wird als Sportstunde geplant', () => {
+    const r = M.zuordnen({ zieltyp: 'kondition-training', bildungsstufe: 'sek1' });
+    expect(r.kriterien.fachbereich).toBe('sport');
+    expect(r.modus === 'ablauf' && r.pruefung?.gueltig).toBe(true);
   });
 });

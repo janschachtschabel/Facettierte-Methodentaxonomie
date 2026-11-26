@@ -15,6 +15,9 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Interaktive digitale Simulation (z. B. PhET, Ökosystem-, Wirtschaftsmodell), in der Lernende Parameter gezielt variieren, Hypothesen testen und Daten auswerten.",
   "alternativname": [
     "Virtuelles Experiment",

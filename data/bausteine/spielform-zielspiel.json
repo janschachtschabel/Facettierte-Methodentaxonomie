@@ -1,0 +1,158 @@
+{
+  "kennung": "spielform-zielspiel",
+  "name": "Spielform / Zielspiel (Anwenden im Spiel)",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "uebung",
+    "spiel-simulation"
+  ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "sprachen",
+    "gesellschaft",
+    "nawi-technik",
+    "beruf-praxis",
+    "aesthetik"
+  ],
+  "lernort": [
+    "bewegungsraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Kurze, vereinfachte Spielform, in der die geübte Technik oder Taktik unter Spielbedingungen angewendet wird (z. B. 3 gegen 3 auf kleinem Feld mit Zusatzregel).",
+  "alternativname": [
+    "Zielspiel",
+    "Kleines Spiel mit Schwerpunkt",
+    "Abschlussspiel"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 8,
+  "dauerMax": 20,
+  "problem": "Geübte Bewegungen werden isoliert beherrscht, aber im Spiel unter Zeit- und Gegnerdruck nicht abgerufen.",
+  "durchfuehrung": [
+    "Spielform mit einer Regel wählen, die die geübte Technik belohnt (z. B. Punkt nur nach Pass)",
+    "Kleine Teams und kleines Feld, damit alle oft am Ball sind",
+    "Kurz spielen, unterbrechen, eine Beobachtung rückmelden, weiterspielen",
+    "Abschließend kurz klären, wann die Technik im Spiel gelungen ist"
+  ],
+  "material": [
+    "Bälle oder Spielgeräte",
+    "Markierungshütchen",
+    "Leibchen"
+  ],
+  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12",
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "schwerpunktregel",
+      "name": "Spielregel, die die geübte Technik belohnt"
+    },
+    {
+      "kennung": "hohe-beteiligung",
+      "name": "Kleine Teams, viele Aktionen je Person"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Freies Spiel ohne Bezug zur geübten Technik",
+    "Wenige starke Spielende dominieren"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Spielgemäße Vermittlungsansätze (Teaching Games for Understanding) verbessern Spielverständnis und Entscheidungsverhalten bei vergleichbarem Technikerwerb.",
+      "quelle": "Harvey & Jarrett 2014 (Review zu TGfU)",
+      "evidenzBezug": "prinzip",
+      "geltung": "Sportunterricht Sek I und Sek II, Vereinssport",
+      "umstritten": "Technikerwerb im Vergleich zu isoliertem Üben uneinheitlich"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Größing, S. (2007): Einführung in die Sportdidaktik. Limpert",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Harvey, S. & Jarrett, K. (2014): A review of the game-centred approaches to teaching and coaching literature since 2006. Physical Education and Sport Pedagogy 19(3)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 1.93
+  }
+}

@@ -10,6 +10,10 @@
   "fachbereich": [
     "beruf-praxis"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "kurzbeschreibung": "Längere Praxisphase an einem realen Arbeits- oder Lernort, gerahmt durch Vorbereitung, Beobachtungsaufträge, Praxisberatung und Theorie-Reflexion.",
   "alternativname": [
     "Schulpraktikum",

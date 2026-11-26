@@ -1,0 +1,161 @@
+{
+  "kennung": "dauer-intervallmethode",
+  "name": "Dauer- und Intervallmethode (Ausdauertraining)",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung"
+  ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "sprachen",
+    "gesellschaft",
+    "nawi-technik",
+    "beruf-praxis",
+    "aesthetik"
+  ],
+  "lernort": [
+    "bewegungsraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Ausdauerbelastung nach Dauer- oder Intervallmethode mit individueller Belastungssteuerung (Puls, Sprechtest, Lauftempo) und Varianten wie Fahrtspiel oder Pendellauf.",
+  "alternativname": [
+    "Dauerlauf",
+    "Intervalltraining",
+    "Fahrtspiel",
+    "Ausdauertraining"
+  ],
+  "reichweite": "r2",
+  "dauerMin": 12,
+  "dauerMax": 30,
+  "problem": "Ausdauer verbessert sich nur mit ausreichend langer, individuell passender Belastung; gemeinsames Tempo über- oder unterfordert viele.",
+  "durchfuehrung": [
+    "Methode wählen: gleichmäßiger Dauerlauf, Fahrtspiel oder Intervalle mit Pausen",
+    "Belastung individuell steuern (Pulsbereich, Sprechtest, Tempo-Gruppen)",
+    "Belastung durchführen, Lehrkraft beobachtet und gibt Tempo- und Haltungsrückmeldung",
+    "Belastungsempfinden kurz notieren oder einschätzen lassen"
+  ],
+  "material": [
+    "Stoppuhr",
+    "Markierungen",
+    "Ggf. Pulsuhren oder Pulsmessung per Hand"
+  ],
+  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "selbstkontrolle",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb1",
+    "authentisch"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "nachbedingung": [
+    "prozedur-gelaeufig",
+    "wissen-konsolidiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "individuelle-belastung",
+      "name": "Belastung individuell gesteuert (Puls, Sprechtest, Tempogruppen)"
+    },
+    {
+      "kennung": "ausreichende-dauer",
+      "name": "Belastungsdauer, die einen Trainingsreiz setzt"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Einheitliches Tempo für alle",
+    "Ausdauerlauf als Strafe oder Wettkampf ohne Steuerung"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Ausdauer- und Intervalltraining im Schulsport verbessert die kardiorespiratorische Fitness von Kindern und Jugendlichen.",
+      "quelle": "Costigan et al. 2015 (Meta-Analyse HIIT bei Jugendlichen)",
+      "evidenzBezug": "prinzip",
+      "geltung": "Schulsport Sek I und Sek II",
+      "umstritten": "Effekte im regulären Schulsport kleiner als in Trainingsstudien"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Weineck, J. (2019): Optimales Training. Spitta",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Wikipedia: Intervalltraining",
+      "url": "https://de.wikipedia.org/wiki/Intervalltraining",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.1
+  }
+}

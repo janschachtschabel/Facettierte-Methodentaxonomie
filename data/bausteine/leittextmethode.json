@@ -10,6 +10,10 @@
   "fachbereich": [
     "beruf-praxis"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "kurzbeschreibung": "Sechsphasiges selbstständiges Arbeiten (Informieren, Planen, Entscheiden, Ausführen, Kontrollieren, Bewerten) anhand strukturierter Leitfragen.",
   "alternativname": [
     "Leittextverfahren",
