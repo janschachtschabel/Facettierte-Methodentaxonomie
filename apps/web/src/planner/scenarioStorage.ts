@@ -69,10 +69,14 @@ export interface SavedScenario {
   ohneInternet?: boolean;
   ohneKI?: boolean;
   raumzeitFilter?: string;
-  /** Room type of the lesson (vocab raumtyp). */
-  raumFilter?: string;
-  /** Learners cannot read (and write) yet. */
-  ohneLesen?: boolean;
+  /** Room type of the lesson (vocab raumtyp). Older entries name it raumFilter or lernort; see rahmenAusAltbestand. */
+  raum?: string;
+  /** Room properties the teacher set by hand (vocab raumbedarf); absent: what the room type offers. */
+  raumBietet?: string[];
+  /** What the learners cannot do yet: 'lesen', 'schreiben'. */
+  ohneSchrift?: string[];
+  /** Number of dates the unit runs over. */
+  termine?: string;
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;
@@ -85,6 +89,25 @@ export interface SavedScenario {
   generatedMaterials?: GeneratedMaterialItem[];
   thematicRows?: ThematicPhaseRow[] | null;
   elaboration: string | null;
+}
+
+/**
+ * Room and writing details of a saved scenario. Entries from before FMT 2.0 carry the room as `lernort`
+ * (former API field) or `raumFilter`, and reading as the flag `ohneLesen`; they are read into the new fields.
+ */
+export function rahmenAusAltbestand(p: Record<string, unknown>): Pick<SavedScenario, 'raum' | 'raumBietet' | 'ohneSchrift' | 'termine'> {
+  const str = (v: unknown) => (typeof v === 'string' && v !== '' ? v : undefined);
+  const strList = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : undefined);
+  const raum = str(p.raum) || str(p.raumFilter) || str(p.lernort);
+  const ohneSchrift = strList(p.ohneSchrift) ?? (p.ohneLesen === true ? ['lesen', 'schreiben'] : undefined);
+  const termine = typeof p.termine === 'number' ? String(p.termine) : str(p.termine);
+  const out: Pick<SavedScenario, 'raum' | 'raumBietet' | 'ohneSchrift' | 'termine'> = {};
+  if (raum) out.raum = raum;
+  const bietet = strList(p.raumBietet);
+  if (bietet) out.raumBietet = bietet;
+  if (ohneSchrift) out.ohneSchrift = ohneSchrift;
+  if (termine) out.termine = termine;
+  return out;
 }
 
 export interface StorageAdapter {
@@ -115,15 +138,20 @@ export function loadSavedScenarios(storage: StorageAdapter = getBrowserStorage()
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (item): item is SavedScenario =>
-        Boolean(item) &&
-        typeof item === 'object' &&
-        typeof item.id === 'string' &&
-        typeof item.title === 'string' &&
-        Boolean(item.arrangement) &&
-        item.arrangement.typ === 'Arrangement'
-    );
+    return parsed
+      .filter(
+        (item): item is SavedScenario =>
+          Boolean(item) &&
+          typeof item === 'object' &&
+          typeof item.id === 'string' &&
+          typeof item.title === 'string' &&
+          Boolean(item.arrangement) &&
+          item.arrangement.typ === 'Arrangement'
+      )
+      .map((item) => {
+        const { raumFilter: _r, lernort: _l, ohneLesen: _o, ...rest } = item as SavedScenario & Record<string, unknown>;
+        return { ...rest, ...rahmenAusAltbestand(item as unknown as Record<string, unknown>) } as SavedScenario;
+      });
   } catch {
     return [];
   }
@@ -306,8 +334,7 @@ export function importScenarioProjectJson(
         ohneInternet: typeof parsed.ohneInternet === 'boolean' ? parsed.ohneInternet : undefined,
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
-        raumFilter: strOrUndef(parsed.raumFilter),
-        ohneLesen: typeof parsed.ohneLesen === 'boolean' ? parsed.ohneLesen : undefined,
+        ...rahmenAusAltbestand(parsed),
         lernziele: strOrUndef(parsed.lernziele) || strOrUndef(maschinenlesbar?.lernziele),
         problemstellung: strOrUndef(parsed.problemstellung),
         didaktischerAnsatz: strOrUndef(parsed.didaktischerAnsatz) || strOrUndef(maschinenlesbar?.didaktischerAnsatz),

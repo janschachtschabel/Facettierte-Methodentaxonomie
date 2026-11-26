@@ -536,7 +536,7 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
         </div>
 
         <div className="card" style={{ padding: 18 }}>
-          <h3 style={{ margin: 0 }}>4. Schnittstellen-Abdeckung (11 Lernzustände)</h3>
+          <h3 style={{ margin: 0 }}>4. Schnittstellen-Abdeckung ({stateStats.rows.length} Lernzustände)</h3>
           <p className="muted" style={{ fontSize: 14, margin: '4px 0 12px' }}>
             Grün = Bausteine, die den Zustand <strong>liefern</strong> · Blau = Bausteine, die ihn <strong>voraussetzen</strong>. Klick zeigt Lieferanten.
           </p>

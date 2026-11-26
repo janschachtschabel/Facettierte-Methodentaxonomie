@@ -62,10 +62,17 @@ export function CatalogPage() {
     });
   };
 
+  // Learners who cannot read or write yet: only methods without reading or writing (field schriftbedarf).
+  const [ohneSchrift, setOhneSchrift] = useState(false);
   const hits = useMemo(() => {
     if (!search) return [];
-    return search.suche(filters);
-  }, [search, filters]);
+    const found = search.suche(filters);
+    return ohneSchrift ? found.filter((b) => !(b.schriftbedarf || []).length) : found;
+  }, [search, filters, ohneSchrift]);
+  const resetFilters = () => {
+    setFilters({});
+    setOhneSchrift(false);
+  };
 
   if (loading) return <div className="page-section">Lade FMT-Methodenkatalog…</div>;
   if (error || !bundle || !search) return <div className="page-section">Fehler: {error}</div>;
@@ -212,6 +219,25 @@ export function CatalogPage() {
             </select>
           </label>
 
+          <label title="Zeigt Methoden, deren Raumbedarf dieser Raum deckt">
+            Raum
+            <select value={String(filters.raum || '')} onChange={(e) => setFilter('raum', e.target.value)}>
+              <option value="">beliebig</option>
+              {valuesOf('raumtyp').map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label style={{ justifyContent: 'flex-end' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
+              <input type="checkbox" checked={ohneSchrift} onChange={(e) => setOhneSchrift(e.target.checked)} />
+              ohne Lesen und Schreiben
+            </span>
+          </label>
+
           <label>
             Zeitbudget (min)
             <input
@@ -349,15 +375,15 @@ export function CatalogPage() {
             flexWrap: 'wrap'
           }}
         >
-          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>
+          <div data-testid="trefferzahl" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>
             {hits.length} von {bundle.bausteine.length} Methoden
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowExpert((s) => !s)}>
               {showExpert ? '▲ Expertenfilter ausblenden' : '▼ Alle Facetten & Rahmenbedingungen'}
             </button>
-            {Object.keys(filters).length > 0 && (
-              <button type="button" className="btn btn-sm" onClick={() => setFilters({})}>
+            {(Object.keys(filters).length > 0 || ohneSchrift) && (
+              <button type="button" className="btn btn-sm" onClick={resetFilters}>
                 Filter zurücksetzen
               </button>
             )}
@@ -403,7 +429,7 @@ export function CatalogPage() {
       {hits.length === 0 ? (
         <div className="card" style={{ padding: 24, textAlign: 'center' }}>
           <p>Keine Methode erfüllt alle gewählten Kriterien. Lockere einzelne Filter.</p>
-          <button type="button" className="btn" onClick={() => setFilters({})}>
+          <button type="button" className="btn" onClick={resetFilters}>
             Alle Filter zurücksetzen
           </button>
         </div>

@@ -7,6 +7,7 @@ import { ProfileRadarSvg } from '../components/ProfileRadarSvg.js';
 import { ControlBars } from '../components/ControlBars.js';
 import { InterfaceFlow } from '../components/InterfaceFlow.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
+import { bedarfNachWFeld } from '../planner/bedarfAnzeige.js';
 
 export function MethodDetailPage() {
   const { kennung } = useParams();
@@ -209,6 +210,38 @@ export function MethodDetailPage() {
         <InterfaceFlow baustein={b} allBlocks={bundle.bausteine} labelOf={labelOf} />
       </section>
 
+      {/* Need of the method, grouped by W-field (W-Raster, kind "Bedarf") */}
+      <section style={{ marginTop: 32 }}>
+        <h2>Was die Methode braucht</h2>
+        <p className="muted" style={{ fontSize: 14, maxWidth: '76ch' }}>
+          Der Bedarf der Methode, geordnet nach den Fragen des W-Rasters. Nennt dein Szenario das Gegenstück (etwa einen
+          Raum ohne freie Fläche), scheidet die Methode im Baukasten aus.
+        </p>
+        <div className="card" style={{ padding: 0 }}>
+          <table aria-label="Bedarf nach W-Feld" style={{ margin: 0 }}>
+            <tbody>
+              {bedarfNachWFeld(b, bundle, labelOf).map((row) => (
+                <tr key={row.wfeld}>
+                  <th scope="row" style={{ width: '24%', verticalAlign: 'top' }}>
+                    {row.name}
+                    <div className="muted" style={{ fontSize: 12.5, fontWeight: 400 }}>
+                      {row.frage}
+                    </div>
+                  </th>
+                  <td>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {row.zeilen.map((z) => (
+                        <li key={z}>{z}</li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Practice & Steering */}
       <section className="split-2" style={{ marginTop: 32 }}>
         <div className="card" style={{ padding: 18 }}>
@@ -225,23 +258,7 @@ export function MethodDetailPage() {
           </ol>
           <p style={{ fontSize: 15 }}>
             <strong>Material:</strong> {b.material.join(', ')}
-            {b.raumhinweis ? ` · Raum: ${b.raumhinweis}` : ''}
           </p>
-          {((b.raumbedarf || []).length > 0 || (b.schriftbedarf || []).length > 0 || b.termineMin != null) && (
-            <p style={{ fontSize: 15 }}>
-              {[
-                (b.raumbedarf || []).length
-                  ? `Raumbedarf: ${(b.raumbedarf || []).map((x) => labelOf('raumbedarf', x)).join(', ')}${
-                      b.fachausstattungArt ? ` (${labelOf('fachausstattungart', b.fachausstattungArt)})` : ''
-                    }`
-                  : '',
-                (b.schriftbedarf || []).length ? `Schriftbedarf: ${(b.schriftbedarf || []).map((x) => labelOf('schriftbedarf', x)).join(', ')}` : '',
-                b.termineMin != null ? `mindestens ${b.termineMin} Termine` : ''
-              ]
-                .filter(Boolean)
-                .join(' · ')}
-            </p>
-          )}
           {b.variante && b.variante.length > 0 && (
             <p style={{ fontSize: 15 }}>
               <strong>Varianten:</strong> {b.variante.join(' · ')}

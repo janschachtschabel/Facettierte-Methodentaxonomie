@@ -375,6 +375,12 @@ describe('Modular Scenario Planner Tree Operations', () => {
       expect(imported.project.elaboration).toBe('## Entwurf');
     }
     expect(importScenarioProjectJson('{broken').ok).toBe(false);
+    // Files and browser entries from before FMT 2.0 name the room "lernort" or "raumFilter" and carry a reading flag.
+    const alt = importScenarioProjectJson(JSON.stringify({ ...JSON.parse(projectJson), lernort: 'draussen', ohneLesen: true }));
+    expect(alt.ok && alt.project.raum).toBe('draussen');
+    expect(alt.ok && alt.project.ohneSchrift).toEqual(['lesen', 'schreiben']);
+    mem.set('fmt_saved_scenarios_v1', JSON.stringify([{ ...saved, raumFilter: 'hoersaal' }]));
+    expect(loadSavedScenarios(storage)[0].raum).toBe('hoersaal');
     expect(deleteSavedScenario(saved.id, storage).length).toBe(0);
   });
 

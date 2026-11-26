@@ -1,0 +1,121 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, it, expect, afterEach, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
+import { SystematikPage } from '../src/pages/SystematikPage.js';
+import { MethodDetailPage } from '../src/pages/MethodDetailPage.js';
+import { CatalogPage } from '../src/pages/CatalogPage.js';
+import { RAUM_EIGENSCHAFT_KLARTEXT } from '../src/planner/rahmen.js';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
+const DATA = { ...BUNDLE, VERSION: BUNDLE.version } as unknown as FmtData;
+const labels = new Map<string, string>();
+for (const s of BUNDLE.schemes) for (const w of s.werte || (s.gruppen || []).flatMap((g) => g.werte)) labels.set(`${s.id}:${w.id}`, w.label);
+
+const validator = createValidator(DATA);
+const CATALOG = {
+  bundle: BUNDLE,
+  loading: false,
+  error: null,
+  blocksById: new Map(BUNDLE.bausteine.map((b) => [b.kennung, b])),
+  search: createSearch(DATA, validator),
+  comparePair: [null, null],
+  setComparePair: () => {},
+  queueBlockForPlanner: () => {},
+  labelOf: (scheme: string, code: string) => labels.get(`${scheme}:${code}`) || code,
+  valuesOf: (scheme: string) => {
+    const s = BUNDLE.schemes.find((x) => x.id === scheme);
+    return s ? s.werte || (s.gruppen || []).flatMap((g) => g.werte) : [];
+  }
+};
+vi.mock('../src/data/CatalogContext.js', () => ({ useCatalog: () => CATALOG }));
+
+afterEach(() => cleanup());
+
+const sectionOf = (heading: string) => screen.getByRole('heading', { name: heading }).closest('section') as HTMLElement;
+
+describe('W-Raster in der Oberfläche', () => {
+  it('Systematik zeigt das W-Raster mit neun W-Feldern, fünf Arten, Raumtypen und Zielarten', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    const sec = sectionOf('Das W-Raster: neun Fragen, fünf Arten von Aussagen');
+    const raster = within(sec).getByRole('table', { name: 'W-Raster' });
+    const zeilen = within(raster).getAllByRole('row').slice(1);
+    expect(zeilen.length).toBe(9);
+    for (const w of BUNDLE.wfelder!) expect(within(raster).getByText(w.frage)).toBeTruthy();
+    for (const a of BUNDLE.arten!) expect(within(raster).getByRole('columnheader', { name: a.name })).toBeTruthy();
+    for (const feld of ['raumbedarf', 'schriftbedarf', 'termineMin', 'fachbereichUngeeignet']) expect(within(raster).getByText(feld)).toBeTruthy();
+
+    const raeume = within(sec).getByRole('table', { name: 'Raumtypen' });
+    expect(within(raeume).getAllByRole('row').slice(1).length).toBe(12);
+    expect(within(raeume).getByText('Hörsaal')).toBeTruthy();
+
+    const ziele = within(sec).getByRole('table', { name: 'Zielarten' });
+    expect(within(ziele).getAllByRole('row').slice(1).length).toBe(9);
+    expect(within(ziele).getByText(/Urteilsbildung/)).toBeTruthy();
+    expect(within(ziele).getAllByText(/Kontrovers diskutieren und abwägen/).length).toBeGreaterThan(0);
+
+    expect(screen.getByRole('heading', { name: 'Die 12 Lernzustände als Schnittstelle' })).toBeTruthy();
+    expect(screen.queryAllByText(/11 Lernzustände/).map((e) => e.textContent)).toEqual([]);
+    expect(screen.queryAllByText(/Ergänzende Merkmale/).map((e) => e.textContent)).toEqual([]);
+    expect(screen.queryAllByText(/Bedingungsraum/).map((e) => e.textContent)).toEqual([]);
+    // Room types are never called "Lernort" (a method name may still contain the word).
+    expect(sec.textContent).not.toMatch(/Lernort/);
+  });
+
+  it('Methodendetail zeigt „Was die Methode braucht“ nach W-Feld mit dem Hinweis zum Raum', () => {
+    const b = BUNDLE.bausteine.find((x) => x.raumhinweis && (x.raumbedarf || []).length)!;
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${b.kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    const sec = sectionOf('Was die Methode braucht');
+    expect(within(sec).getByText('Lernumgebung')).toBeTruthy();
+    expect(within(sec).getByText('Zeit')).toBeTruthy();
+    expect(within(sec).getByText(RAUM_EIGENSCHAFT_KLARTEXT[b.raumbedarf![0]], { exact: false })).toBeTruthy();
+    expect(within(sec).getByText(b.raumhinweis!, { exact: false })).toBeTruthy();
+
+    cleanup();
+    const t = BUNDLE.bausteine.find((x) => x.termineMin)!;
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${t.kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(within(sectionOf('Was die Methode braucht')).getByText(`mindestens ${t.termineMin} Termine`, { exact: false })).toBeTruthy();
+  });
+
+  it('Katalog filtert nach Raum und „ohne Lesen und Schreiben“', () => {
+    render(
+      <MemoryRouter>
+        <CatalogPage />
+      </MemoryRouter>
+    );
+    // The table view renders faster than 300 cards with diagrams.
+    fireEvent.click(screen.getByRole('button', { name: 'Tabelle' }));
+    const anzahl = () => Number((screen.getByTestId('trefferzahl').textContent || '').match(/\d+/)![0]);
+    const alle = anzahl();
+    expect(alle).toBe(BUNDLE.bausteine.length);
+
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    const imHoersaal = CATALOG.search.suche({ raum: 'hoersaal' }).length;
+    expect(imHoersaal).toBeLessThan(alle);
+    expect(anzahl()).toBe(imHoersaal);
+
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: '' } });
+    fireEvent.click(screen.getByLabelText('ohne Lesen und Schreiben'));
+    expect(anzahl()).toBe(BUNDLE.bausteine.filter((b) => !(b.schriftbedarf || []).length).length);
+    }, 60_000);
+});

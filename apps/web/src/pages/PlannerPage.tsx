@@ -62,11 +62,13 @@ import {
   importScenarioProjectJson,
   loadActivePlannerDraft,
   loadSavedScenarios,
+  rahmenAusAltbestand,
   printHtmlDocument,
   saveActivePlannerDraft,
   saveScenarioToStorage,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
+import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
 
 type PlannerStep = 1 | 2 | 3 | 4 | 5;
 
@@ -271,8 +273,11 @@ export function PlannerPage() {
   const [ohneInternet, setOhneInternet] = useState(false);
   const [ohneKI, setOhneKI] = useState(false);
   const [raumzeitFilter, setRaumzeitFilter] = useState<string>('');
-  const [raumFilter, setRaumFilter] = useState<string>('');
-  const [ohneLesen, setOhneLesen] = useState(false);
+  // Room of the lesson (vocab raumtyp), no preselection; raumBietet is set only once the teacher changes a property.
+  const [raum, setRaum] = useState<string>('');
+  const [raumBietet, setRaumBietet] = useState<string[] | null>(null);
+  const [ohneSchrift, setOhneSchrift] = useState<string[]>([]);
+  const [termine, setTermine] = useState<string>('');
 
   const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
@@ -657,8 +662,10 @@ export function PlannerPage() {
     if (ohneInternet) req.ohneInternet = true;
     if (ohneKI) req.ohneKI = true;
     if (raumzeitFilter) req.raumzeit = [raumzeitFilter];
-    if (raumFilter) req.raum = raumFilter;
-    if (ohneLesen) req.ohneSchrift = ['lesen', 'schreiben'];
+    if (raum) req.raum = raum;
+    if (raum && raumBietet) req.raumBietet = raumBietet;
+    if (ohneSchrift.length) req.ohneSchrift = SCHRIFT_ORDER.filter((x) => ohneSchrift.includes(x));
+    if (Number(termine) > 0) req.termine = Number(termine);
     // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
     const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
     if (fbFeld) req.fachbereich = fbFeld;
@@ -679,8 +686,13 @@ export function PlannerPage() {
     if (ohneInternet) extras.push('ohne Internet');
     if (ohneKI) extras.push('ohne KI');
     if (raumzeitFilter) extras.push(`Raumzeit: ${labelOf('raumzeit', raumzeitFilter)}`);
-    if (raumFilter) extras.push(`Raum: ${labelOf('raumtyp', raumFilter)}`);
-    if (ohneLesen) extras.push('Lernende können noch nicht lesen und schreiben');
+    if (raum) extras.push(`Raum: ${labelOf('raumtyp', raum)}`);
+    if (raum && raumBietet) {
+      extras.push(`Der Raum bietet: ${raumBietet.map((x) => raumEigenschaftLabel(x, labelOf)).join(', ') || 'nichts davon'}`);
+    }
+    if (ohneSchrift.includes('lesen')) extras.push('Die Lernenden können noch nicht lesen');
+    if (ohneSchrift.includes('schreiben')) extras.push('Die Lernenden können noch nicht schreiben');
+    if (Number(termine) > 0) extras.push(`Termine: ${Number(termine)}`);
     return extras.length ? `${scenarioText.trim()}\n\nZusatzangaben: ${extras.join('; ')}` : scenarioText;
   };
 
@@ -1007,8 +1019,10 @@ export function PlannerPage() {
     ohneInternet,
     ohneKI,
     raumzeitFilter,
-    raumFilter,
-    ohneLesen,
+    raum,
+    raumBietet: raumBietet ?? undefined,
+    ohneSchrift,
+    termine,
     lernziele,
     problemstellung,
     didaktischerAnsatz: didaktischerAnsatzLabel,
@@ -1049,8 +1063,12 @@ export function PlannerPage() {
     if (p.ohneInternet !== undefined) setOhneInternet(p.ohneInternet);
     if (p.ohneKI !== undefined) setOhneKI(p.ohneKI);
     if (p.raumzeitFilter !== undefined) setRaumzeitFilter(p.raumzeitFilter);
-    if (p.raumFilter !== undefined) setRaumFilter(p.raumFilter);
-    if (p.ohneLesen !== undefined) setOhneLesen(p.ohneLesen);
+    // Old entries carry lernort, raumFilter or ohneLesen; storage and import read them into these fields.
+    const rahmen = rahmenAusAltbestand(p as Record<string, unknown>);
+    setRaum(rahmen.raum ?? '');
+    setRaumBietet(rahmen.raumBietet ?? null);
+    setOhneSchrift(rahmen.ohneSchrift ?? []);
+    setTermine(rahmen.termine ?? '');
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
@@ -1108,6 +1126,17 @@ export function PlannerPage() {
   const hasFlow = scenarioRows.length > 0;
   const canPropose = scenarioText.trim().length > 0;
   // Class size as typed in "Mehr Angaben", else as recognised in the description.
+  // What the matcher assumed because the request left it open, and why chain steps stayed open (shown above the flow).
+  const annahmenListe = [
+    ...new Set([...(matchResult?.pflichtangaben?.angenommen || []).map((x) => x.grund), ...((matchResult?.modus === 'ablauf' && matchResult.annahmen) || [])])
+  ];
+  const offeneSchritte =
+    matchResult?.modus === 'ablauf'
+      ? (matchResult.offenGruende || []).map((o) => ({
+          ...o,
+          label: bundle?.ketten.find((k) => k.id === matchResult.kette?.id)?.schritte.find((st) => st.id === o.schritt)?.label || o.schritt
+        }))
+      : [];
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
   const step2Groups = mainGroupOnly(groups, classSize);
   const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
@@ -1410,6 +1439,58 @@ export function PlannerPage() {
               placeholder="z. B. Mathematik Klasse 6, Brüche addieren, Doppelstunde mit 90 Minuten, 26 Lernende"
             />
 
+            <div className="planner-raum" style={{ marginTop: 12 }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
+                Raum
+                <select
+                  style={{ width: '100%' }}
+                  value={raum}
+                  onChange={(e) => {
+                    setPresetContextSource(null);
+                    setRaum(e.target.value);
+                    setRaumBietet(null);
+                  }}
+                >
+                  <option value="">nicht angegeben</option>
+                  {valuesOf('raumtyp').map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {raum ? (
+                <fieldset style={{ border: 0, padding: 0, margin: '8px 0 0' }}>
+                  <legend className="muted" style={{ fontSize: 13, padding: 0, marginBottom: 4 }}>
+                    Was der Raum bietet (nimm weg, was fehlt):
+                  </legend>
+                  <div style={{ display: 'flex', gap: '6px 18px', flexWrap: 'wrap', fontSize: 14 }}>
+                    {Object.keys(RAUM_EIGENSCHAFT_KLARTEXT).map((code) => {
+                      const offered = valuesOf('raumtyp').find((w) => w.id === raum)?.bietet || [];
+                      const checked = (raumBietet ?? offered).includes(code);
+                      return (
+                        <label key={code} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setPresetContextSource(null);
+                              setRaumBietet(toggleRaumEigenschaft(raumBietet, offered, code, e.target.checked));
+                            }}
+                          />
+                          {raumEigenschaftLabel(code, labelOf)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : (
+                <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
+                  Steht der Raum nicht im Text, nimmt der Baukasten einen Klassenraum an und sagt es dir.
+                </p>
+              )}
+            </div>
+
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' }}>
               {llmAvailable ? (
                 <>
@@ -1472,6 +1553,11 @@ export function PlannerPage() {
                 <div style={{ fontFamily: 'var(--display)', fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
                   Passende Methoden für diese Phase (Klick übernimmt sie in den Ablauf):
                 </div>
+                {annahmenListe.length > 0 && (
+                  <p className="muted" style={{ fontSize: 13, margin: '0 0 6px' }}>
+                    Angenommen: {annahmenListe.join(' ')}
+                  </p>
+                )}
                 <ul className="chips">
                   {matchResult.vorschlaege.slice(0, 12).map((v) => (
                     <li key={v.baustein}>
@@ -1581,7 +1667,7 @@ export function PlannerPage() {
           {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              Mehr Angaben (freiwillig): Fach, Lernziele, Klassengröße, Technik
+              Mehr Angaben (freiwillig): Fach, Lernziele, Klassengröße, Technik, Lesen und Schreiben, Termine
             </summary>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 14 }}>
@@ -1792,7 +1878,7 @@ export function PlannerPage() {
               {/* Group C: Technik & Raum */}
               <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  3. Rahmenbedingungen (Raum &amp; Technik – filtert Methoden direkt)
+                  3. Rahmenbedingungen (Technik, Lesen und Schreiben, Termine – filtert Methoden direkt)
                 </strong>
                 <div
                   style={{
@@ -1822,22 +1908,19 @@ export function PlannerPage() {
                     </select>
                   </label>
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
-                    Raum der Stunde
-                    <select
+                    Termine
+                    <input
+                      type="number"
                       style={{ width: '100%' }}
-                      value={raumFilter}
+                      min={1}
+                      max={60}
+                      value={termine}
+                      placeholder="Anzahl der Termine, z. B. 3"
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setRaumFilter(e.target.value);
+                        setTermine(e.target.value);
                       }}
-                    >
-                      <option value="">aus dem Text oder Klassenraum</option>
-                      {valuesOf('raumtyp').map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.label}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </label>
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Raum-Zeit-Modus
@@ -1881,17 +1964,19 @@ export function PlannerPage() {
                     />
                     Ohne KI-Methoden im Unterricht
                   </label>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={ohneLesen}
-                      onChange={(e) => {
-                        setPresetContextSource(null);
-                        setOhneLesen(e.target.checked);
-                      }}
-                    />
-                    Lernende können noch nicht lesen
-                  </label>
+                  {SCHRIFT_ORDER.map((was) => (
+                    <label key={was} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={ohneSchrift.includes(was)}
+                        onChange={(e) => {
+                          setPresetContextSource(null);
+                          setOhneSchrift((prev) => (e.target.checked ? [...prev.filter((x) => x !== was), was] : prev.filter((x) => x !== was)));
+                        }}
+                      />
+                      Die Lernenden können noch nicht {was}
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1981,6 +2066,33 @@ export function PlannerPage() {
             <p className="planner-notice" role="status">
               {matchNotice}
             </p>
+          )}
+          {annahmenListe.length > 0 && (
+            <section aria-label="Angenommen" className="card planner-annahmen" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Angenommen, weil die Angabe fehlte</strong>
+              <ul style={{ margin: '4px 0 6px', paddingLeft: 20, fontSize: 14 }}>
+                {annahmenListe.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+              <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
+                ← Angaben in Schritt 1 ändern
+              </button>
+            </section>
+          )}
+          {offeneSchritte.length > 0 && (
+            <section aria-label="Offene Schritte" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--err)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+                {offeneSchritte.length === 1 ? 'Ein Schritt bleibt offen' : `${offeneSchritte.length} Schritte bleiben offen`}
+              </strong>
+              <ul style={{ margin: '4px 0 0', paddingLeft: 20, fontSize: 14 }}>
+                {offeneSchritte.map((o) => (
+                  <li key={o.schritt}>
+                    <strong>{o.label}:</strong> {o.grund}
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
           {subgroups.length > 0 && hasFlow && (
             <p className="planner-notice" role="status">

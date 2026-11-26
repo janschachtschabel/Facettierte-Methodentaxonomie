@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { createMatcher, createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PlannerPage } from '../src/pages/PlannerPage.js';
 import { createChainPreset } from '../src/planner/arrangementOps.js';
-import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY } from '../src/planner/scenarioStorage.js';
+import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY, SAVED_SCENARIOS_KEY } from '../src/planner/scenarioStorage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
@@ -69,16 +69,83 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(stepButton(2).disabled).toBe(false);
   });
 
-  it('übergibt Raum und „können noch nicht lesen“ aus den Rahmenbedingungen an die Zuordnung', () => {
+  it('Raum hat keine Vorauswahl; Eigenschaften erscheinen erst nach der Wahl', () => {
+    renderPlanner();
+    const raum = screen.getByLabelText('Raum') as HTMLSelectElement;
+    expect(raum.value).toBe('');
+    const optionen = within(raum).getAllByRole('option').map((o) => o.textContent);
+    expect(optionen).toContain('Klassen- oder Seminarraum');
+    expect(optionen).toContain('Sporthalle, Sportplatz');
+    expect(screen.queryByLabelText('Schreibplätze')).toBeNull();
+    fireEvent.change(raum, { target: { value: 'hoersaal' } });
+    expect((screen.getByLabelText('Schreibplätze') as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByLabelText('Wand oder Tafel') as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByLabelText('freie Fläche zum Stehen und Gehen') as HTMLInputElement).checked).toBe(false);
+    for (const e of ['große Fläche zum Laufen und Spielen', 'draußen', 'Fachausstattung']) expect(screen.getByLabelText(e)).toBeTruthy();
+  });
+
+  it('übergibt Raum, abgewählte Eigenschaften, Lesen, Schreiben und Termine an die Zuordnung', () => {
     const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
     renderPlanner();
-    fireEvent.change(screen.getByLabelText('Raum der Stunde'), { target: { value: 'hoersaal' } });
-    fireEvent.click(screen.getByLabelText('Lernende können noch nicht lesen'));
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
     propose('Statistik Hypothesentests, 90 Minuten');
-    const req = spy.mock.calls.at(-1)![0]!;
+    let req = spy.mock.calls.at(-1)![0]!;
     expect(req.raum).toBe('hoersaal');
-    expect(req.ohneSchrift).toEqual(['lesen', 'schreiben']);
+    expect(req.raumBietet).toBeUndefined();
+    expect(req.ohneSchrift).toBeUndefined();
+
+    fireEvent.click(stepButton(1));
+    fireEvent.click(screen.getByLabelText('Wand oder Tafel'));
+    fireEvent.click(screen.getByLabelText('Die Lernenden können noch nicht lesen'));
+    fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '3' } });
+    propose('Statistik Hypothesentests, 90 Minuten');
+    req = spy.mock.calls.at(-1)![0]!;
+    expect(req.raum).toBe('hoersaal');
+    expect(req.raumBietet).toEqual(['schreibplatz']);
+    expect(req.ohneSchrift).toEqual(['lesen']);
+    expect(req.termine).toBe(3);
+
+    fireEvent.click(stepButton(1));
+    fireEvent.click(screen.getByLabelText('Die Lernenden können noch nicht schreiben'));
+    propose('Statistik Hypothesentests, 90 Minuten');
+    expect(spy.mock.calls.at(-1)![0]!.ohneSchrift).toEqual(['lesen', 'schreiben']);
     spy.mockRestore();
+  });
+
+  it('zeigt in Schritt 2, was angenommen wurde, mit einem Weg zurück zu Schritt 1', () => {
+    renderPlanner();
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    const box = screen.getByRole('region', { name: 'Angenommen' });
+    expect(within(box).getByText('Raum nicht angegeben: Klassenraum angenommen.')).toBeTruthy();
+    fireEvent.click(within(box).getByRole('button', { name: /Angaben in Schritt 1 ändern/ }));
+    expect(stepButton(1).getAttribute('aria-current')).toBe('step');
+  });
+
+  it('nennt in Schritt 2 den Grund für einen offenen Schritt', () => {
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'klassenraum' } });
+    propose('Sport Klasse 5, Ausdauer verbessern, 90 Minuten');
+    const box = screen.getByRole('region', { name: 'Offene Schritte' });
+    expect(within(box).getByText(/Keine Methode im Katalog liefert/)).toBeTruthy();
+    expect(within(box).getByText(/braucht: Bewegungsfläche/)).toBeTruthy();
+  });
+
+  it('lädt ein gespeichertes Szenario mit dem alten Feld „lernort“', () => {
+    const arrangement = createChainPreset('konzeptaufbau', BUNDLE);
+    window.localStorage.setItem(
+      SAVED_SCENARIOS_KEY,
+      JSON.stringify([
+        { id: 'sc_alt', savedAt: '2026-01-01T00:00:00Z', title: 'Alt', fach: 'Sport', thema: 'Ballspiele', hinweise: '', lernort: 'bewegungsraum', ohneLesen: true, arrangement, groups: [], aiDiffByStep: {}, oerByStep: {}, elaboration: null }
+      ])
+    );
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /Gespeichert \(1\)/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Laden' }));
+    fireEvent.click(stepButton(1));
+    expect((screen.getByLabelText('Raum') as HTMLSelectElement).value).toBe('bewegungsraum');
+    expect((screen.getByLabelText('Die Lernenden können noch nicht lesen') as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByLabelText('Die Lernenden können noch nicht schreiben') as HTMLInputElement).checked).toBe(true);
   });
 
   it('zeigt in Schritt 2 nur die Regelgruppe, auch wenn der Text Teilgruppen nennt', () => {
