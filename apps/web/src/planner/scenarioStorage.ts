@@ -69,6 +69,10 @@ export interface SavedScenario {
   ohneInternet?: boolean;
   ohneKI?: boolean;
   raumzeitFilter?: string;
+  /** Room type of the lesson (vocab raumtyp). */
+  raumFilter?: string;
+  /** Learners cannot read (and write) yet. */
+  ohneLesen?: boolean;
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;
@@ -302,6 +306,8 @@ export function importScenarioProjectJson(
         ohneInternet: typeof parsed.ohneInternet === 'boolean' ? parsed.ohneInternet : undefined,
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
+        raumFilter: strOrUndef(parsed.raumFilter),
+        ohneLesen: typeof parsed.ohneLesen === 'boolean' ? parsed.ohneLesen : undefined,
         lernziele: strOrUndef(parsed.lernziele) || strOrUndef(maschinenlesbar?.lernziele),
         problemstellung: strOrUndef(parsed.problemstellung),
         didaktischerAnsatz: strOrUndef(parsed.didaktischerAnsatz) || strOrUndef(maschinenlesbar?.didaktischerAnsatz),

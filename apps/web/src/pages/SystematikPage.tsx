@@ -22,8 +22,8 @@ const QMODS = [
   },
   {
     id: 'Q2',
-    name: 'Bedingungsraum',
-    text: 'Vorwissen, Bildungsstufe, Zeitbudget, Gruppe, Technik. Verhindert kontextblinde Wirkungsrankings (Regel R-06).',
+    name: 'Einsatzprofil',
+    text: 'Bedarf (Raum, Zeit, Gruppe, Ausstattung, Vorbereitung, Schrift) und Eignung (Bildungsstufe, Vorwissen, Fachbezug). Verhindert kontextblinde Wirkungsrankings (Regel R-06).',
     basis: 'Expertise-Reversal (Kalyuga et al. 2003; Tetzlaff et al. 2025)',
     closes: 'Kontextblindheit (M3)'
   },
@@ -64,11 +64,19 @@ const INFER_TEXT: Record<string, string> = {
   hoch: 'hoch-inferent, fachdidaktische Einschätzung über die Absicht des Designs'
 };
 
+const GRUNDLAGE_TEXT: Record<string, string> = {
+  formal: 'formal (ablesbar)',
+  E: 'belegt (E)',
+  S: 'gefolgert (S)',
+  A: 'gesetzt (A)',
+  'je-eintrag': 'je Eintrag'
+};
+
 const ROLE_LABEL: Record<string, string> = { rand: 'Rand', haupt: 'Haupt', sicherung: 'Sicherung' };
 
 const MATCH_STAGES = [
   ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', 'Zieltyp, Lernfunktion, gewünschter Lernzustand', 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
-  ['2 Rahmen', 'Was ist praktisch möglich?', 'Zeit, Gruppengröße, Technik, Ort, Vorbereitung, ohne KI/Internet', 'schließt aus', 'formal'],
+  ['2 Rahmen', 'Was ist praktisch möglich?', 'Zeit, Gruppengröße, Technik, Raum, Schrift, Vorbereitung, ohne KI/Internet', 'schließt aus', 'formal'],
   ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
   ['4 Passung', 'Für wen passt es?', 'Vorwissen (Expertise-Reversal), Bildungsstufe', 'warnt', 'Tetzlaff et al. 2025; Sinha & Kapur 2021'],
   ['5 Auswahl', 'Welcher der verbleibenden?', 'Punktzahl aus Fachbereich, Ansatz, Anleitung, Zeit, Technik, Textnähe und Evidenz (Studie zur Methode vor abgeleitetem Prinzip); im Text genannte Methoden haben Vorrang', 'ordnet (Lehrkraft entscheidet)', 'Setzung']
@@ -562,15 +570,75 @@ export function SystematikPage() {
         </div>
       </section>
 
-      {/* 4b. Supplementary attributes beside the 13 facets (live from the data) */}
+      {/* 4b. Einsatzprofil beside the 13 facets (live from the data) */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Ergänzende Merkmale neben den 13 Facetten</h2>
+        <h2>Einsatzprofil: Bedarf und Eignung</h2>
         <p style={{ maxWidth: '76ch' }}>
-          Die 13 Facetten beschreiben, wie eine Methode didaktisch gebaut ist. Für eine fachgerechte Auswahl kommen drei
-          Merkmale hinzu. Sie verändern die Facetten nicht, sondern schärfen Auswahl, Rangfolge und Zeitverteilung.
+          Die 13 Facetten beschreiben, wie eine Methode gebaut ist. Das Einsatzprofil beschreibt, was sie braucht (Bedarf)
+          und für wen und wo sie passt (Eignung). Der Bedarf wird gegen die Rahmenbedingungen des Szenarios geprüft
+          (Zuordnungsstufe 2), die Eignung ergibt die Passung (Stufe 4). Eine Wirkung greift nur, wenn das Szenario die
+          passende Angabe macht.
         </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Kennung</th>
+                <th>Merkmal</th>
+                <th>Leitfrage</th>
+                <th>Wirkung</th>
+                <th>Grundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(bundle.merkmale || []).map((m) => (
+                <tr key={m.id}>
+                  <td style={{ fontFamily: 'var(--mono)' }}>{m.id}</td>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{m.name}</td>
+                  <td>{m.leitfrage}</td>
+                  <td>{m.wirkungText}</td>
+                  <td>{GRUNDLAGE_TEXT[m.grundlage] || m.grundlage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <h3 style={{ marginTop: 22 }}>Fachbereich: Wo ist eine Methode zu Hause?</h3>
+        <h3 style={{ marginTop: 22 }}>Raumbedarf und Schriftbedarf</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Der Raumbedarf nennt Raumeigenschaften, die eine Methode braucht. Der Raum des Szenarios bietet Eigenschaften:
+          {' '}
+          {valuesOf('raumtyp')
+            .map((w) => `${w.label} (${(w.bietet || []).map((x) => labelOf('raumbedarf', x)).join(', ')})`)
+            .join('; ')}
+          . Nennt das Szenario einen Raum, scheiden Methoden aus, deren Bedarf er nicht deckt.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Wert</th>
+                <th>Bedeutung</th>
+                <th>Methoden</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(['raumbedarf', 'schriftbedarf'] as const).flatMap((feld) =>
+                valuesOf(feld).map((w) => (
+                  <tr key={`${feld}:${w.id}`}>
+                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                      {feld === 'raumbedarf' ? 'Raumbedarf' : 'Schriftbedarf'}: {w.label}
+                    </td>
+                    <td>{w.definition}</td>
+                    <td>{bundle.bausteine.filter((b) => (b[feld] || []).includes(w.id)).length}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style={{ marginTop: 22 }}>Fachbezug: Wo ist eine Methode zu Hause?</h3>
         <p style={{ maxWidth: '76ch' }}>
           Jede Methode trägt einen oder mehrere von acht Fachbereichen. „Fachübergreifend“ heißt: ohne Fachbindung überall
           einsetzbar. Zusätzlich kann eine Methode Fachbereiche nennen, in denen sie nicht passt
@@ -612,7 +680,12 @@ export function SystematikPage() {
           <code>skos:narrowMatch</code> mit diesen Fächern verknüpft.
         </p>
 
-        <h3 style={{ marginTop: 22 }}>Evidenzbezug: Worauf stützt sich ein Befund?</h3>
+      </section>
+
+      {/* 4c. Quality layer: what a finding rests on */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Qualitätsschicht: Evidenzbezug</h2>
+        <h3 style={{ marginTop: 22 }}>Worauf stützt sich ein Befund?</h3>
         <p style={{ maxWidth: '76ch' }}>
           Jede Evidenzaussage nennt neben dem Grad A bis C auch ihren Bezug. So bleibt sichtbar, ob eine Methode selbst
           untersucht wurde oder ob der Befund von einem Wirkprinzip auf sie übertragen ist.
@@ -650,7 +723,12 @@ export function SystematikPage() {
           </table>
         </div>
 
-        <h3 style={{ marginTop: 22 }}>Kettenrollen und Zeitanteile: Wie viel Zeit bekommt welcher Schritt?</h3>
+      </section>
+
+      {/* 4d. Function chains: roles and time shares */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Funktionsketten: Rollen und Zeitanteile</h2>
+        <h3 style={{ marginTop: 22 }}>Wie viel Zeit bekommt welcher Schritt?</h3>
         <p style={{ maxWidth: '76ch' }}>
           Jeder Schritt einer Funktionskette hat eine Rolle: <strong>Rand</strong> (Einstieg oder Abschluss),{' '}
           <strong>Haupt</strong> (die eigentliche Arbeit) oder <strong>Sicherung</strong>. Dazu kommt ein Zeitanteil. Daraus

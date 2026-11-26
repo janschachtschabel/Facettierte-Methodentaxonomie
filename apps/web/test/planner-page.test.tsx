@@ -69,6 +69,18 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(stepButton(2).disabled).toBe(false);
   });
 
+  it('übergibt Raum und „können noch nicht lesen“ aus den Rahmenbedingungen an die Zuordnung', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum der Stunde'), { target: { value: 'hoersaal' } });
+    fireEvent.click(screen.getByLabelText('Lernende können noch nicht lesen'));
+    propose('Statistik Hypothesentests, 90 Minuten');
+    const req = spy.mock.calls.at(-1)![0]!;
+    expect(req.raum).toBe('hoersaal');
+    expect(req.ohneSchrift).toEqual(['lesen', 'schreiben']);
+    spy.mockRestore();
+  });
+
   it('zeigt in Schritt 2 nur die Regelgruppe, auch wenn der Text Teilgruppen nennt', () => {
     renderPlanner();
     propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende, davon 5 DaZ-Kinder');

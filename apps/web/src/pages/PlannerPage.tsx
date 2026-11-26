@@ -271,6 +271,8 @@ export function PlannerPage() {
   const [ohneInternet, setOhneInternet] = useState(false);
   const [ohneKI, setOhneKI] = useState(false);
   const [raumzeitFilter, setRaumzeitFilter] = useState<string>('');
+  const [raumFilter, setRaumFilter] = useState<string>('');
+  const [ohneLesen, setOhneLesen] = useState(false);
 
   const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
@@ -655,6 +657,8 @@ export function PlannerPage() {
     if (ohneInternet) req.ohneInternet = true;
     if (ohneKI) req.ohneKI = true;
     if (raumzeitFilter) req.raumzeit = [raumzeitFilter];
+    if (raumFilter) req.raum = raumFilter;
+    if (ohneLesen) req.ohneSchrift = ['lesen', 'schreiben'];
     // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
     const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
     if (fbFeld) req.fachbereich = fbFeld;
@@ -675,6 +679,8 @@ export function PlannerPage() {
     if (ohneInternet) extras.push('ohne Internet');
     if (ohneKI) extras.push('ohne KI');
     if (raumzeitFilter) extras.push(`Raumzeit: ${labelOf('raumzeit', raumzeitFilter)}`);
+    if (raumFilter) extras.push(`Raum: ${labelOf('raumtyp', raumFilter)}`);
+    if (ohneLesen) extras.push('Lernende können noch nicht lesen und schreiben');
     return extras.length ? `${scenarioText.trim()}\n\nZusatzangaben: ${extras.join('; ')}` : scenarioText;
   };
 
@@ -1001,6 +1007,8 @@ export function PlannerPage() {
     ohneInternet,
     ohneKI,
     raumzeitFilter,
+    raumFilter,
+    ohneLesen,
     lernziele,
     problemstellung,
     didaktischerAnsatz: didaktischerAnsatzLabel,
@@ -1041,6 +1049,8 @@ export function PlannerPage() {
     if (p.ohneInternet !== undefined) setOhneInternet(p.ohneInternet);
     if (p.ohneKI !== undefined) setOhneKI(p.ohneKI);
     if (p.raumzeitFilter !== undefined) setRaumzeitFilter(p.raumzeitFilter);
+    if (p.raumFilter !== undefined) setRaumFilter(p.raumFilter);
+    if (p.ohneLesen !== undefined) setOhneLesen(p.ohneLesen);
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
@@ -1812,6 +1822,24 @@ export function PlannerPage() {
                     </select>
                   </label>
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Raum der Stunde
+                    <select
+                      style={{ width: '100%' }}
+                      value={raumFilter}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setRaumFilter(e.target.value);
+                      }}
+                    >
+                      <option value="">aus dem Text oder Klassenraum</option>
+                      {valuesOf('raumtyp').map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Raum-Zeit-Modus
                     <select
                       style={{ width: '100%' }}
@@ -1852,6 +1880,17 @@ export function PlannerPage() {
                       }}
                     />
                     Ohne KI-Methoden im Unterricht
+                  </label>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={ohneLesen}
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setOhneLesen(e.target.checked);
+                      }}
+                    />
+                    Lernende können noch nicht lesen
                   </label>
                 </div>
               </div>
