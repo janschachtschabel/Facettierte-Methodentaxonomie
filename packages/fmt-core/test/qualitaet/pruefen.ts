@@ -74,9 +74,12 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
     add('methodendauer', ausserhalb.length === 0, ausserhalb.map((n) => `${n.baustein} ${n.dauerMin} min`).join(', '));
 
     const area = typeof k.fachbereich === 'string' ? k.fachbereich : '';
+    const gestaltung = /\b(?:\w*tanz\w*|choreo\w*|gymnastik\w*|akrobati\w*|kür|jonglier\w*)/i.test(fall.text) && !/distanz|substanz|instanz/i.test(fall.text);
     if (area) {
       const fremd = alle.filter((n) => {
         const fb = byId.get(n.baustein)!.fachbereich || [];
+        // Dance and movement design in sport may use methods of the arts.
+        if (area === 'sport' && gestaltung && fb.includes('aesthetik')) return false;
         return fb.length > 0 && !fb.includes(area) && !fb.includes('uebergreifend');
       });
       add('fachpassung', fremd.length === 0, fremd.map((n) => n.baustein).join(', '));

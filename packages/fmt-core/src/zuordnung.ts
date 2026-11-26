@@ -97,6 +97,9 @@ const NEGATABLE_METHODS: Array<[RegExp, string[]]> = [
   [/^quiz\w*$/, ['abrufquiz']],
   [/^(?:lehr)?film\w*$|^video\w*$/, ['lehrfilm-rezeption', 'erklaervideo', 'stop-motion-erklaerfilm']]
 ];
+/** Dance and movement design topics in sport (folded text). Not "Distanz", "Substanz". */
+const GESTALTUNG =
+  /\b(?:(?:volks|hip-?hop|jazz|modern|street|gesellschafts|kreis|line|aerobic)?tanz\w*|choreo\w*|gymnastik\w*|akrobati\w*|kur(?:ubung)?|bewegungsgestaltung|bewegungskunste?|jonglier\w*|rhythmische\w*\s+sportgymnastik)\b/;
 const LIMITING = /^(?:zu|lange|langen|langer|viel|viele|vielen|grosse|grossen|ausufernde\w*|reine\w*)$/;
 
 /** Methods a negated phrase rules out by name: "statt Lehrervortrag" → lehrervortrag, vortrag-prompts, … */
@@ -728,6 +731,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentVariante = 0;
   let currentTechAsked = false;
   let currentArea = '';
+  /** Dance and movement design in sport borrow the methods of the arts (Vorführung, Teil-Ganz-Üben). */
+  let currentGestaltung = false;
+  /** Whether the method's subject areas include the lesson's subject (or a neighbour the topic opens). */
+  const areaFits = (b: Baustein) =>
+    (b.fachbereich || []).includes(currentArea) || (currentGestaltung && (b.fachbereich || []).includes('aesthetik'));
   /** Interaction forms the request rules out ("keine Gruppenarbeit"). */
   let currentNegatedInteractions = new Set<string>();
   /** Methods the request rules out by name ("kein Lehrervortrag"). */
@@ -863,7 +871,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         techUnasked: needsUnaskedTech(b),
         fachbereich: !currentArea
           ? 'neutral'
-          : (b.fachbereich || []).includes(currentArea)
+          : areaFits(b)
             ? 'passt'
             : !b.fachbereich || b.fachbereich.includes('uebergreifend')
               ? 'neutral'
@@ -882,7 +890,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             ? currentStepRole === 'haupt' || currentStepRole === 'pruefung'
               ? 'haupt'
               : 'rand'
-            : undefined,
+            : // A talk format that merely fits the gym (Fishbowl) is no practice phase: a practical method comes first.
+              currentPraxis && currentStepRole === 'haupt' && !isPraxisMethod(b)
+              ? 'rand'
+              : undefined,
         // A named method gets its bonus at the step reserved for it, not at an earlier step it could also serve.
         mentioned:
           currentMentions.has(b.kennung) &&
@@ -1016,7 +1027,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const fitsTime = (b: Baustein) => maxStepMin == null || b.dauerMin <= maxStepMin;
     // The wider margin must not let a seated or another subject's opener into a practice lesson.
     const offPractice = (x: Ranked) =>
-      currentPraxis && (x.b.fachbereich || []).length > 0 && !x.b.fachbereich!.includes('uebergreifend') && currentArea && !x.b.fachbereich!.includes(currentArea)
+      currentPraxis && (x.b.fachbereich || []).length > 0 && !x.b.fachbereich!.includes('uebergreifend') && currentArea && !areaFits(x.b)
         ? 1
         : currentPraxis && !(currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(x.b, currentLernort) : isPraxisMethod(x.b))
           ? 1
@@ -1211,7 +1222,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           (b.nachbedingung || []).includes(steps[checkAt].ziel) &&
           !rahmen(b, a) &&
           !passung(b, a).length &&
-          (!currentArea || (b.fachbereich || []).includes(currentArea)) &&
+          (!currentArea || areaFits(b)) &&
           (currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(b, currentLernort) : isPraxisMethod(b))
       );
       const need = practical.length ? Math.min(...practical.map((b) => b.dauerMin)) : 0;
@@ -1230,7 +1241,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const reservedAfter = steps.slice(idx + 1).reduce((x, _st, k) => x + Math.max(minStep, floors[idx + 1 + k] ?? 0), 0);
       const hardCap =
         totalBudget != null ? Math.max(minStep, totalBudget - reserveRec - usedDurationSoFar() - reservedAfter) : undefined;
-      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, varietyPenaltyOf, hardCap);
+      // Among equal choices, a method that is also the way to a later main step's goal is kept for that step
+      // (Spielform is practice and application: with Teil-Ganz-Üben at hand, it waits for the application step).
+      const laterGoals = new Set(steps.slice(idx + 1).filter((st) => st.rolle === 'haupt').map((st) => st.ziel));
+      const keepForLater = (b: Baustein) =>
+        step.rolle === 'haupt' && (b.nachbedingung || []).some((z) => z !== step.ziel && laterGoals.has(z)) ? 0.25 : 0;
+      const penaltyHere = (b: Baustein) => varietyPenaltyOf(b) + keepForLater(b);
+      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, penaltyHere, hardCap);
       // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
       // reaching step.ziel, include any valid method that delivers step.ziel directly.
       const fallbackCands = order(
@@ -1493,6 +1510,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         if (a.zielart === 'psychomotorik' && !given(anfrage.zielart)) delete a.zielart;
       }
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
+      currentGestaltung = currentArea === 'sport' && GESTALTUNG.test(currentRawText);
       currentNegatedInteractions = negatedInteractions(currentRawText);
       currentNegatedMethods = negatedMethods(currentRawText);
       // A method named only to rule it out ("kein Lehrervortrag") is no wish for it.
@@ -1678,6 +1696,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentVariante = 0;
       currentTechAsked = false;
       currentArea = '';
+      currentGestaltung = false;
       currentNegatedInteractions = new Set();
       currentNegatedMethods = new Set();
       currentPraxis = false;
