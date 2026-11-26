@@ -17,7 +17,7 @@ function zeile(feld: string, b: Baustein, labelOf: LabelOf): string | null {
       return (b.vorbedingung || []).length ? `Vorher erreicht: ${b.vorbedingung.map((z) => labelOf('lernzustand', z)).join(', ')}` : null;
     case 'schriftbedarf': {
       const s = b.schriftbedarf || [];
-      if (!s.length) return 'Die Lernenden müssen nicht lesen oder schreiben.';
+      if (!s.length) return 'Lesen und Schreiben: kein Bedarf angegeben';
       const was = s.map((x) => (x === 'liest' ? 'lesen' : x === 'schreibt' ? 'schreiben' : labelOf('schriftbedarf', x)));
       return `Die Lernenden ${was.join(' und ')}.`;
     }

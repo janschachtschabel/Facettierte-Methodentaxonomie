@@ -1443,6 +1443,7 @@ export function PlannerPage() {
               <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
                 Raum
                 <select
+                  aria-label="Raum"
                   style={{ width: '100%' }}
                   value={raum}
                   onChange={(e) => {
@@ -1910,6 +1911,7 @@ export function PlannerPage() {
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Termine
                     <input
+                      aria-label="Termine"
                       type="number"
                       style={{ width: '100%' }}
                       min={1}

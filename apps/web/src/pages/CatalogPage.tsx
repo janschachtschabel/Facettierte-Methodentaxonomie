@@ -221,7 +221,7 @@ export function CatalogPage() {
 
           <label title="Zeigt Methoden, deren Raumbedarf dieser Raum deckt">
             Raum
-            <select value={String(filters.raum || '')} onChange={(e) => setFilter('raum', e.target.value)}>
+            <select aria-label="Raum" value={String(filters.raum || '')} onChange={(e) => setFilter('raum', e.target.value)}>
               <option value="">beliebig</option>
               {valuesOf('raumtyp').map((w) => (
                 <option key={w.id} value={w.id}>
