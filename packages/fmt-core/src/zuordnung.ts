@@ -67,7 +67,7 @@ export const LEISTUNGSKONTROLLE =
  * from folded text, so that rules looking for what the request wants do not fire on what it rules out.
  */
 export const NEGATED_PHRASE =
-  /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
+  /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen|in|im|auf|am)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
 export const withoutNegated = (folded: string) => folded.replace(NEGATED_PHRASE, ' ');
 
 /** Interaction forms a negated phrase rules out, e.g. "keine Gruppenarbeit" → kleingruppe-kooperativ. */
@@ -78,6 +78,34 @@ export function negatedInteractions(folded: string): Set<string> {
     if (/partnerarbeit|tandem|zu\s+zweit/.test(m)) out.add('partner');
     if (/einzelarbeit|stillarbeit/.test(m)) out.add('einzel');
     if (/plenum|unterrichtsgesprach|klassengesprach|frontal/.test(m)) out.add('plenum-lehrergeleitet');
+  }
+  return out;
+}
+
+/**
+ * Kinds of method a request can rule out by name ("kein Lehrervortrag", "ohne Referate"), with the methods each one covers.
+ * Only whole words count, and a phrase that limits rather than bans ("nicht zu lange Vorträge") rules out nothing.
+ */
+const NEGATABLE_METHODS: Array<[RegExp, string[]]> = [
+  [/^(?:lehrer)?vortrag\w*$|^frontal\w*$|^lehrerdarbietung\w*$/, ['lehrervortrag', 'vortrag-prompts', 'vorlesung-klassisch', 'impulsreferat']],
+  [/^vorlesung\w*$/, ['vorlesung-klassisch', 'lehrervortrag']],
+  [/^(?:schuler)?referat\w*$/, ['referat', 'impulsreferat']],
+  [/^(?:schuler)?experiment\w*$|^versuch\w*$/, ['experiment']],
+  [/^demonstrationsexperiment\w*$/, ['demonstrationsexperiment']],
+  [/^rollenspiel\w*$/, ['rollenspiel']],
+  [/^gruppenpuzzle\w*$/, ['gruppenpuzzle']],
+  [/^quiz\w*$/, ['abrufquiz']],
+  [/^(?:lehr)?film\w*$|^video\w*$/, ['lehrfilm-rezeption', 'erklaervideo', 'stop-motion-erklaerfilm']]
+];
+const LIMITING = /^(?:zu|lange|langen|langer|viel|viele|vielen|grosse|grossen|ausufernde\w*|reine\w*)$/;
+
+/** Methods a negated phrase rules out by name: "statt Lehrervortrag" → lehrervortrag, vortrag-prompts, … */
+export function negatedMethods(folded: string): Set<string> {
+  const out = new Set<string>();
+  for (const m of folded.match(NEGATED_PHRASE) || []) {
+    const words = m.split(/\s+/).slice(1);
+    if (words.some((w) => LIMITING.test(w))) continue;
+    for (const w of words) for (const [re, ids] of NEGATABLE_METHODS) if (re.test(w)) ids.forEach((id) => out.add(id));
   }
   return out;
 }
@@ -242,6 +270,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('raumzeit')))
     },
     {
+      feld: 'lernort',
+      typ: 'code',
+      stufe: 2,
+      bedeutung: 'Raum der Stunde (Klassenraum, Sporthalle, Fachraum, draußen, Hörsaal); Methoden, die dort gut funktionieren, werden bevorzugt',
+      werte: opts(values(scheme('lernort')))
+    },
+    {
       feld: 'vorhanden',
       typ: 'codes',
       stufe: 3,
@@ -335,7 +370,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     [/\b(?:diskutier|debattier|beurteil|bewert|erorter|aushandel|abwag)\w*|\bstellung\s+(?:nehmen|beziehen)|\bstreit\w*\s+(?:in\s+der\s+klasse\s+)?(?:besprechen|klaren|schlichten)|\b(?:fake\s*news|falschmeldung\w*)\s+erkennen/, 'urteilsbildung'],
     [/\bfall(?:bearbeitung|arbeit|studie|analyse)\w*|\bfalle?\s+(?:losen|bearbeiten)/, 'problemloesen'],
     [/\bprojekt(?:tag|woche|arbeit|unterricht)\w*|\b(?:netzwerk|event|fest|ausflug|budget)\w*\s+planen\b/, 'projektlernen'],
-    [/\b(?:ausprobier|erprob|erkund|untersuch|experimentier)\w*|\b(?:pflanzen|baume|tiere|vogel|gesteine|stoffe)\w*\s+(?:\w+\s+){0,3}bestimmen\b/, 'fuenf-e']
+    [/\b(?:ausprobier|erkund|untersuch|experimentier)\w*|\b(?:pflanzen|baume|tiere|vogel|gesteine|stoffe)\w*\s+(?:\w+\s+){0,3}bestimmen\b/, 'fuenf-e']
   ];
   /** Activity verbs that describe a whole lesson as well as a phase. */
   const ACTIVITY_WORD = /^(?:uben|ubt|wiederhol|festig|trainier|automatisier)/;
@@ -414,13 +449,27 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['fachbereich', /\bsport(?:unterricht|stunde)?\b|\bschwimmunterricht\b|\byoga\b|\bpilates\b|\bfitnesskurs\b/, () => 'sport'],
     ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)\b|\bwerkunterricht\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
     ['fachbereich', /\b(?:deutsch|englisch|franzosisch|spanisch|latein|italienisch|russisch)(?:unterricht|stunde)?\b(?!-)|(?<!\b(?:mit|haben|hat|und|oder|viele|einige|mehrere|wenige|\d+)\s)(?<!,\s)\bda[zf]\b(?!-?\s?(?:kind|schuler|lernend|sus\b|anteil|hintergrund))(?!\s+(?:und|oder)\s)|\bfremdsprach\w*/, () => 'sprachen'],
-    ['fachbereich', /\bmathe(?:matik)?(?:unterricht|stunde)?\b|\binformatik(?:unterricht)?\b|\bgeometrie\b|\balgebra\b|\beinmaleins\b|\bstatistik\b|\bmaths?\b/, () => 'mathe-informatik'],
+    ['fachbereich', /\bmathe(?:matik)?(?:unterricht|stunde)?\b|\binformatik(?:unterricht)?\b|\bgeometrie\b|\balgebra\b|\beinmaleins\b|\banalysis\b|\blineare\s+algebra\b|\bstatistik\b|\bmaths?\b/, () => 'mathe-informatik'],
     ['fachbereich', /\b(?:physik|chemie|biologie|bio)(?:unterricht|stunde)?\b|\bnaturwissenschaft\w*|\bnawi\b|\bsachunterricht\b|\bastronomie\b|\btechnik\s+klasse\b|\btechnikunterricht\b|\bmedizin(?!ethik)\w*|\btechnische\s+mechanik\b|\bingenieur\w*|\b(?:biology|chemistry|physics|science)\b/, () => 'nawi-technik'],
     ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen))|\bgeschichtsunterricht\b|\bpolitik(?:unterricht)?\b|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft(?:slehre|skunde)?\b|\bethik(?:unterricht)?\b|\breligion(?:sunterricht|slehre)?\b|\bphilosophie(?:unterricht)?\b|\bsowi\b|\bjura\b|\brechtswissenschaft\w*|\bbwl\b|\bvwl\b|\bhistory\b/, () => 'gesellschaft'],
     ['maxVorbereitung', /ohne\s+vorbereitung|sofort\s+einsetzbar|spontan/, () => 5],
     ['maxVorbereitung', /wenig\s+vorbereitung|kurz\w*\s+vorbereitung/, () => 15],
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
     ['raumzeit', /online|distanz|videokonferenz|fernunterricht/, () => ['distanz']],
+    // The room must be named as a place ("im Labor", "auf dem Schulhof"); "Wortschatz in der Küche" or "Tiere im Wald" is a topic.
+    ['lernort', /\bim\s+klassen(?:raum|zimmer)\b|\bsporttheorie\b|\btheoriestunde\b/, () => 'klassenraum'],
+    ['lernort', /\bhorsaal\w*|(?<!\bzur\s)\bvorlesung\b(?!\s+(?:vor|nach)\w*)/, () => 'hoersaal'],
+    ['lernort', /\b(?:turn|sport|gymnastik)halle\b|\bin\s+der\s+halle\b|\bsportplatz\b|\bgymnastikraum\b/, () => 'bewegungsraum'],
+    [
+      'lernort',
+      /\bim\s+(?:chemie|physik|bio(?:logie)?|fach)?(?:labor|fachraum|werkraum|ubungsraum|praxisraum|musikraum|makerspace)\b|\bin\s+der\s+(?:lehr|schul)?(?:werkstatt|ubungswerkstatt)\b|\blehrwerkstatt\b|\b(?:lehr|schul)kuche\b|\bskills?\s*-?lab\b|\blaborpraktikum\b|\ban\s+ubungskopf\w*|\ban\s+der\s+puppe\b/,
+      () => 'fachraum'
+    ],
+    [
+      'lernort',
+      /\bdraussen\b(?!\s+und\s+drinnen)|\bauf\s+dem\s+schulhof\b|\bim\s+freien\b|\bim\s+schulgarten\b|\bunterrichtsgang\b|\bausserschulisch\w*\s+lernort\w*|\b(?:auf|bei)\s+(?:der|einer)\s+exkursion\b/,
+      () => 'draussen'
+    ],
     ['anleitung', /\b(?:offen-?entdeckend\w*|offen\w*\s+entdeck\w*|frei\s+erkund\w*|ohne\s+vorgaben)\b/, () => ['offen']],
     ['anleitung', /\b(?:explizit\w*|kleinschrittig\w*|stark\s+gefuhrt\w*|direkt\s+angeleitet\w*)\b/, () => ['explizit']],
     ['anleitung', /\b(?:geleitet\w*|mit\s+hilfekarten|scaffolding|mit\s+leitfragen)\b/, () => ['geleitet']],
@@ -675,8 +724,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentArea = '';
   /** Interaction forms the request rules out ("keine Gruppenarbeit"). */
   let currentNegatedInteractions = new Set<string>();
+  /** Methods the request rules out by name ("kein Lehrervortrag"). */
+  let currentNegatedMethods = new Set<string>();
   /** The chain trains a movement or hands-on skill: classroom methods do not fit its main phases. */
   let currentPraxis = false;
+  /** Room of the lesson: stated, or derived from the subject (sport → movement space). */
+  let currentLernort = '';
   /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
   let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
   const mentionDetector = createMentionDetector(data);
@@ -730,6 +783,25 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     (b.repraesentation || []).includes('enaktiv') ||
     (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
 
+  /** Whether a method works in the lesson's room: stated in the data, otherwise derived from its other facets. */
+  const MOVES_AROUND = /bewegung|freie\s+flache|\blaufweg\w*|freie\s+linie|\bvier\s+ecken\b|aussengelande|spielflache|zwei\s+(?:stuhl)?kreise/;
+  const OUTSIDE = /aussen|natur|gelande|ausserschulisch|schulhof|draussen|freien|betrieb|museum/;
+  function fitsRoom(b: Baustein, ort: string): boolean {
+    if (b.lernort?.length) return b.lernort.includes(ort);
+    const raum = fold(String(b.raum || ''));
+    switch (ort) {
+      case 'bewegungsraum':
+      case 'fachraum':
+        return isPraxisMethod(b);
+      case 'draussen':
+        return isPraxisMethod(b) || OUTSIDE.test(raum) || (b.ansatz || []).includes('forschend');
+      case 'hoersaal':
+        return !(b.aufgabe || []).includes('psychomotorik') && !MOVES_AROUND.test(raum);
+      default:
+        return true;
+    }
+  }
+
   function rankOf(
     b: Baustein,
     a: MatchRequest,
@@ -756,7 +828,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       hard: [
         extra,
         // The request rules out the only interaction form the method has ("keine Gruppenarbeit").
-        (b.interaktion || []).length && (b.interaktion || []).every((x) => currentNegatedInteractions.has(x)) ? 1 : 0,
+        ((b.interaktion || []).length && (b.interaktion || []).every((x) => currentNegatedInteractions.has(x))) ||
+        currentNegatedMethods.has(b.kennung)
+          ? 1
+          : 0,
         passung(b, a).length ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
         domainPenalty(b) || (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0),
@@ -785,7 +860,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : 0,
         vorbereitungMin: b.vorbereitungMin,
         praxisFremd:
-          currentPraxis && currentStepRole !== 'pruefung' && !isPraxisMethod(b)
+          (currentPraxis || currentLernort === 'hoersaal') &&
+          currentStepRole !== 'pruefung' &&
+          !(currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(b, currentLernort) : isPraxisMethod(b))
             ? currentStepRole === 'haupt'
               ? 'haupt'
               : 'rand'
@@ -882,6 +959,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
   }
 
+  const OPENING_TOLERANCE = 1.5;
   const midDuration = (b: Baustein) =>
     Math.max(b.dauerMin, Math.min(b.dauerMax, Math.round((b.dauerMin + b.dauerMax) / 2 / 5) * 5));
   const clone = <T>(o: T): T => JSON.parse(JSON.stringify(o)) as T;
@@ -897,8 +975,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     varietyPenaltyFn?: (b: Baustein) => number,
     hardCapMin?: number
   ): Baustein[] {
-    return order(
-      data.bausteine
+    const opening = currentStepRole === 'rand' && currentStepIndex === 0;
+    const ranked = data.bausteine
         .filter((b) => (rang.get(b.reichweite) ?? 0) <= maxRang && b.lernfunktion.some((f) => functions.includes(f)) && !rahmen(b, a))
         .map((b) => {
           const reaches = !target || closure(b.nachbedingung || []).has(target);
@@ -911,7 +989,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             varietyPenaltyFn ? varietyPenaltyFn(b) : 0,
             hardCapMin
           );
-        })
+        });
+    // Openings are interchangeable within a wider margin: the topic decides among those that fit the opening's time,
+    // so the same few do not open every lesson and a long opener does not take time from the main phases.
+    if (!opening) return order(ranked);
+    const fitsTime = (b: Baustein) => maxStepMin == null || b.dauerMin <= maxStepMin;
+    return order(
+      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1] })),
+      OPENING_TOLERANCE
     );
   }
 
@@ -1267,6 +1352,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       .filter((w) => w.length > 2 && !FRAME_WORDS.has(w))
       .join(' ');
 
+  /** Room of the lesson and whether its main phases should be practical. A stated classroom turns the practice preference off. */
+  function setRoom(a: MatchRequest, psychomotor: boolean) {
+    currentLernort = given(a.lernort)
+      ? String(a.lernort)
+      : a.fachbereich === 'sport'
+        ? 'bewegungsraum'
+        : psychomotor && (a.fachbereich === 'beruf-praxis' || a.fachbereich === 'nawi-technik')
+          ? 'fachraum'
+          : '';
+    currentPraxis = currentLernort !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentLernort));
+  }
+
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
@@ -1301,6 +1398,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentSeed = topicSeed(currentRawText);
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
       currentNegatedInteractions = negatedInteractions(currentRawText);
+      currentNegatedMethods = negatedMethods(currentRawText);
+      // A method named only to rule it out ("kein Lehrervortrag") is no wish for it.
+      currentMentions = new Set([...currentMentions].filter((id) => !currentNegatedMethods.has(id)));
       // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
       currentTechAsked =
         given(a.maxTechnik) ||
@@ -1337,6 +1437,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         ...(gelesen.fach ? { fach: gelesen.fach } : {})
       };
       if (modus === 'phase') {
+        setRoom(a, a.zielart === 'psychomotorik');
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }));
       }
       let chainGuessed = false;
@@ -1356,7 +1457,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const practising = !guessedFn && list(a.lernfunktion)[0] === 'konsolidierung' ? 'prozedur' : '';
         const byVerb = VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1] || '';
         const inferredId =
-          a.fachbereich === 'sport'
+          a.fachbereich === 'sport' && a.lernort !== 'klassenraum'
             ? 'fertigkeit-bewegung'
             : practising || byVerb || byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
         const fallbackChain = chains.get(inferredId) || chains.get('konzeptaufbau');
@@ -1369,7 +1470,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.'
         });
       }
-      currentPraxis = (ketten[0].zielart || []).includes('psychomotorik');
+      setRoom(a, (ketten[0].zielart || []).includes('psychomotorik'));
       // Too little time for the chain's phases (at least five minutes each): offer methods for one phase instead.
       const phasen = planSteps(ketten[0], a).length;
       if (!given(a.modus) && given(a.zeitMin) && phasen * 5 > Number(a.zeitMin)) {
@@ -1382,7 +1483,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const general = chains.get('konzeptaufbau');
       if (chainGuessed && general && !res.pruefung?.gueltig) {
         const tried = ketten[0].label;
-        currentPraxis = false;
+        currentPraxis = ['bewegungsraum', 'fachraum', 'draussen'].includes(currentLernort);
         const retry = ablauf(a, general);
         if (retry.pruefung?.gueltig) {
           res = Object.assign(retry, {
@@ -1405,7 +1506,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentTechAsked = false;
       currentArea = '';
       currentNegatedInteractions = new Set();
+      currentNegatedMethods = new Set();
       currentPraxis = false;
+      currentLernort = '';
       currentStepRole = '';
     }
   }

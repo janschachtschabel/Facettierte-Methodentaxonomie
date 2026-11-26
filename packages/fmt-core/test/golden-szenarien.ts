@@ -66,6 +66,18 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Mathe Klasse 6 Brüche kürzen, 45 Minuten', erwartet: { zielart: 'prozeduren' } },
   { text: 'Klasse 7 Religion: Medizinethik Organspende diskutieren, 45 Minuten', erwartet: { fachbereich: 'gesellschaft' } },
   { text: 'Biologie: Vom Kind zum Erwachsenen, Pubertät', erwartet: {}, nicht: { bildungsstufe: 'erwachsenenbildung' } },
+  // Lernort: the room of the lesson.
+  { text: 'Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, 45 Minuten', erwartet: { lernort: 'draussen' } },
+  { text: 'Chemie Klasse 7: Sicherheitsregeln im Labor, 45 Minuten', erwartet: { lernort: 'fachraum' } },
+  { text: 'Vorlesung Technische Mechanik, 250 Studierende, 90 Minuten', erwartet: { lernort: 'hoersaal' } },
+  { text: 'Klasse 6 in der Turnhalle: Bewegungspause, 20 Minuten', erwartet: { lernort: 'bewegungsraum' } },
+  { text: 'Deutsch Klasse 8 Gedichte, 45 Minuten', erwartet: {}, nicht: { lernort: 'fachraum' } },
+  { text: 'Erdkunde Klasse 7, 45 Minuten, nicht draußen', erwartet: {}, nicht: { lernort: 'draussen' } },
+  { text: 'Englisch Klasse 6 Wortschatz in der Küche, 45 Minuten', erwartet: {}, nicht: { lernort: 'fachraum' } },
+  { text: 'Sachunterricht Klasse 3 Tiere im Wald, 45 Minuten', erwartet: {}, nicht: { lernort: 'draussen' } },
+  { text: 'Mathe Klasse 8, 45 Minuten, nicht in der Sporthalle', erwartet: {}, nicht: { lernort: 'bewegungsraum' } },
+  { text: 'Übung zur Vorlesung Analysis, 90 Minuten', erwartet: { fachbereich: 'mathe-informatik' }, nicht: { lernort: 'hoersaal' } },
+  { text: 'Sport Klasse 9 Theorie: Doping im Klassenraum, 45 Minuten', erwartet: { lernort: 'klassenraum' } },
   { text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten', erwartet: { zieltyp: 'produktion', zeitMin: 90 } },
   { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zieltyp: 'produktion' } }
 ];

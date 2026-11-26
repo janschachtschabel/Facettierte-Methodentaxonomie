@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
+import { negatedMethods } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
 
@@ -189,5 +190,62 @@ describe('Stundenart aus dem Text', () => {
 
   it('verneinte Verben wählen keine Kette', () => {
     expect(chainOf('Ethik Klasse 9 Freundschaft, 45 Minuten, bitte nicht diskutieren')).not.toBe('urteilsbildung');
+  });
+});
+
+describe('Lernort, Verneinung und Abwechslung', () => {
+  const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
+  const practical = (id: string) => {
+    const b = byId.get(id)!;
+    return (b.aufgabe || []).includes('psychomotorik') || (b.repraesentation || []).includes('enaktiv') || (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
+  };
+
+  it('Lernort aus dem Aufruf: draußen oder Labor bevorzugt Praxis- und Erkundungsmethoden', () => {
+    const plain = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten' });
+    const out = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' });
+    expect(out.modus).toBe('ablauf');
+    if (out.modus === 'ablauf' && plain.modus === 'ablauf') {
+      expect(out.pruefung?.gueltig).toBe(true);
+      expect(sequenceOf(out)).not.toBe(sequenceOf(plain));
+    }
+  });
+
+  it('Hörsaal: keine Methode, für die alle aufstehen und umhergehen', () => {
+    const r = M.zuordnen({ text: 'Hochschule Statistik Hypothesentests, 90 Minuten, 120 Studierende', lernort: 'hoersaal' });
+    expect(r.modus).toBe('ablauf');
+    for (const id of blocksOf(r)) expect(byId.get(id)!.aufgabe || [], id).not.toContain('psychomotorik');
+  });
+
+  it('Labor in Chemie: die Hauptphasen sind überwiegend praktisch', () => {
+    const r = M.zuordnen({ text: 'Chemie Klasse 8: Brenner sicher bedienen im Labor, 45 Minuten' });
+    expect(r.modus).toBe('ablauf');
+    expect(blocksOf(r).filter(practical).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('verneinte Methoden: „kein Lehrervortrag“ schließt Vortragsmethoden aus, „ohne Referate“ Referate', () => {
+    const vortrag = blocksOf(M.zuordnen({ text: 'Bio Klasse 9 Immunsystem, 45 Minuten, bitte kein Lehrervortrag' }));
+    expect(vortrag.filter((id) => /vortrag|vorlesung/.test(id))).toEqual([]);
+    const referat = blocksOf(M.zuordnen({ text: 'Geschichte Klasse 11 Kalter Krieg, 45 Minuten, ohne Referate' }));
+    expect(referat.filter((id) => /referat/.test(id))).toEqual([]);
+  });
+
+  it('verneinte Methoden: nur benannte Methodenarten, keine Teilwörter und keine Mengenangaben', () => {
+    expect(blocksOf(M.zuordnen({ text: 'Geschichte Klasse 9 Weimarer Republik, 45 Minuten, bitte ein Pecha Kucha statt Lehrervortrag' }))).toContain('pecha-kucha');
+    expect(blocksOf(M.zuordnen({ text: 'Chemie Klasse 8, 45 Minuten, kein Schülerexperiment, lieber ein Demonstrationsexperiment' }))).toContain('demonstrationsexperiment');
+    expect([...negatedMethods('ethik klasse 9, nicht zu lange diskussion, kein problem, ohne losung, keine spiele')]).toEqual([]);
+  });
+
+  it('Sport im Klassenraum: Theoriestunde ohne Bewegungskette', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 9 Theorie: Doping im Klassenraum, 45 Minuten' });
+    expect(r.modus === 'ablauf' ? r.kette?.id : r.modus).not.toBe('fertigkeit-bewegung');
+  });
+
+  it('Einstiege wechseln: mehrere Einstiegsmethoden, keine eröffnet mehr als die Hälfte der Themen-Szenarien', () => {
+    // 90 minutes leave room for several openers; in 45 minutes the catalogue has few short diagnostic openers (data gap).
+    const first = THEMEN.map(([f, t]) => M.zuordnen({ text: szenarioText(f, t, 90) })).map((r) => (r.modus === 'ablauf' ? r.schritte?.[0]?.baustein : ''));
+    const counts = new Map<string, number>();
+    first.forEach((x) => counts.set(x || '', (counts.get(x || '') || 0) + 1));
+    expect(counts.size).toBeGreaterThanOrEqual(3);
+    expect(Math.max(...counts.values()) / first.length).toBeLessThanOrEqual(0.5);
   });
 });

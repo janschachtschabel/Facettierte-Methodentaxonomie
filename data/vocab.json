@@ -1150,6 +1150,66 @@
           "definition": "Ohne Fachbindung in allen Fächern einsetzbar"
         }
       ]
+    },
+    {
+      "id": "lernort",
+      "titel": "Lernort",
+      "beschreibung": "Raum, für den eine Methode gemacht ist oder in dem sie gut funktioniert. Ergänzt die Facette Raum und Zeit (Präsenz, Distanz) um die Art des Präsenzraums.",
+      "werte": [
+        {
+          "id": "klassenraum",
+          "label": "Klassen- oder Seminarraum",
+          "definition": "Raum mit Tischen und Stühlen, auch mit Gruppentischen oder Stuhlkreis",
+          "alt": [
+            "Seminarraum",
+            "Gruppenraum"
+          ]
+        },
+        {
+          "id": "bewegungsraum",
+          "label": "Sporthalle oder Bewegungsfläche",
+          "definition": "Sporthalle, Gymnastikraum, Aula oder freie Fläche, auf der sich alle bewegen können",
+          "alt": [
+            "Turnhalle",
+            "Sporthalle",
+            "Gymnastikraum",
+            "Aula"
+          ]
+        },
+        {
+          "id": "fachraum",
+          "label": "Fachraum oder Werkstatt",
+          "definition": "Labor, Werkstatt, Lehrküche, Musikraum, Übungsraum oder Skills Lab mit fachlicher Ausstattung",
+          "alt": [
+            "Labor",
+            "Werkstatt",
+            "Lehrküche",
+            "Übungsraum",
+            "Skills Lab",
+            "Werkraum"
+          ]
+        },
+        {
+          "id": "draussen",
+          "label": "Draußen oder außerschulischer Ort",
+          "definition": "Schulhof, Gelände, Natur, Betrieb, Museum oder anderer Ort außerhalb des Unterrichtsraums",
+          "alt": [
+            "Schulhof",
+            "im Freien",
+            "Exkursion",
+            "außerschulischer Lernort"
+          ]
+        },
+        {
+          "id": "hoersaal",
+          "label": "Hörsaal",
+          "definition": "Großer Raum mit fester Bestuhlung, kaum Platz für Bewegung oder Umstellen",
+          "alt": [
+            "Vorlesungssaal",
+            "Aula mit fester Bestuhlung"
+          ]
+        }
+      ]
     }
   ],
   "facetten": [
