@@ -185,6 +185,9 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         license: bundle.license,
         schemes: bundle.schemes,
         facetten: bundle.facetten,
+        // A bundle cached before the Einsatzprofil has no levels yet.
+        ebenen: bundle.ebenen ?? [],
+        merkmale: bundle.merkmale ?? [],
         ketten: bundle.ketten,
         bausteine: bundle.bausteine,
         beispiele: bundle.beispiele,

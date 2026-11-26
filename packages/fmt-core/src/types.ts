@@ -79,6 +79,29 @@ export interface Scheme {
   gruppen?: VocabGroup[];
 }
 
+/** Level of the method description: Bauweise (13 facets), Einsatzprofil (Bedarf, Eignung) and the rest. */
+export type EbeneId = 'bauweise' | 'bedarf' | 'eignung' | 'verknuepfung' | 'beleg' | 'beschreibung' | 'einordnung' | 'verwaltung';
+export interface EbeneMeta {
+  id: EbeneId;
+  name: string;
+  frage: string;
+  felder: string[];
+}
+export type MerkmalWirkung = 'schliesst-aus' | 'warnt' | 'ordnet';
+/** One attribute of the Einsatzprofil: Bedarf (BD1–BD6) or Eignung (EG1–EG3). */
+export interface MerkmalMeta {
+  id: string;
+  art: 'bedarf' | 'eignung';
+  name: string;
+  leitfrage: string;
+  felder: string[];
+  form: string;
+  wirkung: MerkmalWirkung[];
+  /** Effect in words, as in the spec. */
+  wirkungText: string;
+  grundlage: 'formal' | 'E' | 'S' | 'A' | 'je-eintrag';
+}
+
 export interface FacetMeta {
   id: string;
   inferenz: InferenceLevel;
@@ -319,6 +342,8 @@ export interface FmtData {
   repository?: string;
   schemes: Scheme[];
   facetten: FacetMeta[];
+  ebenen: EbeneMeta[];
+  merkmale: MerkmalMeta[];
   ketten: Funktionskette[];
   bausteine: Baustein[];
   beispiele: Arrangement[];
@@ -513,6 +538,8 @@ export interface CatalogBundle {
   repository: string;
   schemes: Scheme[];
   facetten: FacetMeta[];
+  ebenen: EbeneMeta[];
+  merkmale: MerkmalMeta[];
   ketten: Funktionskette[];
   bausteine: Baustein[];
   beispiele: Arrangement[];

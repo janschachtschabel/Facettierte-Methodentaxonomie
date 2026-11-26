@@ -929,7 +929,7 @@
     {
       "id": "vorwissen",
       "titel": "Vorwissen",
-      "beschreibung": "Bedingungsraum: Vorwissen der Lerngruppe zum Zielgegenstand. Voraussetzungswissen steht in den Vorbedingungen.",
+      "beschreibung": "Eignung (EG2): Vorwissen der Lerngruppe zum Zielgegenstand. Voraussetzungswissen steht in den Vorbedingungen.",
       "werte": [
         {
           "id": "gering",
@@ -973,7 +973,7 @@
     {
       "id": "bildungsstufe",
       "titel": "Bildungsstufe",
-      "beschreibung": "Bedingungsraum: Bildungsstufe der Lerngruppe. Abgleich mit dem OpenEduHub-Vokabular educationalContext über skos:closeMatch.",
+      "beschreibung": "Eignung (EG1): Bildungsstufe der Lerngruppe. Abgleich mit dem OpenEduHub-Vokabular educationalContext über skos:closeMatch.",
       "werte": [
         {
           "id": "primar",
@@ -1016,7 +1016,7 @@
     {
       "id": "technikbedarf",
       "titel": "Technikbedarf",
-      "beschreibung": "Bedingungsraum: Geräte, die die Methode mindestens braucht. Geordnet von wenig nach viel.",
+      "beschreibung": "Bedarf (BD4): Geräte, die die Methode mindestens braucht. Geordnet von wenig nach viel.",
       "werte": [
         {
           "id": "t-keine",
@@ -1047,7 +1047,7 @@
     {
       "id": "ansatz",
       "titel": "Didaktischer Ansatz / Bereich",
-      "beschreibung": "Katalog-Einstieg nach didaktischen Traditionen und Praxisfeldern (ergänzend zu den 13 Facetten).",
+      "beschreibung": "Katalog-Einstieg nach didaktischen Traditionen und Praxisfeldern (Ebene Einordnung).",
       "werte": [
         {
           "id": "instruktion",
@@ -1114,7 +1114,7 @@
     {
       "id": "fachbereich",
       "titel": "Fachbereich",
-      "beschreibung": "Grobe Fächergruppe, in der eine Methode typischerweise eingesetzt wird. Ergänzt die 13 Facetten für die fachgerechte Auswahl; „übergreifend“ steht für Methoden ohne Fachbindung.",
+      "beschreibung": "Eignung (EG3): Grobe Fächergruppe, in der eine Methode typischerweise eingesetzt wird. Ergänzt die 13 Facetten für die fachgerechte Auswahl; „übergreifend“ steht für Methoden ohne Fachbindung.",
       "werte": [
         {
           "id": "mathe-informatik",
@@ -1375,6 +1375,264 @@
       "leitfrage": "Wie ist die zeitliche Ordnung gebaut?",
       "fundierung": "Cepeda et al. (2006); Rohrer & Taylor (2007); Sinha & Kapur (2021)",
       "schliesst": "Statik: Methoden als Zustände statt als Abfolgen"
+    }
+  ],
+  "ebenen": [
+    {
+      "id": "bauweise",
+      "name": "Bauweise",
+      "frage": "Wie ist die Methode gebaut?",
+      "felder": [
+        "lernfunktion",
+        "engagement",
+        "weltbezug",
+        "anleitung",
+        "steuerung",
+        "adaptivitaet",
+        "feedback",
+        "interaktion",
+        "repraesentation",
+        "raumzeit",
+        "rolle",
+        "aufgabe",
+        "sequenz",
+        "reichweite",
+        "kernkomponente",
+        "slot",
+        "komposit"
+      ]
+    },
+    {
+      "id": "bedarf",
+      "name": "Einsatzprofil: Bedarf",
+      "frage": "Was braucht sie?",
+      "felder": [
+        "lernort",
+        "dauerMin",
+        "dauerMax",
+        "gruppeMin",
+        "gruppeMax",
+        "teamMin",
+        "teamMax",
+        "technik",
+        "internet",
+        "ki",
+        "material",
+        "vorbereitungMin",
+        "schriftbedarf"
+      ]
+    },
+    {
+      "id": "eignung",
+      "name": "Einsatzprofil: Eignung",
+      "frage": "Für wen und wo passt sie?",
+      "felder": [
+        "ungeeignetBeiStufe",
+        "geeignetBeiVorwissen",
+        "fachbereich",
+        "fachbereichUngeeignet"
+      ]
+    },
+    {
+      "id": "verknuepfung",
+      "name": "Verknüpfung",
+      "frage": "Wie schließt sie an?",
+      "felder": [
+        "vorbedingung",
+        "nachbedingung"
+      ]
+    },
+    {
+      "id": "beleg",
+      "name": "Beleg",
+      "frage": "Wie gut ist sie gestützt?",
+      "felder": [
+        "evidenz",
+        "qualitaetsrisiko"
+      ]
+    },
+    {
+      "id": "beschreibung",
+      "name": "Beschreibung",
+      "frage": "Wie wird sie durchgeführt?",
+      "felder": [
+        "name",
+        "alternativname",
+        "kurzbeschreibung",
+        "problem",
+        "durchfuehrung",
+        "variante",
+        "hinweis",
+        "raum",
+        "betreuungshinweis",
+        "piktogramm"
+      ]
+    },
+    {
+      "id": "einordnung",
+      "name": "Einordnung",
+      "frage": "Wo steht sie im Katalog?",
+      "felder": [
+        "ansatz",
+        "kategorie",
+        "plot"
+      ]
+    },
+    {
+      "id": "verwaltung",
+      "name": "Verwaltung",
+      "frage": "",
+      "felder": [
+        "status",
+        "quellen",
+        "kennung"
+      ]
+    }
+  ],
+  "merkmale": [
+    {
+      "id": "BD1",
+      "art": "bedarf",
+      "name": "Raumbedarf",
+      "leitfrage": "Welche Raumeigenschaften braucht die Methode?",
+      "felder": [
+        "lernort"
+      ],
+      "form": "Liste „braucht“",
+      "wirkung": [
+        "schliesst-aus",
+        "ordnet"
+      ],
+      "wirkungText": "schließt aus, wenn das Szenario den Raum nennt; sonst ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "id": "BD2",
+      "art": "bedarf",
+      "name": "Zeitbedarf",
+      "leitfrage": "Wie lange dauert sie?",
+      "felder": [
+        "dauerMin",
+        "dauerMax"
+      ],
+      "form": "Spanne",
+      "wirkung": [
+        "schliesst-aus"
+      ],
+      "wirkungText": "schließt aus",
+      "grundlage": "formal"
+    },
+    {
+      "id": "BD3",
+      "art": "bedarf",
+      "name": "Gruppengröße",
+      "leitfrage": "Für wie viele Lernende und welche Teamgröße ist sie gebaut?",
+      "felder": [
+        "gruppeMin",
+        "gruppeMax",
+        "teamMin",
+        "teamMax"
+      ],
+      "form": "Spanne",
+      "wirkung": [
+        "schliesst-aus"
+      ],
+      "wirkungText": "schließt aus",
+      "grundlage": "formal"
+    },
+    {
+      "id": "BD4",
+      "art": "bedarf",
+      "name": "Ausstattungsbedarf",
+      "leitfrage": "Welche Geräte, welches Netz und welches Material braucht sie?",
+      "felder": [
+        "technik",
+        "internet",
+        "ki",
+        "material"
+      ],
+      "form": "Stufe, ja/nein, Text",
+      "wirkung": [
+        "schliesst-aus"
+      ],
+      "wirkungText": "schließt aus",
+      "grundlage": "formal"
+    },
+    {
+      "id": "BD5",
+      "art": "bedarf",
+      "name": "Vorbereitungsaufwand",
+      "leitfrage": "Wie viel Vorbereitung braucht die Lehrkraft?",
+      "felder": [
+        "vorbereitungMin"
+      ],
+      "form": "Minuten",
+      "wirkung": [
+        "schliesst-aus"
+      ],
+      "wirkungText": "schließt aus, wenn angegeben",
+      "grundlage": "formal"
+    },
+    {
+      "id": "BD6",
+      "art": "bedarf",
+      "name": "Schriftbedarf",
+      "leitfrage": "Müssen die Lernenden lesen oder schreiben?",
+      "felder": [
+        "schriftbedarf"
+      ],
+      "form": "Liste",
+      "wirkung": [
+        "schliesst-aus"
+      ],
+      "wirkungText": "schließt aus, wenn das Szenario „kann nicht lesen“ oder „kann nicht schreiben“ nennt",
+      "grundlage": "formal"
+    },
+    {
+      "id": "EG1",
+      "art": "eignung",
+      "name": "Bildungsstufe",
+      "leitfrage": "Für welche Bildungsstufen ist sie nicht vorgesehen?",
+      "felder": [
+        "ungeeignetBeiStufe"
+      ],
+      "form": "ungeeignet",
+      "wirkung": [
+        "warnt"
+      ],
+      "wirkungText": "warnt",
+      "grundlage": "je-eintrag"
+    },
+    {
+      "id": "EG2",
+      "art": "eignung",
+      "name": "Vorwissen",
+      "leitfrage": "Bei welchem Vorwissen ist sie nicht vorgesehen?",
+      "felder": [
+        "geeignetBeiVorwissen"
+      ],
+      "form": "ungeeignet",
+      "wirkung": [
+        "warnt"
+      ],
+      "wirkungText": "warnt",
+      "grundlage": "je-eintrag"
+    },
+    {
+      "id": "EG3",
+      "art": "eignung",
+      "name": "Fachbezug",
+      "leitfrage": "In welchen Fachbereichen ist sie typisch, in welchen unüblich?",
+      "felder": [
+        "fachbereich",
+        "fachbereichUngeeignet"
+      ],
+      "form": "typisch, ungeeignet",
+      "wirkung": [
+        "ordnet"
+      ],
+      "wirkungText": "ordnet; ungeeignet ordnet nach unten und zeigt einen Hinweis",
+      "grundlage": "S"
     }
   ]
 }

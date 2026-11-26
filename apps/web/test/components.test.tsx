@@ -25,6 +25,8 @@ const DATA: FmtData = {
   license: BUNDLE.license,
   schemes: BUNDLE.schemes,
   facetten: BUNDLE.facetten,
+  ebenen: BUNDLE.ebenen,
+  merkmale: BUNDLE.merkmale,
   ketten: BUNDLE.ketten,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele

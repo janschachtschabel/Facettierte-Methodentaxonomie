@@ -171,7 +171,7 @@ export function ontologyTtl(D: FmtData): string {
     ['Quelle', 'Quellenangabe eines Bausteins (freie Quelle oder Fachliteratur)'],
     ['Steuerungsprofil', 'Steuerungsträger je Steuerungsdimension'],
     ['Arrangement', 'Komposition von Bausteinen für ein Lehr-Lern-Setting'],
-    ['Kontext', 'Bedingungsraum eines Arrangements'],
+    ['Kontext', 'Rahmenbedingungen eines Arrangements'],
     ['Knoten', 'Element im Ablaufbaum eines Arrangements'],
     ['Belegung', 'Füllung eines Slots mit einem Knoten']
   ];
@@ -648,6 +648,8 @@ export function buildAllArtefacts(rootDir: string) {
     version: D.VERSION,
     schemes: D.schemes,
     facetten: D.facetten,
+    ebenen: D.ebenen,
+    merkmale: D.merkmale,
     ketten: D.ketten,
     bausteine: D.bausteine,
     beispiele: D.beispiele,
@@ -668,6 +670,8 @@ export function buildAllArtefacts(rootDir: string) {
     repository: D.repository || 'https://github.com/janschachtschabel/Facettierte-Methodentaxonomie',
     schemes: D.schemes,
     facetten: D.facetten,
+    ebenen: D.ebenen,
+    merkmale: D.merkmale,
     ketten: D.ketten,
     bausteine: D.bausteine,
     beispiele: D.beispiele,

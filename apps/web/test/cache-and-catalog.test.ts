@@ -97,6 +97,8 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
         bausteine: [{}],
         schemes: [],
         facetten: [],
+        ebenen: [],
+        merkmale: [],
         ketten: []
       })
     });
@@ -113,6 +115,8 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
       license: BUNDLE.license,
       schemes: BUNDLE.schemes,
       facetten: BUNDLE.facetten,
+      ebenen: BUNDLE.ebenen,
+      merkmale: BUNDLE.merkmale,
       ketten: BUNDLE.ketten,
       bausteine: BUNDLE.bausteine,
       beispiele: BUNDLE.beispiele
