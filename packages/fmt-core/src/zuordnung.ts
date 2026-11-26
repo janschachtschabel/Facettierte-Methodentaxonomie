@@ -24,7 +24,7 @@ import { createMentionDetector } from './mentions.js';
 import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
-import { nutztRaum, raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
+import { raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
 import { baueSituation, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
@@ -953,37 +953,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     (b.repraesentation || []).includes('enaktiv') ||
     (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
 
-  /**
-   * Whether a method works in the lesson's room class, derived from its room needs (raumbedarf) and its other facets
-   * now that the old room list (lernort) is gone. The room must offer every need. A gym fits movement methods, sport
-   * methods and methods that need room to move; a special room fits practice methods and methods that need its
-   * equipment; a place outside fits practice methods, methods that go out or need a large area, and inquiry. A lecture
-   * hall fits all but movement. Transition until the special rules go (Task A10).
-   */
-  const hatBedarf = (b: Baustein, ...x: string[]) => (b.raumbedarf || []).some((y) => x.includes(y));
-  const imFach = (b: Baustein, ...f: string[]) => (b.fachbereich || []).some((x) => f.includes(x));
-  function fitsRoom(b: Baustein, ort: string): boolean {
-    const bietet = raumBietet(data, ort);
-    if (bietet.size && (b.raumbedarf || []).some((x) => !bietet.has(x))) return false;
-    const psychomotorisch = (b.aufgabe || []).includes('psychomotorik');
-    switch (ort) {
-      case 'bewegungsraum':
-        return psychomotorisch || imFach(b, 'sport') || nutztRaum(data, b, ort) || hatBedarf(b, 'stellflaeche');
-      case 'fachraum':
-        return (
-          psychomotorisch ||
-          imFach(b, 'beruf-praxis') ||
-          nutztRaum(data, b, ort) ||
-          ((b.repraesentation || []).includes('enaktiv') && !imFach(b, 'uebergreifend'))
-        );
-      case 'draussen':
-        return isPraxisMethod(b) || hatBedarf(b, 'aussenort', 'bewegungsflaeche') || (b.ansatz || []).includes('forschend');
-      case 'hoersaal':
-        return !psychomotorisch && !hatBedarf(b, 'stellflaeche', 'bewegungsflaeche');
-      default:
-        return true;
-    }
-  }
   /**
    * A movement or practice method that needs what a classroom does not offer (a gym, special equipment): named in a
    * lesson without a stated room and without a movement goal, it is taken for an everyday word, not a wish.
