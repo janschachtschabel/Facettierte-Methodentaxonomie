@@ -15,6 +15,7 @@ import {
   suggestAlternativeMethodsForGroup
 } from '../src/index.js';
 import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
+import { nachweisformen } from '../src/zielart.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -706,6 +707,18 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
     expect(M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' }).nachweis).toBeUndefined();
     expect(M.felder().find((f) => f.feld === 'nachweis')!.werte!.map((w) => w.code)).toEqual(['schriftlich', 'muendlich', 'praktisch', 'produkt']);
     expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', nachweis: 'tanz' })).toThrow(/nachweis/);
+  });
+
+  it('n18: im Prüfschritt steht eine Prüfmethode mit der Nachweisform der Zielart (praktisch)', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer mit Leistungskontrolle, Sportplatz, 45 Minuten' }) as AblaufMatchResult;
+    const kette = D.ketten.find((k) => k.id === r.kette?.id)!;
+    const pruef = (r.schritte || []).find((s) => s.schritt === 'leistungskontrolle' || kette.schritte.find((k) => k.id === s.schritt)?.ziel === 'lernstand-diagnostiziert');
+    expect(pruef, JSON.stringify(r.schritte)).toBeDefined();
+    expect(nachweisformen(D.bausteine.find((b) => b.kennung === pruef!.baustein)!)).toContain('praktisch');
+    // A stated form of proof orders the check step as well: an oral check in maths.
+    const m = M.zuordnen({ text: 'Mathematik Klasse 8, lineare Funktionen, 45 Minuten, Lernzielkontrolle am Ende', nachweis: 'muendlich' }) as AblaufMatchResult;
+    const letzte = (m.schritte || []).find((s) => s.schritt === 'leistungskontrolle' || D.ketten.find((k) => k.id === m.kette?.id)!.schritte.find((k) => k.id === s.schritt)?.ziel === 'lernstand-diagnostiziert');
+    expect(nachweisformen(D.bausteine.find((b) => b.kennung === letzte!.baustein)!), letzte!.baustein).toContain('muendlich');
   });
 
   it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {

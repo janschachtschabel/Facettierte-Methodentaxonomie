@@ -28,7 +28,7 @@ import { nutztRaum, raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type B
 import { baueSituation, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
-import { bewegungsKette, normZielart, traegtWissensart, waehleKette, type Kettenwahl } from './zielart.js';
+import { bewegungsKette, nachweisformen, normZielart, traegtWissensart, waehleKette, type Kettenwahl } from './zielart.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -1054,10 +1054,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : 0,
         vorbereitungMin: b.vorbereitungMin,
         praxisFremd:
-          // A seated check in a practice lesson counts like a seated main phase: a movement test beats a self-assessment.
           (currentPraxis || currentRaum === 'hoersaal') &&
           !(currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(b, currentRaum) : isPraxisMethod(b))
-            ? currentStepRole === 'haupt' || currentStepRole === 'pruefung'
+            ? currentStepRole === 'haupt'
               ? 'haupt'
               : 'rand'
             : // A talk format that merely fits the gym (Fishbowl) is no practice phase: a practical method comes first.
@@ -1422,20 +1421,25 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A single session cannot hold repetitions that are days apart: they are planned for later sessions.
     const recurrenceOutside = totalBudget != null && totalBudget <= SINGLE_SESSION_MAX_MIN;
     const reserveRec = wantsRecurrence && !recurrenceOutside && totalBudget != null && totalBudget >= 75 ? 15 : 0;
-    // A requested check in a practice lesson needs the time of a practical test, not of a seated self-assessment.
+    // Rule nachweis-passt-zum-ziel: in the check step, checks that yield the wanted form of proof come first; the step
+    // gets the minimum time of the first such check, so a practical test is not squeezed into a seated self-assessment.
+    const nachweis = nachweisWunsch(a, kette);
+    const formPasst = (b: Baustein) => Boolean(nachweis) && nachweisformen(b).some((f) => nachweis!.formen.includes(f));
     const checkAt = steps.findIndex((st) => st.id === checkStepId);
-    if (checkAt >= 0 && floors[checkAt] == null && currentPraxis && totalBudget != null) {
-      const practical = data.bausteine.filter(
-        (b) =>
-          b.lernfunktion[0] === 'diagnose' &&
-          (b.nachbedingung || []).includes(steps[checkAt].ziel) &&
-          traegt(b, steps[checkAt]) &&
-          !rahmen(b, a) &&
-          !passung(b, a).length &&
-          (!currentArea || areaFits(b)) &&
-          (currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(b, currentRaum) : isPraxisMethod(b))
-      );
-      const need = practical.length ? Math.min(...practical.map((b) => b.dauerMin)) : 0;
+    if (checkAt >= 0 && floors[checkAt] == null && nachweis && totalBudget != null) {
+      const passend = data.bausteine
+        .filter(
+          (b) =>
+            b.lernfunktion[0] === 'diagnose' &&
+            (b.nachbedingung || []).includes(steps[checkAt].ziel) &&
+            traegt(b, steps[checkAt]) &&
+            !rahmen(b, a) &&
+            !passung(b, a).length &&
+            formPasst(b)
+        )
+        .map((b) => rankOf(b, a, steps[checkAt].funktion));
+      const first = order(passend, 0)[0];
+      const need = first ? first.dauerMin : 0;
       const others = steps.reduce((x, _st, i) => x + (i === checkAt ? 0 : Math.max(minStep, floors[i] ?? 0)), 0);
       if (need && need + others <= totalBudget - reserveRec) floors[checkAt] = need;
     }
@@ -1510,7 +1514,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const ersatzIds = new Set(ersatzFach.map((b) => b.kennung));
       const cands =
         step.id === checkStepId
-          ? [...primaryCands.filter(isCheck), ...primaryCands.filter((b) => !isCheck(b)), ...fallbackCands]
+          ? [
+              ...primaryCands.filter((b) => isCheck(b) && formPasst(b)),
+              ...primaryCands.filter((b) => isCheck(b) && !formPasst(b)),
+              ...primaryCands.filter((b) => !isCheck(b)),
+              ...fallbackCands
+            ]
           : gebunden(step) && currentArea
             ? [
                 ...primaryCands.filter((b) => !fremd(b)),
