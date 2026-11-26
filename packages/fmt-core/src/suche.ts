@@ -100,6 +100,9 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     ])
   );
 
+  /** The codes of ohneSchrift (lesen, schreiben) are accepted for the scheme schriftbedarf (liest, schreibt). */
+  const SCHRIFT_ALIAS: Record<string, string> = { lesen: 'liest', schreiben: 'schreibt' };
+
   function suche(k: SearchCriteria = {}): Baustein[] {
     const words = k.text ? fold(k.text).split(/\s+/).filter(Boolean) : [];
     const have = k.vorhanden !== undefined ? closure(list(k.vorhanden)) : null;
@@ -120,7 +123,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       }
       // Bedarf of the method: any of the named values is needed; ohneRaumbedarf drops methods needing one of them.
       for (const f of ['raumbedarf', 'schriftbedarf'] as const) {
-        const wanted = list(k[f]);
+        const wanted = f === 'schriftbedarf' ? list(k[f]).map((v) => SCHRIFT_ALIAS[v] ?? v) : list(k[f]);
         if (wanted.length && !wanted.some((v) => (b[f] || []).includes(v))) return false;
       }
       const without = list(k.ohneRaumbedarf);

@@ -58,6 +58,13 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   const code = (feld: string) => z.enum(fieldCodes(feld));
   const codes = (feld: string) => z.union([code(feld), z.array(code(feld))]);
 
+  // Codes of the scheme schriftbedarf as the data holds them, plus the ohneSchrift codes as aliases (mapped in suche).
+  const schriftCode = z.enum([
+    ...((store.bundle.schemes.find((s) => s.id === 'schriftbedarf')?.werte || []).map((w) => w.id) as string[]),
+    'lesen',
+    'schreiben'
+  ] as [string, ...string[]]);
+
   // 1. search_methods
   server.tool(
     'search_methods',
@@ -84,7 +91,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       raum: code('raum').optional().describe('Raumtyp: nur Methoden, deren Raumbedarf er deckt'),
       raumbedarf: codes('raumBietet').optional().describe('Nur Methoden, die mindestens eine dieser Raumeigenschaften brauchen'),
       ohneRaumbedarf: codes('raumBietet').optional().describe('Nur Methoden, die keine dieser Raumeigenschaften brauchen'),
-      schriftbedarf: codes('ohneSchrift').optional().describe('Nur Methoden, die Lesen oder Schreiben brauchen'),
+      schriftbedarf: z
+        .union([schriftCode, z.array(schriftCode)])
+        .optional()
+        .describe('Nur Methoden, die Lesen (liest) oder Schreiben (schreibt) brauchen; lesen/schreiben werden auch angenommen'),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
       fachbereich: codes('fachbereich')
         .optional()

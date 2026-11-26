@@ -80,6 +80,28 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(resources.some((r) => r.uri === 'fmt://rules')).toBe(true);
   });
 
+  it('search_methods filtert nach ohneRaumbedarf und schriftbedarf (Codes des Schemas und Aliasse)', async () => {
+    const call = async (args: Record<string, unknown>) => {
+      const res = await client.callTool({ name: 'search_methods', arguments: { limit: 100, ...args } });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const liest = await call({ schriftbedarf: 'liest' });
+    expect(liest.anzahl).toBeGreaterThan(0);
+    const lesen = await call({ schriftbedarf: 'lesen' });
+    expect(lesen.anzahl).toBe(liest.anzahl);
+    const beides = await call({ schriftbedarf: ['liest', 'schreibt'], ohneRaumbedarf: ['bewegungsflaeche'] });
+    // Independent expectation from the method files.
+    const dir = path.join(ROOT, 'data', 'bausteine');
+    const erwartet = fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')) as { schriftbedarf?: string[]; raumbedarf?: string[] })
+      .filter((b) => (b.schriftbedarf || []).length && !(b.raumbedarf || []).includes('bewegungsflaeche')).length;
+    expect(erwartet).toBeGreaterThan(0);
+    expect(beides.anzahl).toBe(erwartet);
+  });
+
   it('executes search_methods, get_method, compare_methods, match_scenario, validate_arrangement, suggest_replacements and list_vocabularies', async () => {
     const searchRes = await client.callTool({
       name: 'search_methods',

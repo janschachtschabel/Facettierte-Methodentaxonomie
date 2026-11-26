@@ -79,8 +79,13 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     const ohne = await get('ohneRaumbedarf=bewegungsflaeche');
     expect(ohne.treffer.some((b: { raumbedarf?: string[] }) => (b.raumbedarf || []).includes('bewegungsflaeche'))).toBe(false);
     expect(ohne.anzahl + mitRaum.anzahl).toBe(alle.anzahl);
-    const schrift = await get('schriftbedarf=schreiben');
-    expect(schrift.treffer.every((b: { schriftbedarf?: string[] }) => (b.schriftbedarf || []).includes('schreiben'))).toBe(true);
+    // Data holds liest/schreibt; lesen/schreiben (the codes of ohneSchrift) are accepted as aliases.
+    const schrift = await get('schriftbedarf=schreibt');
+    expect(schrift.anzahl).toBeGreaterThan(0);
+    expect(schrift.anzahl).toBeLessThan(alle.anzahl);
+    expect(schrift.treffer.every((b: { schriftbedarf?: string[] }) => (b.schriftbedarf || []).includes('schreibt'))).toBe(true);
+    const alias = await get('schriftbedarf=schreiben');
+    expect(alias.anzahl).toBe(schrift.anzahl);
   });
 
   it('POST /match nimmt lernort weiter an', async () => {
