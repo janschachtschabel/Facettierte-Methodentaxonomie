@@ -17,11 +17,12 @@ export interface Fallergebnis {
   befunde: Befund[];
 }
 
-/** Method suits a gym, a workshop or a practice room: movement, hands-on work or a practice subject. */
+/**
+ * Practice method: carries the knowledge type psychomotorik or works enactively (FMT 2.0, Abbau Zeile 3). The subject
+ * areas sport and beruf-praxis no longer count on their own.
+ */
 export const istPraxismethode = (b: Baustein) =>
-  (b.aufgabe || []).includes('psychomotorik') ||
-  (b.repraesentation || []).includes('enaktiv') ||
-  (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
+  (b.aufgabe || []).includes('psychomotorik') || (b.repraesentation || []).includes('enaktiv');
 
 /** Method whose main purpose is to check what learners can do (not a reflection that also shows the learning state). */
 export const istPruefmethode = (b: Baustein) =>

@@ -947,11 +947,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return 0;
   }
 
-  /** Movement, hands-on or practice method: fits a gym, a workshop or a practice room. */
-  const isPraxisMethod = (b: Baustein) =>
-    (b.aufgabe || []).includes('psychomotorik') ||
-    (b.repraesentation || []).includes('enaktiv') ||
-    (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
 
   /**
    * A movement or practice method that needs what a classroom does not offer (a gym, special equipment): named in a
@@ -1460,7 +1455,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       // practice only (Vier-Stufen-Methode, Bewegungsdemonstration), although they are used in labs and workshops too.
       // In a bound step, carrying methods of the lesson's subject come first; when none of them fits here, a practice
       // method whose subject areas name the lesson's subject comes before a carrying method of another subject, and the
-      // answer says so (annahmen). It never fills a step that no carrying method could fill. Remove with the reviewed subject areas (Tor D2) and isPraxisMethod (A10).
+      // answer says so (annahmen). It never fills a step that no carrying method could fill. Remove with the reviewed subject areas (Tor D2).
       // A method the teacher named is a wish: its subject areas do not move it back.
       const fremd = (b: Baustein) =>
         Boolean(currentArea) &&
@@ -1480,7 +1475,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                     (rang.get(b.reichweite) ?? 0) <= 3 &&
                     !traegt(b, step) &&
                     areaFits(b) &&
-                    isPraxisMethod(b) &&
+                    praxisMethode(b) &&
                     !rahmen(b, a) &&
                     closure(b.nachbedingung || []).has(step.ziel)
                 )
