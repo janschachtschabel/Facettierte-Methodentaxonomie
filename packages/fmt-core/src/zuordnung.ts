@@ -1007,7 +1007,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
           (currentArea && currentArea !== 'sport' && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
           // A room need the room does not offer: excludes when the room is stated (rahmen), orders when it is assumed.
-          // An assumed room never takes a named method away (genannter-wunsch-bleibt).
+          // An assumed room never takes a named method away (genannter-wunsch-bleibt). Main name and synonym count alike
+          // ("Schülerexperimente" names experiment): synonyms that may be everyday words are dropped by the mention filter.
           (raumFehlt(b, currentSituation).length && (currentSituation.raumGenannt || !currentMentions.has(b.kennung)) ? 1 : 0),
         // Graded: when nothing fits the rest of the lesson, the method that overshoots least comes first.
         hardCapMin != null && b.dauerMin > hardCapMin ? Math.ceil((b.dauerMin - hardCapMin) / 5) : 0
