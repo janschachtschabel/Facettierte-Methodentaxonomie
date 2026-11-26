@@ -557,6 +557,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['digital-ki', /digital\w*\s+lern\w*|ki-?tutor|ki-?gestutzt|podcast|erklarvideo|stop-?motion|wiki\b|interaktiv\w*\s+whiteboard/]
   ];
 
+  // Topics that belong to one subject area, for requests that name no subject. Checked only after the
+  // subject rules and the OEH detector; terms are unambiguous school topics, not everyday words.
+  const THEMEN_FACHBEREICH: Array<[RegExp, string]> = [
+    [/\bpythagoras\b|\bbruch(?:rechn\w*|zahl\w*|teil\w*)|\bbruche\b|\blineare\w*\s+funktion\w*|\bquadratische\w*\s+(?:funktion|gleichung)\w*|\bgleichungs?\w*|\bprozentrechn\w*|\bdreisatz\b|\bterme?\b(?!\w)|\bwahrscheinlichkeit\w*|\bableitung\w*|\bintegralrechn\w*|\bvektor\w*|\bscratch\b|\bprogrammier\w*|\balgorithm\w*/, 'mathe-informatik'],
+    [/\b(?:photo|foto)synthese\b|\bgenetik\b|\bevolution\b|\bokosystem\w*|\bzellbiolog\w*|\bstromkreis\w*|\breihenschaltung\b|\bparallelschaltung\b|\btitration\b|\bmagnetismus\b|\bhebelgesetz\b|\bmikroskop\w*/, 'nawi-technik'],
+    [/\bgedicht\w*|\berorterung\w*|\brechtschreib\w*|\bgrammatik\w*|\bvokabel\w*|\bdiktat\w*|\baufsatz\w*|\bablativ\w*|\bnovelle\b|\benglish\b/, 'sprachen'],
+    [/\bindustrialisierung\b|\bweimarer\s+republik\b|\bdreissigjahrig\w*\s+krieg\w*|\bmittelalter\w*|\bkategorische\w*\s+imperativ\w*|\bparteiprogramm\w*|\bgewaltenteilung\b/, 'gesellschaft'],
+    [/\bturnen\b|\bleichtathletik\b|\bstaffellauf\w*|\brolle\s+(?:vorwarts|ruckwarts)\b|\b(?:volley|basket|hand|fuss)ball\w*/, 'sport'],
+    [/\bzentralperspektive\b|\bcollage\w*/, 'aesthetik']
+  ];
+
   const subjects = createSubjectDetector(data.faecher);
 
   function lesen(text: string, stufe?: string) {
@@ -654,6 +665,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const stale = erkannt.findIndex((e) => e.feld === 'fachbereich');
       if (stale >= 0) erkannt.splice(stale, 1);
       take('fachbereich', fach.fachbereich, fach.beleg);
+    }
+
+    // No subject named: a topic that belongs to one subject area ("Satz des Pythagoras", "Photosynthese") names it.
+    if (!('fachbereich' in kriterien)) {
+      const hit = THEMEN_FACHBEREICH.map(([re, fb]) => [re.exec(tPos), fb] as const).find(([m]) => m);
+      if (hit) take('fachbereich', hit[1], `Thema: ${hit[0]![0].trim()}`);
     }
 
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))

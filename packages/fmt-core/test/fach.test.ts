@@ -150,8 +150,9 @@ describe('Zuordnung mit Facherkennung', () => {
   it('lässt die Ergebnisse der bisherigen Textregeln unverändert', () => {
     expect(fb('Elektrotechnik Berufsschule, Ohmsches Gesetz')).toBe('beruf-praxis');
     expect(fb('Mathematik Klasse 7, 28 Kinder, davon 5 mit DaZ, Bruchrechnen')).toBe('mathe-informatik');
-    expect(fb('Fotosynthese Klasse 7, 5 DaZ-Kinder')).toBeUndefined();
-    expect(fb('Bruchrechnen Klasse 6')).toBeUndefined();
+    // DaZ as a learner trait never names the subject; since Runde 5 (P3) the topic does.
+    expect(fb('Fotosynthese Klasse 7, 5 DaZ-Kinder')).toBe('nawi-technik');
+    expect(fb('Bruchrechnen Klasse 6')).toBe('mathe-informatik');
   });
 
   it('richtet den Fachbereich nach dem erkannten Fach, auch wenn ein anderes Fachwort im Thema steht', () => {
