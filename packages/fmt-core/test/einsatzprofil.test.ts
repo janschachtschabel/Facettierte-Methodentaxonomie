@@ -64,3 +64,19 @@ describe('Einsatzprofil: Raum und Schrift', () => {
     expect(schriftFehlt(m(undefined, undefined), ['lesen', 'schreiben'])).toEqual([]);
   });
 });
+
+describe('Einsatzprofil: Datenvorschlag', () => {
+  it('leitet Raumbedarf so ab, dass keine Methode ihre eigenen Raumtypen ausschließt', async () => {
+    const { vorschlagAlle } = await import('../scripts/vorschlag-einsatzprofil.js');
+    const v = vorschlagAlle(D);
+    expect(v['sportmotorischer-test'].raumbedarf).toEqual(['bewegungsflaeche']);
+    expect(v.rollenspiel.raumbedarf).toEqual(['stellflaeche']);
+    expect(v.exkursion.raumbedarf).toEqual(['aussenort']);
+    expect(v.abrufquiz).toMatchObject({ raumbedarf: ['schreibplatz'], schriftbedarf: ['schreibt'] });
+    const bietet = Object.fromEntries((D.schemes.find((s) => s.id === 'raumtyp')!.werte || []).map((w) => [w.id, w.bietet || []]));
+    for (const b of D.bausteine)
+      for (const ort of b.lernort || [])
+        for (const x of v[b.kennung].raumbedarf.filter((x: string) => x !== 'aussenort'))
+          expect(bietet[ort], `${b.kennung}: ${ort} ohne ${x}`).toContain(x);
+  });
+});
