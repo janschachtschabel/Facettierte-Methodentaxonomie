@@ -3,9 +3,11 @@ import type { MethodAdjustment } from '@fmt/core';
 import {
   activeSubgroups,
   adjustmentPhases,
+  adjustmentSignature,
   adjustmentsInForce,
   applyAdjustments,
-  mainGroupOnly
+  mainGroupOnly,
+  outdatedAdjustments
 } from '../src/planner/differentiationFlow.js';
 import { STANDARD_LEARNER_GROUPS, type LearnerGroup, type ScenarioPhaseRow } from '../src/planner/scenarioModel.js';
 
@@ -40,6 +42,12 @@ describe('Schritt 2 zeigt nur die Regelgruppe', () => {
 
   it('zeigt keine Teilzahl, wenn die Regelgruppe nicht gezählt ist', () => {
     expect(mainGroupOnly([{ ...regel, count: undefined }, daz])[0].count).toBeUndefined();
+  });
+
+  it('setzt eine neutrale Regelgruppe ein, wenn nur Teilgruppen vorhanden sind', () => {
+    const only = mainGroupOnly([daz, stark]);
+    expect(only[0].id).toBe('regel');
+    expect(only[0].count).toBe(10);
   });
 
   it('erkennt Teilgruppen ohne die Regelgruppe und ohne abgewählte Gruppen', () => {
@@ -91,5 +99,23 @@ describe('Vorschläge übernehmen und zurücknehmen', () => {
   it('zeigt nur Vorschläge, die noch gelten', () => {
     const list = [adj('step-0', 'daz', 'm1'), adj('step-1', 'daz', 'm2')];
     expect(adjustmentsInForce({ 'step-0': { daz: 'm1' }, 'step-1': { daz: 'anders' } }, list)).toEqual([list[0]]);
+  });
+
+  it('erkennt Vorschläge, deren Phase inzwischen eine andere Methode trägt', () => {
+    const rows = [
+      { key: 'step-0', methodId: 'alt' },
+      { key: 'step-1', methodId: 'getauscht' }
+    ] as ScenarioPhaseRow[];
+    const list = [adj('step-0', 'daz', 'm1'), adj('step-1', 'daz', 'm2'), adj('step-9', 'daz', 'm3')];
+    expect(outdatedAdjustments(rows, list)).toEqual([list[1], list[2]]);
+  });
+
+  it('ändert die Signatur bei anderem Ablauf, anderen Teilgruppen oder anderem Rahmen', () => {
+    const rows = [{ key: 'step-0', methodId: 'a' }] as ScenarioPhaseRow[];
+    const base = adjustmentSignature(rows, [regel, daz], {});
+    expect(adjustmentSignature(rows, [regel, daz], {})).toBe(base);
+    expect(adjustmentSignature([{ key: 'step-0', methodId: 'b' }] as ScenarioPhaseRow[], [regel, daz], {})).not.toBe(base);
+    expect(adjustmentSignature(rows, [regel, daz, stark], {})).not.toBe(base);
+    expect(adjustmentSignature(rows, [regel, daz], { ohneKI: true })).not.toBe(base);
   });
 });

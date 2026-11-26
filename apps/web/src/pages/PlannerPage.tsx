@@ -3,6 +3,7 @@ import {
   detectLearnerGroupsFromText,
   detectMatrixTraitsFromText,
   FMT_GUARDRAILS,
+  hasAdjustmentProfile,
   proposeMethodAdjustments,
   type Arrangement,
   type MethodAdjustment,
@@ -29,9 +30,11 @@ import {
   activeSubgroups,
   adjustmentGroups,
   adjustmentPhases,
+  adjustmentSignature,
   adjustmentsInForce,
   applyAdjustments,
-  mainGroupOnly
+  mainGroupOnly,
+  outdatedAdjustments
 } from '../planner/differentiationFlow.js';
 import {
   buildDefaultThematicRows,
@@ -52,6 +55,7 @@ import {
   DIFF_HANDOFF_KEY,
   exportScenarioProjectJson,
   importScenarioProjectJson,
+  loadActivePlannerDraft,
   loadSavedScenarios,
   printHtmlDocument,
   saveActivePlannerDraft,
@@ -353,9 +357,19 @@ export function PlannerPage() {
         );
       }
       if (h.returnToStep3) {
-        setStep(3);
-        setResourceTab('diff');
-        setMatchNotice('Aktualisierte Teilgruppen & Rahmenbedingungen aus „Differenzierung“ in Schritt 3 übernommen.');
+        // The page was left for /differenzierung and mounts anew: bring the flow back from the live draft.
+        const draft = loadActivePlannerDraft();
+        if (draft) {
+          setArrangement(draft.arrangement);
+          setFach(draft.fach || '');
+          setThema(draft.thema || '');
+          setScenarioText(draft.scenarioText || '');
+          setStep(3);
+          setResourceTab('diff');
+          setMatchNotice('Aktualisierte Teilgruppen & Rahmenbedingungen aus „Differenzierung“ in Schritt 3 übernommen.');
+        } else {
+          setStep(1);
+        }
       } else {
         setMatchNotice('Differenzierungsprofil & Rahmenbedingungen aus „Differenzierung“ übernommen.');
         setStep(1);
@@ -425,6 +439,12 @@ export function PlannerPage() {
     return labels.join(', ');
   }, [ansatzCodes, customAnsatzText, labelOf]);
 
+  // An edited flow moves or replaces phases; proposals made for the old phase are taken out again.
+  useEffect(() => {
+    const stale = outdatedAdjustments(scenarioRows, adjustmentsInForce(subgroupMethods, autoAdjustments));
+    if (stale.length > 0) setSubgroupMethods((prev) => applyAdjustments(prev, stale, []));
+  }, [scenarioRows, subgroupMethods, autoAdjustments]);
+
   if (!bundle || !validator || !search || !matcher || !arrangement || !validation) {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
   }
@@ -482,9 +502,9 @@ export function PlannerPage() {
   };
 
   const subgroups = activeSubgroups(groups);
-  const groupSignature = JSON.stringify(
-    subgroups.map((g) => [g.id, g.personaId || '', g.matrixValues || {}])
-  );
+  const groupSignature = adjustmentSignature(scenarioRows, groups, { maxTechnik, ohneInternet, ohneKI });
+  // Subgroups without persona or matrix values cannot be checked; the result says so.
+  const uncheckedSubgroups = subgroups.filter((g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues }));
   const adjustmentsNow = adjustmentsInForce(subgroupMethods, autoAdjustments);
 
   /** Step 3: checks every phase against the subgroups and enters better fitting parallel methods. */
@@ -996,6 +1016,16 @@ export function PlannerPage() {
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
   const step2Groups = mainGroupOnly(groups, classSize);
   const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
+  // In step 2 another proposal is only offered while it cannot discard own work:
+  // the flow is still the proposed one and nothing has been built on it yet.
+  const otherProposalSafe =
+    matchResult?.modus === 'ablauf' &&
+    Boolean(matchResult.arrangement) &&
+    JSON.stringify(matchResult.arrangement) === JSON.stringify(arrangement) &&
+    totalAttachedOer === 0 &&
+    generatedMaterials.length === 0 &&
+    Object.keys(subgroupMethods).length === 0 &&
+    !elaboration;
 
   const steps: Array<{ id: PlannerStep; label: string; sub: string; needsFlow: boolean }> = [
     { id: 1, label: 'Vorhaben', sub: 'Beschreiben, was du unterrichten willst', needsFlow: false },
@@ -1438,6 +1468,9 @@ export function PlannerPage() {
                       className="btn btn-sm btn-ghost"
                       onClick={() => {
                         setArrangement(JSON.parse(JSON.stringify(ex)) as Arrangement);
+                        templateFlowRef.current = null;
+                        setMatchResult(null);
+                        setMatchNotice(null);
                         resetFlowDerived();
                         setStep(2);
                       }}
@@ -1777,7 +1810,7 @@ export function PlannerPage() {
               >
                 🧩 Methoden tauschen und umstellen
               </button>
-              {matchResult?.modus === 'ablauf' && matchResult.arrangement && (
+              {otherProposalSafe && (
                 <button
                   type="button"
                   className="btn btn-sm"
@@ -1966,14 +1999,21 @@ export function PlannerPage() {
                     <div role="status" aria-live="polite">
                       {adjustmentStale && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
-                          Deine Teilgruppen haben sich geändert. Klicke auf „Erneut prüfen“, damit das Vorgehen dazu passt.
+                          Teilgruppen, Ablauf oder Rahmen haben sich geändert. Klicke auf „Erneut prüfen“, damit das Vorgehen
+                          dazu passt.
                         </p>
                       )}
                       {adjustedFor !== null && !adjustmentStale && adjustmentsNow.length === 0 && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
                           {autoAdjustments.length === 0
-                            ? 'Geprüft: Die geplanten Methoden passen für alle Teilgruppen. Es reichen die Hinweise je Teilgruppe im Ablauf unten.'
+                            ? 'Geprüft: Für die geprüften Teilgruppen muss keine Methode getauscht werden. Es reichen die Hinweise je Teilgruppe im Ablauf unten.'
                             : 'Alle Anpassungen sind zurückgenommen. Es gilt wieder eine Methode je Phase für alle.'}
+                        </p>
+                      )}
+                      {adjustedFor !== null && uncheckedSubgroups.length > 0 && (
+                        <p className="planner-notice" style={{ marginTop: 10 }}>
+                          Nicht geprüft: {uncheckedSubgroups.map((g) => g.label).join(', ')}. Für diese Teilgruppe fehlt ein
+                          Profil. Wähle es unter „Mehr Details“ bei der Feinjustierung aus.
                         </p>
                       )}
                       {adjustmentsNow.length > 0 && (

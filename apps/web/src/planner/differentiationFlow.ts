@@ -22,7 +22,9 @@ export function mainGroupOnly(groups: LearnerGroup[], totalClassSize?: number): 
   const allCounted = active.every((g) => (g.count || 0) > 0);
   const count =
     totalClassSize && totalClassSize > 0 ? totalClassSize : allCounted ? active.reduce((s, g) => s + (g.count || 0), 0) : undefined;
-  return [{ ...main, label: 'Regelgruppe (ganze Klasse)', focus: 'regel', active: true, count }];
+  // Without a main group among the groups a neutral one stands in, so hints of a subgroup never show as "whole class".
+  const base: LearnerGroup = isMainGroup(main) ? main : { id: 'regel', label: '', profile: '', focus: 'regel', active: true, personaId: 'average' };
+  return [{ ...base, label: 'Regelgruppe (ganze Klasse)', focus: 'regel', active: true, count }];
 }
 
 /** Container methods with filled slots and the accompanying strands keep one method for everyone. */
@@ -74,4 +76,26 @@ export function applyAdjustments(
 /** Proposals that are still in force, i.e. not replaced or removed by hand since. */
 export function adjustmentsInForce(current: SubgroupMethodMap, adjustments: MethodAdjustment[]): MethodAdjustment[] {
   return adjustments.filter((a) => current[a.stepKey]?.[a.groupId] === a.zuKennung);
+}
+
+/**
+ * Proposals whose phase no longer holds the method they replaced, e.g. after the flow was edited in step 2.
+ * Step keys follow the position in the flow, so such a proposal would otherwise sit on a different phase.
+ */
+export function outdatedAdjustments(rows: ScenarioPhaseRow[], adjustments: MethodAdjustment[]): MethodAdjustment[] {
+  const methodByKey = new Map(rows.map((r) => [r.key, r.methodId]));
+  return adjustments.filter((a) => methodByKey.get(a.stepKey) !== a.vonKennung);
+}
+
+/** What a run of "Vorgehen anpassen" depends on; a different signature means the result may be out of date. */
+export function adjustmentSignature(
+  rows: ScenarioPhaseRow[],
+  groups: LearnerGroup[],
+  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean }
+): string {
+  return JSON.stringify([
+    rows.map((r) => [r.key, r.methodId]),
+    activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}]),
+    [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI)]
+  ]);
 }

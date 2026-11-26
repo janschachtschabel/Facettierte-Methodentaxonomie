@@ -6,6 +6,8 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom';
 import { createMatcher, createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PlannerPage } from '../src/pages/PlannerPage.js';
+import { createChainPreset } from '../src/planner/arrangementOps.js';
+import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY } from '../src/planner/scenarioStorage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
@@ -104,5 +106,37 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     // Step 2 still shows the plan for the whole class only.
     fireEvent.click(stepButton(2));
     expect(within(screen.getByRole('table')).queryByText(/ADHS/)).toBeNull();
+  });
+
+  it('ein Musterablauf ersetzt den vorherigen Vorschlag samt Hinweis und „Anderer Vorschlag“', () => {
+    renderPlanner();
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten');
+    expect(screen.getByText(/Vorschlag für deinen Ablauf/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Anderer Vorschlag/ })).toBeTruthy();
+    fireEvent.click(stepButton(1));
+    fireEvent.click(screen.getAllByRole('button', { name: /^Musterablauf:/ })[0]);
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    expect(screen.queryByText(/Vorschlag für deinen Ablauf/)).toBeNull();
+    expect(screen.queryByRole('button', { name: /Anderer Vorschlag/ })).toBeNull();
+  });
+
+  it('kehrt aus „Differenzierung“ mit dem eigenen Ablauf in Schritt 3 zurück', () => {
+    const arrangement = createChainPreset('konzeptaufbau', BUNDLE);
+    window.sessionStorage.setItem(
+      ACTIVE_PLANNER_DRAFT_KEY,
+      JSON.stringify({ updatedAt: '', title: 't', fach: 'Physik', thema: 'Dichte', scenarioText: 'Physik Dichte', maxTechnik: '', ohneInternet: false, ohneKI: false, arrangement, groups: [] })
+    );
+    window.sessionStorage.setItem(DIFF_HANDOFF_KEY, JSON.stringify({ returnToStep3: true }));
+    renderPlanner();
+    expect(stepButton(3).getAttribute('aria-current')).toBe('step');
+    expect(stepButton(3).disabled).toBe(false);
+    expect(stepButton(2).textContent).toMatch(/\d+ Phasen für die ganze Klasse/);
+    expect(screen.getByText('Physik: Dichte')).toBeTruthy();
+  });
+
+  it('fällt ohne gespeicherten Ablauf bei der Rückkehr auf Schritt 1 zurück', () => {
+    window.sessionStorage.setItem(DIFF_HANDOFF_KEY, JSON.stringify({ returnToStep3: true }));
+    renderPlanner();
+    expect(stepButton(1).getAttribute('aria-current')).toBe('step');
   });
 });

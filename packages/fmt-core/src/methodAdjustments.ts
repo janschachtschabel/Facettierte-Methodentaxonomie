@@ -40,6 +40,11 @@ export interface MethodAdjustment {
   grund: string;
 }
 
+/** Subgroups can only be checked when a persona or matrix values describe their needs. */
+export function hasAdjustmentProfile(g: Pick<MethodAdjustmentGroup, 'personaId' | 'selectedValues'>): boolean {
+  return Boolean(g.personaId) || Object.keys(g.selectedValues || {}).length > 0;
+}
+
 /** A method counts as a weak fit for a group below this value; guidance alone already gives 4. */
 const WEAK_FIT = 4;
 /** The alternative has to be clearly better, otherwise the plan stays as it is. */
@@ -59,7 +64,8 @@ function staysWithinFrame(
   needsScaffolding: boolean,
   constraints: MethodAdjustmentConstraints
 ): boolean {
-  if (!constraints.maxTechnik && (TECH_RANK[candidate.technik] ?? 0) > Math.max(TECH_RANK[current.technik] ?? 0, 1)) return false;
+  // Relative to the replaced method, also when a general technology limit is set (that limit applies on top).
+  if ((TECH_RANK[candidate.technik] ?? 0) > Math.max(TECH_RANK[current.technik] ?? 0, 1)) return false;
   if (candidate.internet && !current.internet) return false;
   if (usesAi(candidate) && !usesAi(current)) return false;
   if (constraints.fachbereich && (candidate.fachbereichUngeeignet || []).includes(constraints.fachbereich)) return false;
@@ -107,8 +113,7 @@ export function proposeMethodAdjustments(
 
   for (const g of groups) {
     if (g.isMain) continue;
-    const hasProfile = Boolean(g.personaId) || Object.keys(g.selectedValues || {}).length > 0;
-    if (!hasProfile) continue;
+    if (!hasAdjustmentProfile(g)) continue;
     const matrix = scoreDifferentiationMatrix({
       personaId: g.personaId,
       selectedValues: g.selectedValues,
@@ -123,7 +128,8 @@ export function proposeMethodAdjustments(
       if (!p.block || p.locked) continue;
       const current = scoreMethodForGroup(p.block, matrix).fit;
       if (current >= WEAK_FIT) continue;
-      const candidates = suggestAlternativeMethodsForGroup(matrix, p.block, allBlocks, 8, p.durationMin, constraints);
+      // All suitable alternatives: the filters below may rule out the first ones.
+      const candidates = suggestAlternativeMethodsForGroup(matrix, p.block, allBlocks, allBlocks.length, p.durationMin, constraints);
       const best = candidates
         .map((c) => ({ c, block: byKennung.get(c.kennung) }))
         .filter((x): x is { c: (typeof candidates)[number]; block: Baustein } => Boolean(x.block))

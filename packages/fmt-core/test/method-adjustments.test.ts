@@ -67,6 +67,15 @@ describe('proposeMethodAdjustments', () => {
     }
   });
 
+  it('hält die Technikgrenze der ersetzten Methode auch bei gesetztem maxTechnik', () => {
+    for (const p of QUICK_LEARNER_GROUP_PROFILES) {
+      for (const a of proposeMethodAdjustments(D.bausteine, PHASES, [MAIN, quick(p.id)], { maxTechnik: 't-einzeln' })) {
+        const zu = block(a.zuKennung);
+        expect(['t-keine', 't-projektion'].includes(zu.technik) || zu.technik === block(a.vonKennung).technik).toBe(true);
+      }
+    }
+  });
+
   it('gibt Gruppen mit Unterstützungsbedarf keine völlig offene Methode', () => {
     for (const p of QUICK_LEARNER_GROUP_PROFILES) {
       const matrix = scoreDifferentiationMatrix({ personaId: p.personaId, selectedValues: p.selectedValues, limit: 10 });

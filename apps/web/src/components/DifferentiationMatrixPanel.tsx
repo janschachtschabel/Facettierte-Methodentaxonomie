@@ -123,6 +123,8 @@ export function DifferentiationMatrixPanel({
   const [selectedGroupId, setSelectedGroupId] = useState<string>(groups[0]?.id || 'regel');
   const [activeTab, setActiveTab] = useState<PanelTab>('udl');
   const [showAllVariables, setShowAllVariables] = useState(false);
+  // The detail tabs are collapsed by default and open when a group tag asks for them.
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [includeSystemMeasures, setIncludeSystemMeasures] = useState(false);
   const [quickText, setQuickText] = useState('');
   const [newGroupLabel, setNewGroupLabel] = useState('');
@@ -286,6 +288,7 @@ export function DifferentiationMatrixPanel({
   };
 
   const totalLearners = activeGroups.reduce((s, g) => s + (g.count || 0), 0);
+  const subgroupCount = activeGroups.filter((g) => g.focus !== 'regel').length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -318,7 +321,7 @@ export function DifferentiationMatrixPanel({
           <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5, color: 'var(--dA)' }}>
             {isStandardOnly
               ? 'Deine Lerngruppe: bisher nur die Regelgruppe'
-              : `Deine Lerngruppe: Regelgruppe und ${activeGroups.length - 1} ${activeGroups.length - 1 === 1 ? 'Teilgruppe' : 'Teilgruppen'}`}
+              : `Deine Lerngruppe: Regelgruppe und ${subgroupCount} ${subgroupCount === 1 ? 'Teilgruppe' : 'Teilgruppen'}`}
             {totalLearners > 0 && activeGroups.every((g) => (g.count || 0) > 0) ? ` · ${totalLearners} Lernende` : ''}
           </strong>
           {!isStandardOnly && (
@@ -326,7 +329,7 @@ export function DifferentiationMatrixPanel({
               type="button"
               className="btn btn-sm diff-reset-btn"
               onClick={resetToStandardGroup}
-              title="Entfernt alle zusätzlichen Teilgruppen und kehrt zur einzelnen Standardgruppe zurück"
+              title="Entfernt alle zusätzlichen Teilgruppen und kehrt zur Regelgruppe allein zurück"
             >
               ↺ Alle Teilgruppen entfernen
             </button>
@@ -339,10 +342,13 @@ export function DifferentiationMatrixPanel({
               <button
                 type="button"
                 className="diff-active-tag-btn"
-                title={`Teilgruppe „${g.label}“ in Tab 3 (Teilgruppen & Feinjustierung) bearbeiten`}
+                title={`„${g.label}“ unter „Mehr Details“ feinjustieren`}
                 onClick={() => {
                   setSelectedGroupId(g.id);
-                  if (!isStandardOnly) setActiveTab('gruppen');
+                  if (!isStandardOnly) {
+                    setActiveTab('gruppen');
+                    setDetailsOpen(true);
+                  }
                 }}
               >
                 <span>{g.label}</span>
@@ -433,7 +439,11 @@ export function DifferentiationMatrixPanel({
 
       {/* Detail workspace: collapsed by default so the three main stages stay in view */}
       {!isStandardOnly && (
-        <details className="diff-details">
+        <details
+          className="diff-details"
+          open={detailsOpen}
+          onToggle={(e) => setDetailsOpen((e.currentTarget as HTMLDetailsElement).open)}
+        >
           <summary>
             Mehr Details: Maßnahmen für alle, Zielkonflikte und Feinjustierung je Teilgruppe und Phase
           </summary>
