@@ -689,6 +689,18 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
     expect(grund).toContain('braucht: Bewegungsfläche');
   });
 
+  it('gebundener Schritt mit Fachbereich: ohne tragende Methode bleibt er offen, keine Ersatzmethode', () => {
+    const r = MF.zuordnen({ text: 'Sport Klasse 7 Handstand 45 Minuten', fachbereich: 'sport', raum: 'klassenraum', raumBietet: [], zielart: 'bewegung' }) as AblaufMatchResult;
+    expect(r.kette?.id).toBe('fertigkeit-bewegung');
+    expect((r.offenGruende || []).map((g) => g.schritt)).toEqual(expect.arrayContaining(['b2', 'b3', 'b4']));
+    expect((r.annahmen || []).filter((x) => /praktische Methode des Fachbereichs/.test(x))).toEqual([]);
+    const kette = DF.ketten.find((k) => k.id === 'fertigkeit-bewegung')!;
+    for (const s of r.schritte || []) {
+      if (kette.schritte.find((k) => k.id === s.schritt)?.rolle !== 'haupt') continue;
+      expect(DF.bausteine.find((b) => b.kennung === s.baustein)!.aufgabe, s.baustein).toContain('psychomotorik');
+    }
+  });
+
   it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {
     const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
     expect(r.pflichtangaben?.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));

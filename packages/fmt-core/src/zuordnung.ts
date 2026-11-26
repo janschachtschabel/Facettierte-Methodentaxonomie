@@ -1421,8 +1421,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       // Bis Tor D2: few methods carry psychomotorik, and their subject areas name sport, the arts and vocational
       // practice only (Vier-Stufen-Methode, Bewegungsdemonstration), although they are used in labs and workshops too.
       // In a bound step, carrying methods of the lesson's subject come first; when none of them fits here, a practice
-      // method of the subject that does not carry the knowledge type comes before a carrying method of another subject,
-      // and the answer says so (annahmen). Remove with the reviewed subject areas (Tor D2) and isPraxisMethod (A10).
+      // method whose subject areas name the lesson's subject comes before a carrying method of another subject, and the
+      // answer says so (annahmen). It never fills a step that no carrying method could fill. Remove with the reviewed subject areas (Tor D2) and isPraxisMethod (A10).
       // A method the teacher named is a wish: its subject areas do not move it back.
       const fremd = (b: Baustein) =>
         Boolean(currentArea) &&
@@ -1430,15 +1430,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         (b.fachbereich || []).length > 0 &&
         !areaFits(b) &&
         !(b.fachbereich || []).includes('uebergreifend');
+      const fremdTragend = [...primaryCands, ...fallbackCands].filter(fremd);
+      // The stand-in only reorders: it needs a carrying method of another subject that it moves ahead of, so a step
+      // that W5 leaves open stays open. Only for psychomotorik, where the subject areas are known to be incomplete.
       const ersatzFach =
-        gebunden(step) && currentArea
+        gebunden(step) && currentArea && (step.wissensart || []).includes('psychomotorik') && fremdTragend.length
           ? order(
               data.bausteine
                 .filter(
                   (b) =>
                     (rang.get(b.reichweite) ?? 0) <= 3 &&
                     !traegt(b, step) &&
-                    !fremd(b) &&
+                    areaFits(b) &&
                     isPraxisMethod(b) &&
                     !rahmen(b, a) &&
                     closure(b.nachbedingung || []).has(step.ziel)
@@ -1493,7 +1496,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       teile.push(chosen);
       if (ersatzIds.has(chosen.baustein)) {
         bindungsAnnahmen.push(
-          `Für „${step.label}“ trägt keine passende Methode des Fachbereichs ${label('fachbereich', currentArea)} die Wissensart ${wissensartLabel(step.wissensart!)}; „${blocks.get(chosen.baustein)!.name}“ steht als praktische Methode des Fachbereichs an dieser Stelle.`
+          `Für „${step.label}“ passt hier keine Methode des Fachbereichs ${label('fachbereich', currentArea)}, die die Wissensart ${wissensartLabel(step.wissensart!)} trägt; „${blocks.get(chosen.baustein)!.name}“ steht als praktische Methode des Fachbereichs vor Methoden anderer Fachbereiche, die sie tragen.`
         );
       }
       if (currentMentions.has(chosen.baustein)) anchoredAt.set(chosen.baustein, step.label);
