@@ -887,12 +887,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentNegatedInteractions = new Set<string>();
   /** Methods the request rules out by name ("kein Lehrervortrag"). */
   let currentNegatedMethods = new Set<string>();
-  /** The chain trains a movement or hands-on skill: classroom methods do not fit its main phases. */
-  let currentPraxis = false;
   /** The approach was only guessed from loose wording: a method without it loses less. */
   let currentGuessedAnsatz = false;
-  /** Room of the lesson: stated, or derived from the subject (sport → movement space). */
-  let currentRaum = '';
   /** The situation the methods are checked against (room and what it offers, literacy, dates, required details). */
   const keineSituation = (): Situation => baueSituation({}, data);
   let currentSituation: Situation = keineSituation();
@@ -1703,16 +1699,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['ansatz', 'didaktischer Ansatz']
   ];
 
-  /**
-   * Situation of the lesson and whether its main phases should be practical. The room comes from the situation
-   * (stated, or assumed from the subject); an assumed classroom counts as no stated room for the practice preference.
-   * A stated classroom turns the practice preference off.
-   */
-  function setRoom(a: MatchRequest, psychomotor: boolean) {
+  /** Situation of the lesson: the room (stated, or assumed from subject and goal) with what it offers, literacy, dates. */
+  function setzeSituation(a: MatchRequest, psychomotor: boolean) {
     currentSituation = baueSituation(a, data, { ...currentSituationKontext, psychomotorisch: psychomotor });
-    const s = currentSituation;
-    currentRaum = !s.raumGenannt && s.raum === 'klassenraum' ? '' : raumKlasse(s.raum);
-    currentPraxis = currentRaum !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentRaum));
   }
 
   /** Methods a result offers: the whole sequence, or the first six proposals of a single phase. */
@@ -1892,7 +1881,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));
-        setRoom(a, psychomotor);
+        setzeSituation(a, psychomotor);
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }), {
           pflichtangaben: pflichtangaben(psychomotor),
           ...mitNachweis(nachweisWunsch(a))
@@ -1945,7 +1934,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           pflichtangaben: pflichtangaben(false)
         });
       }
-      setRoom(a, bewegungsKette(ketten[0]));
+      setzeSituation(a, bewegungsKette(ketten[0]));
       // Too little time for the chain's phases (at least five minutes each): offer methods for one phase instead.
       const phasen = planSteps(ketten[0], a).length;
       if (!given(a.modus) && given(a.zeitMin) && phasen * 5 > Number(a.zeitMin)) {
@@ -1965,7 +1954,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const general = chains.get('konzeptaufbau');
       if (chainGuessed && general && !res.pruefung?.gueltig) {
         const tried = ketten[0].label;
-        currentPraxis = ['bewegungsraum', 'fachraum', 'draussen'].includes(currentRaum);
         const retry = ablauf(a, general);
         if (retry.pruefung?.gueltig) {
           res = Object.assign(retry, {
@@ -1993,7 +1981,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const retryOrder = [...data.ketten].sort((x, y) => Number(y.id === 'konzeptaufbau') - Number(x.id === 'konzeptaufbau'));
         for (const k of retryOrder.filter(fitsChain)) {
           triedChains.add(k.id);
-          setRoom(a, bewegungsKette(k));
+          setzeSituation(a, bewegungsKette(k));
           const retry = ablauf(a, k);
           const inTime = !given(a.zeitMin) || (retry.pruefung?.dauerMin ?? 0) <= Number(a.zeitMin);
           const placed = new Set((retry.verankert || []).map((v) => v.baustein));
@@ -2010,7 +1998,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         }
         if (ketten[0] !== tried) break;
       }
-      setRoom(a, bewegungsKette(ketten[0]));
+      setzeSituation(a, bewegungsKette(ketten[0]));
       // Still no valid plan: relax one wish at a time that only narrows the choice, and say which one.
       // Only an uncovered function (R-04) can be helped this way; wishes the caller stated as fields stay.
       const uncovered = (res.pruefung?.meldungen || []).some((x) => x.regel === 'R-04' && x.schwere === 'Fehler');
@@ -2020,12 +2008,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           if (!given(a[feld]) || given(anfrage[feld])) continue;
           const relaxed: MatchRequest = { ...a };
           delete relaxed[feld];
-          setRoom(relaxed, bewegungsKette(ketten[0]));
+          setzeSituation(relaxed, bewegungsKette(ketten[0]));
           const retry = ablauf(relaxed, ketten[0]);
           const inTime = !given(a.zeitMin) || (retry.pruefung?.dauerMin ?? 0) <= Number(a.zeitMin);
           const placed = new Set((retry.verankert || []).map((v) => v.baustein));
           if (retry.pruefung?.gueltig && inTime && placedBefore.every((id) => placed.has(id))) {
-            setRoom(a, bewegungsKette(ketten[0]));
+            setzeSituation(a, bewegungsKette(ketten[0]));
             res = Object.assign(retry, {
               annahmen: [
                 ...(retry.annahmen || []),
@@ -2045,7 +2033,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         ])
       });
     } finally {
-      lastRoom = currentRaum;
+      lastRoom = raumKlasse(currentSituation.raum);
       lastArea = currentArea;
       lastUnusual = currentUnusualMentions;
       currentRawText = '';
@@ -2062,9 +2050,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentGestaltung = false;
       currentNegatedInteractions = new Set();
       currentNegatedMethods = new Set();
-      currentPraxis = false;
       currentGuessedAnsatz = false;
-      currentRaum = '';
       currentSituation = keineSituation();
       currentSituationKontext = {};
       currentStepRole = '';
