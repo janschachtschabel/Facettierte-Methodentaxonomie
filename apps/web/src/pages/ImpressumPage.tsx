@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { EmailAddress, useContactAddress, usePageTitle } from '../components/LegalShared.js';
 
 /** Mail programs cut long mailto links; the message stays well below that. */
-const LIMITS = { name: 120, betreff: 150, nachricht: 1500 };
+const LIMITS = { name: 120, betreff: 150, nachricht: 800 };
 
 /** Builds the mailto link; exported for tests. */
 export function buildMailto(address: string, v: { name: string; betreff: string; nachricht: string }): string {

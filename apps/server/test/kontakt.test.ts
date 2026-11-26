@@ -61,8 +61,27 @@ describe('Kontakt und Datensparsamkeit', () => {
     expect(img.headers['content-type']).toBe('image/png');
     expect(fetchMock).toHaveBeenCalledWith(ok, expect.objectContaining({ redirect: 'error' }));
 
+    // A second view comes from the cache and does not reach WLO again.
+    const again = await app.inject({ method: 'GET', url: '/api/v1/oer/vorschau?u=' + encodeURIComponent(ok) });
+    expect(again.statusCode).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const other = (n: number) => ok + '&n=' + n;
     vi.stubGlobal('fetch', vi.fn(async () => new Response('<html>', { headers: { 'content-type': 'text/html' } })));
-    expect((await app.inject({ method: 'GET', url: '/api/v1/oer/vorschau?u=' + encodeURIComponent(ok) })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/v1/oer/vorschau?u=' + encodeURIComponent(other(1)) })).statusCode).toBe(404);
+
+    // Oversized images are refused, whether announced by content-length or only noticed while streaming.
+    const big = new Uint8Array(2 * 1024 * 1024 + 1);
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(big, { headers: { 'content-type': 'image/png', 'content-length': String(big.length) } })));
+    expect((await app.inject({ method: 'GET', url: '/api/v1/oer/vorschau?u=' + encodeURIComponent(other(2)) })).statusCode).toBe(404);
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        for (let i = 0; i < 3; i++) c.enqueue(new Uint8Array(1024 * 1024));
+        c.close();
+      }
+    });
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(stream, { headers: { 'content-type': 'image/png' } })));
+    expect((await app.inject({ method: 'GET', url: '/api/v1/oer/vorschau?u=' + encodeURIComponent(other(3)) })).statusCode).toBe(404);
   });
 
   it('die Adresse steht nicht im Quelltext der Web-App', () => {

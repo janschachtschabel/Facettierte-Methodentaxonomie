@@ -78,6 +78,7 @@ function isOpenAiUrl(baseUrl: string): boolean {
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
+  // The privacy policy (apps/web/src/pages/DatenschutzPage.tsx) names OpenAI; update it if LLM_BASE_URL points elsewhere.
   const llmBaseUrl = (env.LLM_BASE_URL || DEFAULT_LLM_BASE_URL).replace(/\/+$/, '');
   const explicitKey = (env.LLM_API_KEY || '').trim();
   const disableFallback = explicitKey.toLowerCase() === 'none' || explicitKey.toLowerCase() === 'off';

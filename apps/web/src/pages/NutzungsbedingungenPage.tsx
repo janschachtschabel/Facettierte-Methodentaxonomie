@@ -37,8 +37,8 @@ export function NutzungsbedingungenPage() {
       <h2>3. Inhalte und KI-Ergebnisse</h2>
       <p>
         Die Datenbank ist sorgfältig erstellt, ersetzt aber nicht das eigene fachliche und pädagogische Urteil.
-        Vorschläge zu Abläufen, Differenzierung und Methoden sind Anregungen. Texte, die eine KI erzeugt (alle Funktionen mit
-        „KI“ im Namen), können Fehler enthalten. Prüfe sie vor dem Einsatz im Unterricht und kennzeichne sie bei der
+        Vorschläge zu Abläufen, Differenzierung und Methoden sind Anregungen. Texte aus KI-gestützten Funktionen (z. B. Ausformulieren,
+        Material erstellen, Übersetzen), können Fehler enthalten. Prüfe sie vor dem Einsatz im Unterricht und kennzeichne sie bei der
         Weitergabe als KI-unterstützt.
       </p>
 

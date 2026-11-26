@@ -421,30 +421,65 @@ export function isWloPreviewUrl(raw: string): boolean {
 }
 
 const PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
+// Thumbnails are small; a short cache keeps repeated views from reaching WLO again.
+const previewCache = new LruTtlCache<{ type: string; buf: Buffer }>(200, 60 * 60 * 1000);
+
+/** Reads a response body but stops as soon as it grows past `max` bytes (returns null then). */
+async function readCapped(res: Response, max: number): Promise<Buffer | null> {
+  const declared = Number(res.headers.get('content-length') || 0);
+  if (declared > max) {
+    await res.body?.cancel().catch(() => {});
+    return null;
+  }
+  if (!res.body) return Buffer.alloc(0);
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > max) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks);
+}
 
 export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
   // Preview images of WLO hits travel through this server: the visitor's browser never contacts WLO itself.
   app.get(
     '/api/v1/oer/vorschau',
-    { config: { rateLimit: { max: 600, timeWindow: '1 minute' } } },
+    { config: { rateLimit: { max: 120, timeWindow: '1 minute' } } },
     async (req, reply) => {
       const raw = String((req.query as { u?: unknown })?.u ?? '');
       if (!isWloPreviewUrl(raw)) return reply.code(400).send({ fehler: 'Nur Vorschaubilder von WirLernenOnline.' });
+      const send = (img: { type: string; buf: Buffer }) =>
+        reply
+          .header('Content-Type', img.type)
+          .header('Cache-Control', 'public, max-age=86400')
+          .header('X-Content-Type-Options', 'nosniff')
+          // SVG may carry scripts; it is only ever shown as an image, never as a document.
+          .header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+          .send(img.buf);
+      const cached = previewCache.get(raw);
+      if (cached) return send(cached);
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 8000);
       try {
         const res = await fetch(raw, { signal: controller.signal, redirect: 'error', headers: { Accept: 'image/*' } });
         const type = res.headers.get('content-type') || '';
-        if (!res.ok || !/^image\/(png|jpe?g|gif|webp|svg\+xml)\b/i.test(type)) return reply.code(404).send({ fehler: 'Kein Vorschaubild.' });
-        const buf = Buffer.from(await res.arrayBuffer());
-        if (buf.length > PREVIEW_MAX_BYTES) return reply.code(404).send({ fehler: 'Vorschaubild zu groß.' });
-        return reply
-          .header('Content-Type', type)
-          .header('Cache-Control', 'public, max-age=86400')
-          .header('X-Content-Type-Options', 'nosniff')
-          // SVG may carry scripts; it is only ever shown as an image, never as a document.
-          .header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
-          .send(buf);
+        if (!res.ok || !/^image\/(png|jpe?g|gif|webp|svg\+xml)\b/i.test(type)) {
+          await res.body?.cancel().catch(() => {});
+          return reply.code(404).send({ fehler: 'Kein Vorschaubild.' });
+        }
+        const buf = await readCapped(res, PREVIEW_MAX_BYTES);
+        if (!buf) return reply.code(404).send({ fehler: 'Vorschaubild zu groß.' });
+        const img = { type, buf };
+        previewCache.set(raw, img);
+        return send(img);
       } catch {
         return reply.code(502).send({ fehler: 'Vorschaubild nicht erreichbar.' });
       } finally {

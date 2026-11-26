@@ -30,8 +30,8 @@ export function DatenschutzPage() {
       <h2>2. Hosting</h2>
       <p>
         Die Website läuft auf einem Server von Hostinger (Hostinger International Ltd., Zypern) in einem Rechenzentrum
-        in der EU. Hostinger verarbeitet die Daten, die beim Aufruf anfallen, nur in unserem Auftrag
-        (Auftragsverarbeitung nach Art. 28 DSGVO). Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren
+        in der EU. Hostinger verarbeitet die Daten, die beim Aufruf anfallen, nur in meinem Auftrag
+        (Auftragsverarbeitung nach Art. 28 DSGVO). Rechtsgrundlage ist mein berechtigtes Interesse an einem sicheren
         und zuverlässigen Betrieb (Art. 6 Abs. 1 lit. f DSGVO).
       </p>
 
@@ -39,7 +39,8 @@ export function DatenschutzPage() {
       <p>
         Beim Aufruf überträgt dein Browser technisch notwendig deine IP-Adresse und Angaben wie die aufgerufene Adresse.
         Der Server protokolliert je Anfrage nur Zeitpunkt, Methode, aufgerufenen Pfad (ohne Suchbegriffe),
-        Statuscode und Antwortzeit, <strong>nicht aber deine IP-Adresse</strong>. Die Protokolle dienen dem Erkennen
+        Statuscode und Antwortzeit, <strong>nicht aber deine IP-Adresse</strong>. Auch der vorgeschaltete Webserver
+        (Reverse Proxy) führt kein Zugriffsprotokoll mit IP-Adressen. Die Protokolle dienen dem Erkennen
         von Fehlern und Angriffen (Art. 6 Abs. 1 lit. f DSGVO). Sie sind in der Größe begrenzt und werden laufend
         überschrieben.
       </p>
@@ -53,7 +54,7 @@ export function DatenschutzPage() {
       <p>
         Schriftarten, Grafiken und Programmcode liefert dieser Server selbst aus. Es werden keine Schriften von Google
         oder anderen Anbietern und keine externen Skripte oder Content-Delivery-Netze geladen. Vorschaubilder aus
-        WirLernenOnline holt der Server ab und reicht sie durch, sodass dein Browser dabei keinen fremden Server
+        WirLernenOnline holt der Server ab, hält sie bis zu einer Stunde im Arbeitsspeicher und reicht sie durch, sodass dein Browser dabei keinen fremden Server
         kontaktiert. Erst wenn du einen Link zu einer fremden Seite anklickst (z. B. zu einem Material bei
         WirLernenOnline, zu GitHub oder zu einer Lizenz), gelten die Datenschutzbestimmungen dieser Seite.
       </p>
@@ -78,10 +79,10 @@ export function DatenschutzPage() {
 
       <h2>7. Suche nach freien Materialien (WirLernenOnline)</h2>
       <p>
-        Wenn du im Baukasten nach freien Bildungsmaterialien suchst, schickt unser Server den Suchbegriff sowie Fach,
+        Wenn du im Baukasten nach freien Bildungsmaterialien suchst, schickt der Server den Suchbegriff sowie Fach,
         Bildungsstufe und Materialart an die Suche von WirLernenOnline (redaktion.openeduhub.net). Deine IP-Adresse
-        oder andere Angaben über dich werden dabei nicht übermittelt. Die Ergebnisse werden kurz im Arbeitsspeicher
-        zwischengespeichert.
+        oder andere Angaben über dich werden dabei nicht übermittelt. Die Ergebnisse werden bis zu zehn Minuten im
+        Arbeitsspeicher zwischengespeichert.
       </p>
 
       <h2>8. KI-Funktionen</h2>
@@ -96,17 +97,22 @@ export function DatenschutzPage() {
           {serverKi === false
             ? 'Derzeit ist auf diesem Server keine Server-KI eingeschaltet. '
             : 'Ist sie eingeschaltet, sendet der Server die Angaben deines Vorhabens (z. B. Fach, Thema, Ablauf, Lerngruppen) an die Schnittstelle von OpenAI. '}
-          OpenAI kann Daten auch in den USA verarbeiten. Die Übermittlung erfolgt im Rahmen eines
-          Auftragsverarbeitungsvertrags mit OpenAI und der dort vereinbarten Garantien für Drittlandübermittlungen.
-          Der Server speichert die Antworten bis zu einer Stunde im Arbeitsspeicher, damit gleiche Anfragen nicht
-          erneut gesendet werden. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (von dir angefragte Funktion).
+          Empfänger ist OpenAI Ireland Ltd. (Dublin, Irland); OpenAI kann Daten auch in den USA verarbeiten. Die
+          Übermittlung erfolgt im Rahmen eines Auftragsverarbeitungsvertrags mit OpenAI und der dort vereinbarten
+          Garantien für Drittlandübermittlungen (EU-Standardvertragsklauseln). OpenAI verwendet Daten aus der
+          Schnittstelle nicht zum Training und bewahrt sie nach eigenen Angaben bis zu 30 Tage zur Missbrauchserkennung
+          auf. Der Server speichert die Antworten kurzzeitig im Arbeitsspeicher (in der Regel bis zu einer Stunde),
+          damit gleiche Anfragen nicht erneut gesendet werden. Rechtsgrundlage ist mein berechtigtes Interesse, die von
+          dir ausgelöste Funktion bereitzustellen (Art. 6 Abs. 1 lit. f DSGVO).
         </li>
         <li>
           <strong>Eigene KI:</strong> Unter „KI-Einstellungen“ kannst du einen eigenen Anbieter und Schlüssel
-          eintragen. Dann gehen deine Anfragen entweder direkt aus deinem Browser an diesen Anbieter oder werden über
-          unseren Server weitergereicht, ohne dort gespeichert zu werden. Für diese Verarbeitung ist der von dir
-          gewählte Anbieter nach seinen eigenen Bedingungen zuständig. Dein Schlüssel bleibt in deinem Browser und
-          wird nur für die jeweilige Anfrage verwendet.
+          eintragen. Dein Schlüssel wird in deinem Browser gespeichert (Session Storage, auf Wunsch dauerhaft im Local
+          Storage, dort unverschlüsselt). Im Modus „über den Server“ erhält der Server Schlüssel und Inhalt nur, um
+          sie an den Anbieter weiterzureichen, und speichert beides nicht. Im direkten Modus baut der Server zuerst
+          aus deinen Angaben die Anfrage zusammen; dein Browser schickt sie dann selbst an den Anbieter. Antworten
+          aus eigener KI werden nicht zwischengespeichert. Für die Verarbeitung beim Anbieter ist der von dir
+          gewählte Anbieter nach seinen eigenen Bedingungen zuständig.
         </li>
       </ul>
       <p>
@@ -117,15 +123,16 @@ export function DatenschutzPage() {
       <h2>9. Spracheingabe</h2>
       <p>
         Die Spracheingabe im Baukasten nutzt die Spracherkennung deines Browsers. Je nach Browser wird die Aufnahme
-        dabei vom Browser-Hersteller verarbeitet, bei Google Chrome zum Beispiel auf Servern von Google. Darauf haben
-        wir keinen Einfluss. Die Spracheingabe startet nur, wenn du sie anklickst. Wer das vermeiden möchte, tippt den
+        dabei vom Browser-Hersteller verarbeitet, bei Google Chrome zum Beispiel auf Servern von Google. Darauf habe
+        ich keinen Einfluss. Die Spracheingabe startet nur, wenn du sie anklickst. Wer das vermeiden möchte, tippt den
         Text ein.
       </p>
 
       <h2>10. Schnittstellen (API und MCP)</h2>
       <p>
         Für Abrufe über die REST-API oder den MCP-Server gilt dasselbe wie für die Website: Protokolle ohne IP-Adresse,
-        kurzzeitige Begrenzung je IP-Adresse, keine Speicherung der übergebenen Inhalte.
+        kurzzeitige Begrenzung je IP-Adresse, keine dauerhafte Speicherung der übergebenen Inhalte (nur die oben
+        beschriebenen kurzlebigen Zwischenspeicher im Arbeitsspeicher).
       </p>
 
       <h2>11. Deine Rechte</h2>

@@ -24,6 +24,7 @@ Die Datei `docker-compose.yml` im Projekt-Hauptordner erfüllt alle Hostinger-An
 - kein `build:` und keine Bind-Mounts auf Repo-Dateien,
 - kein `external: true`-Netz (benanntes Standardnetz `fmt-methodendatenbank-web`),
 - keine Host-Ports `80`/`443` (HTTPS übernimmt Hostingers Traefik über Labels),
+- Datenschutz: Die Datenschutzerklärung sagt zu, dass auch der Reverse Proxy kein Zugriffsprotokoll mit IP-Adressen führt. Traefiks `accessLog` muss deshalb ausgeschaltet bleiben (Standard) oder IP-Adressen auslassen,
 - **erster Deploy gelingt komplett ohne Variablen**.
 
 #### Schritt-für-Schritt-Ablauf
