@@ -102,6 +102,7 @@ const NEGATABLE_METHODS: Array<[RegExp, string[]]> = [
   [/^(?:lehr)?film\w*$|^video\w*$/, ['lehrfilm-rezeption', 'erklaervideo', 'stop-motion-erklaerfilm']]
 ];
 /** Dance and movement design topics in sport (folded text). Not "Distanz", "Substanz". */
+// Kept (Abbau Zeile 5, bis Tor D2), see docs/qualitaet/2026-11-27-fmt2-abbau.md.
 const GESTALTUNG =
   /\b(?:(?:volks|hip-?hop|jazz|modern|street|gesellschafts|kreis|line|aerobic)?tanz\w*|choreo\w*|gymnastik\w*|akrobati\w*|kur(?:ubung)?|bewegungsgestaltung|bewegungskunste?|jonglier\w*|rhythmische\w*\s+sportgymnastik)\b/;
 const LIMITING = /^(?:zu|lange|langen|langer|viel|viele|vielen|grosse|grossen|ausufernde\w*|reine\w*)$/;
@@ -897,6 +898,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** Dance and movement design in sport borrow the methods of the arts (Vorführung, Teil-Ganz-Üben). */
   let currentGestaltung = false;
   /** Whether the method's subject areas include the lesson's subject (or a neighbour the topic opens). */
+  // The borrowing for dance (currentGestaltung) is kept (Abbau Zeile 5, bis Tor D2), see docs/qualitaet/2026-11-27-fmt2-abbau.md.
   const areaFits = (b: Baustein) =>
     (b.fachbereich || []).includes(currentArea) || (currentGestaltung && (b.fachbereich || []).includes('aesthetik'));
   /** Interaction forms the request rules out ("keine Gruppenarbeit"). */
@@ -909,7 +911,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const keineSituation = (): Situation => baueSituation({}, data);
   let currentSituation: Situation = keineSituation();
   /** Topic and subject read from the request text, for the required details of the situation. */
-  let currentSituationKontext: { thema?: string; fachErkannt?: boolean } = {};
+  let currentSituationKontext: { thema?: string; fachErkannt?: boolean; sportAusKondition?: boolean } = {};
   /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
   let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
   /** The chain step being filled binds the knowledge type (main or securing step with a knowledge type). */
@@ -1413,6 +1415,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const formPasst = (b: Baustein) => Boolean(nachweis) && nachweisformen(b).some((f) => nachweis!.formen.includes(f));
     const checkAt = steps.findIndex((st) => st.id === checkStepId);
     if (checkAt >= 0 && floors[checkAt] == null && nachweis && totalBudget != null) {
+      // Rank as the check step itself is ranked below (role, index and binding of the step).
+      const vorher = { role: currentStepRole, index: currentStepIndex, gebunden: currentStepGebunden };
+      currentStepRole = 'pruefung';
+      currentStepIndex = checkAt;
+      currentStepGebunden = gebunden(steps[checkAt]);
       const passend = data.bausteine
         .filter(
           (b) =>
@@ -1425,6 +1432,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         )
         .map((b) => rankOf(b, a, steps[checkAt].funktion));
       const first = order(passend, 0)[0];
+      currentStepRole = vorher.role;
+      currentStepIndex = vorher.index;
+      currentStepGebunden = vorher.gebunden;
       const need = first ? first.dauerMin : 0;
       const others = steps.reduce((x, _st, i) => x + (i === checkAt ? 0 : Math.max(minStep, floors[i] ?? 0)), 0);
       if (need && need + others <= totalBudget - reserveRec) floors[checkAt] = need;
@@ -1854,7 +1864,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const themaUndFach = given(anfrage.text) ? extractSubjectAndTopic(String(anfrage.text)) : { fach: null, thema: null };
       currentSituationKontext = {
         ...(themaUndFach.thema ? { thema: themaUndFach.thema } : {}),
-        fachErkannt: Boolean(gelesen.fach || themaUndFach.fach)
+        fachErkannt: Boolean(gelesen.fach || themaUndFach.fach),
+        ...(fachAnnahmen.length ? { sportAusKondition: true } : {})
       };
       currentGestaltung = currentArea === 'sport' && GESTALTUNG.test(currentRawText);
       currentNegatedInteractions = negatedInteractions(currentRawText);
@@ -1877,6 +1888,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           }
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
+          // Kept (Abbau Zeile 9, bis Paket B), see docs/qualitaet/2026-11-27-fmt2-abbau.md.
           const roomOnly = nurSonderraum(b);
           const roomNamed = given(a.raum) && raumKlasse(a.raum) !== '';
           if (roomOnly && !(roomNamed || currentArea === 'sport' || BEWEGUNG_ZIELARTEN.has(String(a.zielart)))) return false;
@@ -1972,7 +1984,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           chainGuessed = Boolean(wahl);
         }
         if (!wahl && ansatzList.length) wahl = waehleKette(data.ketten, { ansatz: ansatzList });
-        if (!wahl) wahl = nimmAn('konzepte', 'Keine Zielart angegeben: Konzepte angenommen.');
+        if (!wahl) {
+          // An old goal kind without a chain of its own (e.g. metakognitiv) was stated: say so instead of "none given".
+          wahl = nimmAn(
+            'konzepte',
+            given(a.zielart)
+              ? `Die Zielart „${label('zielart', String(a.zielart))}“ hat keine eigene Kette: Konzepte angenommen.`
+              : 'Keine Zielart angegeben: Konzepte angenommen.'
+          );
+        }
       }
       // Other chains for the stated goal kind, for the caller to choose from.
       const art = normZielart(given(a.zielart) && !a.zieltyp ? String(a.zielart) : undefined);

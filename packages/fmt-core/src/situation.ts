@@ -38,7 +38,7 @@ function ohneSchriftListe(v: unknown): string[] {
 export function baueSituation(
   a: MatchRequest,
   data: Pick<FmtData, 'schemes'>,
-  kontext: { thema?: string; fachErkannt?: boolean; psychomotorisch?: boolean } = {}
+  kontext: { thema?: string; fachErkannt?: boolean; psychomotorisch?: boolean; sportAusKondition?: boolean } = {}
 ): Situation {
   const raumtypen = data.schemes.find((s) => s.id === 'raumtyp')?.werte || [];
   const angenommen: Annahme[] = [];
@@ -52,7 +52,9 @@ export function baueSituation(
   if (!raumGenannt) {
     if (fachbereich === 'sport') {
       raum = 'bewegungsraum';
-      angenommen.push({ feld: 'raum', wert: raum, grund: 'Raum nicht angegeben: Sporthalle angenommen, weil das Fach Sport ist.' });
+      // When sport itself was assumed from the goal kind conditioning, the goal is the reason, not the subject.
+      const weil = kontext.sportAusKondition ? 'weil das Ziel Kondition ist' : 'weil das Fach Sport ist';
+      angenommen.push({ feld: 'raum', wert: raum, grund: `Raum nicht angegeben: Sporthalle angenommen, ${weil}.` });
     } else if (kontext.psychomotorisch && (fachbereich === 'beruf-praxis' || fachbereich === 'nawi-technik')) {
       raum = 'fachraum';
       angenommen.push({ feld: 'raum', wert: raum, grund: 'Raum nicht angegeben: Fachraum angenommen, weil das Ziel praktisches Können ist.' });
