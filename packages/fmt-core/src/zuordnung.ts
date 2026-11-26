@@ -8,6 +8,7 @@ import type {
   EvidenceGrade,
   FmtData,
   Funktionskette,
+  KettenSchritt,
   MatchFieldDef,
   MatchRequest,
   MatchResult,
@@ -23,9 +24,11 @@ import { createMentionDetector } from './mentions.js';
 import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
-import { schriftFehlt } from './bedarf.js';
+import { raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
+import { baueSituation, type Annahme, type Situation } from './situation.js';
+import { extractSubjectAndTopic } from './thema.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
-import { bewegungsKette, normZielart, passtZielart, waehleKette } from './zielart.js';
+import { bewegungsKette, normZielart, traegtWissensart, waehleKette, type Kettenwahl } from './zielart.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -39,13 +42,6 @@ const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
 const SINGLE_SESSION_MAX_MIN = 180;
 /** Upper bound for a time budget (about a school year of one subject); keeps the allocation loops bounded. */
 const MAX_BUDGET_MIN = 20000;
-const AI_ROLES = new Set([
-  'tutor',
-  'dialogpartner',
-  'simulationsrolle',
-  'belehrbarer-agent',
-  'antwortgeber'
-]);
 
 const list = (x: unknown): string[] =>
   x == null || x === '' ? [] : Array.isArray(x) ? x.map(String) : [String(x)];
@@ -179,7 +175,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       )
     );
   const states = (codes?: string[]) => (codes || []).map((z) => label('lernzustand', z));
-  const usesAi = (b: Baustein) => Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
 
   const opts = (vals: VocabValue[]) => vals.map((w) => ({ code: w.id, label: w.label }));
   const FIELDS: MatchFieldDef[] = [
@@ -787,24 +782,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return fach ? { kriterien, erkannt, offen, fach } : { kriterien, erkannt, offen };
   }
 
-  function rahmen(b: Baustein, a: MatchRequest): string | null {
-    if (given(a.zeitMin) && b.dauerMin > Number(a.zeitMin)) return `braucht mindestens ${b.dauerMin} min`;
-    if (given(a.gruppe) && Number(a.gruppe) < b.gruppeMin) return `erst ab ${b.gruppeMin} Personen`;
-    if (given(a.gruppe) && Number(a.gruppe) > b.gruppeMax) return `höchstens ${b.gruppeMax} Personen`;
-    if (given(a.maxTechnik) && (techRank.get(b.technik) ?? 0) > (techRank.get(String(a.maxTechnik)) ?? 0)) {
-      return `braucht: ${label('technikbedarf', b.technik)}`;
-    }
-    if (a.ohneInternet && b.internet) return 'braucht Internet';
-    if (a.ohneKI && usesAi(b)) return 'setzt KI ein';
-    if (given(a.maxVorbereitung) && b.vorbereitungMin > Number(a.maxVorbereitung)) {
-      return `Vorbereitung etwa ${b.vorbereitungMin} min`;
-    }
-    const missing = list(a.raumzeit).filter((v) => !(b.raumzeit || []).includes(v));
-    if (missing.length) return `nicht vorgesehen für: ${missing.map((v) => label('raumzeit', v)).join(', ')}`;
-    const schrift = given(a.ohneSchrift) ? schriftFehlt(b, list(a.ohneSchrift)) : [];
-    if (schrift.length) return `verlangt: ${schrift.join(', ')}`;
-    return null;
-  }
+  /** First need of the method the situation does not cover (bedarf.ts), or null. */
+  const rahmenLuecke = (b: Baustein, a: MatchRequest): BedarfLuecke | null => ungedeckterBedarf(b, a, currentSituation, data);
+  /** Reason text of the first uncovered need, or null. */
+  const rahmen = (b: Baustein, a: MatchRequest): string | null => rahmenLuecke(b, a)?.grund ?? null;
 
   const hasSekHochschuleOnlyEvidence = (b: Baustein): boolean => {
     const scopes = (b.evidenz || []).map((e) => fold(e.geltung || '')).filter(Boolean);
@@ -879,6 +860,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentGuessedAnsatz = false;
   /** Room of the lesson: stated, or derived from the subject (sport → movement space). */
   let currentRaum = '';
+  /** The situation the methods are checked against (room and what it offers, literacy, dates, required details). */
+  const keineSituation = (): Situation => baueSituation({}, data);
+  let currentSituation: Situation = keineSituation();
+  /** Topic and subject read from the request text, for the required details of the situation. */
+  let currentSituationKontext: { thema?: string; fachErkannt?: boolean } = {};
   /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
   let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
   const mentionDetector = createMentionDetector(data);
@@ -891,7 +877,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       tolerance
     );
   const needsUnaskedTech = (b: Baustein) =>
-    !currentTechAsked && (Boolean(b.internet) || usesAi(b) || (techRank.get(b.technik) ?? 0) >= (techRank.get('t-geteilt') ?? 2));
+    !currentTechAsked && (Boolean(b.internet) || setztKiEin(b) || (techRank.get(b.technik) ?? 0) >= (techRank.get('t-geteilt') ?? 2));
 
   function domainPenalty(b: Baustein): number {
     const raw = currentRawText;
@@ -986,13 +972,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // A method the teacher named is a wish: neither its domain nor a subject that marks it unsuitable demotes it.
         (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
           (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
-          // Without another room the lesson is in a classroom: a method that needs a gym or the outdoors does not fit.
-          ((!currentRaum || currentRaum === 'klassenraum' || currentRaum === 'hoersaal') &&
-          (b.lernort || []).length &&
-          !b.lernort!.includes('klassenraum') &&
-          !b.lernort!.includes(currentRaum || 'klassenraum')
-            ? 1
-            : 0),
+          // A room need the room does not offer: excludes when the room is stated (rahmen), orders when it is assumed.
+          (raumFehlt(b, currentSituation).length ? 1 : 0),
         // Graded: when nothing fits the rest of the lesson, the method that overshoots least comes first.
         hardCapMin != null && b.dauerMin > hardCapMin ? Math.ceil((b.dauerMin - hardCapMin) / 5) : 0
       ],
@@ -1074,7 +1055,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const have = a.vorhanden !== undefined ? closure(list(a.vorhanden)) : null;
     const out = {
       funktion: 0,
-      rahmen: [] as Array<{ baustein: string; name: string; grund: string }>,
+      rahmen: [] as Array<{ baustein: string; name: string; grund: string; merkmal?: string }>,
       anschluss: [] as Array<{ baustein: string; name: string; grund: string }>
     };
     const hits: Ranked[] = [];
@@ -1089,9 +1070,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         out.funktion++;
         return;
       }
-      const reason = rahmen(b, a);
-      if (reason) {
-        out.rahmen.push({ baustein: b.kennung, name: b.name, grund: reason });
+      const luecke = rahmenLuecke(b, a);
+      if (luecke) {
+        out.rahmen.push({ baustein: b.kennung, name: b.name, grund: luecke.grund, merkmal: luecke.merkmal });
         return;
       }
       if (have) {
@@ -1134,11 +1115,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     target?: string,
     maxStepMin?: number,
     varietyPenaltyFn?: (b: Baustein) => number,
-    hardCapMin?: number
+    hardCapMin?: number,
+    schritt?: Pick<KettenSchritt, 'rolle' | 'wissensart'>
   ): Baustein[] {
     const opening = currentStepRole === 'rand' && currentStepIndex === 0;
     const ranked = data.bausteine
-        .filter((b) => (rang.get(b.reichweite) ?? 0) <= maxRang && b.lernfunktion.some((f) => functions.includes(f)) && !rahmen(b, a))
+        .filter(
+          (b) =>
+            (rang.get(b.reichweite) ?? 0) <= maxRang &&
+            b.lernfunktion.some((f) => functions.includes(f)) &&
+            (!schritt || traegt(b, schritt)) &&
+            !rahmen(b, a)
+        )
         .map((b) => {
           const reaches = !target || closure(b.nachbedingung || []).has(target);
           return rankOf(
@@ -1173,6 +1161,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   }
 
   type PlanStep = Funktionskette['schritte'][number] & { pruefung?: boolean; zusatz?: boolean };
+
+  /** Binding of the knowledge type: in main and securing steps only methods that carry the step's knowledge type. */
+  const traegt = (b: Baustein, schritt: Pick<KettenSchritt, 'rolle' | 'wissensart'>) => traegtWissensart(b, schritt);
+  const gebunden = (schritt: Pick<KettenSchritt, 'rolle' | 'wissensart'>) =>
+    (schritt.rolle === 'haupt' || schritt.rolle === 'sicherung') && Boolean(schritt.wissensart?.length);
+  const wissensartLabel = (codes: string[]) => codes.map((c) => label('aufgabenstruktur', c)).join(' oder ');
 
   /**
    * Chain steps for this request. A requested check (liefert: lernstand-diagnostiziert) uses the chain's own
@@ -1229,6 +1223,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return steps;
   }
 
+  /**
+   * Why a step stayed open: no method delivers its learning state (for the bound knowledge type) within the frame.
+   * Names the needs that excluded the methods that would otherwise carry the step.
+   */
+  function offenGrund(step: PlanStep, a: MatchRequest): string {
+    const zustand = label('lernzustand', step.ziel);
+    const satz = gebunden(step)
+      ? `Keine Methode im Katalog liefert ‚${zustand}‘ für ${wissensartLabel(step.wissensart!)} unter diesen Rahmenbedingungen.`
+      : `Keine Methode im Katalog liefert ‚${zustand}‘ unter diesen Rahmenbedingungen.`;
+    const gruende = new Map<string, number>();
+    for (const b of data.bausteine) {
+      if ((rang.get(b.reichweite) ?? 0) > 3 || !closure(b.nachbedingung || []).has(step.ziel) || !traegt(b, step)) continue;
+      const grund = rahmen(b, a);
+      if (grund) gruende.set(grund, (gruende.get(grund) || 0) + 1);
+    }
+    if (!gruende.size) return satz;
+    const haeufigste = [...gruende.entries()].sort((x, y) => y[1] - x[1]).slice(0, 3);
+    return `${satz} Ausgeschlossen: ${haeufigste.map(([g, n]) => `${g} (${n} ${n === 1 ? 'Methode' : 'Methoden'})`).join('; ')}.`;
+  }
+
   function ablauf(a: MatchRequest, kette: Funktionskette): Omit<AblaufMatchResult, 'kriterien' | 'erkannt' | 'offen'> & { offen: string[] } {
     const kontext: Arrangement['kontext'] = {};
     if (a.bildungsstufe) kontext.bildungsstufe = a.bildungsstufe;
@@ -1282,6 +1296,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
     const schritte: AblaufSchrittResult[] = [];
     const offen: string[] = [];
+    const offenGruende: Array<{ schritt: string; grund: string }> = [];
+    /** Steps where a practice method of the subject stands in for the bound knowledge type (bis Tor D2). */
+    const bindungsAnnahmen: string[] = [];
 
     const fill = (n: EinsatzNode, b: Baustein, onlyMandatory: boolean): EinsatzNode => {
       (b.slot || [])
@@ -1333,7 +1350,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         .map((st, i) => ({ st, i }))
         .filter(
           ({ st, i }) =>
-            floors[i] == null && b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel)
+            floors[i] == null &&
+            b.lernfunktion.some((f) => st.funktion.includes(f)) &&
+            closure(b.nachbedingung || []).has(st.ziel) &&
+            traegt(b, st)
         );
       const direct = fits.filter(({ st }) => (b.nachbedingung || []).includes(st.ziel));
       // A named check ("Vokabeltest") belongs to the check step, wherever the request puts it.
@@ -1354,6 +1374,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         (b) =>
           b.lernfunktion[0] === 'diagnose' &&
           (b.nachbedingung || []).includes(steps[checkAt].ziel) &&
+          traegt(b, steps[checkAt]) &&
           !rahmen(b, a) &&
           !passung(b, a).length &&
           (!currentArea || areaFits(b)) &&
@@ -1381,7 +1402,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const keepForLater = (b: Baustein) =>
         step.rolle === 'haupt' && (b.nachbedingung || []).some((z) => z !== step.ziel && laterGoals.has(z)) ? 0.25 : 0;
       const penaltyHere = (b: Baustein) => varietyPenaltyOf(b) + keepForLater(b);
-      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, penaltyHere, hardCap);
+      const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, penaltyHere, hardCap, step);
       // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
       // reaching step.ziel, include any valid method that delivers step.ziel directly.
       const fallbackCands = order(
@@ -1389,6 +1410,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           .filter(
             (b) =>
               (rang.get(b.reichweite) ?? 0) <= 3 &&
+              traegt(b, step) &&
               !rahmen(b, a) &&
               closure(b.nachbedingung || []).has(step.ziel) &&
               !primaryCands.some((p) => p.kennung === b.kennung)
@@ -1396,10 +1418,50 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           .map((b) => rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b), hardCap))
       );
       const isCheck = (b: Baustein) => b.lernfunktion[0] === 'diagnose';
+      // Bis Tor D2: few methods carry psychomotorik, and their subject areas name sport, the arts and vocational
+      // practice only (Vier-Stufen-Methode, Bewegungsdemonstration), although they are used in labs and workshops too.
+      // In a bound step, carrying methods of the lesson's subject come first; when none of them fits here, a practice
+      // method of the subject that does not carry the knowledge type comes before a carrying method of another subject,
+      // and the answer says so (annahmen). Remove with the reviewed subject areas (Tor D2) and isPraxisMethod (A10).
+      // A method the teacher named is a wish: its subject areas do not move it back.
+      const fremd = (b: Baustein) =>
+        Boolean(currentArea) &&
+        !currentMentions.has(b.kennung) &&
+        (b.fachbereich || []).length > 0 &&
+        !areaFits(b) &&
+        !(b.fachbereich || []).includes('uebergreifend');
+      const ersatzFach =
+        gebunden(step) && currentArea
+          ? order(
+              data.bausteine
+                .filter(
+                  (b) =>
+                    (rang.get(b.reichweite) ?? 0) <= 3 &&
+                    !traegt(b, step) &&
+                    !fremd(b) &&
+                    isPraxisMethod(b) &&
+                    !rahmen(b, a) &&
+                    closure(b.nachbedingung || []).has(step.ziel)
+                )
+                .map((b) => {
+                  const extra = (b.lernfunktion.some((f) => step.funktion.includes(f)) ? 0 : 1) + (used.has(b.kennung) ? 1 : 0);
+                  return rankOf(b, a, step.funktion, extra, stepCap, penaltyHere(b), hardCap);
+                })
+            )
+          : [];
+      const ersatzIds = new Set(ersatzFach.map((b) => b.kennung));
       const cands =
         step.id === checkStepId
           ? [...primaryCands.filter(isCheck), ...primaryCands.filter((b) => !isCheck(b)), ...fallbackCands]
-          : primaryCands.concat(fallbackCands);
+          : gebunden(step) && currentArea
+            ? [
+                ...primaryCands.filter((b) => !fremd(b)),
+                ...fallbackCands.filter((b) => !fremd(b)),
+                ...ersatzFach,
+                ...primaryCands.filter(fremd),
+                ...fallbackCands.filter(fremd)
+              ]
+            : primaryCands.concat(fallbackCands);
       let chosen: EinsatzNode | null = null;
       for (const b of cands) {
         for (const onlyMandatory of [true, false]) {
@@ -1425,9 +1487,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
       if (!chosen) {
         offen.push(step.label);
+        offenGruende.push({ schritt: step.id, grund: offenGrund(step, a) });
         return;
       }
       teile.push(chosen);
+      if (ersatzIds.has(chosen.baustein)) {
+        bindungsAnnahmen.push(
+          `Für „${step.label}“ trägt keine passende Methode des Fachbereichs ${label('fachbereich', currentArea)} die Wissensart ${wissensartLabel(step.wissensart!)}; „${blocks.get(chosen.baustein)!.name}“ steht als praktische Methode des Fachbereichs an dieser Stelle.`
+        );
+      }
       if (currentMentions.has(chosen.baustein)) anchoredAt.set(chosen.baustein, step.label);
       recordUsed(chosen.baustein);
       (chosen.belegung || []).forEach((x) => {
@@ -1549,9 +1617,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         plain.forEach((n, i) => (n.dauerMin = grown[i]));
       }
     }
-    const annahmen = currentTechAsked
-      ? []
-      : ['Keine Angabe zur Ausstattung: Methoden ohne Internet, KI und Einzelgeräte werden bevorzugt.'];
+    const annahmen = [
+      ...(currentTechAsked ? [] : ['Keine Angabe zur Ausstattung: Methoden ohne Internet, KI und Einzelgeräte werden bevorzugt.']),
+      ...bindungsAnnahmen
+    ];
 
     const r = validator.validate(arrangement);
     return {
@@ -1559,6 +1628,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       kette: { id: kette.id, label: kette.label },
       schritte,
       offen,
+      ...(offenGruende.length ? { offenGruende } : {}),
       verankert,
       nichtVerankert,
       annahmen,
@@ -1591,15 +1661,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['ansatz', 'didaktischer Ansatz']
   ];
 
-  /** Room of the lesson and whether its main phases should be practical. A stated classroom turns the practice preference off. */
+  /**
+   * Situation of the lesson and whether its main phases should be practical. The room comes from the situation
+   * (stated, or assumed from the subject); an assumed classroom counts as no stated room for the practice preference.
+   * A stated classroom turns the practice preference off.
+   */
   function setRoom(a: MatchRequest, psychomotor: boolean) {
-    currentRaum = raumKlasse(a.raum)
-      ? raumKlasse(a.raum)
-      : a.fachbereich === 'sport'
-        ? 'bewegungsraum'
-        : psychomotor && (a.fachbereich === 'beruf-praxis' || a.fachbereich === 'nawi-technik')
-          ? 'fachraum'
-          : '';
+    currentSituation = baueSituation(a, data, { ...currentSituationKontext, psychomotorisch: psychomotor });
+    const s = currentSituation;
+    currentRaum = !s.raumGenannt && s.raum === 'klassenraum' ? '' : raumKlasse(s.raum);
     currentPraxis = currentRaum !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentRaum));
   }
 
@@ -1700,6 +1770,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         if (a.zielart === 'kondition' && !given(anfrage.zielart)) delete a.zielart;
       }
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
+      const themaUndFach = given(anfrage.text) ? extractSubjectAndTopic(String(anfrage.text)) : { fach: null, thema: null };
+      currentSituationKontext = {
+        ...(themaUndFach.thema ? { thema: themaUndFach.thema } : {}),
+        fachErkannt: Boolean(gelesen.fach || themaUndFach.fach)
+      };
       currentGestaltung = currentArea === 'sport' && GESTALTUNG.test(currentRawText);
       currentNegatedInteractions = negatedInteractions(currentRawText);
       currentNegatedMethods = negatedMethods(currentRawText);
@@ -1765,41 +1840,64 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld),
         ...(gelesen.fach ? { fach: gelesen.fach } : {})
       };
+      // Required details and what was assumed, read from the request as the caller sent it (before any assumed time).
+      const anfrageSituation = { ...a };
+      const pflichtangaben = (psychomotor: boolean, extra: Annahme[] = []): Situation['pflichtangaben'] => {
+        const p = baueSituation(anfrageSituation, data, { ...currentSituationKontext, psychomotorisch: psychomotor }).pflichtangaben;
+        return { fehlt: p.fehlt, angenommen: [...p.angenommen, ...extra] };
+      };
       if (modus === 'phase') {
-        setRoom(a, BEWEGUNG_ZIELARTEN.has(String(a.zielart)));
-        return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }));
+        const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));
+        setRoom(a, psychomotor);
+        return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }), {
+          pflichtangaben: pflichtangaben(psychomotor)
+        });
       }
       let chainGuessed = false;
       let chainInferred = false;
-      let ketten = a.zieltyp
-        ? [chains.get(a.zieltyp)!].filter(Boolean)
-        : data.ketten.filter((k) => passtZielart(k, a.zielart));
-      if (!ketten.length && given(anfrage.text)) {
-        chainInferred = true;
-        const ansatzList = list(a.ansatz);
-        const byAnsatz: Array<[string, string]> = [
-          ['forschend', 'fuenf-e'],
-          ['uebung', 'prozedur'],
-          ['instruktion', 'direkte-instruktion'],
-          ['kooperativ', 'kooperatives-lernen'],
-          ['offen', 'projektlernen'],
-          ['diskurs', 'urteilsbildung']
-        ];
-        const practising = !guessedFn && list(a.lernfunktion)[0] === 'konsolidierung' ? 'prozedur' : '';
-        const verb = VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1];
-        const byVerb = verb ? waehleKette(data.ketten, verb)?.kette.id || '' : '';
-        const inferredId =
-          a.fachbereich === 'sport' && a.raum !== 'klassenraum'
-            ? 'fertigkeit-bewegung'
-            : practising || byVerb || byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
-        const fallbackChain = chains.get(inferredId) || chains.get('konzeptaufbau');
-        if (fallbackChain) ketten = [fallbackChain];
-        chainGuessed = Boolean(fallbackChain && byVerb && fallbackChain.id === byVerb);
+      const ansatzList = list(a.ansatz);
+      /** Goal kind assumed because the request names none (sport → movement, otherwise concepts). */
+      const zielAnnahmen: Annahme[] = [];
+      let wahl: Kettenwahl | null = a.zieltyp
+        ? waehleKette(data.ketten, { zieltyp: String(a.zieltyp) })
+        : given(a.zielart)
+          ? waehleKette(data.ketten, { zielart: String(a.zielart), ansatz: ansatzList })
+          : null;
+      const ohneZiel = !given(a.zieltyp) && !given(a.zielart);
+      if (!wahl && (given(anfrage.text) || ohneZiel)) {
+        chainInferred = given(anfrage.text);
+        const nimmAn = (zielart: string, grund: string) => {
+          zielAnnahmen.push({ feld: 'zielart', wert: zielart, grund });
+          return waehleKette(data.ketten, { zielart, ansatz: ansatzList });
+        };
+        const practising = !guessedFn && list(a.lernfunktion)[0] === 'konsolidierung';
+        const verb = given(anfrage.text) ? VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1] : undefined;
+        if (a.fachbereich === 'sport' && a.raum !== 'klassenraum') {
+          wahl = nimmAn(
+            'bewegung',
+            given(a.zielart)
+              ? `Für die Zielart „${label('zielart', String(a.zielart))}“ gibt es keinen Ablauf: Bewegung angenommen, weil das Fach Sport ist.`
+              : 'Keine Zielart angegeben: Bewegung angenommen, weil das Fach Sport ist.'
+          );
+        } else if (practising) {
+          wahl = waehleKette(data.ketten, { zielart: 'prozeduren', ansatz: ['uebung'] });
+        } else if (verb) {
+          wahl = waehleKette(data.ketten, verb);
+          chainGuessed = Boolean(wahl);
+        }
+        if (!wahl && ansatzList.length) wahl = waehleKette(data.ketten, { ansatz: ansatzList });
+        if (!wahl) wahl = nimmAn('konzepte', 'Keine Zielart angegeben: Konzepte angenommen.');
       }
+      // Other chains for the stated goal kind, for the caller to choose from.
+      const art = normZielart(given(a.zielart) && !a.zieltyp ? String(a.zielart) : undefined);
+      let ketten: Funktionskette[] = wahl
+        ? [wahl.kette, ...(art ? data.ketten.filter((k) => k !== wahl!.kette && (k.zielart || []).includes(art)) : [])]
+        : [];
       if (!ketten.length) {
         return Object.assign(head, {
           modus: 'ablauf' as const,
-          hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.'
+          hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.',
+          pflichtangaben: pflichtangaben(false)
         });
       }
       setRoom(a, bewegungsKette(ketten[0]));
@@ -1807,16 +1905,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const phasen = planSteps(ketten[0], a).length;
       if (!given(a.modus) && given(a.zeitMin) && phasen * 5 > Number(a.zeitMin)) {
         return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }), {
-          hinweis: `${Number(a.zeitMin)} Minuten reichen nicht für einen Ablauf „${ketten[0].label}“ mit ${phasen} Phasen. Vorschläge für eine einzelne Phase; für einen verkürzten Ablauf modus „ablauf“ angeben.`
+          hinweis: `${Number(a.zeitMin)} Minuten reichen nicht für einen Ablauf „${ketten[0].label}“ mit ${phasen} Phasen. Vorschläge für eine einzelne Phase; für einen verkürzten Ablauf modus „ablauf“ angeben.`,
+          pflichtangaben: pflichtangaben(bewegungsKette(ketten[0]), zielAnnahmen)
         });
       }
       // Without a time frame a plan would take every method at full length; assume one lesson instead.
       const zeitAngenommen = !given(a.zeitMin);
       if (zeitAngenommen) a.zeitMin = STANDARD_STUNDE_MIN;
       let res = ablauf(a, ketten[0]);
-      if (zeitAngenommen) {
-        res.annahmen = [...(res.annahmen || []), `Keine Zeitangabe: eine Stunde von ${STANDARD_STUNDE_MIN} Minuten angenommen.`];
-      }
+      const zeitAnnahme = `Keine Zeitangabe: eine Stunde von ${STANDARD_STUNDE_MIN} Minuten angenommen.`;
+      if (zeitAngenommen) res.annahmen = [...(res.annahmen || []), zeitAnnahme];
       // A chain guessed from a verb that the frame cannot fill (e.g. too few people) gives way to the general concept chain.
       const general = chains.get('konzeptaufbau');
       if (chainGuessed && general && !res.pruefung?.gueltig) {
@@ -1893,7 +1991,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         }
       }
       return Object.assign(head, res, {
-        weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
+        weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label })),
+        pflichtangaben: pflichtangaben(bewegungsKette(ketten[0]), [
+          ...zielAnnahmen,
+          ...(zeitAngenommen ? [{ feld: 'zeit', wert: STANDARD_STUNDE_MIN, grund: zeitAnnahme }] : [])
+        ])
       });
     } finally {
       lastRoom = currentRaum;
@@ -1916,6 +2018,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentPraxis = false;
       currentGuessedAnsatz = false;
       currentRaum = '';
+      currentSituation = keineSituation();
+      currentSituationKontext = {};
       currentStepRole = '';
     }
   }

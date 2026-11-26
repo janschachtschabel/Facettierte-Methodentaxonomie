@@ -27,8 +27,7 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n04',
     text: 'Kunst Klasse 7, Linolschnitt drucken, Werkraum, 90 Minuten',
-    erwartet: { kette: 'produktion', praxis: true },
-    bekannt: { praxis: 'Paket A' }
+    erwartet: { kette: 'produktion', praxis: true }
   },
   {
     id: 'n05',
@@ -111,8 +110,7 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n17',
     text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten',
-    erwartet: { pflichtFehlt: ['anzahl', 'raum'], angenommen: ['raum'] },
-    bekannt: { pflichtangaben: 'Paket B' }
+    erwartet: { pflichtFehlt: ['anzahl', 'raum'], angenommen: ['raum'] }
   },
   {
     id: 'n18',

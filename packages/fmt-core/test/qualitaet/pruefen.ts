@@ -184,9 +184,14 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
   const text = (x: unknown) => JSON.stringify(x ?? null);
   const fehlt = (feld: string) => antwort[feld] === undefined;
   if (e.pflichtFehlt || e.angenommen) {
-    const p = antwort.pflichtangaben as { fehlt?: string[]; angenommen?: string[] | Record<string, unknown> } | undefined;
+    const p = antwort.pflichtangaben as
+      | { fehlt?: string[]; angenommen?: Array<string | { feld: string }> | Record<string, unknown> }
+      | undefined;
     const fehltListe = p?.fehlt || [];
-    const angListe = Array.isArray(p?.angenommen) ? (p!.angenommen as string[]) : Object.keys(p?.angenommen || {});
+    // The answer lists each assumption as { feld, wert, grund } (spec 5.4); a plain list of field names is read as well.
+    const angListe = Array.isArray(p?.angenommen)
+      ? p!.angenommen.map((x) => (typeof x === 'string' ? x : x.feld))
+      : Object.keys(p?.angenommen || {});
     const luecken = [
       ...(e.pflichtFehlt || []).filter((x) => !fehltListe.includes(x)).map((x) => `${x} nicht als fehlend gemeldet`),
       ...(e.angenommen || []).filter((x) => !angListe.includes(x)).map((x) => `${x} nicht als angenommen ausgewiesen`)

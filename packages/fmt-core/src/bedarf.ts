@@ -22,6 +22,11 @@ export function raumFehlt(b: Pick<Baustein, 'raumbedarf'>, s: Situation): string
 
 const AI_ROLES = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
 
+/** Whether the method uses AI: flagged as such, or one of its roles is played by an AI. */
+export function setztKiEin(b: Pick<Baustein, 'ki' | 'rolle'>): boolean {
+  return Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
+}
+
 /** Whether the method needs one of the properties that set this room apart from a classroom. */
 export function nutztRaum(data: Pick<FmtData, 'schemes'>, b: Pick<Baustein, 'raumbedarf'>, raumtyp: string): boolean {
   const klassenraum = raumBietet(data, 'klassenraum');
@@ -60,7 +65,7 @@ export function ungedeckterBedarf(
     return { merkmal: 'technik', grund: `braucht: ${labelOf(data, 'technikbedarf', b.technik)}` };
   }
   if (a.ohneInternet && b.internet) return { merkmal: 'internet', grund: 'braucht Internet' };
-  if (a.ohneKI && (Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r)))) return { merkmal: 'ki', grund: 'setzt KI ein' };
+  if (a.ohneKI && setztKiEin(b)) return { merkmal: 'ki', grund: 'setzt KI ein' };
   if (given(a.maxVorbereitung) && b.vorbereitungMin > Number(a.maxVorbereitung)) {
     return { merkmal: 'vorbereitungMin', grund: `Vorbereitung etwa ${b.vorbereitungMin} min` };
   }

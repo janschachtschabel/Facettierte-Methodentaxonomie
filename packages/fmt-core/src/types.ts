@@ -1,4 +1,5 @@
 import type { DetectedSubject, OehSubjectCrosswalk } from './fach.js';
+import type { Situation } from './situation.js';
 export type PiktogrammId =
   | 'vortrag'
   | 'dialog'
@@ -536,6 +537,8 @@ export interface MatchHead {
   fach?: DetectedSubject;
   /** Notes for the teacher, e.g. a named method that is unusual in the subject. */
   hinweise?: string[];
+  /** Which of the six required details the request leaves open, and what was assumed instead (field, value, reason). */
+  pflichtangaben?: Situation['pflichtangaben'];
 }
 
 export interface PhaseMatchResult extends MatchHead {
@@ -545,7 +548,8 @@ export interface PhaseMatchResult extends MatchHead {
   vorschlaege: PhaseProposal[];
   ausgeschlossen: {
     funktion: number;
-    rahmen: Array<{ baustein: string; name: string; grund: string }>;
+    /** `merkmal`: the method's field whose need the situation does not cover, e.g. 'raumbedarf'. */
+    rahmen: Array<{ baustein: string; name: string; grund: string; merkmal?: string }>;
     anschluss: Array<{ baustein: string; name: string; grund: string }>;
   };
   zaehler: {
@@ -563,6 +567,8 @@ export interface AblaufMatchResult extends MatchHead {
   kette?: { id: string; label: string };
   schritte?: AblaufSchrittResult[];
   offenSchritte?: string[];
+  /** Why a chain step stayed open, e.g. no method delivers its learning state for the bound knowledge type. */
+  offenGruende?: Array<{ schritt: string; grund: string }>;
   /** Methods named in the request and where they were placed. */
   verankert?: Array<{ baustein: string; schritt: string }>;
   /** Methods named in the request that could not be placed, with the reason. */

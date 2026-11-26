@@ -73,12 +73,3 @@ export function bewegungsKette(k: Pick<Funktionskette, 'zielart'>): boolean {
   return (k.zielart || []).some((z) => z === 'bewegung' || z === 'kondition');
 }
 
-/**
- * Bridge until the chain choice runs through waehleKette (Task A8): whether a chain serves the zielart of a request.
- * The old code psychomotorik covers both movement chains; einstellungen keeps its old effect (no chain of its own).
- */
-export function passtZielart(k: Pick<Funktionskette, 'zielart'>, zielart: string | undefined): boolean {
-  if (zielart === 'psychomotorik') return bewegungsKette(k);
-  if (zielart === 'einstellungen') return false;
-  return (k.zielart || []).includes(String(zielart));
-}

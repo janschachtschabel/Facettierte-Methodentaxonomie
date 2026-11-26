@@ -14,7 +14,7 @@ import {
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup
 } from '../src/index.js';
-import type { Arrangement, MatchResult } from '../src/types.js';
+import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -345,7 +345,8 @@ describe('FMT Core: Validator, Search, Matcher', () => {
         id: 'physik-dichte',
         text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
         ansatz: ['forschend'],
-        expectedChain: 'konzeptaufbau',
+        // Goal kind konzepte with the wished approach forschend: the chain choice (waehleKette) takes the 5E chain.
+        expectedChain: 'fuenf-e',
         maxBudgetMin: 270
       },
       {
@@ -616,6 +617,109 @@ describe('FMT 2.0: Anfragefelder und Leseregeln', () => {
   ])('Handlungsverb ohne Zielangabe: %s → Ablauf %s', (text, kette) => {
     const r = M.zuordnen({ text });
     expect(r.modus === 'ablauf' && r.kette?.id).toBe(kette);
+  });
+});
+
+describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  // Test-only room needs until the reviewed data of Tor D1 is applied (Task A9); data/bausteine stays untouched.
+  // Methods that carry psychomotorik need a movement area, as the reviewed data will say for most of them.
+  const RAUMBEDARF: Record<string, string[]> = { kugellager: ['stellflaeche'], fishbowl: ['stellflaeche'], abrufquiz: ['schreibplatz'] };
+  const DF = {
+    ...D,
+    bausteine: D.bausteine.map((b) =>
+      RAUMBEDARF[b.kennung]
+        ? { ...b, raumbedarf: RAUMBEDARF[b.kennung] }
+        : (b.aufgabe || []).includes('psychomotorik')
+          ? { ...b, raumbedarf: ['bewegungsflaeche'] }
+          : b
+    )
+  };
+  const MF = createMatcher(DF, createValidator(DF));
+  const ablaufBausteine = (r: MatchResult) =>
+    r.modus === 'ablauf' ? [...(r.schritte || []).map((s) => s.baustein), ...(r.schritte || []).flatMap((s) => s.slots.map((x) => x.baustein))] : [];
+  const stellflaeche = new Set(DF.bausteine.filter((b) => (b.raumbedarf || []).includes('stellflaeche')).map((b) => b.kennung));
+
+  it('Hörsaal: kein Schritt trägt eine Methode mit Stellfläche', () => {
+    const r = MF.zuordnen({ text: 'Ethik Klasse 10, Sterbehilfe, mit Fishbowl und Kugellager, 90 Minuten', raum: 'hoersaal', gruppe: 30 });
+    expect(r.modus).toBe('ablauf');
+    expect(ablaufBausteine(r).length).toBeGreaterThan(0);
+    expect(ablaufBausteine(r).filter((id) => stellflaeche.has(id))).toEqual([]);
+    const nicht = (r as AblaufMatchResult).nichtVerankert || [];
+    expect(nicht).toContainEqual({ baustein: 'fishbowl', grund: 'braucht: Stellfläche' });
+    expect(nicht).toContainEqual({ baustein: 'kugellager', grund: 'braucht: Stellfläche' });
+  });
+
+  it('Phase im Hörsaal: der Ausschluss nennt das Merkmal; ein angenommener Raum schließt nicht aus', () => {
+    const genannt = MF.zuordnen({ modus: 'phase', lernfunktion: ['verstehen', 'konsolidierung', 'anwendung'], raum: 'hoersaal' }) as PhaseMatchResult;
+    expect(genannt.ausgeschlossen.rahmen).toContainEqual({ baustein: 'fishbowl', name: expect.any(String), grund: 'braucht: Stellfläche', merkmal: 'raumbedarf' });
+    expect(genannt.vorschlaege.map((v) => v.baustein)).not.toContain('kugellager');
+    const angenommen = MF.zuordnen({ modus: 'phase', lernfunktion: ['verstehen', 'konsolidierung', 'anwendung'] }) as PhaseMatchResult;
+    expect(angenommen.ausgeschlossen.rahmen.map((x) => x.baustein)).not.toContain('fishbowl');
+    expect(angenommen.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'klassenraum' }));
+  });
+
+  it('raumBietet: [] ist ein genannter Raum, der nichts bietet', () => {
+    const r = MF.zuordnen({ modus: 'phase', lernfunktion: ['konsolidierung'], raum: 'klassenraum', raumBietet: [] }) as PhaseMatchResult;
+    expect(r.ausgeschlossen.rahmen).toContainEqual(expect.objectContaining({ baustein: 'abrufquiz', merkmal: 'raumbedarf', grund: 'braucht: Schreibplatz' }));
+    expect(r.pflichtangaben?.fehlt).not.toContain('raum');
+  });
+
+  it('Bewegungskette: jeder Haupt- und Sicherungsschritt trägt Psychomotorik', () => {
+    const kette = D.ketten.find((k) => k.id === 'fertigkeit-bewegung')!;
+    for (const text of ['Sport Klasse 7, Handstand, Sporthalle, 90 Minuten', 'Sport Klasse 5, Prellen im Basketball, 45 Minuten']) {
+      const r = M.zuordnen({ text }) as AblaufMatchResult;
+      expect(r.kette?.id, text).toBe('fertigkeit-bewegung');
+      const gebunden = (r.schritte || []).filter((s) => ['haupt', 'sicherung'].includes(kette.schritte.find((k) => k.id === s.schritt)?.rolle || ''));
+      expect(gebunden.length, text).toBeGreaterThan(0);
+      for (const s of gebunden) expect(D.bausteine.find((b) => b.kennung === s.baustein)!.aufgabe, `${text}: ${s.baustein}`).toContain('psychomotorik');
+    }
+  });
+
+  it('widersprüchliche Situation liefert eine Antwort mit Grund statt einer Ausnahme', () => {
+    const r = MF.zuordnen({ text: 'Handstand üben, 45 Minuten', raum: 'klassenraum', raumBietet: [], zielart: 'bewegung' });
+    expect(r.modus).toBe('ablauf');
+    const gruende = (r as AblaufMatchResult).offenGruende || [];
+    expect(gruende.length).toBeGreaterThan(0);
+    const satz = 'Keine Methode im Katalog liefert ‚Erstwissen erworben, ungesichert‘ für Motorische Fertigkeiten unter diesen Rahmenbedingungen.';
+    const grund = gruende.find((g) => g.schritt === 'b2')?.grund || '';
+    expect(grund.startsWith(satz), grund).toBe(true);
+    // The open step names the need that excluded the methods that would carry it.
+    expect(grund).toContain('braucht: Bewegungsfläche');
+  });
+
+  it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {
+    const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
+    expect(r.pflichtangaben?.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));
+    expect(r.pflichtangaben?.fehlt).not.toContain('fach-und-thema');
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'klassenraum' }));
+    const sport = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 90 Minuten' });
+    expect(sport.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'bewegungsraum' }));
+    expect(sport.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'zielart', wert: 'bewegung' }));
+    const genannt = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten', raum: 'fachraum-nawi', gruppe: 24 });
+    expect(genannt.pflichtangaben?.fehlt).not.toContain('raum');
+    expect((genannt.pflichtangaben?.angenommen || []).map((x) => x.feld)).not.toContain('raum');
+  });
+
+  it('ohne Zielart und ohne Hinweis im Text wird konzepte angenommen', () => {
+    const r = M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('konzeptaufbau');
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'zielart', wert: 'konzepte' }));
+    expect(r.kriterien.zielart).toBeUndefined();
+  });
+
+  it('Kettenwahl über waehleKette: Zielart mit Ansatz wählt die Kette des Ansatzes', () => {
+    const r = M.zuordnen({ text: 'Physik Klasse 8, Stromkreis, 90 Minuten', zielart: 'konzepte', ansatz: ['forschend'] });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('fuenf-e');
+  });
+
+  it('eine genannte Methode, die die Wissensart des Schritts nicht trägt, bleibt als Zusatzphase im Ablauf', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 7, Handstand mit Gruppenpuzzle, 90 Minuten' }) as AblaufMatchResult;
+    expect(r.kette?.id).toBe('fertigkeit-bewegung');
+    const s = (r.schritte || []).find((x) => x.baustein === 'gruppenpuzzle');
+    expect(s?.schritt).toBe('zusatz');
+    expect(r.verankert).toContainEqual({ baustein: 'gruppenpuzzle', schritt: expect.stringMatching(/^Zusatzphase/) });
   });
 });
 
