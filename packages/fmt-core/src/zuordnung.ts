@@ -23,6 +23,7 @@ import { createMentionDetector } from './mentions.js';
 import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
+import { schriftFehlt } from './einsatzprofil.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -279,11 +280,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('raumzeit')))
     },
     {
-      feld: 'lernort',
+      feld: 'raum',
       typ: 'code',
       stufe: 2,
-      bedeutung: 'Raum der Stunde (Klassenraum, Sporthalle, Fachraum, draußen, Hörsaal); Methoden, die dort gut funktionieren, werden bevorzugt',
-      werte: opts(values(scheme('lernort')))
+      bedeutung: 'Raum der Stunde (Klassenraum, Sporthalle, Fachraum, draußen, Hörsaal); Methoden, deren Raumbedarf er nicht deckt, scheiden aus',
+      werte: opts(values(scheme('raumtyp')))
+    },
+    {
+      feld: 'ohneSchrift',
+      typ: 'codes',
+      stufe: 2,
+      bedeutung: 'Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus',
+      werte: [
+        { code: 'lesen', label: 'Lesen' },
+        { code: 'schreiben', label: 'Schreiben' }
+      ]
     },
     {
       feld: 'vorhanden',
@@ -393,7 +404,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** Lesson length assumed for a plan when the request names no time. */
   const STANDARD_STUNDE_MIN = 45;
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
-  const NEGATION_AWARE = new Set(['maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
+  const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
     // Multiplicative durations first (e.g. "2 x 45 Minuten", "3 × 45 min")
@@ -468,19 +479,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
     ['raumzeit', /online|distanz|videokonferenz|fernunterricht/, () => ['distanz']],
     // The room must be named as a place ("im Labor", "auf dem Schulhof"); "Wortschatz in der Küche" or "Tiere im Wald" is a topic.
-    ['lernort', /\bim\s+klassen(?:raum|zimmer)\b|\bsporttheorie\b|\btheoriestunde\b/, () => 'klassenraum'],
-    ['lernort', /\bhorsaal\w*|(?<!\bzur\s)\bvorlesung\b(?!\s+(?:vor|nach)\w*)/, () => 'hoersaal'],
-    ['lernort', /\b(?:turn|sport|gymnastik)halle\b|\bin\s+der\s+halle\b|\bsportplatz\b|\bgymnastikraum\b/, () => 'bewegungsraum'],
+    ['raum', /\bim\s+klassen(?:raum|zimmer)\b|\bsporttheorie\b|\btheoriestunde\b/, () => 'klassenraum'],
+    ['raum', /\bhorsaal\w*|(?<!\bzur\s)\bvorlesung\b(?!\s+(?:vor|nach)\w*)/, () => 'hoersaal'],
+    ['raum', /\b(?:turn|sport|gymnastik)halle\b|\bin\s+der\s+halle\b|\bsportplatz\b|\bgymnastikraum\b/, () => 'bewegungsraum'],
     [
-      'lernort',
+      'raum',
       /\bim\s+(?:chemie|physik|bio(?:logie)?|fach)?(?:labor|fachraum|werkraum|ubungsraum|praxisraum|musikraum|makerspace)\b|\bin\s+der\s+(?:lehr|schul)?(?:werkstatt|ubungswerkstatt)\b|\blehrwerkstatt\b|\b(?:lehr|schul)kuche\b|\bskills?\s*-?lab\b|\blaborpraktikum\b|\ban\s+ubungskopf\w*|\ban\s+der\s+puppe\b/,
       () => 'fachraum'
     ],
     [
-      'lernort',
+      'raum',
       /\bdraussen\b(?!\s+und\s+drinnen)|\bauf\s+dem\s+schulhof\b|\bim\s+freien\b|\bim\s+schulgarten\b|\bunterrichtsgang\b|\bausserschulisch\w*\s+lernort\w*|\b(?:auf|bei)\s+(?:der|einer)\s+exkursion\b/,
       () => 'draussen'
     ],
+    // Learners who cannot read yet cannot write either; "kann nicht schreiben" alone keeps reading.
+    [
+      'ohneSchrift',
+      /(?:konnen|kann)\s+(?:noch\s+)?nicht\s+lesen|\bnichtleser\w*|\bvor\s+dem\s+schriftspracherwerb\b|\banalphabet\w*/,
+      () => ['lesen', 'schreiben']
+    ],
+    ['ohneSchrift', /(?:konnen|kann)\s+(?:noch\s+)?nicht\s+schreiben/, () => ['schreiben']],
     ['anleitung', /\b(?:offen-?entdeckend\w*|offen\w*\s+entdeck\w*|frei\s+erkund\w*|ohne\s+vorgaben)\b/, () => ['offen']],
     ['anleitung', /\b(?:explizit\w*|kleinschrittig\w*|stark\s+gefuhrt\w*|direkt\s+angeleitet\w*)\b/, () => ['explizit']],
     ['anleitung', /\b(?:geleitet\w*|mit\s+hilfekarten|scaffolding|mit\s+leitfragen)\b/, () => ['geleitet']],
@@ -709,6 +727,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
     const missing = list(a.raumzeit).filter((v) => !(b.raumzeit || []).includes(v));
     if (missing.length) return `nicht vorgesehen für: ${missing.map((v) => label('raumzeit', v)).join(', ')}`;
+    const schrift = given(a.ohneSchrift) ? schriftFehlt(b, list(a.ohneSchrift)) : [];
+    if (schrift.length) return `verlangt: ${schrift.join(', ')}`;
     return null;
   }
 
@@ -784,7 +804,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** The approach was only guessed from loose wording: a method without it loses less. */
   let currentGuessedAnsatz = false;
   /** Room of the lesson: stated, or derived from the subject (sport → movement space). */
-  let currentLernort = '';
+  let currentRaum = '';
   /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
   let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
   const mentionDetector = createMentionDetector(data);
@@ -893,10 +913,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
           (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
           // Without another room the lesson is in a classroom: a method that needs a gym or the outdoors does not fit.
-          ((!currentLernort || currentLernort === 'klassenraum' || currentLernort === 'hoersaal') &&
+          ((!currentRaum || currentRaum === 'klassenraum' || currentRaum === 'hoersaal') &&
           (b.lernort || []).length &&
           !b.lernort!.includes('klassenraum') &&
-          !b.lernort!.includes(currentLernort || 'klassenraum')
+          !b.lernort!.includes(currentRaum || 'klassenraum')
             ? 1
             : 0),
         // Graded: when nothing fits the rest of the lesson, the method that overshoots least comes first.
@@ -925,8 +945,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         vorbereitungMin: b.vorbereitungMin,
         praxisFremd:
           // A seated check in a practice lesson counts like a seated main phase: a movement test beats a self-assessment.
-          (currentPraxis || currentLernort === 'hoersaal') &&
-          !(currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(b, currentLernort) : isPraxisMethod(b))
+          (currentPraxis || currentRaum === 'hoersaal') &&
+          !(currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(b, currentRaum) : isPraxisMethod(b))
             ? currentStepRole === 'haupt' || currentStepRole === 'pruefung'
               ? 'haupt'
               : 'rand'
@@ -1069,7 +1089,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const offPractice = (x: Ranked) =>
       currentPraxis && (x.b.fachbereich || []).length > 0 && !x.b.fachbereich!.includes('uebergreifend') && currentArea && !areaFits(x.b)
         ? 1
-        : currentPraxis && !(currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(x.b, currentLernort) : isPraxisMethod(x.b))
+        : currentPraxis && !(currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(x.b, currentRaum) : isPraxisMethod(x.b))
           ? 1
           : 0;
     return order(
@@ -1263,7 +1283,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           !rahmen(b, a) &&
           !passung(b, a).length &&
           (!currentArea || areaFits(b)) &&
-          (currentLernort && currentLernort !== 'klassenraum' ? fitsRoom(b, currentLernort) : isPraxisMethod(b))
+          (currentRaum && currentRaum !== 'klassenraum' ? fitsRoom(b, currentRaum) : isPraxisMethod(b))
       );
       const need = practical.length ? Math.min(...practical.map((b) => b.dauerMin)) : 0;
       const others = steps.reduce((x, _st, i) => x + (i === checkAt ? 0 : Math.max(minStep, floors[i] ?? 0)), 0);
@@ -1499,14 +1519,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   /** Room of the lesson and whether its main phases should be practical. A stated classroom turns the practice preference off. */
   function setRoom(a: MatchRequest, psychomotor: boolean) {
-    currentLernort = given(a.lernort)
-      ? String(a.lernort)
+    currentRaum = given(a.raum)
+      ? String(a.raum)
       : a.fachbereich === 'sport'
         ? 'bewegungsraum'
         : psychomotor && (a.fachbereich === 'beruf-praxis' || a.fachbereich === 'nawi-technik')
           ? 'fachraum'
           : '';
-    currentPraxis = currentLernort !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentLernort));
+    currentPraxis = currentRaum !== 'klassenraum' && (psychomotor || ['bewegungsraum', 'fachraum', 'draussen'].includes(currentRaum));
   }
 
   /** Methods a result offers: the whole sequence, or the first six proposals of a single phase. */
@@ -1558,6 +1578,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let lastUnusual: string[] = [];
 
   function planen(anfrage: MatchRequest = {}): MatchResult {
+    // Former name of the room field, still accepted: "lernort" is free for the institution (school, company).
+    if ('lernort' in anfrage) {
+      const { lernort, ...rest } = anfrage;
+      anfrage = given(rest.raum) || !given(lernort) ? rest : { ...rest, raum: lernort };
+    }
     check(anfrage);
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
     currentSemanticScores = new Map(
@@ -1622,7 +1647,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
           const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
-          if (roomOnly && !(given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik')) return false;
+          if (roomOnly && !(given(a.raum) || currentArea === 'sport' || a.zielart === 'psychomotorik')) return false;
           // The note is given only once the method is really part of the result (see withUnusualNote).
           if (unusual) currentUnusualMentions.push(id);
           return true;
@@ -1687,7 +1712,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const practising = !guessedFn && list(a.lernfunktion)[0] === 'konsolidierung' ? 'prozedur' : '';
         const byVerb = VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1] || '';
         const inferredId =
-          a.fachbereich === 'sport' && a.lernort !== 'klassenraum'
+          a.fachbereich === 'sport' && a.raum !== 'klassenraum'
             ? 'fertigkeit-bewegung'
             : practising || byVerb || byAnsatz.find(([code]) => ansatzList.includes(code))?.[1] || 'konzeptaufbau';
         const fallbackChain = chains.get(inferredId) || chains.get('konzeptaufbau');
@@ -1719,7 +1744,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const general = chains.get('konzeptaufbau');
       if (chainGuessed && general && !res.pruefung?.gueltig) {
         const tried = ketten[0].label;
-        currentPraxis = ['bewegungsraum', 'fachraum', 'draussen'].includes(currentLernort);
+        currentPraxis = ['bewegungsraum', 'fachraum', 'draussen'].includes(currentRaum);
         const retry = ablauf(a, general);
         if (retry.pruefung?.gueltig) {
           res = Object.assign(retry, {
@@ -1794,7 +1819,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
       });
     } finally {
-      lastRoom = currentLernort;
+      lastRoom = currentRaum;
       lastArea = currentArea;
       lastUnusual = currentUnusualMentions;
       currentRawText = '';
@@ -1813,7 +1838,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentNegatedMethods = new Set();
       currentPraxis = false;
       currentGuessedAnsatz = false;
-      currentLernort = '';
+      currentRaum = '';
       currentStepRole = '';
     }
   }

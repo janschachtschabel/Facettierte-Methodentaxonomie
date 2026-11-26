@@ -27,7 +27,7 @@ export const istPraxismethode = (b: Baustein) =>
 export const istPruefmethode = (b: Baustein) =>
   b.lernfunktion[0] === 'diagnose' && (b.nachbedingung || []).includes('lernstand-diagnostiziert');
 
-function einsaetze(node: ArrangementNode | undefined, out: EinsatzNode[] = []): EinsatzNode[] {
+export function einsaetze(node: ArrangementNode | undefined, out: EinsatzNode[] = []): EinsatzNode[] {
   if (!node) return out;
   if (node.typ === 'Einsatz') {
     out.push(node);
@@ -38,6 +38,12 @@ function einsaetze(node: ArrangementNode | undefined, out: EinsatzNode[] = []): 
     (node.optionen || []).forEach((t) => einsaetze(t, out));
   }
   return out;
+}
+
+/** All methods a result uses: the whole sequence, or the proposals of a single phase. */
+export function alleBausteine(r: MatchResult): string[] {
+  if (r.modus === 'phase') return r.vorschlaege.map((v) => v.baustein);
+  return einsaetze(r.arrangement?.ablauf).map((n) => n.baustein);
 }
 
 export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fallergebnis {

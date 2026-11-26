@@ -6,6 +6,7 @@ import { createMatcher, createValidator } from '../src/index.js';
 import { negatedMethods, SICHERHEITSHINWEIS } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
+import { alleBausteine } from './qualitaet/pruefen.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -201,9 +202,9 @@ describe('Lernort, Verneinung und Abwechslung', () => {
     return (b.aufgabe || []).includes('psychomotorik') || (b.repraesentation || []).includes('enaktiv') || (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
   };
 
-  it('Lernort aus dem Aufruf: draußen oder Labor bevorzugt Praxis- und Erkundungsmethoden', () => {
+  it('Raum aus dem Aufruf: draußen oder Labor bevorzugt Praxis- und Erkundungsmethoden', () => {
     const plain = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten' });
-    const out = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' });
+    const out = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', raum: 'draussen' });
     expect(out.modus).toBe('ablauf');
     if (out.modus === 'ablauf' && plain.modus === 'ablauf') {
       expect(out.pruefung?.gueltig).toBe(true);
@@ -212,7 +213,7 @@ describe('Lernort, Verneinung und Abwechslung', () => {
   });
 
   it('Hörsaal: keine Methode, für die alle aufstehen und umhergehen', () => {
-    const r = M.zuordnen({ text: 'Hochschule Statistik Hypothesentests, 90 Minuten, 120 Studierende', lernort: 'hoersaal' });
+    const r = M.zuordnen({ text: 'Hochschule Statistik Hypothesentests, 90 Minuten, 120 Studierende', raum: 'hoersaal' });
     expect(r.modus).toBe('ablauf');
     for (const id of blocksOf(r)) expect(byId.get(id)!.aufgabe || [], id).not.toContain('psychomotorik');
   });
@@ -453,5 +454,27 @@ describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil S
     expect(chemie.hinweise || []).toContain(SICHERHEITSHINWEIS);
     const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
     expect(deutsch.hinweise || []).not.toContain(SICHERHEITSHINWEIS);
+  });
+});
+
+describe('Raumbedarf und Schriftbedarf (Einsatzprofil Stufe 2)', () => {
+  const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
+
+  it('ohne genannten Raum schließt der Raumbedarf nichts aus', () => {
+    const r = M.zuordnen({ modus: 'phase', lernfunktion: 'orientierung' });
+    expect(r.modus === 'phase' && r.zaehler.nachRahmen).toBe(r.modus === 'phase' && r.zaehler.nachFunktion);
+  });
+
+  it('lernort bleibt als Alias für raum gültig', () => {
+    const a = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' });
+    const b = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', raum: 'draussen' });
+    expect(alleBausteine(a)).toEqual(alleBausteine(b));
+    expect(a.kriterien.raum).toBe('draussen');
+  });
+
+  it('Lernende, die nicht lesen können: keine Methode mit Schriftbedarf', () => {
+    const r = M.zuordnen({ text: 'Klasse 1, Kinder können noch nicht lesen, Thema Jahreszeiten, 45 Minuten' });
+    expect(r.kriterien.ohneSchrift).toEqual(['lesen', 'schreiben']);
+    for (const id of alleBausteine(r)) expect(byId.get(id)!.schriftbedarf || [], id).toEqual([]);
   });
 });
