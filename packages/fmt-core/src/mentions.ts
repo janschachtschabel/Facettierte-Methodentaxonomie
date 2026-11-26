@@ -5,6 +5,8 @@ export interface MethodMention {
   kennung: string;
   /** Folded alias that matched, e.g. "experiment". */
   alias: string;
+  /** The match is the method's own main name, not a synonym. */
+  main: boolean;
 }
 
 export interface FmtMentionDetector {
@@ -88,7 +90,7 @@ export function createMentionDetector(data: FmtData): FmtMentionDetector {
           if (!hit) continue;
           for (let j = 0; j < n; j++) taken[i + j] = true;
           if (!found.some((f) => f.mention.kennung === entry.kennung)) {
-            found.push({ at: i, mention: { kennung: entry.kennung, alias: entry.words.join(' ') } });
+            found.push({ at: i, mention: { kennung: entry.kennung, alias: entry.words.join(' '), main: entry.main } });
           }
         }
       }

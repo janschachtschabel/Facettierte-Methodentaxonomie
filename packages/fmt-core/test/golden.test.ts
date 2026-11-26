@@ -321,6 +321,18 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     for (const id of blocksOf(r)) expect(sportOnly, id).not.toContain(id);
   });
 
+  it('genannte Methode mit Hauptnamen bleibt trotz „ungeeignet im Fach“ im Ablauf, mit Hinweis', () => {
+    const r = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    expect((r.verankert || []).some((v) => v.baustein === 'laufdiktat')).toBe(true);
+    expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik.*unüblich/);
+  });
+
+  it('Synonym mit Alltagsbedeutung im unpassenden Fach: keine Methode, aber mit Grund unter nichtVerankert', () => {
+    const r = M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
+    expect(blocksOf(r)).not.toContain('sportmotorischer-test');
+    expect(r.nichtVerankert).toContainEqual({ baustein: 'sportmotorischer-test', grund: 'im Fachbereich Mathematik und Informatik als ungeeignet markiert' });
+  });
+
   it('Ausdauertraining mit Leistungskontrolle: Aufwärmen, Belastung, sportmotorischer Test, Cool-down', () => {
     const r = M.zuordnen({ text: 'Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle' });
     expect(r.modus).toBe('ablauf');

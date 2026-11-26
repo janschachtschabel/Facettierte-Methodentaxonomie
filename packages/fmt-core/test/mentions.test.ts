@@ -34,4 +34,9 @@ describe('Methodennennungen im Freitext', () => {
     expect(ids('Mathematik Klasse 8: Prozentrechnung, 45 Minuten')).toEqual([]);
     expect(ids('')).toEqual([]);
   });
+  it('kennzeichnet Hauptname und Synonym', () => {
+    const m = detector.detect('Laufdiktat und danach eine Erkundung');
+    expect(m.find((x) => x.kennung === 'laufdiktat')?.main).toBe(true);
+    expect(m.find((x) => x.kennung === 'exkursion')?.main).toBe(false);
+  });
 });

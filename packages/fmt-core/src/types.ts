@@ -453,6 +453,8 @@ export interface MatchHead {
   dauerMs?: number;
   /** Subject named in the request text, with its OEH URI. */
   fach?: DetectedSubject;
+  /** Notes for the teacher, e.g. a named method that is unusual in the subject. */
+  hinweise?: string[];
 }
 
 export interface PhaseMatchResult extends MatchHead {

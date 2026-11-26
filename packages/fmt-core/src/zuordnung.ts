@@ -754,6 +754,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentRawText = '';
   let currentSemanticScores = new Map<string, number>();
   let currentMentions = new Set<string>();
+  /** Named methods dropped because the subject marks them unsuitable, with the reason (for nichtVerankert). */
+  let currentDroppedMentions: Array<{ baustein: string; grund: string }> = [];
   let currentAnchorStep = new Map<string, number>();
   let currentStepIndex = -1;
   let currentSeed = '';
@@ -879,8 +881,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : 0,
         passung(b, a).length ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
-        domainPenalty(b) ||
-          (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0) ||
+        // A method the teacher named is a wish: neither its domain nor a subject that marks it unsuitable demotes it.
+        (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
+          (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
           // Without another room the lesson is in a classroom: a method that needs a gym or the outdoors does not fit.
           ((!currentLernort || currentLernort === 'klassenraum' || currentLernort === 'hoersaal') &&
           (b.lernort || []).length &&
@@ -1368,7 +1371,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     // Named methods that no chain step could take: add them as an extra phase where the validator allows it.
     const verankert: Array<{ baustein: string; schritt: string }> = [];
-    const nichtVerankert: Array<{ baustein: string; grund: string }> = [];
+    const nichtVerankert: Array<{ baustein: string; grund: string }> = [...currentDroppedMentions];
     const minTotal = (nodes: ArrangementNode[]) =>
       nodes.reduce((sum, n) => {
         if (n.typ === 'Einsatz') return sum + Math.max(blocks.get(n.baustein)!.dauerMin, slotSum(n));
@@ -1529,7 +1532,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentVariante = given(a.variante) ? Number(a.variante) : 0;
       delete a.variante;
       // Methods named in a negated phrase ("keine Gruppenarbeit") are no wish for them.
-      currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)).map((m) => m.kennung) : []);
+      const detected = given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)) : [];
+      currentMentions = new Set(detected.map((m) => m.kennung));
+      const mainMentions = new Set(detected.filter((m) => m.main).map((m) => m.kennung));
+      const hinweise: string[] = [];
       currentSeed = topicSeed(currentRawText);
       // Conditioning is a sports goal: without a stated subject, the plan is a sports lesson;
       // read from the text in another subject ("Konditionstraining in Biologie"), it is the topic, not the chain.
@@ -1549,11 +1555,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         [...currentMentions].filter((id) => {
           const b = blocks.get(id);
           if (!b) return false;
-          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) return false;
+          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) {
+            const area = label('fachbereich', currentArea);
+            // The method's own name is a wish: it stays, with a note. A synonym may be an everyday word.
+            if (mainMentions.has(id)) {
+              hinweise.push(`„${b.name}“ ist im Fachbereich ${area} unüblich und steht auf deinen Wunsch im Ablauf.`);
+              return true;
+            }
+            currentDroppedMentions.push({ baustein: id, grund: `im Fachbereich ${area} als ungeeignet markiert` });
+            return false;
+          }
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
           const roomOnly = (b.lernort || []).length > 0 && !b.lernort!.includes('klassenraum');
-          return !roomOnly || given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik';
+          if (roomOnly && !(given(a.lernort) || currentArea === 'sport' || a.zielart === 'psychomotorik')) return false;
+          return true;
         })
       );
       // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
@@ -1590,7 +1606,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         kriterien: a,
         erkannt: gelesen.erkannt,
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld),
-        ...(gelesen.fach ? { fach: gelesen.fach } : {})
+        ...(gelesen.fach ? { fach: gelesen.fach } : {}),
+        ...(hinweise.length ? { hinweise } : {})
       };
       if (modus === 'phase') {
         setRoom(a, a.zielart === 'psychomotorik');
@@ -1725,6 +1742,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
+      currentDroppedMentions = [];
       currentAnchorStep = new Map();
       currentStepIndex = -1;
       currentSeed = '';
