@@ -13,6 +13,7 @@ import {
   type MeasureLevel
 } from './differentiationMatrix.js';
 import type { Arrangement, Baustein, FmtData } from './types.js';
+import { KennungIndex } from './kennung.js';
 
 export interface AdaptGroupInput {
   id: string;
@@ -666,8 +667,8 @@ export function computeMultiGroupSynthesis(
   return { udlBasis: topUdl, konflikte: topKonflikte, teilgruppen, scoredByGroupId };
 }
 
-function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten'>, arrangement: Arrangement): AdaptPhaseInput[] {
-  const blocksById = new Map(data.bausteine.map((b) => [b.kennung, b]));
+function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weiterleitungen'>, arrangement: Arrangement): AdaptPhaseInput[] {
+  const blocksById: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
   const chain = arrangement.zieltyp ? data.ketten.find((k) => k.id === arrangement.zieltyp) : undefined;
   const stepLabelById = new Map((chain?.schritte || []).map((s) => [s.id, s.label]));
   const stepFnById = new Map((chain?.schritte || []).map((s) => [s.id, s.funktion[0] || 'verstehen']));
@@ -847,9 +848,10 @@ function contextualizeMeasureForBlock(
  * Works seamlessly for BOTH standalone free-text scenarios (chat / MCP / API / /differenzierung),
  * direct single-method adaptation (`baustein`), AND structured FMT arrangements from the Baukasten.
  */
-export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten'>, input: AdaptScenarioInput): AdaptScenarioResult {
+export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weiterleitungen'>, input: AdaptScenarioInput): AdaptScenarioResult {
   const t0 = Date.now();
-  const blocksById = new Map(data.bausteine.map((b) => [b.kennung, b]));
+  // Former ids of merged or renamed methods answer with the current method.
+  const blocksById: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
   const combinedText = [input.scenarioText || '', input.lerngruppenText || ''].filter(Boolean).join('\n');
 
   // Auto-detect tech/offline/KI constraints from free text if not explicitly set

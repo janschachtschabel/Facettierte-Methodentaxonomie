@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { resolveKennung } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 
 function prefersHtml(accept?: string): boolean {
@@ -44,7 +45,7 @@ export function registerLinkedDataRoutes(app: FastifyInstance, store: CatalogSto
   app.get('/bausteine/:id', async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
     const raw = req.params.id;
     if (raw.endsWith('.jsonld')) {
-      const ld = store.bausteineJsonld.get(raw.slice(0, -7));
+      const ld = store.bausteineJsonld.get(resolveKennung(raw.slice(0, -7), store.bundle.weiterleitungen));
       if (!ld) return reply.code(404).send({ fehler: 'Unbekannter Baustein.' });
       return sendCached(req, reply, 'application/ld+json; charset=utf-8', ld);
     }
@@ -64,7 +65,7 @@ export function registerLinkedDataRoutes(app: FastifyInstance, store: CatalogSto
 
   // Canonical w3id.org/fmt/ IRI dereferencing with Accept content negotiation
   app.get('/baustein/:kennung', async (req: FastifyRequest<{ Params: { kennung: string } }>, reply) => {
-    const { kennung } = req.params;
+    const kennung = resolveKennung(req.params.kennung, store.bundle.weiterleitungen);
     const ld = store.bausteineJsonld.get(kennung);
     if (!ld) return reply.code(404).send({ fehler: 'Unbekannter Baustein.' });
     reply.header('Vary', 'Accept');

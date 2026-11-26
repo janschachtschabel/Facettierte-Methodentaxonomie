@@ -46,7 +46,7 @@ export function getMainSequence(arr: Arrangement): { seq: SequenzNode; prefix: s
   return { seq: { typ: 'Sequenz', teile: [arr.ablauf] }, prefix: '/ablauf' };
 }
 
-function withMainSequence(arr: Arrangement, updater: (teile: ArrangementNode[]) => ArrangementNode[]): Arrangement {
+export function withMainSequence(arr: Arrangement, updater: (teile: ArrangementNode[]) => ArrangementNode[]): Arrangement {
   const next = clone(arr);
   if (next.ablauf?.typ === 'Parallel') {
     const haupt = next.ablauf.haupt;

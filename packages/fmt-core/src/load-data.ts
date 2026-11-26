@@ -27,6 +27,10 @@ export function loadFmtData(dataDir: string): FmtData {
   const faecherFile = fs.existsSync(faecherPath) ? readJson<OehSubjectCrosswalk>('crosswalk/oeh-faecher.json') : undefined;
   const faecher = faecherFile && { schulfaecher: faecherFile.schulfaecher, hochschulfaecher: faecherFile.hochschulfaecher };
 
+  const weiterleitungen = fs.existsSync(path.join(dataDir, 'weiterleitungen.json'))
+    ? readJson<Record<string, string>>('weiterleitungen.json')
+    : undefined;
+
   return {
     VERSION: meta.version,
     NS: meta.NS,
@@ -39,6 +43,7 @@ export function loadFmtData(dataDir: string): FmtData {
     ketten,
     bausteine,
     beispiele,
-    faecher
+    faecher,
+    weiterleitungen
   };
 }

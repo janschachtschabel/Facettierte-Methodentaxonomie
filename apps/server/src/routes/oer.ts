@@ -24,6 +24,8 @@ export interface OerItem {
 export interface WloSearchParams {
   query: string;
   fach?: string;
+  /** FMT subject area; filters by all OEH subjects of the area when no single subject is known. */
+  fachbereich?: string;
   bildungsstufe?: string;
   inhaltstyp?: string;
   nurOffeneLizenz?: boolean;
@@ -35,9 +37,18 @@ export interface WloSearchResponse {
   instanz: string;
   gecacht: boolean;
   suchbegriff: string;
+  /** Which subject filter the search started with: the named subject or the OEH subjects of the subject area. */
+  fachfilter?: WloFachfilter;
   hinweis?: string;
   anzahl: number;
   ergebnisse: OerItem[];
+}
+
+export interface WloFachfilter {
+  art: 'fach' | 'fachbereich';
+  fachbereich?: string;
+  /** OEH discipline URIs sent as filter (one of them has to match). */
+  faecher: string[];
 }
 
 export const WLO_PROD_ORIGIN = 'https://redaktion.openeduhub.net';
@@ -151,6 +162,23 @@ export function resolveFachUri(fach: string, lookup: ((name: string) => string |
   return hit ? FACH_TO_TAXON_URI[hit] : null;
 }
 
+/** OEH discipline URIs of an FMT subject area; set once at start from the catalogue. */
+let areaLookup: ((fachbereich: string) => string[]) | null = null;
+export function setWloAreaLookup(lookup: (fachbereich: string) => string[]): void {
+  areaLookup = lookup;
+}
+
+/**
+ * Subject filter of a WLO search: the named subject if the vocabulary knows it, otherwise every OEH subject
+ * of the plan's subject area (WLO matches one of them). No filter for 'uebergreifend' and unknown areas.
+ */
+export function wloSubjectFilter(fach: string, fachbereich: string | undefined): { art: 'fach' | 'fachbereich' | null; uris: string[] } {
+  const fachUri = resolveFachUri(fach);
+  if (fachUri) return { art: 'fach', uris: [fachUri] };
+  const uris = fachbereich && areaLookup ? areaLookup(fachbereich) : [];
+  return uris.length ? { art: 'fachbereich', uris } : { art: null, uris: [] };
+}
+
 interface WloNode {
   ref?: { id?: string };
   name?: string;
@@ -229,7 +257,7 @@ export function normalizeWloNodes(nodes: WloNode[]): OerItem[] {
   return [...externalItems, ...repoFallbackItems];
 }
 
-const wloCache = new LruTtlCache<{ items: OerItem[]; hinweis?: string }>(300, 10 * 60 * 1000);
+const wloCache = new LruTtlCache<{ items: OerItem[]; hinweis?: string; fachfilter?: WloFachfilter }>(300, 10 * 60 * 1000);
 
 async function queryEduSharing(
   criteria: Array<{ property: string; values: string[] }>,
@@ -262,6 +290,7 @@ async function queryEduSharing(
 export async function searchWloOer(params: WloSearchParams): Promise<WloSearchResponse> {
   const rawQuery = (params.query || '').trim();
   const fach = (params.fach || '').trim();
+  const fachbereich = (params.fachbereich || '').trim();
   const bildungsstufe = (params.bildungsstufe || '').trim();
   const inhaltstyp = (params.inhaltstyp || '').trim().toLowerCase();
   const nurOffeneLizenz = Boolean(params.nurOffeneLizenz);
@@ -273,13 +302,17 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
     throw new Error('Bitte Suchbegriff oder Thema für die WLO-OER-Suche angeben.');
   }
 
-  const fachUri = resolveFachUri(fach);
+  const subject = wloSubjectFilter(fach, fachbereich);
+  const fachUris = subject.uris;
+  const fachfilter: WloFachfilter | undefined = subject.art
+    ? { art: subject.art, ...(subject.art === 'fachbereich' ? { fachbereich } : {}), faecher: fachUris }
+    : undefined;
   const ctxUri = Object.hasOwn(STAGE_TO_WLO_CONTEXT, bildungsstufe) ? STAGE_TO_WLO_CONTEXT[bildungsstufe] : null;
   const lrtUri = Object.hasOwn(CONTENT_TYPE_TO_LRT_URI, inhaltstyp) ? CONTENT_TYPE_TO_LRT_URI[inhaltstyp] : null;
 
   const cacheKey = crypto
     .createHash('sha256')
-    .update(JSON.stringify(['v2', cleanWord.toLowerCase(), fachUri, ctxUri, lrtUri, nurOffeneLizenz, maxItems]))
+    .update(JSON.stringify(['v3', cleanWord.toLowerCase(), fachUris, ctxUri, lrtUri, nurOffeneLizenz, maxItems]))
     .digest('hex');
 
   const cached = wloCache.get(cacheKey);
@@ -289,6 +322,7 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
       instanz: WLO_PROD_ORIGIN,
       gecacht: true,
       suchbegriff: cleanWord,
+      fachfilter: cached.fachfilter,
       hinweis: cached.hinweis,
       anzahl: cached.items.length,
       ergebnisse: cached.items
@@ -300,7 +334,7 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
   try {
     const buildCriteria = (word: string, useLrt: boolean, useCtx: boolean, useFach: boolean) => {
       const c: Array<{ property: string; values: string[] }> = [{ property: 'ngsearchword', values: [word] }];
-      if (useFach && fachUri) c.push({ property: 'virtual:taxonid', values: [fachUri] });
+      if (useFach && fachUris.length) c.push({ property: 'virtual:taxonid', values: fachUris });
       if (useCtx && ctxUri) c.push({ property: 'ccm:educationalcontext', values: [ctxUri] });
       if (useLrt && lrtUri) c.push({ property: 'ccm:oeh_lrt_aggregated', values: [lrtUri] });
       if (nurOffeneLizenz) {
@@ -328,6 +362,8 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
 
     const minWanted = Math.min(4, maxItems);
     let hinweis: string | undefined;
+    // The subject filter only counts as applied while no query had to drop it.
+    let fachGelockert = false;
     let items = await queryEduSharing(buildCriteria(cleanWord, true, true, true), rawFetchLimit, controller.signal);
 
     // Progressive relaxation if strict URI combination yields fewer than 4 hits
@@ -341,7 +377,8 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
       items = mergeUnique(items, more);
       if (items.length >= minWanted) hinweis = 'Bildungsstufen-Filter wurde für mehr Treffer gelockert.';
     }
-    if (items.length < minWanted && fachUri) {
+    if (items.length < minWanted && fachUris.length) {
+      fachGelockert = true;
       const more = await queryEduSharing(buildCriteria(cleanWord, false, false, false), rawFetchLimit, controller.signal);
       items = mergeUnique(items, more);
       if (items.length >= minWanted) hinweis = 'Fach- und Stufenfilter wurden gelockert (offene Stichwortsuche in WLO Prod).';
@@ -350,18 +387,20 @@ export async function searchWloOer(params: WloSearchParams): Promise<WloSearchRe
     const words = cleanWord.split(/\s+/).filter(Boolean);
     if (items.length < minWanted && words.length > 1) {
       const coreWord = [...words].sort((a, b) => b.length - a.length)[0];
-      const more = await queryEduSharing(buildCriteria(coreWord, false, false, Boolean(fachUri)), rawFetchLimit, controller.signal);
+      const more = await queryEduSharing(buildCriteria(coreWord, false, false, fachUris.length > 0), rawFetchLimit, controller.signal);
       items = mergeUnique(items, more);
       if (items.length > 0) hinweis = `Auswahl um Treffer zum Kernbegriff „${coreWord}“ erweitert.`;
     }
     items = mergeUnique([], items);
 
-    wloCache.set(cacheKey, { items, hinweis });
+    const appliedFilter = fachGelockert ? undefined : fachfilter;
+    wloCache.set(cacheKey, { items, hinweis, fachfilter: appliedFilter });
     return {
       quelle: 'wlo',
       instanz: WLO_PROD_ORIGIN,
       gecacht: false,
       suchbegriff: cleanWord,
+      fachfilter: appliedFilter,
       hinweis,
       anzahl: items.length,
       ergebnisse: items
@@ -393,6 +432,7 @@ export function registerOerRoutes(app: FastifyInstance, config: ServerConfig) {
         const result = await searchWloOer({
           query: rawQuery,
           fach,
+          fachbereich: typeof body?.fachbereich === 'string' ? body.fachbereich : undefined,
           bildungsstufe: typeof body?.bildungsstufe === 'string' ? body.bildungsstufe : undefined,
           inhaltstyp: typeof body?.inhaltstyp === 'string' ? body.inhaltstyp : undefined,
           nurOffeneLizenz: Boolean(body?.nurOffeneLizenz),

@@ -138,7 +138,8 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
       bausteine: bundle.bausteine,
       beispiele: bundle.beispiele,
       oeh: bundle.oeh,
-      faecher: bundle.faecher
+      faecher: bundle.faecher,
+      weiterleitungen: bundle.weiterleitungen
     });
     const expectedHash = crypto.createHash('sha256').update(hashPayload).digest('hex');
     expect(bundle.versionHash).toBe(expectedHash);

@@ -13,6 +13,7 @@ const CLEARING_FUNCTIONS = ['verstehen', 'konsolidierung'];
 const CLEARING_GUIDANCE = ['explizit', 'geleitet'];
 const PASSIVE_LIMIT_MIN = 20;
 const MIN_SPACED_REPETITIONS = 2;
+import { KennungIndex } from './kennung.js';
 
 export interface FmtValidator {
   validate(arr: Arrangement, registry?: Map<string, Arrangement>, _stack?: string[]): ValidationResult;
@@ -21,7 +22,10 @@ export interface FmtValidator {
 }
 
 export function createValidator(data: FmtData): FmtValidator {
-  const bausteine = new Map<string, Baustein>(data.bausteine.map((b) => [b.kennung, b]));
+  const bausteine: Map<string, Baustein> = new KennungIndex(
+    data.bausteine.map((b) => [b.kennung, b] as const),
+    data.weiterleitungen
+  );
   const ketten = new Map(data.ketten.map((k) => [k.id, k]));
   const reichweiteScheme = data.schemes.find((s) => s.id === 'reichweite')!;
   const rang = new Map<string, number>((reichweiteScheme.werte || []).map((w) => [w.id, w.rang ?? 0]));

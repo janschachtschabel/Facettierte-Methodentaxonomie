@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FMT_RULES } from '@fmt/core';
+import { FMT_RULES, oehDisciplinesForFachbereich } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
@@ -583,6 +583,7 @@ export function SystematikPage() {
               <tr>
                 <th>Fachbereich</th>
                 <th>Umfasst</th>
+                <th>Fächer bei OpenEduHub/WLO</th>
                 <th>Methoden</th>
               </tr>
             </thead>
@@ -591,6 +592,11 @@ export function SystematikPage() {
                 <tr key={w.id}>
                   <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{w.label}</td>
                   <td>{w.definition}</td>
+                  <td style={{ fontSize: 13.5 }}>
+                    {oehDisciplinesForFachbereich(bundle.faecher, w.id)
+                      .map((f) => f.label)
+                      .join(', ') || 'kein Fachfilter'}
+                  </td>
                   <td>{bundle.bausteine.filter((b) => (b.fachbereich || []).includes(w.id)).length}</td>
                 </tr>
               ))}
@@ -600,7 +606,10 @@ export function SystematikPage() {
         <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
           Einzelfächer hängen bewusst nicht an den Methoden. Nennt eine Anfrage ein Schul- oder Hochschulfach, bildet eine
           Erkennungsschicht es über die Fachvokabulare von OpenEduHub/WLO auf einen der acht Fachbereiche ab. Dieselbe
-          Kennung dient der Suche nach freien Materialien.
+          Kennung dient der Suche nach freien Materialien: Ist ein Fach genannt, filtert die Suche bei WirLernenOnline
+          nach diesem Fach. Ist nur der Fachbereich bekannt, filtert sie nach allen Fächern der Spalte „Fächer bei
+          OpenEduHub/WLO“. Dazu kommt die Bildungsstufe. Im Vokabular sind die Fachbereiche über{' '}
+          <code>skos:narrowMatch</code> mit diesen Fächern verknüpft.
         </p>
 
         <h3 style={{ marginTop: 22 }}>Evidenzbezug: Worauf stützt sich ein Befund?</h3>

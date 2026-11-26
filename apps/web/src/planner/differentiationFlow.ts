@@ -91,11 +91,11 @@ export function outdatedAdjustments(rows: ScenarioPhaseRow[], adjustments: Metho
 export function adjustmentSignature(
   rows: ScenarioPhaseRow[],
   groups: LearnerGroup[],
-  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean }
+  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; fachbereich?: string }
 ): string {
   return JSON.stringify([
     rows.map((r) => [r.key, r.methodId]),
     activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}]),
-    [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI)]
+    [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI), constraints.fachbereich || '']
   ]);
 }

@@ -632,6 +632,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       const wlo = await searchWloOer({
         query: thema || fach || args.text,
         fach,
+        // Without a single subject the OEH subjects of the plan's subject area narrow the search.
+        fachbereich: matched.kriterien.fachbereich as string | undefined,
         bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
         maxItems: 6
       });

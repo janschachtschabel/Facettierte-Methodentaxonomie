@@ -13,5 +13,6 @@ export * from './semantic.js';
 export { createMentionDetector } from './mentions.js';
 export type { FmtMentionDetector, MethodMention } from './mentions.js';
 export { extractSubjectAndTopic } from './thema.js';
-export { createSubjectDetector } from './fach.js';
+export { createSubjectDetector, oehDisciplinesForFachbereich } from './fach.js';
 export type { DetectedSubject, FmtSubjectDetector, OehSubject, OehSubjectCrosswalk } from './fach.js';
+export * from './kennung.js';

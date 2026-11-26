@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useCatalog } from '../data/CatalogContext.js';
 import { getOerWwwUrl, type OerResource, type ScenarioPhaseRow } from '../planner/scenarioModel.js';
 
 interface Props {
@@ -6,6 +7,8 @@ interface Props {
   initialStepKey: string;
   onTargetStepChange?: (stepKey: string) => void;
   fach: string;
+  /** FMT subject area of the plan; the search filters by its OEH subjects when no single subject is known. */
+  fachbereich?: string;
   thema: string;
   bildungsstufe: string;
   oerByStep: Record<string, OerResource[]>;
@@ -38,6 +41,7 @@ export function WloOerCards({
   initialStepKey,
   onTargetStepChange,
   fach,
+  fachbereich,
   thema,
   bildungsstufe,
   oerByStep,
@@ -51,6 +55,8 @@ export function WloOerCards({
   const [busyAutoAll, setBusyAutoAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
+  const [fachfilter, setFachfilter] = useState<{ art: string; fachbereich?: string; faecher: string[] } | null>(null);
+  const { labelOf, bundle } = useCatalog();
   const [results, setResults] = useState<OerResource[]>([]);
   const [instanz, setInstanz] = useState('https://redaktion.openeduhub.net');
 
@@ -79,6 +85,7 @@ export function WloOerCards({
       body: JSON.stringify({
         query: q,
         fach,
+        fachbereich: fachbereich || undefined,
         bildungsstufe,
         inhaltstyp: lrt || undefined,
         nurOffeneLizenz,
@@ -86,8 +93,12 @@ export function WloOerCards({
       })
     });
     const json = await res.json();
-    if (!res.ok) throw new Error(json.fehler || 'WLO-Suche fehlgeschlagen.');
+    if (!res.ok) {
+      setFachfilter(null);
+      throw new Error(json.fehler || 'WLO-Suche fehlgeschlagen.');
+    }
     if (json.instanz) setInstanz(String(json.instanz));
+    setFachfilter(json.fachfilter && Array.isArray(json.fachfilter.faecher) ? json.fachfilter : null);
     return {
       items: ((json.ergebnisse || []) as OerResource[]).map((item) => ({
         ...item,
@@ -118,10 +129,10 @@ export function WloOerCards({
   // Auto-run an initial WLO Prod search once when entering Step 3 with a topic so tiles are immediately visible!
   useEffect(() => {
     const seed = (thema || fach).trim();
-    if (!seed || autoSearchedRef.current === `${seed}|${fach}|${bildungsstufe}`) return;
-    autoSearchedRef.current = `${seed}|${fach}|${bildungsstufe}`;
+    if (!seed || autoSearchedRef.current === `${seed}|${fach}|${fachbereich || ''}|${bildungsstufe}`) return;
+    autoSearchedRef.current = `${seed}|${fach}|${fachbereich || ''}|${bildungsstufe}`;
     void runSearch(seed);
-  }, [thema, fach, bildungsstufe]);
+  }, [thema, fach, fachbereich, bildungsstufe]);
 
   // Smart batch search: fetches topic OERs across phase-appropriate content types and assigns 1 suggestion per empty phase
   const runAutoSuggestAllPhases = async () => {
@@ -345,6 +356,16 @@ export function WloOerCards({
         <div className="msgs">
           <li className="err">{error}</li>
         </div>
+      )}
+      {fachfilter?.art === 'fachbereich' && fachfilter.fachbereich && (
+        <p className="muted" style={{ fontSize: 13, margin: '0 0 8px' }}>
+          Gefiltert nach dem Fachbereich „{labelOf('fachbereich', fachfilter.fachbereich)}“, also nach den WLO-Fächern{' '}
+          {(() => {
+            const names = (bundle?.faecher?.schulfaecher || []).filter((f) => fachfilter.faecher.includes(f.uri)).map((f) => f.label);
+            return names.length > 6 ? `${names.slice(0, 6).join(', ')} und ${names.length - 6} weiteren` : names.join(', ');
+          })()}
+          . Trage oben in Schritt 1 ein Fach ein, wenn du nur ein Fach möchtest.
+        </p>
       )}
       {hint && (
         <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>

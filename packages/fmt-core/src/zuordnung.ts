@@ -22,6 +22,7 @@ import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 import { createMentionDetector } from './mentions.js';
 import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
+import { KennungIndex } from './kennung.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -88,7 +89,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const rang = new Map((scheme('reichweite').werte || []).map((w) => [w.id, w.rang ?? 0]));
   const techRank = new Map((scheme('technikbedarf').werte || []).map((w) => [w.id, w.rang ?? 0]));
   const implies = new Map((scheme('lernzustand').werte || []).map((w) => [w.id, w.impliziert || []]));
-  const blocks = new Map<string, Baustein>(data.bausteine.map((b) => [b.kennung, b]));
+  const blocks: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
   const chains = new Map<string, Funktionskette>(data.ketten.map((k) => [k.id, k]));
 
   const closure = (states: string[]): Set<string> => {

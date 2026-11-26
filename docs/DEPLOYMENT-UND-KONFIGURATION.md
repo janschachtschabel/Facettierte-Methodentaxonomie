@@ -289,7 +289,7 @@ curl -s -X POST http://localhost:8080/api/v1/assistant/briefing \
 6. `validate_arrangement` – Regelprüfung `R-00` bis `R-12` inkl. Grundlagen (`formal`, `[E]`, `[S]`, `[A]`)
 7. `suggest_replacements` – Formal gültige Ersatzkandidaten an einem Knotenpfad
 8. `list_vocabularies` – Alle 25 SKOS-Vokabulare, Funktionsketten & Differenzierungs-Personas
-9. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline Prod (`redaktion.openeduhub.net`) inkl. `wwwurl`
+9. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline Prod (`redaktion.openeduhub.net`) inkl. `wwwurl`, gefiltert nach `fach` oder, ohne erkanntes Einzelfach, nach allen OEH-Fächern des `fachbereich`
 10. `score_differentiation_matrix` – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, Ebenen-/Technikfilter) & alternative Methoden für Teilgruppen
 11. `adapt_scenario` – Szenario-Anpassung & Binnendifferenzierung für freie Chat-Entwürfe & FMT-Arrangements (UDL-Basis, Zielkonflikte + Auflösungen, Phasen-Impulse, FMT-Methoden & `llmBriefing`, auch als `POST /api/v1/adapt`)
 12. `build_scenario_plan` – Kompletter Zero-LLM-Szenario-Plan (`< 5 ms`) inkl. UDL/Konflikten, `llmBriefing` & JSON-LD

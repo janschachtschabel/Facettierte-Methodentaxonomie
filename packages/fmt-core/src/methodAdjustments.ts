@@ -155,3 +155,123 @@ export function proposeMethodAdjustments(
   }
   return out;
 }
+
+export interface AdditionalPhaseProposal {
+  /** 'vorwissen': guided start that activates prior knowledge; 'lernstand': short check at the end. */
+  art: 'vorwissen' | 'lernstand';
+  position: 'anfang' | 'ende';
+  kennung: string;
+  name: string;
+  dauerMin: number;
+  grund: string;
+  /** Subgroups the phase is proposed for; it is held with the whole class. */
+  groupIds: string[];
+  groupLabels: string[];
+}
+
+/** Extra phases stay short so the rest of the lesson keeps its time. */
+const EXTRA_PHASE_MAX_MIN = 5;
+
+const listLabels = (labels: string[]) =>
+  labels.length <= 1 ? labels.join('') : `${labels.slice(0, -1).join(', ')} und ${labels[labels.length - 1]}`;
+
+/**
+ * Proposes short additional phases for the whole class where the plan lacks something the subgroups depend on:
+ * a clearly guided start that activates prior knowledge (groups that need support) and a short check at the end
+ * that shows whether everyone reached the goal. Deterministic; at most one proposal per kind.
+ */
+export function proposeAdditionalPhases(
+  allBlocks: Baustein[],
+  phases: MethodAdjustmentPhase[],
+  groups: MethodAdjustmentGroup[],
+  constraints: MethodAdjustmentConstraints = {}
+): AdditionalPhaseProposal[] {
+  const profiled = groups
+    .filter((g) => !g.isMain && hasAdjustmentProfile(g))
+    .map((g) => ({
+      g,
+      matrix: scoreDifferentiationMatrix({
+        personaId: g.personaId,
+        selectedValues: g.selectedValues,
+        maxTechnik: constraints.maxTechnik,
+        ohneInternet: constraints.ohneInternet,
+        ohneKI: constraints.ohneKI,
+        limit: 10
+      })
+    }));
+  if (!profiled.length) return [];
+
+  const plannedBlocks = phases.map((p) => p.block).filter((b): b is Baustein => Boolean(b));
+  const used = new Set(plannedBlocks.map((b) => b.kennung));
+  const maxTech = Math.min(1, constraints.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 1) : 1);
+
+  const inFrame = (b: Baustein) =>
+    b.dauerMin <= EXTRA_PHASE_MAX_MIN &&
+    b.anleitung.includes('explizit') &&
+    (TECH_RANK[b.technik] ?? 0) <= maxTech &&
+    !b.internet &&
+    !usesAi(b) &&
+    !b.komposit &&
+    !(b.slot || []).length &&
+    !(constraints.fachbereich && (b.fachbereichUngeeignet || []).includes(constraints.fachbereich)) &&
+    !(constraints.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(constraints.bildungsstufe)) &&
+    // Movement and play methods only fit where the subject calls for them.
+    !(b.aufgabe || []).includes('psychomotorik') &&
+    !(b.ansatz || []).includes('spiel-simulation');
+
+  const pick = (candidates: Baustein[], forGroups: typeof profiled): Baustein | undefined =>
+    candidates
+      .filter((b) => !used.has(b.kennung) && inFrame(b))
+      .map((b) => ({ b, fit: forGroups.reduce((sum, x) => sum + scoreMethodForGroup(b, x.matrix).fit, 0) }))
+      .sort(
+        (a, b) =>
+          b.fit - a.fit ||
+          Number(b.b.status === 'kuratiert') - Number(a.b.status === 'kuratiert') ||
+          a.b.dauerMin - b.b.dauerMin ||
+          a.b.kennung.localeCompare(b.b.kennung)
+      )[0]?.b;
+
+  const out: AdditionalPhaseProposal[] = [];
+  const add = (art: AdditionalPhaseProposal['art'], b: Baustein, forGroups: typeof profiled, grund: (labels: string, min: number) => string) => {
+    used.add(b.kennung);
+    const dauerMin = Math.min(Math.max(EXTRA_PHASE_MAX_MIN, b.dauerMin), b.dauerMax);
+    out.push({
+      art,
+      position: art === 'vorwissen' ? 'anfang' : 'ende',
+      kennung: b.kennung,
+      name: b.name,
+      dauerMin,
+      grund: grund(listLabels(forGroups.map((x) => x.g.label)), dauerMin),
+      groupIds: forGroups.map((x) => x.g.id),
+      groupLabels: forGroups.map((x) => x.g.label)
+    });
+  };
+
+  // 1. Guided start: groups that need support depend on prior knowledge being made explicit first.
+  const needSupport = profiled.filter((x) => x.matrix.didacticProfile.needsScaffolding);
+  // Such a start activates prior knowledge and shows it: learners answer, the teacher sees where they stand.
+  const showsPriorKnowledge = (b: Baustein) =>
+    (b.nachbedingung || []).includes('vorwissen-aktiviert') && b.lernfunktion.includes('diagnose') && ['orientierung', 'diagnose'].includes(b.lernfunktion[0]);
+  const hasGuidedStart = plannedBlocks.some((b) => b.anleitung.includes('explizit') && showsPriorKnowledge(b));
+  if (needSupport.length && !hasGuidedStart) {
+    const b = pick(allBlocks.filter(showsPriorKnowledge), needSupport);
+    if (b) {
+      add('vorwissen', b, needSupport, (labels) => `${labels}: Ein klar angeleiteter Einstieg klärt vorab für alle, was schon bekannt ist und worauf die Stunde aufbaut.`);
+    }
+  }
+
+  // 2. Check at the end: with subgroups in the room the plan should show whether everyone reached the goal.
+  // Methods made for the start of a lesson (entry ticket, daily review) are no check at its end.
+  const checksGoal = (b: Baustein) =>
+    (b.nachbedingung || []).includes('lernstand-diagnostiziert') && !(b.nachbedingung || []).includes('vorwissen-aktiviert');
+  if (!plannedBlocks.some(checksGoal)) {
+    const b = pick(
+      allBlocks.filter((x) => checksGoal(x) && x.lernfunktion[0] === 'diagnose'),
+      profiled
+    );
+    if (b) {
+      add('lernstand', b, profiled, (labels, min) => `Bisher zeigt der Ablauf am Ende nicht, ob auch ${labels} das Ziel erreicht haben. Das wird hier in ${min} Minuten für alle sichtbar.`);
+    }
+  }
+  return out;
+}
