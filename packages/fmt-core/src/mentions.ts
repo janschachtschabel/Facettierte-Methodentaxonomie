@@ -49,7 +49,10 @@ export function createMentionDetector(data: FmtData): FmtMentionDetector {
   };
   for (const b of data.bausteine) {
     const paren = /^(.*?)\s*\(([^)]*)\)\s*$/.exec(b.name);
-    add(b.kennung, paren ? paren[1] : b.name, true);
+    const main = paren ? paren[1] : b.name;
+    add(b.kennung, main, true);
+    // "Vokabeltest / Schriftliche Kurzkontrolle" is called by either part.
+    if (main.includes(' / ')) main.split(' / ').forEach((part) => add(b.kennung, part, true));
     if (paren) add(b.kennung, paren[2], false);
     for (const alt of b.alternativname || []) add(b.kennung, alt, false);
   }

@@ -106,9 +106,10 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
       const kette = D.ketten.find((x) => x.id === r.kette?.id);
       const istPruefschritt = (n: EinsatzNode) =>
         !n.kettenschritt || kette?.schritte.find((st) => st.id === n.kettenschritt)?.ziel === 'lernstand-diagnostiziert';
-      const letzte = haupt.slice(-2);
-      const prueft = letzte.some((n) => istPruefschritt(n) && istPruefmethode(byId.get(n.baustein)!));
-      add('leistungskontrolle', prueft, `letzte Phasen: ${letzte.map((n) => n.baustein).join(', ')}`);
+      // At the end, or at the start when the request puts the check first ("Vokabeltest und danach …").
+      const rand = [...haupt.slice(0, 2), ...haupt.slice(-2)];
+      const prueft = rand.some((n) => istPruefschritt(n) && istPruefmethode(byId.get(n.baustein)!));
+      add('leistungskontrolle', prueft, `erste und letzte Phasen: ${rand.map((n) => n.baustein).join(', ')}`);
     }
     if (e.enthaelt) add('enthaelt', alle.some((n) => n.baustein === e.enthaelt), `${e.enthaelt} fehlt`);
     if (e.nicht) {

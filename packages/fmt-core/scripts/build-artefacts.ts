@@ -26,6 +26,7 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['sequenz', 'sequenzlogik', true],
   ['vorbedingung', 'lernzustand', true],
   ['nachbedingung', 'lernzustand', true],
+  ['vorhanden', 'lernzustand', true],
   ['geeignetBeiVorwissen', 'vorwissen', true],
   ['vorwissen', 'vorwissen', false],
   ['ungeeignetBeiStufe', 'bildungsstufe', true],
@@ -560,7 +561,8 @@ export function buildSchema(D: FmtData) {
           bildungsstufe: vocabProp.bildungsstufe,
           fach: { type: 'string' },
           vorwissen: vocabProp.vorwissen,
-          zeitbudgetMin: { type: 'integer', minimum: 0 }
+          zeitbudgetMin: { type: 'integer', minimum: 0 },
+          vorhanden: vocabProp.vorhanden
         }
       },
       ablauf: knoten

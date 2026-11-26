@@ -1088,6 +1088,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const kontext: Arrangement['kontext'] = {};
     if (a.bildungsstufe) kontext.bildungsstufe = a.bildungsstufe;
     if (a.vorwissen) kontext.vorwissen = a.vorwissen;
+    // A check at the start tests what earlier lessons taught: the group brings first knowledge with it.
+    if (list(a.liefert).includes('lernstand-diagnostiziert') && checkFirst(currentRawText)) kontext.vorhanden = ['erstwissen-ungesichert'];
     const wrap = (teile: ArrangementNode[]): Arrangement => ({
       '@context': data.NS + 'context.jsonld',
       '@id': data.NS + 'plan/vorschlag',
@@ -1187,7 +1189,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             floors[i] == null && b.lernfunktion.some((f) => st.funktion.includes(f)) && closure(b.nachbedingung || []).has(st.ziel)
         );
       const direct = fits.filter(({ st }) => (b.nachbedingung || []).includes(st.ziel));
-      const at = (direct.find(({ st }) => st.rolle === 'haupt') || direct[0] || fits[0])?.i ?? -1;
+      // A named check ("Vokabeltest") belongs to the check step, wherever the request puts it.
+      const checkFit = b.lernfunktion[0] === 'diagnose' ? fits.find(({ st }) => st.id === checkStepId) : undefined;
+      const at = (checkFit || direct.find(({ st }) => st.rolle === 'haupt') || direct[0] || fits[0])?.i ?? -1;
       if (at >= 0) {
         floors[at] = b.dauerMin;
         currentAnchorStep.set(b.kennung, at);

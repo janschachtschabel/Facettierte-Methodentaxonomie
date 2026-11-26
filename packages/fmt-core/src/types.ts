@@ -266,6 +266,8 @@ export interface ArrangementKontext {
   fach?: string;
   vorwissen?: string;
   zeitbudgetMin?: number;
+  /** Learning states the group brings from earlier lessons (e.g. a test on last week's content at the start). */
+  vorhanden?: string[];
 }
 
 export interface Arrangement {
