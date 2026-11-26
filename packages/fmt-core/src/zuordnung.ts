@@ -1935,7 +1935,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         };
         const practising = !guessedFn && list(a.lernfunktion)[0] === 'konsolidierung';
         const verb = given(anfrage.text) ? VERB_CHAINS.find(([re]) => re.test(withoutNegated(currentRawText)))?.[1] : undefined;
-        if (a.fachbereich === 'sport' && a.raum !== 'klassenraum') {
+        // Sport assumes movement only where learners can move: no room named, or the room offers space to move.
+        const raumLage = baueSituation(a, data, currentSituationKontext);
+        if (a.fachbereich === 'sport' && (!raumLage.raumGenannt || raumLage.bietet.has('bewegungsflaeche'))) {
           wahl = nimmAn(
             'bewegung',
             given(a.zielart)
