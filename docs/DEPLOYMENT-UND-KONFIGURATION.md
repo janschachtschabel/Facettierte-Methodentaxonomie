@@ -24,6 +24,7 @@ Die Datei `docker-compose.yml` im Projekt-Hauptordner erfüllt alle Hostinger-An
 - kein `build:` und keine Bind-Mounts auf Repo-Dateien,
 - kein `external: true`-Netz (benanntes Standardnetz `fmt-methodendatenbank-web`),
 - keine Host-Ports `80`/`443` (HTTPS übernimmt Hostingers Traefik über Labels),
+- Datenschutz: Die Datenschutzerklärung sagt zu, dass auch der Reverse Proxy kein Zugriffsprotokoll mit IP-Adressen führt. Traefiks `accessLog` muss deshalb ausgeschaltet bleiben (Standard) oder IP-Adressen auslassen,
 - **erster Deploy gelingt komplett ohne Variablen**.
 
 #### Schritt-für-Schritt-Ablauf
@@ -227,13 +228,6 @@ Für eine noch stärkere rein semantische Freitext-zu-Filter-Klassifikation ohne
 | `LLM_TIMEOUT_MS` | Integer (ms) | `90000` | Server | Timeout für LLM-Upstream-Anfragen |
 | `LLM_CACHE_MAX` | Integer | `500` | Server | Maximale LRU-Cache-Größe für Server-LLM-Antworten |
 | `LLM_CACHE_TTL_MS` | Integer (ms) | `3600000` | Server | Cache-Lebensdauer in ms (1 Stunde) |
-| `SMTP_HOST` | Hostname | *(leer)* | Server | SMTP-Server für das Kontaktformular im Impressum; leer = Formular meldet „nicht eingerichtet“ |
-| `SMTP_PORT` | Integer | `587` | Server | SMTP-Port (465 schaltet automatisch TLS ein) |
-| `SMTP_SECURE` | `true` / `false` | `false` | Server | `true` = TLS ab Verbindungsbeginn (Port 465); sonst ist STARTTLS Pflicht (außer bei einem Relay auf `localhost`) |
-| `SMTP_USER` / `SMTP_PASS` | String | *(leer)* | Server | Zugangsdaten des SMTP-Kontos |
-| `CONTACT_FROM` | E-Mail | `SMTP_USER` | Server | Absenderadresse der Kontakt-Mails; Antworten gehen per Reply-To an die Absenderin |
-| `CONTACT_TO` | E-Mail | Adresse aus dem Impressum | Server | Empfänger der Kontakt-Mails |
-| `CONTACT_RATE_LIMIT_PER_HOUR` | Integer | `10` | Server | Nachrichten pro IP und Stunde über das Kontaktformular |
 | `FMT_M2V_MODEL_DIR` | Pfad oder `none` | `./models/m2v-qwen3-4b-256-edu` | Server + `download-m2v.mjs` | Speicherort für optionales Model2Vec-Modell |
 | `FMT_DATA_DIR` | Pfad | `<repo>/dist-data` | Server + `mcp:stdio` | Pfad zu den gebauten Katalog-Artefakten |
 | `FMT_WEB_DIR` | Pfad | `<repo>/apps/web/dist` | Server | Pfad zur gebauten Web-App |

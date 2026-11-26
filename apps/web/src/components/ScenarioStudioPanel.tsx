@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { scoreDifferentiationMatrix, type Arrangement, type Baustein, type ValidationResult } from '@fmt/core';
 import { InlineMarkdown, SimpleMarkdown } from './SimpleMarkdown.js';
-import { WloOerCards } from './WloOerCards.js';
+import { WloOerCards, wloPreviewPath } from './WloOerCards.js';
 import { DifferentiationMatrixPanel } from './DifferentiationMatrixPanel.js';
 import {
   exportArrangementHtmlHandout,
@@ -1581,9 +1581,9 @@ export function ScenarioStudioPanel({
                 <SimpleMarkdown content={previewModal.item.content} />
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {previewModal.item.previewUrl && (
+                  {wloPreviewPath(previewModal.item.previewUrl) && (
                     <img
-                      src={previewModal.item.previewUrl}
+                      src={wloPreviewPath(previewModal.item.previewUrl)!}
                       alt={previewModal.item.title}
                       style={{ maxHeight: 260, width: 'auto', objectFit: 'contain', borderRadius: 6, border: '1px solid var(--grid)' }}
                     />

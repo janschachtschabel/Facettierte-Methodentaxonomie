@@ -13,16 +13,19 @@ import { registerAssistantRoutes } from './routes/assistant.js';
 import { oehDisciplinesForFachbereich } from '@fmt/core';
 import { registerOerRoutes, setWloAreaLookup, setWloSubjectLookup } from './routes/oer.js';
 import { registerMcpHttpRoutes } from './mcp/http.js';
-import { registerContactRoutes, type ContactSender } from './routes/contact.js';
+import { registerContactRoutes } from './routes/contact.js';
 import { findTooLongString, tooLongMessage } from './routes/validation.js';
+
+/** The only request fields that reach the log. */
+export function requestLogFields(req: { method?: string; url?: string }) {
+  return { method: req.method, url: (req.url || '').split('?')[0] };
+}
 
 export interface BuildAppOptions {
   distDataDir: string;
   webDistDir?: string;
   config?: ServerConfig;
   logger?: boolean;
-  /** Replaces the SMTP delivery of the contact form (tests). */
-  contactSender?: ContactSender | null;
 }
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance & { fmtStore: CatalogStore }> {
@@ -35,7 +38,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       : Boolean(config.trustProxy);
 
   const app = Fastify({
-    logger: options.logger ?? false,
+    // Request logs without IP address, port or headers (data minimisation, see the privacy page).
+    logger: options.logger ? { serializers: { req: requestLogFields } } : false,
     trustProxy,
     bodyLimit: 128 * 1024
   }) as unknown as FastifyInstance & { fmtStore: CatalogStore };
@@ -84,8 +88,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   setWloSubjectLookup((name) => store.subjects.schulfachUri(name));
   setWloAreaLookup((fachbereich) => oehDisciplinesForFachbereich(store.bundle.faecher, fachbereich).map((f) => f.uri));
   registerOerRoutes(app, config);
-  if (options.contactSender !== undefined) registerContactRoutes(app, config, options.contactSender);
-  else registerContactRoutes(app, config);
+  registerContactRoutes(app);
   registerMcpHttpRoutes(app, store, config);
 
   const webDir = options.webDistDir;

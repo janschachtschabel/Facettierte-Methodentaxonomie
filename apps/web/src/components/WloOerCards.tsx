@@ -2,6 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { useCatalog } from '../data/CatalogContext.js';
 import { getOerWwwUrl, type OerResource, type ScenarioPhaseRow } from '../planner/scenarioModel.js';
 
+const WLO_ORIGIN = 'https://redaktion.openeduhub.net';
+/** Preview images come through our own server, so the browser does not contact WLO (see the privacy page). */
+export function wloPreviewPath(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.origin !== WLO_ORIGIN || !u.pathname.startsWith('/edu-sharing/')) return null;
+  } catch {
+    return null;
+  }
+  return `/api/v1/oer/vorschau?u=${encodeURIComponent(url)}`;
+}
+
 interface Props {
   scenarioRows: ScenarioPhaseRow[];
   initialStepKey: string;
@@ -393,10 +406,10 @@ export function WloOerCards({
                 }}
               >
                 <div>
-                  {item.previewUrl ? (
+                  {wloPreviewPath(item.previewUrl) ? (
                     <div style={{ height: 112, background: 'var(--surface)', overflow: 'hidden', borderBottom: '1px solid var(--grid)' }}>
                       <img
-                        src={item.previewUrl}
+                        src={wloPreviewPath(item.previewUrl)!}
                         alt={item.title}
                         loading="lazy"
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
