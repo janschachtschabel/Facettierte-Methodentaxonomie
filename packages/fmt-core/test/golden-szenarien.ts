@@ -78,6 +78,14 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Mathe Klasse 8, 45 Minuten, nicht in der Sporthalle', erwartet: {}, nicht: { lernort: 'bewegungsraum' } },
   { text: 'Übung zur Vorlesung Analysis, 90 Minuten', erwartet: { fachbereich: 'mathe-informatik' }, nicht: { lernort: 'hoersaal' } },
   { text: 'Sport Klasse 9 Theorie: Doping im Klassenraum, 45 Minuten', erwartet: { lernort: 'klassenraum' } },
+  // Check words beyond "Test" and "Leistungskontrolle".
+  { text: 'Mathematik Klasse 8 Terme, 45 Minuten, am Ende kurze schriftliche Überprüfung', erwartet: { liefert: ['lernstand-diagnostiziert'] } },
+  { text: 'Sport Klasse 9 Handball, Notengebung am Ende der Stunde, 45 min', erwartet: { liefert: ['lernstand-diagnostiziert'] } },
+  { text: 'Pflegeausbildung: Händedesinfektion und praktische Prüfung, 60 Minuten', erwartet: { liefert: ['lernstand-diagnostiziert'] } },
+  { text: 'Pflegeausbildung: Vorbereitung auf die praktische Prüfung, 60 Minuten', erwartet: {}, nicht: { liefert: ['lernstand-diagnostiziert'] } },
+  { text: 'Deutsch Klasse 9, 45 Minuten, Rückgabe der schriftlichen Überprüfung', erwartet: {}, nicht: { liefert: ['lernstand-diagnostiziert'] } },
+  { text: 'Englisch Q1, 45 Minuten, Tipps für die mündliche Prüfung', erwartet: {}, nicht: { liefert: ['lernstand-diagnostiziert'] } },
+  { text: 'Deutsch Klasse 9, 45 Minuten, mündliche Prüfungen', erwartet: { liefert: ['lernstand-diagnostiziert'] } },
   { text: 'Deutsch Klasse 8 Erörterung schreiben, 2 x 45 Minuten', erwartet: { zieltyp: 'produktion', zeitMin: 90 } },
   { text: 'Informatik Klasse 10: Schleifen in Python programmieren, 90 Minuten', erwartet: { zieltyp: 'produktion' } }
 ];
