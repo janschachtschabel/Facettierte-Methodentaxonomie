@@ -849,7 +849,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // Reviewed in Durchsicht 1: an entry for sport warns and stands with the other warnings (W9); the other subject
     // areas keep their own rank tier until their review (Paket B).
     if (a.fachbereich === 'sport' && (b.fachbereichUngeeignet || []).includes('sport')) {
-      w.push('Im Fachbereich Sport nicht vorgesehen (Durchsicht 1).');
+      w.push('Im Fachbereich Sport nicht vorgesehen.');
     }
     if (a.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(a.bildungsstufe)) {
       w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ nicht vorgesehen (Setzung der Redaktion).`);
@@ -1760,9 +1760,30 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return r;
   }
 
+  /**
+   * A sequence step shows no warnings of its own (yet): the fit warnings of the chosen methods (passung) are given as
+   * notes, so they are not lost in ablauf mode. A method already noted as unusual in the subject keeps that note only.
+   */
+  function withPassungNote(r: MatchResult, unusual: string[]): MatchResult {
+    if (r.modus !== 'ablauf') return r;
+    const a = r.kriterien as MatchRequest;
+    const notes: string[] = [];
+    for (const id of new Set(chosenBlocks(r))) {
+      const b = blocks.get(id);
+      if (!b) continue;
+      for (const w of passung(b, a)) {
+        if (unusual.includes(id) && w.startsWith('Im Fachbereich')) continue;
+        const note = `„${b.name}“: ${w}`;
+        if (!notes.includes(note)) notes.push(note);
+      }
+    }
+    if (notes.length) r.hinweise = [...(r.hinweise || []), ...notes];
+    return r;
+  }
+
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     const r = planen(anfrage);
-    return withSafetyNote(withUnusualNote(r, lastUnusual, lastArea), lastRoom, lastArea);
+    return withSafetyNote(withPassungNote(withUnusualNote(r, lastUnusual, lastArea), lastUnusual), lastRoom, lastArea);
   }
 
   /** Room, subject area and unusual named methods of the last planning run, kept past their reset for the notes. */

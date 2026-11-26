@@ -31,4 +31,11 @@ describe('Fix wave Paket A', () => {
     const flaeche = M.zuordnen({ text: 'Sport Klasse 7: Handball, 45 Minuten', raumBietet: ['bewegungsflaeche', 'stellflaeche'] });
     expect(flaeche.modus === 'ablauf' && flaeche.kette?.id).toBe('fertigkeit-bewegung');
   });
+
+  it('3: Passungswarnungen gewählter Methoden erscheinen im Ablauf als Hinweis', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer, Klassenraum, 90 Minuten, mit Makerspace' });
+    expect(r.modus).toBe('ablauf');
+    expect(JSON.stringify(r.modus === 'ablauf' && r.arrangement?.ablauf)).toContain('makerspace-tueftelwerkstatt');
+    expect(r.hinweise || []).toContain('„Makerspace / Tüftelwerkstatt (FabLab)“: Im Fachbereich Sport nicht vorgesehen.');
+  });
 });
