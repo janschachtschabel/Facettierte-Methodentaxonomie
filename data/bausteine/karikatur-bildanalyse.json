@@ -20,11 +20,10 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "quellen": [
     {
@@ -88,8 +87,8 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "fall",
     "konzepte",
+    "fall",
     "afb1",
     "afb2",
     "afb3"

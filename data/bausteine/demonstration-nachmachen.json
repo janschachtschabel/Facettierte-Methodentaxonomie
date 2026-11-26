@@ -12,12 +12,6 @@
     "aesthetik",
     "beruf-praxis"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Präzise Vorführung eines Bewegungs- oder Handlungsablaufs in Real- und Zeitlupe mit fokussierten Beobachtungspunkten und sofortigem Nachvollzug.",
   "alternativname": [
     "Vormachen–Nachmachen",
@@ -36,7 +30,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

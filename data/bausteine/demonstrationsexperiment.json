@@ -20,14 +20,7 @@
     "sprachen",
     "gesellschaft",
     "aesthetik",
-    "sport",
     "mathe-informatik"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "hoersaal",
-    "draussen"
   ],
   "quellen": [
     {
@@ -124,7 +117,7 @@
     "Versuchsaufbau",
     "Protokollbogen oder Tafel"
   ],
-  "raum": "Fachraum oder Tisch mit Kamera/Projektion",
+  "raumhinweis": "Fachraum oder Tisch mit Kamera/Projektion",
   "gruppeMin": 4,
   "gruppeMax": 100,
   "vorbereitungMin": 30,

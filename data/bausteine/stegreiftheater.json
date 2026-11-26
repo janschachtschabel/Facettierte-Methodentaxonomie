@@ -14,13 +14,7 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+    "nawi-technik"
   ],
   "kurzbeschreibung": "Spontanes szenisches Ausgestalten einer Konflikt-, Alltags- oder historischen Situation ohne festes Skript zur Förderung von Sprachfluss und Empathie.",
   "alternativname": [
@@ -40,7 +34,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 30,
   "technik": "t-keine",
@@ -142,7 +136,8 @@
     "y": 2.82
   },
   "aufgabe": [
-    "konzepte",
+    "prozeduren",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

@@ -10,11 +10,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "wandflaeche"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "kurzbeschreibung": "Großformatiges, fortlaufend ergänzbares Informations- und Meinungsplakat im Klassenraum zu einem aktuellen Unterrichts- oder Projektthema.",
   "alternativname": [
@@ -37,7 +38,7 @@
     "Bilder",
     "Kleber"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

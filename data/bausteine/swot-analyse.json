@@ -16,11 +16,12 @@
     "beruf-praxis",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -82,6 +83,7 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "konzepte",
     "fall",
     "schlecht-strukturiert",
     "afb3"

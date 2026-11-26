@@ -10,12 +10,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Kurze, fokussierte Lehr- oder Präsentationssequenz (5–10 Min.) vor kleiner Gruppe mit kriteriengeleitetem Feedback und direkter Wiederholung.",
   "alternativname": [
     "Mikro-Lehrprobe",
@@ -35,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 12,
   "technik": "t-keine",
@@ -142,7 +136,7 @@
     "y": 2.66
   },
   "aufgabe": [
-    "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

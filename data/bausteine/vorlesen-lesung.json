@@ -18,11 +18,7 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+    "nawi-technik"
   ],
   "quellen": [
     {
@@ -106,7 +102,7 @@
   "material": [
     "Vorlesetext / Buch"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 5,

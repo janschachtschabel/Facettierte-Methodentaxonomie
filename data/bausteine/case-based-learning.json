@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "reichweite": "r2",
   "lernfunktion": [
     "orientierung",
@@ -70,9 +67,9 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "konzepte",
     "schlecht-strukturiert",
-    "afb3",
-    "konzepte"
+    "afb3"
   ],
   "sequenz": [
     "geblockt",
@@ -111,7 +108,7 @@
     "Fallvignette (1–2 Seiten)",
     "Analysematrix / Leitfragen"
   ],
-  "raum": "Klassen- oder Seminarraum",
+  "raumhinweis": "Klassen- oder Seminarraum",
   "gruppeMin": 6,
   "gruppeMax": 45,
   "teamMin": 3,

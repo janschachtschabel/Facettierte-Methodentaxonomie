@@ -10,8 +10,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "kurzbeschreibung": "Ein auf Leitplanken eingestellter Chatbot übernimmt eine historische, literarische oder berufliche Gesprächsrolle; Lernende führen ein quellenkritisches Interview.",
   "alternativname": [
@@ -31,7 +35,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-geteilt",

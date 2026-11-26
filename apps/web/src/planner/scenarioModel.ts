@@ -363,7 +363,7 @@ export function buildScenarioRows(
   ): ScenarioPhaseRow => {
     const b = blocksById.get(node.baustein);
     const social = (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || '–';
-    const room = b?.raum || ((b?.raumzeit || []).map((x) => labelOf('raumzeit', x)).join(', ') || 'Klassenraum');
+    const room = b?.raumhinweis || ((b?.raumzeit || []).map((x) => labelOf('raumzeit', x)).join(', ') || 'Klassenraum');
     const tech = b?.technik ? labelOf('technikbedarf', b.technik) : '';
     const diff = aiDiffByStep[key]?.length ? aiDiffByStep[key] : buildDeterministicDiffHints(b, groups);
     return {
@@ -466,7 +466,7 @@ export function buildScenarioRows(
       teacherRole: 'Verteilte Abruftermine ansetzen und kurz auswerten',
       learnerRole: b ? summarizeLearnerRole(b, labelOf) : 'Wiederholter Abruf',
       socialForm: (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || 'Einzelarbeit',
-      environment: b?.raum || 'Klassenraum',
+      environment: b?.raumhinweis || 'Klassenraum',
       materials: b?.material || [],
       differentiation: aiDiffByStep['wiederkehr']?.length ? aiDiffByStep['wiederkehr'] : buildDeterministicDiffHints(b, groups),
       subgroupMethods: resolveSubgroupMethods('wiederkehr'),

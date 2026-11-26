@@ -16,10 +16,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest"
   ],
+  "termineMin": 2,
   "reichweite": "r2",
   "lernfunktion": [
     "erwerb",
@@ -109,7 +109,7 @@
     "LMS / H5P / Lernkarten-App",
     "Kurze OER-Nuggets"
   ],
-  "raum": "Digital / Hybrid",
+  "raumhinweis": "Digital / Hybrid",
   "gruppeMin": 1,
   "gruppeMax": 500,
   "vorbereitungMin": 25,

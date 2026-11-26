@@ -15,11 +15,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -104,7 +105,7 @@
   "material": [
     "Endgeräte mit Internetzugang"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 5,

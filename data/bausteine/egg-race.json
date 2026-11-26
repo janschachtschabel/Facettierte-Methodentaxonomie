@@ -12,13 +12,7 @@
   ],
   "fachbereichUngeeignet": [
     "sprachen",
-    "gesellschaft",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+    "gesellschaft"
   ],
   "kurzbeschreibung": "Teams lösen ein naturwissenschaftlich-technisches Konstruktionsproblem mit begrenztem Material unter Zeitdruck und testen ihre Prototypen live.",
   "alternativname": [
@@ -39,7 +33,7 @@
     "Einheitliche Materialpakete",
     "Messgeräte/Stoppuhr"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 3,

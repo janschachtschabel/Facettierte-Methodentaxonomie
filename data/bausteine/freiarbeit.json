@@ -14,9 +14,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Freiarbeit",
@@ -143,7 +140,7 @@
     "Vorbereitete Materialien mit Fehlerkontrolle",
     "Arbeitsplan/Logbuch"
   ],
-  "raum": "Vorbereiteter Klassenraum mit Materialregalen",
+  "raumhinweis": "Vorbereiteter Klassenraum mit Materialregalen",
   "gruppeMin": 5,
   "gruppeMax": 30,
   "vorbereitungMin": 120,

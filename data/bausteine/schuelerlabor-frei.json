@@ -19,12 +19,15 @@
     "sprachen",
     "gesellschaft",
     "aesthetik",
-    "sport",
     "mathe-informatik"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
+  "raumbedarf": [
+    "schreibplatz",
+    "fachausstattung"
+  ],
+  "fachausstattungArt": "labor",
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -125,7 +128,7 @@
     "Laborausstattung",
     "Forschungsprotokoll"
   ],
-  "raum": "Schülerlabor / Fachraum",
+  "raumhinweis": "Schülerlabor / Fachraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 45,

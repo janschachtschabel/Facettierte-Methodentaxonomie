@@ -18,11 +18,13 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -116,7 +118,7 @@
     "Tafel, Packpapier oder Wortkarten",
     "Stifte, ggf. Bildkarten"
   ],
-  "raum": "Klassenraum mit gut sichtbarer Wand- oder Tafelfläche",
+  "raumhinweis": "Klassenraum mit gut sichtbarer Wand- oder Tafelfläche",
   "gruppeMin": 4,
   "gruppeMax": 35,
   "vorbereitungMin": 5,

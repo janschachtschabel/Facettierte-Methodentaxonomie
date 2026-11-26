@@ -25,11 +25,6 @@
     "gesellschaft",
     "sport"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: FabLab",
@@ -129,7 +124,7 @@
   "material": [
     "Werkstattmaterial (Karton, Elektronik, Mikrocontroller, Werkzeug)"
   ],
-  "raum": "Makerspace / Werkraum",
+  "raumhinweis": "Makerspace / Werkraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 40,

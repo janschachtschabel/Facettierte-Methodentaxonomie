@@ -18,11 +18,14 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -125,7 +128,7 @@
     "Kriterienkarte / Feedbackleitfaden",
     "Buntstifte"
   ],
-  "raum": "Gruppentische mit ruhiger Gesprächsatmosphäre",
+  "raumhinweis": "Gruppentische mit ruhiger Gesprächsatmosphäre",
   "gruppeMin": 6,
   "gruppeMax": 32,
   "teamMin": 2,

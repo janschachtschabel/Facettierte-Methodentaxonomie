@@ -10,8 +10,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Selbstregulationsstruktur aus kurzen, ablenkungsfreien Fokusblöcken (z. B. 20–25 Min.) mit definiertem Teilziel und bewusster 5-Minuten-Pause.",
   "alternativname": [
@@ -31,7 +34,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -132,7 +135,7 @@
     "y": 1.34
   },
   "aufgabe": [
-    "konzepte",
+    "metakognitiv",
     "afb2",
     "wohlstrukturiert",
     "fall"

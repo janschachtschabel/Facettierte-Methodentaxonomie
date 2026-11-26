@@ -19,11 +19,14 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz",
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -90,8 +93,9 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "schlecht-strukturiert",
     "konzepte",
+    "prozeduren",
+    "schlecht-strukturiert",
     "afb2",
     "afb3"
   ],
@@ -134,7 +138,7 @@
     "Ereigniskarten",
     "Dokumentationsmappe oder digitales Board"
   ],
-  "raum": "Klassenraum mit dauerhaft nutzbarer Pinnwand oder Projektfläche",
+  "raumhinweis": "Klassenraum mit dauerhaft nutzbarer Pinnwand oder Projektfläche",
   "gruppeMin": 8,
   "gruppeMax": 32,
   "vorbereitungMin": 30,

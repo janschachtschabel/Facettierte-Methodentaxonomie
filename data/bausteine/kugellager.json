@@ -17,10 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -105,7 +103,7 @@
     "Gesprächsimpulse",
     "Zeitsignal"
   ],
-  "raum": "Freie Fläche für zwei Kreise",
+  "raumhinweis": "Freie Fläche für zwei Kreise",
   "gruppeMin": 8,
   "gruppeMax": 40,
   "vorbereitungMin": 5,

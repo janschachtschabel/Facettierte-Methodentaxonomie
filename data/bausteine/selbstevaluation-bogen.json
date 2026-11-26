@@ -10,8 +10,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende überprüfen am Ende einer Einheit anhand klarer Kriterien ihren eigenen Lernfortschritt, wirksame Strategien und verbleibende Lücken.",
   "alternativname": [
@@ -31,7 +34,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 40,
   "technik": "t-keine",
@@ -127,6 +130,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "metakognitiv",
     "afb2",
     "wohlstrukturiert",
     "fall"

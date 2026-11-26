@@ -17,8 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r3",
   "lernfunktion": [
@@ -73,6 +76,8 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "prozeduren",
+    "metakognitiv",
     "schlecht-strukturiert",
     "afb3"
   ],
@@ -114,7 +119,7 @@
     "Klebepunkte & Aufgabenkarten",
     "Kriterienraster"
   ],
-  "raum": "Klassen- oder Projektraum",
+  "raumhinweis": "Klassen- oder Projektraum",
   "gruppeMin": 8,
   "gruppeMax": 36,
   "teamMin": 3,

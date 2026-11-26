@@ -1,0 +1,4142 @@
+{
+"abc-liste": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"abrufquiz": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+]
+},
+"advance-organizer": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"aktives-zuhoeren": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"amerikanische-debatte": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"ampelabfrage": {
+"lernort": [
+"klassenraum",
+"hoersaal",
+"draussen"
+],
+"aufgabe": [
+"metakognitiv",
+"afb1"
+]
+},
+"ampelspiel": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"afb2"
+]
+},
+"ankerfall": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+]
+},
+"aufwaermen": {
+"lernort": [
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"afb1"
+],
+"raum": "Sporthalle, Sportplatz oder Außengelände",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"sprachen",
+"gesellschaft",
+"nawi-technik"
+]
+},
+"autogrammjagd": {
+"lernort": [
+"klassenraum",
+"bewegungsraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"raum": "Klassenraum mit Bewegungsfläche"
+},
+"barcamp": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"belehrbarer-ki-agent": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+]
+},
+"beobachtungsbogen": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"metakognitiv",
+"afb2"
+]
+},
+"bestimmungsuebung": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"authentisch"
+],
+"raum": "Schulhof, Schulgarten, Exkursionsort oder Fachraum",
+"fachbereichUngeeignet": [
+"sport",
+"sprachen",
+"aesthetik",
+"mathe-informatik"
+]
+},
+"bisoziation": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"blended-learning": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"blitz-anwendung": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"blitzlicht": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"metakognitiv",
+"einstellungen",
+"afb1"
+]
+},
+"brain-dump": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"brainstorming": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2",
+"schlecht-strukturiert"
+]
+},
+"brainwriting-635": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"british-parliamentary-debate": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"buddy-book": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"raum": "Regulärer Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"case-based-learning": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"afb3",
+"konzepte"
+],
+"raum": "Klassen- oder Seminarraum"
+},
+"catwoe-analyse": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"chorsprechen": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum"
+],
+"aufgabe": [
+"fakten",
+"psychomotorik",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"clustering-schreiben": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"cocktail-party": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1"
+]
+},
+"cognitive-apprenticeship": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"prozeduren",
+"konzepte"
+],
+"raum": "Klassen- oder Fachraum"
+},
+"collective-notebook": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"computerunterstuetztes-lernen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"concept-cartoon": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2"
+],
+"raum": "Klassenraum"
+},
+"concept-mapping": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"cool-down-auswertung": {
+"lernort": [
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"metakognitiv",
+"psychomotorik",
+"afb1"
+],
+"raum": "Sporthalle, Sportplatz oder Außengelände",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"sprachen",
+"gesellschaft",
+"nawi-technik"
+]
+},
+"cooperatives-offenes-lernen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"cornell-methode": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"daltonplan": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"metakognitiv",
+"afb2",
+"afb3",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"dauer-intervallmethode": {
+"lernort": [
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb1",
+"authentisch"
+],
+"raum": "Sporthalle, Sportplatz oder Außengelände",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"sprachen",
+"gesellschaft",
+"nawi-technik",
+"beruf-praxis",
+"aesthetik"
+]
+},
+"deduktives-erlaeutern": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"deliberation": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"demonstration-nachmachen": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb1",
+"wohlstrukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"demonstrationsexperiment": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"hoersaal",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2",
+"authentisch"
+],
+"raum": "Fachraum oder Tisch mit Kamera/Projektion",
+"fachbereichUngeeignet": [
+"sprachen",
+"gesellschaft",
+"aesthetik",
+"sport",
+"mathe-informatik"
+]
+},
+"design-thinking": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Flexibler Gruppenraum"
+},
+"dialogisches-lernen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"differenzielles-lernen": {
+"lernort": [
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb2",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Sporthalle, Musikraum oder Werkstatt",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sprachen",
+"gesellschaft"
+]
+},
+"diktat-klassisch": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"fakten",
+"afb1",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"gesellschaft",
+"aesthetik",
+"sport"
+]
+},
+"dilemmadiskussion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"afb3",
+"schlecht-strukturiert",
+"fall"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"direkte-instruktion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"drei-schritt-interview": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"drei-stufen-lektion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum"
+},
+"dual-praxismodul": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"prozeduren",
+"metakognitiv",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"dynamische-urteilsbildung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"afb3",
+"schlecht-strukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"e-portfolio-kurs": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"ecriture-automatique": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"eduscrum": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"afb3"
+],
+"raum": "Klassen- oder Projektraum"
+},
+"egg-race": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sprachen",
+"gesellschaft",
+"sport"
+]
+},
+"einzelarbeit-uebung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"elevator-pitch": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+]
+},
+"entdeckendes-lernen": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"entry-ticket": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"epochenunterricht": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"erfindungsaufgabe": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb3",
+"schlecht-strukturiert"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"erklaervideo": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2"
+]
+},
+"erlebnispaedagogik": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"einstellungen",
+"metakognitiv",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Turnhalle oder Außengelände"
+},
+"erotematik": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"eselsbruecken-mnemonik": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"exit-ticket": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2"
+]
+},
+"exkursion": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"authentisch"
+],
+"raum": "Außerschulischer Lernort (Museum, Betrieb, Natur, Archiv)"
+},
+"exkursionsfuehrung-rezeptiv": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb1",
+"authentisch"
+],
+"raum": "Außerschulischer Lernort (Museum, Betrieb, Natur)"
+},
+"experiment": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2",
+"afb3",
+"authentisch"
+],
+"raum": "Fachraum oder geeignete Arbeitsplätze",
+"fachbereichUngeeignet": [
+"sprachen",
+"gesellschaft",
+"mathe-informatik"
+]
+},
+"fall-simulation-osce": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum"
+],
+"aufgabe": [
+"prozeduren",
+"psychomotorik",
+"afb3",
+"wohlstrukturiert",
+"simulation"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sprachen",
+"gesellschaft",
+"aesthetik"
+]
+},
+"fallstudie": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"fall",
+"authentisch"
+]
+},
+"fantasiereise": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik"
+]
+},
+"fehleranalyse": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2",
+"afb3"
+]
+},
+"feynman-methode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"fishbowl": {
+"lernort": [
+"klassenraum",
+"bewegungsraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+],
+"raum": "Freie Fläche für zwei Stuhlkreise"
+},
+"flashcard-spaced-repetition": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"flipped": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": []
+},
+"forschendes-lernen": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+]
+},
+"fragenzirkel": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"konzepte",
+"afb2",
+"afb3"
+],
+"raum": "Gruppentische"
+},
+"freewriting": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"freiarbeit": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2",
+"afb3"
+],
+"raum": "Vorbereiteter Klassenraum mit Materialregalen"
+},
+"freiday-genius-hour": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"metakognitiv",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum, Lernwerkstatt & außerschulische Orte"
+},
+"freie-internetrecherche": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"schlecht-strukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"freies-stoebern-leseecke": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"afb1",
+"wohlstrukturiert",
+"authentisch"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"freinet-druckerei": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"freispiel-primar": {
+"lernort": [
+"klassenraum",
+"bewegungsraum"
+],
+"aufgabe": [
+"einstellungen",
+"psychomotorik",
+"afb2",
+"schlecht-strukturiert"
+],
+"raum": "Klassenraum / Lernlandschaft"
+},
+"fuenf-e-zyklus": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"authentisch"
+]
+},
+"galeriemethode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"gamification": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"gebundene-musik-rhythmus": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb1",
+"wohlstrukturiert",
+"authentisch"
+],
+"raum": "Musik- oder Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"gesellschaft"
+]
+},
+"gemeinschaftliche-wissenskonstruktion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"godly-play": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"gradual-release": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte"
+],
+"raum": "Klassenraum"
+},
+"gruppen-karussell": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2"
+]
+},
+"gruppenarbeit-klassisch": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"gruppenbildung-zufall": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"gruppenpuzzle": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"raum": "Platz für Gruppentische"
+},
+"gruppenrallye": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"gruppenturnier": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+],
+"raum": "Tische für 3er- bis 4er-Gruppen"
+},
+"handlungsorientiertes-projekt": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"herausforderung-projekt": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"impulsreferat": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+]
+},
+"induktives-entdecken": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"interaktives-whiteboard": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"jenaplan-kreis": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"jeux-dramatiques": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Freier Raum / Aula",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"juniorfirma-schuelerfirma": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"afb3"
+],
+"raum": "Fachraum / Lernwerkstatt"
+},
+"just-in-time-teaching": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"kanban-lernboard": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"authentisch",
+"afb2"
+]
+},
+"karikatur-bildanalyse": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fall",
+"konzepte",
+"afb1",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"karteikarten-leitner": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"ki-chat": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": []
+},
+"ki-lernbegleiter-adaptiv": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"ki-prompt-werkstatt": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"ki-simulationsdialog": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"ki-textfeedback": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"ki-tutor": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2"
+]
+},
+"kj-methode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"klassen-glossar": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"klassenarbeit-summativ": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2",
+"afb3",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"klassenrat": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"klassenspaziergang": {
+"lernort": [
+"klassenraum",
+"bewegungsraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"raum": "Klassenraum mit ausreichend Bewegungsfläche zwischen den Tischen"
+},
+"kofferpacken": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"afb1"
+],
+"raum": "Regulärer Klassenraum oder Stuhlkreis"
+},
+"kollegiale-fallberatung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"kompetenzraster-checkliste": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb2"
+]
+},
+"kompetenzraster-diagnose": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"metakognitiv",
+"afb1",
+"afb2"
+]
+},
+"kooperatives-skript": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"fakten"
+],
+"raum": "Klassenraum"
+},
+"kopfstandmethode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+]
+},
+"kraftfeldanalyse": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"kreatives-schreiben": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"kriteriales-rubric": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"kugellager": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2"
+],
+"raum": "Freie Fläche für zwei Kreise"
+},
+"kwl-methode": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"metakognitiv",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"laufdiktat": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"psychomotorik",
+"afb1"
+],
+"raum": "Klassenraum mit Laufwegen",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"gesellschaft",
+"aesthetik",
+"sport"
+]
+},
+"lautes-denken": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"prozeduren",
+"metakognitiv",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"lautleseverfahren": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"afb1",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"aesthetik",
+"sport"
+]
+},
+"lehrervortrag": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"wohlstrukturiert"
+]
+},
+"lehrfilm-rezeption": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"lehrgang": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"lehrgespraech": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"lehrkunst": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"leittextmethode": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"afb3",
+"wohlstrukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"lern-bingo": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"afb1"
+],
+"raum": "Regulärer Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"lernbuero": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"metakognitiv",
+"afb1",
+"afb2",
+"afb3"
+],
+"raum": "Fach-Lernbüro mit ruhigen Einzel- und Partnerplätzen"
+},
+"lernen-am-modell": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"lernen-durch-lehren": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"authentisch"
+]
+},
+"lernentwicklungsgespraech": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"lernfeld-curriculum": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Klassenraum"
+},
+"lernplakat": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+],
+"raum": "Gruppentische",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"lernpodcast-hoeren": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"fakten",
+"afb1",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"lernportfolio": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"metakognitiv",
+"afb2",
+"afb3",
+"authentisch"
+]
+},
+"lernprodukt-galerie": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb3",
+"schlecht-strukturiert"
+],
+"raum": "Klassenraum mit Wandfläche"
+},
+"lerntagebuch": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"lerntempo-duett": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2"
+]
+},
+"lerntheke": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"konzepte",
+"afb1",
+"afb2"
+]
+},
+"lernvertrag": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb2",
+"afb3"
+]
+},
+"lernwerkstatt": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"lesetagebuch": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"metakognitiv",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"aesthetik",
+"sport"
+]
+},
+"live-abstimmung": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"wohlstrukturiert"
+],
+"raum": "Hörsaal oder Klassenraum",
+"fachbereichUngeeignet": []
+},
+"loci-methode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"loesungsbeispiele": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+],
+"fachbereichUngeeignet": [
+"sport",
+"aesthetik"
+]
+},
+"makerspace-tueftelwerkstatt": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum"
+],
+"aufgabe": [
+"prozeduren",
+"psychomotorik",
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Makerspace / Werkraum",
+"fachbereichUngeeignet": [
+"sprachen",
+"gesellschaft",
+"sport"
+]
+},
+"markt-der-moeglichkeiten": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"marshmallow-challenge": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"mastery-learning-bloom": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"fakten"
+],
+"raum": "Klassenraum oder Lernplattform"
+},
+"methode-66": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2"
+]
+},
+"microlearning-impuls": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum"
+},
+"microlearning-spaced": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"prozeduren"
+],
+"raum": "Digital / Hybrid"
+},
+"microteaching": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"mind-mapping": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"model-united-nations": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"aesthetik",
+"sport"
+]
+},
+"mooc-kursformat": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum"
+},
+"morphologischer-kasten": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"muendliche-leistungsabfrage": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum"
+},
+"multiple-choice-test": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"murmelgruppe": {
+"lernort": [
+"klassenraum",
+"hoersaal",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2"
+]
+},
+"museumsgang": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+],
+"raum": "Raum mit freier Wand- oder Tischfläche"
+},
+"mystery-methode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"netzplantechnik-projekt": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport",
+"sprachen"
+]
+},
+"nominal-group-technique": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"numbered-heads-together": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"fakten",
+"prozeduren"
+],
+"raum": "Klassenraum"
+},
+"one-minute-paper": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"metakognitiv",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"open-space": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"osborn-checkliste": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"pair-programming": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"prozeduren",
+"afb2",
+"wohlstrukturiert"
+],
+"raum": "Computerraum oder Klassenraum mit Geräten",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"papiercomputer": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb3",
+"schlecht-strukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"parlamentssimulation": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"aesthetik",
+"sport"
+]
+},
+"partnerarbeit": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"partnerinterview": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2"
+]
+},
+"partnerpuzzle": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"fakten",
+"afb2"
+]
+},
+"pecha-kucha": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+]
+},
+"peer-assessment": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"peer-feedback-rubric": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2",
+"afb3"
+]
+},
+"peer-instruction": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"wohlstrukturiert"
+]
+},
+"pinnwandmoderation": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"placemat": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+],
+"raum": "Gruppentische",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"planspiel-simulation-computer": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"wohlstrukturiert",
+"simulation"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"planspiel": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"simulation"
+],
+"raum": "Mehrere Gruppenarbeitsbereiche plus Plenum"
+},
+"podcast-produktion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"authentisch",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"podiumsdiskussion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"authentisch"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"pomodoro-lernzyklus": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"positionslinie": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"afb2",
+"afb3"
+],
+"raum": "Freie Linie im Raum"
+},
+"poster-session": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"praxisauftrag-arbeitsplatz": {
+"lernort": [
+"fachraum"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb2",
+"authentisch"
+],
+"raum": "Fachraum, Labor, Werkstatt oder Lehrküche",
+"fachbereichUngeeignet": [
+"gesellschaft"
+]
+},
+"pro-contra-debatte": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"authentisch"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"problemorientiertes-lernen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+]
+},
+"productive-failure": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+]
+},
+"produktives-lernen": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"programmierte-unterweisung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum"
+},
+"projektmethode": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+]
+},
+"provokationstechnik": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"quellenkritik-check": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"metakognitiv",
+"afb2",
+"afb3"
+],
+"raum": "Klassenraum mit Endgeräten und Internetzugang",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"quellenkritik-faktencheck": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"authentisch",
+"schlecht-strukturiert",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"redestabrunde": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"referat": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"reflexionsprompt": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"metakognitiv",
+"afb3"
+]
+},
+"relevanzbaum": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"reverse-brainstorming": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"reziprokes-lesen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"metakognitiv",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport",
+"aesthetik"
+]
+},
+"rollenspiel": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"einstellungen",
+"konzepte",
+"prozeduren",
+"afb2",
+"afb3",
+"simulation"
+],
+"raum": "Kleine Spielfläche im Raum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"rosenshine-daily-review": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"konzepte"
+],
+"raum": "Klassenraum"
+},
+"scaffolding-hilfen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2",
+"afb3"
+]
+},
+"scamper": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"schneeball-verfahren": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"schnitzeljagd": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum, Schulgebäude oder Außengelände"
+},
+"schreibgespraech": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3"
+],
+"raum": "Gruppentische oder Wandflächen",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"schreibkonferenz": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"afb2",
+"afb3"
+],
+"raum": "Gruppentische mit ruhiger Gesprächsatmosphäre",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"schuelercoaching": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb2"
+]
+},
+"schuelerlabor-frei": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"simulation",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Schülerlabor / Fachraum",
+"fachbereichUngeeignet": [
+"sprachen",
+"gesellschaft",
+"aesthetik",
+"sport",
+"mathe-informatik"
+]
+},
+"sechs-denkhuete": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+]
+},
+"selbstevaluation-bogen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"selbstorganisiertes-lernen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"service-learning": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Schule und außerschulischer Einsatzort"
+},
+"siebensprung-pbl": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"konzepte",
+"afb3"
+],
+"raum": "Gruppenraum"
+},
+"simulation-globale": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"schlecht-strukturiert",
+"konzepte",
+"afb2",
+"afb3"
+],
+"raum": "Klassenraum mit dauerhaft nutzbarer Pinnwand oder Projektfläche",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"simulationsspiel-digital": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"simulation",
+"afb2",
+"afb3",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"sketchnotes": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"fakten",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"sokratisches-gespraech": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb3",
+"schlecht-strukturiert"
+],
+"raum": "Stuhlkreis ohne Tische"
+},
+"sos-modell": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb2"
+],
+"raum": "Regulärer Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"soziometrie-aufstellung": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"einstellungen",
+"afb1"
+]
+},
+"spielform-zielspiel": {
+"lernort": [
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"afb2",
+"authentisch"
+],
+"raum": "Sporthalle, Sportplatz oder Außengelände",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"sprachen",
+"gesellschaft",
+"nawi-technik",
+"beruf-praxis",
+"aesthetik"
+]
+},
+"spiral-wiederholung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"konzepte",
+"afb1",
+"afb2",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum"
+},
+"sportmotorischer-test": {
+"lernort": [
+"bewegungsraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"afb1",
+"authentisch"
+],
+"raum": "Sporthalle, Sportplatz oder Außengelände",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"sprachen",
+"gesellschaft",
+"nawi-technik",
+"beruf-praxis",
+"aesthetik"
+]
+},
+"sq3r-lesemethode": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport",
+"aesthetik"
+]
+},
+"standbild": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3"
+],
+"raum": "Freie Spielfläche",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"station-rotation-blended": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren"
+],
+"raum": "Klassenraum mit 3 Zonen"
+},
+"stationenlernen": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"prozeduren",
+"fakten",
+"afb1",
+"afb2"
+],
+"raum": "Platz für Stationstische"
+},
+"stationstraining-bewegung": {
+"lernort": [
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb1",
+"wohlstrukturiert",
+"authentisch"
+],
+"raum": "Sporthalle oder Fachraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sprachen",
+"gesellschaft"
+]
+},
+"stegreiftheater": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"stop-motion-erklaerfilm": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"authentisch",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"storyline-methode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"storytelling": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"strukturierte-kontroverse": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"strukturlegetechnik": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"stummer-impuls": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb1",
+"afb2",
+"afb3"
+]
+},
+"supervision-gruppe": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"survey-feedback": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"switch-rollentausch": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"konzepte",
+"schlecht-strukturiert",
+"afb2",
+"afb3"
+],
+"raum": "Raum mit freier Stehfläche",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"swot-analyse": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fall",
+"schlecht-strukturiert",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"synektik": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"szenario-technik": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb3",
+"schlecht-strukturiert",
+"simulation"
+]
+},
+"tafelabschrift-abschreiben": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"afb1",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"tafelbild-entwicklung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"tandem-lernen": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"gesellschaft",
+"aesthetik",
+"sport"
+]
+},
+"team-based-learning": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"schlecht-strukturiert",
+"afb3"
+],
+"raum": "Klassen- oder Hörsaal"
+},
+"teil-ganz-ueben": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb1",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum, Musikraum oder Halle",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"gesellschaft"
+]
+},
+"text-exzerpieren": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2"
+],
+"fachbereichUngeeignet": [
+"sport",
+"aesthetik"
+]
+},
+"textlupe": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"thinking-at-the-edge": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"tps": {
+"lernort": [
+"klassenraum",
+"hoersaal",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2"
+]
+},
+"transferauftrag-variation": {
+"lernort": [
+"klassenraum",
+"fachraum"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb3",
+"authentisch"
+],
+"raum": "Fachraum, Werkstatt oder Klassenraum",
+"fachbereichUngeeignet": [
+"sport",
+"gesellschaft",
+"sprachen"
+]
+},
+"uebung-variation": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"unangeleitete-gruppenarbeit": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"schlecht-strukturiert"
+],
+"raum": "Klassenraum"
+},
+"ursache-wirkungs-diagramm": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"vbe": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"authentisch"
+],
+"fachbereichUngeeignet": [
+"sprachen",
+"aesthetik",
+"sport",
+"mathe-informatik"
+]
+},
+"vergleichende-instruktion": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3"
+]
+},
+"verschachteltes-ueben": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"prozeduren",
+"konzepte",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"vier-ecken-methode": {
+"lernort": [
+"klassenraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3"
+],
+"raum": "Bewegungsraum in vier Ecken"
+},
+"vier-stufen-methode": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"prozeduren",
+"afb1",
+"afb2",
+"wohlstrukturiert",
+"authentisch"
+],
+"raum": "Werkstatt, Labor oder Fachraum",
+"fachbereichUngeeignet": [
+"gesellschaft",
+"sprachen"
+]
+},
+"vokabeltest-kurzkontrolle": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"afb1",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"vorfuehrung-rueckmeldung": {
+"lernort": [
+"klassenraum",
+"bewegungsraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"psychomotorik",
+"afb2",
+"authentisch"
+],
+"raum": "Klassenraum, Halle, Bühne oder Fachraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"gesellschaft"
+]
+},
+"vorhersage-aufgabe": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2"
+],
+"raum": "Klassenraum"
+},
+"vorlesen-lesung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb1",
+"wohlstrukturiert"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"vorlesung-klassisch": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"fakten",
+"afb1",
+"wohlstrukturiert",
+"abstrakt"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"vortrag-prompts": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert"
+]
+},
+"votum-ei": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"afb1"
+],
+"raum": "Regulärer Klassenraum (Plakat nahe Ausgang oder Tafel)"
+},
+"waldpaedagogik": {
+"lernort": [
+"klassenraum",
+"fachraum",
+"draussen"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Außerschulischer Lernort (Wald/Park)"
+},
+"walt-disney-methode": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+],
+"raum": "Platz für drei kleine Zonen je Team"
+},
+"wandzeitung": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum",
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"webquest": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"afb3",
+"authentisch"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"werkstattunterricht": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"prozeduren",
+"afb1",
+"afb2",
+"afb3",
+"authentisch"
+],
+"raum": "Klassenraum mit Arbeitsinseln"
+},
+"wiki-kollaboration": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"authentisch",
+"afb2",
+"afb3"
+],
+"fachbereichUngeeignet": [
+"sport"
+]
+},
+"wirbelgruppe": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"schlecht-strukturiert",
+"afb2",
+"afb3"
+],
+"raum": "Gruppentische oder Stuhlkreise"
+},
+"wochenplanarbeit": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"prozeduren",
+"metakognitiv",
+"afb1",
+"afb2"
+]
+},
+"woerterwiese": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1"
+],
+"raum": "Klassenraum mit gut sichtbarer Wand- oder Tafelfläche",
+"fachbereichUngeeignet": [
+"mathe-informatik",
+"nawi-technik",
+"sport"
+]
+},
+"world-cafe": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"einstellungen",
+"afb2",
+"afb3",
+"schlecht-strukturiert"
+],
+"raum": "Raum mit beweglichen Tischen"
+},
+"wortwolke": {
+"lernort": [
+"klassenraum",
+"hoersaal"
+],
+"aufgabe": [
+"fakten",
+"konzepte",
+"afb1"
+]
+},
+"zickzack-dialog": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"prozeduren",
+"fakten",
+"afb1",
+"afb2"
+],
+"raum": "Zwei Stuhl- oder Stehreihen"
+},
+"zielscheiben-feedback": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"metakognitiv",
+"einstellungen",
+"afb1"
+]
+},
+"zukunftskonferenz": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+},
+"zukunftswerkstatt": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"einstellungen",
+"afb3",
+"schlecht-strukturiert",
+"authentisch"
+],
+"raum": "Großer Raum mit Wandflächen"
+},
+"zwei-sterne-ein-wunsch": {
+"lernort": [
+"klassenraum"
+],
+"aufgabe": [
+"konzepte",
+"afb2",
+"wohlstrukturiert",
+"fall"
+],
+"raum": "Klassenraum"
+}
+}

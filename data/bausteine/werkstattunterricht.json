@@ -15,9 +15,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Werkstattunterricht",
@@ -138,7 +135,7 @@
     "Auftragskarten",
     "Werkstattpass"
   ],
-  "raum": "Klassenraum mit Arbeitsinseln",
+  "raumhinweis": "Klassenraum mit Arbeitsinseln",
   "gruppeMin": 6,
   "gruppeMax": 32,
   "vorbereitungMin": 180,

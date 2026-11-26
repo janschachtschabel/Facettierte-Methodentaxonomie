@@ -10,12 +10,6 @@
     "gesellschaft",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Sportlich-strukturiertes Debattierformat mit vier Zweierteams (eröffnende/ergänzende Regierung und Opposition), Zwischenfragen und Jury-Feedback.",
   "alternativname": [
     "BPS-Debatte",
@@ -35,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 8,
   "gruppeMax": 35,
   "technik": "t-keine",

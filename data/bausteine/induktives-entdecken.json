@@ -11,12 +11,6 @@
     "mathe-informatik",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Aus sorgfältig kontrastierten Einzelbeispielen erschließen Lernende eigenständig die zugrunde liegende Regel oder Struktur.",
   "alternativname": [
     "Induktives Verfahren",
@@ -36,7 +30,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

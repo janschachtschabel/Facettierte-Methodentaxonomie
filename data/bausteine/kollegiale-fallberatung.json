@@ -10,12 +10,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Strukturierte, rollenverteilte Gruppenberatung in 6 Phasen zur Lösung eines realen Praxis- oder Lernproblems ohne vorschnelle Ratschläge.",
   "alternativname": [
     "Intervision",
@@ -36,7 +30,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 10,
   "technik": "t-keine",

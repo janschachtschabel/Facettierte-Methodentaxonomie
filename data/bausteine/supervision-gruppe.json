@@ -10,12 +10,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Moderierte Gruppenreflexion beruflicher oder sozialer Lernsituationen zur Klärung von Rollen, Konflikten und professionellem Handeln.",
   "alternativname": [
     "Fallreflexion",
@@ -35,7 +29,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 12,
   "technik": "t-keine",
@@ -134,7 +128,8 @@
     "y": 2.7
   },
   "aufgabe": [
-    "konzepte",
+    "einstellungen",
+    "metakognitiv",
     "afb2",
     "wohlstrukturiert",
     "fall"

@@ -15,9 +15,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Situiertes Lernen (Anchored Instruction)",
@@ -67,6 +64,7 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "konzepte",
     "afb2",
     "afb3",
     "schlecht-strukturiert",

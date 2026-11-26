@@ -10,8 +10,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz",
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Alle Teilnehmenden notieren Beiträge anonym oder offen auf Moderationskarten, die an der Pinnwand gemeinsam geclustert und weiterbearbeitet werden.",
   "alternativname": [
@@ -34,7 +38,7 @@
     "Nadeln",
     "Filzstifte"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

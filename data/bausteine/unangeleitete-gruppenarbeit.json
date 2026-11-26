@@ -15,9 +15,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Gruppenunterricht",
@@ -100,7 +97,7 @@
   "material": [
     "Plakat oder Arbeitsblatt"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 5,

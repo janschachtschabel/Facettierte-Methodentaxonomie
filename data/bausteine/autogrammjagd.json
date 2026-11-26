@@ -16,9 +16,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum"
+  "raumbedarf": [
+    "stellflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -108,7 +110,7 @@
     "Kopiertes Suchraster (1 Blatt pro Person)",
     "Stifte"
   ],
-  "raum": "Klassenraum mit Bewegungsfläche",
+  "raumhinweis": "Klassenraum mit Bewegungsfläche",
   "gruppeMin": 8,
   "gruppeMax": 36,
   "teamMin": 2,

@@ -11,12 +11,13 @@
     "sprachen",
     "mathe-informatik"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
+  "termineMin": 2,
   "kurzbeschreibung": "Zyklus aus Kernidee, offenem Auftrag, persönlichem Lernjournal („Ich mache das so“) und wertschätzender Rückmeldung hin zur fachlichen Konvention („Wie machen es die anderen?“).",
   "alternativname": [
     "Dialogische Didaktik",
@@ -36,7 +37,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

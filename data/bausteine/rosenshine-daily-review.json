@@ -17,9 +17,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "reichweite": "r1",
   "lernfunktion": [
@@ -107,7 +110,7 @@
     "Tafel/Folie mit 3–5 Fragen",
     "Heft oder Mini-Whiteboard"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 120,
   "vorbereitungMin": 5,

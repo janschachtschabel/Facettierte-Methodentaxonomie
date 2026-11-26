@@ -15,12 +15,6 @@
     "mathe-informatik",
     "gesellschaft"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Gruppen oder Einzelne führen das Geübte vor (Lied, Szene, Choreografie, Handgriff); die anderen geben nach vereinbarten Kriterien kurz Rückmeldung.",
   "alternativname": [
     "Präsentationsrunde",
@@ -42,7 +36,7 @@
     "Kriterienkarte",
     "ggf. Musik, Requisiten oder Werkzeug"
   ],
-  "raum": "Klassenraum, Halle, Bühne oder Fachraum",
+  "raumhinweis": "Klassenraum, Halle, Bühne oder Fachraum",
   "gruppeMin": 4,
   "gruppeMax": 32,
   "technik": "t-keine",

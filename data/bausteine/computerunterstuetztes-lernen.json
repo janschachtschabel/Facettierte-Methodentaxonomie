@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Digitale Übungsumgebung oder intelligentes Tutorsystem passt Aufgabenschwierigkeit und Hilfestufen laufend an den individuellen Lernstand an.",
   "alternativname": [
     "Computerunterstützter Unterricht",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-einzeln",
@@ -125,6 +122,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

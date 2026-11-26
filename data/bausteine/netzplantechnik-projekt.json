@@ -12,11 +12,7 @@
     "mathe-informatik"
   ],
   "fachbereichUngeeignet": [
-    "sport",
     "sprachen"
-  ],
-  "lernort": [
-    "klassenraum"
   ],
   "kurzbeschreibung": "Arbeitspakete eines Projekts werden mit Dauern, Abhängigkeiten und kritischem Pfad als grafischer Ablaufplan strukturiert.",
   "alternativname": [
@@ -37,7 +33,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -142,6 +138,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

@@ -17,13 +17,13 @@
   "fachbereichUngeeignet": [
     "sprachen",
     "aesthetik",
-    "sport",
     "mathe-informatik"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "hoersaal"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {

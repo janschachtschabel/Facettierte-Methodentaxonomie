@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Vorbereitete, materialreiche Lernumgebung für eigenaktives Forschen, Ausprobieren und Dokumentieren auf unterschiedlichen Niveaustufen.",
   "alternativname": [
     "Schulische Lernwerkstatt",
@@ -32,7 +29,7 @@
     "Vorbereitete Materialstationen",
     "Forschungsheft"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

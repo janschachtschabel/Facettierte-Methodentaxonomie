@@ -97,7 +97,7 @@ export const REIHE4: Qualitaetsfall[] = [
     id: 'n15',
     text: 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur',
     erwartet: { planungsprofil: 'hochschule', nachweisform: 'schriftlich' },
-    bekannt: { nachweis: 'Tor D1', profil: 'Paket D' }
+    bekannt: { nachweis: 'Paket A', profil: 'Paket D' }
   },
   {
     id: 'n16',

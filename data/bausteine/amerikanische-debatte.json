@@ -15,11 +15,8 @@
     "gesellschaft",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
   ],
   "quellen": [
     {

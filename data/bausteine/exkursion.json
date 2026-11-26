@@ -17,9 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
+  "raumbedarf": [
+    "aussenort"
   ],
   "quellen": [
     {
@@ -142,7 +141,7 @@
     "Erkundungsbogen/Klemmbrett",
     "Kamera oder Messgerät nach Bedarf"
   ],
-  "raum": "Außerschulischer Lernort (Museum, Betrieb, Natur, Archiv)",
+  "raumhinweis": "Außerschulischer Lernort (Museum, Betrieb, Natur, Archiv)",
   "gruppeMin": 5,
   "gruppeMax": 35,
   "teamMin": 2,

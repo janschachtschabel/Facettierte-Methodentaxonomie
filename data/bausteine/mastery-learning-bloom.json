@@ -17,10 +17,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
   "reichweite": "r4",
   "lernfunktion": [
     "erwerb",
@@ -120,7 +116,7 @@
     "Formative Diagnose-Checks A/B",
     "Korrektiv- & Vertiefungsmaterial"
   ],
-  "raum": "Klassenraum oder Lernplattform",
+  "raumhinweis": "Klassenraum oder Lernplattform",
   "gruppeMin": 1,
   "gruppeMax": 60,
   "vorbereitungMin": 60,

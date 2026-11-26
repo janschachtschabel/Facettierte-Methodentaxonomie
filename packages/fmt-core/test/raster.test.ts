@@ -33,7 +33,7 @@ describe('W-Raster', () => {
   it('jedes Feld, das an einer Methode vorkommt, hat ein Merkmal oder steht auf der Liste der Verwaltungsfelder', () => {
     const verwaltung = ['kennung', 'name', 'status', 'quellen', 'piktogramm', 'plot', '@context', '@id', 'typ', 'beschreibungsstufe',
       'kurzbeschreibung', 'alternativname', 'problem', 'durchfuehrung', 'variante', 'hinweis', 'qualitaetsrisiko', 'evidenz',
-      'kernkomponente', 'slot', 'komposit', 'reichweite', 'steuerung', 'raumhinweis', 'raum', 'lernort', 'eignungsgrund'];
+      'kernkomponente', 'slot', 'komposit', 'reichweite', 'steuerung', 'raumhinweis', 'eignungsgrund'];
     const keys = new Set(D.bausteine.flatMap((b) => Object.keys(b)));
     for (const k of keys) expect(verwaltung.includes(k) || merkmalFuer(D, k), `Feld ${k}`).toBeTruthy();
   });

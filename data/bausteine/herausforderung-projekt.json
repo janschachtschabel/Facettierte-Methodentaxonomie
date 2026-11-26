@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Kleingruppen planen eigenverantwortlich ein mehrtägiges außerschulisches Vorhaben mit begrenztem Budget und reflektieren Selbstwirksamkeit.",
   "alternativname": [
     "Projekt Herausforderung",
@@ -32,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 3,
   "gruppeMax": 30,
   "technik": "t-keine",
@@ -138,7 +135,8 @@
     "y": 2.86
   },
   "aufgabe": [
-    "konzepte",
+    "einstellungen",
+    "metakognitiv",
     "afb2",
     "wohlstrukturiert",
     "fall"

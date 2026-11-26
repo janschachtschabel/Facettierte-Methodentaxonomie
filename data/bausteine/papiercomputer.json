@@ -11,12 +11,6 @@
     "beruf-praxis",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Einflussfaktoren eines Systems werden in einer Matrix paarweise bewertet, um aktive, passive, kritische und träge Systemgrößen zu erkennen.",
   "alternativname": [
     "Einflussmatrix",
@@ -36,7 +30,7 @@
     "Matrix-Vorlage",
     "Taschenrechner oder Tabellenblatt"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 30,
   "technik": "t-keine",
@@ -142,6 +136,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb3",
     "schlecht-strukturiert",
     "fall"

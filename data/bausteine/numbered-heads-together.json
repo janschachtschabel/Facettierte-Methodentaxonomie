@@ -17,9 +17,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "reichweite": "r1",
   "lernfunktion": [
     "orientierung",
@@ -106,7 +103,7 @@
     "Aufgabenkarte/Tafel",
     "Würfel oder Zufallszahl"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 8,
   "gruppeMax": 40,
   "teamMin": 3,

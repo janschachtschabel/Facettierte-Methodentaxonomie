@@ -37,7 +37,9 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['ansatz', 'ansatz', true],
   ['fachbereich', 'fachbereich', true],
   ['fachbereichUngeeignet', 'fachbereich', true],
-  ['lernort', 'lernort', true]
+  ['raumbedarf', 'raumbedarf', true],
+  ['fachausstattungArt', 'fachausstattungart', false],
+  ['schriftbedarf', 'schriftbedarf', true]
 ];
 
 const STEUERUNG_DIMS = ['organisation', 'lernweg', 'inhalt', 'sozial', 'bewertung'];
@@ -219,6 +221,7 @@ export function ontologyTtl(D: FmtData): string {
     ['teamMin', 'xsd:integer'],
     ['teamMax', 'xsd:integer'],
     ['vorbereitungMin', 'xsd:integer'],
+    ['termineMin', 'xsd:integer'],
     ['internet', 'xsd:boolean'],
     ['ki', 'xsd:boolean'],
     ['raumhinweis', 'xsd:string'],
@@ -281,7 +284,7 @@ export function buildContext(D: FmtData) {
     evidenzBezug: 'fmt:evidenzBezug',
     alternativname: { '@id': 'skos:altLabel', '@container': '@set' },
     problem: 'fmt:problem',
-    raum: 'fmt:raum',
+    raumhinweis: 'fmt:raumhinweis',
     durchfuehrung: { '@id': 'fmt:durchfuehrung', '@container': '@list' },
     material: { '@id': 'fmt:material', '@container': '@set' },
     variante: { '@id': 'fmt:variante', '@container': '@set' },
@@ -289,6 +292,7 @@ export function buildContext(D: FmtData) {
     gruppeMin: { '@id': 'fmt:gruppeMin', '@type': 'xsd:integer' },
     gruppeMax: { '@id': 'fmt:gruppeMax', '@type': 'xsd:integer' },
     vorbereitungMin: { '@id': 'fmt:vorbereitungMin', '@type': 'xsd:integer' },
+    termineMin: { '@id': 'fmt:termineMin', '@type': 'xsd:integer' },
     internet: { '@id': 'fmt:internet', '@type': 'xsd:boolean' },
     teamMin: { '@id': 'fmt:teamMin', '@type': 'xsd:integer' },
     teamMax: { '@id': 'fmt:teamMax', '@type': 'xsd:integer' },
@@ -419,7 +423,10 @@ export function buildSchema(D: FmtData) {
       ansatz: Object.assign({ minItems: 1 }, vocabProp.ansatz),
       fachbereich: Object.assign({ minItems: 1 }, vocabProp.fachbereich),
       fachbereichUngeeignet: vocabProp.fachbereichUngeeignet,
-      lernort: vocabProp.lernort,
+      raumbedarf: Object.assign({ minItems: 1 }, vocabProp.raumbedarf),
+      fachausstattungArt: vocabProp.fachausstattungArt,
+      schriftbedarf: Object.assign({ minItems: 1 }, vocabProp.schriftbedarf),
+      termineMin: { type: 'integer', minimum: 2 },
       quellen: {
         type: 'array',
         minItems: 1,
@@ -439,7 +446,7 @@ export function buildSchema(D: FmtData) {
       alternativname: { type: 'array', items: { type: 'string' }, uniqueItems: true },
       komposit: { type: 'boolean' },
       problem: { type: 'string' },
-      raum: { type: 'string' },
+      raumhinweis: { type: 'string' },
       durchfuehrung: { type: 'array', items: { type: 'string' }, minItems: 2 },
       material: { type: 'array', items: { type: 'string' } },
       variante: { type: 'array', items: { type: 'string' } },

@@ -17,9 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -111,7 +110,7 @@
     "Aufgaben- oder Impulskarten (optional)",
     "Akustisches Stopp-Signal"
   ],
-  "raum": "Klassenraum mit ausreichend Bewegungsfläche zwischen den Tischen",
+  "raumhinweis": "Klassenraum mit ausreichend Bewegungsfläche zwischen den Tischen",
   "gruppeMin": 6,
   "gruppeMax": 36,
   "teamMin": 2,

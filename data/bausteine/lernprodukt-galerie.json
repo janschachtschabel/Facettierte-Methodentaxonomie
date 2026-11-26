@@ -17,8 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "reichweite": "r2",
   "lernfunktion": [
@@ -113,7 +116,7 @@
     "Klebepunkte/Feedback-Karten",
     "Kriterienliste"
   ],
-  "raum": "Klassenraum mit Wandfläche",
+  "raumhinweis": "Klassenraum mit Wandfläche",
   "gruppeMin": 6,
   "gruppeMax": 40,
   "vorbereitungMin": 10,

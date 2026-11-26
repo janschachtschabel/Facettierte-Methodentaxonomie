@@ -19,12 +19,16 @@
   "fachbereichUngeeignet": [
     "mathe-informatik",
     "nawi-technik",
-    "aesthetik",
-    "sport"
+    "aesthetik"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
+  ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Wikipedia: Lesetagebuch",

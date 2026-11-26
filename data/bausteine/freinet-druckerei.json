@@ -12,11 +12,14 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende verfassen authentische Texte zu eigenen Themen, überarbeiten sie in der Textkonferenz und veröffentlichen sie für echte Leser:innen.",
   "alternativname": [
@@ -38,7 +41,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

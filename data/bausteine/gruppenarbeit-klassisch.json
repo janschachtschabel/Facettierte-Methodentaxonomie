@@ -9,9 +9,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Kleingruppen bearbeiten unterschiedliche Teilaspekte eines Gesamtthemas mit klaren Rollen und führen ihre Ergebnisse anschließend zusammen.",
   "alternativname": [
     "Gruppenarbeit",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 3,

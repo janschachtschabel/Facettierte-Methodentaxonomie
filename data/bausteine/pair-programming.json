@@ -11,13 +11,6 @@
     "mathe-informatik",
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "kurzbeschreibung": "Die Lehrkraft programmiert eine Aufgabe laut denkend vor (Live Coding); danach lösen Paare eine ähnliche Aufgabe an einem Rechner mit festen Rollen Fahrer und Navigator, die regelmäßig wechseln.",
   "alternativname": [
     "Paarprogrammierung",
@@ -38,7 +31,7 @@
     "Programmierumgebung",
     "Aufgabenblatt"
   ],
-  "raum": "Computerraum oder Klassenraum mit Geräten",
+  "raumhinweis": "Computerraum oder Klassenraum mit Geräten",
   "gruppeMin": 2,
   "gruppeMax": 32,
   "technik": "t-geteilt",

@@ -16,8 +16,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
   "quellen": [
     {
@@ -120,7 +120,7 @@
     "Nummerierte Fragenkarten",
     "Antwortblatt je Turniertisch"
   ],
-  "raum": "Tische für 3er- bis 4er-Gruppen",
+  "raumhinweis": "Tische für 3er- bis 4er-Gruppen",
   "gruppeMin": 9,
   "gruppeMax": 36,
   "teamMin": 3,

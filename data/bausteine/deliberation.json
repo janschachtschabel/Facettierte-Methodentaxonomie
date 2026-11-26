@@ -10,12 +10,6 @@
     "gesellschaft",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Ausgeloste Kleingruppen prüfen sachliche Pro-/Contra-Dossiers zu einer gesellschaftlichen Streitfrage und erarbeiten eine begründete Empfehlung.",
   "alternativname": [
     "Schul-Bürgerrat",
@@ -35,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 10,
   "gruppeMax": 35,
   "technik": "t-keine",

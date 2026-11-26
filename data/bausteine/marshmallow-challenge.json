@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Teams bauen in 18 Minuten aus Spaghetti, Klebeband und Schnur den höchsten freistehenden Turm mit einem Marshmallow an der Spitze – Lehrstück für Prototyping.",
   "alternativname": [
     "Spaghetti-Turm-Challenge"
@@ -29,7 +26,7 @@
   "material": [
     "20 Spaghetti, 1m Klebeband, 1m Schnur, 1 Marshmallow je Team"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 40,
   "teamMin": 3,
@@ -131,7 +128,8 @@
     "y": 2.88
   },
   "aufgabe": [
-    "konzepte",
+    "prozeduren",
+    "metakognitiv",
     "afb2",
     "wohlstrukturiert",
     "fall"

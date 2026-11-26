@@ -16,9 +16,7 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Wikipedia: Lernbüro",
@@ -128,7 +126,7 @@
     "Logbuch",
     "Diagnosetests"
   ],
-  "raum": "Fach-Lernbüro mit ruhigen Einzel- und Partnerplätzen",
+  "raumhinweis": "Fach-Lernbüro mit ruhigen Einzel- und Partnerplätzen",
   "gruppeMin": 8,
   "gruppeMax": 32,
   "vorbereitungMin": 180,

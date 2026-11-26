@@ -3,6 +3,8 @@
  * Wissensart (facet D1 "aufgabe") and the Sport entries in "ungeeignet im Fach" for all methods. It compares the
  * repository script (vorschlag-einsatzprofil.ts, computed fresh and without the room cap for fachausstattung) with the
  * paper proposal (fmt2-datenvorschlag.csv) and writes a review table plus a short summary. Data files stay untouched.
+ * It reads the room fields lernort and raum, which left the data with Durchsicht 1; it reproduces the proposal only
+ * from data of that time (test fixture test/fixtures/vor-durchsicht-1.json).
  *
  * Usage: npx tsx packages/fmt-core/scripts/vorschlag-fmt2-bedarf.ts [dataDir] [oldVorschlagJson] [datenvorschlagCsv] [outDir]
  */
@@ -11,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import type { Baustein } from '../src/types.js';
-import { vorschlagAlle, type BedarfVorschlag } from './vorschlag-einsatzprofil.js';
+import { vorschlagAlle, type AltBaustein, type BedarfVorschlag } from './vorschlag-einsatzprofil.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..', '..');
@@ -227,7 +229,7 @@ export interface ZeilenKontext {
 }
 
 /** Row logic for one method. repo and papier are the two sources; the rest follows the rules of the brief. */
-export function bauZeile(b: Baustein, repo: BedarfVorschlag, papier: PapierZeile | undefined, ctx: ZeilenKontext = {}): BedarfZeile {
+export function bauZeile(b: AltBaustein, repo: BedarfVorschlag, papier: PapierZeile | undefined, ctx: ZeilenKontext = {}): BedarfZeile {
   const hinweise: string[] = [];
   const bietet = ctx.sporthalleBietet || SPORTHALLE_BIETET;
 

@@ -10,10 +10,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "kurzbeschreibung": "Individuelles Lernen an realen Praxisplätzen außerhalb der Schule, systematisch verknüpft mit fachlicher Auswertung und Beratung in der Lerngruppe.",
   "alternativname": [
     "Praxislernen",
@@ -33,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -143,6 +139,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

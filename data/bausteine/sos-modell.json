@@ -17,11 +17,8 @@
     "mathe-informatik",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "quellen": [
     {
@@ -119,7 +116,7 @@
     "Kurzer Beispieltext oder vorbereitete Beispielkarten",
     "Sortiertabelle / Markierstifte"
   ],
-  "raum": "Regulärer Klassenraum",
+  "raumhinweis": "Regulärer Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 32,
   "teamMin": 2,

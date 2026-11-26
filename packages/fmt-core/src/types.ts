@@ -244,8 +244,6 @@ export interface Baustein {
   fachbereich?: string[];
   /** Subject areas where the method does not fit. */
   fachbereichUngeeignet?: string[];
-  /** Rooms the method is made for or works well in (vocab lernort); without it the fit is derived from other facets. */
-  lernort?: string[];
   /** BD1: room properties the method needs (vocab raumbedarf); all must be met, empty = no special need. */
   raumbedarf?: string[];
   /** Kind of special equipment the method needs; set only when a core component fixes it (vocab fachausstattungart). */
@@ -265,8 +263,7 @@ export interface Baustein {
   problem: string;
   durchfuehrung: string[];
   material: string[];
-  raum?: string;
-  /** Free-text note on the room (layout, setup). */
+  /** Free-text note on the room (layout, setup); replaces the former field raum. */
   raumhinweis?: string;
   /** Free-text note on supervision (second adult, constant supervision, safety briefing). */
   betreuungshinweis?: string;

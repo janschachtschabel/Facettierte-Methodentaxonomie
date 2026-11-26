@@ -13,11 +13,7 @@
   "fachbereichUngeeignet": [
     "mathe-informatik",
     "nawi-technik",
-    "aesthetik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+    "aesthetik"
   ],
   "kurzbeschreibung": "Lernende durchlaufen als Fraktionen, Ausschüsse und Präsidium ein reales Gesetzgebungsverfahren vom Antrag bis zur Schlussabstimmung.",
   "alternativname": [
@@ -38,7 +34,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 16,
   "gruppeMax": 60,
   "technik": "t-keine",
@@ -147,6 +143,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

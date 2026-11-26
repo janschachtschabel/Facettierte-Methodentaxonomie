@@ -16,8 +16,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -84,6 +87,8 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "konzepte",
+    "prozeduren",
     "afb2",
     "afb3",
     "schlecht-strukturiert",
@@ -141,7 +146,7 @@
     "Klebezettel",
     "Whiteboard/Flipchart"
   ],
-  "raum": "Flexibler Gruppenraum",
+  "raumhinweis": "Flexibler Gruppenraum",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 3,

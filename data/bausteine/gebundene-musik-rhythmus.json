@@ -16,12 +16,6 @@
     "nawi-technik",
     "gesellschaft"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Rhythmische Muster werden gemeinsam über Klatschen, Schnipsen und Stampfen direkt am Körper eingeübt, geschichtet und musikalisch variiert.",
   "alternativname": [
     "Bodypercussion",
@@ -41,7 +35,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Musik- oder Klassenraum",
+  "raumhinweis": "Musik- oder Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 40,
   "technik": "t-keine",

@@ -17,9 +17,11 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "reichweite": "r4",
   "lernfunktion": [
@@ -75,6 +77,8 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "konzepte",
+    "prozeduren",
     "schlecht-strukturiert",
     "afb3"
   ],
@@ -116,7 +120,7 @@
     "Projekt- & Kalkulationsvorlagen",
     "Protokollbuch"
   ],
-  "raum": "Fachraum / Lernwerkstatt",
+  "raumhinweis": "Fachraum / Lernwerkstatt",
   "gruppeMin": 8,
   "gruppeMax": 32,
   "teamMin": 4,

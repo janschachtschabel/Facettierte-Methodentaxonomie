@@ -10,8 +10,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Lerngemeinschaft entwickelt über mehrere Sitzungen hinweg kollektiv verbesserbare Erklärungen, Wikis oder Wissensartefakte zu echten Fragen.",
   "alternativname": [
@@ -32,7 +35,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-geteilt",

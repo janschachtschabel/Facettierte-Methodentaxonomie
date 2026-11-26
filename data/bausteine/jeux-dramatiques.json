@@ -14,13 +14,10 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "kurzbeschreibung": "Nonverbales, wertfreies Ausdrucksspiel mit Tüchern und Requisiten zu Geschichten oder Themen ohne Publikumskritik – Fokus auf eigenem Erleben.",
   "alternativname": [
@@ -39,7 +36,7 @@
     "Tücher",
     "Stühle/Requisiten"
   ],
-  "raum": "Freier Raum / Aula",
+  "raumhinweis": "Freier Raum / Aula",
   "gruppeMin": 6,
   "gruppeMax": 24,
   "technik": "t-keine",
@@ -140,7 +137,7 @@
     "y": 2.48
   },
   "aufgabe": [
-    "konzepte",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

@@ -17,9 +17,8 @@
     "beruf-praxis",
     "aesthetik"
   ],
-  "lernort": [
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "bewegungsflaeche"
   ],
   "kurzbeschreibung": "Standardisierte Messung oder kriteriengeleitete Bewertung einer sportlichen Leistung (z. B. 6-Minuten-Lauf, Cooper-Test, Weitsprung, Technikbewertung mit Bewertungsbogen).",
   "alternativname": [
@@ -43,7 +42,7 @@
     "Bewertungsbogen",
     "Ergebnisliste"
   ],
-  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "raumhinweis": "Sporthalle, Sportplatz oder Außengelände",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

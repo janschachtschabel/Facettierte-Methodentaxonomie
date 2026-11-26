@@ -10,12 +10,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "kurzbeschreibung": "Dreigeteiltes Notizblatt (Notizen rechts, Schlüsselwörter/Abruffragen links, kurze Zusammenfassung unten) verbindet Mitschreiben mit aktivem Abruf.",
   "alternativname": [
@@ -36,7 +36,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 60,
   "technik": "t-keine",

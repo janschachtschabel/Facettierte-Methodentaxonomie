@@ -19,13 +19,14 @@
     "mathe-informatik",
     "nawi-technik",
     "gesellschaft",
-    "aesthetik",
-    "sport"
+    "aesthetik"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "stellflaeche"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -125,7 +126,7 @@
     "Ausgehängte Textvorlagen (ggf. in 2–3 Niveaus)",
     "Heft"
   ],
-  "raum": "Klassenraum mit Laufwegen",
+  "raumhinweis": "Klassenraum mit Laufwegen",
   "gruppeMin": 4,
   "gruppeMax": 32,
   "vorbereitungMin": 10,

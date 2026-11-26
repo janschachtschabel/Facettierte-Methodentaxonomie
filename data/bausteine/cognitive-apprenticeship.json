@@ -16,10 +16,6 @@
     "beruf-praxis",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "reichweite": "r3",
   "lernfunktion": [
     "erwerb",
@@ -77,9 +73,9 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "schlecht-strukturiert",
     "prozeduren",
-    "konzepte"
+    "konzepte",
+    "schlecht-strukturiert"
   ],
   "sequenz": [
     "geblockt"
@@ -120,7 +116,7 @@
     "Authentische Aufgabenreihe",
     "Strategiekarten / Leitfragen"
   ],
-  "raum": "Klassen- oder Fachraum",
+  "raumhinweis": "Klassen- oder Fachraum",
   "gruppeMin": 2,
   "gruppeMax": 30,
   "vorbereitungMin": 30,

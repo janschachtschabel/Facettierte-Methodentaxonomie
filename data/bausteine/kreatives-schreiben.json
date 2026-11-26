@@ -12,11 +12,13 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende verarbeiten Fachinhalte oder literarische Stoffe in produktiven Textformen (Brief, Tagebucheintrag, Perspektivwechsel, Dialog).",
   "alternativname": [
@@ -36,7 +38,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

@@ -12,11 +12,11 @@
     "nawi-technik",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Ein Problem wird am „Fischkopf“ notiert; Haupt- und Nebenursachen werden systematisch an Kategorien-Gräten gesammelt und gewichtet.",
   "alternativname": [
@@ -37,7 +37,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

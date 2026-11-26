@@ -10,11 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
   "kurzbeschreibung": "Eine Multiple-Choice-Frage zu typischen Fehlvorstellungen wird im Plenum beantwortet (Abstimmkarten, Handzeichen oder Clicker); das Ergebnis wird sofort gezeigt und besprochen.",
   "alternativname": [
     "Audience Response",
@@ -35,7 +30,7 @@
     "Frage auf Folie",
     "Abstimmkarten A–D oder Abstimmungs-App"
   ],
-  "raum": "Hörsaal oder Klassenraum",
+  "raumhinweis": "Hörsaal oder Klassenraum",
   "gruppeMin": 15,
   "gruppeMax": 1000,
   "technik": "t-keine",

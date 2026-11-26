@@ -17,9 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r3",
   "lernfunktion": [
@@ -118,7 +117,7 @@
     "iRAT/tRAT-Test",
     "4S-Entscheidungskarten"
   ],
-  "raum": "Klassen- oder Hörsaal",
+  "raumhinweis": "Klassen- oder Hörsaal",
   "gruppeMin": 12,
   "gruppeMax": 200,
   "teamMin": 4,

@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lernende begutachten Arbeitsergebnisse von Mitschüler:innen anhand klarer Qualitätskriterien und geben konkrete Überarbeitungshinweise.",
   "alternativname": [
     "Peer-Bewertung",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

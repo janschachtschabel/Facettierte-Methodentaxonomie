@@ -10,9 +10,8 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "kurzbeschreibung": "Sechsphasiges selbstständiges Arbeiten (Informieren, Planen, Entscheiden, Ausführen, Kontrollieren, Bewerten) anhand strukturierter Leitfragen.",
   "alternativname": [
@@ -34,7 +33,7 @@
     "Fachquellen/Werkzeug",
     "Kontrollbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 30,
   "technik": "t-keine",

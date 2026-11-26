@@ -20,12 +20,10 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -87,6 +85,7 @@
   ],
   "aufgabe": [
     "konzepte",
+    "einstellungen",
     "schlecht-strukturiert",
     "afb2",
     "afb3"
@@ -125,7 +124,7 @@
   "material": [
     "Kurze Rollen- oder Situationskarten"
   ],
-  "raum": "Raum mit freier Stehfläche",
+  "raumhinweis": "Raum mit freier Stehfläche",
   "gruppeMin": 4,
   "gruppeMax": 30,
   "teamMin": 2,

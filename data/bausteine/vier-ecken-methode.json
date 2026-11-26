@@ -15,9 +15,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -118,7 +117,7 @@
   "material": [
     "Vier große Thesen-Schilder"
   ],
-  "raum": "Bewegungsraum in vier Ecken",
+  "raumhinweis": "Bewegungsraum in vier Ecken",
   "gruppeMin": 8,
   "gruppeMax": 35,
   "vorbereitungMin": 10,

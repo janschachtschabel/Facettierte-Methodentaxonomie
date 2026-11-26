@@ -15,9 +15,8 @@
     "gesellschaft",
     "nawi-technik"
   ],
-  "lernort": [
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "bewegungsflaeche"
   ],
   "kurzbeschreibung": "Ruhiges Auslaufen und Dehnen mit kurzer Rückmeldung zu Belastung, Gelungenem und nächstem Übungsziel.",
   "alternativname": [
@@ -37,7 +36,7 @@
   "material": [
     "Ggf. Belastungsskala (z. B. 1–10)"
   ],
-  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "raumhinweis": "Sporthalle, Sportplatz oder Außengelände",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

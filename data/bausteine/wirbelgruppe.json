@@ -15,8 +15,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -114,7 +114,7 @@
     "Notizkarten oder Tischblätter",
     "Stifte"
   ],
-  "raum": "Gruppentische oder Stuhlkreise",
+  "raumhinweis": "Gruppentische oder Stuhlkreise",
   "gruppeMin": 9,
   "gruppeMax": 40,
   "teamMin": 3,

@@ -11,13 +11,8 @@
     "nawi-technik"
   ],
   "fachbereichUngeeignet": [
-    "sport",
     "gesellschaft",
     "sprachen"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
   ],
   "kurzbeschreibung": "Die geübte Fertigkeit wird in einer leicht veränderten Situation angewendet (anderes Gerät, anderer Fall, andere Ausgangslage), ohne neue Anleitung.",
   "alternativname": [
@@ -36,7 +31,7 @@
     "Variationskarte",
     "Gerät oder Material in veränderter Form"
   ],
-  "raum": "Fachraum, Werkstatt oder Klassenraum",
+  "raumhinweis": "Fachraum, Werkstatt oder Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 30,
   "technik": "t-keine",

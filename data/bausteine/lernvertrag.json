@@ -16,9 +16,13 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
+  "schriftbedarf": [
+    "schreibt"
+  ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Wikipedia: Offener Unterricht",

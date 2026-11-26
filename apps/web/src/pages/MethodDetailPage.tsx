@@ -225,8 +225,23 @@ export function MethodDetailPage() {
           </ol>
           <p style={{ fontSize: 15 }}>
             <strong>Material:</strong> {b.material.join(', ')}
-            {b.raum ? ` · Raum: ${b.raum}` : ''}
+            {b.raumhinweis ? ` · Raum: ${b.raumhinweis}` : ''}
           </p>
+          {((b.raumbedarf || []).length > 0 || (b.schriftbedarf || []).length > 0 || b.termineMin != null) && (
+            <p style={{ fontSize: 15 }}>
+              {[
+                (b.raumbedarf || []).length
+                  ? `Raumbedarf: ${(b.raumbedarf || []).map((x) => labelOf('raumbedarf', x)).join(', ')}${
+                      b.fachausstattungArt ? ` (${labelOf('fachausstattungart', b.fachausstattungArt)})` : ''
+                    }`
+                  : '',
+                (b.schriftbedarf || []).length ? `Schriftbedarf: ${(b.schriftbedarf || []).map((x) => labelOf('schriftbedarf', x)).join(', ')}` : '',
+                b.termineMin != null ? `mindestens ${b.termineMin} Termine` : ''
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+          )}
           {b.variante && b.variante.length > 0 && (
             <p style={{ fontSize: 15 }}>
               <strong>Varianten:</strong> {b.variante.join(' · ')}

@@ -10,10 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Teams lösen an aufeinanderfolgenden Stationen fachliche Rätsel, deren Lösungen den Hinweis oder Code für die nächste Station liefern.",
   "alternativname": [
     "Lernrallye",
@@ -33,7 +29,7 @@
     "Stationskarten oder QR-Codes",
     "Lösungsbogen"
   ],
-  "raum": "Klassenraum, Schulgebäude oder Außengelände",
+  "raumhinweis": "Klassenraum, Schulgebäude oder Außengelände",
   "gruppeMin": 4,
   "gruppeMax": 35,
   "teamMin": 2,
@@ -136,6 +132,7 @@
     "y": 2.52
   },
   "aufgabe": [
+    "fakten",
     "konzepte",
     "afb2",
     "wohlstrukturiert",

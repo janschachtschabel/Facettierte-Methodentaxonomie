@@ -9,13 +9,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
   "kurzbeschreibung": "Zusammenhängender, systematischer Fachvortrag für größere Gruppen zur raschen Übersicht über ein Themenfeld – als Kontrast- und Basiselement mit R-08-Bewusstsein.",
   "alternativname": [
     "Fachvorlesung",
@@ -34,7 +27,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 10,
   "gruppeMax": 300,
   "technik": "t-projektion",

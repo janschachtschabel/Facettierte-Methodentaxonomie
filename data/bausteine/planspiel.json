@@ -18,10 +18,6 @@
     "beruf-praxis",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Planspiel",
@@ -154,7 +150,7 @@
   "material": [
     "Planspiel-Handbuch, Rollenprofile, Regelkarten"
   ],
-  "raum": "Mehrere Gruppenarbeitsbereiche plus Plenum",
+  "raumhinweis": "Mehrere Gruppenarbeitsbereiche plus Plenum",
   "gruppeMin": 12,
   "gruppeMax": 40,
   "teamMin": 3,

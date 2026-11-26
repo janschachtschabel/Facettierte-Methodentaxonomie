@@ -9,10 +9,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Lernende erkunden ein vorbereitetes Problem- oder Materialfeld eigenständig mit gezielten Hinweisen, Strukturhilfen und abschließender Systematisierung.",
   "alternativname": [
     "Guided Discovery",
@@ -32,7 +28,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

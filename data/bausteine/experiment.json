@@ -21,10 +21,11 @@
     "gesellschaft",
     "mathe-informatik"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+  "raumbedarf": [
+    "fachausstattung"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -142,7 +143,7 @@
     "Versuchsmaterial je Gruppe",
     "Protokollvorlage"
   ],
-  "raum": "Fachraum oder geeignete Arbeitsplätze",
+  "raumhinweis": "Fachraum oder geeignete Arbeitsplätze",
   "gruppeMin": 6,
   "gruppeMax": 32,
   "vorbereitungMin": 60,

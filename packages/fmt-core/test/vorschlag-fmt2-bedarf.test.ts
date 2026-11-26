@@ -5,8 +5,10 @@ import { loadFmtData } from '../src/load-data.js';
 import type { Baustein } from '../src/types.js';
 import { vorschlagAlle, type BedarfVorschlag } from '../scripts/vorschlag-einsatzprofil.js';
 import { bauZeile, parseCsv, termineMinVorschlag, type PapierZeile } from '../scripts/vorschlag-fmt2-bedarf.js';
+import { vorDurchsicht1 } from './fixtures/vor-durchsicht-1.js';
 
-const D = loadFmtData(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'data'));
+// The proposal reads the room fields of the time before Durchsicht 1 (test fixture).
+const D = vorDurchsicht1(loadFmtData(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'data')));
 const repoAlle = vorschlagAlle(D, { deckelAusnehmen: ['fachausstattung'] });
 const finde = (k: string) => D.bausteine.find((b) => b.kennung === k)!;
 

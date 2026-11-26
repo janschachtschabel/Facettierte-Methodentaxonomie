@@ -10,8 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
   "kurzbeschreibung": "Fächerübergreifendes Arbeitskonzept mit schriftlichen Arbeitsaufträgen (Assignments), Wahlfreiheit in Tempo/Sozialform und verbindlichen Feedback-Schleifen.",
   "alternativname": [
@@ -32,7 +32,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

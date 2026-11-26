@@ -18,9 +18,6 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Zickzack-Dialog",
@@ -116,7 +113,7 @@
   "material": [
     "Impulskarten oder Satzstarter-Plakat"
   ],
-  "raum": "Zwei Stuhl- oder Stehreihen",
+  "raumhinweis": "Zwei Stuhl- oder Stehreihen",
   "gruppeMin": 6,
   "gruppeMax": 24,
   "vorbereitungMin": 5,

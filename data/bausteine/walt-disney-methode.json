@@ -15,9 +15,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Walt-Disney-Methode",
@@ -73,6 +70,8 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "metakognitiv",
+    "konzepte",
     "afb2",
     "afb3",
     "schlecht-strukturiert"
@@ -111,7 +110,7 @@
     "Drei Rollenkarten",
     "Plakate oder Moderationskarten"
   ],
-  "raum": "Platz für drei kleine Zonen je Team",
+  "raumhinweis": "Platz für drei kleine Zonen je Team",
   "gruppeMin": 3,
   "gruppeMax": 30,
   "teamMin": 3,

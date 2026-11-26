@@ -1,7 +1,8 @@
 /**
  * Builds the data proposal for the Einsatzprofil (Bedarf): raumbedarf, schriftbedarf, raumhinweis,
- * betreuungshinweis for every method, derived from today's fields. The result goes to review first;
- * uebernehme-einsatzprofil.ts writes an approved proposal into data/bausteine/.
+ * betreuungshinweis for every method, derived from the room fields lernort and raum. Those fields left the data with
+ * Durchsicht 1 (uebernehme-durchsicht.ts); the script now only reproduces the proposal from data of that time (the
+ * old fields are kept as the test fixture test/fixtures/vor-durchsicht-1.json).
  *
  * Usage: npx tsx packages/fmt-core/scripts/vorschlag-einsatzprofil.ts [outDir]
  */
@@ -10,6 +11,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import type { Baustein, FmtData } from '../src/types.js';
+
+/** A method as it was before Durchsicht 1, with the old room fields. */
+export type AltBaustein = Baustein & { lernort?: string[]; raum?: string };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..', '..');
@@ -71,7 +75,7 @@ export interface VorschlagOptionen {
   deckelAusnehmen?: string[];
 }
 
-export function vorschlag(b: Baustein, opts: VorschlagOptionen = {}): BedarfVorschlag {
+export function vorschlag(b: AltBaustein, opts: VorschlagOptionen = {}): BedarfVorschlag {
   const text = [b.kurzbeschreibung, ...(b.durchfuehrung || []), ...(b.material || [])].join(' ').toLowerCase();
   const raum = (b.raum || '').toLowerCase();
   const material = (b.material || []).join(' ').toLowerCase();

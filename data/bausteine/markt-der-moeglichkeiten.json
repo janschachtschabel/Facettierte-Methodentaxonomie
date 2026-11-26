@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Themenstände präsentieren Ergebnisse, Projekte oder Perspektiven gleichzeitig; Teilnehmende zirkulieren frei und tauschen sich direkt aus.",
   "alternativname": [
     "Info-Markt",
@@ -33,7 +30,7 @@
     "Tische oder Stellwände",
     "Feedback-Karten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 10,
   "gruppeMax": 120,
   "technik": "t-keine",

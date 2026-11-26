@@ -16,10 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Projektunterricht",
@@ -89,6 +85,8 @@
     "werkzeug"
   ],
   "aufgabe": [
+    "prozeduren",
+    "metakognitiv",
     "afb2",
     "afb3",
     "schlecht-strukturiert",

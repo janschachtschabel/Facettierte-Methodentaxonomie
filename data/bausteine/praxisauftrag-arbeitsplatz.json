@@ -14,8 +14,8 @@
   "fachbereichUngeeignet": [
     "gesellschaft"
   ],
-  "lernort": [
-    "fachraum"
+  "raumbedarf": [
+    "fachausstattung"
   ],
   "kurzbeschreibung": "Kurzer, realitätsnaher Arbeitsauftrag, den Lernende selbstständig am Arbeitsplatz, im Labor oder in der Werkstatt ausführen und anhand einer Checkliste selbst prüfen.",
   "alternativname": [
@@ -38,7 +38,7 @@
     "Checkliste",
     "Werkzeug, Geräte oder Material des Fachs"
   ],
-  "raum": "Fachraum, Labor, Werkstatt oder Lehrküche",
+  "raumhinweis": "Fachraum, Labor, Werkstatt oder Lehrküche",
   "gruppeMin": 1,
   "gruppeMax": 30,
   "technik": "t-keine",

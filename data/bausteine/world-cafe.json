@@ -15,9 +15,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: World-Café",
@@ -122,7 +119,7 @@
     "Stifte",
     "Leitfragenkarten"
   ],
-  "raum": "Raum mit beweglichen Tischen",
+  "raumhinweis": "Raum mit beweglichen Tischen",
   "gruppeMin": 12,
   "gruppeMax": 80,
   "teamMin": 4,

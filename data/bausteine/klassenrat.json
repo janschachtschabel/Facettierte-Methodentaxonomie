@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Regelmäßiges demokratisches Selbstverwaltungsgremium der Lerngruppe mit rotierender Moderation, Tagesordnung, Beschlüssen und Rückblick.",
   "alternativname": [
     "Schülerparlament der Klasse",
@@ -32,7 +29,7 @@
     "Anliegen-Wand",
     "Klassenrats-Protokollbuch"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 8,
   "gruppeMax": 35,
   "technik": "t-keine",

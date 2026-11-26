@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "reichweite": "r3",
   "lernfunktion": [
     "erwerb",
@@ -117,7 +114,7 @@
     "OER-/Übungslinks",
     "Stationskarten"
   ],
-  "raum": "Klassenraum mit 3 Zonen",
+  "raumhinweis": "Klassenraum mit 3 Zonen",
   "gruppeMin": 9,
   "gruppeMax": 36,
   "teamMin": 3,

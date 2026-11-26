@@ -1,6 +1,6 @@
 {
   "name": "fmt-methodendatenbank",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, REST/Linked-Data-API & MCP-Server (Autor Inhalte: Jan Schachtschabel, CC-BY 4.0)",
   "license": "Apache-2.0",

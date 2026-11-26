@@ -11,15 +11,12 @@
     "nawi-technik"
   ],
   "fachbereichUngeeignet": [
-    "sport",
     "sprachen",
     "aesthetik",
     "mathe-informatik"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende bestimmen echte Objekte (Pflanzen, Tiere, Gesteine) mit einem einfachen Bestimmungsschlüssel in Partnerarbeit und begründen ihre Zuordnung an Merkmalen.",
   "alternativname": [
@@ -41,7 +38,7 @@
     "Objekte oder Fundstellen",
     "Lupe"
   ],
-  "raum": "Schulhof, Schulgarten, Exkursionsort oder Fachraum",
+  "raumhinweis": "Schulhof, Schulgarten, Exkursionsort oder Fachraum",
   "gruppeMin": 2,
   "gruppeMax": 32,
   "technik": "t-keine",

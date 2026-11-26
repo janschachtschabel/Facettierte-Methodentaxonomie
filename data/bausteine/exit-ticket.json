@@ -15,9 +15,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -73,6 +75,8 @@
   ],
   "aufgabe": [
     "konzepte",
+    "fakten",
+    "prozeduren",
     "afb1",
     "afb2"
   ],

@@ -65,7 +65,7 @@ describe('Bindung der Wissensart', () => {
       }
   });
   it('jeder Haupt- und Sicherungsschritt jeder Kette hat im Katalog mindestens eine tragende Methode', () => {
-    // bis Tor D1: D1 (aufgabe) der Methoden ist noch nicht durchgesehen; bekannte Lücken stehen hier.
+    // D1 (aufgabe) is reviewed since Tor D1; known gaps would be listed here with a reason.
     const bekannteLuecken: string[] = [];
     const fehlt: string[] = [];
     for (const k of D.ketten)

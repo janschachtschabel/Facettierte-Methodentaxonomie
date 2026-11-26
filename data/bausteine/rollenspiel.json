@@ -17,13 +17,11 @@
     "sprachen",
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "stellflaeche"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+  "schriftbedarf": [
+    "liest"
   ],
   "quellen": [
     {
@@ -133,7 +131,7 @@
     "Rollenkarten",
     "Beobachtungsbögen"
   ],
-  "raum": "Kleine Spielfläche im Raum",
+  "raumhinweis": "Kleine Spielfläche im Raum",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 2,

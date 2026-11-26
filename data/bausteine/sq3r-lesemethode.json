@@ -18,12 +18,14 @@
     "uebergreifend"
   ],
   "fachbereichUngeeignet": [
-    "sport",
     "aesthetik"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {

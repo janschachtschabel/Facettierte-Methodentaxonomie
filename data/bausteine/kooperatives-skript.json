@@ -17,8 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r2",
   "lernfunktion": [
@@ -112,7 +112,7 @@
     "Abschnittsweise gegliederter Fachtext",
     "Rollenkarte Skript"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 50,
   "teamMin": 2,

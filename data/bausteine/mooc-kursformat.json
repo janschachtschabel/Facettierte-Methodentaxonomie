@@ -10,10 +10,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest"
   ],
+  "termineMin": 2,
   "kurzbeschreibung": "Modularer, zeit- und ortsunabhängiger Online-Kurs aus kurzen Erklärvideos, automatisierten Selbsttests, Diskussionsforen und Peer-Aufgaben.",
   "alternativname": [
     "MOOC",
@@ -33,7 +33,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 500,
   "technik": "t-einzeln",

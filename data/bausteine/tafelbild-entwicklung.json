@@ -10,8 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Zentrale Begriffe, Beziehungen und Beispiele werden im Unterrichtsgespräch schrittweise zu einer klaren, logisch gegliederten visuellen Übersicht aufgebaut.",
   "alternativname": [
@@ -31,7 +31,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

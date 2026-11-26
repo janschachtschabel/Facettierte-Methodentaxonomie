@@ -12,11 +12,7 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+    "nawi-technik"
   ],
   "kurzbeschreibung": "Ruhige, haptische Erzählung mit einfachen Bodenbild-Figuren, gefolgt von offenen „Ich frage mich…“-Impulsen und freier kreativer Antwortphase.",
   "alternativname": [
@@ -37,7 +33,7 @@
     "Bodenbild-Materialien",
     "Kreativmaterial"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 25,
   "technik": "t-keine",
@@ -137,6 +133,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

@@ -11,10 +11,11 @@
     "nawi-technik",
     "mathe-informatik"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "hoersaal"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende sagen zu einer Situation oder einem Versuch schriftlich voraus, was passiert, und begründen kurz; die Vorhersagen machen Vorstellungen sichtbar, an die die Stunde anknüpft.",
   "alternativname": [
@@ -36,7 +37,7 @@
     "Bild, Versuch oder Situationsbeschreibung",
     "Zettel"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 200,
   "technik": "t-keine",
@@ -139,6 +140,6 @@
   ],
   "plot": {
     "x": 0.5,
-    "y": 2.0
+    "y": 2
   }
 }

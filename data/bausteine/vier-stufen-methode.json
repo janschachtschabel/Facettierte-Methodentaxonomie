@@ -16,11 +16,8 @@
     "gesellschaft",
     "sprachen"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
+  "raumbedarf": [
+    "fachausstattung"
   ],
   "kurzbeschreibung": "Klassische berufspädagogische Fertigkeitsvermittlung in vier Stufen: Vorbereiten, Vormachen & Erklären, Nachmachen & Erklären lassen, selbstständiges Üben.",
   "alternativname": [
@@ -41,7 +38,7 @@
     "Werkzeug / Laborgerät",
     "Unterweisungsleitfaden"
   ],
-  "raum": "Werkstatt, Labor oder Fachraum",
+  "raumhinweis": "Werkstatt, Labor oder Fachraum",
   "gruppeMin": 1,
   "gruppeMax": 12,
   "technik": "t-keine",

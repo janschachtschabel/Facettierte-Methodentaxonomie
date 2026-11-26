@@ -16,10 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Freispiel",
@@ -111,7 +107,7 @@
   "material": [
     "Konstruktions-, Rollen- und Lernspielmaterial"
   ],
-  "raum": "Klassenraum / Lernlandschaft",
+  "raumhinweis": "Klassenraum / Lernlandschaft",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 15,

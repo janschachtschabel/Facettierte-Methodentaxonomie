@@ -16,11 +16,10 @@
     "sprachen",
     "gesellschaft"
   ],
-  "lernort": [
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
+  "raumbedarf": [
+    "fachausstattung"
   ],
+  "fachausstattungArt": "sport",
   "kurzbeschreibung": "Zeitlich getakteter Durchlauf durch differenzierte Bewegungs- oder Fertigkeitsstationen mit unmittelbarer Selbst- und Partnerkorrektur.",
   "alternativname": [
     "Zirkeltraining",
@@ -41,7 +40,7 @@
     "Sport-/Übungsgeräte",
     "Timer"
   ],
-  "raum": "Sporthalle oder Fachraum",
+  "raumhinweis": "Sporthalle oder Fachraum",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "technik": "t-keine",

@@ -11,11 +11,10 @@
   ],
   "fachbereichUngeeignet": [
     "mathe-informatik",
-    "nawi-technik",
-    "sport"
+    "nawi-technik"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "kurzbeschreibung": "Fest verankerte, ruhige Lesezeit mit selbst gewählten Büchern oder Sachtexten ohne sofortige Abfrage – fördert Lesemotivation und Lesemenge.",
   "alternativname": [
@@ -36,7 +35,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

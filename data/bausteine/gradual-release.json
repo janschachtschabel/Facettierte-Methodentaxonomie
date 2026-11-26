@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "reichweite": "r2",
   "lernfunktion": [
     "erwerb",
@@ -110,7 +107,7 @@
     "Musterbeispiel",
     "Gestuftes Übungsblatt"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 40,
   "vorbereitungMin": 15,

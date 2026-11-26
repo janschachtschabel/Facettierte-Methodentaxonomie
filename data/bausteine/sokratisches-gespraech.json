@@ -17,8 +17,8 @@
     "sprachen",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -125,7 +125,7 @@
     "Stuhlkreis",
     "Flipchart für Zwischenkonsense"
   ],
-  "raum": "Stuhlkreis ohne Tische",
+  "raumhinweis": "Stuhlkreis ohne Tische",
   "gruppeMin": 6,
   "gruppeMax": 24,
   "vorbereitungMin": 20,
