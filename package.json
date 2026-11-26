@@ -22,7 +22,8 @@
     "start": "node apps/server/dist/index.js",
     "mcp:stdio": "node apps/server/dist/mcp/stdio.js",
     "dev:server": "npm -w @fmt/server run dev",
-    "dev:web": "npm -w @fmt/web run dev"
+    "dev:web": "npm -w @fmt/web run dev",
+    "qualitaet": "tsx packages/fmt-core/test/qualitaet/bericht.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

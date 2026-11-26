@@ -55,6 +55,33 @@ const fold = (s: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/ß/g, 'ss');
 
+/**
+ * Performance or learning check within the lesson (folded text). Preparing for a later test is no check:
+ * "Klassenarbeit vorbereiten" or "Vorbereitung auf den Test" do not match.
+ */
+export const LEISTUNGSKONTROLLE =
+  /\bleistungs(?:kontroll|uberprufung|nachweis|messung|test|feststellung|bewertung|abfrage)\w*|\blern(?:ziel|erfolgs|stands)?(?:kontroll|uberprufung)\w*|\blernstandserhebung\w*|(?<!vorbereitung\s(?:auf|fur)\s(?:den|die|das|einen|eine)\s)\b(?:test|tests|kurztest|vokabeltest|sporttest|abschlusstest|cooper-?test|klassenarbeit|klausur)\b(?!\s+(?:vor|nach)bereit\w*)|\bbenot\w*/;
+
+/**
+ * Removes negated phrases ("keine Gruppenarbeit", "ohne Experimente", "bitte keine Diskussion im Plenum")
+ * from folded text, so that rules looking for what the request wants do not fire on what it rules out.
+ */
+export const NEGATED_PHRASE =
+  /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen)\s+)*[a-z][\w-]*(?:\s+(?:und|oder)\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+(?:im|in\s+der|in|als)\s+[a-z][\w-]*)?/g;
+export const withoutNegated = (folded: string) => folded.replace(NEGATED_PHRASE, ' ');
+
+/** Interaction forms a negated phrase rules out, e.g. "keine Gruppenarbeit" → kleingruppe-kooperativ. */
+export function negatedInteractions(folded: string): Set<string> {
+  const out = new Set<string>();
+  for (const m of folded.match(NEGATED_PHRASE) || []) {
+    if (/gruppenarbeit|kleingruppe|teamarbeit|tischgruppe|gruppenpuzzle/.test(m)) out.add('kleingruppe-kooperativ');
+    if (/partnerarbeit|tandem|zu\s+zweit/.test(m)) out.add('partner');
+    if (/einzelarbeit|stillarbeit/.test(m)) out.add('einzel');
+    if (/plenum|unterrichtsgesprach|klassengesprach|frontal/.test(m)) out.add('plenum-lehrergeleitet');
+  }
+  return out;
+}
+
 export interface FmtMatcher {
   zuordnen(anfrage?: MatchRequest): MatchResult;
   /** `stufe`: bildungsstufe the caller already knows; decides whether university subjects are read. */
@@ -304,6 +331,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ]);
 
   const semantic = createSemanticClassifier(data);
+  /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
+  const NEGATION_AWARE = new Set(['maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'liefert', 'zeitMin', 'gruppe']);
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
     // Multiplicative durations first (e.g. "2 x 45 Minuten", "3 × 45 min")
@@ -321,7 +350,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['bildungsstufe', /berufsschul|berufsbildung|auszubildende|azubi/, () => 'berufsbildung'],
     ['bildungsstufe', /erwachsenenbildung|volkshochschul|\bvhs\b|weiterbildung|fortbildung/, () => 'erwachsenenbildung'],
     ['bildungsstufe', /hochschul|studierende|universitat|vorlesung|seminar/, () => 'hochschule'],
-    ['gruppe', /(\d{1,3})\s*(?:schuler\w*|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus)\b/, (m) => Number(m[1])],
+    // "3 Schüler mit Förderbedarf" or "davon 4 mit DaZ" names a subgroup, not the size of the group.
+    [
+      'gruppe',
+      /(?<!davon\s)(?<!\bdarunter\s)(\d{1,3})\s*(?:schuler\w*|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
+      (m) => Number(m[1])
+    ],
     ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|anfanger/, () => 'gering'],
     ['vorwissen', /(?:viel|gut\w*|hoh\w*|solide\w*)\s+(?:vorwissen|vorkenntnis\w*)|fortgeschritten/, () => 'hoch'],
     ['vorwissen', /(?:etwas|mittler\w*)\s+(?:vorwissen|vorkenntnis\w*)|grundkenntnis/, () => 'mittel'],
@@ -334,6 +368,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['maxTechnik', /beamer|projektor|smartboard|digitale\s+tafel/, () => 't-projektion'],
     ['ohneInternet', /ohne\s+(?:internet|wlan|netz)|kein\s+(?:internet|wlan)|offline/, () => true],
     ['ohneKI', /ohne\s+ki\b|keine\s+ki\b/, () => true],
+    // A check in this lesson; preparing for a test later ("Klassenarbeit vorbereiten") is none.
+    ['liefert', LEISTUNGSKONTROLLE, () => ['lernstand-diagnostiziert']],
     // Subject area from the subject named in the text. Order matters: the first rule that matches wins.
     // Subject nouns only: adjectives ("französische Revolution") and everyday words ("Pflege von …") are no subject.
     ['fachbereich', /\bberufsschul\w*|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege(?:schule|ausbildung|fachkr\w*|kurs)\b|\bpraxisanleit\w*|\bunterweisung\b/, () => 'beruf-praxis'],
@@ -379,7 +415,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'zielart',
-      /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b/,
+      /\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste\s+hilfe\b|\breanimation\b/,
       () => 'psychomotorik'
     ],
     ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib/, () => 'prozeduren'],
@@ -435,15 +471,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         erkannt.push({ feld, wert, beleg });
       }
     };
+    // "keine Gruppenarbeit" or "ohne Experimente" rules something out: such a phrase must not select it.
+    const tPos = withoutNegated(t);
     RULES.forEach(([feld, re, fn]) => {
-      const m = re.exec(t);
+      const m = re.exec(NEGATION_AWARE.has(feld) ? t : tPos);
       if (m) take(feld, fn(m), m[0].trim());
     });
 
     // Collect all matched approaches (multi-label!)
     const ansatzHits: Array<{ code: string; beleg: string }> = [];
     for (const [code, re] of ANSATZ_RULES) {
-      const m = re.exec(t);
+      const m = re.exec(tPos);
       if (m && !ansatzHits.some((x) => x.code === code)) {
         ansatzHits.push({ code, beleg: m[0].trim() });
       }
@@ -458,7 +496,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     const fns: Array<{ code: string; beleg: string; at: number }> = [];
     functionWords.forEach(([word, code]) => {
-      const m = new RegExp('\\b' + word + '\\w*').exec(t);
+      const m = new RegExp('\\b' + word + '\\w*').exec(tPos);
       if (m && !fns.some((x) => x.code === code)) fns.push({ code, beleg: m[0], at: m.index });
     });
     if (fns.length) {
@@ -468,7 +506,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     // Zero-LLM semantic scale fallback (BM25 + German trigrams) for casual phrasings missed by exact regexes
     if (t.length >= 12) {
-      const sem = semantic.classifyScales(text);
+      const sem = semantic.classifyScales(tPos);
       const topAnsatz = sem.scales.ansatz[0];
       const forbidDigitalKi =
         Boolean(kriterien.ohneInternet) || Boolean(kriterien.ohneKI) || kriterien.maxTechnik === 't-keine';
@@ -597,6 +635,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentVariante = 0;
   let currentTechAsked = false;
   let currentArea = '';
+  /** Interaction forms the request rules out ("keine Gruppenarbeit"). */
+  let currentNegatedInteractions = new Set<string>();
+  /** The chain trains a movement or hands-on skill: classroom methods do not fit its main phases. */
+  let currentPraxis = false;
+  /** Didactic role of the chain step being filled; a check step ('pruefung') may stay seated. */
+  let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
   const mentionDetector = createMentionDetector(data);
   type Ranked = { b: Baustein; hard: number[]; soft: number };
   const order = (items: Ranked[], tolerance?: number): Baustein[] =>
@@ -642,6 +686,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return 0;
   }
 
+  /** Movement, hands-on or practice method: fits a gym, a workshop or a practice room. */
+  const isPraxisMethod = (b: Baustein) =>
+    (b.aufgabe || []).includes('psychomotorik') ||
+    (b.repraesentation || []).includes('enaktiv') ||
+    (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
+
   function rankOf(
     b: Baustein,
     a: MatchRequest,
@@ -667,10 +717,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       // Last tier: the method's minimum duration does not fit into what is left of the lesson.
       hard: [
         extra,
+        // The request rules out the only interaction form the method has ("keine Gruppenarbeit").
+        (b.interaktion || []).length && (b.interaktion || []).every((x) => currentNegatedInteractions.has(x)) ? 1 : 0,
         passung(b, a).length ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
         domainPenalty(b) || (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) ? 1 : 0),
-        hardCapMin != null && b.dauerMin > hardCapMin ? 1 : 0
+        // Graded: when nothing fits the rest of the lesson, the method that overshoots least comes first.
+        hardCapMin != null && b.dauerMin > hardCapMin ? Math.ceil((b.dauerMin - hardCapMin) / 5) : 0
       ],
       soft: softScore({
         ansatzMiss: misses(list(a.ansatz), b.ansatz) === 1,
@@ -693,6 +746,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           ? wantedFunctions.indexOf(b.lernfunktion[0]) + 1 || wantedFunctions.length + 1
           : 0,
         vorbereitungMin: b.vorbereitungMin,
+        praxisFremd:
+          currentPraxis && currentStepRole !== 'pruefung' && !isPraxisMethod(b)
+            ? currentStepRole === 'haupt'
+              ? 'haupt'
+              : 'rand'
+            : undefined,
         // A named method gets its bonus at the step reserved for it, not at an earlier step it could also serve.
         mentioned:
           currentMentions.has(b.kennung) &&
@@ -818,6 +877,36 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     );
   }
 
+  type PlanStep = Funktionskette['schritte'][number] & { pruefung?: boolean; zusatz?: boolean };
+
+  /**
+   * Chain steps for this request. A requested check (liefert: lernstand-diagnostiziert) uses the chain's own
+   * check step or gets an added step before the closing reflection.
+   */
+  function planSteps(kette: Funktionskette, a: MatchRequest): PlanStep[] {
+    let steps: PlanStep[] = kette.schritte.map((st) => ({ ...st }));
+    if (list(a.liefert).includes('lernstand-diagnostiziert')) {
+      const own = steps.find((st) => st.ziel === 'lernstand-diagnostiziert');
+      if (own) own.pruefung = true;
+      else {
+        const check: PlanStep = {
+          id: 'leistungskontrolle',
+          label: 'Leistung oder Lernstand überprüfen',
+          funktion: ['diagnose'],
+          ziel: 'lernstand-diagnostiziert',
+          rolle: 'haupt',
+          zeitanteil: 20,
+          pruefung: true,
+          zusatz: true
+        };
+        const last = steps[steps.length - 1];
+        const at = last && last.rolle === 'rand' && last.funktion.includes('metakognition') ? steps.length - 1 : steps.length;
+        steps.splice(at, 0, check);
+      }
+    }
+    return steps;
+  }
+
   function ablauf(a: MatchRequest, kette: Funktionskette): Omit<AblaufMatchResult, 'kriterien' | 'erkannt' | 'offen'> & { offen: string[] } {
     const kontext: Arrangement['kontext'] = {};
     if (a.bildungsstufe) kontext.bildungsstufe = a.bildungsstufe;
@@ -898,17 +987,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
 
     const totalBudget = given(a.zeitMin) ? Number(a.zeitMin) : null;
-    const wantsRecurrence = kette.schritte.some((s) => s.ziel === 'wissen-konsolidiert');
+    const steps = planSteps(kette, a);
+    // A short budget (e.g. 20 minutes for five phases) lets phases shrink below five minutes, so the plan fits.
+    const minStep = totalBudget != null && steps.length * 5 > totalBudget ? 3 : 5;
+    const checkStepId = steps.find((st) => st.pruefung)?.id;
+    const wantsRecurrence = steps.some((s) => s.ziel === 'wissen-konsolidiert');
     const usedDurationSoFar = () =>
       teile.reduce((sum, node) => sum + (node.typ === 'Einsatz' ? node.dauerMin || 0 : 0), 0);
 
     // Methods named in the request: reserve their minimum duration at the first chain step they can serve.
     const mentioned = [...currentMentions].map((id) => blocks.get(id)).filter((b): b is Baustein => Boolean(b));
-    const floors: Array<number | undefined> = kette.schritte.map(() => undefined);
+    const floors: Array<number | undefined> = steps.map(() => undefined);
     for (const b of mentioned) {
       if (rahmen(b, a)) continue;
       // Prefer the step whose target the method delivers directly, main phases first; otherwise the first step it can serve.
-      const fits = kette.schritte
+      const fits = steps
         .map((st, i) => ({ st, i }))
         .filter(
           ({ st, i }) =>
@@ -924,17 +1017,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A single session cannot hold repetitions that are days apart: they are planned for later sessions.
     const recurrenceOutside = totalBudget != null && totalBudget <= SINGLE_SESSION_MAX_MIN;
     const reserveRec = wantsRecurrence && !recurrenceOutside && totalBudget != null && totalBudget >= 75 ? 15 : 0;
-    const budgets = totalBudget != null ? phaseBudgets(kette.schritte, totalBudget - reserveRec, floors) : null;
+    const budgets = totalBudget != null ? phaseBudgets(steps, totalBudget - reserveRec, floors, minStep) : null;
     const anchoredAt = new Map<string, string>();
 
-    kette.schritte.forEach((step, idx) => {
+    steps.forEach((step, idx) => {
       currentStepIndex = idx;
+      currentStepRole = step.id === checkStepId ? 'pruefung' : step.rolle || '';
       // Share of this step plus whatever earlier steps left unused.
       const plannedBefore = budgets ? budgets.slice(0, idx).reduce((x, y) => x + y, 0) : 0;
-      const stepCap = budgets ? Math.max(5, budgets[idx] + Math.max(0, plannedBefore - usedDurationSoFar())) : undefined;
-      const reservedAfter = kette.schritte.slice(idx + 1).reduce((x, _st, k) => x + Math.max(5, floors[idx + 1 + k] ?? 0), 0);
+      const stepCap = budgets ? Math.max(minStep, budgets[idx] + Math.max(0, plannedBefore - usedDurationSoFar())) : undefined;
+      const reservedAfter = steps.slice(idx + 1).reduce((x, _st, k) => x + Math.max(minStep, floors[idx + 1 + k] ?? 0), 0);
       const hardCap =
-        totalBudget != null ? Math.max(5, totalBudget - reserveRec - usedDurationSoFar() - reservedAfter) : undefined;
+        totalBudget != null ? Math.max(minStep, totalBudget - reserveRec - usedDurationSoFar() - reservedAfter) : undefined;
       const primaryCands = candidates(step.funktion, 3, a, used, step.ziel, stepCap, varietyPenaltyOf, hardCap);
       // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
       // reaching step.ziel, include any valid method that delivers step.ziel directly.
@@ -949,7 +1043,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           )
           .map((b) => rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b), hardCap))
       );
-      const cands = primaryCands.concat(fallbackCands);
+      const isCheck = (b: Baustein) => b.lernfunktion[0] === 'diagnose';
+      const cands =
+        step.id === checkStepId
+          ? [...primaryCands.filter(isCheck), ...primaryCands.filter((b) => !isCheck(b)), ...fallbackCands]
+          : primaryCands.concat(fallbackCands);
       let chosen: EinsatzNode | null = null;
       for (const b of cands) {
         for (const onlyMandatory of [true, false]) {
@@ -959,7 +1057,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
               ? Math.max(b.dauerMin, Math.min(b.dauerMax, stepCap, hardCap))
               : midDuration(b);
           const n = fill(
-            { typ: 'Einsatz', baustein: b.kennung, dauerMin: initialDur, kettenschritt: step.id },
+            // An added step (a check the chain does not have) carries no chain step id.
+            { typ: 'Einsatz', baustein: b.kennung, dauerMin: initialDur, ...(step.zusatz ? {} : { kettenschritt: step.id }) },
             b,
             onlyMandatory
           );
@@ -1002,6 +1101,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     });
 
     currentStepIndex = -1;
+    currentStepRole = '';
     if (wantsRecurrence) {
       const recCands = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert');
       const rec =
@@ -1162,6 +1262,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentMentions = new Set(given(anfrage.text) ? mentionDetector.detect(String(anfrage.text)).map((m) => m.kennung) : []);
       currentSeed = topicSeed(currentRawText);
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
+      currentNegatedInteractions = negatedInteractions(currentRawText);
       // Equipment counts as "asked for" when the request states it, wants digital methods or runs online.
       currentTechAsked =
         given(a.maxTechnik) ||
@@ -1172,7 +1273,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         /\b(?:digital\w*|online|ki|internet|app|apps)\b/.test(currentRawText);
       const fromText = (feld: string) => (given(anfrage[feld]) ? undefined : gelesen.erkannt.find((e) => e.feld === feld));
       const guessedFn = Boolean(fromText('lernfunktion')?.beleg.startsWith('semantisch'));
-      const hasPhase = (list(a.lernfunktion).length && !guessedFn) || list(a.liefert).length;
+      // "… mit anschließender Leistungskontrolle, 45 Minuten" plans a lesson that ends with a check, not the check alone.
+      const checkInLesson = Boolean(fromText('liefert')) && given(a.zeitMin) && Number(a.zeitMin) >= 30;
+      const hasPhase = (list(a.lernfunktion).length && !guessedFn) || (list(a.liefert).length && !checkInLesson);
       const isFullLessonBudget = given(a.zeitMin) && Number(a.zeitMin) >= 45;
       // A stated lesson length without an explicit phase word ("Einstieg", "Sicherung") means a whole lesson.
       const isLessonWithoutPhaseWord = given(anfrage.text) && given(a.zeitMin) && Number(a.zeitMin) >= 40 && !hasPhase;
@@ -1180,7 +1283,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         a.modus ||
         ((given(a.zieltyp) && !zieltypFromText) ||
         ((a.zielart || a.zieltyp) && (!hasPhase || isFullLessonBudget)) ||
-        isLessonWithoutPhaseWord
+        isLessonWithoutPhaseWord ||
+        checkInLesson
           ? 'ablauf'
           : 'phase');
       const head = {
@@ -1216,6 +1320,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           hinweis: 'Kein Zieltyp bestimmbar. Bitte zieltyp angeben: ' + data.ketten.map((k) => k.id).join(', ') + '.'
         });
       }
+      currentPraxis = (ketten[0].zielart || []).includes('psychomotorik');
+      // Too little time for the chain's phases (at least five minutes each): offer methods for one phase instead.
+      const phasen = planSteps(ketten[0], a).length;
+      if (!given(a.modus) && given(a.zeitMin) && phasen * 5 > Number(a.zeitMin)) {
+        return Object.assign(head, phase(a, { zielart: Boolean(fromText('zielart')), lernfunktion: guessedFn }), {
+          hinweis: `${Number(a.zeitMin)} Minuten reichen nicht für einen Ablauf „${ketten[0].label}“ mit ${phasen} Phasen. Vorschläge für eine einzelne Phase; für einen verkürzten Ablauf modus „ablauf“ angeben.`
+        });
+      }
       const res = ablauf(a, ketten[0]);
       return Object.assign(head, res, {
         weitereKetten: ketten.slice(1).map((k) => ({ id: k.id, label: k.label }))
@@ -1230,6 +1342,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentVariante = 0;
       currentTechAsked = false;
       currentArea = '';
+      currentNegatedInteractions = new Set();
+      currentPraxis = false;
+      currentStepRole = '';
     }
   }
 

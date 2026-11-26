@@ -433,6 +433,8 @@ export interface MatchHead {
 
 export interface PhaseMatchResult extends MatchHead {
   modus: 'phase';
+  /** Why a single phase is offered although a sequence was likely meant (e.g. too little time). */
+  hinweis?: string;
   vorschlaege: PhaseProposal[];
   ausgeschlossen: {
     funktion: number;
