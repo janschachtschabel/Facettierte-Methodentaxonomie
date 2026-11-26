@@ -18,3 +18,4 @@ export type { DetectedSubject, FmtSubjectDetector, OehSubject, OehSubjectCrosswa
 export * from './kennung.js';
 export * from './technik.js';
 export { raumBietet, raumFehlt, nutztRaum, schriftFehlt } from './einsatzprofil.js';
+export * from './raster.js';

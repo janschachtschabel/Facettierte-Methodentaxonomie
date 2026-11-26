@@ -21,17 +21,19 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
   const D = loadFmtData(DATA_DIR);
   const NS = D.NS;
 
-  it('Ontologie nennt je Eigenschaft die Ebene und enthält keine skos:Collection', () => {
+  it('Ontologie nennt je Eigenschaft W-Feld und Aussageart und enthält keine skos:Collection', () => {
     const text = read('ontologie.ttl');
     expect(text).not.toMatch(/skos:Collection/);
     const quads = new Parser().parse(text);
-    const ebene = (p: string) =>
-      quads.find((q) => q.subject.value === NS + 'ns#' + p && q.predicate.value === NS + 'ns#ebene')?.object.value;
-    expect(ebene('fachbereich')).toBe('eignung');
-    expect(ebene('lernfunktion')).toBe('bauweise');
-    expect(ebene('dauerMin')).toBe('bedarf');
-    expect(ebene('vorbereitungMin')).toBe('bedarf');
-    expect(ebene('ebene')).toBeUndefined();
+    const wert = (p: string, praed: string) =>
+      quads.find((q) => q.subject.value === NS + 'ns#' + p && q.predicate.value === NS + 'ns#' + praed)?.object.value;
+    expect(wert('fachbereich', 'wfeld')).toBe('lerninhalte');
+    expect(wert('fachbereich', 'aussageart')).toBe('einordnung');
+    expect(wert('lernfunktion', 'wfeld')).toBe('lernziele');
+    expect(wert('lernfunktion', 'aussageart')).toBe('bauweise');
+    expect(wert('dauerMin', 'wfeld')).toBe('zeit');
+    expect(wert('vorbereitungMin', 'aussageart')).toBe('bedarf');
+    expect(text).not.toMatch(/fmt:ebene/);
   });
 
   it('parses all SKOS vocabularies and ontology as valid Turtle with creator & CC-BY 4.0 license', () => {
@@ -147,7 +149,8 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
       version: bundle.version,
       schemes: bundle.schemes,
       facetten: bundle.facetten,
-      ebenen: bundle.ebenen,
+      wfelder: bundle.wfelder,
+      arten: bundle.arten,
       merkmale: bundle.merkmale,
       ketten: bundle.ketten,
       bausteine: bundle.bausteine,

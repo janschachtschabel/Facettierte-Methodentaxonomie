@@ -32,7 +32,7 @@ describe('Einsatzprofil in der Oberfläche', () => {
       </MemoryRouter>
     );
     expect(screen.getByRole('heading', { name: 'Einsatzprofil: Bedarf und Eignung' })).toBeTruthy();
-    for (const id of ['BD1', 'BD6', 'EG3']) expect(screen.getByText(id)).toBeTruthy();
+    for (const feld of ['raumbedarf', 'schriftbedarf', 'fachbereichUngeeignet']) expect(screen.getByText(feld)).toBeTruthy();
     expect(screen.queryByText(/Ergänzende Merkmale/)).toBeNull();
     expect(screen.queryByText(/Bedingungsraum/)).toBeNull();
   });

@@ -65,6 +65,14 @@ export interface VocabValue {
   broadMatch?: string | string[];
   /** Room type only: room properties it offers (vocab raumbedarf). */
   bietet?: string[];
+  /** Room type only: kind of special equipment it offers (vocab fachausstattungart). */
+  fachausstattungArt?: string;
+  /** Zielart only: knowledge types (D1) it stands for. */
+  wissensart?: string[];
+  /** Zielart only: forms of proof (vocab nachweisform) that go with it. */
+  nachweis?: string[];
+  /** Reading of the value per context (text or by key). */
+  lesart?: Record<string, string> | string;
 }
 
 export interface VocabGroup {
@@ -81,27 +89,35 @@ export interface Scheme {
   gruppen?: VocabGroup[];
 }
 
-/** Level of the method description: Bauweise (13 facets), Einsatzprofil (Bedarf, Eignung) and the rest. */
-export type EbeneId = 'bauweise' | 'bedarf' | 'eignung' | 'verknuepfung' | 'beleg' | 'beschreibung' | 'einordnung' | 'verwaltung';
-export interface EbeneMeta {
-  id: EbeneId;
+/** Effect of a statement on the assignment. */
+export type Wirkung = 'schliesst-aus' | 'warnt' | 'ordnet' | 'weist-hin';
+/** Basis of a statement: formal (readable), law, or E (evidence), S (inferred), A (set). */
+export type Grundlage = 'formal' | 'Recht' | 'E' | 'S' | 'A' | 'U';
+/** One of the nine W-fields (what, who, where, ...). */
+export interface WFeld {
+  id: string;
   name: string;
   frage: string;
-  felder: string[];
+  planung: 'gegeben' | 'vorschlag';
 }
-export type MerkmalWirkung = 'schliesst-aus' | 'warnt' | 'ordnet';
-/** One attribute of the Einsatzprofil: Bedarf (BD1–BD6) or Eignung (EG1–EG3). */
-export interface MerkmalMeta {
-  id: string;
-  art: 'bedarf' | 'eignung';
+/** One of the five kinds of statements about a method. */
+export interface Aussageart {
+  id: 'bauweise' | 'beitrag' | 'bedarf' | 'eignung' | 'einordnung';
   name: string;
-  leitfrage: string;
-  felder: string[];
-  form: string;
-  wirkung: MerkmalWirkung[];
-  /** Effect in words, as in the spec. */
-  wirkungText: string;
-  grundlage: 'formal' | 'E' | 'S' | 'A' | 'je-eintrag';
+  aussage: string;
+  wirkung: string;
+}
+/** One attribute of a method in the W-grid: a field at the method, its W-field, kind and counterpart in the situation. */
+export interface Merkmal {
+  /** Field name at the method, e.g. 'raumbedarf' or 'dauerMin'. */
+  feld: string;
+  wfeld: string;
+  art: Aussageart['id'];
+  /** Request fields that are the counterpart in the situation. */
+  situation: string[];
+  wirkung: Wirkung;
+  grundlage: Grundlage;
+  regel?: string;
 }
 
 export interface FacetMeta {
@@ -226,8 +242,18 @@ export interface Baustein {
   lernort?: string[];
   /** BD1: room properties the method needs (vocab raumbedarf); all must be met, empty = no special need. */
   raumbedarf?: string[];
+  /** Kind of special equipment the method needs; set only when a core component fixes it (vocab fachausstattungart). */
+  fachausstattungArt?: string;
   /** BD6: whether learners read or write text (vocab schriftbedarf). */
   schriftbedarf?: string[];
+  /** Number of sessions the method needs at least. */
+  termineMin?: number;
+  /** Kind of entry: a method carries a phase; a Hilfe supports learners within a method. */
+  eintragsart?: 'methode' | 'hilfe';
+  /** Reasons for the Eignung statements, per attribute, with their basis. */
+  eignungsgrund?: Partial<Record<'stufe' | 'vorwissen' | 'fachbereich', { text: string; grundlage: 'E' | 'S' | 'A'; quelle?: string }>>;
+  /** Prior knowledge levels the method does not fit (replaces geeignetBeiVorwissen). */
+  ungeeignetBeiVorwissen?: string[];
   geeignetBeiVorwissen?: string[];
   ungeeignetBeiStufe?: string[];
   problem: string;
@@ -352,8 +378,9 @@ export interface FmtData {
   repository?: string;
   schemes: Scheme[];
   facetten: FacetMeta[];
-  ebenen: EbeneMeta[];
-  merkmale: MerkmalMeta[];
+  wfelder: WFeld[];
+  arten: Aussageart[];
+  merkmale: Merkmal[];
   ketten: Funktionskette[];
   bausteine: Baustein[];
   beispiele: Arrangement[];
@@ -550,8 +577,9 @@ export interface CatalogBundle {
   repository: string;
   schemes: Scheme[];
   facetten: FacetMeta[];
-  ebenen: EbeneMeta[];
-  merkmale: MerkmalMeta[];
+  wfelder: WFeld[];
+  arten: Aussageart[];
+  merkmale: Merkmal[];
   ketten: Funktionskette[];
   bausteine: Baustein[];
   beispiele: Arrangement[];

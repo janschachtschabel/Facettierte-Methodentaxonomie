@@ -200,12 +200,15 @@ export function ontologyTtl(D: FmtData): string {
   nodeTypes.forEach(([c, d]) => {
     out += `fmt:${c} a rdfs:Class ;\n  rdfs:subClassOf fmt:Knoten ;\n  rdfs:label ${lit(c)}@de ;\n  rdfs:comment ${lit(d)}@de .\n\n`;
   });
-  // Level of the method description each property belongs to (data/vocab.json, ebenen).
-  const ebeneVon = new Map(D.ebenen.flatMap((e) => e.felder.map((f) => [f, e.id] as const)));
-  const ebene = (p: string) => (ebeneVon.has(p) ? ` ;\n  fmt:ebene ${lit(ebeneVon.get(p)!)}` : '');
-  out += `fmt:ebene a rdf:Property ;\n  rdfs:label ${lit('Ebene')}@de ;\n  rdfs:range xsd:string ;\n  rdfs:comment ${lit('Ebene der Methodenbeschreibung: bauweise, bedarf, eignung, verknuepfung, beleg, beschreibung, einordnung, verwaltung')}@de .\n\n`;
+  // W-field and kind of statement each property belongs to (data/vocab.json, merkmale).
+  const wfeld = (p: string) => {
+    const m = D.merkmale.find((x) => x.feld === p);
+    return m ? ` ;\n  fmt:wfeld ${lit(m.wfeld)} ;\n  fmt:aussageart ${lit(m.art)}` : '';
+  };
+  out += `fmt:wfeld a rdf:Property ;\n  rdfs:label ${lit('W-Feld')}@de ;\n  rdfs:range xsd:string ;\n  rdfs:comment ${lit('W-Feld der Methodenbeschreibung: ' + D.wfelder.map((w) => w.id).join(', '))}@de .\n\n`;
+  out += `fmt:aussageart a rdf:Property ;\n  rdfs:label ${lit('Aussageart')}@de ;\n  rdfs:range xsd:string ;\n  rdfs:comment ${lit('Art der Aussage über die Methode: ' + D.arten.map((a) => a.id).join(', '))}@de .\n\n`;
   VOCAB_PROPS.forEach(([p, s]) => {
-    out += `fmt:${p} a rdf:Property ;\n  rdfs:label ${lit(p)}@de ;\n  rdfs:range skos:Concept ;\n  rdfs:comment ${lit('Werte aus ' + NS + 'vocab/' + s + '/')}@de${ebene(p)} .\n\n`;
+    out += `fmt:${p} a rdf:Property ;\n  rdfs:label ${lit(p)}@de ;\n  rdfs:range skos:Concept ;\n  rdfs:comment ${lit('Werte aus ' + NS + 'vocab/' + s + '/')}@de${wfeld(p)} .\n\n`;
   });
   // Numbers, flags and notes of the Einsatzprofil and the description.
   const literalProps: Array<[string, string]> = [
@@ -222,7 +225,7 @@ export function ontologyTtl(D: FmtData): string {
     ['betreuungshinweis', 'xsd:string']
   ];
   literalProps.forEach(([p, t]) => {
-    out += `fmt:${p} a rdf:Property ;\n  rdfs:domain fmt:Baustein ;\n  rdfs:range ${t}${ebene(p)} .\n\n`;
+    out += `fmt:${p} a rdf:Property ;\n  rdfs:domain fmt:Baustein ;\n  rdfs:range ${t}${wfeld(p)} .\n\n`;
   });
   STEUERUNG_DIMS.forEach((d) => {
     out += `fmt:steuerung_${d} a rdf:Property ;\n  rdfs:domain fmt:Steuerungsprofil ;\n  rdfs:range skos:Concept ;\n  rdfs:label ${lit('Steuerung ' + d)}@de .\n\n`;
@@ -669,7 +672,8 @@ export function buildAllArtefacts(rootDir: string) {
     version: D.VERSION,
     schemes: D.schemes,
     facetten: D.facetten,
-    ebenen: D.ebenen,
+    wfelder: D.wfelder,
+    arten: D.arten,
     merkmale: D.merkmale,
     ketten: D.ketten,
     bausteine: D.bausteine,
@@ -691,7 +695,8 @@ export function buildAllArtefacts(rootDir: string) {
     repository: D.repository || 'https://github.com/janschachtschabel/Facettierte-Methodentaxonomie',
     schemes: D.schemes,
     facetten: D.facetten,
-    ebenen: D.ebenen,
+    wfelder: D.wfelder,
+    arten: D.arten,
     merkmale: D.merkmale,
     ketten: D.ketten,
     bausteine: D.bausteine,

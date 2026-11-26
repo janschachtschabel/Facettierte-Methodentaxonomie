@@ -1221,7 +1221,7 @@
     {
       "id": "raumbedarf",
       "titel": "Raumbedarf",
-      "beschreibung": "Bedarf (BD1): Raumeigenschaften, die eine Methode braucht. Alle Einträge müssen erfüllt sein; leer heißt: keine besondere Anforderung an den Raum.",
+      "beschreibung": "Raumeigenschaften, die eine Methode braucht (Lernumgebung). Alle Einträge müssen erfüllt sein; leer heißt: kein besonderer Bedarf an den Raum.",
       "werte": [
         {
           "id": "schreibplatz",
@@ -1258,7 +1258,7 @@
     {
       "id": "raumtyp",
       "titel": "Raumtyp",
-      "beschreibung": "Rahmenbedingung des Szenarios: Art des Raums, in dem die Stunde stattfindet. Jeder Raumtyp bietet Raumeigenschaften, gegen die der Raumbedarf (BD1) der Methoden geprüft wird.",
+      "beschreibung": "Rahmenbedingung des Szenarios: Art des Raums, in dem gelernt wird. Jeder Raumtyp bietet Raumeigenschaften, gegen die der Raumbedarf der Methoden geprüft wird; ein Raumtyp ist eine Vorbelegung, die Eigenschaften sind in der Situation überschreibbar. Der Wert fachraum bleibt für ältere Aufrufe und nennt keine Art der Fachausstattung.",
       "werte": [
         {
           "id": "klassenraum",
@@ -1275,8 +1275,21 @@
           ]
         },
         {
+          "id": "hoersaal",
+          "label": "Hörsaal",
+          "definition": "Großer Raum mit fester Bestuhlung, kaum Platz für Bewegung oder Umstellen",
+          "alt": [
+            "Vorlesungssaal",
+            "Aula mit fester Bestuhlung"
+          ],
+          "bietet": [
+            "schreibplatz",
+            "wandflaeche"
+          ]
+        },
+        {
           "id": "bewegungsraum",
-          "label": "Sporthalle oder Bewegungsfläche",
+          "label": "Sporthalle, Sportplatz",
           "definition": "Sporthalle, Gymnastikraum, Aula oder freie Fläche, auf der sich alle bewegen können",
           "alt": [
             "Turnhalle",
@@ -1286,7 +1299,132 @@
           ],
           "bietet": [
             "stellflaeche",
-            "bewegungsflaeche"
+            "bewegungsflaeche",
+            "fachausstattung"
+          ],
+          "fachausstattungArt": "sport"
+        },
+        {
+          "id": "fachraum-nawi",
+          "label": "Fachraum Naturwissenschaften",
+          "bietet": [
+            "schreibplatz",
+            "stellflaeche",
+            "wandflaeche",
+            "fachausstattung"
+          ],
+          "fachausstattungArt": "labor",
+          "definition": "Fachraum mit Labor- oder Experimentierausstattung",
+          "alt": [
+            "Labor",
+            "Physikraum",
+            "Chemieraum",
+            "Biologieraum"
+          ]
+        },
+        {
+          "id": "musikraum",
+          "label": "Musikraum",
+          "bietet": [
+            "stellflaeche",
+            "wandflaeche",
+            "fachausstattung"
+          ],
+          "fachausstattungArt": "musik",
+          "definition": "Raum mit Instrumenten und Platz zum Musizieren",
+          "alt": [
+            "Musiksaal",
+            "Probenraum"
+          ]
+        },
+        {
+          "id": "werkraum",
+          "label": "Kunst- oder Werkraum, Werkstatt",
+          "bietet": [
+            "schreibplatz",
+            "stellflaeche",
+            "fachausstattung"
+          ],
+          "fachausstattungArt": "werkstatt",
+          "definition": "Kunst- oder Werkraum, Werkstatt mit Werkzeugen und Arbeitsplätzen",
+          "alt": [
+            "Kunstraum",
+            "Werkstatt",
+            "Technikraum"
+          ]
+        },
+        {
+          "id": "lehrkueche",
+          "label": "Lehrküche",
+          "bietet": [
+            "stellflaeche",
+            "fachausstattung"
+          ],
+          "fachausstattungArt": "kueche",
+          "definition": "Küche für den Unterricht mit Herden und Arbeitsflächen",
+          "alt": [
+            "Schulküche",
+            "Küche"
+          ]
+        },
+        {
+          "id": "computerraum",
+          "label": "Computerraum",
+          "bietet": [
+            "schreibplatz",
+            "wandflaeche",
+            "fachausstattung"
+          ],
+          "fachausstattungArt": "rechner",
+          "definition": "Raum mit Rechnern an festen Arbeitsplätzen",
+          "alt": [
+            "PC-Raum",
+            "Medienraum",
+            "Rechnerraum"
+          ]
+        },
+        {
+          "id": "draussen",
+          "label": "Außengelände",
+          "definition": "Schulhof, Gelände, Natur, Betrieb, Museum oder anderer Ort außerhalb des Unterrichtsraums",
+          "alt": [
+            "Schulhof",
+            "im Freien",
+            "Exkursion",
+            "außerschulischer Lernort"
+          ],
+          "bietet": [
+            "stellflaeche",
+            "bewegungsflaeche",
+            "aussenort"
+          ]
+        },
+        {
+          "id": "ausserschulisch",
+          "label": "Außerschulischer Ort, Arbeitsplatz im Betrieb",
+          "bietet": [
+            "aussenort"
+          ],
+          "definition": "Betrieb, Museum oder anderer Ort außerhalb der Schule; weitere Eigenschaften nach Angabe",
+          "alt": [
+            "Betrieb",
+            "Museum",
+            "Arbeitsplatz im Betrieb",
+            "Exkursionsort"
+          ]
+        },
+        {
+          "id": "digital",
+          "label": "Digitaler Raum",
+          "bietet": [
+            "schreibplatz"
+          ],
+          "definition": "Online-Raum für Distanz- oder Fernlernen; jede Person hat ihren eigenen Platz",
+          "alt": [
+            "online",
+            "Distanz",
+            "virtueller Raum",
+            "Videokonferenz"
           ]
         },
         {
@@ -1307,42 +1445,13 @@
             "wandflaeche",
             "fachausstattung"
           ]
-        },
-        {
-          "id": "draussen",
-          "label": "Draußen oder außerschulischer Ort",
-          "definition": "Schulhof, Gelände, Natur, Betrieb, Museum oder anderer Ort außerhalb des Unterrichtsraums",
-          "alt": [
-            "Schulhof",
-            "im Freien",
-            "Exkursion",
-            "außerschulischer Lernort"
-          ],
-          "bietet": [
-            "stellflaeche",
-            "bewegungsflaeche",
-            "aussenort"
-          ]
-        },
-        {
-          "id": "hoersaal",
-          "label": "Hörsaal",
-          "definition": "Großer Raum mit fester Bestuhlung, kaum Platz für Bewegung oder Umstellen",
-          "alt": [
-            "Vorlesungssaal",
-            "Aula mit fester Bestuhlung"
-          ],
-          "bietet": [
-            "schreibplatz",
-            "wandflaeche"
-          ]
         }
       ]
     },
     {
       "id": "schriftbedarf",
       "titel": "Schriftbedarf",
-      "beschreibung": "Bedarf (BD6): ob die Lernenden in der Methode Text lesen oder schreiben. Wer schreibt, braucht in der Regel einen Schreibplatz.",
+      "beschreibung": "Ob die Lernenden in der Methode Text lesen oder schreiben. Wer schreibt, braucht in der Regel einen Schreibplatz.",
       "werte": [
         {
           "id": "liest",
@@ -1353,6 +1462,175 @@
           "id": "schreibt",
           "label": "Schreiben",
           "definition": "Lernende schreiben Text"
+        }
+      ]
+    },
+    {
+      "id": "fachausstattungart",
+      "titel": "Art der Fachausstattung",
+      "beschreibung": "Welche Fachausstattung ein Raumtyp bietet oder eine Methode über eine Kernkomponente verlangt.",
+      "werte": [
+        {
+          "id": "sport",
+          "label": "Sport",
+          "definition": "Geräte und Anlagen für Sport und Bewegung"
+        },
+        {
+          "id": "musik",
+          "label": "Musik",
+          "definition": "Instrumente und Anlagen zum Musizieren"
+        },
+        {
+          "id": "labor",
+          "label": "Labor",
+          "definition": "Ausstattung zum Experimentieren in den Naturwissenschaften"
+        },
+        {
+          "id": "werkstatt",
+          "label": "Werkstatt",
+          "definition": "Werkzeuge und Maschinen zum Bauen und Herstellen"
+        },
+        {
+          "id": "kueche",
+          "label": "Küche",
+          "definition": "Herde, Geräte und Arbeitsflächen zum Kochen"
+        },
+        {
+          "id": "rechner",
+          "label": "Rechner",
+          "definition": "Rechner an Arbeitsplätzen"
+        }
+      ]
+    },
+    {
+      "id": "eintragsart",
+      "titel": "Eintragsart",
+      "beschreibung": "Was ein Eintrag im Katalog ist.",
+      "werte": [
+        {
+          "id": "methode",
+          "label": "Methode",
+          "definition": "trägt eine Phase und liefert einen Lernstand"
+        },
+        {
+          "id": "hilfe",
+          "label": "Hilfe",
+          "definition": "stützt Lernende innerhalb einer Methode; liefert keinen Lernstand; wird wieder abgebaut"
+        }
+      ]
+    },
+    {
+      "id": "nachweisform",
+      "titel": "Nachweisform",
+      "beschreibung": "Woran sich ein Lernerfolg zeigt.",
+      "werte": [
+        {
+          "id": "schriftlich",
+          "label": "schriftlich",
+          "definition": "Lernende zeigen den Erfolg in einem Text oder einer schriftlichen Aufgabe"
+        },
+        {
+          "id": "muendlich",
+          "label": "mündlich",
+          "definition": "Lernende zeigen den Erfolg im Gespräch, Vortrag oder in einer Antwort"
+        },
+        {
+          "id": "praktisch",
+          "label": "praktisch",
+          "definition": "Lernende zeigen den Erfolg durch Vorführen oder Ausführen einer Tätigkeit"
+        },
+        {
+          "id": "produkt",
+          "label": "Produkt",
+          "definition": "Lernende zeigen den Erfolg an einem hergestellten Werk oder Ergebnis"
+        }
+      ]
+    },
+    {
+      "id": "zielart",
+      "titel": "Zielart",
+      "beschreibung": "Art des Lernziels; legt fest, welche Wissensarten (D1) und welche Nachweisformen dazugehören.",
+      "werte": [
+        {
+          "id": "fakten",
+          "label": "Faktenwissen",
+          "wissensart": [
+            "fakten"
+          ]
+        },
+        {
+          "id": "konzepte",
+          "label": "Konzepte verstehen",
+          "wissensart": [
+            "konzepte"
+          ]
+        },
+        {
+          "id": "prozeduren",
+          "label": "Verfahren beherrschen",
+          "wissensart": [
+            "prozeduren"
+          ]
+        },
+        {
+          "id": "problemloesen",
+          "label": "Problemlösen und Transfer",
+          "wissensart": [
+            "konzepte",
+            "prozeduren"
+          ]
+        },
+        {
+          "id": "bewegung",
+          "label": "Bewegung und praktische Fertigkeit",
+          "wissensart": [
+            "psychomotorik"
+          ],
+          "nachweis": [
+            "praktisch"
+          ]
+        },
+        {
+          "id": "kondition",
+          "label": "Kondition",
+          "wissensart": [
+            "psychomotorik"
+          ],
+          "nachweis": [
+            "praktisch"
+          ]
+        },
+        {
+          "id": "urteilen",
+          "label": "Urteilen und Werten, auch Werkbetrachtung",
+          "wissensart": [
+            "einstellungen",
+            "konzepte"
+          ]
+        },
+        {
+          "id": "gestalten",
+          "label": "Gestalten und Produzieren",
+          "wissensart": [
+            "prozeduren",
+            "konzepte",
+            "psychomotorik"
+          ],
+          "nachweis": [
+            "produkt",
+            "praktisch"
+          ]
+        },
+        {
+          "id": "handlung",
+          "label": "Berufliche Handlung",
+          "wissensart": [
+            "prozeduren",
+            "psychomotorik"
+          ],
+          "nachweis": [
+            "praktisch"
+          ]
         }
       ]
     }
@@ -1515,262 +1793,452 @@
       "schliesst": "Statik: Methoden als Zustände statt als Abfolgen"
     }
   ],
-  "ebenen": [
+  "merkmale": [
+    {
+      "feld": "nachbedingung",
+      "wfeld": "lernziele",
+      "art": "beitrag",
+      "situation": [
+        "zielart",
+        "zieltyp",
+        "liefert"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "aufgabe",
+      "wfeld": "lernziele",
+      "art": "bauweise",
+      "situation": [
+        "zielart"
+      ],
+      "wirkung": "ordnet",
+      "grundlage": "S",
+      "regel": "zielart-bindung"
+    },
+    {
+      "feld": "lernfunktion",
+      "wfeld": "lernziele",
+      "art": "bauweise",
+      "situation": [
+        "lernfunktion"
+      ],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "fachbereich",
+      "wfeld": "lerninhalte",
+      "art": "einordnung",
+      "situation": [
+        "fach"
+      ],
+      "wirkung": "ordnet",
+      "grundlage": "A"
+    },
+    {
+      "feld": "fachbereichUngeeignet",
+      "wfeld": "lerninhalte",
+      "art": "eignung",
+      "situation": [
+        "fach"
+      ],
+      "wirkung": "warnt",
+      "grundlage": "A"
+    },
+    {
+      "feld": "gruppeMin",
+      "wfeld": "lernende",
+      "art": "bedarf",
+      "situation": [
+        "gruppe"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "gruppeMax",
+      "wfeld": "lernende",
+      "art": "bedarf",
+      "situation": [
+        "gruppe"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "teamMin",
+      "wfeld": "lernende",
+      "art": "bedarf",
+      "situation": [
+        "gruppe"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "teamMax",
+      "wfeld": "lernende",
+      "art": "bedarf",
+      "situation": [
+        "gruppe"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "vorbedingung",
+      "wfeld": "lernende",
+      "art": "bedarf",
+      "situation": [
+        "vorhanden"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "schriftbedarf",
+      "wfeld": "lernende",
+      "art": "bedarf",
+      "situation": [
+        "ohneSchrift"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "ungeeignetBeiStufe",
+      "wfeld": "lernende",
+      "art": "eignung",
+      "situation": [
+        "bildungsstufe"
+      ],
+      "wirkung": "warnt",
+      "grundlage": "A"
+    },
+    {
+      "feld": "vorbereitungMin",
+      "wfeld": "lernbegleitung",
+      "art": "bedarf",
+      "situation": [
+        "maxVorbereitung"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "raumbedarf",
+      "wfeld": "lernumgebung",
+      "art": "bedarf",
+      "situation": [
+        "raum"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "fachausstattungArt",
+      "wfeld": "lernumgebung",
+      "art": "bedarf",
+      "situation": [
+        "raum"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "raumzeit",
+      "wfeld": "lernumgebung",
+      "art": "bauweise",
+      "situation": [
+        "raumzeit"
+      ],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "dauerMin",
+      "wfeld": "zeit",
+      "art": "bedarf",
+      "situation": [
+        "zeitMin"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "dauerMax",
+      "wfeld": "zeit",
+      "art": "bedarf",
+      "situation": [
+        "zeitMin"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "termineMin",
+      "wfeld": "zeit",
+      "art": "bedarf",
+      "situation": [
+        "termine"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "technik",
+      "wfeld": "medien",
+      "art": "bedarf",
+      "situation": [
+        "maxTechnik"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "internet",
+      "wfeld": "medien",
+      "art": "bedarf",
+      "situation": [
+        "ohneInternet"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "ki",
+      "wfeld": "medien",
+      "art": "bedarf",
+      "situation": [
+        "ohneKI"
+      ],
+      "wirkung": "schliesst-aus",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "material",
+      "wfeld": "medien",
+      "art": "bedarf",
+      "situation": [],
+      "wirkung": "weist-hin",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "feedback",
+      "wfeld": "ueberpruefung",
+      "art": "bauweise",
+      "situation": [
+        "nachweisform"
+      ],
+      "wirkung": "ordnet",
+      "grundlage": "S",
+      "regel": "nachweis-passt-zum-ziel"
+    },
+    {
+      "feld": "engagement",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "weltbezug",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "anleitung",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "steuerung",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "adaptivitaet",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "interaktion",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "repraesentation",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "rolle",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "sequenz",
+      "wfeld": "methode",
+      "art": "bauweise",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "formal"
+    },
+    {
+      "feld": "ansatz",
+      "wfeld": "lerninhalte",
+      "art": "einordnung",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "A"
+    },
+    {
+      "feld": "kategorie",
+      "wfeld": "methode",
+      "art": "einordnung",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "A"
+    },
+    {
+      "feld": "betreuungshinweis",
+      "wfeld": "lernbegleitung",
+      "art": "bedarf",
+      "situation": [],
+      "wirkung": "weist-hin",
+      "grundlage": "A"
+    },
+    {
+      "feld": "geeignetBeiVorwissen",
+      "wfeld": "lernende",
+      "art": "eignung",
+      "situation": [
+        "vorwissen"
+      ],
+      "wirkung": "warnt",
+      "grundlage": "A"
+    },
+    {
+      "feld": "ungeeignetBeiVorwissen",
+      "wfeld": "lernende",
+      "art": "eignung",
+      "situation": [
+        "vorwissen"
+      ],
+      "wirkung": "warnt",
+      "grundlage": "A"
+    }
+  ],
+  "wfelder": [
+    {
+      "id": "lernziele",
+      "name": "Lernziele",
+      "frage": "Wozu wird gelernt?",
+      "planung": "gegeben"
+    },
+    {
+      "id": "lerninhalte",
+      "name": "Lerninhalte",
+      "frage": "Was wird gelernt?",
+      "planung": "gegeben"
+    },
+    {
+      "id": "lernende",
+      "name": "Lernende",
+      "frage": "Wer lernt?",
+      "planung": "gegeben"
+    },
+    {
+      "id": "lernbegleitung",
+      "name": "Lernbegleitung",
+      "frage": "Mit wem, von wem?",
+      "planung": "gegeben"
+    },
+    {
+      "id": "lernumgebung",
+      "name": "Lernumgebung",
+      "frage": "Wo wird gelernt?",
+      "planung": "gegeben"
+    },
+    {
+      "id": "zeit",
+      "name": "Zeit",
+      "frage": "Wann und wie lange?",
+      "planung": "gegeben"
+    },
+    {
+      "id": "methode",
+      "name": "Lehr- und Lernmethode",
+      "frage": "Wie wird gelernt?",
+      "planung": "vorschlag"
+    },
+    {
+      "id": "medien",
+      "name": "Medien, Materialien, Werkzeuge",
+      "frage": "Womit wird gelernt?",
+      "planung": "vorschlag"
+    },
+    {
+      "id": "ueberpruefung",
+      "name": "Überprüfung und Feedback",
+      "frage": "Woran zeigt sich der Lernerfolg?",
+      "planung": "vorschlag"
+    }
+  ],
+  "arten": [
     {
       "id": "bauweise",
       "name": "Bauweise",
-      "frage": "Wie ist die Methode gebaut?",
-      "felder": [
-        "lernfunktion",
-        "engagement",
-        "weltbezug",
-        "anleitung",
-        "steuerung",
-        "adaptivitaet",
-        "feedback",
-        "interaktion",
-        "repraesentation",
-        "raumzeit",
-        "rolle",
-        "aufgabe",
-        "sequenz",
-        "reichweite",
-        "kernkomponente",
-        "slot",
-        "komposit"
-      ]
+      "aussage": "was in der Methode geschieht",
+      "wirkung": "ordnet nach Wunsch; schließt nur über eine Regel aus"
+    },
+    {
+      "id": "beitrag",
+      "name": "Beitrag",
+      "aussage": "welchen Lernstand die Methode liefert",
+      "wirkung": "wählt aus und schließt aus"
     },
     {
       "id": "bedarf",
-      "name": "Einsatzprofil: Bedarf",
-      "frage": "Was braucht sie?",
-      "felder": [
-        "lernort",
-        "dauerMin",
-        "dauerMax",
-        "gruppeMin",
-        "gruppeMax",
-        "teamMin",
-        "teamMax",
-        "technik",
-        "internet",
-        "ki",
-        "material",
-        "vorbereitungMin",
-        "schriftbedarf"
-      ]
+      "name": "Bedarf",
+      "aussage": "was die Methode braucht",
+      "wirkung": "schließt aus, wenn die Situation das Gegenstück nennt; sonst ordnet er"
     },
     {
       "id": "eignung",
-      "name": "Einsatzprofil: Eignung",
-      "frage": "Für wen und wo passt sie?",
-      "felder": [
-        "ungeeignetBeiStufe",
-        "geeignetBeiVorwissen",
-        "fachbereich",
-        "fachbereichUngeeignet"
-      ]
-    },
-    {
-      "id": "verknuepfung",
-      "name": "Verknüpfung",
-      "frage": "Wie schließt sie an?",
-      "felder": [
-        "vorbedingung",
-        "nachbedingung"
-      ]
-    },
-    {
-      "id": "beleg",
-      "name": "Beleg",
-      "frage": "Wie gut ist sie gestützt?",
-      "felder": [
-        "evidenz",
-        "qualitaetsrisiko"
-      ]
-    },
-    {
-      "id": "beschreibung",
-      "name": "Beschreibung",
-      "frage": "Wie wird sie durchgeführt?",
-      "felder": [
-        "name",
-        "alternativname",
-        "kurzbeschreibung",
-        "problem",
-        "durchfuehrung",
-        "variante",
-        "hinweis",
-        "raum",
-        "betreuungshinweis",
-        "piktogramm"
-      ]
+      "name": "Eignung",
+      "aussage": "für wen die Methode nicht passt; nur mit Begründung und Grundlage",
+      "wirkung": "warnt"
     },
     {
       "id": "einordnung",
       "name": "Einordnung",
-      "frage": "Wo steht sie im Katalog?",
-      "felder": [
-        "ansatz",
-        "kategorie",
-        "plot"
-      ]
-    },
-    {
-      "id": "verwaltung",
-      "name": "Verwaltung",
-      "frage": "",
-      "felder": [
-        "status",
-        "quellen",
-        "kennung"
-      ]
-    }
-  ],
-  "merkmale": [
-    {
-      "id": "BD1",
-      "art": "bedarf",
-      "name": "Raumbedarf",
-      "leitfrage": "Welche Raumeigenschaften braucht die Methode?",
-      "felder": [
-        "lernort"
-      ],
-      "form": "Liste „braucht“",
-      "wirkung": [
-        "schliesst-aus",
-        "ordnet"
-      ],
-      "wirkungText": "schließt aus, wenn das Szenario den Raum nennt; sonst ordnet",
-      "grundlage": "formal"
-    },
-    {
-      "id": "BD2",
-      "art": "bedarf",
-      "name": "Zeitbedarf",
-      "leitfrage": "Wie lange dauert sie?",
-      "felder": [
-        "dauerMin",
-        "dauerMax"
-      ],
-      "form": "Spanne",
-      "wirkung": [
-        "schliesst-aus"
-      ],
-      "wirkungText": "schließt aus",
-      "grundlage": "formal"
-    },
-    {
-      "id": "BD3",
-      "art": "bedarf",
-      "name": "Gruppengröße",
-      "leitfrage": "Für wie viele Lernende und welche Teamgröße ist sie gebaut?",
-      "felder": [
-        "gruppeMin",
-        "gruppeMax",
-        "teamMin",
-        "teamMax"
-      ],
-      "form": "Spanne",
-      "wirkung": [
-        "schliesst-aus"
-      ],
-      "wirkungText": "schließt aus",
-      "grundlage": "formal"
-    },
-    {
-      "id": "BD4",
-      "art": "bedarf",
-      "name": "Ausstattungsbedarf",
-      "leitfrage": "Welche Geräte, welches Netz und welches Material braucht sie?",
-      "felder": [
-        "technik",
-        "internet",
-        "ki",
-        "material"
-      ],
-      "form": "Stufe, ja/nein, Text",
-      "wirkung": [
-        "schliesst-aus"
-      ],
-      "wirkungText": "schließt aus",
-      "grundlage": "formal"
-    },
-    {
-      "id": "BD5",
-      "art": "bedarf",
-      "name": "Vorbereitungsaufwand",
-      "leitfrage": "Wie viel Vorbereitung braucht die Lehrkraft?",
-      "felder": [
-        "vorbereitungMin"
-      ],
-      "form": "Minuten",
-      "wirkung": [
-        "schliesst-aus"
-      ],
-      "wirkungText": "schließt aus, wenn angegeben",
-      "grundlage": "formal"
-    },
-    {
-      "id": "BD6",
-      "art": "bedarf",
-      "name": "Schriftbedarf",
-      "leitfrage": "Müssen die Lernenden lesen oder schreiben?",
-      "felder": [
-        "schriftbedarf"
-      ],
-      "form": "Liste",
-      "wirkung": [
-        "schliesst-aus"
-      ],
-      "wirkungText": "schließt aus, wenn das Szenario „kann nicht lesen“ oder „kann nicht schreiben“ nennt",
-      "grundlage": "formal"
-    },
-    {
-      "id": "EG1",
-      "art": "eignung",
-      "name": "Bildungsstufe",
-      "leitfrage": "Für welche Bildungsstufen ist sie nicht vorgesehen?",
-      "felder": [
-        "ungeeignetBeiStufe"
-      ],
-      "form": "ungeeignet",
-      "wirkung": [
-        "warnt"
-      ],
-      "wirkungText": "warnt",
-      "grundlage": "je-eintrag"
-    },
-    {
-      "id": "EG2",
-      "art": "eignung",
-      "name": "Vorwissen",
-      "leitfrage": "Bei welchem Vorwissen ist sie nicht vorgesehen?",
-      "felder": [
-        "geeignetBeiVorwissen"
-      ],
-      "form": "ungeeignet",
-      "wirkung": [
-        "warnt"
-      ],
-      "wirkungText": "warnt",
-      "grundlage": "je-eintrag"
-    },
-    {
-      "id": "EG3",
-      "art": "eignung",
-      "name": "Fachbezug",
-      "leitfrage": "In welchen Fachbereichen ist sie typisch, in welchen unüblich?",
-      "felder": [
-        "fachbereich",
-        "fachbereichUngeeignet"
-      ],
-      "form": "typisch, ungeeignet",
-      "wirkung": [
-        "ordnet"
-      ],
-      "wirkungText": "ordnet; ungeeignet ordnet nach unten und zeigt einen Hinweis",
-      "grundlage": "S"
+      "aussage": "wo die Methode üblich ist",
+      "wirkung": "ordnet"
     }
   ]
 }

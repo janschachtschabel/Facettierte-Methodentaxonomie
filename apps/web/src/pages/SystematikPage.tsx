@@ -69,7 +69,15 @@ const GRUNDLAGE_TEXT: Record<string, string> = {
   E: 'belegt (E)',
   S: 'gefolgert (S)',
   A: 'gesetzt (A)',
-  'je-eintrag': 'je Eintrag'
+  U: 'Umsetzung (U)',
+  Recht: 'Recht'
+};
+
+const WIRKUNG_TEXT: Record<string, string> = {
+  'schliesst-aus': 'schließt aus',
+  warnt: 'warnt',
+  ordnet: 'ordnet',
+  'weist-hin': 'weist hin'
 };
 
 const ROLE_LABEL: Record<string, string> = { rand: 'Rand', haupt: 'Haupt', sicherung: 'Sicherung' };
@@ -574,8 +582,8 @@ export function SystematikPage() {
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
         <h2>Einsatzprofil: Bedarf und Eignung</h2>
         <p style={{ maxWidth: '76ch' }}>
-          Die 13 Facetten beschreiben, wie eine Methode gebaut ist. Das Einsatzprofil beschreibt, was sie braucht (Bedarf)
-          und für wen und wo sie passt (Eignung). Der Bedarf wird gegen die Rahmenbedingungen des Szenarios geprüft
+          Die 13 Facetten beschreiben, wie eine Methode gebaut ist (Bauweise). Das Einsatzprofil ordnet jedes Merkmal einem
+          der neun W-Felder zu und einer von fünf Arten der Aussage: Bauweise, Beitrag, Bedarf, Eignung oder Einordnung. Der Bedarf wird gegen die Rahmenbedingungen des Szenarios geprüft
           (Zuordnungsstufe 2), die Eignung ergibt die Passung (Stufe 4). Eine Wirkung greift nur, wenn das Szenario die
           passende Angabe macht.
         </p>
@@ -583,20 +591,22 @@ export function SystematikPage() {
           <table>
             <thead>
               <tr>
-                <th>Kennung</th>
-                <th>Merkmal</th>
-                <th>Leitfrage</th>
+                <th>W-Feld</th>
+                <th>Feld</th>
+                <th>Art der Aussage</th>
                 <th>Wirkung</th>
                 <th>Grundlage</th>
               </tr>
             </thead>
             <tbody>
               {(bundle.merkmale || []).map((m) => (
-                <tr key={m.id}>
-                  <td style={{ fontFamily: 'var(--mono)' }}>{m.id}</td>
-                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{m.name}</td>
-                  <td>{m.leitfrage}</td>
-                  <td>{m.wirkungText}</td>
+                <tr key={m.feld}>
+                  <td>{(bundle.wfelder || []).find((w) => w.id === m.wfeld)?.name || m.wfeld}</td>
+                  <td style={{ fontFamily: 'var(--mono)' }}>{m.feld}</td>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                    {(bundle.arten || []).find((a) => a.id === m.art)?.name || m.art}
+                  </td>
+                  <td>{WIRKUNG_TEXT[m.wirkung] || m.wirkung}</td>
                   <td>{GRUNDLAGE_TEXT[m.grundlage] || m.grundlage}</td>
                 </tr>
               ))}
