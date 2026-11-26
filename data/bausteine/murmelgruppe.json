@@ -16,6 +16,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Murmelgruppe",

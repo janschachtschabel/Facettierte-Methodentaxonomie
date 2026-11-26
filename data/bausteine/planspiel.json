@@ -18,6 +18,10 @@
     "beruf-praxis",
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Planspiel",

@@ -17,6 +17,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Exkursion",

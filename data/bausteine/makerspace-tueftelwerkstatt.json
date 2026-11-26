@@ -25,6 +25,11 @@
     "gesellschaft",
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "fachraum"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: FabLab",

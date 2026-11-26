@@ -22,6 +22,11 @@
     "nawi-technik",
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Standbild",

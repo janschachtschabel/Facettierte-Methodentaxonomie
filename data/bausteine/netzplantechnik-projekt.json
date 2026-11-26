@@ -15,6 +15,9 @@
     "sport",
     "sprachen"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Arbeitspakete eines Projekts werden mit Dauern, Abhängigkeiten und kritischem Pfad als grafischer Ablaufplan strukturiert.",
   "alternativname": [
     "Projekt-Netzplan",

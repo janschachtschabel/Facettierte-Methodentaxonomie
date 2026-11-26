@@ -287,12 +287,14 @@ describe('Mehrfachwünsche und Ausweichen', () => {
     }
   });
 
-  it('kein gültiger Ablauf mit einer einengenden Vorgabe: Vorgabe gelockert und genannt', () => {
+  it('einengende Vorgabe: gültiger Ablauf ohne offene Phasen; eine gelockerte Vorgabe wird genannt', () => {
+    // With the short openers (S9) this request no longer needs relaxing; any relaxation must still be named.
     const r = M.zuordnen({ text: 'Vertretungsstunde Klasse 8 fachfremd, 45 Minuten, ohne Vorbereitung, egal welches Thema' });
     expect(r.modus).toBe('ablauf');
     if (r.modus === 'ablauf') {
       expect(r.pruefung?.gueltig).toBe(true);
-      expect((r.annahmen || []).some((x) => x.includes('hält sie nicht ein'))).toBe(true);
+      expect(r.offen || []).toEqual([]);
+      for (const x of (r.annahmen || []).filter((y) => y.includes('hält sie nicht ein'))) expect(x).toMatch(/Vorgabe „.+“/);
     }
   });
 

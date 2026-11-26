@@ -17,6 +17,10 @@
   "fachbereich": [
     "beruf-praxis"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "reichweite": "r4",
   "lernfunktion": [
     "problemloesen",

@@ -10,6 +10,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "kurzbeschreibung": "Fokussierte, 3–7-minütige digitale Lerneinheit zu genau einem Konzept oder einer Fertigkeit, unmittelbar gekoppelt mit einer kurzen Kontrollaufgabe.",
   "alternativname": [
     "Mikrolernen",

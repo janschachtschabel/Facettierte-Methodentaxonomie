@@ -10,6 +10,11 @@
     "beruf-praxis",
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
   "kurzbeschreibung": "Die Lehrkraft oder Expert:innen machen Denk- und Handlungsprozesse explizit vor, coachen die Nachahmung und blenden Hilfen schrittweise aus.",
   "alternativname": [
     "Modelllernen",

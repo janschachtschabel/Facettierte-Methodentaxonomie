@@ -13,6 +13,9 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Allgemeines Prinzip oder Regel wird zuerst klar formuliert und anschließend systematisch auf konkrete Anwendungsfälle übertragen.",
   "alternativname": [
     "Deduktives Verfahren",

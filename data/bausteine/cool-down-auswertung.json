@@ -1,0 +1,147 @@
+{
+  "kennung": "cool-down-auswertung",
+  "name": "Cool-down mit Belastungsrückmeldung",
+  "status": "entwurf",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion"
+  ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "sprachen",
+    "gesellschaft",
+    "nawi-technik"
+  ],
+  "lernort": [
+    "bewegungsraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Ruhiges Auslaufen und Dehnen mit kurzer Rückmeldung zu Belastung, Gelungenem und nächstem Übungsziel.",
+  "alternativname": [
+    "Abwärmen",
+    "Cool-down",
+    "Auslaufen",
+    "Stundenausklang"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 3,
+  "dauerMax": 10,
+  "problem": "Die Stunde endet abrupt; Lernende verbinden das Erlebte nicht mit dem Stundenziel und dem eigenen Fortschritt.",
+  "durchfuehrung": [
+    "Belastung langsam senken: Auslaufen, Gehen, lockere Mobilisation",
+    "Kurze Selbsteinschätzung: Wie anstrengend war es? Was ist gelungen?",
+    "Ein Satz zum nächsten Übungsziel"
+  ],
+  "material": [
+    "Ggf. Belastungsskala (z. B. 1–10)"
+  ],
+  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 0,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/13"
+  ],
+  "lernfunktion": [
+    "metakognition"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "unmittelbar",
+    "selbstregulationsebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "einzel"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "psychomotorik",
+    "afb1"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "belastung-senken",
+      "name": "Belastung schrittweise senken"
+    },
+    {
+      "kennung": "selbsteinschaetzung",
+      "name": "Kurze Selbsteinschätzung zu Belastung und Lernziel"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Nur Dehnen ohne Bezug zum Stundenziel"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Etablierter Stundenabschluss im Sportunterricht; physiologische Effekte des Cool-downs auf Regeneration sind gering, der Nutzen liegt in Reflexion und Belastungswahrnehmung.",
+      "quelle": "Van Hooren & Peake 2018 (Review)",
+      "geltung": "Sportunterricht und Bewegungsangebote",
+      "umstritten": "Regenerationseffekte des Cool-downs",
+      "evidenzBezug": "methode"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Weineck, J. (2019): Optimales Training. Spitta",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Van Hooren, B. & Peake, J. M. (2018): Do We Need a Cool-Down After Exercise? Sports Medicine 48",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 1.55
+  }
+}

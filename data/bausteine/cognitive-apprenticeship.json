@@ -16,6 +16,10 @@
     "beruf-praxis",
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
   "reichweite": "r3",
   "lernfunktion": [
     "erwerb",

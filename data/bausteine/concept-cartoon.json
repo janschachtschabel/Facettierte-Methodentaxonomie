@@ -1,0 +1,140 @@
+{
+  "kennung": "concept-cartoon",
+  "name": "Concept Cartoon (Meinungsbild zu einer Streitfrage)",
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "diagnose-feedback",
+    "diskurs"
+  ],
+  "fachbereich": [
+    "nawi-technik",
+    "gesellschaft",
+    "mathe-informatik"
+  ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
+  "kurzbeschreibung": "Ein Bild zeigt mehrere Figuren mit unterschiedlichen Aussagen zu einem Phänomen; Lernende wählen die Aussage, der sie zustimmen, und begründen kurz.",
+  "alternativname": [
+    "Concept Cartoons",
+    "Denkblasen-Bild",
+    "Meinungsbild mit Figuren"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Lernende geben ihre eigenen, oft falschen Vorstellungen ungern preis; eine fremde Figur zu wählen fällt leichter.",
+  "durchfuehrung": [
+    "Cartoon mit 3–4 Figuren und Aussagen (darunter verbreitete Fehlvorstellungen) zeigen",
+    "Alle wählen still eine Aussage und notieren einen Grund",
+    "Wahl per Handzeichen oder Karte sichtbar machen, zwei Begründungen hören",
+    "Offen lassen und im Lauf der Stunde klären"
+  ],
+  "material": [
+    "Concept Cartoon (Folie oder Ausdruck)"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 200,
+  "technik": "t-projektion",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "fehlvorstellungen-sichtbar",
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "alternativen",
+      "name": "Mehrere plausible Aussagen, darunter typische Fehlvorstellungen"
+    },
+    {
+      "kennung": "begruendung",
+      "name": "Wahl mit kurzer Begründung"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Auflösung sofort statt im Lauf der Stunde",
+    "Aussagen ohne echte Fehlvorstellungen"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Concept Cartoons regen Diskussion an und machen Alltagsvorstellungen sichtbar; positive Effekte auf Beteiligung und Begriffsverständnis in mehreren Studien.",
+      "quelle": "Keogh & Naylor 1999; Kabapinar 2005",
+      "geltung": "Naturwissenschaften Primar bis Sek II, übertragbar",
+      "umstritten": "Effekte auf Leistung über Diskussionsbeteiligung hinaus wenig untersucht",
+      "evidenzBezug": "methode"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Keogh, B. & Naylor, S. (1999): Concept cartoons, teaching and learning in science: an evaluation. International Journal of Science Education 21(4)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.0
+  }
+}

@@ -23,6 +23,12 @@
     "sport",
     "mathe-informatik"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "hoersaal",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Demonstrationsexperiment",

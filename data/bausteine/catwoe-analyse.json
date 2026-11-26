@@ -14,6 +14,9 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Strukturierte Systemanalyse aus sechs Blickwinkeln (Customers, Actors, Transformation, Weltanschauung, Owners, Environmental constraints).",
   "alternativname": [
     "CATWOE-Methode",

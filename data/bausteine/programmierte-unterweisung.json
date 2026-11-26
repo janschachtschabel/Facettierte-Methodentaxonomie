@@ -10,6 +10,9 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Selbsttaktende Lernsequenz in kleinen, verzweigten Lernschritten mit unmittelbarer Rückmeldung nach jeder Antwort.",
   "alternativname": [
     "Programmiertes Lernen",

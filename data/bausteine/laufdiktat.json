@@ -22,6 +22,11 @@
     "aesthetik",
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Laufdiktat",

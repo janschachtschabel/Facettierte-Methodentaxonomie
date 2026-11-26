@@ -16,6 +16,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Freispiel",
@@ -116,6 +120,12 @@
   "variante": [],
   "kategorie": [
     "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "ungeeignetBeiStufe": [
+    "sek2",
+    "berufsbildung",
+    "hochschule",
+    "erwachsenenbildung"
   ],
   "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
   "qualitaetsrisiko": [

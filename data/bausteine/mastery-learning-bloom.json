@@ -17,6 +17,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "reichweite": "r4",
   "lernfunktion": [
     "erwerb",

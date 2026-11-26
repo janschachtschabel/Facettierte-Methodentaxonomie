@@ -17,6 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Karussellgespräch (Kugellagermethode)",

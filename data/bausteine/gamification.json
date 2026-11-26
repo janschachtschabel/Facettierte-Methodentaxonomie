@@ -10,6 +10,9 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Spieltypische Designelemente (Quests, Fortschrittsbalken, kooperative Boss-Aufgaben, direktes Feedback) rahmen eine Übungs- oder Projektphase motivierend ein.",
   "alternativname": [
     "Spielifizierung",

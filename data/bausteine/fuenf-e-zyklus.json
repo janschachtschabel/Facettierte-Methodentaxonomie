@@ -15,6 +15,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: BSCS 5E Instructional Model (EN)",

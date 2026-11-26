@@ -15,6 +15,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Umgedrehter Unterricht",

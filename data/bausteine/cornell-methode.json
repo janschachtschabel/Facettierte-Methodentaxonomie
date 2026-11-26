@@ -13,6 +13,10 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "kurzbeschreibung": "Dreigeteiltes Notizblatt (Notizen rechts, Schlüsselwörter/Abruffragen links, kurze Zusammenfassung unten) verbindet Mitschreiben mit aktivem Abruf.",
   "alternativname": [
     "Cornell-Notizen",

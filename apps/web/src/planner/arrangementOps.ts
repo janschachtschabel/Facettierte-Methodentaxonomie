@@ -306,6 +306,22 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
     };
   }
 
+  if (zieltyp === 'kondition-training') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'sek1', vorwissen: 'mittel', zeitbudgetMin: 60 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('aufwaermen', 10, { kettenschritt: 't1' }),
+          E('dauer-intervallmethode', 25, { kettenschritt: 't2' }),
+          E('spielform-zielspiel', 15, { kettenschritt: 't3' }),
+          E('cool-down-auswertung', 8, { kettenschritt: 't4' })
+        ]
+      }
+    };
+  }
+
   if (zieltyp === 'produktion') {
     return {
       ...base,

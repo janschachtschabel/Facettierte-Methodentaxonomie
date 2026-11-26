@@ -1,0 +1,144 @@
+{
+  "kennung": "vorhersage-aufgabe",
+  "name": "Vorhersage-Aufgabe (Vermuten vor dem Erklären)",
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "diagnose-feedback",
+    "forschend"
+  ],
+  "fachbereich": [
+    "nawi-technik",
+    "mathe-informatik"
+  ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "hoersaal"
+  ],
+  "kurzbeschreibung": "Lernende sagen zu einer Situation oder einem Versuch schriftlich voraus, was passiert, und begründen kurz; die Vorhersagen machen Vorstellungen sichtbar, an die die Stunde anknüpft.",
+  "alternativname": [
+    "Predict",
+    "Vorhersage",
+    "Vermutung notieren"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "problem": "Fehlvorstellungen bleiben verborgen, wenn die Erklärung vor dem eigenen Nachdenken kommt.",
+  "durchfuehrung": [
+    "Situation, Bild oder Versuchsaufbau zeigen und eine klare Frage stellen (Was passiert, wenn …?)",
+    "Jede Person notiert Vorhersage und Begründung",
+    "Vorhersagen sammeln oder per Handzeichen auszählen, ohne aufzulösen",
+    "Später in der Stunde auflösen und an die Vorhersagen anknüpfen"
+  ],
+  "material": [
+    "Bild, Versuch oder Situationsbeschreibung",
+    "Zettel"
+  ],
+  "raum": "Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 200,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/16"
+  ],
+  "lernfunktion": [
+    "orientierung",
+    "diagnose"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "diagnostisch"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [
+    "problem-vor-instruktion"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "fehlvorstellungen-sichtbar",
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "schriftlich-vorher",
+      "name": "Vorhersage schriftlich und vor jeder Erklärung"
+    },
+    {
+      "kennung": "aufloesen",
+      "name": "Später ausdrücklich an die Vorhersagen anknüpfen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Vorhersagen werden gesammelt, aber nie aufgegriffen"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Vorhersagen vor Demonstrationen (Predict-Observe-Explain) verbessern das konzeptuelle Verständnis gegenüber bloßem Zuschauen.",
+      "quelle": "Crouch et al. 2004; White & Gunstone 1992",
+      "geltung": "Naturwissenschaften Sek I bis Hochschule, übertragbar auf andere Fächer",
+      "umstritten": "Effekt hängt davon ab, dass die Auflösung an die Vorhersagen anknüpft",
+      "evidenzBezug": "methode"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Crouch, C. H. et al. (2004): Classroom demonstrations: Learning tools or entertainment? American Journal of Physics 72(6)",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "White, R. & Gunstone, R. (1992): Probing Understanding. Falmer Press",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.0
+  }
+}

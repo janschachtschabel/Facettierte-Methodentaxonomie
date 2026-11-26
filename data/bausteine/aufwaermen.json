@@ -1,0 +1,144 @@
+{
+  "kennung": "aufwaermen",
+  "name": "Aufwärmen / Aufwärmspiel",
+  "status": "entwurf",
+  "piktogramm": "spiel",
+  "ansatz": [
+    "uebung",
+    "spiel-simulation"
+  ],
+  "fachbereich": [
+    "sport"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "sprachen",
+    "gesellschaft",
+    "nawi-technik"
+  ],
+  "lernort": [
+    "bewegungsraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Allgemeines und spezielles Aufwärmen mit kleinem Spiel, Mobilisation und Bewegungen, die auf den Schwerpunkt der Stunde vorbereiten.",
+  "alternativname": [
+    "Erwärmung",
+    "Warm-up",
+    "Aufwärmspiel"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 12,
+  "problem": "Ohne Vorbereitung steigt das Verletzungsrisiko, und die Lernenden sind körperlich und gedanklich noch nicht beim Thema.",
+  "durchfuehrung": [
+    "Kleines Lauf- oder Fangspiel zur Erhöhung der Körpertemperatur",
+    "Mobilisation der Gelenke, die der Schwerpunkt belastet",
+    "Zwei bis drei spezielle Bewegungen, die auf die Technik der Stunde hinführen",
+    "Kurz ankündigen, was heute geübt wird"
+  ],
+  "material": [
+    "Ggf. Musik",
+    "Markierungen"
+  ],
+  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/12"
+  ],
+  "lernfunktion": [
+    "orientierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "afb1"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "vorwissen-aktiviert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "allgemein-speziell",
+      "name": "Vom allgemeinen zum speziellen, auf den Schwerpunkt bezogenen Aufwärmen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Zu lang und ohne Bezug zum Stundenschwerpunkt",
+    "Statisches Dehnen statt dynamischer Mobilisation vor schnellkräftigen Belastungen"
+  ],
+  "hinweis": "Ergänzt nach dem Qualitätstest der Szenariovorschläge (2026-11-26).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Strukturierte Aufwärmprogramme senken das Verletzungsrisiko im Jugend- und Vereinssport deutlich.",
+      "quelle": "Herman et al. 2012 (Systematic Review); Soligard et al. 2008 (FIFA 11+)",
+      "evidenzBezug": "prinzip",
+      "geltung": "Sportunterricht und Vereinssport, Jugendliche und Erwachsene",
+      "umstritten": "Leistungseffekte hängen von Art und Dauer des Aufwärmens ab"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Weineck, J. (2019): Optimales Training. Spitta",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Wikipedia: Aufwärmen",
+      "url": "https://de.wikipedia.org/wiki/Aufw%C3%A4rmen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.1
+  }
+}

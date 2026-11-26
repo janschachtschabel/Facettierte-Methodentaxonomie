@@ -10,6 +10,9 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Regelmäßiger 5-Minuten-Stundenstart mischt gezielt 1 Frage von gestern, 1 von letzter Woche und 1 aus dem letzten Monat (verschachtelt & verteilt).",
   "alternativname": [
     "Cumulative Review",

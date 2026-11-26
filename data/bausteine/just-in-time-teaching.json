@@ -10,6 +10,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "kurzbeschreibung": "Kurze digitale Vorbereitungsaufgaben vor der Stunde machen Fehlvorstellungen sichtbar, sodass die Präsenzstunde gezielt darauf aufbaut.",
   "alternativname": [
     "JiTT",

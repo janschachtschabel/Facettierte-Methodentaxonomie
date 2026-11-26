@@ -15,6 +15,11 @@
     "gesellschaft",
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
   "kurzbeschreibung": "Teams lösen ein naturwissenschaftlich-technisches Konstruktionsproblem mit begrenztem Material unter Zeitdruck und testen ihre Prototypen live.",
   "alternativname": [
     "Konstruktionsaufgabe",

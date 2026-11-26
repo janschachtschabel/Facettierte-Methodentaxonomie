@@ -20,6 +20,11 @@
   "fachbereichUngeeignet": [
     "sport"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Rollenspiel (Pädagogik)",

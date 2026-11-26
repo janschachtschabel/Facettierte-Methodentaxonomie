@@ -21,6 +21,11 @@
     "gesellschaft",
     "mathe-informatik"
   ],
+  "lernort": [
+    "klassenraum",
+    "fachraum",
+    "draussen"
+  ],
   "quellen": [
     {
       "titel": "Wikipedia: Schülerexperiment",

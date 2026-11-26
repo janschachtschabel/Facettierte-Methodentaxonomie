@@ -10,6 +10,9 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum"
+  ],
   "kurzbeschreibung": "Unstrukturierte Einzelbeobachtungen auf Karten werden still nach innerer Verwandtschaft geclustert, mit Oberbegriffen betitelt und in Beziehung gesetzt.",
   "alternativname": [
     "Affinitätsdiagramm",

@@ -10,6 +10,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
+  "lernort": [
+    "klassenraum",
+    "hoersaal"
+  ],
   "kurzbeschreibung": "Kompakte 5–10-minütige Anwendungsaufgabe direkt im Anschluss an eine Erklärung, um ein neues Prinzip sofort auf einen leicht veränderten Fall zu übertragen.",
   "alternativname": [
     "Blitztransfer",
