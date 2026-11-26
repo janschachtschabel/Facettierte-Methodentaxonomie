@@ -40,3 +40,21 @@ describe('Runde 5, P3: Thema ohne Fachname ergibt den Fachbereich', () => {
     expect(M.lesen('Klassenrat: Streit in der Pause klären, 45 Minuten').kriterien.fachbereich).toBeUndefined();
   });
 });
+
+describe('Runde 5, P6: Praxisstunden außerhalb vom Sport', () => {
+  const kette = (text: string) => M.zuordnen({ text }).kette?.id;
+  it('Titration im Labor ist eine Fertigkeit', () => {
+    expect(kette('Chemie Q1 Titration im Labor, Schülerversuch, Doppelstunde')).toBe('fertigkeit-bewegung');
+  });
+  it('Reifenwechsel in der Werkstatt ist eine Fertigkeit, kein offenes Projekt', () => {
+    expect(kette('Kfz-Mechatroniker 1. Lehrjahr: Reifenwechsel in der Werkstatt, 90 Minuten, 14 Azubis')).toBe('fertigkeit-bewegung');
+    // The room "in der Werkstatt" is no open-learning approach (the semantic reading is P4, open).
+    expect(M.lesen('Reifenwechsel in der Werkstatt').erkannt.find((e) => e.feld === 'ansatz')?.beleg).not.toBe('werkstatt');
+  });
+  it('die Lernwerkstatt bleibt offener Unterricht', () => {
+    expect(M.lesen('Lernwerkstatt zu Brüchen, Klasse 5').kriterien.ansatz).toEqual(['offen']);
+  });
+  it('eine Zeichentechnik (Zentralperspektive) wird als Fertigkeit geübt', () => {
+    expect(kette('Kunst Klasse 7: Zentralperspektive zeichnen, 90 Minuten')).toBe('fertigkeit-bewegung');
+  });
+});
