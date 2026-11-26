@@ -37,6 +37,16 @@ export const szenarioText = (fach: string, thema: string, min: number) => `${fac
 /** Free-text cases the audit found misread. `erwartet` is compared field by field against lesen().kriterien. */
 export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>; nicht?: Record<string, unknown> }> = [
   { text: 'Mathe Klasse 6 Bruchrechnen ohne Tablets', erwartet: { maxTechnik: 't-keine' } },
+  // Fix wave A, item 1: "Klassenraum"/"Seminarraum" as list item or after "im"/"in einem" names the room.
+  { text: 'Sport Klasse 8, Ausdauer, Klassenraum, 45 Minuten', erwartet: { raum: 'klassenraum' } },
+  { text: 'Ethik, Sterbehilfe, Seminarraum, 45 Minuten', erwartet: { raum: 'klassenraum' }, nicht: { bildungsstufe: 'hochschule' } },
+  { text: 'Politik Klasse 9 in einem Seminarraum: Wahlen, 45 Minuten', erwartet: { raum: 'klassenraum' } },
+  { text: 'Deutsch Klasse 5: Klassenraumgestaltung, 45 Minuten', erwartet: {}, nicht: { raum: 'klassenraum' } },
+  { text: 'Deutsch Klasse 5: Klassenzimmer-Regeln aufstellen, 45 Minuten', erwartet: {}, nicht: { raum: 'klassenraum' } },
+  // Fix wave A, item 7: preparing for a Klausur is no written proof in this lesson.
+  { text: 'Mathe Q1 Klausurvorbereitung Analysis, 90 Minuten', erwartet: {}, nicht: { nachweis: 'schriftlich' } },
+  { text: 'Geschichte Klasse 10: Wiederholung vor der Klausur, 45 Minuten', erwartet: {}, nicht: { nachweis: 'schriftlich' } },
+  { text: 'Geschichte Klasse 10: Weimarer Republik, Prüfungsform Klausur, 90 Minuten', erwartet: { nachweis: 'schriftlich' } },
   { text: 'Mathe Klasse 6 Bruchrechnen, keine Laptops vorhanden', erwartet: { maxTechnik: 't-keine' } },
   { text: 'Informatik Klasse 10 im Computerraum, 90 Minuten', erwartet: { maxTechnik: 't-einzeln' } },
   { text: 'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten', erwartet: { zielart: 'bewegung' }, nicht: { ansatz: ['spiel-simulation'] } },

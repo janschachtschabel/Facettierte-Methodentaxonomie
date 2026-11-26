@@ -512,7 +512,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       /erwachsenenbildung|volkshochschul|\bvhs\b|weiterbildung|fortbildung|integrationskurs|\bsenior\w*|\b(?:fur|mit)\s+erwachsenen?\b|\berwachsene\s+(?:lernende|teilnehm\w*)|berufstatig\w*|mitarbeitend\w*|\blehrkrafte\b/,
       () => 'erwachsenenbildung'
     ],
-    ['bildungsstufe', /hochschul|studierende|universitat|vorlesung|seminar/, () => 'hochschule'],
+    // A "Seminarraum" is a room of any school, not a sign of university.
+    ['bildungsstufe', /hochschul|studierende|universitat|vorlesung|seminar(?!raum)/, () => 'hochschule'],
     // "3 Schüler mit Förderbedarf" or "davon 4 mit DaZ" names a subgroup, not the size of the group.
     [
       'gruppe',
@@ -553,7 +554,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       (m) => ZAHLWORT[m[1]] ?? Number(m[1])
     ],
     // The room must be named as a place ("im Labor", "auf dem Schulhof"); "Wortschatz in der Küche" or "Tiere im Wald" is a topic.
-    ['raum', /\bim\s+klassen(?:raum|zimmer)\b|\bsporttheorie\b|\btheoriestunde\b/, () => 'klassenraum'],
+    // "im Klassenraum", "in einem Seminarraum" or a bare list item ("…, Klassenraum, 45 Minuten"); "Klassenraumgestaltung" is a topic.
+    [
+      'raum',
+      /\b(?:im|in\s+einem|in\s+dem)\s+(?:klassen(?:raum|zimmer)|seminarraum)\b(?!-)|(?:^|[,;:]\s*)(?:klassen(?:raum|zimmer)|seminarraum)\s*(?:[,;.]|$)|\bsporttheorie\b|\btheoriestunde\b/,
+      () => 'klassenraum'
+    ],
     ['raum', /\bhorsaal\w*|(?<!\bzur\s)\bvorlesung\b(?!\s+(?:vor|nach)\w*)/, () => 'hoersaal'],
     ['raum', /\b(?:turn|sport|gymnastik)halle\b|\bin\s+der\s+halle\b|\bsportplatz\b|\bgymnastikraum\b/, () => 'bewegungsraum'],
     // Named special rooms first; a bare room word counts only as its own list item ("…, Werkstatt, 180 Minuten").
@@ -589,7 +595,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ['raum', /\bfester?\s+bestuhlung\b(?!\s+(?:im|in\s+der|des|der)\s+(?:theater|oper|kino|kirche|konzert)\w*)/, () => 'hoersaal'],
     ['raum', /\bonline\b|\bvideokonferenz\w*/, () => 'digital'],
     // Form of proof: "Prüfungsform Klausur", "mündliche Prüfung", "praktische Prüfung", "Produkt abgeben".
-    ['nachweis', /\bklausur\w*|\bschriftlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'schriftlich'],
+    // Preparing for a Klausur ("Klausurvorbereitung", "Wiederholung vor der Klausur") is no proof in this lesson.
+    [
+      'nachweis',
+      /(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})\bklausur(?!vorbereit|nachbesprech|besprech|ruckgabe|berichtigung|korrektur|training|tipps|angst)\w*(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))|\bschriftlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/,
+      () => 'schriftlich'
+    ],
     ['nachweis', /\bmundlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'muendlich'],
     ['nachweis', /\bpraktisch\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'praktisch'],
     ['nachweis', /\b(?:produkt|werkstuck|portfolio)\w*\s+(?:\w+\s+)?abgeben\b|\babgabe\s+(?:eines|des|der)\s+(?:produkt|werkstuck|portfolio)\w*/, () => 'produkt'],
