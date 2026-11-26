@@ -52,6 +52,11 @@ export function proxyHint(domain: string | null, trustProxy: number | boolean | 
   return '[FMT] Hinweis: DOMAIN ist gesetzt, TRUST_PROXY aber nicht. Hinter einem Reverse Proxy teilen sich dann alle Nutzer ein Ratelimit. Für Traefik TRUST_PROXY=1 setzen.';
 }
 
+function positiveInt(raw: string | undefined, fallback: number): number {
+  const n = Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : fallback;
+}
+
 function parseTrustProxy(raw?: string): number | boolean {
   const v = (raw || '').trim().toLowerCase();
   if (!v || v === '0' || v === 'false' || v === 'off') return false;
@@ -94,6 +99,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     llmTimeoutMs: Number(env.LLM_TIMEOUT_MS) || 90000,
     llmCacheMax: Number(env.LLM_CACHE_MAX) || 500,
     llmCacheTtlMs: Number(env.LLM_CACHE_TTL_MS) || 3600000,
-    apiRateLimitPerMin: Number(env.API_RATE_LIMIT_PER_MIN) || 300
+    apiRateLimitPerMin: positiveInt(env.API_RATE_LIMIT_PER_MIN, 300)
   };
 }

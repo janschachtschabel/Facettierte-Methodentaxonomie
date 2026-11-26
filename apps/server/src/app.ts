@@ -54,8 +54,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   app.addHook('onRoute', (route) => {
     const methods = ([] as string[]).concat(route.method as string | string[]);
     const cfg = (route.config ?? {}) as { rateLimit?: unknown };
-    if (!cfg.rateLimit && isComputeRoute(route.url, methods)) {
-      route.config = { ...cfg, rateLimit: { max: config.apiRateLimitPerMin || 300, timeWindow: '1 minute' } };
+    if (cfg.rateLimit === undefined && isComputeRoute(route.url, methods)) {
+      route.config = { ...cfg, rateLimit: { max: config.apiRateLimitPerMin, timeWindow: '1 minute' } };
     }
   });
 

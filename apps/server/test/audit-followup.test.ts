@@ -50,6 +50,13 @@ describe('Audit follow-up: every free-text field is length-capped', () => {
     }
   });
 
+  it('accepts exactly 8000 characters and rejects 8001, also in object keys', async () => {
+    const at = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Mathe 7 Brüche', lernziele: 'x'.repeat(8000) } });
+    expect(at.statusCode).toBe(200);
+    const key = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Mathe 7 Brüche', [LONG]: 1 } });
+    expect(key.statusCode).toBe(400);
+  });
+
   it('caps every string argument of MCP tools', async () => {
     const store = loadCatalogStore(DIST_DATA);
     const server = createFmtMcpServer(store, baseConfig());
@@ -85,6 +92,7 @@ describe('Audit follow-up: rate limits', () => {
   it('puts a generous, configurable limit on the compute endpoints without LLM', async () => {
     expect(loadConfig({}).apiRateLimitPerMin).toBe(300);
     expect(loadConfig({ API_RATE_LIMIT_PER_MIN: '50' }).apiRateLimitPerMin).toBe(50);
+    expect(loadConfig({ API_RATE_LIMIT_PER_MIN: '-5' }).apiRateLimitPerMin).toBe(300);
     const app = await buildApp({ distDataDir: DIST_DATA, config: baseConfig({ apiRateLimitPerMin: 2 }) });
     await app.ready();
     const send = () => app.inject({ method: 'POST', url: '/api/v1/match', payload: { text: 'Einstieg' } });
@@ -95,6 +103,12 @@ describe('Audit follow-up: rate limits', () => {
     // read-only catalogue routes stay unlimited
     const meta = await app.inject({ method: 'GET', url: '/api/v1/meta' });
     expect(meta.headers['x-ratelimit-limit']).toBeUndefined();
+    // LLM routes and /mcp keep their own limits
+    const tr = await app.inject({ method: 'POST', url: '/api/v1/assistant/translate', payload: { text: 'Einstieg' } });
+    expect(tr.headers['x-ratelimit-limit']).toBe('1000');
+    const mcp = await app.inject({ method: 'POST', url: '/mcp', payload: {} });
+    expect(mcp.headers['x-ratelimit-limit']).toBe(String(Math.max(120, 1000 * 6)));
+    expect((await app.inject({ method: 'GET', url: '/zuordnung?text=Einstieg' })).headers['x-ratelimit-limit']).toBe('2');
     await app.close();
   });
 });

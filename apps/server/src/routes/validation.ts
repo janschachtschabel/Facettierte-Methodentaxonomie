@@ -45,6 +45,7 @@ export function findTooLongString(value: unknown, path = '', depth = 0): string 
     return null;
   }
   for (const [k, v] of Object.entries(value)) {
+    if (k.length > MAX_TEXT_CHARS) return path ? `${path}.(Schlüssel)` : '(Schlüssel)';
     const hit = findTooLongString(v, path ? `${path}.${k}` : k, depth + 1);
     if (hit) return hit;
   }
