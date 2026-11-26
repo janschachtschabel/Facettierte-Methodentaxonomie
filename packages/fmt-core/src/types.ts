@@ -177,6 +177,8 @@ export interface Baustein {
   fachbereich?: string[];
   /** Subject areas where the method does not fit. */
   fachbereichUngeeignet?: string[];
+  /** Rooms the method is made for or works well in (vocab lernort); without it the fit is derived from other facets. */
+  lernort?: string[];
   geeignetBeiVorwissen?: string[];
   ungeeignetBeiStufe?: string[];
   problem: string;

@@ -213,6 +213,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneKI: z.boolean().optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
       raumzeit: codes('raumzeit').optional(),
+      lernort: code('lernort')
+        .optional()
+        .describe('Raum der Stunde; wird sonst aus dem Text gelesen (Sporthalle bei Sport)'),
       vorhanden: codes('vorhanden').optional(),
       vorwissen: code('vorwissen').optional(),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),

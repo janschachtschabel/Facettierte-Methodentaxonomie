@@ -35,7 +35,8 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['grad', 'evidenzgrad', false],
   ['ansatz', 'ansatz', true],
   ['fachbereich', 'fachbereich', true],
-  ['fachbereichUngeeignet', 'fachbereich', true]
+  ['fachbereichUngeeignet', 'fachbereich', true],
+  ['lernort', 'lernort', true]
 ];
 
 const STEUERUNG_DIMS = ['organisation', 'lernweg', 'inhalt', 'sozial', 'bewertung'];
@@ -393,6 +394,7 @@ export function buildSchema(D: FmtData) {
       ansatz: Object.assign({ minItems: 1 }, vocabProp.ansatz),
       fachbereich: Object.assign({ minItems: 1 }, vocabProp.fachbereich),
       fachbereichUngeeignet: vocabProp.fachbereichUngeeignet,
+      lernort: vocabProp.lernort,
       quellen: {
         type: 'array',
         minItems: 1,
