@@ -1126,10 +1126,10 @@ export function PlannerPage() {
   const hasFlow = scenarioRows.length > 0;
   const canPropose = scenarioText.trim().length > 0;
   // Class size as typed in "Mehr Angaben", else as recognised in the description.
-  // What the matcher assumed because the request left it open, and why chain steps stayed open (shown above the flow).
-  const annahmenListe = [
-    ...new Set([...(matchResult?.pflichtangaben?.angenommen || []).map((x) => x.grund), ...((matchResult?.modus === 'ablauf' && matchResult.annahmen) || [])])
-  ];
+  // What the matcher assumed because the request left it open (pflichtangaben.angenommen), the other notes on the
+  // sequence (annahmen of the plan), and why chain steps stayed open (shown above the flow).
+  const annahmenListe = [...new Set((matchResult?.pflichtangaben?.angenommen || []).map((x) => x.grund))];
+  const ablaufHinweise = [...new Set((matchResult?.modus === 'ablauf' && matchResult.annahmen) || [])].filter((t) => !annahmenListe.includes(t));
   const offeneSchritte =
     matchResult?.modus === 'ablauf'
       ? (matchResult.offenGruende || []).map((o) => ({
@@ -1487,7 +1487,7 @@ export function PlannerPage() {
                 </fieldset>
               ) : (
                 <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
-                  Steht der Raum nicht im Text, nimmt der Baukasten einen Klassenraum an und sagt es dir.
+                  Steht der Raum nicht im Text, nimmt der Baukasten einen Raum an (meist den Klassenraum, im Fach Sport die Sporthalle) und sagt es dir.
                 </p>
               )}
             </div>
@@ -2080,6 +2080,16 @@ export function PlannerPage() {
               <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
                 ← Angaben in Schritt 1 ändern
               </button>
+            </section>
+          )}
+          {ablaufHinweise.length > 0 && (
+            <section aria-label="Hinweise zum Ablauf" className="card planner-ablauf-hinweise" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--grid)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Hinweise zum Ablauf</strong>
+              <ul style={{ margin: '4px 0 6px', paddingLeft: 20, fontSize: 14 }}>
+                {ablaufHinweise.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
             </section>
           )}
           {offeneSchritte.length > 0 && (

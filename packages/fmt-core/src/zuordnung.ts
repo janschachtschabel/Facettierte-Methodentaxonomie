@@ -1547,7 +1547,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       teile.push(chosen);
       if (ersatzIds.has(chosen.baustein)) {
         bindungsAnnahmen.push(
-          `Für „${step.label}“ passt hier keine Methode des Fachbereichs ${label('fachbereich', currentArea)}, die die Wissensart ${wissensartLabel(step.wissensart!)} trägt; „${blocks.get(chosen.baustein)!.name}“ steht als praktische Methode des Fachbereichs vor Methoden anderer Fachbereiche, die sie tragen.`
+          `Für „${step.label}“ gibt es im Fachbereich ${label('fachbereich', currentArea)} keine Methode, die genau auf „${wissensartLabel(step.wissensart!)}“ zielt. „${blocks.get(chosen.baustein)!.name}“ ist eine praktische Methode des Fachbereichs und steht hier vor Methoden aus anderen Fächern, die besser zu diesem Schritt passen.`
         );
       }
       if (currentMentions.has(chosen.baustein)) anchoredAt.set(chosen.baustein, step.label);

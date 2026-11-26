@@ -38,4 +38,12 @@ describe('Fix wave Paket A', () => {
     expect(JSON.stringify(r.modus === 'ablauf' && r.arrangement?.ablauf)).toContain('makerspace-tueftelwerkstatt');
     expect(r.hinweise || []).toContain('„Makerspace / Tüftelwerkstatt (FabLab)“: Im Fachbereich Sport nicht vorgesehen.');
   });
+
+  it('6: der Satz zur praktischen Methode des Fachbereichs spricht ohne Fachjargon', () => {
+    const r = M.zuordnen({ text: 'Biologie Klasse 6 Mikroskopieren lernen: Zwiebelhaut, 90 Minuten' });
+    const satz = ((r.modus === 'ablauf' && r.annahmen) || []).find((x) => x.includes('praktische Methode des Fachbereichs'));
+    expect(satz).toBeDefined();
+    expect(satz).not.toMatch(/Wissensart|trägt/);
+    expect(satz).toContain('„Demonstrationsexperiment“ ist eine praktische Methode des Fachbereichs');
+  });
 });

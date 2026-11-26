@@ -118,8 +118,17 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(stepButton(2).getAttribute('aria-current')).toBe('step');
     const box = screen.getByRole('region', { name: 'Angenommen' });
     expect(within(box).getByText('Raum nicht angegeben: Klassenraum angenommen.')).toBeTruthy();
+    // Only what was assumed for a missing detail stands under "Angenommen"; other notes on the plan stand apart.
+    expect(within(box).queryByText(/Keine Angabe zur Ausstattung/)).toBeNull();
+    const hinweise = screen.getByRole('region', { name: 'Hinweise zum Ablauf' });
+    expect(within(hinweise).getByText(/Keine Angabe zur Ausstattung/)).toBeTruthy();
     fireEvent.click(within(box).getByRole('button', { name: /Angaben in Schritt 1 ändern/ }));
     expect(stepButton(1).getAttribute('aria-current')).toBe('step');
+  });
+
+  it('Hinweis zum Raum nennt die Sporthalle im Fach Sport', () => {
+    renderPlanner();
+    expect(screen.getByText(/nimmt der Baukasten einen Raum an \(meist den Klassenraum, im Fach Sport die Sporthalle\)/)).toBeTruthy();
   });
 
   it('nennt in Schritt 2 den Grund für einen offenen Schritt', () => {
