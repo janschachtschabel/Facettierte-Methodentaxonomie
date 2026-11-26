@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
+import { raumBietet, raumFehlt, nutztRaum, schriftFehlt } from '../src/einsatzprofil.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -31,5 +32,35 @@ describe('Einsatzprofil: Ebenen und Merkmale', () => {
 
   it('kennt das Wort Bedingungsraum nicht mehr', () => {
     expect(JSON.stringify(D.schemes)).not.toMatch(/Bedingungsraum/);
+  });
+});
+
+describe('Einsatzprofil: Raum und Schrift', () => {
+  const m = (raumbedarf?: string[], schriftbedarf?: string[]) => ({ raumbedarf, schriftbedarf });
+
+  it('Raumtypen bieten die Eigenschaften der Spec', () => {
+    expect([...raumBietet(D, 'hoersaal')].sort()).toEqual(['schreibplatz', 'wandflaeche']);
+    expect([...raumBietet(D, 'bewegungsraum')].sort()).toEqual(['bewegungsflaeche', 'stellflaeche']);
+    expect(raumBietet(D, 'unbekannt').size).toBe(0);
+  });
+
+  it('meldet fehlende Raumeigenschaften mit Label', () => {
+    expect(raumFehlt(D, m(['stellflaeche']), 'hoersaal')).toEqual(['Stellfläche']);
+    expect(raumFehlt(D, m(['schreibplatz', 'wandflaeche']), 'bewegungsraum')).toEqual(['Schreibplatz', 'Wand- oder Tafelfläche']);
+    expect(raumFehlt(D, m(['stellflaeche']), 'klassenraum')).toEqual([]);
+    expect(raumFehlt(D, m(undefined), 'hoersaal')).toEqual([]);
+    expect(raumFehlt(D, m([]), 'bewegungsraum')).toEqual([]);
+  });
+
+  it('erkennt, ob eine Methode den besonderen Raum nutzt', () => {
+    expect(nutztRaum(D, m(['bewegungsflaeche']), 'bewegungsraum')).toBe(true);
+    expect(nutztRaum(D, m(['stellflaeche']), 'bewegungsraum')).toBe(false);
+    expect(nutztRaum(D, m(['fachausstattung']), 'fachraum')).toBe(true);
+  });
+
+  it('meldet fehlende Schriftsprache', () => {
+    expect(schriftFehlt(m(undefined, ['liest', 'schreibt']), ['lesen'])).toEqual(['Lesen']);
+    expect(schriftFehlt(m(undefined, ['schreibt']), ['lesen'])).toEqual([]);
+    expect(schriftFehlt(m(undefined, undefined), ['lesen', 'schreiben'])).toEqual([]);
   });
 });

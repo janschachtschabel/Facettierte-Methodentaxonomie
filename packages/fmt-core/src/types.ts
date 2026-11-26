@@ -63,6 +63,8 @@ export interface VocabValue {
   closeMatch?: string | string[];
   relatedMatch?: string | string[];
   broadMatch?: string | string[];
+  /** Room type only: room properties it offers (vocab raumbedarf). */
+  bietet?: string[];
 }
 
 export interface VocabGroup {
@@ -222,12 +224,20 @@ export interface Baustein {
   fachbereichUngeeignet?: string[];
   /** Rooms the method is made for or works well in (vocab lernort); without it the fit is derived from other facets. */
   lernort?: string[];
+  /** BD1: room properties the method needs (vocab raumbedarf); all must be met, empty = no special need. */
+  raumbedarf?: string[];
+  /** BD6: whether learners read or write text (vocab schriftbedarf). */
+  schriftbedarf?: string[];
   geeignetBeiVorwissen?: string[];
   ungeeignetBeiStufe?: string[];
   problem: string;
   durchfuehrung: string[];
   material: string[];
   raum?: string;
+  /** Free-text note on the room (layout, setup). */
+  raumhinweis?: string;
+  /** Free-text note on supervision (second adult, constant supervision, safety briefing). */
+  betreuungshinweis?: string;
   gruppeMin: number;
   gruppeMax: number;
   teamMin?: number;

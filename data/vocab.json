@@ -1217,6 +1217,144 @@
           ]
         }
       ]
+    },
+    {
+      "id": "raumbedarf",
+      "titel": "Raumbedarf",
+      "beschreibung": "Bedarf (BD1): Raumeigenschaften, die eine Methode braucht. Alle Einträge müssen erfüllt sein; leer heißt: keine besondere Anforderung an den Raum.",
+      "werte": [
+        {
+          "id": "schreibplatz",
+          "label": "Schreibplatz",
+          "definition": "Tisch oder Arbeitsfläche zum Schreiben für jede Person"
+        },
+        {
+          "id": "stellflaeche",
+          "label": "Stellfläche",
+          "definition": "Freie Fläche zum Stehen, Gehen oder für Stuhlkreise, im Klassenraum durch Umräumen"
+        },
+        {
+          "id": "bewegungsflaeche",
+          "label": "Bewegungsfläche",
+          "definition": "Große freie Fläche zum Laufen und Spielen"
+        },
+        {
+          "id": "wandflaeche",
+          "label": "Wand- oder Tafelfläche",
+          "definition": "Wand, Tafel oder Pinnwand zum Aufhängen und Anschreiben"
+        },
+        {
+          "id": "fachausstattung",
+          "label": "Fachausstattung",
+          "definition": "Werkstatt, Labor, Küche, Instrumente oder Rechner"
+        },
+        {
+          "id": "aussenort",
+          "label": "Ort außerhalb des Gebäudes",
+          "definition": "Schulhof, Gelände, Betrieb oder außerschulischer Ort"
+        }
+      ]
+    },
+    {
+      "id": "raumtyp",
+      "titel": "Raumtyp",
+      "beschreibung": "Rahmenbedingung des Szenarios: Art des Raums, in dem die Stunde stattfindet. Jeder Raumtyp bietet Raumeigenschaften, gegen die der Raumbedarf (BD1) der Methoden geprüft wird.",
+      "werte": [
+        {
+          "id": "klassenraum",
+          "label": "Klassen- oder Seminarraum",
+          "definition": "Raum mit Tischen und Stühlen, auch mit Gruppentischen oder Stuhlkreis",
+          "alt": [
+            "Seminarraum",
+            "Gruppenraum"
+          ],
+          "bietet": [
+            "schreibplatz",
+            "stellflaeche",
+            "wandflaeche"
+          ]
+        },
+        {
+          "id": "bewegungsraum",
+          "label": "Sporthalle oder Bewegungsfläche",
+          "definition": "Sporthalle, Gymnastikraum, Aula oder freie Fläche, auf der sich alle bewegen können",
+          "alt": [
+            "Turnhalle",
+            "Sporthalle",
+            "Gymnastikraum",
+            "Aula"
+          ],
+          "bietet": [
+            "stellflaeche",
+            "bewegungsflaeche"
+          ]
+        },
+        {
+          "id": "fachraum",
+          "label": "Fachraum oder Werkstatt",
+          "definition": "Labor, Werkstatt, Lehrküche, Musikraum, Übungsraum oder Skills Lab mit fachlicher Ausstattung",
+          "alt": [
+            "Labor",
+            "Werkstatt",
+            "Lehrküche",
+            "Übungsraum",
+            "Skills Lab",
+            "Werkraum"
+          ],
+          "bietet": [
+            "schreibplatz",
+            "stellflaeche",
+            "wandflaeche",
+            "fachausstattung"
+          ]
+        },
+        {
+          "id": "draussen",
+          "label": "Draußen oder außerschulischer Ort",
+          "definition": "Schulhof, Gelände, Natur, Betrieb, Museum oder anderer Ort außerhalb des Unterrichtsraums",
+          "alt": [
+            "Schulhof",
+            "im Freien",
+            "Exkursion",
+            "außerschulischer Lernort"
+          ],
+          "bietet": [
+            "stellflaeche",
+            "bewegungsflaeche",
+            "aussenort"
+          ]
+        },
+        {
+          "id": "hoersaal",
+          "label": "Hörsaal",
+          "definition": "Großer Raum mit fester Bestuhlung, kaum Platz für Bewegung oder Umstellen",
+          "alt": [
+            "Vorlesungssaal",
+            "Aula mit fester Bestuhlung"
+          ],
+          "bietet": [
+            "schreibplatz",
+            "wandflaeche"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "schriftbedarf",
+      "titel": "Schriftbedarf",
+      "beschreibung": "Bedarf (BD6): ob die Lernenden in der Methode Text lesen oder schreiben. Wer schreibt, braucht in der Regel einen Schreibplatz.",
+      "werte": [
+        {
+          "id": "liest",
+          "label": "Lesen",
+          "definition": "Lernende lesen Text"
+        },
+        {
+          "id": "schreibt",
+          "label": "Schreiben",
+          "definition": "Lernende schreiben Text"
+        }
+      ]
     }
   ],
   "facetten": [

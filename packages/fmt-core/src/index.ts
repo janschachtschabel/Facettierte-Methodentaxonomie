@@ -17,3 +17,4 @@ export { createSubjectDetector, oehDisciplinesForFachbereich } from './fach.js';
 export type { DetectedSubject, FmtSubjectDetector, OehSubject, OehSubjectCrosswalk } from './fach.js';
 export * from './kennung.js';
 export * from './technik.js';
+export { raumBietet, raumFehlt, nutztRaum, schriftFehlt } from './einsatzprofil.js';
