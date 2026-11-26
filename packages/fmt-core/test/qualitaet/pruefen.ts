@@ -132,6 +132,27 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
       });
       add('verneinung', nur.length === 0, `Methoden nur mit ausgeschlossener Sozialform: ${nur.map((n) => n.baustein).join(', ')}`);
     }
+
+    const kette4 = D.ketten.find((x) => x.id === r.kette?.id);
+    const nichtImPlan = (felder: 'raumbedarf' | 'schriftbedarf', verboten: string[]) =>
+      alle.filter((n) => (byId.get(n.baustein)![felder] || []).some((x) => verboten.includes(x))).map((n) => n.baustein);
+    if (e.ohneRaumbedarf) {
+      const drin = nichtImPlan('raumbedarf', e.ohneRaumbedarf);
+      add('bedarf', drin.length === 0, `Methoden mit ausgeschlossenem Raumbedarf: ${drin.join(', ') || '–'}`);
+    }
+    if (e.ohneSchriftbedarf) {
+      const drin = nichtImPlan('schriftbedarf', e.ohneSchriftbedarf);
+      add('bedarf', drin.length === 0, `Methoden mit ausgeschlossenem Schriftbedarf: ${drin.join(', ') || '–'}`);
+    }
+    if (e.wissensartHaupt) {
+      // Main and securing steps only; the opening and closing steps (rolle 'rand') are free.
+      const tragend = haupt.filter((n) => {
+        const rolle = kette4?.schritte.find((st) => st.id === n.kettenschritt)?.rolle;
+        return rolle === 'haupt' || rolle === 'sicherung';
+      });
+      const falsch = tragend.filter((n) => !(byId.get(n.baustein)!.aufgabe || []).some((a) => e.wissensartHaupt!.includes(a)));
+      add('bindung', tragend.length > 0 && falsch.length === 0, `Haupt- und Sicherungsschritte ohne ${e.wissensartHaupt.join('/')}: ${falsch.map((n) => n.baustein).join(', ') || '–'}`);
+    }
   } else if (r.modus === 'phase') {
     add('gueltig', (r.vorschlaege || []).length > 0, `${(r.vorschlaege || []).length} Vorschläge`);
     if (e.praxis) {
@@ -157,6 +178,40 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
     if (JSON.stringify(k[feld]) === JSON.stringify(wert)) kriterienFehler.push(`${feld}=${JSON.stringify(wert)} fälschlich gelesen`);
   }
   if (e.kriterien || e.nichtKriterien) add('kriterien', kriterienFehler.length === 0, kriterienFehler.join('; '));
+
+  // Checks on answer fields that later packages add; while a field is missing the check counts as failed.
+  const antwort = r as unknown as Record<string, unknown>;
+  const text = (x: unknown) => JSON.stringify(x ?? null);
+  const fehlt = (feld: string) => antwort[feld] === undefined;
+  if (e.pflichtFehlt || e.angenommen) {
+    const p = antwort.pflichtangaben as { fehlt?: string[]; angenommen?: string[] | Record<string, unknown> } | undefined;
+    const fehltListe = p?.fehlt || [];
+    const angListe = Array.isArray(p?.angenommen) ? (p!.angenommen as string[]) : Object.keys(p?.angenommen || {});
+    const luecken = [
+      ...(e.pflichtFehlt || []).filter((x) => !fehltListe.includes(x)).map((x) => `${x} nicht als fehlend gemeldet`),
+      ...(e.angenommen || []).filter((x) => !angListe.includes(x)).map((x) => `${x} nicht als angenommen ausgewiesen`)
+    ];
+    add('pflichtangaben', p !== undefined && luecken.length === 0, p === undefined ? 'Antwortfeld pflichtangaben fehlt' : luecken.join('; '));
+  }
+  if (e.regeln) {
+    const meldungen = text(antwort.regelmeldungen);
+    const fehlend = e.regeln.filter((id) => !meldungen.includes(`"${id}"`));
+    add('regel', !fehlt('regelmeldungen') && fehlend.length === 0, fehlt('regelmeldungen') ? 'Antwortfeld regelmeldungen fehlt' : `Regel nicht gemeldet: ${fehlend.join(', ')}`);
+  }
+  if (e.nachweisform) {
+    const form = text(antwort.nachweis);
+    add('nachweis', !fehlt('nachweis') && form.includes(`"${e.nachweisform}"`), fehlt('nachweis') ? 'Antwortfeld nachweis fehlt' : `erwartet ${e.nachweisform}, erhalten ${form}`);
+  }
+  if (e.planungsprofil) {
+    const profil = text(antwort.planungsprofil);
+    add('profil', !fehlt('planungsprofil') && profil.includes(`"${e.planungsprofil}"`), fehlt('planungsprofil') ? 'Antwortfeld planungsprofil fehlt' : `erwartet ${e.planungsprofil}, erhalten ${profil}`);
+  }
+  if (e.begleitstrang) {
+    const strang = text(antwort.begleitstrang);
+    add('begleitziel', !fehlt('begleitstrang') && strang.includes(`"${e.begleitstrang}"`), fehlt('begleitstrang') ? 'Antwortfeld begleitstrang fehlt' : `erwartet ${e.begleitstrang}, erhalten ${strang}`);
+  }
+  // Subgroup checks will run through adaptScenario once Package C defines the subgroup input; stub until then.
+  if (e.teilgruppe) add('teilgruppe', false, 'noch nicht umgesetzt (Paket C)');
 
   return { fall, ergebnis: r, ablauf, befunde };
 }
