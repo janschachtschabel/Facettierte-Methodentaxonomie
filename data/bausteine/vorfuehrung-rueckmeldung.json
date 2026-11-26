@@ -1,0 +1,153 @@
+{
+  "kennung": "vorfuehrung-rueckmeldung",
+  "name": "Vorführung mit Rückmeldung",
+  "status": "entwurf",
+  "piktogramm": "rolle",
+  "ansatz": [
+    "uebung",
+    "diagnose-feedback"
+  ],
+  "fachbereich": [
+    "aesthetik",
+    "beruf-praxis"
+  ],
+  "fachbereichUngeeignet": [
+    "mathe-informatik",
+    "gesellschaft"
+  ],
+  "lernort": [
+    "klassenraum",
+    "bewegungsraum",
+    "fachraum",
+    "draussen"
+  ],
+  "kurzbeschreibung": "Gruppen oder Einzelne führen das Geübte vor (Lied, Szene, Choreografie, Handgriff); die anderen geben nach vereinbarten Kriterien kurz Rückmeldung.",
+  "alternativname": [
+    "Präsentationsrunde",
+    "Vorspielen",
+    "Vorführrunde",
+    "Werkschau praktisch"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 20,
+  "problem": "Nach dem Üben fehlt eine kurze Phase, in der die Fertigkeit vor anderen gezeigt und an Kriterien gespiegelt wird.",
+  "durchfuehrung": [
+    "Zwei bis drei Beobachtungskriterien vereinbaren",
+    "Gruppen oder Einzelne führen nacheinander vor (je 1–3 Minuten)",
+    "Publikum gibt je eine Stärke und einen Tipp zu den Kriterien",
+    "Lehrkraft fasst zusammen, was alle als Nächstes üben"
+  ],
+  "material": [
+    "Kriterienkarte",
+    "ggf. Musik, Requisiten oder Werkzeug"
+  ],
+  "raum": "Klassenraum, Halle, Bühne oder Fachraum",
+  "gruppeMin": 4,
+  "gruppeMax": 32,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 5,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "anwendung",
+    "diagnose"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernstand-diagnostiziert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "kriterien",
+      "name": "Rückmeldung an vorher vereinbarten Kriterien"
+    },
+    {
+      "kennung": "kurz",
+      "name": "Kurze Vorführungen, damit alle drankommen"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Bloßstellung einzelner Lernender",
+    "Rückmeldung ohne Kriterien („war gut“)"
+  ],
+  "hinweis": "Ergänzt nach Testreihe 2 der Szenariovorschläge (2026-11-26, Vorschlag S10–S12).",
+  "evidenz": [
+    {
+      "grad": "C",
+      "befund": "Kriterienbezogenes Peer-Feedback zu gezeigten Leistungen verbessert die Leistung; Effekte für Peer-Assessment sind gut belegt.",
+      "quelle": "Double, McGrane & Hopfenbeck 2020 (Meta-Analyse Peer Assessment)",
+      "evidenzBezug": "prinzip",
+      "geltung": "Schule und Hochschule, praktische und gestalterische Fächer",
+      "umstritten": "Wirkung hängt von Kriterien und Schulung der Rückmeldenden ab"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Double, K. S., McGrane, J. A. & Hopfenbeck, T. N. (2020): The Impact of Peer Assessment on Academic Performance. Educational Psychology Review 32",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 1.55
+  }
+}

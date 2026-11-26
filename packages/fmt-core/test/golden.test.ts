@@ -173,7 +173,8 @@ describe('Stundenart aus dem Text', () => {
     expect(chainOf('Politik Klasse 7: Regeln in der Klasse demokratisch aushandeln, 45 Minuten')).toBe('urteilsbildung');
     expect(chainOf('Jura Uni Seminar: Fallbearbeitung Kaufrecht, 90 Minuten, 30 Studierende')).toBe('problemloesen');
     expect(chainOf('Fachinformatiker Lernfeld 3: Netzwerk planen, 90 Minuten')).toBe('projektlernen');
-    expect(chainOf('Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, 45 Minuten')).toBe('fuenf-e');
+    // Identifying with a key is a procedure to practise, not an inquiry cycle.
+    expect(chainOf('Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, 45 Minuten')).toBe('prozedur');
     expect(chainOf('Geschichte Klasse 10 Weimarer Republik, 90 Minuten')).toBe('konzeptaufbau');
     expect(chainOf('Deutsch Klasse 7: bestimmte Artikel wiederholen, 45 Minuten')).toBe('prozedur');
     expect(chainOf('Einführungsphase Mathe: Ableitungen üben, 90 Minuten')).toBe('prozedur');
@@ -334,5 +335,53 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     const r = M.zuordnen({ zieltyp: 'kondition-training', bildungsstufe: 'sek1' });
     expect(r.kriterien.fachbereich).toBe('sport');
     expect(r.modus === 'ablauf' && r.pruefung?.gueltig).toBe(true);
+  });
+});
+
+describe('Prüfung am Stundenanfang und Lesen praktischer Fächer', () => {
+  it('„Vokabeltest und danach neue Lektion“: der genannte Test steht am Anfang und ist gültig', () => {
+    const r = M.zuordnen({ text: 'Französisch Klasse 7, Vokabeltest und danach neue Lektion einführen, 45 Minuten' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(r.pruefung?.gueltig).toBe(true);
+      expect(r.schritte[0].baustein).toBe('vokabeltest-kurzkontrolle');
+      expect(r.arrangement?.kontext?.vorhanden).toEqual(['erstwissen-ungesichert']);
+    }
+  });
+
+  it.each([
+    ['Darstellendes Spiel Klasse 10: Improvisation und Szenenarbeit, 90 Minuten', 'psychomotorik'],
+    ['Chemie Anfangsunterricht Klasse 7: Sicherheitsregeln im Labor und Brenner anzünden, 45 Minuten', 'psychomotorik'],
+    ['Seniorenkurs: Smartphone Grundlagen, WhatsApp nutzen, 90 Minuten, 8 Teilnehmende', 'psychomotorik'],
+    ['Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, draußen, 45 Minuten', 'prozeduren']
+  ])('%s → Zielart %s', (text, zielart) => {
+    expect(M.lesen(text).kriterien.zielart).toBe(zielart);
+  });
+
+  it('„Tablets nutzen für Recherche“ ist keine Bewegungs- oder Praxisstunde', () => {
+    expect(M.lesen('Informatik Klasse 9, 45 Minuten, Tablets nutzen für Recherche').kriterien.zielart).toBeUndefined();
+  });
+});
+
+describe('Keine Fehlgriffe durch Alltagswörter (Review)', () => {
+  it.each([
+    ['Wiederholungsstunde zur Vorbereitung auf die Klassenarbeit, Mathe Klasse 8, 90 Minuten', 'klassenarbeit-summativ'],
+    ['Deutsch Klasse 5: Schüler sollen ihre Geschichten vorlesen, 45 Minuten', 'vorlesen-lesung']
+  ])('%s: ohne %s', (text, id) => {
+    expect(blocksOf(M.zuordnen({ text }))).not.toContain(id);
+  });
+
+  it.each([
+    'Deutsch Klasse 11: Schillers Schauspiel Die Räuber analysieren, 90 Minuten',
+    'Mathe Klasse 6: mit dem Tablet Grundlagen der Bruchrechnung üben, 45 Minuten',
+    'Geschichte Klasse 9: Handy Grundlagen der Quellenkritik, 45 Minuten',
+    'Englisch: Lehrkraft muss improvisieren, Vokabeln wiederholen, 45 Minuten'
+  ])('%s: keine Bewegungs- oder Praxisstunde', (text) => {
+    expect(M.lesen(text).kriterien.zielart).not.toBe('psychomotorik');
+  });
+
+  it('ein mitgegebener Zustand „vorhanden“ erreicht den Kontext des Ablaufs', () => {
+    const r = M.zuordnen({ text: 'Mathe Klasse 8 Brüche, 45 Minuten', vorhanden: ['erstwissen-ungesichert'] });
+    expect(r.modus === 'ablauf' && r.arrangement?.kontext?.vorhanden).toEqual(['erstwissen-ungesichert']);
   });
 });

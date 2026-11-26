@@ -119,7 +119,7 @@ export function createValidator(data: FmtData): FmtValidator {
       wiederkehr: Array<{ anzahl: number; baustein: string }>;
       ausserhalbMin: number;
     } = {
-      zustand: new Set(),
+      zustand: new Set(kontext.vorhanden || []),
       offen: null,
       passiv: 0,
       passivGemeldet: false,

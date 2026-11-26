@@ -1,0 +1,144 @@
+{
+  "kennung": "transferauftrag-variation",
+  "name": "Transferauftrag in veränderter Situation",
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung"
+  ],
+  "fachbereich": [
+    "beruf-praxis",
+    "nawi-technik"
+  ],
+  "fachbereichUngeeignet": [
+    "sport",
+    "gesellschaft",
+    "sprachen"
+  ],
+  "lernort": [
+    "klassenraum",
+    "fachraum"
+  ],
+  "kurzbeschreibung": "Die geübte Fertigkeit wird in einer leicht veränderten Situation angewendet (anderes Gerät, anderer Fall, andere Ausgangslage), ohne neue Anleitung.",
+  "alternativname": [
+    "Variationsaufgabe praktisch"
+  ],
+  "reichweite": "r1",
+  "dauerMin": 5,
+  "dauerMax": 20,
+  "problem": "Geübte Handgriffe bleiben an die Übungssituation gebunden; ohne Variation zeigt sich nicht, ob sie übertragbar sind.",
+  "durchfuehrung": [
+    "Eine Bedingung gegenüber der Übung ändern (Gerät, Fall, Reihenfolge, Störung)",
+    "Lernende arbeiten allein oder im Tandem ohne neue Anleitung",
+    "Kurz vergleichen: Was war gleich, was musste angepasst werden?"
+  ],
+  "material": [
+    "Variationskarte",
+    "Gerät oder Material in veränderter Form"
+  ],
+  "raum": "Fachraum, Werkstatt oder Klassenraum",
+  "gruppeMin": 1,
+  "gruppeMax": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "vorbereitungMin": 10,
+  "variante": [],
+  "kategorie": [
+    "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/15"
+  ],
+  "lernfunktion": [
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "enaktiv"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb3",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verschachtelt"
+  ],
+  "vorbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "variation",
+      "name": "Genau eine Bedingung gegenüber der Übung verändert"
+    }
+  ],
+  "qualitaetsrisiko": [
+    "Veränderung zu groß, sodass wieder Anleitung nötig ist"
+  ],
+  "hinweis": "Ergänzt nach Testreihe 2 der Szenariovorschläge (2026-11-26, Vorschlag S10–S12).",
+  "evidenz": [
+    {
+      "grad": "B",
+      "befund": "Variierte Übung (variable practice) fördert Transfer motorischer und prozeduraler Fertigkeiten gegenüber konstanter Übung.",
+      "quelle": "Schmidt & Lee 2019 (Motor Learning and Performance); Shea & Morgan 1979",
+      "evidenzBezug": "prinzip",
+      "geltung": "Motorisches und prozedurales Lernen, berufliche Bildung",
+      "umstritten": "Für Anfänger kann zu frühe Variation das Erlernen verlangsamen"
+    }
+  ],
+  "quellen": [
+    {
+      "titel": "Schmidt, R. A. & Lee, T. D. (2019): Motor Learning and Performance. Human Kinetics",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 1.55
+  }
+}

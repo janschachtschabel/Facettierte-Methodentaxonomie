@@ -22,7 +22,7 @@ const MIN_SINGLE = 6; // single-word aliases shorter than this are everyday word
 const MIN_COMPOUND_TAIL = 9; // "experiment" may end a compound ("Schülerexperimente"); short aliases may not
 const GENERIC_TAIL = new Set(['methode', 'diskussion', 'technik', 'runde', 'verfahren', 'activity', 'modell', 'prinzip']);
 // Everyday words that are a synonym of one specific method in the catalogue but usually mean something broader.
-const AMBIGUOUS = new Set(['vortrag', 'diskussion', 'ubung', 'projekt', 'prasentation', 'feedback', 'gesprach']);
+const AMBIGUOUS = new Set(['vortrag', 'diskussion', 'ubung', 'projekt', 'prasentation', 'feedback', 'gesprach', 'vorlesen', 'spielform']);
 const INFLECTION = /^(?:e|en|er|es|s|n|ern|ens)?$/;
 
 const tokens = (s: string) =>
@@ -49,7 +49,10 @@ export function createMentionDetector(data: FmtData): FmtMentionDetector {
   };
   for (const b of data.bausteine) {
     const paren = /^(.*?)\s*\(([^)]*)\)\s*$/.exec(b.name);
-    add(b.kennung, paren ? paren[1] : b.name, true);
+    const main = paren ? paren[1] : b.name;
+    add(b.kennung, main, true);
+    // "Vokabeltest / Schriftliche Kurzkontrolle" is called by either part (as a synonym: a part may be an everyday word).
+    if (main.includes(' / ')) main.split(' / ').forEach((part) => add(b.kennung, part, false));
     if (paren) add(b.kennung, paren[2], false);
     for (const alt of b.alternativname || []) add(b.kennung, alt, false);
   }
