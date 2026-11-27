@@ -59,4 +59,13 @@ describe('Testreihe 4 (FMT 2.0, n01 bis n20)', () => {
     const offen = e.befunde.filter((b) => !b.ok && !b.bekannt).map((b) => `${b.pruefung}: ${b.detail}`);
     expect(offen, `${e.fall.text}\n→ ${e.ablauf.join(' > ')}`).toEqual([]);
   });
+  it('bekannt steht nur an einer Prüfung, die nicht besteht (nach Paket D, D7)', () => {
+    // A marker on a check that passes would hide a later regression; after Paket D only real reasons remain.
+    const veraltet = reihe4.flatMap((e) =>
+      Object.keys(e.fall.bekannt || {})
+        .filter((p) => !e.befunde.some((b) => b.pruefung === p && !b.ok))
+        .map((p) => `${e.fall.id}: ${p}`)
+    );
+    expect(veraltet).toEqual([]);
+  });
 });
