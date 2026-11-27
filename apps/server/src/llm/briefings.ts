@@ -786,7 +786,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       grundlage: m.grundlage,
       ...(m.quelle ? { quelle: m.quelle } : {}),
       text: m.text,
-      ...(m.baustein ? { baustein: m.baustein } : {})
+      ...(m.baustein ? { baustein: m.baustein } : {}),
+      ...(m.bausteine?.length ? { bausteine: m.bausteine } : {})
     })),
     methodenDetails,
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),

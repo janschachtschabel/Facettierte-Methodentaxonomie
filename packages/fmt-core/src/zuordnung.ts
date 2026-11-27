@@ -1847,7 +1847,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
    * - the warnings of the chosen methods (in a single phase they stand at each proposal, so the notes leave them out);
    * - nachweis-passt-zum-ziel when the plan's check step yields none of the wanted forms of proof (W5: said, not relaxed);
    * - one sicherheitshinweis per answer when methods work hands-on in a practical room or subject: it stands at the first
-   *   such method and names up to two others.
+   *   such method, names up to two others and lists all of them in bausteine.
    */
   function mitRegelmeldungen(r: MatchResult, lage: { raum: string; area: string; mentions: Set<string>; situation: Situation }): MatchResult {
     const a = r.kriterien as MatchRequest;
@@ -1874,7 +1874,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const namen = praktisch.slice(0, 3).map((b) => b.name);
       const aufzaehlung = namen.length > 1 ? `${namen.slice(0, -1).join(', ')} und ${namen[namen.length - 1]}` : namen[0];
       const text = sicherheitsRegel.text.replace(/\{methode\}/g, aufzaehlung).replace(/^Im Ablauf/, r.modus === 'phase' ? 'Unter den Vorschlägen' : 'Im Ablauf');
-      sicherheit.push(regeln.meldung(sicherheitsRegel.id, praktisch[0], text)!);
+      // All hands-on methods go along, so a view of the plan can keep the note while any of them stays.
+      sicherheit.push({ ...regeln.meldung(sicherheitsRegel.id, praktisch[0], text)!, bausteine: praktisch.map((b) => b.kennung) });
     }
     // One check per method; the ids of every firing rule are collected once (not one full run per rule).
     const lageJetzt = regelLage(a);

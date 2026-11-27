@@ -177,6 +177,8 @@ export interface Regelmeldung {
   quelle?: string;
   text: string;
   baustein?: string;
+  /** Every method the message speaks about, the attached one (baustein) first (e.g. all hands-on methods of a plan). */
+  bausteine?: string[];
 }
 export interface RegelSituation {
   vorwissen?: string;

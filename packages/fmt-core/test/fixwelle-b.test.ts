@@ -23,6 +23,13 @@ describe('Fix wave Paket B', () => {
     expect(genannt.length).toBeLessThanOrEqual(3);
     expect(genannt[0]).toBe(name(s[0].baustein!));
     expect((chemie.hinweise || []).filter((h) => /Sicherheit und Aufsicht/.test(h)).length).toBe(1);
+    // Round 2: the message names every hands-on method of the answer, the attached one first.
+    expect(s[0].bausteine?.[0]).toBe(s[0].baustein);
+    expect(s[0].bausteine!.length).toBeGreaterThanOrEqual(genannt.length);
+    const phase = M.zuordnen({ text: 'Einstieg Chemie Klasse 8 Säuren' });
+    const p = (phase.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis');
+    expect(p.length).toBe(1);
+    expect(p[0].bausteine).toEqual(expect.arrayContaining(['stummer-impuls', 'soziometrie-aufstellung']));
   });
 
   it('9: keine Kennungen BD/EG mehr in den Beschreibungen des Vokabulars (W2)', () => {

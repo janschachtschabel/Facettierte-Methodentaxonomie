@@ -438,6 +438,31 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
   });
 
+  it('Der Sicherheitshinweis bleibt, solange eine praktische Methode im Ablauf steht, und nennt nur diese (Runde 2, Punkt 1)', () => {
+    renderPlanner();
+    // Single phase: the note stands at Stummer Impuls and names Soziometrische Aufstellung; taking the latter keeps it.
+    propose('Einstieg Chemie Klasse 8 Säuren');
+    const vorschlag = (name: RegExp) => screen.getAllByRole('button').find((b) => /^\+ /.test(b.textContent || '') && name.test(b.textContent || ''))!;
+    fireEvent.click(vorschlag(/Soziometrische Aufstellung/));
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    const zeile = screen.getByRole('list', { name: /Hinweise zu Soziometrische Aufstellung/ });
+    expect(zeile.textContent).toContain('Im Ablauf wird praktisch gearbeitet (z. B. Soziometrische Aufstellung (Lebendige Statistik)). Kläre vorher Sicherheit und Aufsicht.');
+    expect(document.body.textContent).not.toMatch(/Unter den Vorschlägen|Stummer Impuls/);
+  });
+
+  it('Ohne die erste praktische Methode bleibt der Sicherheitshinweis an der nächsten (Runde 2, Punkt 1)', () => {
+    renderPlanner();
+    propose('Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten');
+    expect(screen.getByRole('list', { name: /Hinweise zu Geleitetes Experiment/ }).textContent).toMatch(/praktisch gearbeitet/);
+    fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Schritt entfernen' })[1]);
+    fireEvent.click(screen.getByRole('button', { name: /Übersicht/ }));
+    expect(screen.queryByRole('list', { name: /Hinweise zu Geleitetes Experiment/ })).toBeNull();
+    const rest = screen.getByRole('list', { name: /Hinweise zu Interaktive Computersimulation/ });
+    expect(rest.textContent).toContain('Im Ablauf wird praktisch gearbeitet (z. B. Interaktive Computersimulation / Virtuelles Labor). Kläre vorher Sicherheit und Aufsicht.');
+    expect(document.body.textContent).not.toMatch(/z\. B\. Geleitetes Experiment/);
+  });
+
   it('Schritt 2 zeigt „Verstanden“ auch, wenn nichts fehlt (B4-Fix 2)', () => {
     renderPlanner();
     fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'klassenraum' } });

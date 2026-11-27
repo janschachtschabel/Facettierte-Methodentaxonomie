@@ -42,7 +42,7 @@ import {
 } from '../planner/differentiationFlow.js';
 import { fachbereichFromField } from '../planner/fachFeld.js';
 import { verstandenAus } from '../planner/pflichtangaben.js';
-import { regelZeile } from '../planner/regelmeldung.js';
+import { meldungenImAblauf, regelZeile } from '../planner/regelmeldung.js';
 import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
@@ -1178,8 +1178,8 @@ export function PlannerPage() {
   // Rule messages: only for methods in the arrangement (a proposal not taken or a method swapped out says nothing).
   // Method messages stand at their row in step 2; situation-level ones (no method) and those of a method in the
   // arrangement without a row of its own (e.g. in a slot) stand under "Hinweise zum Ablauf".
-  const imAblauf = new Set(usedBlocks.map((b) => b.kennung));
-  const regelmeldungen = (matchResult?.regelmeldungen || []).filter((m) => !m.baustein || imAblauf.has(m.baustein));
+  // A message about several methods (the safety note) stays while any of them is in the arrangement.
+  const regelmeldungen = meldungenImAblauf(matchResult?.regelmeldungen || [], usedBlocks, bundle?.regeln);
   const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
   const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
