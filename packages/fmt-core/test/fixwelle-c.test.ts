@@ -12,6 +12,7 @@ import {
   schnellprofilGruppe,
   scoreDifferentiationMatrix,
   teilgruppenAntworten,
+  teilgruppenHinweise,
   teilgruppenProfil,
   type AdaptScenarioResult,
   type MethodAdjustmentGroup,
@@ -195,5 +196,30 @@ describe('Fix wave C, 9: ein Tausch nennt die Hilfe, die sonst gilt', () => {
     expect(a.antwort).toBe('tausch');
     expect(a.hilfen).toEqual([]);
     expect(a.sonstHilfen?.[0]).toMatchObject({ name: T.merkmale.find((m) => m.id === 'vorwissen-gering')!.wohin, grundlage: 'E' });
+  });
+});
+
+describe('Fix wave C, Follow-up', () => {
+  const MAIN: MethodAdjustmentGroup = { id: 'regel', label: 'Regelgruppe', isMain: true, personaId: 'average' };
+  const ablauf = phasen('lehrervortrag', 'rosenshine-daily-review');
+
+  it('eine Gruppe ohne genannte Werte (nur Persona) passt und bekommt keinen Hinweis gruppierung-nur-mit-anpassung', () => {
+    const g: MethodAdjustmentGroup = { id: 'basis', label: 'Basis', personaId: 'languageAndCulture' };
+    const antworten = teilgruppenAntworten(D.bausteine, ablauf, [MAIN, g], {}, R);
+    expect(antworten.filter((a) => a.groupId === 'basis').every((a) => a.antwort === 'passt')).toBe(true);
+    const meldungen = teilgruppenHinweise(ablauf, [MAIN, g], [], [], R);
+    expect(meldungen.some((m) => m.regel === 'gruppierung-nur-mit-anpassung')).toBe(false);
+  });
+
+  it('eine Gruppe mit genannten Werten, die ohne Tausch und ohne Hilfe endet, bekommt den Hinweis', () => {
+    const g: MethodAdjustmentGroup = { id: 'x', label: 'Gruppe X', selectedValues: { 'zeitliche-verfuegbarkeit': 'zeitliche-verfuegbarkeit-flexibel' } };
+    const meldungen = teilgruppenHinweise(ablauf, [MAIN, g], [], [], R);
+    expect(meldungen.some((m) => m.regel === 'gruppierung-nur-mit-anpassung')).toBe(true);
+  });
+
+  it('teilgruppen.json und regeln.json nutzen weder „Anforderung“ noch „Bedingung“', () => {
+    const texte = JSON.stringify(D.teilgruppen) + JSON.stringify(D.regeln);
+    expect(texte).not.toMatch(/Anforderung|Bedingung/);
+    expect(T.merkmale.find((m) => m.id === 'vorwissen-hoch')!.wohin).toBe('weniger Anleitung; Anspruch erhöhen');
   });
 });
