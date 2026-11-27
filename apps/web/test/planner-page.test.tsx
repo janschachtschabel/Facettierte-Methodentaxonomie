@@ -268,15 +268,16 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
     renderPlanner();
     expect(screen.queryByRole('region', { name: 'Verstanden und fehlt noch' })).toBeNull();
-    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    propose('Einstieg für Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
     // A single phase stays in step 1.
+    expect(stepButton(1).getAttribute('aria-current')).toBe('step');
     const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
-    expect(zeile.textContent).toContain('Verstanden: Ethik · Klasse 10 · 30 Lernende · Hörsaal · Ziel (vermutet): Diagnose');
+    expect(zeile.textContent).toContain('Verstanden: Ethik · Klasse 10 · 30 Lernende · Hörsaal · Ziel: Orientierung');
     expect(within(zeile).getByText(/Fehlt noch:/).parentElement!.textContent).toBe('Fehlt noch: Zeit');
     const zeit = within(zeile).getByLabelText('Zeit in Minuten ergänzen') as HTMLInputElement;
     expect(zeit.value).toBe('');
     fireEvent.change(zeit, { target: { value: '45' } });
-    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    propose('Einstieg für Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
     expect(spy.mock.calls.at(-1)![0]!.zeitMin).toBe(45);
     spy.mockRestore();
     fireEvent.click(stepButton(1));
@@ -289,6 +290,8 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
     renderPlanner();
     propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    // Without time the text still becomes a plan (W13); back to step 1 to correct the guess.
+    fireEvent.click(stepButton(1));
     const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
     expect(zeile.textContent).toContain('Ziel (vermutet): Diagnose');
     const ziel = within(zeile).getByLabelText('Ziel ergänzen') as HTMLSelectElement;
@@ -369,6 +372,7 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
     renderPlanner();
     propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    fireEvent.click(stepButton(1));
     const zeit = screen.getByLabelText('Zeit in Minuten ergänzen') as HTMLInputElement;
     fireEvent.change(zeit, { target: { value: '45' } });
     // Typing in the text keeps the completion; the gap-only check lets the time in the text win.

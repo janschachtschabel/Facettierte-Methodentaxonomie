@@ -32,14 +32,12 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n05',
     text: 'Ethik Klasse 10, Sterbehilfe, Hörsaal mit fester Bestuhlung, 30 Lernende',
-    erwartet: { kette: 'urteilsbildung', ohneRaumbedarf: ['stellflaeche'], nicht: ['fishbowl', 'kugellager'] },
-    bekannt: { modus: 'Paket B' }
+    erwartet: { kette: 'urteilsbildung', ohneRaumbedarf: ['stellflaeche'], nicht: ['fishbowl', 'kugellager'] }
   },
   {
     id: 'n06',
     text: 'Sachunterricht Klasse 1, Jahreszeiten, Kinder können noch nicht lesen',
-    erwartet: { ohneSchriftbedarf: ['liest', 'schreibt'] },
-    bekannt: { modus: 'Paket B' }
+    erwartet: { ohneSchriftbedarf: ['liest', 'schreibt'] }
   },
 
   // Package C: subgroups (swap the method, add help, locked traits).
@@ -59,7 +57,7 @@ export const REIHE4: Qualitaetsfall[] = [
     id: 'n09',
     text: 'Deutsch Klasse 6, Balladen, Teilgruppe: visuelle Lerntypen',
     erwartet: { teilgruppe: { antwort: 'passt', gesperrt: true } },
-    bekannt: { modus: 'Paket B', teilgruppe: 'Paket C' }
+    bekannt: { teilgruppe: 'Paket C' }
   },
   {
     id: 'n10',

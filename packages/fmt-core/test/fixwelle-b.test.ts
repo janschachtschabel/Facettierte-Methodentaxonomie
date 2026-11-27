@@ -59,4 +59,24 @@ describe('Fix wave Paket B', () => {
     const mitZiel = M.zuordnen({ text: 'Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal', zielart: 'urteilen' });
     expect((mitZiel.pflichtangaben?.angenommen || []).some((x) => /vermutet aus dem Text/.test(x.grund))).toBe(false);
   });
+
+  it('1: ohne Zeit, aber mit Fach oder Stufe entsteht ein Ablauf mit angenommenen 45 Minuten (W13)', () => {
+    for (const text of [
+      'Ethik Klasse 10, Sterbehilfe, Hörsaal mit fester Bestuhlung, 30 Lernende',
+      'Sachunterricht Klasse 1, Jahreszeiten, Kinder können noch nicht lesen',
+      'Fotosynthese Klasse 7',
+      'Biologie: Fotosynthese'
+    ]) {
+      const r = M.zuordnen({ text });
+      expect(r.modus, text).toBe('ablauf');
+      expect(r.pflichtangaben?.fehlt, text).toContain('zeit');
+      expect(r.pflichtangaben?.angenommen.find((x) => x.feld === 'zeit')?.wert, text).toBe(45);
+    }
+  });
+
+  it('1: eine eindeutig einzelne Phase bleibt eine Phase, ein Thema allein ist kein Rahmen', () => {
+    for (const text of ['Einstieg für Mathe Klasse 7 Brüche', 'eine Methode für Mathe Klasse 7 Brüche', 'Sicherung Geschichte Klasse 9 Weimarer Republik', 'Fotosynthese']) {
+      expect(M.zuordnen({ text }).modus, text).toBe('phase');
+    }
+  });
 });

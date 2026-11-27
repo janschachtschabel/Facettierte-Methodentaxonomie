@@ -457,6 +457,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** Course stages that end in "-phase" but name no phase of a lesson. */
   const STAGE_PHASE = /\be-?phase\b|einfuhrungsphase|qualifikationsphase/g;
   /** Words that ask for one phase of a lesson. */
+  /** Words that ask for one method ("eine Methode für …"), not a whole lesson. */
+  const SINGLE_METHOD_WORD = /\b(?:eine|einzelne|nur\s+eine)\s+(?:methode|phase|aktivitat)\b|\bmethode\s+(?:fur|zu[mr]?)\b/;
   const PHASE_WORD =
     /\b(?:einstieg\w*|eroffnung|sicherung\w*|abschluss\w*|ausstieg|warm-?up|aufwarm\w*|stundenbeginn|stundenende|\w*phase|zum\s+(?:beginn|ende|schluss)|am\s+(?:anfang|ende|schluss)|zu\s+beginn)\b/;
 
@@ -2026,11 +2028,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const isFullLessonBudget = given(a.zeitMin) && Number(a.zeitMin) >= 45;
       // A stated lesson length without an explicit phase word ("Einstieg", "Sicherung") means a whole lesson.
       const isLessonWithoutPhaseWord = given(anfrage.text) && given(a.zeitMin) && Number(a.zeitMin) >= 40 && !hasPhase;
+      // W13: a text without time but with subject, stage or goal still becomes a plan (one assumed lesson, named under
+      // pflichtangaben.angenommen); only a text that asks for one phase or one method stays a phase.
+      const isPlanWithoutTime =
+        given(anfrage.text) &&
+        !given(a.zeitMin) &&
+        !hasPhase &&
+        !SINGLE_METHOD_WORD.test(currentRawText) &&
+        // A subject guessed from the topic alone ("Fotosynthese") is no frame.
+        ((given(a.fachbereich) && !fromText('fachbereich')?.beleg.startsWith('Thema:')) || given(a.bildungsstufe) || given(a.zielart));
       const modus =
         a.modus ||
         ((given(a.zieltyp) && !zieltypFromText) ||
         ((a.zielart || a.zieltyp) && (!hasPhase || isFullLessonBudget)) ||
         isLessonWithoutPhaseWord ||
+        isPlanWithoutTime ||
         checkInLesson
           ? 'ablauf'
           : 'phase');
