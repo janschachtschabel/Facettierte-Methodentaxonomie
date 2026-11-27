@@ -1,5 +1,56 @@
 import { useCatalog } from '../data/CatalogContext.js';
 
+/** Request and answer fields added by FMT 2.0 (where they are read or returned). */
+const FMT2_FELDER: Array<[string, string, string]> = [
+  ['planungsprofil', 'Anfrage und Antwort', 'schule, berufsschule, betrieb, hochschule oder erwachsenenbildung. Ohne Angabe folgt das Profil aus der Bildungsstufe (in der Berufsbildung auch aus „Betrieb“ im Text); die Antwort nennt das Profil, ein angenommenes zusätzlich unter pflichtangaben.'],
+  ['begleitziel', 'Anfrage', 'sprache, sozial, selbstregulation (auch als Liste). Wählt nie die Kette, ordnet nur unter gleichwertigen Methoden.'],
+  ['termine', 'Anfrage', 'Zahl der Termine. Methoden mit termineMin brauchen mehrere; ein Begleitziel in einer einzelnen Stunde meldet die Regel begleitziel-braucht-termine.'],
+  ['nachweis', 'Anfrage und Antwort', 'Form der Überprüfung (etwa schriftlich, praktisch). Ohne Angabe trägt die Zielart sie; die Antwort nennt Formen, Quelle und Grund.'],
+  ['raum', 'Anfrage', 'Raumtyp (früher lernort, das alte Feld gilt weiter); dazu raumBietet und fachausstattungArt.'],
+  ['ohneSchrift', 'Anfrage', 'lesen oder schreiben: Methoden, die das brauchen, kommen nicht in Frage.'],
+  ['pflichtangaben', 'Antwort', 'Welche der sechs Pflichtangaben fehlen (fehlt) und was dafür angenommen ist (angenommen: Feld, Wert, Grund).'],
+  ['regelmeldungen', 'Antwort', 'Jede Meldung einer Passungsregel mit regel, wirkung, grundlage, quelle, text und der Methode, wenn sie eine betrifft.'],
+  ['begleitstrang', 'Antwort', 'Je Begleitziel (sozial, selbstregulation) ein kurzer Vorschlag am Ende der Stunde mit Methode, Dauer und Grund. Er steht nicht im Ablauf.'],
+  ['genannteHilfen', 'Antwort', 'Im Text genannte Hilfen (Eintragsart hilfe): nie eine Phase, sie gehören zu einer Methode.'],
+  ['entwurf', 'Antwort (umfang „voll“)', 'Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, dazu Spalten des Verlaufsplans und Module. In methodenDetails steht je Methode status; „entwurf“ heißt Ersterfassung, noch nicht kuratiert.'],
+  ['teilgruppenImpulse', 'Antwort von POST /api/v1/adapt', 'Je Phase und Teilgruppe die Entscheidung antwort (passt, hilfe oder tausch) mit beleg (Grund, Merkmal, Grundlage, Quelle) und hilfen samt abbau; gesperrte Merkmale (Lerntypen) stehen unter gesperrt.']
+];
+
+const FMT2_ANFRAGE = JSON.stringify(
+  {
+    text: 'Englisch Klasse 7, Wortschatz Freizeit, 45 Minuten, 26 Lernende',
+    planungsprofil: 'schule',
+    begleitziel: ['sozial', 'sprache'],
+    umfang: 'kompakt'
+  },
+  null,
+  2
+);
+
+/** Shortened answer of the request above (values as the server returns them). */
+const FMT2_ANTWORT = JSON.stringify(
+  {
+    planungsprofil: { id: 'schule', angenommen: false, dokument: 'Unterrichtsentwurf', einheit: 'Unterrichtsstunde' },
+    pflichtangaben: {
+      fehlt: ['raum'],
+      angenommen: [{ feld: 'raum', wert: 'klassenraum', grund: 'Raum nicht angegeben: Klassenraum angenommen.' }]
+    },
+    regelmeldungen: [
+      {
+        regel: 'begleitziel-braucht-termine',
+        wirkung: 'weist-hin',
+        grundlage: 'E',
+        quelle: 'Dignath & Büttner 2008; Durlak et al. 2011; Lee et al. 2015',
+        text: 'Wirkungen auf soziales Lernen und Fach- und Bildungssprache sind für Programme über mehrere Wochen belegt. Eine einzelne Stunde genügt dafür nicht.'
+      }
+    ],
+    begleitstrang: [{ begleitziel: 'sozial', baustein: 'votum-ei', dauerMin: 3, position: 'ende', grund: 'Trägt das Begleitziel soziales Lernen: … Ein Vorschlag zum Übernehmen; er steht nicht im Ablauf.' }],
+    methodenDetails: [{ kennung: 'gruppenbildung-zufall', status: 'entwurf', '…': '…' }]
+  },
+  null,
+  2
+);
+
 export function ApiMcpPage() {
   const { bundle, meta, setLlmSettingsOpen } = useCatalog();
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080';
@@ -200,6 +251,48 @@ export function ApiMcpPage() {
             ⚙ KI-Einstellungen öffnen
           </button>
         </div>
+      </section>
+
+      <section className="card" style={{ padding: 18, marginTop: 24 }}>
+        <h2>Neue Felder der FMT 2.0</h2>
+        <p style={{ fontSize: 15, maxWidth: '76ch' }}>
+          Die Felder gelten gleich für <code>POST /api/v1/plan</code>, <code>POST /api/v1/match</code> und die MCP-Tools{' '}
+          <code>match_scenario</code>, <code>build_scenario_plan</code> und <code>elaborate_scenario</code>. Alte Aufrufe
+          laufen weiter: <code>lernort</code> gilt als <code>raum</code>, die sechs alten Codes in <code>zielart</code> und der
+          Raumtyp <code>fachraum</code> bleiben gültig.
+        </p>
+        <div className="scroll">
+          <table aria-label="Neue Felder der FMT 2.0">
+            <thead>
+              <tr>
+                <th>Feld</th>
+                <th>Wo</th>
+                <th>Bedeutung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FMT2_FELDER.map(([feld, wo, text]) => (
+                <tr key={feld}>
+                  <td>
+                    <code>{feld}</code>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{wo}</td>
+                  <td>{text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ fontSize: 15, marginTop: 12 }}>
+          <strong>Beispielanfrage:</strong>
+        </p>
+        <pre aria-label="Beispielanfrage FMT 2.0">{`curl -s -X POST ${origin}/api/v1/plan \\
+  -H "Content-Type: application/json" \\
+  -d '${FMT2_ANFRAGE}'`}</pre>
+        <p style={{ fontSize: 15, marginTop: 12 }}>
+          <strong>Auszug der Antwort</strong> (gekürzt):
+        </p>
+        <pre aria-label="Auszug der Antwort">{FMT2_ANTWORT}</pre>
       </section>
 
       <section className="card" style={{ padding: 18, marginTop: 24 }}>

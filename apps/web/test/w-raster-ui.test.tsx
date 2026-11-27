@@ -8,6 +8,7 @@ import { createSearch, createValidator, type CatalogBundle, type FmtData } from 
 import { SystematikPage, GRUNDLAGE_TEXT } from '../src/pages/SystematikPage.js';
 import { grundlageKlartext } from '../src/planner/regelmeldung.js';
 import { MethodDetailPage } from '../src/pages/MethodDetailPage.js';
+import { ApiMcpPage } from '../src/pages/ApiMcpPage.js';
 import { CatalogPage } from '../src/pages/CatalogPage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT } from '../src/planner/rahmen.js';
 
@@ -287,3 +288,79 @@ describe('Lesarten und Evidenzbezug in der Oberfläche (Paket D, D4)', () => {
     expect(within(tabelle).getAllByText('Ausgangslage sichtbar').length).toBe(4);
   });
 });
+
+describe('Systematik nach FMT 2.0 (Paket D, D7)', () => {
+  const zeige = () =>
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+
+  it('Tabelle „Tausch oder Hilfe“: jede Zeile aus teilgruppen.json mit Antwort, Grundlage und Quelle, dazu sonst und gesperrt', () => {
+    zeige();
+    const tabelle = screen.getByRole('table', { name: 'Tausch oder Hilfe' });
+    const zeilen = within(tabelle).getAllByRole('row').slice(1);
+    expect(zeilen.length).toBe(BUNDLE.teilgruppen.merkmale.length + 1);
+    for (const m of BUNDLE.teilgruppen.merkmale) {
+      const z = within(tabelle).getByRole('rowheader', { name: new RegExp(m.id) }).closest('tr') as HTMLElement;
+      expect(z.textContent).toContain(m.antwort === 'tausch' ? 'Tausch' : 'Hilfe');
+      expect(z.textContent).toContain(m.wohin);
+      expect(z.textContent).toContain(GRUNDLAGE_TEXT[m.grundlage] || m.grundlage);
+      if (m.quelle) expect(z.textContent).toContain(m.quelle);
+    }
+    expect(within(tabelle).getByText(BUNDLE.teilgruppen.sonst.wohin)).toBeTruthy();
+    expect(screen.getByText(BUNDLE.teilgruppen.gesperrtText, { exact: false })).toBeTruthy();
+  });
+
+  it('Planungsprofile: fünf Bereiche mit Einheit, Dokument und Modulen, sieben Kernfelder', () => {
+    zeige();
+    const tabelle = screen.getByRole('table', { name: 'Planungsprofile' });
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(5);
+    for (const p of BUNDLE.planungsprofile.profile) {
+      const z = within(tabelle).getByRole('rowheader', { name: new RegExp(` ${p.id}$`) }).closest('tr') as HTMLElement;
+      expect(z.textContent).toContain(p.einheit);
+      expect(z.textContent).toContain(p.dokument);
+      for (const m of p.module) expect(z.textContent).toContain(m.name);
+    }
+    const kern = screen.getByRole('list', { name: 'Kernfelder des Entwurfs' });
+    expect(within(kern).getAllByRole('listitem').length).toBe(7);
+  });
+
+  it('Begleitziele: drei Ziele mit Signal an der Methode und Zahl der Methoden, die sie tragen', () => {
+    zeige();
+    const tabelle = screen.getByRole('table', { name: 'Begleitziele' });
+    const werte = BUNDLE.schemes.find((x) => x.id === 'begleitziel')!.werte!;
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(werte.length);
+    expect(werte.length).toBe(3);
+    for (const w of werte) expect(within(tabelle).getByRole('rowheader', { name: new RegExp(w.label) })).toBeTruthy();
+    expect(screen.getByText(/wählt nie die Kette/)).toBeTruthy();
+  });
+
+  it('Grenzen: die offenen Punkte aus dem Design stehen auf der Seite', () => {
+    zeige();
+    const sec = sectionOf('Grenzen der FMT 2.0');
+    for (const t of [/Bindung ist gezählt/, /Was ein Raumtyp bietet, ist gesetzt/, /Lesarten sind gesetzt/, /zwei unabhängige Kodierende/i, /Nutzen für das Lernen/])
+      expect(within(sec).getByText(t)).toBeTruthy();
+  });
+});
+
+describe('API-Seite nach FMT 2.0 (Paket D, D7)', () => {
+  it('nennt die neuen Anfrage- und Antwortfelder mit Beispielanfrage', () => {
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    const sec = sectionOf('Neue Felder der FMT 2.0');
+    const felder = within(sec).getByRole('table', { name: 'Neue Felder der FMT 2.0' });
+    for (const f of ['planungsprofil', 'begleitziel', 'termine', 'nachweis', 'raum', 'ohneSchrift', 'pflichtangaben', 'regelmeldungen', 'begleitstrang', 'entwurf', 'teilgruppenImpulse', 'genannteHilfen'])
+      expect(within(felder).getAllByText(f).length, f).toBeGreaterThan(0);
+    const beispiel = within(sec).getByLabelText('Beispielanfrage FMT 2.0').textContent || '';
+    expect(beispiel).toContain('"planungsprofil": "schule"');
+    expect(beispiel).toContain('"begleitziel"');
+    const antwort = within(sec).getByLabelText('Auszug der Antwort').textContent || '';
+    for (const f of ['"pflichtangaben"', '"regelmeldungen"', '"begleitstrang"', '"planungsprofil"', '"status": "entwurf"']) expect(antwort, f).toContain(f);
+  });
+});
+

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FMT_RULES, oehDisciplinesForFachbereich } from '@fmt/core';
+import { FMT_RULES, nurMethoden, oehDisciplinesForFachbereich, traegtBegleitziel } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
@@ -13,6 +13,38 @@ const LESART_SPALTEN = [
   { id: 'urteilen', titel: 'Urteilen und Werten' },
   { id: 'gestalten', titel: 'Gestalten und Produzieren' }
 ] as const;
+
+/** Readable names of the subgroup rows in data/teilgruppen.json (FMT 2.0, table "Tausch oder Hilfe"). */
+const TEILGRUPPE_NAME: Record<string, string> = {
+  'vorwissen-gering': 'Geringes Vorwissen oder Leistungsniveau',
+  'vorwissen-hoch': 'Hohes Vorwissen oder Leistungsniveau',
+  lernschwierigkeiten: 'Förderbedarf Lernen',
+  sprachstand: 'Sprachstand und Ausdruck',
+  'sehen-hoeren': 'Sehen und Hören',
+  arbeitsgedaechtnis: 'Langsame Verarbeitung (Arbeitsgedächtnis)',
+  'motivation-interesse': 'Motivation und Interesse',
+  'emotional-sozial': 'Emotional-soziale Entwicklung',
+  'selbstregulation-gering': 'Geringe Selbstregulation',
+  'kann-sich-nicht-frei-bewegen': 'Kann sich nicht frei bewegen'
+};
+
+/** Readable names of the planning profiles in data/planungsprofile.json. */
+const PROFIL_NAME: Record<string, string> = {
+  schule: 'Schule',
+  berufsschule: 'Berufsschule',
+  betrieb: 'Betrieb',
+  hochschule: 'Hochschule',
+  erwachsenenbildung: 'Erwachsenenbildung'
+};
+
+/** Open points of the FMT 2.0 papers (design, section 11); they stay open and are named as limits. */
+const GRENZEN_FMT2 = [
+  'Die Bindung ist gezählt, aber noch nicht an Fällen gerechnet: Wie oft die Wissensart eines Schritts die Wahl wirklich entscheidet, zeigen bisher nur die Qualitätsfälle, keine Erhebung im Unterricht.',
+  'Was ein Raumtyp bietet, ist gesetzt. Die Tabelle der Raumtypen beruht auf einer Setzung, nicht auf einer Erhebung an Schulen und Betrieben.',
+  'Die Lesarten sind gesetzt. Sie übersetzen die zwölf Lernstände in die Sprache der Zielarten; nur die Lesarten für Bewegung stützen sich auf ein Modell (Meinel & Schnabel 2007).',
+  'Zwei unabhängige Kodierende und Fachlehrkräfte fehlen. Die Durchsichten 1 bis 3 haben je einen Vorschlag und eine unabhängige Prüfung durchlaufen; dass zwei Kodierende denselben Eintrag gleich kodieren, ist nicht gemessen, und Fachlehrkräfte haben die Daten nicht gelesen.',
+  'Der Nutzen für das Lernen ist mit Tests nicht zu klären. Die Tests prüfen, dass die Zuordnung ihren Regeln folgt, nicht, dass Lernende mit dem Vorschlag besser lernen.'
+];
 
 const DOMAINS = [
   { id: 'A', name: ['Lernprozess'], color: 'var(--dA)', soft: 'var(--dA-soft)' },
@@ -1204,6 +1236,141 @@ export function SystematikPage() {
         </div>
       </section>
 
+      {/* 7c. FMT 2.0: subgroups, planning profiles and accompanying goals (live from the bundle) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Teilgruppen, Planungsprofile und Begleitziele</h2>
+        <h3 style={{ marginTop: 22 }}>Tausch oder Hilfe: was ein Merkmal der Lernenden bewirkt</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Ein Merkmal einer Teilgruppe tauscht die Methode nur, wo ein Befund eine Grenze der Methode zeigt. Sonst bleibt die
+          Methode, und die Teilgruppe bekommt eine Hilfe in derselben Methode. Jede Zeile nennt ihre Grundlage; eine Hilfe
+          wird wieder zurückgenommen, sobald sie nicht mehr nötig ist.
+        </p>
+        <div className="scroll">
+          <table aria-label="Tausch oder Hilfe" style={{ fontSize: 14 }}>
+            <thead>
+              <tr>
+                <th>Merkmal</th>
+                <th>Antwort</th>
+                <th>Was geschieht</th>
+                <th>Grundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bundle.teilgruppen.merkmale.map((m) => (
+                <tr key={m.id}>
+                  <th scope="row" style={{ fontWeight: 600 }}>
+                    {TEILGRUPPE_NAME[m.id] || m.id} <code style={{ fontSize: 12 }}>{m.id}</code>
+                  </th>
+                  <td style={{ whiteSpace: 'nowrap' }}>{m.antwort === 'tausch' ? 'Tausch' : 'Hilfe'}</td>
+                  <td>{m.wohin}</td>
+                  <td>
+                    {GRUNDLAGE_TEXT[m.grundlage] || m.grundlage}
+                    {m.quelle && (
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        {m.quelle}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <th scope="row" style={{ fontWeight: 600 }}>
+                  Alle übrigen Ausprägungen <code style={{ fontSize: 12 }}>sonst</code>
+                </th>
+                <td>Hilfe</td>
+                <td>{bundle.teilgruppen.sonst.wohin}</td>
+                <td>{GRUNDLAGE_TEXT[bundle.teilgruppen.sonst.grundlage]}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          Gesperrt: {bundle.teilgruppen.gesperrtText} Durchschnittliche oder unauffällige Ausprägungen ({bundle.teilgruppen.neutral.length})
+          lösen nichts aus.
+        </p>
+
+        <h3 style={{ marginTop: 22 }}>Planungsprofile: {bundle.planungsprofile.profile.length} Bereiche, {bundle.planungsprofile.kernfelder.length} Kernfelder</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Der Entwurf eines Plans hat in jedem Bereich dieselben Kernfelder. Das Planungsprofil gibt ihnen die Begriffe des
+          Bereichs und ergänzt eigene Module. Es folgt aus der Bildungsstufe (in der Berufsbildung auch aus Wörtern wie
+          „Betrieb“ im Text) oder wird angegeben; ein nur angenommenes Profil nennt die Antwort unter <code>pflichtangaben</code>.
+        </p>
+        <ol aria-label="Kernfelder des Entwurfs" style={{ paddingLeft: 20, fontSize: 14.5 }}>
+          {bundle.planungsprofile.kernfelder.map((k) => (
+            <li key={k.id}>{k.name}</li>
+          ))}
+        </ol>
+        <div className="scroll">
+          <table aria-label="Planungsprofile" style={{ fontSize: 14 }}>
+            <thead>
+              <tr>
+                <th>Profil</th>
+                <th>Bildungsstufe</th>
+                <th>Einheit und größere Einheit</th>
+                <th>Dokument</th>
+                <th>Eigene Module</th>
+                <th>Verbindlichkeit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bundle.planungsprofile.profile.map((p) => (
+                <tr key={p.id}>
+                  <th scope="row" style={{ fontWeight: 600 }}>
+                    {PROFIL_NAME[p.id] || p.id} <code style={{ fontSize: 12 }}>{p.id}</code>
+                  </th>
+                  <td>{p.bildungsstufe.map((x) => labelOf('bildungsstufe', x)).join(', ')}</td>
+                  <td>
+                    {p.einheit}
+                    <div className="muted" style={{ fontSize: 12.5 }}>
+                      in: {p.groessereEinheit}
+                    </div>
+                  </td>
+                  <td>{p.dokument}</td>
+                  <td>{p.module.map((m) => m.name).join(', ')}</td>
+                  <td className="muted">{p.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {bundle.planungsprofile.hinweis && (
+          <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+            {bundle.planungsprofile.hinweis}
+          </p>
+        )}
+
+        <h3 style={{ marginTop: 22 }}>Begleitziele: was nebenbei gefördert wird</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Ein Begleitziel wählt nie die Kette und verdrängt keine Methode, die besser zum Ziel passt. Es ordnet nur unter
+          gleichwertigen Methoden und schlägt für soziales Lernen und Selbstregulation einen kurzen Begleitstrang am Ende vor,
+          den die Lehrkraft übernehmen kann. Für die Sprache nennt der Baukasten Hilfen, die in Schritt 3 den Phasen zugeordnet
+          werden. Belegte Wirkungen stammen aus Programmen über mehrere Wochen; ein Begleitziel in einer einzelnen Stunde
+          meldet die Regel „Begleitziel braucht Termine“.
+        </p>
+        <div className="scroll">
+          <table aria-label="Begleitziele" style={{ fontSize: 14 }}>
+            <thead>
+              <tr>
+                <th>Begleitziel</th>
+                <th>Was gemeint ist und woran die Methode es trägt</th>
+                <th>Methoden, die es tragen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {valuesOf('begleitziel').map((w) => (
+                <tr key={w.id}>
+                  <th scope="row" style={{ fontWeight: 600 }}>
+                    {w.label} <code style={{ fontSize: 12 }}>{w.id}</code>
+                  </th>
+                  <td>{w.definition}</td>
+                  <td>{nurMethoden(bundle.bausteine).filter((b) => traegtBegleitziel(b, w.id)).length}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* 8. Lückenmatrix */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
         <h2>Welche Lücken bestehender Systematiken geschlossen werden</h2>
@@ -1326,6 +1493,20 @@ export function SystematikPage() {
             </ul>
           </div>
         </div>
+      </section>
+
+      {/* 10. Limits of FMT 2.0 (design, section 11) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Grenzen der FMT 2.0</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Diese Punkte aus den Papieren zur FMT 2.0 sind offen und bleiben so stehen, bis jemand sie prüft. Neue Einträge der
+          Durchsicht 3 tragen den Status <em>Ersterfassung</em>, bis sie gelesen sind.
+        </p>
+        <ul style={{ paddingLeft: 18, maxWidth: '76ch', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {GRENZEN_FMT2.map((g) => (
+            <li key={g}>{g}</li>
+          ))}
+        </ul>
       </section>
     </div>
   );
