@@ -16,16 +16,14 @@ import { KennungIndex } from './kennung.js';
 import { TECH_RANK, techLimitRank } from './technik.js';
 import {
   conflictsWithMethodInteraction,
-  gleichwertigeKandidaten,
   hasAdjustmentProfile,
   hilfenFuer,
   matrixFuer,
-  wohinVon,
   proposeAdditionalPhases,
   proposeMethodAdjustments,
   proposeSupports,
   teilgruppenHinweise,
-  teilgruppenProfil,
+  teilgruppenAntworten,
   type AdditionalPhaseProposal,
   type MethodAdjustment,
   type MethodAdjustmentGroup,
@@ -33,8 +31,7 @@ import {
   type SupportProposal,
   type TeilgruppenRegelwerk
 } from './methodAdjustments.js';
-import { erstelleRegeln } from './regeln.js';
-import { bereinigeProfil, entscheideTeilgruppe, type TeilgruppenEntscheidung } from './teilgruppen.js';
+import { bereinigeProfil, type TeilgruppenEntscheidung } from './teilgruppen.js';
 
 export interface AdaptGroupInput {
   id: string;
@@ -490,7 +487,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     // Learning styles are recognised only to say why they are not evaluated (blocked category, Pashler et al. 2008).
     id: 'lerntypen',
     label: 'Lerntypen',
-    re: /\b(?:(?:visuell|auditiv|haptisch|kin[aä]sthetisch)\w*\s+(?:lerntyp|lernstil|lerner|lernende)\w*|lerntyp\w*|lernstil\w*)/i,
+    re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\b(?:(?:visuell|auditiv|haptisch|kin[aä]sthetisch)\w*\s+(?:lerntyp|lernstil|lerner|lernende)\w*|lerntyp\w*|lernstil\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:visuell\w*|auditiv\w*|haptisch\w*)\s+(?:lerntyp|lerner|lernende)/i,
     selectedValues: { sensorische: 'sensorische-multimodal' },
     signalLabel: 'Lerntypen (nicht ausgewertet)'
@@ -1031,7 +1028,6 @@ export function adaptScenario(
 
   // Subgroup decision (teilgruppen.json): profile per group from its values and the traits read from its text.
   const regelsatz: TeilgruppenRegelwerk = { teilgruppen: data.teilgruppen, regeln: data.regeln, schemes: data.schemes };
-  const regeln = erstelleRegeln(data.regeln);
   const gesperrt: AdaptScenarioResult['gesperrt'] = [];
   const adjustmentGroups: MethodAdjustmentGroup[] = resolvedGroups.map((g) => {
     const det = g.text ? detectMatrixTraitsFromText(g.text, { gesperrt: data.teilgruppen.gesperrt }) : null;
@@ -1061,33 +1057,39 @@ export function adaptScenario(
   const PASST_REGEL = 'Die Regelgruppe behält den Ablauf.';
 
   /** Answer, evidence, helps and equivalent alternatives of one group for one phase. */
-  const entscheide = (groupId: string, block: Baustein | undefined, durationMin: number | undefined, locked?: boolean) => {
+  const adjustmentPhases: MethodAdjustmentPhase[] = rawPhases.map((p, idx) => ({
+    key: p.key || `phase-${idx + 1}`,
+    label: p.phaseLabel,
+    block: p.baustein ? blocksById.get(p.baustein) : undefined,
+    durationMin: p.durationMin,
+    locked: p.locked
+  }));
+  const withMethods = adjustmentPhases.some((p) => p.block);
+  // One decision path for the table, the proposals and the hints (teilgruppenAntworten).
+  const antworten = withMethods ? teilgruppenAntworten(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz) : [];
+  const antwortByKey = new Map(antworten.map((a) => [`${a.groupId}|${a.stepKey}`, a]));
+
+  /** Answer, evidence, helps and equivalent alternatives of one group for one phase. */
+  const entscheide = (groupId: string, stepKey: string, block: Baustein | undefined) => {
     const g = groupById.get(groupId);
-    const scored = synthesis.scoredByGroupId[groupId];
     if (!g || g.isMain || !hasAdjustmentProfile(g)) {
       return { antwort: 'passt' as const, beleg: { grund: g?.isMain ? PASST_REGEL : 'Für die Gruppe ist kein Bedarf angegeben.' }, hilfen: [], alternativeMethoden: [] };
     }
-    if (!block) {
+    const a = block ? antwortByKey.get(`${groupId}|${stepKey}`) : undefined;
+    if (!a) {
       // No planned method: nothing to swap; the matrix helps for the group stand in for the method's help.
       const hilfen = hilfenFuer(undefined, hilfsMatrix.get(groupId)!, data.teilgruppen);
       return hilfen.length
         ? { antwort: 'hilfe' as const, beleg: { grund: 'Ohne geplante Methode: Hilfen der Matrix für die Teilgruppe.' }, hilfen, alternativeMethoden: [] }
         : { antwort: 'passt' as const, beleg: { grund: 'Ohne geplante Methode und ohne Bedarf, der eine Hilfe braucht.' }, hilfen: [], alternativeMethoden: [] };
     }
-    const profil = teilgruppenProfil(g, data.teilgruppen);
-    const e = entscheideTeilgruppe(block, profil, data.teilgruppen);
     const beleg = {
-      grund: e.grund,
-      ...(e.merkmal ? { merkmal: e.merkmal } : {}),
-      ...(e.grundlage ? { grundlage: e.grundlage } : {}),
-      ...(e.quelle ? { quelle: e.quelle } : {})
+      grund: a.grund,
+      ...(a.merkmal ? { merkmal: a.merkmal } : {}),
+      ...(a.grundlage ? { grundlage: a.grundlage } : {}),
+      ...(a.quelle ? { quelle: a.quelle } : {})
     };
-    const hilfen = e.antwort === 'hilfe' ? hilfenFuer(block, hilfsMatrix.get(groupId)!, data.teilgruppen, wohinVon(e, data.teilgruppen)) : [];
-    const alternativeMethoden =
-      e.antwort === 'tausch' && !locked
-        ? gleichwertigeKandidaten(data.bausteine, block, e, profil, scored, regelsatz, adjustmentConstraints, durationMin, regeln).slice(0, 3)
-        : [];
-    return { antwort: e.antwort, beleg, hilfen, alternativeMethoden };
+    return { antwort: a.antwort, beleg, hilfen: a.hilfen, alternativeMethoden: a.alternativen };
   };
 
   const phasenAnpassungen: PhaseAdaptationResult[] = rawPhases.map((p, idx) => {
@@ -1121,7 +1123,7 @@ export function adaptScenario(
         ...pool.filter((m) => !conflictsWithMethodInteraction(m.id, block)),
         ...pool.filter((m) => conflictsWithMethodInteraction(m.id, block))
       ].slice(0, 3);
-      const antwort = entscheide(tg.id, block, p.durationMin, p.locked);
+      const antwort = entscheide(tg.id, p.key || `phase-${idx + 1}`, block);
       return {
         groupId: tg.id,
         groupLabel: tg.label,
@@ -1170,18 +1172,10 @@ export function adaptScenario(
     };
   });
 
-  const adjustmentPhases: MethodAdjustmentPhase[] = rawPhases.map((p, idx) => ({
-    key: p.key || `phase-${idx + 1}`,
-    label: p.phaseLabel,
-    block: p.baustein ? blocksById.get(p.baustein) : undefined,
-    durationMin: p.durationMin,
-    locked: p.locked
-  }));
-  const withMethods = adjustmentPhases.some((p) => p.block);
   const teilgruppenMethoden = withMethods
-    ? proposeMethodAdjustments(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz)
+    ? proposeMethodAdjustments(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz, antworten)
     : [];
-  const teilgruppenHilfen = withMethods ? proposeSupports(adjustmentPhases, adjustmentGroups, regelsatz, adjustmentConstraints) : [];
+  const teilgruppenHilfen = withMethods ? proposeSupports(adjustmentPhases, adjustmentGroups, regelsatz, adjustmentConstraints, antworten) : [];
   const regelmeldungen = withMethods
     ? teilgruppenHinweise(adjustmentPhases, adjustmentGroups, teilgruppenMethoden, teilgruppenHilfen, regelsatz)
     : [];

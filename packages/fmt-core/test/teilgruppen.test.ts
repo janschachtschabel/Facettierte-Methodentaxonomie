@@ -260,12 +260,33 @@ describe('Teilgruppen: Gleichwertigkeit eines Ersatzes', () => {
   });
 
   it('zwei lehrkraftgebundene Methoden sind nicht nebeneinander führbar; mit zwei Lehrenden schon', () => {
-    const lk = baustein({ ...geplant, steuerung: { organisation: 'lehrkraft' } });
+    const lk = baustein({ ...geplant, steuerung: { organisation: 'lehrkraft', lernweg: 'lehrkraft' } } as Partial<Baustein>);
     const lkErsatz = baustein({ ...ersatz, rolle: ['instrukteur'] });
     const g = istGleichwertig(lkErsatz, lk, kontext());
     expect(g.ok).toBe(false);
     expect(g.gruende.join(' ')).toMatch(/Lehrkraft/);
     expect(istGleichwertig(lkErsatz, lk, kontext(undefined, { lehrende: 2 })).ok).toBe(true);
     expect(istGleichwertig(lkErsatz, geplant, kontext()).ok).toBe(true);
+  });
+
+  it('nur organisiert von der Lehrkraft bindet sie nicht; erst ein von ihr geführter Lernweg oder die Rolle instrukteur', () => {
+    const organisiert = { organisation: 'lehrkraft', lernweg: 'geteilt' };
+    const a = baustein({ ...geplant, steuerung: organisiert } as Partial<Baustein>);
+    const b = baustein({ ...ersatz, steuerung: organisiert } as Partial<Baustein>);
+    expect(istGleichwertig(b, a, kontext()).ok).toBe(true);
+    const gefuehrt = baustein({ ...ersatz, steuerung: { organisation: 'lehrkraft', lernweg: 'lehrkraft' } } as Partial<Baustein>);
+    const instrukteur = baustein({ ...geplant, rolle: ['instrukteur'] });
+    expect(istGleichwertig(gefuehrt, instrukteur, kontext()).gruende.join(' ')).toMatch(/Nebeneinander/);
+  });
+
+  it('ein angenommener Raum schließt keinen Ersatz aus; ein genannter schon', () => {
+    const stell = baustein({ ...ersatz, raumbedarf: ['stellflaeche'] });
+    // No room named: the room is assumed (Klassenraum) and only orders, even for a need it lacks.
+    expect(istGleichwertig(stell, geplant, kontext({ zeitMin: 45 })).ok).toBe(true);
+    const bewegt = baustein({ ...ersatz, raumbedarf: ['bewegungsflaeche'] });
+    expect(istGleichwertig(bewegt, geplant, kontext({ zeitMin: 45 })).ok).toBe(true);
+    const g = istGleichwertig(stell, geplant, kontext({ raum: 'hoersaal', zeitMin: 45 }));
+    expect(g.ok).toBe(false);
+    expect(g.gruende.join(' ')).toMatch(/Bedarf/);
   });
 });

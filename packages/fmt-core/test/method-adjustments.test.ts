@@ -16,6 +16,7 @@ import {
   proposeSupports,
   QUICK_LEARNER_GROUP_PROFILES,
   scoreDifferentiationMatrix,
+  teilgruppenAntworten,
   teilgruppenHinweise,
   teilgruppenProfil,
   type AdaptScenarioResult,
@@ -151,14 +152,49 @@ describe('proposeMethodAdjustments', () => {
   });
 
   it('eine Gruppe, die sich nicht frei bewegen kann, bekommt für eine Methode mit Bewegungsfläche einen formalen Tausch', () => {
-    const bewegt = D.bausteine.find((b) => (b.raumbedarf || []).includes('bewegungsflaeche') && !b.komposit && !(b.slot || []).length);
-    expect(bewegt).toBeDefined();
+    const bewegt = D.bausteine.filter((b) => (b.raumbedarf || []).includes('bewegungsflaeche') && !b.komposit && !(b.slot || []).length);
+    expect(bewegt.length).toBeGreaterThan(0);
     const g: MethodAdjustmentGroup = { id: 'rolli', label: 'Rollstuhl', ohneBewegung: true };
-    const adj = proposeMethodAdjustments(D.bausteine, phasen(bewegt!.kennung), [MAIN, g], {}, R);
+    const adj = bewegt.flatMap((b) => proposeMethodAdjustments(D.bausteine, phasen(b.kennung), [MAIN, g], {}, R));
+    expect(adj.length).toBeGreaterThan(0);
     for (const a of adj) {
       expect(a.grundlage).toBe('formal');
       expect(erfuelltRichtung(block(a.zuKennung), 'ohne-bewegung')).toBe(true);
     }
+  });
+
+  it('Tausch ohne gleichwertigen Ersatz wird zur Hilfe und sagt, warum kein Ersatz kam', () => {
+    let rueckfall = 0;
+    for (const p of QUICK_LEARNER_GROUP_PROFILES) {
+      const g = quick(p.id);
+      const profil = teilgruppenProfil(g, D.teilgruppen);
+      for (const b of D.bausteine.filter((x) => !x.komposit).slice(0, 120)) {
+        const ablauf = phasen(b.kennung);
+        for (const a of teilgruppenAntworten(D.bausteine, ablauf, [MAIN, g], {}, R)) {
+          // Never a bare swap.
+          if (a.antwort === 'tausch') expect(a.alternativen.length, `${p.id} ${b.kennung}`).toBeGreaterThan(0);
+          const e = entscheideTeilgruppe(b, profil, D.teilgruppen);
+          if (e.antwort === 'tausch' && a.antwort !== 'tausch') {
+            rueckfall++;
+            expect(a.antwort).toBe('hilfe');
+            expect(a.grund).toMatch(/^Kein gleichwertiger Ersatz: /);
+            expect(a.grund).toContain(e.grund);
+            expect(a.merkmal).toBe(e.merkmal);
+            expect(a.hilfen.length).toBeGreaterThan(0);
+            for (const h of a.hilfen) expect(h.abbau.length).toBeGreaterThan(10);
+          }
+        }
+      }
+    }
+    expect(rueckfall).toBeGreaterThan(0);
+  });
+
+  it('eine festgelegte Phase tauscht nie; die Gruppe bekommt dort eine Hilfe', () => {
+    const fest = EXPLIZIT.map((p) => ({ ...p, locked: true }));
+    const a = teilgruppenAntworten(D.bausteine, fest, [MAIN, quick('vertiefung')], { lehrende: 2 }, R).find((x) => x.stepKey === 's0')!;
+    expect(a.antwort).toBe('hilfe');
+    expect(a.grund).toMatch(/^Kein gleichwertiger Ersatz: Die Phase ist für alle festgelegt/);
+    expect(proposeSupports(fest, [MAIN, quick('vertiefung')], R, {}, undefined, D.bausteine).some((s) => s.stepKey === 's0')).toBe(true);
   });
 });
 
@@ -249,20 +285,29 @@ describe('teilgruppenHinweise', () => {
 
 describe('Qualitätsfälle n07 bis n10 als Kerntests', () => {
   it('n07: geringes Vorwissen tauscht eine nur offene, uniforme Methode gegen eine angeleitete', () => {
-    // The matcher plans guided methods for the n07 text, so nothing sets off the swap there (passt or Hilfe).
-    const res = adaptiere('Mathematik Klasse 8, lineare Funktionen, 45 Minuten', '6 Lernende mit geringem Vorwissen');
-    const tg = res.teilgruppen.find((t) => t.id !== 'regel')!;
-    for (const t of impulse(res, tg.id)) expect(['passt', 'hilfe', 'tausch']).toContain(t.antwort);
-    // With an only open, uniform method in the plan the answer is the swap, with the source of the row.
-    const offen = adaptScenario(D, {
-      phasen: [{ key: 's0', phaseLabel: 'Erfindungsaufgabe', baustein: 'erfindungsaufgabe', durationMin: 30 }],
-      lerngruppenText: '6 Lernende mit geringem Vorwissen'
-    });
-    const [t] = impulse(offen, 'vorwissen-gering');
+    // Paper text: the matcher plans only guided methods, so nothing sets off the swap; the group gets helps.
+    const papier = adaptiere('Mathematik Klasse 8, lineare Funktionen, 45 Minuten', '6 Lernende mit geringem Vorwissen');
+    const tg = impulse(papier, 'vorwissen-gering');
+    expect(tg.length).toBeGreaterThan(0);
+    for (const t of tg) {
+      expect(t.antwort, t.phase.baustein!).toBe('hilfe');
+      expect(t.hilfen.length).toBeGreaterThan(0);
+      expect(block(t.phase.baustein!).anleitung.some((a) => a === 'explizit' || a === 'geleitet')).toBe(true);
+    }
+    expect(papier.teilgruppenMethoden).toEqual([]);
+    // Case text (faelle-reihe4): the teacher names the discovery task, which is only open and uniform: swap with Beleg.
+    const res = adaptiere(
+      'Mathematik Klasse 8, lineare Funktionen, 90 Minuten, Erfindungsaufgabe mit kontrastierenden Fällen',
+      '6 Lernende mit geringem Vorwissen'
+    );
+    const t = impulse(res, 'vorwissen-gering').find((x) => x.phase.baustein === 'erfindungsaufgabe')!;
     expect(t.antwort).toBe('tausch');
     expect(t.beleg).toMatchObject({ merkmal: 'vorwissen-gering', grundlage: 'E' });
     expect(t.beleg.quelle).toContain('Tetzlaff');
-    for (const a of offen.teilgruppenMethoden) expect(erfuelltRichtung(block(a.zuKennung), 'mehr-anleitung')).toBe(true);
+    expect(t.alternativeMethoden.length).toBeGreaterThan(0);
+    for (const a of t.alternativeMethoden) expect(erfuelltRichtung(block(a.kennung), 'mehr-anleitung')).toBe(true);
+    const vorschlag = res.teilgruppenMethoden.find((a) => a.vonKennung === 'erfindungsaufgabe')!;
+    expect(vorschlag.zuKennung).toBe(t.alternativeMethoden[0].kennung);
   });
 
   it('n08: DaZ A2 in Biologie bekommt keine andere Methode, aber ein sprachliches Gerüst mit Abbau-Satz', () => {
@@ -323,6 +368,26 @@ describe('Qualitätsfälle n07 bis n10 als Kerntests', () => {
     for (const a of getauscht) {
       expect(a).toMatchObject({ merkmal: 'vorwissen-hoch', grundlage: 'E' });
       expect(erfuelltRichtung(block(a.zuKennung), 'weniger-anleitung')).toBe(true);
+    }
+  });
+});
+
+describe('Ein Entscheidungsweg für Tabelle und Vorschläge', () => {
+  it.each([
+    ['DaZ', 'Biologie Klasse 7, Fotosynthese, 45 Minuten', '4 Lernende DaZ Niveau A2'],
+    ['Leistungsstark', 'Geschichte Klasse 9, Weimarer Republik, 90 Minuten', '5 Leistungsstarke']
+  ])('%s: teilgruppenImpulse, teilgruppenMethoden und teilgruppenHilfen stimmen überein', (_n, text, gruppe) => {
+    const res = adaptiere(text, gruppe);
+    const zeilen = res.phasenAnpassungen.flatMap((p) => p.teilgruppenImpulse.filter((t) => t.groupId !== 'regel').map((t) => ({ ...t, key: p.key })));
+    expect(zeilen.length).toBeGreaterThan(0);
+    for (const z of zeilen) {
+      if (z.antwort === 'tausch') expect(z.alternativeMethoden.length).toBeGreaterThan(0);
+      const tausch = res.teilgruppenMethoden.filter((a) => a.groupId === z.groupId && a.stepKey === z.key);
+      expect(tausch.length).toBe(z.antwort === 'tausch' ? 1 : 0);
+      if (tausch[0]) expect(tausch[0].zuKennung).toBe(z.alternativeMethoden[0].kennung);
+      const hilfe = res.teilgruppenHilfen.filter((s) => s.groupId === z.groupId && s.stepKey === z.key);
+      expect(hilfe.length).toBe(z.antwort === 'hilfe' && z.hilfen.length ? 1 : 0);
+      if (hilfe[0]) expect(hilfe[0].hilfen).toEqual(z.hilfen);
     }
   });
 });

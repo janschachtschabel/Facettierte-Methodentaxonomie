@@ -238,7 +238,8 @@ function huelle(data: Pick<FmtData, 'schemes'>, zustaende: string[]): Set<string
   return set;
 }
 
-const lehrkraftGebunden = (b: Baustein) => b.steuerung?.organisation === 'lehrkraft' || (b.rolle || []).includes('instrukteur');
+/** The teacher is bound throughout: she leads the learning path or instructs (organising alone does not bind her). */
+const lehrkraftGebunden = (b: Baustein) => b.steuerung?.lernweg === 'lehrkraft' || (b.rolle || []).includes('instrukteur');
 const RAHMEN_TEXT = { technik: 'mehr Technik', internet: 'Internet', ki: 'KI' } as const;
 
 /** Situation the fit rules read for the subgroup: the request, with the prior knowledge from the profile. */
@@ -295,7 +296,8 @@ export function istGleichwertig(
   // 2. Needs covered in the same room and time slot, no more devices, internet or AI than the planned method.
   const luecke = ungedeckterBedarf(kandidat, ctx.anfrage, ctx.situation, data);
   if (luecke) gruende.push(`Bedarf: ${kandidat.name} ${luecke.grund}.`);
-  const raum = raumFehlt(kandidat, ctx.situation);
+  // An assumed room only orders (design §12): the room check runs only for a room the teacher named.
+  const raum = ctx.situation.raumGenannt ? raumFehlt(kandidat, ctx.situation) : [];
   if (raum.length && !(luecke && luecke.merkmal === 'raumbedarf')) gruende.push(`Bedarf: ${kandidat.name} braucht im Raum der Stunde: ${raum.join(', ')}.`);
   if (ctx.dauerMin != null && kandidat.dauerMin > ctx.dauerMin && !(luecke && luecke.merkmal === 'dauerMin')) {
     gruende.push(`Bedarf: ${kandidat.name} braucht ${kandidat.dauerMin} min, der Schritt hat ${ctx.dauerMin} min.`);

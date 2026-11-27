@@ -630,21 +630,22 @@ const MATRIX_TRAIT_RULES: Array<{
       { categoryId: 'interessen', valueId: 'interessen-desinteresse', label: 'Interesse aktivierend wecken' }
     ]
   },
-  // Learning styles: recognised so the answer can say why they are not evaluated (blocked category).
+  // Learning styles: recognised so the answer can say why they are not evaluated (blocked category); negated mentions
+  // („keine Lerntypen“, „nicht nach Lerntypen“) are skipped.
   {
-    re: /\bvisuell\w*\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
+    re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\bvisuell\w*\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
     traits: [{ categoryId: 'sensorische', valueId: 'sensorische-visuell', label: 'Visueller Lerntyp' }]
   },
   {
-    re: /\bauditiv\w*\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
+    re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\bauditiv\w*\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
     traits: [{ categoryId: 'sensorische', valueId: 'sensorische-auditiv', label: 'Auditiver Lerntyp' }]
   },
   {
-    re: /\b(?:haptisch\w*|kin[aä]sthetisch\w*)\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
+    re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\b(?:haptisch\w*|kin[aä]sthetisch\w*)\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
     traits: [{ categoryId: 'sensorische', valueId: 'sensorische-kinaesthetisch', label: 'Kinästhetischer Lerntyp' }]
   },
   {
-    re: /\b(?:lerntyp\w*|lernstil\w*)/i,
+    re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\b(?:lerntyp\w*|lernstil\w*)/i,
     traits: [{ categoryId: 'sensorische', valueId: 'sensorische-multimodal', label: 'Lerntyp / Lernstil' }]
   },
   {

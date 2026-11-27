@@ -1,5 +1,6 @@
 import type { Baustein, FmtData, MatchResult, ArrangementNode, EinsatzNode } from '../../src/types.js';
 import type { FmtMatcher } from '../../src/zuordnung.js';
+import { adaptScenario } from '../../src/adaptScenario.js';
 import type { Pruefung, Qualitaetsfall } from './faelle.js';
 
 export interface Befund {
@@ -216,8 +217,38 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
     const strang = text(antwort.begleitstrang);
     add('begleitziel', !fehlt('begleitstrang') && strang.includes(`"${e.begleitstrang}"`), fehlt('begleitstrang') ? 'Antwortfeld begleitstrang fehlt' : `erwartet ${e.begleitstrang}, erhalten ${strang}`);
   }
-  // Subgroup checks will run through adaptScenario once Package C defines the subgroup input; stub until then.
-  if (e.teilgruppe) add('teilgruppe', false, 'noch nicht umgesetzt (Paket C)');
+  // Subgroups (Package C): adaptScenario on the plan with the groups the text names after "Teilgruppe:". The answer of a
+  // group is the strongest over its phases (tausch > hilfe > passt); every group other than the main group counts.
+  if (e.teilgruppe) {
+    const soll = e.teilgruppe;
+    if (r.modus !== 'ablauf' || !r.arrangement) {
+      add('teilgruppe', false, `kein Ablauf (modus ${r.modus})`);
+    } else {
+      const gruppenText = /teilgruppe\s*:\s*(.+)$/i.exec(fall.text)?.[1] ?? fall.text;
+      const res = adaptScenario(D, { arrangement: r.arrangement, lerngruppenText: gruppenText });
+      const rang = { passt: 0, hilfe: 1, tausch: 2 } as const;
+      const gruppen = res.teilgruppen.filter((g) => g.id !== 'regel');
+      const impulse = (id: string) => res.phasenAnpassungen.flatMap((ph) => ph.teilgruppenImpulse.filter((t) => t.groupId === id));
+      const antworten = gruppen.map((g) => {
+        const liste = impulse(g.id);
+        const staerkste = liste.reduce<'passt' | 'hilfe' | 'tausch'>((a, t) => (rang[t.antwort] > rang[a] ? t.antwort : a), 'passt');
+        return { g, liste, staerkste };
+      });
+      const fehler: string[] = [];
+      if (!antworten.length) fehler.push(`keine Teilgruppe erkannt in „${gruppenText}“`);
+      for (const a of antworten) {
+        if (a.staerkste !== soll.antwort) fehler.push(`${a.g.label}: erwartet ${soll.antwort}, erhalten ${a.staerkste}`);
+        if (soll.abbau) {
+          const hilfen = a.liste.filter((t) => t.antwort === 'hilfe');
+          const ohne = hilfen.filter((t) => !t.hilfen.length || t.hilfen.some((h) => !h.abbau));
+          if (!hilfen.length || ohne.length) fehler.push(`${a.g.label}: Hilfe ohne Abbau-Satz`);
+        }
+      }
+      if (soll.gesperrt && !res.gesperrt.length) fehler.push('gesperrtes Merkmal nicht gemeldet');
+      if (soll.gesperrt === false && res.gesperrt.length) fehler.push('gesperrtes Merkmal gemeldet');
+      add('teilgruppe', fehler.length === 0, fehler.join('; ') || antworten.map((a) => `${a.g.label}: ${a.staerkste}`).join('; '));
+    }
+  }
 
   return { fall, ergebnis: r, ablauf, befunde };
 }

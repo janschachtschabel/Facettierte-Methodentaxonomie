@@ -255,6 +255,12 @@ describe('FMT Differentiation Enrichment & adaptScenario Engine', () => {
       expect(g.selectedValues?.sensorische).toBeUndefined();
     }
     expect(detectMatrixTraitsFromText('DaZ, LRS, schwerhörig, sehbehindert').gesperrt).toEqual([]);
+    // Negated learning styles are not a group and nothing is blocked.
+    for (const t of ['keine Lerntypen bitte', 'ohne visuelle Lerntypen', 'Wir unterscheiden nicht nach Lerntypen', 'keine Einteilung: kein Lernstil-Test']) {
+      expect(detectMatrixTraitsFromText(t).gesperrt, t).toEqual([]);
+    }
+    expect(detectLearnerGroupsFromText('Wir unterscheiden nicht nach Lerntypen').groups.map((g) => g.id)).not.toContain('lerntypen');
+    expect(detectLearnerGroupsFromText('4 visuelle Lerntypen').groups.map((g) => g.id)).toContain('lerntypen');
   });
 
   it('adaptScenario nennt je Teilgruppe und Phase Antwort, Beleg und Hilfen und liefert Regelmeldungen', () => {

@@ -173,6 +173,54 @@ export interface GleichwertigerKandidat {
   grund: string;
 }
 
+/** A candidate that fulfils the direction but is not equivalent, with the reasons from istGleichwertig. */
+interface Abgelehnt {
+  name: string;
+  gruende: string[];
+}
+
+function pruefeKandidaten(
+  allBlocks: Baustein[],
+  geplant: Baustein,
+  entscheidung: TeilgruppenEntscheidung,
+  profil: TeilgruppenProfil,
+  matrix: MatrixScoreResult,
+  regelsatz: TeilgruppenRegelwerk,
+  constraints: MethodAdjustmentConstraints,
+  dauerMin: number | undefined,
+  regeln: ReturnType<typeof erstelleRegeln>
+): { kandidaten: GleichwertigerKandidat[]; abgelehnt: Abgelehnt[] } {
+  if (entscheidung.antwort !== 'tausch' || !entscheidung.richtung) return { kandidaten: [], abgelehnt: [] };
+  const richtung = entscheidung.richtung;
+  const byKennung = new Map(allBlocks.map((b) => [b.kennung, b]));
+  const anfrage = anfrageAus(constraints);
+  const situation = baueSituation(anfrage, regelsatz);
+  const abgelehnt: Abgelehnt[] = [];
+  const kandidaten = suggestAlternativeMethodsForGroup(matrix, geplant, allBlocks, allBlocks.length, dauerMin, constraints)
+    .map((c) => ({ c, block: byKennung.get(c.kennung) }))
+    .filter((x): x is { c: GleichwertigerKandidat; block: Baustein } => Boolean(x.block))
+    .filter((x) => staysWithinFrame(x.block, geplant, matrix.didacticProfile.needsScaffolding, constraints))
+    .filter((x) => erfuelltRichtung(x.block, richtung))
+    .filter((x) => {
+      const g = istGleichwertig(x.block, geplant, {
+        anfrage,
+        situation,
+        dauerMin,
+        profil,
+        lehrende: constraints.lehrende,
+        data: regelsatz,
+        regeln,
+        t: regelsatz.teilgruppen
+      });
+      if (!g.ok) abgelehnt.push({ name: x.block.name, gruende: g.gruende });
+      return g.ok;
+    })
+    .map((x, i) => ({ ...x, i, fit: scoreMethodForGroup(x.block, matrix).fit }))
+    .sort((a, b) => b.fit - a.fit || a.i - b.i)
+    .map((x) => x.c);
+  return { kandidaten, abgelehnt };
+}
+
 /**
  * Parallel methods that may replace the planned one for a subgroup whose answer is the swap: candidates of
  * suggestAlternativeMethodsForGroup that fulfil the direction of the swap row and are equivalent (istGleichwertig).
@@ -189,32 +237,104 @@ export function gleichwertigeKandidaten(
   dauerMin?: number,
   regeln: ReturnType<typeof erstelleRegeln> = erstelleRegeln(regelsatz.regeln)
 ): GleichwertigerKandidat[] {
-  if (entscheidung.antwort !== 'tausch' || !entscheidung.richtung) return [];
-  const byKennung = new Map(allBlocks.map((b) => [b.kennung, b]));
-  const anfrage = anfrageAus(constraints);
-  const situation = baueSituation(anfrage, regelsatz);
-  const candidates = suggestAlternativeMethodsForGroup(matrix, geplant, allBlocks, allBlocks.length, dauerMin, constraints);
-  return candidates
-    .map((c) => ({ c, block: byKennung.get(c.kennung) }))
-    .filter((x): x is { c: GleichwertigerKandidat; block: Baustein } => Boolean(x.block))
-    .filter((x) => staysWithinFrame(x.block, geplant, matrix.didacticProfile.needsScaffolding, constraints))
-    .filter((x) => erfuelltRichtung(x.block, entscheidung.richtung!))
-    .filter(
-      (x) =>
-        istGleichwertig(x.block, geplant, {
-          anfrage,
-          situation,
-          dauerMin,
-          profil,
-          lehrende: constraints.lehrende,
-          data: regelsatz,
-          regeln,
-          t: regelsatz.teilgruppen
-        }).ok
-    )
-    .map((x, i) => ({ ...x, i, fit: scoreMethodForGroup(x.block, matrix).fit }))
-    .sort((a, b) => b.fit - a.fit || a.i - b.i)
-    .map((x) => x.c);
+  return pruefeKandidaten(allBlocks, geplant, entscheidung, profil, matrix, regelsatz, constraints, dauerMin, regeln).kandidaten;
+}
+
+/** Answer of one subgroup for one phase, after the search for a replacement. */
+export interface PhasenAntwort {
+  stepKey: string;
+  groupId: string;
+  groupLabel: string;
+  /** 'tausch' only with an equivalent replacement (alternativen[0]); otherwise the help stands in for it. */
+  antwort: 'passt' | 'hilfe' | 'tausch';
+  grund: string;
+  merkmal?: string;
+  grundlage?: Grundlage;
+  quelle?: string;
+  hilfen: Array<{ id: string; name: string; abbau: string }>;
+  /** Equivalent replacements not planned elsewhere and not yet given to the group; the first one is proposed. */
+  alternativen: GleichwertigerKandidat[];
+}
+
+const satz = (gruende: string[]) => gruende.map((g) => g.replace(/\.$/, '')).join('; ');
+
+/** Why no replacement was offered, in plain German: the first rejected candidates with their reasons. */
+function keinErsatzGrund(abgelehnt: Abgelehnt[], vergeben: string[], locked: boolean): string {
+  if (locked) return 'Kein gleichwertiger Ersatz: Die Phase ist für alle festgelegt, die Methode bleibt.';
+  const teile: string[] = [];
+  // The reasons of istGleichwertig name the candidate themselves.
+  for (const a of abgelehnt.slice(0, 2)) teile.push(satz(a.gruende));
+  if (vergeben.length) teile.push(`schon im Ablauf oder für die Gruppe vergeben: ${vergeben.slice(0, 3).join(', ')}`);
+  if (!teile.length) return 'Kein gleichwertiger Ersatz: Der Katalog hat keine Methode mit derselben Lernfunktion, die in diese Richtung geht.';
+  return `Kein gleichwertiger Ersatz: ${teile.join('. ')}.`;
+}
+
+/**
+ * The one decision path for subgroups (used by the proposals and by adaptScenario): for every group with a profile
+ * (not the main group) and every phase with a method, the answer of entscheideTeilgruppe; a swap stands only with an
+ * equivalent replacement that is neither planned nor already given to the group. A swap without one, or in a locked
+ * phase, falls back to a help in the method (order passt, Hilfe, parallele Methode) and says why.
+ */
+export function teilgruppenAntworten(
+  allBlocks: Baustein[],
+  phases: MethodAdjustmentPhase[],
+  groups: MethodAdjustmentGroup[],
+  constraints: MethodAdjustmentConstraints,
+  regelsatz: TeilgruppenRegelwerk
+): PhasenAntwort[] {
+  const out: PhasenAntwort[] = [];
+  const t = regelsatz.teilgruppen;
+  const regeln = erstelleRegeln(regelsatz.regeln);
+  const planned = new Set(phases.map((p) => p.block?.kennung).filter(Boolean) as string[]);
+
+  for (const g of groups) {
+    if (g.isMain || !hasAdjustmentProfile(g)) continue;
+    const profil = teilgruppenProfil(g, t);
+    const matrix = matrixFuer(g, t, constraints);
+    const hilfsMatrix = matrixFuer(g, t, constraints, 50);
+    const usedForGroup = new Set<string>();
+
+    for (const p of phases) {
+      if (!p.block) continue;
+      const e = entscheideTeilgruppe(p.block, profil, t);
+      const beleg = {
+        ...(e.merkmal ? { merkmal: e.merkmal } : {}),
+        ...(e.grundlage ? { grundlage: e.grundlage } : {}),
+        ...(e.quelle ? { quelle: e.quelle } : {})
+      };
+      const basis = { stepKey: p.key, groupId: g.id, groupLabel: g.label, ...beleg };
+      if (e.antwort === 'passt') {
+        out.push({ ...basis, antwort: 'passt', grund: e.grund, hilfen: [], alternativen: [] });
+        continue;
+      }
+      const wohin = wohinVon(e, t);
+      if (e.antwort === 'tausch') {
+        const { kandidaten, abgelehnt } = p.locked
+          ? { kandidaten: [], abgelehnt: [] }
+          : pruefeKandidaten(allBlocks, p.block, e, profil, matrix, regelsatz, constraints, p.durationMin, regeln);
+        const frei = kandidaten.filter((c) => !planned.has(c.kennung) && !usedForGroup.has(c.kennung));
+        if (frei.length) {
+          usedForGroup.add(frei[0].kennung);
+          out.push({ ...basis, antwort: 'tausch', grund: e.grund, hilfen: [], alternativen: frei.slice(0, 3) });
+          continue;
+        }
+        const vergeben = kandidaten.map((c) => c.name);
+        let hilfen = hilfenFuer(p.block, hilfsMatrix, t, wohin);
+        // The help must name something: without a matrix measure the row's own help stands.
+        if (!hilfen.length && wohin) hilfen = [{ id: `teilgruppe:${e.merkmal ?? 'sonst'}`, name: wohin, abbau: t.abbau.sonst }];
+        out.push({
+          ...basis,
+          antwort: 'hilfe',
+          grund: `${keinErsatzGrund(abgelehnt, vergeben, Boolean(p.locked))} Die Methode bleibt und bekommt eine Hilfe. ${e.grund}`,
+          hilfen,
+          alternativen: []
+        });
+        continue;
+      }
+      out.push({ ...basis, antwort: 'hilfe', grund: e.grund, hilfen: hilfenFuer(p.block, hilfsMatrix, t, wohin), alternativen: [] });
+    }
+  }
+  return out;
 }
 
 /**
@@ -228,44 +348,29 @@ export function proposeMethodAdjustments(
   phases: MethodAdjustmentPhase[],
   groups: MethodAdjustmentGroup[],
   constraints: MethodAdjustmentConstraints,
-  regelsatz: TeilgruppenRegelwerk
+  regelsatz: TeilgruppenRegelwerk,
+  antworten: PhasenAntwort[] = teilgruppenAntworten(allBlocks, phases, groups, constraints, regelsatz)
 ): MethodAdjustment[] {
+  const phaseByKey = new Map(phases.map((p) => [p.key, p]));
   const out: MethodAdjustment[] = [];
-  const t = regelsatz.teilgruppen;
-  const regeln = erstelleRegeln(regelsatz.regeln);
-  const planned = new Set(phases.map((p) => p.block?.kennung).filter(Boolean) as string[]);
-
-  for (const g of groups) {
-    if (g.isMain) continue;
-    if (!hasAdjustmentProfile(g)) continue;
-    const profil = teilgruppenProfil(g, t);
-    const matrix = matrixFuer(g, t, constraints);
-    const usedForGroup = new Set<string>();
-
-    for (const p of phases) {
-      if (!p.block || p.locked) continue;
-      const e = entscheideTeilgruppe(p.block, profil, t);
-      if (e.antwort !== 'tausch') continue;
-      const best = gleichwertigeKandidaten(allBlocks, p.block, e, profil, matrix, regelsatz, constraints, p.durationMin, regeln).find(
-        (c) => !planned.has(c.kennung) && !usedForGroup.has(c.kennung)
-      );
-      if (!best) continue;
-      usedForGroup.add(best.kennung);
-      out.push({
-        stepKey: p.key,
-        phaseLabel: p.label || p.block.name,
-        groupId: g.id,
-        groupLabel: g.label,
-        vonKennung: p.block.kennung,
-        vonName: p.block.name,
-        zuKennung: best.kennung,
-        zuName: best.name,
-        grund: e.grund,
-        merkmal: e.merkmal!,
-        ...(e.grundlage ? { grundlage: e.grundlage } : {}),
-        ...(e.quelle ? { quelle: e.quelle } : {})
-      });
-    }
+  for (const a of antworten) {
+    const p = phaseByKey.get(a.stepKey);
+    const zu = a.alternativen[0];
+    if (a.antwort !== 'tausch' || !p?.block || !zu || !a.merkmal) continue;
+    out.push({
+      stepKey: a.stepKey,
+      phaseLabel: p.label || p.block.name,
+      groupId: a.groupId,
+      groupLabel: a.groupLabel,
+      vonKennung: p.block.kennung,
+      vonName: p.block.name,
+      zuKennung: zu.kennung,
+      zuName: zu.name,
+      grund: a.grund,
+      merkmal: a.merkmal,
+      ...(a.grundlage ? { grundlage: a.grundlage } : {}),
+      ...(a.quelle ? { quelle: a.quelle } : {})
+    });
   }
   return out;
 }
@@ -312,40 +417,32 @@ export function wohinVon(e: Pick<TeilgruppenEntscheidung, 'merkmal'>, t: Teilgru
 }
 
 /**
- * Helps inside the planned method for subgroups whose answer is 'hilfe'. The method stays; the help is laid on it
- * and names when it is no longer needed. Locked phases get helps as well, since a help does not change the method.
+ * Helps inside the planned method for subgroups whose answer is 'hilfe' (also where a swap found no equivalent
+ * replacement). The method stays; the help is laid on it and names when it is no longer needed. Locked phases get
+ * helps as well, since a help does not change the method.
  */
 export function proposeSupports(
   phases: MethodAdjustmentPhase[],
   groups: MethodAdjustmentGroup[],
   regelsatz: TeilgruppenRegelwerk,
-  constraints: MethodAdjustmentConstraints = {}
+  constraints: MethodAdjustmentConstraints = {},
+  antworten?: PhasenAntwort[],
+  allBlocks: Baustein[] = phases.map((p) => p.block).filter((b): b is Baustein => Boolean(b))
 ): SupportProposal[] {
-  const out: SupportProposal[] = [];
-  const t = regelsatz.teilgruppen;
-  for (const g of groups) {
-    if (g.isMain || !hasAdjustmentProfile(g)) continue;
-    const profil = teilgruppenProfil(g, t);
-    const matrix = matrixFuer(g, t, constraints, 50);
-    for (const p of phases) {
-      if (!p.block) continue;
-      const e = entscheideTeilgruppe(p.block, profil, t);
-      if (e.antwort !== 'hilfe') continue;
-      const hilfen = hilfenFuer(p.block, matrix, t, wohinVon(e, t));
-      if (!hilfen.length) continue;
-      out.push({
-        stepKey: p.key,
-        groupId: g.id,
-        groupLabel: g.label,
-        antwort: 'hilfe',
-        grund: e.grund,
-        ...(e.grundlage ? { grundlage: e.grundlage } : {}),
-        ...(e.quelle ? { quelle: e.quelle } : {}),
-        hilfen
-      });
-    }
-  }
-  return out;
+  // Without the catalogue no replacement can be found; pass allBlocks (or the answers) for the full decision.
+  const liste = antworten ?? teilgruppenAntworten(allBlocks, phases, groups, constraints, regelsatz);
+  return liste
+    .filter((a) => a.antwort === 'hilfe' && a.hilfen.length > 0)
+    .map((a) => ({
+      stepKey: a.stepKey,
+      groupId: a.groupId,
+      groupLabel: a.groupLabel,
+      antwort: 'hilfe' as const,
+      grund: a.grund,
+      ...(a.grundlage ? { grundlage: a.grundlage } : {}),
+      ...(a.quelle ? { quelle: a.quelle } : {}),
+      hilfen: a.hilfen
+    }));
 }
 
 const GERINGE_LEISTUNG = ['vorwissen-gering', 'leistungsniveau-gering'];

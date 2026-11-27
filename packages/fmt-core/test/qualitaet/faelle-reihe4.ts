@@ -43,21 +43,22 @@ export const REIHE4: Qualitaetsfall[] = [
   // Package C: subgroups (swap the method, add help, locked traits).
   {
     id: 'n07',
-    text: 'Mathematik Klasse 8, lineare Funktionen, 45 Minuten, Teilgruppe: 6 Lernende mit geringem Vorwissen',
-    erwartet: { teilgruppe: { antwort: 'tausch' } },
-    bekannt: { teilgruppe: 'Paket C' }
+    // The paper reads „Mathematik Klasse 8, lineare Funktionen, 45 Minuten, Teilgruppe: …“. For that text the matcher
+    // plans only guided methods, so nothing sets off the swap (the answer is a help). The case keeps the paper's intent
+    // (low prior knowledge + an only open, uniform method → Tausch) with the discovery task the teacher names; it needs
+    // 90 minutes to fit in (C3, Fix round 1).
+    text: 'Mathematik Klasse 8, lineare Funktionen, 90 Minuten, Erfindungsaufgabe mit kontrastierenden Fällen, Teilgruppe: 6 Lernende mit geringem Vorwissen',
+    erwartet: { teilgruppe: { antwort: 'tausch' } }
   },
   {
     id: 'n08',
     text: 'Biologie Klasse 7, Fotosynthese, 45 Minuten, Teilgruppe: 4 Lernende DaZ Niveau A2',
-    erwartet: { teilgruppe: { antwort: 'hilfe', abbau: true } },
-    bekannt: { teilgruppe: 'Paket C' }
+    erwartet: { teilgruppe: { antwort: 'hilfe', abbau: true } }
   },
   {
     id: 'n09',
     text: 'Deutsch Klasse 6, Balladen, Teilgruppe: visuelle Lerntypen',
-    erwartet: { teilgruppe: { antwort: 'passt', gesperrt: true } },
-    bekannt: { teilgruppe: 'Paket C' }
+    erwartet: { teilgruppe: { antwort: 'passt', gesperrt: true } }
   },
   {
     id: 'n10',
