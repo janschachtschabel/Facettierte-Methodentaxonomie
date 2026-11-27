@@ -23,6 +23,7 @@ import {
   type StepDiffSuggestion,
   type SubgroupMethodMap
 } from '../planner/scenarioModel.js';
+import { gruppeAusVorlage, setzeGruppenwert } from '../planner/gruppen.js';
 
 interface Props {
   groups: LearnerGroup[];
@@ -213,16 +214,7 @@ export function DifferentiationMatrixPanel({
       ? groups.map((g) => (g.id === 'regel' ? { ...g, label: 'Regelgruppe', active: true } : g))
       : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelgruppe', count: totalClassSize || 26 }];
 
-    const nextGroup: LearnerGroup = {
-      id: tpl.id,
-      label: tpl.label,
-      profile: tpl.profile,
-      focus: tpl.focus,
-      active: true,
-      count: tpl.defaultCount,
-      personaId: tpl.personaId,
-      matrixValues: { ...tpl.matrixValues }
-    };
+    const nextGroup: LearnerGroup = gruppeAusVorlage(tpl);
     onGroupsChange(rebalanceMainGroupCount([...baseList, nextGroup], totalClassSize));
     setSelectedGroupId(nextGroup.id);
   };
@@ -253,7 +245,8 @@ export function DifferentiationMatrixPanel({
       active: true,
       count: g.count ?? 4,
       personaId: g.personaId,
-      matrixValues: g.selectedValues || {}
+      matrixValues: g.selectedValues || {},
+      ...(g.genannt ? { genannt: g.genannt } : {})
     }));
     const hasRegel = mapped.some((g) => g.focus === 'regel');
     const next = hasRegel
@@ -269,6 +262,7 @@ export function DifferentiationMatrixPanel({
     updateGroup(id, {
       personaId: personaId || undefined,
       matrixValues: {},
+      genannt: undefined,
       ...(p ? { profile: p.description } : {})
     });
   };
@@ -276,10 +270,8 @@ export function DifferentiationMatrixPanel({
   const setGroupVariable = (id: string, varId: string, auspraegungId: string) => {
     const g = groups.find((x) => x.id === id);
     if (!g) return;
-    const nextVals = { ...(g.matrixValues || {}) };
-    if (!auspraegungId) delete nextVals[varId];
-    else nextVals[varId] = auspraegungId;
-    updateGroup(id, { matrixValues: nextVals });
+    const { matrixValues, genannt } = setzeGruppenwert(g, varId, auspraegungId);
+    updateGroup(id, { matrixValues, genannt });
   };
 
   const applyMatrixToAllPhases = () => {

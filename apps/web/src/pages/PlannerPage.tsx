@@ -389,6 +389,7 @@ export function PlannerPage() {
           count?: number;
           personaId?: string;
           matrixValues?: Record<string, string>;
+          genannt?: string[];
           ohneSchrift?: Array<'lesen' | 'schreiben'>;
           ohneBewegung?: boolean;
         }>;
@@ -408,6 +409,7 @@ export function PlannerPage() {
             count: g.count,
             personaId: g.personaId,
             matrixValues: g.matrixValues || {},
+            ...(Array.isArray(g.genannt) ? { genannt: g.genannt } : {}),
             ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
             ...(g.ohneBewegung ? { ohneBewegung: true } : {})
           })),
@@ -858,7 +860,8 @@ export function PlannerPage() {
           active: true,
           count: g.count,
           personaId: g.personaId,
-          matrixValues: g.selectedValues || {}
+          matrixValues: g.selectedValues || {},
+          ...(g.genannt ? { genannt: g.genannt } : {})
         }));
         const hasRegel = detectedGroups.some((g) => g.focus === 'regel');
         setGroups(

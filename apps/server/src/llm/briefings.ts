@@ -440,6 +440,8 @@ export interface ScenarioPlanArgs {
     personaId?: string;
     profile?: string;
     selectedValues?: Record<string, string>;
+    /** Values the text named (core values of the pattern); only these decide the subgroup check. */
+    genannt?: string[];
   }>;
 }
 
@@ -474,7 +476,14 @@ export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[]
       ? []
       : [{ id: 'regel', label: 'Regelgruppe', personaId: 'average', ...(rest && rest > 0 ? { count: rest } : {}) }];
   return [
-    ...named.map((g) => ({ id: g.id, label: g.label, count: g.count, personaId: GROUP_PERSONA[g.id], selectedValues: g.selectedValues })),
+    ...named.map((g) => ({
+      id: g.id,
+      label: g.label,
+      count: g.count,
+      personaId: GROUP_PERSONA[g.id],
+      selectedValues: g.selectedValues,
+      ...(g.genannt ? { genannt: g.genannt } : {})
+    })),
     ...regel
   ];
 }
@@ -680,7 +689,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     label: g.label,
     isMain: isRegularGroupId(g.id),
     personaId: fromText && g.selectedValues && Object.keys(g.selectedValues).length ? undefined : g.personaId,
-    selectedValues: g.selectedValues
+    selectedValues: g.selectedValues,
+    ...(g.genannt ? { genannt: g.genannt } : {})
   }));
   const adjustmentConstraints = {
     maxTechnik: effectiveMaxTechnik,

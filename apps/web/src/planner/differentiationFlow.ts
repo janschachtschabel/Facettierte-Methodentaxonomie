@@ -63,6 +63,7 @@ export function adjustmentGroups(groups: LearnerGroup[]): MethodAdjustmentGroup[
       isMain: isMainGroup(g),
       personaId: g.personaId,
       selectedValues: g.matrixValues,
+      ...(g.genannt ? { genannt: g.genannt } : {}),
       ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
       ...(g.ohneBewegung ? { ohneBewegung: true } : {})
     }));
@@ -112,7 +113,7 @@ export function adjustmentSignature(
 ): string {
   return JSON.stringify([
     rows.map((r) => [r.key, r.methodId]),
-    activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}, g.ohneSchrift || [], Boolean(g.ohneBewegung)]),
+    activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}, g.genannt ?? null, g.ohneSchrift || [], Boolean(g.ohneBewegung)]),
     [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI), constraints.fachbereich || '']
   ]);
 }

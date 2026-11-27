@@ -27,6 +27,11 @@ export interface LearnerGroup {
   ohneSchrift?: Array<'lesen' | 'schreiben'>;
   /** The group cannot move freely (statement of the teacher, not a matrix trait). */
   ohneBewegung?: boolean;
+  /**
+   * Matrix values the teacher named (core values of a chip, values set by hand); only these decide the subgroup check,
+   * the others only order the matrix. Undefined: every value in matrixValues counts.
+   */
+  genannt?: string[];
 }
 
 export interface StepDiffSuggestion {
@@ -146,6 +151,8 @@ export interface QuickDiffGroupTemplate {
   defaultCount: number;
   personaId?: string;
   matrixValues: Record<string, string>;
+  /** Core values of the preset: what the chip names (only these decide the subgroup check). */
+  kern: string[];
 }
 
 // Single Source of Truth from @fmt/core (100% validated against DIFF_MATRIX_VARIABLES)
@@ -157,7 +164,8 @@ export const QUICK_DIFF_GROUP_TEMPLATES: QuickDiffGroupTemplate[] = QUICK_LEARNE
   focus: p.focus,
   defaultCount: p.defaultCount,
   personaId: p.personaId,
-  matrixValues: { ...p.selectedValues }
+  matrixValues: { ...p.selectedValues },
+  kern: [...p.kern]
 }));
 
 export const DEFAULT_LEARNER_GROUPS: LearnerGroup[] = [

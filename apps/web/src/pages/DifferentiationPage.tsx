@@ -285,6 +285,7 @@ export function DifferentiationPage() {
                 count: g.count,
                 personaId: g.personaId,
                 selectedValues: g.matrixValues,
+                ...(g.genannt ? { genannt: g.genannt } : {}),
                 ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
                 ...(g.ohneBewegung ? { ohneBewegung: true } : {})
               }))
@@ -314,6 +315,7 @@ export function DifferentiationPage() {
                 count: g.count,
                 personaId: g.personaId,
                 selectedValues: g.matrixValues,
+                ...(g.genannt ? { genannt: g.genannt } : {}),
                 ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
                 ...(g.ohneBewegung ? { ohneBewegung: true } : {})
               }))
@@ -435,6 +437,7 @@ export function DifferentiationPage() {
                 count: g.count,
                 personaId: g.personaId,
                 selectedValues: g.matrixValues || {},
+                genannt: g.genannt,
                 ohneSchrift: g.ohneSchrift,
                 ohneBewegung: g.ohneBewegung
               }))
@@ -453,6 +456,7 @@ export function DifferentiationPage() {
         count: g.count,
         personaId: 'personaId' in g ? g.personaId : undefined,
         matrixValues: g.selectedValues || {},
+        ...(g.genannt ? { genannt: g.genannt } : {}),
         // What the group cannot do yet is the teacher's statement in the planner; it goes back unchanged.
         ...('ohneSchrift' in g && g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
         ...('ohneBewegung' in g && g.ohneBewegung ? { ohneBewegung: true } : {})

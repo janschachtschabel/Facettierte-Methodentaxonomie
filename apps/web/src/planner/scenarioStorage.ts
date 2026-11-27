@@ -289,6 +289,7 @@ export function importScenarioProjectJson(
           g.selectedValues && typeof g.selectedValues === 'object'
             ? (g.selectedValues as Record<string, string>)
             : undefined,
+        ...(Array.isArray(g.genannt) ? { genannt: g.genannt.filter((x): x is string => typeof x === 'string') } : {}),
         ...(Array.isArray(g.ohneSchrift)
           ? { ohneSchrift: g.ohneSchrift.filter((x): x is 'lesen' | 'schreiben' => x === 'lesen' || x === 'schreiben') }
           : {}),
