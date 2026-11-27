@@ -545,10 +545,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe', 'komplexitaet', 'sprachniveau', 'lehrende', 'einheit', 'bewertet']);
   /** Goal kinds of a movement lesson (the old knowledge-type code psychomotorik). */
   const BEWEGUNG_ZIELARTEN = new Set(['bewegung', 'kondition']);
-  /**
-   * Room class the planning paths still work with: the special rooms of FMT 2.0 count as fachraum, a place outside
-   * school as draussen; a computer room or an online room is planned like a classroom without a stated room ('').
-   */
   /** Knowledge types (D1) of a goal kind, from the zielart scheme; an old knowledge-type code stands for itself. */
   const wissensartenDerZielart = (code: string): string[] => {
     const w = values(scheme('zielart')).find((x) => x.id === code) as (VocabValue & { wissensart?: string[] }) | undefined;

@@ -1284,21 +1284,29 @@ export function PlannerPage() {
   // situation (fit rules without a method, safety note, accompanying goal without dates, form of proof). A method
   // swapped in by hand gets its warning, one swapped out loses it, and a cleared choice leaves no old message: the
   // field then holds what the core reads from the current request (e.g. the stage from the text), or nothing.
+  // Dates, accompanying goals and room as the current request holds them (a field of step 1, else the reading of the
+  // text), so a value changed or cleared since the last proposal leaves no old begleitziel-braucht-termine or safety
+  // note: no dates means one lesson, as the core reads it.
+  const anfrageJetzt: Record<string, unknown> = buildStructuredMatchRequest();
+  const textJetzt = matcher ? matcher.lesen(scenarioText).kriterien : {};
+  const jetzt = (f: 'termine' | 'begleitziel' | 'raum') => anfrageJetzt[f] ?? textJetzt[f];
   const regelAnfrage: Record<string, unknown> = {
     bildungsstufe: arrangement.kontext?.bildungsstufe,
     vorwissen: arrangement.kontext?.vorwissen,
     fachbereich: planFachbereich,
     ...(angaben?.regelLage || {}),
-    ...(angaben?.begleitziele?.length ? { begleitziel: angaben.begleitziele } : {}),
-    ...(Number(termine) > 0 ? { termine: Number(termine) } : {}),
     ...(matchResult?.kriterien || {}),
     ...mehrJetzt,
-    ...Object.fromEntries(REGEL_MEHR_FELDER.filter(geleert).map((f) => [f, aktuelleAngaben().regelLage?.[f] ?? '']))
+    ...Object.fromEntries(REGEL_MEHR_FELDER.filter(geleert).map((f) => [f, aktuelleAngaben().regelLage?.[f] ?? ''])),
+    termine: jetzt('termine'),
+    begleitziel: jetzt('begleitziel'),
+    raum: jetzt('raum'),
+    lernort: undefined
   };
   const nachweisJetzt = mehr.nachweis ? [mehr.nachweis] : quelleFuer('nachweis')?.nachweis;
   const regelmeldungen = meldungenImAblauf(
     regelmeldungenNeuPruefen(angaben?.regelmeldungen || [], usedBlocks, regelAnfrage, bundle, {
-      raum: raum || angaben?.raum || angaben?.raumAngenommen || undefined,
+      raum: (jetzt('raum') as string | undefined) || angaben?.raumAngenommen || undefined,
       modus: matchResult?.modus,
       ...(nachweisJetzt ? { nachweis: nachweisJetzt } : {})
     }),

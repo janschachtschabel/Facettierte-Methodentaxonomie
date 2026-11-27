@@ -1,7 +1,7 @@
-import { GESPERRTE_MATRIX_KATEGORIEN, regelLageAus, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung, type RegelSituation } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, REGEL_LAGE_FELDER, regelLageAus, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung, type RegelSituation } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import type { AddedPhase } from './extraPhases.js';
-import type { MehrAngaben } from './mehrAngaben.js';
+import { MEHR_ANGABEN_CODEFELDER, type CodeFeld, type MehrAngaben } from './mehrAngaben.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
   GeneratedMaterialItem,
@@ -137,9 +137,12 @@ export interface EntwurfAngaben {
   hinweise?: string[];
 }
 
-/** Fields of "Mehr Angaben" that the fit rules read (a part of REGEL_LAGE_FELDER of the core). */
-export const REGEL_MEHR_FELDER = ['bildungsstufe', 'vorwissen', 'sprachniveau', 'komplexitaet'] as const;
-export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis' | (typeof REGEL_MEHR_FELDER)[number];
+type RegelMehrFeld = Extract<(typeof REGEL_LAGE_FELDER)[number], CodeFeld>;
+/** Fields of "Mehr Angaben" that the fit rules read: the core's REGEL_LAGE_FELDER among the code fields of the details. */
+export const REGEL_MEHR_FELDER: readonly RegelMehrFeld[] = REGEL_LAGE_FELDER.filter((f): f is RegelMehrFeld =>
+  (MEHR_ANGABEN_CODEFELDER as readonly string[]).includes(f)
+);
+export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis' | RegelMehrFeld;
 const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis', ...REGEL_MEHR_FELDER];
 
 /** The draft's parts of a matcher answer. */

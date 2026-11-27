@@ -185,6 +185,7 @@ describe('Lesbare und gleiche Antworten: REST und MCP (Task A2, Lücken R01, R04
       }
       const ohneRaum = (await post('/api/v1/plan', { text })).json();
       const angenommen = importScenarioProjectJson(JSON.stringify(ohneRaum));
+      expect(angenommen.ok).toBe(true);
       if (angenommen.ok) {
         expect(angenommen.project.raum).toBeUndefined();
         expect(angenommen.project.entwurfAngaben?.raumAngenommen).toBe(

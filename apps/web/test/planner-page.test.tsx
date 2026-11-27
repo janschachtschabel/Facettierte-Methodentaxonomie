@@ -992,6 +992,52 @@ describe('N3-Fix I1: Geleertes gilt sofort im Entwurf; das Planungsprofil findet
     expect(screen.queryAllByText(/passt weniger zur Bildungsstufe „Primar/)).toEqual([]);
   });
 
+  describe('Termine, Begleitziel und Raum geändert: begleitziel-braucht-termine gilt für die aktuelle Anfrage (Final-Review I2)', () => {
+    const satz = /^Wirkungen auf .+ sind für Programme über mehrere Wochen belegt/;
+    const begleitBox = (label: string) => within(screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).getByLabelText(label);
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, 24 Lernende';
+
+    it('Termine von 1 auf 4: der Hinweis verschwindet ohne neuen Vorschlag', () => {
+      renderPlanner();
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '1' } });
+      propose(text);
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+      fireEvent.click(stepButton(1));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '4' } });
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz)).toEqual([]);
+    });
+
+    it('Termine geleert: der Hinweis erscheint, wie der Kern ohne Termine antwortet', () => {
+      renderPlanner();
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '4' } });
+      propose(text);
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz)).toEqual([]);
+      fireEvent.click(stepButton(1));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '' } });
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+      const kern = CATALOG.matcher.zuordnen({ text, begleitziel: ['sozial'] });
+      expect((kern.regelmeldungen || []).some((m) => m.regel === 'begleitziel-braucht-termine')).toBe(true);
+    });
+
+    it('Begleitziel abgewählt: der Hinweis verschwindet ohne neuen Vorschlag', () => {
+      renderPlanner();
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      propose(text);
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+      fireEvent.click(stepButton(1));
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz)).toEqual([]);
+    });
+  });
+
   it('Planungsprofil leeren: die Stufe aus dem Text bestimmt es wieder (Berufsschule)', () => {
     renderPlanner();
     waehle('Planungsprofil', 'hochschule');

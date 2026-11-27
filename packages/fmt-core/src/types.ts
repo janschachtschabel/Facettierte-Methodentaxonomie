@@ -52,7 +52,9 @@ export const PIKTOGRAMME: readonly PiktogrammId[] = [
 export type EvidenceGrade = 'A' | 'B' | 'C';
 export type InferenceLevel = 'niedrig' | 'mittel' | 'hoch';
 export type RuleBasis = 'formal' | 'E' | 'S' | 'A';
-export type BlockStatus = 'kuratiert' | 'entwurf';
+/** Status values of a catalogue entry (one list for type and input checks). */
+export const BLOCK_STATUS = ['kuratiert', 'entwurf'] as const;
+export type BlockStatus = (typeof BLOCK_STATUS)[number];
 
 export interface VocabValue {
   id: string;

@@ -1,4 +1,5 @@
 import {
+  BLOCK_STATUS,
   DIFF_MATRIX_PERSONAS,
   GRUNDLAGE_KLARTEXT,
   WIRKUNG_KLARTEXT,
@@ -7,13 +8,13 @@ import {
   QUICK_LEARNER_GROUP_PROFILES,
   unbekannterWert,
   zahlFehler,
-  type BlockStatus,
   type FeldFehler,
   type Grundlage,
   type Wirkung,
   type ZahlGrenze
 } from '@fmt/core';
 import { schemeValues, type CatalogStore } from './catalog-store.js';
+import { MAX_TEXT_CHARS, tooLongMessage } from './routes/validation.js';
 
 /**
  * Input checks REST and MCP share: codes against the core value lists (matcher.felder(), the schemes and the lists of
@@ -35,8 +36,11 @@ export const REGELMELDUNGEN_FEHLER = 'Feld „regelmeldungen“: erwartet wird e
 export const REGEL_WIRKUNGEN = Object.keys(WIRKUNG_KLARTEXT) as [Wirkung, ...Wirkung[]];
 export const REGEL_GRUNDLAGEN = Object.keys(GRUNDLAGE_KLARTEXT) as [Grundlage, ...Grundlage[]];
 
-/** Status of a catalogue entry (core type BlockStatus). */
-const STATUS: readonly BlockStatus[] = ['kuratiert', 'entwurf'];
+/** Most rule messages a draft takes (REST /assistant/elaborate, MCP elaborate_scenario). */
+export const REGELMELDUNGEN_MAX = 50;
+
+/** Bounds of limit in the differentiation score (REST /differentiation/score, MCP score_differentiation_matrix). */
+export const SCORE_LIMIT: ZahlGrenze = { min: 1, max: 40 };
 
 type Wert = { code: string; label?: string };
 
@@ -56,7 +60,7 @@ function werteVon(store: CatalogStore, feld: string): Wert[] | undefined {
     case 'minEvidenz':
       return ausSchema(store, 'evidenzgrad');
     case 'status':
-      return nurCodes(STATUS);
+      return nurCodes(BLOCK_STATUS);
     case 'quickProfileId':
       return QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ code: p.id, label: p.label }));
     case 'personaId':
@@ -75,6 +79,19 @@ function werteVon(store: CatalogStore, feld: string): Wert[] | undefined {
 /** Allowed codes of an input field (see werteVon). */
 export function erlaubteCodes(store: CatalogStore, feld: string): string[] | undefined {
   return werteVon(store, feld)?.map((w) => w.code);
+}
+
+/**
+ * The code of a value given as code or label (case and outer spaces of the label ignored), as codeFehler with mitLabel
+ * accepts it; any other value comes back unchanged, so the caller's own check answers it. MCP normalises with it
+ * before its enum, so the tools take what REST takes.
+ */
+export function labelZuCode(store: CatalogStore, feld: string, wert: unknown): unknown {
+  if (typeof wert !== 'string') return wert;
+  const werte = werteVon(store, feld) || [];
+  if (werte.some((w) => w.code === wert)) return wert;
+  const gesucht = wert.trim().toLowerCase();
+  return werte.find((w) => w.label != null && w.label.toLowerCase() === gesucht)?.code ?? wert;
 }
 
 const liste = (x: unknown): string[] => (x == null || x === '' ? [] : Array.isArray(x) ? x.map(String) : [String(x)]);
@@ -158,10 +175,13 @@ export function regelmeldungenFehler(meldungen: unknown): EingabeFehler | null {
   if (meldungen == null) return null;
   const istText = (v: unknown) => typeof v === 'string' && v.trim().length > 0;
   if (!Array.isArray(meldungen)) return { fehler: REGELMELDUNGEN_FEHLER };
+  if (meldungen.length > REGELMELDUNGEN_MAX) return { fehler: `Feld „regelmeldungen“: höchstens ${REGELMELDUNGEN_MAX} Meldungen.` };
   for (const m of meldungen) {
     if (!m || typeof m !== 'object' || Array.isArray(m)) return { fehler: REGELMELDUNGEN_FEHLER };
     const r = m as Record<string, unknown>;
     if (!istText(r.regel) || !istText(r.text) || (r.quelle != null && typeof r.quelle !== 'string')) return { fehler: REGELMELDUNGEN_FEHLER };
+    const zuLang = (['regel', 'text', 'quelle'] as const).find((k) => typeof r[k] === 'string' && (r[k] as string).length > MAX_TEXT_CHARS);
+    if (zuLang) return { fehler: tooLongMessage(`regelmeldungen.${zuLang}`) };
     for (const [feld, erlaubt] of [
       ['wirkung', REGEL_WIRKUNGEN as readonly string[]],
       ['grundlage', REGEL_GRUNDLAGEN as readonly string[]]

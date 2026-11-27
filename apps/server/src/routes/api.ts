@@ -21,7 +21,7 @@ import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { anpassungsAnfrage, pruefSituationFehler, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import { ersatzAntwort, klassifikationsAntwort, methodenDetail, methodenTreffer, pruefungsAntwort, vokabularUebersicht, zuordnungsAntwort } from '../antworten.js';
-import { anpassungLeerFehler, bausteinFehler, codeFehler, kettenschrittFehler, zahlenFehler, type EingabeFehler } from '../eingaben.js';
+import { anpassungLeerFehler, bausteinFehler, codeFehler, kettenschrittFehler, SCORE_LIMIT, zahlenFehler, type EingabeFehler } from '../eingaben.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
@@ -95,7 +95,7 @@ function differenzierungsTypFehler(body: Record<string, unknown>): EingabeFehler
   }
   const bool = ['includeSystemMeasures', 'ohneBewegung'].find((k) => body[k] != null && typeof body[k] !== 'boolean');
   if (bool) return { fehler: `Feld „${bool}“: erwartet wird wahr oder falsch.` };
-  return zahlenFehler(body, { limit: { min: 1 }, lehrende: ZAHL_GRENZEN.lehrende });
+  return zahlenFehler(body, { limit: SCORE_LIMIT, lehrende: ZAHL_GRENZEN.lehrende });
 }
 
 export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
@@ -294,6 +294,10 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       const { situation: _situation, ...rest } = body as Arrangement & { situation?: unknown };
       arrangement = rest as Arrangement;
     } else if (body && typeof body === 'object' && istArrangement(body.arrangement)) {
+      // Wrapper form: a misspelt key would drop the situation without a word, so other keys are refused.
+      const erlaubt = ['arrangement', 'situation'];
+      const fremd = Object.keys(body).find((k) => !erlaubt.includes(k));
+      if (fremd) return reply.code(400).send({ fehler: `Unbekanntes Feld „${fremd}“. Erlaubt: ${erlaubt.join(', ')}.`, erlaubt });
       arrangement = body.arrangement;
     }
     if (!arrangement) {
@@ -431,6 +435,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     const bad =
       codeFehler(store, body, ['quickProfileId', 'personaId', 'maxAufwand', 'ebenen', 'zieltyp']) ||
       situationFehler(store, situation) ||
+      kettenschrittFehler(store, body) ||
       differenzierungsTypFehler(body) ||
       bausteinFehler(store, body.baustein);
     if (bad) return reply.code(400).send(bad);

@@ -69,8 +69,9 @@ export const PRUEF_SITUATION_FEHLER = 'Feld „situation“: erwartet wird ein O
 export function pruefSituationFehler(store: CatalogStore, s: unknown): EingabeFehler | null {
   if (s == null) return null;
   if (typeof s !== 'object' || Array.isArray(s)) return { fehler: PRUEF_SITUATION_FEHLER };
-  const felder = store.matcher.felder().map((f) => f.feld);
-  const unbekannt = Object.keys(s).find((k) => !felder.includes(k) && k !== 'lernort' && k !== 'fach');
+  // fach is read as in /match and named; lernort stays accepted as the former name of raum, without being named.
+  const felder = [...store.matcher.felder().map((f) => f.feld), 'fach'];
+  const unbekannt = Object.keys(s).find((k) => !felder.includes(k) && k !== 'lernort');
   if (unbekannt) return { fehler: `Unbekanntes Feld „${unbekannt}“. Erlaubt: ${felder.join(', ')}.`, erlaubt: felder };
   const { fach, ...rest } = s as Record<string, unknown>;
   if (fach != null && typeof fach !== 'string') return { fehler: 'Feld „fach“: erwartet wird ein Text.' };

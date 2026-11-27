@@ -93,7 +93,7 @@ cd Facettierte-Methodentaxonomie
 
 npm ci
 npm run build      # baut @fmt/core, dist-data/ (314 Einträge: 310 Methoden und 4 Hilfen, 36 SKOS-Vokabulare), @fmt/web und @fmt/server
-npm test           # führt alle 1052 automatisierten Tests aus (Kern 638, Server 191, Web 223)
+npm test           # führt alle 1067 automatisierten Tests aus (Kern 638, Server 203, Web 226)
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -192,7 +192,7 @@ Erlaubte Werte stehen als Enum im Tool-Schema. `match_scenario` liefert im Modus
 3. `compare_methods` – Vergleicht zwei Einträge Facette für Facette, dazu Eintragsart, Bedarf, Eignung und Evidenzbezug (`unterschiede`, `verglichen`)
 4. `match_scenario` – Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf mit `pflichtangaben`, `regelmeldungen`, `begleitstrang` und `planungsprofil`
 5. `validate_arrangement` – Prüft ein Arrangement gegen `R-00` bis `R-12` mit Grundlage (`formal`, `[E]`, `[S]`, `[A]`); mit `situation` zusätzlich die Passungsregeln dieses (auch von Hand geänderten) Ablaufs als `regelmeldungen`
-6. `suggest_replacements` – Ersatzkandidaten an einem Knotenpfad, live gegen `R-00` bis `R-12` geprüft; mit der Situation nur Kandidaten, deren Bedarf gedeckt ist, dazu `ausgeschlossen` mit Grund
+6. `suggest_replacements` – Ersatzkandidaten an einem Knotenpfad, live gegen `R-00` bis `R-12` geprüft; mit der Situation nur Kandidaten, deren Bedarf gedeckt ist, dazu `ausgeschlossen`: bis zu 20 übrige Methoden mit baustein, merkmal und grund, `ausgeschlossenGesamt` ihre Zahl
 7. `list_vocabularies` – Alle Vokabulare, W-Felder, Arten und Merkmale, Funktionsketten mit Schritten, Passungsregeln, Planungsprofile, Teilgruppen-Tabelle, Raumtypen, Zielarten, Personas, Anfragefelder und die Zahl der Methoden und Hilfen (wie REST `/meta`)
 8. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline (`redaktion.openeduhub.net`) mit offiziellen Fach-, Bildungsstufen- und Medientyp-URIs; jeder Treffer mit `wwwurl`
 9. `score_differentiation_matrix` – Binnendifferenzierungsmatrix (115 Ausprägungen × 172 Maßnahmen, −100..+100 %) nach Schnellprofil, Persona oder eigenen Werten; mit Baustein geprüfte alternative Methoden für die Teilgruppe (`alternativenPruefung`)
@@ -244,7 +244,7 @@ Erlaubte Werte stehen als Enum im Tool-Schema. `match_scenario` liefert im Modus
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 638, Server 191, Web 223 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 638, Server 203, Web 226 Tests) |
 | `npm run qualitaet [-- reihe2\|reihe3\|reihe4]` | Qualitätsbericht der Szenariovorschläge je Testreihe (Markdown-Tabelle) |
 | `npm run qualitaet:ausgang` | Vergleicht die Reihen 1 bis 3 mit dem Ausgangsstand `ausgang.json`; meldet nur Verschlechterungen |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
