@@ -145,6 +145,8 @@ describe('Teilgruppen: Antwort je Teilgruppe', () => {
   it('neutrale Ausprägungen der Tabelle: passt statt Hilfe', () => {
     const neutral = gruppe({ vorwissen: 'vorwissen-mittel', 'foerderbedarf-sehen': 'foerderbedarf-sehen-keine' });
     expect(entscheideTeilgruppe(baustein({ anleitung: ['offen'] }), neutral, T).antwort).toBe('passt');
+    // High levels without a row of their own mean no need either.
+    expect(entscheideTeilgruppe(baustein(), gruppe({ metakognitive: 'metakognitive-stark' }), T).antwort).toBe('passt');
   });
 
   it('fehlendes B3 gilt als uniform: Tausch bleibt Tausch', () => {

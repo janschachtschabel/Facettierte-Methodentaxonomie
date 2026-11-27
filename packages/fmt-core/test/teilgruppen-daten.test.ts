@@ -50,6 +50,8 @@ describe('Tabelle „Tausch oder Hilfe“ als Daten', () => {
       expect(T.gesperrt.some((k) => a.startsWith(k + '-')), a).toBe(false);
     }
     expect(T.neutral).toContain('vorwissen-mittel');
+    expect(T.neutral).toContain('engagement-hoch');
+    expect(T.neutral).not.toContain('vorwissen-hoch');
   });
   it('Auffangantwort und Abbau', () => {
     expect(T.sonst).toMatchObject({ antwort: 'hilfe', grundlage: 'U' });
