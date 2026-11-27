@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
@@ -22,5 +23,10 @@ describe('Fix wave Paket B', () => {
     expect(genannt.length).toBeLessThanOrEqual(3);
     expect(genannt[0]).toBe(name(s[0].baustein!));
     expect((chemie.hinweise || []).filter((h) => /Sicherheit und Aufsicht/.test(h)).length).toBe(1);
+  });
+
+  it('9: keine Kennungen BD/EG mehr in den Beschreibungen des Vokabulars (W2)', () => {
+    const vocab = fs.readFileSync(path.join(ROOT, 'data', 'vocab.json'), 'utf8');
+    expect(vocab.match(/\b(?:BD|EG)[0-9]\b/g) || []).toEqual([]);
   });
 });

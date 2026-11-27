@@ -929,7 +929,7 @@
     {
       "id": "vorwissen",
       "titel": "Vorwissen",
-      "beschreibung": "Eignung (EG2): Vorwissen der Lerngruppe zum Zielgegenstand. Voraussetzungswissen steht in den Vorbedingungen.",
+      "beschreibung": "Eignung: Vorwissen der Lerngruppe zum Zielgegenstand. Voraussetzungswissen steht in den Vorbedingungen.",
       "werte": [
         {
           "id": "gering",
@@ -951,7 +951,7 @@
     {
       "id": "komplexitaet",
       "titel": "Komplexität des Inhalts",
-      "beschreibung": "Eignung (EG2): Komplexität des Inhalts für die Lerngruppe (Anzahl und Verknüpfung der Elemente). Angabe der Lehrperson oder aus dem Text gelesen.",
+      "beschreibung": "Eignung: Komplexität des Inhalts für die Lerngruppe (Anzahl und Verknüpfung der Elemente). Angabe der Lehrperson oder aus dem Text gelesen.",
       "werte": [
         {
           "id": "gering",
@@ -973,7 +973,7 @@
     {
       "id": "sprachniveau",
       "titel": "Sprachniveau",
-      "beschreibung": "Eignung (EG2): Sprachniveau der ganzen Lerngruppe in der Unterrichtssprache nach dem Gemeinsamen Europäischen Referenzrahmen (A1 bis C2). Gilt nur für die ganze Gruppe, nicht für eine Teilgruppe.",
+      "beschreibung": "Eignung: Sprachniveau der ganzen Lerngruppe in der Unterrichtssprache nach dem Gemeinsamen Europäischen Referenzrahmen (A1 bis C2). Gilt nur für die ganze Gruppe, nicht für eine Teilgruppe.",
       "werte": [
         {
           "id": "a1",
@@ -1038,7 +1038,7 @@
     {
       "id": "bildungsstufe",
       "titel": "Bildungsstufe",
-      "beschreibung": "Eignung (EG1): Bildungsstufe der Lerngruppe. Abgleich mit dem OpenEduHub-Vokabular educationalContext über skos:closeMatch.",
+      "beschreibung": "Eignung: Bildungsstufe der Lerngruppe. Abgleich mit dem OpenEduHub-Vokabular educationalContext über skos:closeMatch.",
       "werte": [
         {
           "id": "primar",
@@ -1081,7 +1081,7 @@
     {
       "id": "technikbedarf",
       "titel": "Technikbedarf",
-      "beschreibung": "Bedarf (BD4): Geräte, die die Methode mindestens braucht. Geordnet von wenig nach viel.",
+      "beschreibung": "Bedarf: Geräte, die die Methode mindestens braucht. Geordnet von wenig nach viel.",
       "werte": [
         {
           "id": "t-keine",
@@ -1179,7 +1179,7 @@
     {
       "id": "fachbereich",
       "titel": "Fachbereich",
-      "beschreibung": "Eignung (EG3): Grobe Fächergruppe, in der eine Methode typischerweise eingesetzt wird. Ergänzt die 13 Facetten für die fachgerechte Auswahl; „übergreifend“ steht für Methoden ohne Fachbindung.",
+      "beschreibung": "Eignung: Grobe Fächergruppe, in der eine Methode typischerweise eingesetzt wird. Ergänzt die 13 Facetten für die fachgerechte Auswahl; „übergreifend“ steht für Methoden ohne Fachbindung.",
       "werte": [
         {
           "id": "mathe-informatik",
