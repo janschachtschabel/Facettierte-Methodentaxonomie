@@ -93,6 +93,10 @@ export interface ElaboratePayload {
   hinweiseListe?: string[];
   /** Request text (company words choose the profile betrieb). */
   text?: string;
+  /** Accompanying goals (codes of the scheme begleitziel or labels), for the core field Ziele (D3). */
+  begleitziel?: string | string[];
+  /** Accompanying strand the plan proposes (answer field begleitstrang of the plan), for the core field Ziele (D3). */
+  begleitstrang?: Array<{ begleitziel: string; baustein?: string; name?: string; dauerMin: number }>;
 }
 
 export interface MaterialPayload {
@@ -386,6 +390,8 @@ export async function elaborateScenarioCore(
     body.einheit || '',
     body.nachweis || '',
     body.hinweiseListe || null,
+    body.begleitziel || null,
+    body.begleitstrang || null,
     body.text || '',
     body.thema || '',
     body.fach || '',

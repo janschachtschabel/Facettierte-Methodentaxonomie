@@ -85,6 +85,10 @@ export interface EntwurfKontext {
   einheit?: string;
   nachweis?: string;
   hinweise?: string[];
+  /** Accompanying goals as codes or labels (D3). */
+  begleitziel?: string | string[];
+  /** Accompanying strand the plan proposes; method by name or id (D3). */
+  begleitstrang?: Array<{ begleitziel: string; baustein?: string; name?: string; dauerMin: number }>;
   /** Chain step role per phase key (from the arrangement). */
   schrittRolle?: Record<string, string | undefined>;
 }
@@ -129,6 +133,22 @@ export function entwurfAusTabelle(store: CatalogStore, k: EntwurfKontext, zeilen
     einheit: k.einheit,
     phasen,
     nachweis: k.nachweis,
-    hinweise: k.hinweise
+    hinweise: k.hinweise,
+    ...begleitAngaben(store, k)
   });
+}
+
+/** Accompanying goals and the proposed strand as labels for the core field Ziele (D3); unknown goals stay as written. */
+function begleitAngaben(store: CatalogStore, k: Pick<EntwurfKontext, 'begleitziel' | 'begleitstrang'>): { begleitziele?: string[]; begleitstrang?: Array<{ begleitziel: string; methode: string; dauerMin: number }> } {
+  const ziel = (v: string) => labelOf(store, 'begleitziel', codeOf(store, 'begleitziel', v)) || v.trim();
+  const ziele = (Array.isArray(k.begleitziel) ? k.begleitziel : k.begleitziel ? [k.begleitziel] : []).filter((x) => typeof x === 'string' && x.trim()).map(ziel);
+  const strang = (Array.isArray(k.begleitstrang) ? k.begleitstrang : [])
+    .filter((s) => s && typeof s.begleitziel === 'string' && Number.isFinite(Number(s.dauerMin)))
+    .map((s) => ({
+      begleitziel: ziel(s.begleitziel),
+      methode: (typeof s.name === 'string' && s.name.trim()) || (s.baustein && store.blocksById.get(s.baustein)?.name) || s.baustein || '',
+      dauerMin: Number(s.dauerMin)
+    }))
+    .filter((s) => s.methode);
+  return { ...(ziele.length ? { begleitziele: ziele } : {}), ...(strang.length ? { begleitstrang: strang } : {}) };
 }

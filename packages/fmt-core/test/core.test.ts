@@ -16,7 +16,9 @@ import {
   adaptScenario,
   istHilfe,
   istMethode,
-  nurMethoden
+  nurMethoden,
+  extractSubjectAndTopic,
+  liesBegleitziele
 } from '../src/index.js';
 import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
 import { nachweisformen, traegtBegleitziel } from '../src/zielart.js';
@@ -1180,6 +1182,16 @@ describe('Begleitziele (Paket D, D3)', () => {
     const beide = ablauf(M.zuordnen({ text, begleitziel: ['sozial', 'selbstregulation'] }));
     expect(beide.regelmeldungen!.filter((x) => x.regel === 'begleitziel-braucht-termine')).toHaveLength(1);
     expect(beide.regelmeldungen!.find((x) => x.regel === 'begleitziel-braucht-termine')!.text).toMatch(/^Wirkungen auf soziales Lernen und Selbstregulation /);
+  });
+
+  it('das Thema bleibt das Thema: ein Begleitziel steht nicht darin', () => {
+    expect(extractSubjectAndTopic('Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern').thema).toBe('Stromkreis');
+    expect(extractSubjectAndTopic('Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken').thema).toBe('Wortschatz Tiere');
+    expect(liesBegleitziele('Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern')).toEqual({
+      codes: ['selbstregulation'],
+      belege: ['zusätzlich Selbstregulation fördern'],
+      rest: 'Physik Klasse 8, Stromkreis, 45 Minuten'
+    });
   });
 
   it('der Begleitstrang deckt den Bedarf: ohne Schreiben keine Methode, die Schreiben verlangt', () => {

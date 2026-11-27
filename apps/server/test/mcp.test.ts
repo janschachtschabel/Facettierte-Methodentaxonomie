@@ -515,7 +515,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(match.bildungsstufe.enum).toContain('sek1');
     expect(match.vorwissen.enum).toEqual(expect.arrayContaining(['gering', 'mittel', 'hoch']));
     expect(JSON.stringify(match.ansatz)).toContain('kooperativ');
-    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'nachweis', 'zielart']) {
+    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'nachweis', 'zielart', 'begleitziel']) {
       expect(match[f], 'match_scenario ' + f).toBeDefined();
       expect(props('build_scenario_plan')[f], 'build_scenario_plan ' + f).toBeDefined();
     }
@@ -596,6 +596,43 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(ohne.entwurf.planungsprofil).toMatchObject({ id: 'schule', angenommen: true });
     expect(JSON.stringify(ohne.entwurf)).toContain('Bildungsstufe nicht angegeben');
     expect(ohne.pflichtangaben.angenommen.map((a: { feld: string }) => a.feld)).toContain('planungsprofil');
+  });
+
+  it('build_scenario_plan: Begleitziel als Feld und aus dem Text, begleitstrang auch kompakt, Entwurf nennt Begleitziel und Begleitstrang (Paket D, D3)', async () => {
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const text = 'Physik Klasse 8, Stromkreis, 45 Minuten';
+    const kompakt = await call('build_scenario_plan', { text, begleitziel: ['selbstregulation'], umfang: 'kompakt' });
+    expect(kompakt.begleitstrang).toHaveLength(1);
+    expect(kompakt.begleitstrang[0]).toMatchObject({ begleitziel: 'selbstregulation', position: 'ende' });
+    expect(kompakt.regelmeldungen.map((m: { regel: string }) => m.regel)).toContain('begleitziel-braucht-termine');
+    const ohne = await call('build_scenario_plan', { text, umfang: 'kompakt' });
+    expect(ohne.begleitstrang).toBeUndefined();
+    const voll = await call('build_scenario_plan', { text: `${text}, soziales Lernen stärken`, umfang: 'voll' });
+    expect(voll.erkannteKriterien.begleitziel).toEqual(['sozial']);
+    // The topic stays the topic: the accompanying goal does not enter it.
+    expect(voll.thema).toBe('Stromkreis');
+    const ziele = voll.entwurf.kernfelder.find((k: { id: string }) => k.id === 'ziele').inhalt;
+    expect(ziele).toContain('Soziales Lernen');
+    expect(ziele).toContain(`Begleitstrang (Vorschlag): ${voll.begleitstrang[0].name}`);
+  });
+
+  it('elaborate_scenario nimmt begleitziel und begleitstrang an und nennt sie im Feld Ziele (Paket D, D3)', async () => {
+    const plan = JSON.parse(
+      ((await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Physik Klasse 8, Stromkreis, 45 Minuten', begleitziel: ['selbstregulation'], umfang: 'voll' } })).content as Array<{ text: string }>)[0].text
+    );
+    const res = await client.callTool({
+      name: 'elaborate_scenario',
+      arguments: { arrangement: plan.maschinenlesbar.arrangement, thema: 'Stromkreis', begleitziel: ['selbstregulation'], begleitstrang: plan.begleitstrang }
+    });
+    expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+    const j = JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    const ziele = j.entwurf.kernfelder.find((k: { id: string }) => k.id === 'ziele').inhalt;
+    expect(ziele).toContain('Selbstregulation');
+    expect(ziele).toContain(`Begleitstrang (Vorschlag): ${plan.begleitstrang[0].name}, ${plan.begleitstrang[0].dauerMin} min am Ende (Selbstregulation)`);
   });
 
   it('elaborate_scenario liefert den Entwurf mit sieben Kernfeldern und die Leitplanken im Briefing (Paket D, D2)', async () => {

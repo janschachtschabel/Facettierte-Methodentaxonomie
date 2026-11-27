@@ -145,6 +145,8 @@ export function buildEntwurfFuerAusarbeitung(
       einheit: body.einheit,
       nachweis: body.nachweis,
       hinweise: [...(body.hinweise?.trim() ? [body.hinweise.trim()] : []), ...(body.hinweiseListe || [])],
+      begleitziel: body.begleitziel,
+      begleitstrang: body.begleitstrang,
       schrittRolle: Object.fromEntries(geplant.map((p) => [p.key, p.kettenschritt ? rolleJeSchritt.get(p.kettenschritt) : undefined]))
     },
     rows
@@ -504,6 +506,8 @@ export interface ScenarioPlanArgs {
   ohneSchrift?: string | string[];
   termine?: number;
   nachweis?: string;
+  /** Accompanying goals (scheme begleitziel): order equivalent methods and propose a short accompanying strand. */
+  begleitziel?: string | string[];
   /** 0 = first proposal; higher values give the next equally suitable combination. */
   variante?: number;
   includeWloOer?: boolean;
@@ -633,6 +637,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneSchrift: args.ohneSchrift,
     termine: args.termine,
     nachweis: args.nachweis,
+    begleitziel: args.begleitziel,
     fachbereich:
       args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld)
   };
@@ -837,7 +842,10 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     anzahl: groupSize,
     einheit: typeof matched.kriterien.einheit === 'string' ? matched.kriterien.einheit : undefined,
     nachweis: matched.nachweis?.formen.map((f) => schemeValues(store.bundle, 'nachweisform').find((w) => w.id === f)?.label || f).join(' oder '),
-    hinweiseListe: matched.hinweise || []
+    hinweiseListe: matched.hinweise || [],
+    // Accompanying goals as the matcher read them (field or text) and the strand it proposes (D3).
+    begleitziel: matched.kriterien.begleitziel as string[] | undefined,
+    begleitstrang: matched.begleitstrang
   };
 
   const briefing = buildElaborateBriefing(store, elabPayload);
@@ -887,6 +895,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     // Steps left open and why (uncovered need), and the form of proof the check is ordered by.
     ...(matched.modus === 'ablauf' && matched.offenGruende?.length ? { offenGruende: matched.offenGruende } : {}),
     ...(matched.nachweis ? { nachweis: matched.nachweis } : {}),
+    // Accompanying strand per accompanying goal: a proposal to take over, not part of the plan (D3).
+    ...(matched.modus === 'ablauf' && matched.begleitstrang?.length ? { begleitstrang: matched.begleitstrang } : {}),
     annahmen: matched.annahmen || [],
     hinweise: matched.hinweise || [],
     pflichtangaben: matched.pflichtangaben,

@@ -243,6 +243,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
       termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
       nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
+      begleitziel: codes('begleitziel')
+        .optional()
+        .describe('Was nebenbei gefördert werden soll (sprache, sozial, selbstregulation); wählt nie die Kette, ordnet nur unter gleichwertigen Methoden; die Antwort nennt begleitstrang'),
       ohneSchrift: codes('ohneSchrift')
         .optional()
         .describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
@@ -496,6 +499,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneSchrift: codes('ohneSchrift').optional().describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
       termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
       nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
+      begleitziel: codes('begleitziel')
+        .optional()
+        .describe('Was nebenbei gefördert werden soll (sprache, sozial, selbstregulation); wählt nie die Kette, ordnet nur unter gleichwertigen Methoden; die Antwort nennt begleitstrang (kurze Methode am Ende, ein Vorschlag, nicht im Ablauf)'),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),
       umfang: z
         .enum(['kompakt', 'voll'])
@@ -541,6 +547,18 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       hinweise: z.string().max(MAX_TEXT_CHARS).optional(),
       bildungsstufe: code('bildungsstufe').optional().describe('Bildungsstufe; sonst aus dem Arrangement. Ohne Angabe steht „Bildungsstufe nicht angegeben“.'),
       planungsprofil: code('planungsprofil').optional().describe('Planungsprofil des Entwurfs (Begriffe, Module); sonst aus der Bildungsstufe'),
+      begleitziel: codes('begleitziel').optional().describe('Begleitziele des Plans; erscheinen im Kernfeld Ziele'),
+      begleitstrang: z
+        .array(
+          z.object({
+            begleitziel: code('begleitziel'),
+            baustein: z.string().max(MAX_TEXT_CHARS).optional(),
+            name: z.string().max(MAX_TEXT_CHARS).optional(),
+            dauerMin: z.number().int().min(1)
+          })
+        )
+        .optional()
+        .describe('Begleitstrang aus build_scenario_plan (Feld begleitstrang); erscheint als Vorschlag im Kernfeld Ziele'),
       oerRessourcen: z
         .array(z.object({ stepKey: z.string().max(MAX_TEXT_CHARS).optional(), titel: z.string().max(MAX_TEXT_CHARS), wwwurl: z.string().max(MAX_TEXT_CHARS) }))
         .optional(),
@@ -564,7 +582,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           hinweise: args.hinweise,
           oerRessourcen: args.oerRessourcen,
           bildungsstufe: args.bildungsstufe,
-          planungsprofil: args.planungsprofil
+          planungsprofil: args.planungsprofil,
+          begleitziel: args.begleitziel,
+          begleitstrang: args.begleitstrang
         };
         if (args.useServerLlm && effectiveConfig.llmApiKey) {
           if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
