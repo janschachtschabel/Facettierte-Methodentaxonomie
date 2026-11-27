@@ -87,6 +87,10 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
     const sample = readJson<Record<string, unknown>>('bausteine/gruppenpuzzle.jsonld');
     expect(validateSchema({ ...sample, lernfunktion: ['tanzen'] })).toBe(false);
     expect(validateSchema({ ...sample, vorbedingungen: [] })).toBe(false);
+    // betreuungshinweis is a field of the Einsatzprofil (types.ts); the schema and the context carry it too (Task D7).
+    expect(validateSchema({ ...sample, betreuungshinweis: 'Eine Person sichert an der Station.' }), JSON.stringify(validateSchema.errors)).toBe(true);
+    expect(validateSchema({ ...sample, betreuungshinweis: 3 })).toBe(false);
+    expect((readJson<{ '@context': Record<string, unknown> }>('context.jsonld')['@context'] as Record<string, unknown>).betreuungshinweis).toBe('fmt:betreuungshinweis');
     expect(sample.piktogramm).toBeUndefined();
     expect(sample.plot).toBeUndefined();
   });
