@@ -6,6 +6,7 @@ import type {
   Baustein,
   EinsatzNode,
   FmtData,
+  Grundlage,
   ValidationMessage,
   ValidationResult
 } from './types.js';
@@ -114,8 +115,8 @@ export function createValidator(data: FmtData): FmtValidator {
     _stack: string[] = []
   ): ValidationResult {
     const meldungen: ValidationMessage[] = [];
-    const add = (regel: string, schwere: 'Fehler' | 'Warnung', pfad: string, meldung: string) =>
-      meldungen.push({ regel, schwere, grundlage: ruleBasisOf(regel), pfad, meldung });
+    const add = (regel: string, schwere: 'Fehler' | 'Warnung', pfad: string, meldung: string, grundlage?: Grundlage) =>
+      meldungen.push({ regel, schwere, grundlage: grundlage ?? ruleBasisOf(regel), pfad, meldung });
 
     const kontext = arr.kontext || {};
     const lage = {
@@ -146,7 +147,7 @@ export function createValidator(data: FmtData): FmtValidator {
       const missing = (b.vorbedingung || []).filter((z) => !st.zustand.has(z));
       if (missing.length) add('R-03', 'Fehler', pfad, `„${b.name}“: Vorbedingung nicht erfüllt (${missing.join(', ')}).`);
       // R-06 Eignung und Passung: every warning of the fit rules and suitability entries for this situation.
-      for (const m of regeln.warnungen(b, lage)) add('R-06', 'Warnung', pfad, m.quelle ? `${m.text} (${m.quelle})` : m.text);
+      for (const m of regeln.warnungen(b, lage)) add('R-06', 'Warnung', pfad, m.quelle ? `${m.text} (${m.quelle})` : m.text, m.grundlage);
     }
 
     function leafEffects(b: Baustein, dauer: number, pfad: string) {

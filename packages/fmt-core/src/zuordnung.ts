@@ -1857,27 +1857,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         if (m) sicherheit.push(m);
       }
     }
+    // One check per method; the ids of every firing rule are collected once (not one full run per rule).
     const lageJetzt = regelLage(a);
-    const ordnet: Regelmeldung[] = regeln
+    const feuernd = new Set<string>();
+    for (const b of data.bausteine) for (const m of regeln.pruefe(b, lageJetzt)) feuernd.add(m.regel);
+    const lageMeldungen: Regelmeldung[] = regeln
       .alle()
-      .filter(
-        (x) =>
-          x.art === 'deklarativ' &&
-          !x.keinTausch &&
-          Object.keys(x.wenn?.situation || {}).length > 0 &&
-          data.bausteine.some((b) => regeln.pruefe(b, lageJetzt).some((m) => m.regel === x.id))
-      )
+      .filter((x) => x.art === 'deklarativ' && !x.keinTausch && Object.keys(x.wenn?.situation || {}).length > 0 && feuernd.has(x.id))
       .map((x) => ({
         regel: x.id,
-        wirkung: 'ordnet' as const,
+        wirkung: x.wirkung,
         grundlage: x.grundlage,
         ...(x.quelle ? { quelle: x.quelle } : {}),
-        text: `${x.name}: Methoden, für die das gilt, stehen weiter hinten und tragen eine Warnung.`
+        // A method the teacher named keeps its place at its step; the sentence says so to stay true.
+        text: `${x.name}: Methoden, für die das gilt, tragen eine Warnung und stehen weiter hinten – außer eine Methode, die du selbst genannt hast.`
       }));
-    const meldungen = [...genannt, ...ordnet, ...warnungen, ...sicherheit];
+    const meldungen = [...genannt, ...lageMeldungen, ...warnungen, ...sicherheit];
     if (!meldungen.length) return r;
     r.regelmeldungen = meldungen;
-    const hinweise = (r.modus === 'phase' ? meldungen.filter((m) => m.wirkung !== 'warnt') : meldungen).map(alsText);
+    // In a single phase the method warnings stand at each proposal; situation-level messages (no method) stay in the notes.
+    const hinweise = (r.modus === 'phase' ? meldungen.filter((m) => m.wirkung !== 'warnt' || !m.baustein) : meldungen).map(alsText);
     const neu = [...(r.hinweise || [])];
     for (const h of hinweise) if (!neu.includes(h)) neu.push(h);
     if (neu.length) r.hinweise = neu;

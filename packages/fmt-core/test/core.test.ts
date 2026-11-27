@@ -899,4 +899,46 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
     const r06 = r.meldungen.filter((m) => m.regel === 'R-06');
     expect(r06.map((m) => m.meldung).join(' ')).toMatch(/Tetzlaff/);
   });
+
+  it('Regel ohne Methode (Lage): eigene Wirkung „warnt“, wahrer Satz zur genannten Methode, auch im Phasenmodus (B3-Review a, c)', () => {
+    const r = M.zuordnen({ text: 'Mathematik Klasse 7, Brüche, 45 Minuten, 25 Lernende, kein Vorwissen' }) as AblaufMatchResult;
+    const lage = (r.regelmeldungen || []).filter((m) => m.regel === 'wenig-anleitung-geringes-vorwissen' && !m.baustein);
+    if (r.kriterien.vorwissen === 'gering') {
+      expect(lage).toHaveLength(1);
+      expect(lage[0].wirkung).toBe('warnt');
+      expect(lage[0].grundlage).toBe('E');
+      expect(lage[0].text).toMatch(/außer eine Methode, die du selbst genannt hast/);
+    }
+    const p = M.zuordnen({ modus: 'phase', lernfunktion: ['erwerb'], vorwissen: 'gering' }) as PhaseMatchResult;
+    const pl = (p.regelmeldungen || []).find((m) => m.regel === 'wenig-anleitung-geringes-vorwissen' && !m.baustein)!;
+    expect(pl).toBeDefined();
+    expect(pl.wirkung).toBe('warnt');
+    // The situation-level reading stays in the notes of a single phase (method warnings stand at each proposal).
+    expect((p.hinweise || []).some((h) => h.startsWith(pl.text))).toBe(true);
+    expect((p.regelmeldungen || []).every((m) => m.wirkung !== 'ordnet' || m.regel === 'nachweis-passt-zum-ziel')).toBe(true);
+  });
+
+  it('R-06 trägt die Grundlage der Meldung selbst: Setzung der Redaktion (A) und evidenz-geltung (A) (B3-Review d)', () => {
+    const V = createValidator(D);
+    const b = D.bausteine.find((x) => (x.ungeeignetBeiStufe || []).includes('primar') && !x.eignungsgrund?.stufe && !(x.vorbedingung || []).length)!;
+    const r = V.validate({
+      typ: 'Arrangement',
+      name: 't',
+      reichweite: 'r3',
+      kontext: { bildungsstufe: 'primar' },
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: b.kennung, dauerMin: b.dauerMin }] }
+    });
+    const stufe = r.meldungen.find((m) => m.regel === 'R-06' && /Setzung der Redaktion/.test(m.meldung))!;
+    expect(stufe).toBeDefined();
+    expect(stufe.grundlage).toBe('A');
+    const offen = D.bausteine.find((x) => x.anleitung.length && x.anleitung.every((y) => y === 'offen') && !(x.vorbedingung || []).length && !(x.sequenz || []).includes('problem-vor-instruktion'))!;
+    const e = V.validate({
+      typ: 'Arrangement',
+      name: 't',
+      reichweite: 'r3',
+      kontext: { vorwissen: 'gering' },
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: offen.kennung, dauerMin: offen.dauerMin }] }
+    });
+    expect(e.meldungen.filter((m) => m.regel === 'R-06' && /Tetzlaff/.test(m.meldung)).every((m) => m.grundlage === 'E')).toBe(true);
+  });
 });

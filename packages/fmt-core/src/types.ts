@@ -138,6 +138,11 @@ export interface Passungsregel {
   text: string;
   ersetzt?: string;
 }
+/**
+ * One message of a fit rule. With `baustein` it speaks about that method; without `baustein` it is the
+ * situation-level reading of the rule (the situation part holds, so methods it names are set back), with the
+ * rule's own wirkung and grundlage.
+ */
 export interface Regelmeldung {
   regel: string;
   wirkung: Wirkung;
@@ -445,7 +450,8 @@ export interface RuleMeta {
 export interface ValidationMessage {
   regel: string;
   schwere: 'Fehler' | 'Warnung';
-  grundlage: RuleBasis;
+  /** Basis of the rule; for R-06 the basis of the fit message itself (E, S, A, Recht, U). */
+  grundlage: Grundlage;
   pfad: string;
   meldung: string;
 }
