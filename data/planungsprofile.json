@@ -69,6 +69,14 @@
       "lehrende": "Lehrkraft",
       "lernende": "Schülerinnen und Schüler",
       "status": "vorgeschrieben in der Prüfung, sonst üblich",
+      "formen": {
+        "einheit": "Unterrichtsstunde",
+        "derEinheit": "der Unterrichtsstunde",
+        "groessereEinheit": "Unterrichtsreihe",
+        "inGroessereEinheit": "in die Unterrichtsreihe",
+        "derLehrenden": "der Lehrkraft",
+        "derLernenden": "der Schülerinnen und Schüler"
+      },
       "module": [
         {
           "id": "sachanalyse",
@@ -99,6 +107,14 @@
       "lehrende": "Lehrkraft",
       "lernende": "Auszubildende",
       "status": "Lernsituation curricular gefordert, Form frei (KMK 2021)",
+      "formen": {
+        "einheit": "Lernsituation",
+        "derEinheit": "der Lernsituation",
+        "groessereEinheit": "Lernfeld",
+        "inGroessereEinheit": "in das Lernfeld",
+        "derLehrenden": "der Lehrkraft",
+        "derLernenden": "der Auszubildenden"
+      },
       "module": [
         {
           "id": "handlungssituation",
@@ -121,6 +137,14 @@
       "lehrende": "Ausbilderin, Ausbilder",
       "lernende": "Auszubildende",
       "status": "Prüfung geregelt (AusbEignV § 4); Konzeptpapier je Kammer verschieden",
+      "formen": {
+        "einheit": "Ausbildungssituation",
+        "derEinheit": "der Ausbildungssituation",
+        "groessereEinheit": "betrieblicher Ausbildungsplan",
+        "inGroessereEinheit": "in den betrieblichen Ausbildungsplan",
+        "derLehrenden": "der Ausbilderin oder des Ausbilders",
+        "derLernenden": "der Auszubildenden"
+      },
       "module": [
         {
           "id": "ausbildungsberuf",
@@ -147,6 +171,14 @@
       "lehrende": "Lehrende",
       "lernende": "Studierende",
       "status": "Modul vorgeschrieben (MRVO § 7), Sitzung üblich",
+      "formen": {
+        "einheit": "Sitzung",
+        "derEinheit": "der Sitzung",
+        "groessereEinheit": "Modul",
+        "inGroessereEinheit": "in das Modul",
+        "derLehrenden": "der Lehrenden",
+        "derLernenden": "der Studierenden"
+      },
       "module": [
         {
           "id": "arbeitsaufwand-leistungspunkte",
@@ -173,6 +205,14 @@
       "lehrende": "Kursleitung",
       "lernende": "Teilnehmende",
       "status": "üblich; Konzeptpflicht nur für geförderte Maßnahmen (AZAV § 3)",
+      "formen": {
+        "einheit": "Kurseinheit",
+        "derEinheit": "der Kurseinheit",
+        "groessereEinheit": "Kurs",
+        "inGroessereEinheit": "in den Kurs",
+        "derLehrenden": "der Kursleitung",
+        "derLernenden": "der Teilnehmenden"
+      },
       "module": [
         {
           "id": "rolle-kursleitung",

@@ -125,7 +125,26 @@ export interface Planungsprofil {
   lehrende: string;
   lernende: string;
   status: string;
+  /**
+   * Grammatical forms of the terms for headings and column names (e.g. "Tätigkeit der Kursleitung"),
+   * stored explicitly because the terms above are lists ("Sitzung, Lehrveranstaltung") or need a case form.
+   */
+  formen: PlanungsprofilFormen;
   module: Array<{ id: string; name: string }>;
+}
+
+export interface PlanungsprofilFormen {
+  /** One unit, nominative singular ("Sitzung"). */
+  einheit: string;
+  /** Genitive with article ("der Sitzung"). */
+  derEinheit: string;
+  groessereEinheit: string;
+  /** Accusative with preposition ("in das Modul"). */
+  inGroessereEinheit: string;
+  /** Genitive of the teaching person(s) with article ("der Kursleitung"). */
+  derLehrenden: string;
+  /** Genitive of the learners with article ("der Teilnehmenden"). */
+  derLernenden: string;
 }
 
 export interface PlanungsprofileRegelsatz {
@@ -672,6 +691,8 @@ export interface MatchHead {
   regelmeldungen?: Regelmeldung[];
   /** Which of the six required details the request leaves open, and what was assumed instead (field, value, reason). */
   pflichtangaben?: Situation['pflichtangaben'];
+  /** Planning profile of the draft (terms and modules): stated, read from Bildungsstufe and text, or assumed (then under pflichtangaben.angenommen). */
+  planungsprofil?: Planungsprofil['id'];
   /** Form of proof the check is ordered by (rule nachweis-passt-zum-ziel): stated in the request or carried by the goal kind. */
   nachweis?: { formen: string[]; quelle: 'anfrage' | 'zielart'; grund: string };
 }

@@ -26,4 +26,6 @@ export * from './raster.js';
 export { erstelleRegeln } from './regeln.js';
 export * from './teilgruppen.js';
 export { waehlePlanungsprofil } from './planungsprofil.js';
+export { ENTWURF_LEITPLANKEN, OHNE_BILDUNGSSTUFE, baueEntwurf, entwurfMarkdown, profilBegriffe } from './entwurf.js';
+export type { Entwurf, EntwurfEingabe, EntwurfKernfeld, EntwurfPhase, ProfilBegriffe } from './entwurf.js';
 export { istHilfe, istMethode, nurMethoden } from './eintragsart.js';

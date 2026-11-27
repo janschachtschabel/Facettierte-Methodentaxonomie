@@ -31,6 +31,7 @@ import { KennungIndex } from './kennung.js';
 import { raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
 import { baueSituation, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
+import { waehlePlanungsprofil } from './planungsprofil.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 import { bewegungsKette, nachweisformen, normZielart, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
 
@@ -2085,11 +2086,29 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         checkInLesson
           ? 'ablauf'
           : 'phase');
+      // Planning profile of the draft: stated, from the Bildungsstufe (and company words in the text), else assumed.
+      const profilWahl = data.planungsprofile?.profile?.length
+        ? waehlePlanungsprofil(data.planungsprofile.profile, {
+            planungsprofil: given(a.planungsprofil) ? String(a.planungsprofil) : undefined,
+            bildungsstufe: given(a.bildungsstufe) ? String(a.bildungsstufe) : undefined,
+            text: given(anfrage.text) ? String(anfrage.text) : undefined
+          })
+        : null;
+      const profilAnnahme: Annahme[] = profilWahl?.angenommen
+        ? [
+            {
+              feld: 'planungsprofil',
+              wert: profilWahl.profil.id,
+              grund: `Keine Bildungsstufe angegeben: Planungsprofil „${label('planungsprofil', profilWahl.profil.id)}“ angenommen.`
+            }
+          ]
+        : [];
       const head = {
         kriterien: a,
         erkannt: gelesen.erkannt,
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld),
-        ...(gelesen.fach ? { fach: gelesen.fach } : {})
+        ...(gelesen.fach ? { fach: gelesen.fach } : {}),
+        ...(profilWahl ? { planungsprofil: profilWahl.profil.id } : {})
       };
       // Required details and what was assumed, read from the request as the caller sent it (before any assumed time).
       const anfrageSituation = { ...a };
@@ -2109,7 +2128,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                 }
               ]
             : [];
-        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...zielVermutet, ...extra] };
+        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...zielVermutet, ...extra, ...profilAnnahme] };
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));
