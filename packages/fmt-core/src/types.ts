@@ -108,6 +108,32 @@ export interface MerkmalAntwort {
   grundlage: Grundlage;
   quelle?: string;
 }
+/** Common field of every planning document (data/planungsprofile.json). */
+export interface Kernfeld {
+  id: 'rahmendaten' | 'lernvoraussetzungen' | 'ziele' | 'einordnung' | 'verlauf' | 'lernerfolg' | 'reflexion';
+  name: string;
+  wfelder: string[];
+}
+
+/** Terms and modules of one field of education (school, vocational school, company, university, adult education). */
+export interface Planungsprofil {
+  id: 'schule' | 'berufsschule' | 'betrieb' | 'hochschule' | 'erwachsenenbildung';
+  bildungsstufe: string[];
+  einheit: string;
+  groessereEinheit: string;
+  dokument: string;
+  lehrende: string;
+  lernende: string;
+  status: string;
+  module: Array<{ id: string; name: string }>;
+}
+
+export interface PlanungsprofileRegelsatz {
+  kernfelder: Kernfeld[];
+  profile: Planungsprofil[];
+  hinweis?: string;
+}
+
 export interface TeilgruppenRegelsatz {
   merkmale: MerkmalAntwort[];
   /** Answer for matrix values no row names. */
@@ -461,6 +487,7 @@ export interface FmtData {
   regeln: Passungsregel[];
   /** Table "Tausch oder Hilfe" for subgroups. */
   teilgruppen: TeilgruppenRegelsatz;
+  planungsprofile: PlanungsprofileRegelsatz;
   bausteine: Baustein[];
   beispiele: Arrangement[];
   /** OEH school and university subjects mapped to FMT subject areas (recognition layer, optional). */
@@ -582,6 +609,8 @@ export interface MatchRequest {
   vorhanden?: string | string[];
   vorwissen?: string;
   bildungsstufe?: string;
+  /** Planning profile (scheme planungsprofil); derived from bildungsstufe and text when absent. */
+  planungsprofil?: string;
   /** Complexity of the content (scheme komplexitaet). */
   komplexitaet?: string;
   /** Language level of the whole group (scheme sprachniveau, A1 to C2). */
@@ -713,6 +742,7 @@ export interface CatalogBundle {
   ketten: Funktionskette[];
   regeln: Passungsregel[];
   teilgruppen: TeilgruppenRegelsatz;
+  planungsprofile: PlanungsprofileRegelsatz;
   bausteine: Baustein[];
   beispiele: Arrangement[];
   oeh: Record<string, string>;

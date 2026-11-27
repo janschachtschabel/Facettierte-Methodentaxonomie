@@ -379,6 +379,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('bildungsstufe')))
     },
     {
+      feld: 'planungsprofil',
+      typ: 'code',
+      stufe: 4,
+      bedeutung: 'Planungsprofil: Begriffe und Module des Entwurfs; ohne Angabe folgt es aus Bildungsstufe und Text',
+      werte: opts(values(scheme('planungsprofil')))
+    },
+    {
       feld: 'fachbereich',
       typ: 'code',
       stufe: 4,

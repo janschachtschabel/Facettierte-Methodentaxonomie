@@ -1552,6 +1552,33 @@
       ]
     },
     {
+      "id": "planungsprofil",
+      "titel": "Planungsprofil",
+      "beschreibung": "Bereich, nach dessen Begriffen und Modulen ein Entwurf aufgebaut wird (Schule, Berufsschule, Betrieb, Hochschule, Erwachsenenbildung).",
+      "werte": [
+        {
+          "id": "schule",
+          "label": "Schule"
+        },
+        {
+          "id": "berufsschule",
+          "label": "Berufsschule"
+        },
+        {
+          "id": "betrieb",
+          "label": "Betrieb"
+        },
+        {
+          "id": "hochschule",
+          "label": "Hochschule"
+        },
+        {
+          "id": "erwachsenenbildung",
+          "label": "Erwachsenenbildung"
+        }
+      ]
+    },
+    {
       "id": "zielart",
       "titel": "Zielart",
       "beschreibung": "Art des Lernziels; legt fest, welche Wissensarten (D1) und welche Nachweisformen dazugehören.",
