@@ -593,6 +593,40 @@ describe('Schritt 3: Entscheidung je Teilgruppe (Task C6)', () => {
     expect(screen.queryByText(/Eigene Methode für diese Gruppe/)).toBeNull();
   });
 
+  it('Fix C5/C6: erneutes Prüfen nimmt eine übernommene Hilfe zurück, die nicht mehr gilt, und sagt es in einer Zeile', () => {
+    renderPlanner();
+    propose(N08);
+    fireEvent.click(stepButton(3));
+    pruefen();
+    for (const knopf of within(gruppen()[0]).getAllByRole('button', { name: /^Hilfe für .* übernehmen$/ })) fireEvent.click(knopf);
+    const vorher = within(gruppen()[0]).getAllByRole('button', { name: /^Hilfe für .* zurücknehmen$/ }).length;
+    expect(vorher).toBeGreaterThan(0);
+    fireEvent.click(within(gruppen()[0]).getByLabelText('kann noch nicht lesen'));
+    fireEvent.click(within(gruppen()[0]).getByLabelText('kann noch nicht schreiben'));
+    fireEvent.click(screen.getByRole('button', { name: '↻ Erneut prüfen' }));
+    const nachher = within(gruppen()[0]).queryAllByRole('button', { name: /^Hilfe für .* zurücknehmen$/ }).length;
+    expect(nachher).toBeLessThan(vorher);
+    expect(screen.getByText(/übernommene Hilfen? (passt|passen) nicht mehr und (ist|sind) zurückgenommen\./)).toBeTruthy();
+  });
+
+  it('Fix C7: eine eingefügte Phase verschiebt eine übernommene Hilfe und prüft sie wie „Erneut prüfen“', () => {
+    renderPlanner();
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    fireEvent.click(stepButton(3));
+    fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/ }));
+    pruefen();
+    const [knopf] = within(gruppen()[0]).getAllByRole('button', { name: /^Hilfe für .* übernehmen$/ });
+    const phase = knopf.getAttribute('aria-label')!.replace(/^Hilfe für .* in Phase /, '').replace(/ übernehmen$/, '');
+    fireEvent.click(knopf);
+    const add = screen.getAllByRole('button', { name: /hinzufügen$/ });
+    fireEvent.click(add[0]);
+    // The help moved with its phase and still holds: it stays taken over, nothing is reported as taken back.
+    expect(screen.queryByText(/passt nicht mehr/)).toBeNull();
+    const zurueck = within(gruppen()[0]).getAllByRole('button', { name: /^Hilfe für .* zurücknehmen$/ });
+    expect(zurueck).toHaveLength(1);
+    expect(zurueck[0].getAttribute('aria-label')).toContain(phase.replace(/^\d+/, ''));
+  });
+
   it('Hinweise zur Gruppierung stehen unter den Karten der Gruppe, mit Regel und Grundlage', () => {
     renderPlanner();
     // A cooperative small-group method with a group of low prior knowledge: leistungsschwache-nicht-unter-sich.

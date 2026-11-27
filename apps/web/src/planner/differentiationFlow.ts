@@ -14,6 +14,7 @@ import {
   type Regelmeldung,
   type TeilgruppenRegelwerk
 } from '@fmt/core';
+import { shiftAdjustmentKeys } from './extraPhases.js';
 import { grundlageKlartext } from './regelmeldung.js';
 import type { GeneratedMaterialItem, LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from './scenarioModel.js';
 
@@ -228,4 +229,58 @@ export function hilfeAlsMaterial(a: PhasenAntwort, phaseLabel: string, now = new
 
 export function hilfeUebernommen(materials: GeneratedMaterialItem[], stepKey: string, groupId: string): boolean {
   return materials.some((m) => m.materialType === 'hilfe' && m.stepKey === stepKey && m.groupId === groupId);
+}
+
+const zahl = (n: number, eins: string, mehr: string) => (n === 1 ? eins : `${n} ${mehr}`);
+
+/** Result of a new check for what the teacher took over: methods and help materials as they now stand, and why. */
+export interface NachPruefung {
+  subgroupMethods: SubgroupMethodMap;
+  materials: GeneratedMaterialItem[];
+  /** One status line when something taken over was taken back or brought up to date; null otherwise. */
+  status: string | null;
+}
+
+/**
+ * After a new check (button or a change of the flow): a swap taken over stays only while it is proposed again
+ * (behalteUebernommene); a help taken over stays only while the phase still gets a help for the group, and is
+ * brought up to date when the helps changed. Everything taken back is said in one status line.
+ */
+export function nachErneuterPruefung(
+  current: SubgroupMethodMap,
+  previous: MethodAdjustment[],
+  res: TeilgruppenPruefung,
+  materials: GeneratedMaterialItem[],
+  phaseLabel: (stepKey: string) => string
+): NachPruefung {
+  const methoden = adjustmentsInForce(current, previous).filter((a) => !res.vorschlaege.some((n) => sameAdjustment(a, n))).length;
+  let entfernt = 0;
+  let erneuert = 0;
+  const neu = materials.flatMap((m) => {
+    if (m.materialType !== 'hilfe') return [m];
+    const a = res.antworten.find((x) => x.stepKey === m.stepKey && x.groupId === m.groupId);
+    if (!a || a.antwort !== 'hilfe' || !a.hilfen.length) {
+      entfernt++;
+      return [];
+    }
+    const frisch = hilfeAlsMaterial(a, phaseLabel(a.stepKey));
+    if (frisch.title === m.title && frisch.content === m.content) return [m];
+    erneuert++;
+    return [frisch];
+  });
+  const teile = [
+    methoden ? zahl(methoden, 'Eine übernommene Methode passt nicht mehr und ist zurückgenommen.', 'übernommene Methoden passen nicht mehr und sind zurückgenommen.') : '',
+    entfernt ? zahl(entfernt, 'Eine übernommene Hilfe passt nicht mehr und ist zurückgenommen.', 'übernommene Hilfen passen nicht mehr und sind zurückgenommen.') : '',
+    erneuert ? zahl(erneuert, 'Eine übernommene Hilfe hat sich geändert und ist aktualisiert.', 'übernommene Hilfen haben sich geändert und sind aktualisiert.') : ''
+  ].filter(Boolean);
+  return {
+    subgroupMethods: behalteUebernommene(current, previous, res.vorschlaege),
+    materials: neu,
+    status: teile.length ? teile.join(' ') : null
+  };
+}
+
+/** A check that is out of date moves with the flow: answers and proposals keep their phase. */
+export function verschiebePruefung(p: TeilgruppenPruefung | null, index: number, delta: 1 | -1): TeilgruppenPruefung | null {
+  return p ? { ...p, antworten: shiftAdjustmentKeys(p.antworten, index, delta), vorschlaege: shiftAdjustmentKeys(p.vorschlaege, index, delta) } : p;
 }

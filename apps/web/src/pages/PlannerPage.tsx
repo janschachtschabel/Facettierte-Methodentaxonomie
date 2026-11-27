@@ -38,12 +38,13 @@ import {
   adjustmentSignature,
   adjustmentsInForce,
   applyAdjustments,
-  behalteUebernommene,
   hilfeAlsMaterial,
   mainGroupOnly,
+  nachErneuterPruefung,
   outdatedAdjustments,
   pruefeTeilgruppen,
   teilgruppenRahmen,
+  verschiebePruefung,
   type TeilgruppenPruefung
 } from '../planner/differentiationFlow.js';
 import { fachbereichFromField } from '../planner/fachFeld.js';
@@ -322,6 +323,8 @@ export function PlannerPage() {
   const [pruefung, setPruefung] = useState<TeilgruppenPruefung | null>(null);
   // Set after "Alle Anpassungen zurücknehmen"; a new check or a new swap clears it.
   const [allesZurueck, setAllesZurueck] = useState(false);
+  /** One line after a new check that took back (or brought up to date) something the teacher had taken over. */
+  const [pruefStatus, setPruefStatus] = useState<string | null>(null);
   // A loaded scenario named a blocked trait (Lerntypen): step 3 shows the note once ('offen' → 'gezeigt' → gone).
   const [gesperrtHinweis, setGesperrtHinweis] = useState<'offen' | 'gezeigt' | null>(null);
   // Step 3: short phases for the whole class, proposed by the last check and taken over by the teacher.
@@ -587,6 +590,7 @@ export function PlannerPage() {
     setAdjustedFor(null);
     setPruefung(null);
     setAllesZurueck(false);
+    setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
   };
@@ -620,10 +624,18 @@ export function PlannerPage() {
    * Step 3: one answer per subgroup and phase (fits, help in the method, other method) and short phases the plan
    * lacks. Nothing is entered by itself: the teacher takes over a swap or a help on its card.
    */
+  const phaseLabelIn = (rows: typeof scenarioRows) => (stepKey: string) => {
+    const r = rows.find((x) => x.key === stepKey);
+    return r ? `${r.orderLabel} · ${r.methodName}` : stepKey;
+  };
+
   const runMethodAdjustment = () => {
     const phases = adjustmentPhases(scenarioRows);
     const res = pruefeTeilgruppen(bundle.bausteine, scenarioRows, groups, checkConstraints, regelsatz);
-    setSubgroupMethods((prev) => behalteUebernommene(prev, autoAdjustments, res.vorschlaege));
+    const nach = nachErneuterPruefung(subgroupMethods, autoAdjustments, res, generatedMaterials, phaseLabelIn(scenarioRows));
+    setSubgroupMethods(nach.subgroupMethods);
+    setGeneratedMaterials(nach.materials);
+    setPruefStatus(nach.status);
     setAutoAdjustments(res.vorschlaege);
     setPruefung(res);
     setAllesZurueck(false);
@@ -640,26 +652,33 @@ export function PlannerPage() {
     const rows = buildScenarioRows(nextArrangement, bundle, blocksById, labelOf, groups, {}, {}, '', {}, []);
     const upToDate = adjustedFor !== null && adjustedFor === groupSignature;
     setArrangement(nextArrangement);
-    setSubgroupMethods((prev) => shiftStepKeys(prev, index, delta));
+    // Everything stored per phase moves with it first.
+    const methods = shiftStepKeys(subgroupMethods, index, delta);
+    const previous = shiftAdjustmentKeys(autoAdjustments, index, delta);
+    const materials = generatedMaterials.flatMap((m) => {
+      const key = Object.keys(shiftStepKeys({ [m.stepKey]: true }, index, delta))[0];
+      return key ? [{ ...m, stepKey: key }] : [];
+    });
     if (upToDate) {
-      // The cards follow the new flow: every phase, the added one too, gets its answer.
+      // The cards follow the new flow: every phase, the added one too, gets its answer; what was taken over stays
+      // only while the new check still gives it, as after "Erneut prüfen".
       const res = pruefeTeilgruppen(bundle.bausteine, rows, groups, checkConstraints, regelsatz);
+      const nach = nachErneuterPruefung(methods, previous, res, materials, phaseLabelIn(rows));
+      setSubgroupMethods(nach.subgroupMethods);
+      setGeneratedMaterials(nach.materials);
+      setPruefStatus(nach.status);
       setAutoAdjustments(res.vorschlaege);
       setPruefung(res);
       setExtraProposals(proposeAdditionalPhases(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), checkConstraints));
       setAdjustedFor(signatureOf(rows));
     } else {
-      setAutoAdjustments((prev) => shiftAdjustmentKeys(prev, index, delta));
-      setPruefung((prev) => (prev ? { ...prev, antworten: shiftAdjustmentKeys(prev.antworten, index, delta) } : prev));
+      setSubgroupMethods(methods);
+      setGeneratedMaterials(materials);
+      setAutoAdjustments(previous);
+      setPruefung((prev) => verschiebePruefung(prev, index, delta));
     }
     setOerByStep((prev) => shiftStepKeys(prev, index, delta));
     setAiDiffByStep((prev) => shiftStepKeys(prev, index, delta));
-    setGeneratedMaterials((prev) =>
-      prev.flatMap((m) => {
-        const key = Object.keys(shiftStepKeys({ [m.stepKey]: true }, index, delta))[0];
-        return key ? [{ ...m, stepKey: key }] : [];
-      })
-    );
     // Topic rows keep their texts and move with their phases, like after any other edit of the flow.
     setThematicRows((prev) =>
       prev
@@ -1189,6 +1208,7 @@ export function PlannerPage() {
     setAdjustedFor(null);
     setPruefung(null);
     setAllesZurueck(false);
+    setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
@@ -2554,6 +2574,11 @@ export function PlannerPage() {
                       )}
                     </div>
                     <div role="status" aria-live="polite">
+                      {!adjustmentStale && pruefStatus && (
+                        <p className="planner-notice" style={{ marginTop: 10 }}>
+                          {pruefStatus}
+                        </p>
+                      )}
                       {adjustmentStale && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
                           Teilgruppen, Ablauf oder Rahmen haben sich geändert. Klicke auf „Erneut prüfen“, damit das Vorgehen
