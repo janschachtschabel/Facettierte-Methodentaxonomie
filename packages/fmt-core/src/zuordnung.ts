@@ -2119,7 +2119,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           wahl = waehleKette(data.ketten, verb);
           chainGuessed = Boolean(wahl);
         }
-        // Like sport → movement: Ethik, Philosophie and Religion without a stated or text-read goal assume judging.
+        // Like sport → movement: Ethik, Philosophie and Religion without a stated or text-read goal assume judging
+        // (from secondary school on).
         // It wins over an approach the text only suggests (semantic guess), not over one it names.
         const urteilsFach = gelesen.fach ? URTEILS_FAECHER.get(gelesen.fach.id) : undefined;
         const zielAusText = list(a.lernfunktion).length > 0 && !guessedFn;
@@ -2127,7 +2128,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const verneint = (re: RegExp) => re.test(currentRawText) && !re.test(withoutNegated(currentRawText));
         const urteilenVerneint =
           VERB_CHAINS.some(([re, w]) => w.zielart === 'urteilen' && verneint(re)) || verneint(/\b(?:diskussion|diskutier|debatt)\w*/);
-        if (!wahl && urteilsFach && !given(a.zielart) && !zielAusText && !urteilenVerneint && (!ansatzList.length || currentGuessedAnsatz)) {
+        // Not in primary school: Religion or Ethik lessons there mostly build concepts.
+        if (!wahl && urteilsFach && a.bildungsstufe !== 'primar' && !given(a.zielart) && !zielAusText && !urteilenVerneint && (!ansatzList.length || currentGuessedAnsatz)) {
           wahl = nimmAn('urteilen', `Ziel Urteilsbildung angenommen, weil das Fach ${urteilsFach} ist.`);
         }
         if (!wahl && ansatzList.length) wahl = waehleKette(data.ketten, { ansatz: ansatzList });

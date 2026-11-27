@@ -107,6 +107,11 @@ describe('Fix wave Paket B', () => {
     // Discussing the text rules out speaks against judging.
     const keineDiskussion = M.zuordnen({ text: 'Ethik Klasse 9 Freundschaft, 45 Minuten, bitte keine Diskussion im Plenum' });
     expect(keineDiskussion.modus === 'ablauf' && keineDiskussion.kette?.id).not.toBe('urteilsbildung');
+    // Primary school: Religion and Ethik lessons mostly build concepts, no judging assumed.
+    const primar = M.zuordnen({ text: 'Religion Klasse 3 Feste der Weltreligionen, 45 Minuten' });
+    expect(primar.kriterien.bildungsstufe).toBe('primar');
+    expect(primar.modus === 'ablauf' && primar.kette?.id).toBe('konzeptaufbau');
+    expect((primar.pflichtangaben?.angenommen || []).some((x) => /Urteilsbildung angenommen/.test(x.grund))).toBe(false);
     // Other subjects keep the general assumption.
     const geschichte = M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' });
     expect((geschichte.pflichtangaben?.angenommen || []).some((x) => /Urteilsbildung angenommen/.test(x.grund))).toBe(false);
