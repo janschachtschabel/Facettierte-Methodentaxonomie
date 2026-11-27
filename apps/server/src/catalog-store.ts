@@ -89,12 +89,12 @@ export interface MerkmalsAntwort {
   quelle?: string;
 }
 
-/** Row of teilgruppen.json that covers a matrix value; neutral values fit, unnamed ones get the default help. */
 /** Swap rows: a non-formal one swaps only for a method that sets off its reason and is only uniform (B3). */
 const BEDINGUNG_TAUSCH = 'nur wenn die Methode den Grund auslöst und nur uniform ist';
 const BEDINGUNG_FORMAL = 'nur wenn die Methode den Grund auslöst';
 const FORMALE_RICHTUNGEN = new Set(['ohne-lesen', 'ohne-schreiben', 'ohne-bewegung']);
 
+/** Row of teilgruppen.json that covers a matrix value; neutral values fit, unnamed ones get the default help. */
 export function merkmalsAntwort(bundle: CatalogBundle, wert: string): MerkmalsAntwort {
   const t = bundle.teilgruppen;
   if (t.neutral.includes(wert)) return { vorgesehen: 'passt' };
