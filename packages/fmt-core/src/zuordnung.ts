@@ -1449,6 +1449,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A short budget (e.g. 20 minutes for five phases) lets phases shrink below five minutes, so the plan fits.
     const minStep = totalBudget != null && steps.length * 5 > totalBudget ? 3 : 5;
     const checkStepId = steps.find((st) => st.pruefung)?.id;
+    let checkBaustein: string | undefined;
     const wantsRecurrence = steps.some((s) => s.ziel === 'wissen-konsolidiert');
     const usedDurationSoFar = () =>
       teile.reduce((sum, node) => sum + (node.typ === 'Einsatz' ? node.dauerMin || 0 : 0), 0);
@@ -1628,6 +1629,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         return;
       }
       teile.push(chosen);
+      if (step.id === checkStepId) checkBaustein = chosen.baustein;
       if (ersatzIds.has(chosen.baustein)) {
         bindungsAnnahmen.push(
           `Für „${step.label}“ gibt es im Fachbereich ${label('fachbereich', currentArea)} keine Methode, die genau auf „${wissensartLabel(step.wissensart!)}“ zielt. „${blocks.get(chosen.baustein)!.name}“ ist eine praktische Methode des Fachbereichs und steht hier vor Methoden aus anderen Fächern, die besser zu diesem Schritt passen.`
@@ -1732,6 +1734,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
 
     const arrangement = wrap(teile);
+    if (checkBaustein) pruefBaustein.set(arrangement, checkBaustein);
     if (given(a.zeitMin)) {
       const budget = Number(a.zeitMin);
       arrangement.kontext!.zeitbudgetMin = budget;
@@ -1821,12 +1824,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return out;
   }
 
+  /** Method placed at the check step of each plan, keyed by the plan's arrangement (the check step may carry no chain id). */
+  const pruefBaustein = new WeakMap<object, string>();
+
   /**
    * Rule messages of the answer, and the text list of notes filled from them ("Text (Quelle)"):
    * - genannter-wunsch-bleibt for a named method in the result that a warning or an assumed room speaks against;
    * - each fit rule whose situation part holds and that sets back methods of the catalogue (not keinTausch), without a
    *   method: it says why the plan prefers other methods, also when no chosen method carries the warning (n20);
    * - the warnings of the chosen methods (in a single phase they stand at each proposal, so the notes leave them out);
+   * - nachweis-passt-zum-ziel when the plan's check step yields none of the wanted forms of proof (W5: said, not relaxed);
    * - one sicherheitshinweis per answer when methods work hands-on in a practical room or subject: it stands at the first
    *   such method and names up to two others.
    */
@@ -1872,7 +1879,19 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // A method the teacher named keeps its place at its step; the sentence says so to stay true.
         text: `${x.name}: Methoden, für die das gilt, tragen eine Warnung und stehen weiter hinten – nicht aber eine Methode, die du selbst genannt hast.`
       }));
-    const meldungen = [...genannt, ...lageMeldungen, ...warnungen, ...sicherheit];
+    const nachweisMeldung: Regelmeldung[] = [];
+    const nachweisRegel = regeln.regel('nachweis-passt-zum-ziel');
+    if (r.modus === 'ablauf' && r.nachweis?.formen.length && r.arrangement && nachweisRegel) {
+      const pruefung = pruefBaustein.get(r.arrangement);
+      const b = pruefung ? blocks.get(pruefung) : undefined;
+      if (b && !nachweisformen(b).some((f) => r.nachweis!.formen.includes(f))) {
+        const formen = r.nachweis.formen.map((f) => label('nachweisform', f)).join(' oder ');
+        nachweisMeldung.push(
+          regeln.meldung(nachweisRegel.id, b, `Keine Prüfmethode der Form ${formen} passt in diese Stunde; gewählt wurde ${b.name}.`)!
+        );
+      }
+    }
+    const meldungen = [...genannt, ...lageMeldungen, ...warnungen, ...nachweisMeldung, ...sicherheit];
     if (!meldungen.length) return r;
     r.regelmeldungen = meldungen;
     // In a single phase the method warnings stand at each proposal; situation-level messages (no method) stay in the notes.
