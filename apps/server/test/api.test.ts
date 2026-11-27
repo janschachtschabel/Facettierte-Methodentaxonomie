@@ -300,9 +300,11 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(kategorien.find((k) => k.id === 'sensorische')).toBeUndefined();
     expect(meta.gesperrteKategorien).toEqual([expect.objectContaining({ id: 'sensorische' })]);
     const aus = (id: string) => kategorien.flatMap((k) => k.auspraegungen).find((a) => a.id === id);
-    expect(aus('vorwissen-gering')?.teilgruppe).toMatchObject({ antwort: 'tausch', grundlage: 'E' });
+    expect(aus('vorwissen-gering')?.teilgruppe).toMatchObject({ vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist', grundlage: 'E' });
+    expect(aus('vorwissen-gering')?.teilgruppe).not.toHaveProperty('antwort');
     expect(aus('vorwissen-gering')?.teilgruppe?.quelle).toContain('Tetzlaff');
-    expect(aus('sprachkompetenz-gering')?.teilgruppe).toMatchObject({ antwort: 'hilfe' });
+    expect(aus('sprachkompetenz-gering')?.teilgruppe).toMatchObject({ vorgesehen: 'hilfe' });
+    expect(aus('sprachkompetenz-gering')?.teilgruppe).not.toHaveProperty('bedingung');
 
     const score = (
       await app.inject({
@@ -317,9 +319,9 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     ).json();
     expect(score.alternativeMethoden.every((a: { kennung: string }) => !hilfen.has(a.kennung))).toBe(true);
     const byMerkmal = Object.fromEntries(score.merkmale.map((m: { wert: string }) => [m.wert, m]));
-    expect(byMerkmal['vorwissen-gering']).toMatchObject({ antwort: 'tausch', merkmal: 'vorwissen-gering' });
+    expect(byMerkmal['vorwissen-gering']).toMatchObject({ vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist', merkmal: 'vorwissen-gering' });
     expect(byMerkmal['vorwissen-gering'].quelle).toBeTruthy();
-    expect(byMerkmal['sprachkompetenz-gering']).toMatchObject({ antwort: 'hilfe' });
+    expect(byMerkmal['sprachkompetenz-gering']).toMatchObject({ vorgesehen: 'hilfe' });
     expect(score.gesperrt).toEqual([expect.objectContaining({ kategorie: 'sensorische', text: expect.stringContaining('Lerntypen') })]);
   });
 

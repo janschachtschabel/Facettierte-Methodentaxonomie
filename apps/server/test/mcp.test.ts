@@ -391,7 +391,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     }>;
     expect(kats.find((k) => k.id === 'sensorische')).toBeUndefined();
     expect(optJson.gesperrteKategorien[0].id).toBe('sensorische');
-    expect(kats.flatMap((k) => k.auspraegungen).find((a) => a.id === 'vorwissen-gering')?.teilgruppe).toMatchObject({ antwort: 'tausch' });
+    expect(kats.flatMap((k) => k.auspraegungen).find((a) => a.id === 'vorwissen-gering')?.teilgruppe).toMatchObject({ vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist' });
     const filtered = JSON.parse(
       ((await client.callTool({ name: 'list_differentiation_options', arguments: { oberkategorie: 'sensorische' } })).content as Array<{ text: string }>)[0].text
     );
@@ -422,7 +422,8 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
         arguments: { selectedValues: { vorwissen: 'vorwissen-gering', sensorische: 'sensorische-visuell' }, baustein: 'gruppenpuzzle', bildungsstufe: 'sek1' }
       })).content as Array<{ text: string }>)[0].text
     );
-    expect(scoreC5.merkmale[0]).toMatchObject({ wert: 'vorwissen-gering', antwort: 'tausch' });
+    expect(scoreC5.merkmale[0]).toMatchObject({ wert: 'vorwissen-gering', vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist' });
+    expect(scoreC5.merkmale[0]).not.toHaveProperty('antwort');
     expect(scoreC5.gesperrt[0].kategorie).toBe('sensorische');
 
     const singleMethodRes = await client.callTool({

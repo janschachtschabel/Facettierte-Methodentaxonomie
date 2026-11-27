@@ -74,9 +74,14 @@ export function schemeValues(bundle: CatalogBundle, id: string): { id: string; l
   return werte.map((w) => ({ id: w.id, label: w.label }));
 }
 
-/** Answer of the table "Tausch oder Hilfe" for one matrix value, with basis and source. */
+/**
+ * What the table "Tausch oder Hilfe" provides for one matrix value, with basis and source. This is no answer for a
+ * plan: a swap row swaps only when the planned method sets off the row's reason and adapts to nobody (`bedingung`).
+ */
 export interface MerkmalsAntwort {
-  antwort: 'tausch' | 'hilfe' | 'passt';
+  vorgesehen: 'tausch' | 'hilfe' | 'passt';
+  /** When the provision applies (swap rows only). */
+  bedingung?: string;
   merkmal?: string;
   richtung?: string;
   wohin?: string;
@@ -85,13 +90,20 @@ export interface MerkmalsAntwort {
 }
 
 /** Row of teilgruppen.json that covers a matrix value; neutral values fit, unnamed ones get the default help. */
+/** Swap rows: a non-formal one swaps only for a method that sets off its reason and is only uniform (B3). */
+const BEDINGUNG_TAUSCH = 'nur wenn die Methode den Grund auslöst und nur uniform ist';
+const BEDINGUNG_FORMAL = 'nur wenn die Methode den Grund auslöst';
+const FORMALE_RICHTUNGEN = new Set(['ohne-lesen', 'ohne-schreiben', 'ohne-bewegung']);
+
 export function merkmalsAntwort(bundle: CatalogBundle, wert: string): MerkmalsAntwort {
   const t = bundle.teilgruppen;
-  if (t.neutral.includes(wert)) return { antwort: 'passt' };
+  if (t.neutral.includes(wert)) return { vorgesehen: 'passt' };
   const m = t.merkmale.find((x) => x.auspraegungen.includes(wert));
-  if (!m) return { antwort: t.sonst.antwort, wohin: t.sonst.wohin, grundlage: t.sonst.grundlage };
+  if (!m) return { vorgesehen: t.sonst.antwort, wohin: t.sonst.wohin, grundlage: t.sonst.grundlage };
+  const bedingung = m.antwort !== 'tausch' ? undefined : m.richtung && FORMALE_RICHTUNGEN.has(m.richtung) ? BEDINGUNG_FORMAL : BEDINGUNG_TAUSCH;
   return {
-    antwort: m.antwort,
+    vorgesehen: m.antwort,
+    ...(bedingung ? { bedingung } : {}),
     merkmal: m.id,
     ...(m.richtung ? { richtung: m.richtung } : {}),
     wohin: m.wohin,
