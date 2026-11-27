@@ -600,6 +600,8 @@ export interface EntwurfMeta {
   einheit?: string;
   /** Form of proof as label. */
   nachweis?: string;
+  /** Whether the lesson is graded; absent when not stated (the draft then says nothing about it). */
+  bewertet?: boolean;
   /** Main goal as label when no learning objectives are written (e.g. the goal kind). */
   hauptziel?: string;
   begleitziele?: string[];
@@ -728,6 +730,7 @@ export function buildScenarioEntwurf(
     einheit: meta.einheit,
     phasen,
     nachweis: meta.nachweis,
+    bewertet: meta.bewertet,
     hinweise: [...(meta.hinweise?.trim() ? [meta.hinweise.trim()] : []), ...(meta.regelhinweise || [])]
   });
 }

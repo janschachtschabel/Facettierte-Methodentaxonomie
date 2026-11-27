@@ -1,6 +1,7 @@
 import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import type { AddedPhase } from './extraPhases.js';
+import type { MehrAngaben } from './mehrAngaben.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
   GeneratedMaterialItem,
@@ -82,6 +83,8 @@ export interface SavedScenario {
   termine?: string;
   /** Accompanying goals chosen in step 1 (codes of the scheme begleitziel). */
   begleitziele?: string[];
+  /** Optional details of "Mehr Angaben" (request fields); read back with mehrAngabenLesen, which checks the codes. */
+  mehrAngaben?: MehrAngaben;
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;
@@ -107,6 +110,10 @@ export interface SavedScenario {
 export interface EntwurfAngaben {
   planungsprofil?: string;
   planungsprofilAngenommen?: boolean;
+  /** The request stated the profile (chosen in step 1 or 5); clearing the choice then derives it again. */
+  planungsprofilGewaehlt?: boolean;
+  /** Whether the lesson is graded, as the request stated it; absent when not stated. */
+  bewertet?: boolean;
   /** Room the matcher assumed (code), when the request names none. */
   raumAngenommen?: string;
   /** Room as the matcher read it (code). */
@@ -130,6 +137,8 @@ export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
   return {
     planungsprofil: r.planungsprofil,
     planungsprofilAngenommen: (r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+    planungsprofilGewaehlt: typeof k.planungsprofil === 'string' && k.planungsprofil !== '',
+    bewertet: typeof k.bewertet === 'boolean' ? k.bewertet : undefined,
     raumAngenommen: angenommenRaum ? String(angenommenRaum) : undefined,
     raum: str(k.raum),
     einheit: str(k.einheit),
@@ -171,6 +180,8 @@ export function entwurfAngabenLesen(v: unknown): EntwurfAngaben | undefined {
   return {
     planungsprofil: str(o.planungsprofil),
     planungsprofilAngenommen: o.planungsprofilAngenommen === true,
+    planungsprofilGewaehlt: o.planungsprofilGewaehlt === true,
+    bewertet: typeof o.bewertet === 'boolean' ? o.bewertet : undefined,
     raumAngenommen: str(o.raumAngenommen),
     raum: str(o.raum),
     einheit: str(o.einheit),
@@ -453,6 +464,11 @@ export function importScenarioProjectJson(
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
         ...rahmenAusAltbestand(parsed),
+        begleitziele: Array.isArray(parsed.begleitziele) ? parsed.begleitziele.filter((x): x is string => typeof x === 'string') : undefined,
+        mehrAngaben:
+          parsed.mehrAngaben && typeof parsed.mehrAngaben === 'object' && !Array.isArray(parsed.mehrAngaben)
+            ? (parsed.mehrAngaben as MehrAngaben)
+            : undefined,
         lernziele: strOrUndef(parsed.lernziele) || strOrUndef(maschinenlesbar?.lernziele),
         problemstellung: strOrUndef(parsed.problemstellung),
         didaktischerAnsatz: strOrUndef(parsed.didaktischerAnsatz) || strOrUndef(maschinenlesbar?.didaktischerAnsatz),

@@ -377,6 +377,7 @@ export function ScenarioStudioPanel({
         anzahl: entwurfMeta.anzahl,
         einheit: entwurfMeta.einheit,
         nachweis: entwurfMeta.nachweis,
+        bewertet: entwurfMeta.bewertet,
         hinweiseListe: entwurfMeta.regelhinweise?.length ? entwurfMeta.regelhinweise : undefined,
         // Accompanying goals and the proposed strand (labels; the server reads labels as well), for the field Ziele.
         begleitziel: entwurfMeta.begleitziele?.length ? entwurfMeta.begleitziele : undefined,

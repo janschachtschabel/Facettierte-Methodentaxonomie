@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { createMatcher, createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PlannerPage } from '../src/pages/PlannerPage.js';
@@ -781,5 +781,149 @@ describe('Schritt 5: Entwurf mit sieben Kernfeldern nach Planungsprofil (Paket D
       expect(text, t).toContain(t);
     }
     expect(text).not.toContain('Sekundarstufe I');
+  });
+});
+
+describe('Schritt 1 und 5: jede Angabe erreicht den Kern (App-Nachzug N3)', () => {
+  const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+  const waehle = (label: string, value: string) => fireEvent.change(within(mehrAngaben()).getByLabelText(label), { target: { value } });
+
+  it('„Mehr Angaben“ nennt alle freiwilligen Angaben, auch Raum und Begleitziel, und enthält sie', () => {
+    renderPlanner();
+    const zeile = screen.getByText(/^Mehr Angaben \(freiwillig\)/).textContent!;
+    for (const t of ['Fach', 'Stufe', 'Vorwissen', 'Sprachniveau', 'Komplexität', 'Lehrende', 'Raum', 'Technik', 'Lesen und Schreiben', 'Termine', 'Nachweis', 'Bewertung', 'Einheit', 'Planungsprofil', 'Begleitziel']) {
+      expect(zeile, t).toContain(t);
+    }
+    const mehr = mehrAngaben();
+    expect(within(mehr).getByLabelText('Raum')).toBeTruthy();
+    expect(within(mehr).getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).toBeTruthy();
+  });
+
+  it('neue Felder ohne Vorauswahl; alle gehen in die Anfrage an den Kern, Vorwissen und Bildungsstufe eingeschlossen', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    const mehr = mehrAngaben();
+    for (const name of ['Sprachniveau', 'Komplexität des Inhalts', 'Nachweis', 'Wird die Stunde bewertet?', 'Planungsprofil', 'Art der Fachausstattung']) {
+      expect((within(mehr).getByLabelText(name) as HTMLSelectElement).value, name).toBe('');
+    }
+    for (const name of ['Übergeordnete Einheit', 'Anzahl Lehrende']) expect((within(mehr).getByLabelText(name) as HTMLInputElement).value, name).toBe('');
+    // The options are the core's values of the field.
+    const opts = (label: string) => within(within(mehr).getByLabelText(label)).getAllByRole('option').map((o) => (o as HTMLOptionElement).value).filter(Boolean);
+    const kern = (feld: string) => CATALOG.matcher.felder().find((f) => f.feld === feld)!.werte!.map((w) => w.code);
+    expect(opts('Sprachniveau')).toEqual(kern('sprachniveau'));
+    expect(opts('Planungsprofil')).toEqual(kern('planungsprofil'));
+    expect(opts('Art der Fachausstattung')).toEqual(kern('fachausstattungArt'));
+    propose('Biologie, Fotosynthese, 45 Minuten');
+    const leer = spy.mock.calls.at(-1)![0]!;
+    for (const f of ['vorwissen', 'sprachniveau', 'komplexitaet', 'nachweis', 'einheit', 'bewertet', 'planungsprofil', 'lehrende', 'fachausstattungArt']) expect(leer[f], f).toBeUndefined();
+
+    fireEvent.click(stepButton(1));
+    waehle('Bildungsstufe', 'sek2');
+    waehle('Vorwissen', 'hoch');
+    waehle('Sprachniveau', 'b1');
+    waehle('Komplexität des Inhalts', 'hoch');
+    waehle('Nachweis', 'muendlich');
+    waehle('Übergeordnete Einheit', 'Reihe Ökologie');
+    waehle('Wird die Stunde bewertet?', 'nein');
+    waehle('Planungsprofil', 'erwachsenenbildung');
+    waehle('Anzahl Lehrende', '2');
+    waehle('Raum', 'fachraum');
+    waehle('Art der Fachausstattung', 'labor');
+    propose('Biologie, Fotosynthese, 45 Minuten');
+    expect(spy.mock.calls.at(-1)![0]).toMatchObject({
+      bildungsstufe: 'sek2',
+      vorwissen: 'hoch',
+      sprachniveau: 'b1',
+      komplexitaet: 'hoch',
+      nachweis: 'muendlich',
+      einheit: 'Reihe Ökologie',
+      bewertet: false,
+      planungsprofil: 'erwachsenenbildung',
+      lehrende: 2,
+      raum: 'fachraum',
+      fachausstattungArt: 'labor'
+    });
+    spy.mockRestore();
+  });
+
+  it('KI-Weg: die strukturierten Angaben samt Ergänzungen aus „Fehlt noch“ gehen neben dem Text an /assistant/translate', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: { body?: string }) => {
+        const body = JSON.parse(init?.body || '{}') as Record<string, unknown>;
+        if (url === '/api/v1/assistant/translate') bodies.push(body);
+        const { text, ...felder } = body;
+        const ergebnis = CATALOG.matcher.zuordnen({ ...felder, text: String(text || '') });
+        return { ok: true, status: 200, json: async () => ({ quelle: 'regeln-fallback', ergebnis }) };
+      })
+    );
+    const meta = CATALOG.meta;
+    (CATALOG as { meta: unknown }).meta = { llmConfigured: true, llmModel: 'test' };
+    try {
+      renderPlanner();
+      fireEvent.change(screen.getByLabelText('Unterrichtsvorhaben beschreiben'), { target: { value: 'etwas über Pflanzen' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Ohne KI vorschlagen' }));
+      fireEvent.click(stepButton(1));
+      const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+      fireEvent.change(within(zeile).getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'primar' } });
+      fireEvent.change(within(zeile).getByLabelText('Zeit in Minuten ergänzen'), { target: { value: '45' } });
+      waehle('Sprachniveau', 'a2');
+      fireEvent.click(screen.getByRole('button', { name: /✨ Ablauf vorschlagen/ }));
+      await waitFor(() => expect(bodies.length).toBe(1));
+      expect(bodies[0]).toMatchObject({ bildungsstufe: 'primar', zeitMin: 45, sprachniveau: 'a2' });
+      expect(String(bodies[0].text)).toContain('etwas über Pflanzen');
+    } finally {
+      (CATALOG as { meta: unknown }).meta = meta;
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('Schritt 5: Planungsprofil wählbar (derselbe Zustand wie in Schritt 1); leer folgt es wieder aus der Stufe', () => {
+    renderPlanner();
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Unterrichtsentwurf');
+    const profil = screen.getByLabelText('Planungsprofil') as HTMLSelectElement;
+    expect(profil.value).toBe('');
+    fireEvent.change(profil, { target: { value: 'hochschule' } });
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.click(stepButton(1));
+    expect((within(mehrAngaben()).getByLabelText('Planungsprofil') as HTMLSelectElement).value).toBe('hochschule');
+    // Proposed again with the profile chosen, then cleared in step 5: derived from the Stufe again.
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
+    expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+    expect(document.body.textContent).toContain('Unterrichtsentwurf');
+  });
+
+  it('Einheit und Bewertung aus Schritt 1 stehen im Entwurf und bleiben nach Speichern und Laden', () => {
+    renderPlanner();
+    waehle('Übergeordnete Einheit', 'Reihe Ökologie');
+    waehle('Wird die Stunde bewertet?', 'ja');
+    waehle('Vorwissen', 'gering');
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    const vorher = document.body.textContent || '';
+    expect(vorher).toContain('Reihe Ökologie');
+    expect(vorher).toContain('wird bewertet');
+    fireEvent.click(screen.getAllByRole('button', { name: /Speichern/ })[0]);
+    const gespeichert = JSON.parse(window.localStorage.getItem(SAVED_SCENARIOS_KEY)!)[0];
+    expect(gespeichert.mehrAngaben).toMatchObject({ einheit: 'Reihe Ökologie', bewertet: true, vorwissen: 'gering' });
+    expect(gespeichert.entwurfAngaben).toMatchObject({ einheit: 'Reihe Ökologie', bewertet: true });
+    cleanup();
+
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /Gespeichert \(1\)/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Laden' }));
+    fireEvent.click(stepButton(5));
+    const nachher = document.body.textContent || '';
+    expect(nachher).toContain('Reihe Ökologie');
+    expect(nachher).toContain('wird bewertet');
+    fireEvent.click(stepButton(1));
+    expect((within(mehrAngaben()).getByLabelText('Wird die Stunde bewertet?') as HTMLSelectElement).value).toBe('ja');
+    expect((within(mehrAngaben()).getByLabelText('Vorwissen') as HTMLSelectElement).value).toBe('gering');
   });
 });
