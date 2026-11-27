@@ -25,7 +25,7 @@ import {
 } from '../llm/briefings.js';
 import { profilRahmen } from '../llm/entwurf.js';
 import { InvalidRequestError, isMaterialGroupList } from './validation.js';
-import { MATERIAL_TYPEN, entwurfFelderFehler } from '../eingaben.js';
+import { ARRANGEMENT_FEHLER, MATERIAL_TYPEN, entwurfFelderFehler } from '../eingaben.js';
 
 export interface ThematicTableRow {
   key: string;
@@ -1082,7 +1082,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
   app.post('/api/v1/assistant/elaborate', { config: rateLimitConfig }, async (req, reply) => {
     const body = req.body as (Partial<ElaboratePayload> & { mode?: 'ki' | 'briefing' }) | null;
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
-      return reply.code(400).send({ fehler: 'Bitte ein gültiges FMT-Arrangement übergeben.' });
+      return reply.code(400).send({ fehler: ARRANGEMENT_FEHLER });
     }
     // Codes (planungsprofil, bildungsstufe, begleitziel), anzahl and bewertet, as the MCP tool elaborate_scenario checks them.
     const badField = entwurfFelderFehler(store, body as Record<string, unknown>);

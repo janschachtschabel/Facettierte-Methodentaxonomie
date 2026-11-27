@@ -1,4 +1,4 @@
-import type { MatchResult, Pflichtangabe } from '@fmt/core';
+import { PFLICHTANGABEN_NAMEN, type MatchResult, type Pflichtangabe } from '@fmt/core';
 
 /** Order of the six required details in the line "Verstanden" and "Fehlt noch". */
 export const PFLICHT_ORDNUNG: Pflichtangabe[] = ['fach-und-thema', 'bildungsstufe', 'anzahl', 'raum', 'zeit', 'ziel'];
@@ -11,15 +11,6 @@ export interface Verstanden {
   /** The goal is only guessed from the text: it can be corrected like a missing one (W13). */
   zielVermutet: boolean;
 }
-
-const FEHLT_LABEL: Record<Pflichtangabe, string> = {
-  ziel: 'Ziel',
-  'fach-und-thema': 'Fach und Thema',
-  bildungsstufe: 'Bildungsstufe',
-  anzahl: 'Anzahl der Lernenden',
-  raum: 'Raum',
-  zeit: 'Zeit'
-};
 
 const gross = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -45,8 +36,8 @@ export function verstandenAus(
     if (fehlt.has(feld)) {
       if (feld === 'fach-und-thema') {
         const teil = fachName && !thema ? 'thema' : !fachName && thema ? 'fach' : 'beide';
-        out.push({ feld, teil, label: teil === 'thema' ? 'Thema' : teil === 'fach' ? 'Fach' : FEHLT_LABEL[feld] });
-      } else out.push({ feld, label: FEHLT_LABEL[feld] });
+        out.push({ feld, teil, label: teil === 'thema' ? 'Thema' : teil === 'fach' ? 'Fach' : PFLICHTANGABEN_NAMEN[feld] });
+      } else out.push({ feld, label: PFLICHTANGABEN_NAMEN[feld] });
       continue;
     }
     if (feld === 'fach-und-thema' && fachName) verstanden.push(fachName);

@@ -3,10 +3,8 @@ import {
   kettenSchritt,
   teilgruppenProfil,
   type AlternativenPruefung,
-  type Arrangement,
   type MatchRequest,
   type MatrixScoreResult,
-  type ReplacementCandidate,
   type TeilgruppenAlternative
 } from '@fmt/core';
 import type { CatalogStore } from './catalog-store.js';
@@ -84,11 +82,6 @@ export function anpassungsAnfrage(body: Record<string, unknown> | null | undefin
   const rahmen = RAHMEN_FELDER.some((f) => top && (top as Record<string, unknown>)[f] != null);
   if (!nested && !rahmen) return undefined;
   return { ...(nested || {}), ...(top || {}) };
-}
-
-/** Replacements at a path: formally valid, bound to the chain step's knowledge type, needs covered in the situation. */
-export function ersatzKandidaten(store: CatalogStore, arrangement: Arrangement, pfad: string, situation?: MatchRequest): ReplacementCandidate[] {
-  return store.search.ersatz(arrangement, pfad, store.exampleRegistry, situation);
 }
 
 export interface TeilgruppenAlternativenArgs {

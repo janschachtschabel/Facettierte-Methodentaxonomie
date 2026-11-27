@@ -3,6 +3,18 @@
  * "API & MCP", so both always say the same.
  */
 
+import type { Pflichtangabe } from './situation.js';
+
+/** Readable name of each required detail (pflichtangaben.fehlt holds the codes); MCP answers and the web app use it. */
+export const PFLICHTANGABEN_NAMEN: Readonly<Record<Pflichtangabe, string>> = {
+  ziel: 'Ziel',
+  'fach-und-thema': 'Fach und Thema',
+  bildungsstufe: 'Bildungsstufe',
+  anzahl: 'Anzahl der Lernenden',
+  raum: 'Raum',
+  zeit: 'Zeit'
+};
+
 /** Required details for a plan, as the calling AI should ask its user for them. */
 export const KI_PFLICHTANGABEN = 'Bildungsstufe, Fach und Thema, Zeit, Gruppengröße, Raum, Ziel bzw. Zielart';
 /** Optional details that change the plan when the user knows them. */

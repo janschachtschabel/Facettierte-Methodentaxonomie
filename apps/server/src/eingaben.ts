@@ -21,6 +21,9 @@ export type EingabeFehler = FeldFehler;
 /** Kinds of material the template and the briefing know (REST /assistant/material, MCP generate_phase_material). */
 export const MATERIAL_TYPEN = ['arbeitsblatt', 'infoblatt', 'quiz', 'checkliste', 'versuchsanleitung', 'diskussionskarten', 'glossar'] as const;
 
+/** Message for a draft request without a valid arrangement (REST /assistant/elaborate, MCP elaborate_scenario). */
+export const ARRANGEMENT_FEHLER = 'Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.';
+
 /** Status of a catalogue entry (core type BlockStatus). */
 const STATUS: readonly BlockStatus[] = ['kuratiert', 'entwurf'];
 

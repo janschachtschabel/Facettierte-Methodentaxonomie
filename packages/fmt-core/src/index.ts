@@ -39,4 +39,4 @@ export {
   pruefeAlternativen
 } from './alternativen.js';
 export type { AlternativenKontext, AlternativenPruefung, GepruefteAlternative, KandidatAusschluss, TeilgruppenAlternative } from './alternativen.js';
-export { KI_OPTIONALE_ANGABEN, KI_PFLICHTANGABEN, MCP_HINWEISE } from './kiHinweise.js';
+export { KI_OPTIONALE_ANGABEN, KI_PFLICHTANGABEN, MCP_HINWEISE, PFLICHTANGABEN_NAMEN } from './kiHinweise.js';

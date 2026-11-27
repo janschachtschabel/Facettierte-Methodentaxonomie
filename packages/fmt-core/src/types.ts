@@ -597,6 +597,17 @@ export interface ReplacementCandidate {
   name: string;
   dauerMin: number;
   warnungen: string[];
+  /** Needs of the candidate (scheme raumbedarf, schriftbedarf; dates), so a caller sees what it asks of the room. */
+  raumbedarf: string[];
+  schriftbedarf: string[];
+  termineMin?: number;
+}
+
+/** Replacements at a path and the methods left out with the reason of ausschlussInSituation. */
+export interface ReplacementCheck {
+  kandidaten: ReplacementCandidate[];
+  /** Methods that cannot fill the step in this situation (binding of the chain step or a need not covered). */
+  ausgeschlossen: Array<{ baustein: string; merkmal: string; grund: string }>;
 }
 
 export interface MatchFieldDef {

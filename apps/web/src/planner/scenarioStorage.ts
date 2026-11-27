@@ -240,6 +240,44 @@ export function rahmenAusAltbestand(p: Record<string, unknown>): Pick<SavedScena
 }
 
 /**
+ * Frame of an API/MCP plan (maschinenlesbar, FmtScenarioPlan since schemaVersion 1.5): stated room, accompanying goals,
+ * planning profile and the assumptions. Version 1.4 carries none of them; then nothing is read. An assumed room or
+ * profile stays an assumption in the draft parts, it does not become the room chosen in step 1.
+ */
+export function rahmenAusPlan(m: Record<string, unknown>): {
+  raum?: string;
+  begleitziele?: string[];
+  entwurfAngaben?: EntwurfAngaben;
+} {
+  const str = (v: unknown) => (typeof v === 'string' && v !== '' ? v : undefined);
+  const raum = str(m.raum);
+  const begleitziele = Array.isArray(m.begleitziel) ? m.begleitziel.filter((x): x is string => typeof x === 'string') : undefined;
+  const planungsprofil = str(m.planungsprofil);
+  const pflicht = m.pflichtangaben && typeof m.pflichtangaben === 'object' ? (m.pflichtangaben as Record<string, unknown>) : undefined;
+  const angenommen = (Array.isArray(pflicht?.angenommen) ? pflicht.angenommen : []).filter(
+    (a): a is { feld: string; wert: unknown } => Boolean(a) && typeof a === 'object' && typeof (a as { feld?: unknown }).feld === 'string'
+  );
+  const angenommenWert = (feld: string) => str(angenommen.find((a) => a.feld === feld)?.wert);
+  const raumAngenommen = raum ? undefined : angenommenWert('raum');
+  const hatEntwurf = Boolean(planungsprofil || raumAngenommen || begleitziele?.length);
+  return {
+    ...(raum ? { raum } : {}),
+    ...(begleitziele?.length ? { begleitziele } : {}),
+    ...(hatEntwurf
+      ? {
+          entwurfAngaben: {
+            planungsprofil,
+            planungsprofilAngenommen: angenommen.some((a) => a.feld === 'planungsprofil'),
+            ...(raum ? { raum } : {}),
+            ...(raumAngenommen ? { raumAngenommen } : {}),
+            begleitziele: begleitziele || []
+          }
+        }
+      : {})
+  };
+}
+
+/**
  * Blocked matrix categories (Lerntypen, data/teilgruppen.json `gesperrt`) are not evaluated. A saved scenario that
  * still names one loads; the value is dropped here, and `entfernt` tells step 3 to show the note once.
  */
@@ -466,6 +504,7 @@ export function importScenarioProjectJson(
     }
 
     const strOrUndef = (v: unknown) => (typeof v === 'string' ? v : undefined);
+    const ausPlan = maschinenlesbar ? rahmenAusPlan(maschinenlesbar) : {};
 
     return {
       ok: true,
@@ -486,8 +525,9 @@ export function importScenarioProjectJson(
         ohneInternet: typeof parsed.ohneInternet === 'boolean' ? parsed.ohneInternet : undefined,
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
+        ...(ausPlan.raum ? { raum: ausPlan.raum } : {}),
         ...rahmenAusAltbestand(parsed),
-        begleitziele: Array.isArray(parsed.begleitziele) ? parsed.begleitziele.filter((x): x is string => typeof x === 'string') : undefined,
+        begleitziele: Array.isArray(parsed.begleitziele) ? parsed.begleitziele.filter((x): x is string => typeof x === 'string') : ausPlan.begleitziele,
         mehrAngaben:
           parsed.mehrAngaben && typeof parsed.mehrAngaben === 'object' && !Array.isArray(parsed.mehrAngaben)
             ? (parsed.mehrAngaben as MehrAngaben)
@@ -511,7 +551,7 @@ export function importScenarioProjectJson(
           : undefined,
         thematicRows,
         elaboration: strOrUndef(parsed.elaboration) || strOrUndef(parsed.ausarbeitung) || null,
-        entwurfAngaben: entwurfAngabenLesen(parsed.entwurfAngaben),
+        entwurfAngaben: entwurfAngabenLesen(parsed.entwurfAngaben) ?? ausPlan.entwurfAngaben,
         begleitPhasen: begleitPhasenLesen(parsed.begleitPhasen),
         arrangement: checked.arrangement
       }

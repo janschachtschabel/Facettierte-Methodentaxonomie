@@ -19,8 +19,8 @@ import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerA
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
-import { extractSubjectAndTopicFromText } from './assistant.js';
-import { anpassungsAnfrage, ersatzHinweis, ersatzKandidaten, mitFachAufgeloest, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { anpassungsAnfrage, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { ersatzAntwort, klassifikationsAntwort, methodenDetail, methodenTreffer, zuordnungsAntwort } from '../antworten.js';
 import { anpassungLeerFehler, bausteinFehler, codeFehler, zahlenFehler, type EingabeFehler } from '../eingaben.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
@@ -80,6 +80,9 @@ const SUCHE_ZAHLEN: Record<string, ZahlGrenze> = {
 /** All parameters GET /api/v1/methods reads; any other one is answered with 400. */
 const SUCHE_PARAMETER = new Set(['text', 'fach', 'kategorie', ...SUCHE_CODES, ...SUCHE_SCHALTER, ...Object.keys(SUCHE_ZAHLEN)]);
 
+/** Bounds of the proposal limit of /match (as match_scenario's schema). */
+const MATCH_LIMIT: ZahlGrenze = { min: 1, max: 100 };
+
 /** Wrong types in a body of /differentiation/score (the MCP tool checks them in its schema), or null. */
 function differenzierungsTypFehler(body: Record<string, unknown>): EingabeFehler | null {
   const sv = body.selectedValues;
@@ -133,11 +136,12 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (anfrage.fach != null && typeof anfrage.fach !== 'string') {
       return reply.code(400).send({ fehler: 'Feld „fach“: erwartet wird ein Text.' });
     }
-    const t0 = process.hrtime.bigint();
+    // limit caps the proposals in mode phase, as in match_scenario; it is no field of the matcher.
+    const { limit, ...rest } = anfrage;
+    const badLimit = zahlenFehler({ limit }, { limit: MATCH_LIMIT });
+    if (badLimit) return reply.code(400).send(badLimit);
     try {
-      const r = store.matcher.zuordnen(mitFachAufgeloest(store, anfrage));
-      r.dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
-      return reply.send(r);
+      return reply.send(zuordnungsAntwort(store, rest, limit != null && limit !== '' ? Number(limit) : undefined));
     } catch (e) {
       return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültige Anfrage.' });
     }
@@ -260,7 +264,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       angezeigt: shown.length,
       dauerMs,
       ...(fachErkannt !== undefined ? { fachErkannt } : {}),
-      treffer: shown,
+      // The full entry plus the fields of the shared hit (entry kind, evidence grade and basis, chain steps).
+      treffer: shown.map((b) => ({ ...b, ...methodenTreffer(store, b) })),
       ...(semanticInfo
         ? {
             semantischeVorschlaege: semanticInfo.methodenVorschlaege.slice(0, 6),
@@ -274,7 +279,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     const b = store.blocksById.get(req.params.kennung);
     if (!b) return reply.code(404).send({ fehler: 'Unbekannter Baustein.' });
     reply.header('ETag', store.etag);
-    return b;
+    return methodenDetail(store, b);
   });
 
   app.get('/api/v1/fields', async () => store.matcher.felder());
@@ -313,13 +318,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     const badSituation = situationFehler(store, situation);
     if (badSituation) return reply.code(400).send(badSituation);
     try {
-      const kandidaten = ersatzKandidaten(store, body.arrangement, body.pfad, situation);
-      return {
-        pfad: body.pfad,
-        hinweis: ersatzHinweis(situation),
-        ...(situation ? { situation } : {}),
-        kandidaten
-      };
+      return ersatzAntwort(store, body.arrangement, body.pfad, situation);
     } catch (e) {
       return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiger Pfad.' });
     }
@@ -332,14 +331,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" zur Klassifikation übergeben.' });
     }
     if (text.length > MAX_TEXT_CHARS) return reply.code(400).send({ fehler: tooLongMessage('text') });
-    const extracted = extractSubjectAndTopicFromText(text);
-    return {
-      ...store.classifyText(text),
-      erkanntesFach: extracted.fach,
-      erkanntesThema: extracted.thema,
-      // Required details the text leaves open (ask back) and the ones assumed (state them), as the matcher reads them.
-      pflichtangaben: store.matcher.zuordnen({ text }).pflichtangaben
-    };
+    return klassifikationsAntwort(store, text);
   });
 
   app.post('/api/v1/plan', async (req, reply) => {

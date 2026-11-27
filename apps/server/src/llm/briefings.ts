@@ -643,11 +643,17 @@ export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[]
   ];
 }
 
+/** Room code the request states (raum or its former name lernort), or undefined. */
+function raumCode(kriterien: Record<string, unknown>): string | undefined {
+  const genannt = kriterien.raum || kriterien.lernort;
+  return typeof genannt === 'string' && genannt ? genannt : undefined;
+}
+
 /** Room of the plan as label: stated in the request, else the assumed one (marked). */
 function raumLabel(store: CatalogStore, matched: { kriterien: Record<string, unknown>; pflichtangaben?: { angenommen: Array<{ feld: string; wert: unknown }> } }): string | undefined {
   const label = (code: string) => schemeValues(store.bundle, 'raumtyp').find((w) => w.id === code)?.label || code;
-  const genannt = matched.kriterien.raum || matched.kriterien.lernort;
-  if (typeof genannt === 'string' && genannt) return label(genannt);
+  const genannt = raumCode(matched.kriterien);
+  if (genannt) return label(genannt);
   const angenommen = matched.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
   return angenommen ? `${label(String(angenommen))} (angenommen)` : undefined;
 }
@@ -944,7 +950,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     `ZEITKONSISTENZ: Übernimm exakt die geplanten Phasendauern aus \`thematischeTabelle\` (Summe = ${matched.pruefung?.dauerMin ?? briefing.pruefung.dauerMin} min, identisch mit \`pruefung.dauerMin\` und \`maschinenlesbar.arrangement\`).`,
     'TRANSPARENZ (MATRIX, RISIKEN & EVIDENZ): Weise Binnendifferenzierungs-Empfehlungen aus `lerngruppenUndMatrix` mit dem Hinweis aus, dass es sich um Punkte der FMT-Differenzierungsmatrix handelt (keine empirischen Effektstärken), und nenne Qualitätsrisiken sowie Evidenz immer zusammen mit ihrem Geltungsbereich.',
     'TEILGRUPPEN & ZUSATZPHASEN: Die Regelgruppe folgt dem Ablauf. `teilgruppenMethoden` nennt je Phase (`stepKey` = Zeile in `thematischeTabelle`) parallele Methoden für einzelne Teilgruppen mit Grund; `zusatzphasen` sind kurze Phasen für die ganze Klasse (Anfang oder Ende). Beides sind Vorschläge: übernimm sie nur nach Rückfrage und nenne sie als solche.',
-    'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.4`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
+    'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.5`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
   ];
 
   const plan = {
@@ -995,7 +1001,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     llmBriefing: briefing.llmBriefing,
     maschinenlesbar: {
       '@type': 'FmtScenarioPlan',
-      schemaVersion: '1.4',
+      schemaVersion: '1.5',
       license: store.bundle.license,
       title: fach ? `${fach}: ${thema}` : thema,
       fach: fach || null,
@@ -1004,7 +1010,12 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       didaktischerAnsatz: args.didaktischerAnsatz || null,
       scenarioText: args.text,
       arrangement: matched.arrangement,
-      thematicRows: briefing.fallbackTable
+      thematicRows: briefing.fallbackTable,
+      // Since 1.5: what the Baukasten needs to keep the plan's frame on import (codes; the assumed room stays an assumption).
+      begleitziel: (matched.kriterien.begleitziel as string[] | undefined) || [],
+      planungsprofil: matched.planungsprofil || null,
+      raum: raumCode(matched.kriterien) || null,
+      pflichtangaben: { angenommen: matched.pflichtangaben?.angenommen || [] }
     },
     leitplanken: FMT_GUARDRAILS
   };

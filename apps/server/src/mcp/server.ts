@@ -9,7 +9,6 @@ import {
   MCP_HINWEISE,
   MEASURE_LEVEL_ORDER,
   QUICK_LEARNER_GROUP_PROFILES,
-  einordnungInKetten,
   getDifferentiationMetaSummary,
   istHilfe,
   scoreDifferentiationMatrix,
@@ -23,24 +22,19 @@ import {
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
 import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
+import { SITUATION_FELDER, anpassungsAnfrage, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import {
-  SITUATION_FELDER,
-  anpassungsAnfrage,
-  ersatzHinweis,
-  ersatzKandidaten,
-  mitFachAufgeloest,
-  situationAus,
-  situationFehler,
-  teilgruppenAlternativen
-} from '../kandidaten.js';
-import { anpassungLeerFehler, bausteinFehler, MATERIAL_TYPEN } from '../eingaben.js';
+  ersatzAntwort,
+  evidenzBezugVon,
+  klassifikationsAntwort,
+  methodenDetail,
+  methodenTreffer,
+  zuordnungsAntwort
+} from '../antworten.js';
+import { anpassungLeerFehler, ARRANGEMENT_FEHLER, bausteinFehler, MATERIAL_TYPEN } from '../eingaben.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
-import {
-  elaborateScenarioCore,
-  extractSubjectAndTopicFromText,
-  generateMaterialCore
-} from '../routes/assistant.js';
+import { elaborateScenarioCore, generateMaterialCore } from '../routes/assistant.js';
 import {
   buildAdaptScenarioZeroLlm,
   buildElaborateBriefing,
@@ -150,7 +144,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 1. search_methods
   server.tool(
     'search_methods',
-    `Facettierte Suche im Katalog (${store.bundle.bausteine.filter((b) => !istHilfe(b)).length} Methoden und ${store.bundle.bausteine.filter(istHilfe).length} Hilfen; eine Hilfe stützt Lernende innerhalb einer Methode und füllt keine Phase): Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad, Bedarf (Raum, Schrift, Termine) und Eintragsart. Treffer nennen raumbedarf, schriftbedarf, termineMin und eintragsart. Zum Planen einer Stunde match_scenario oder build_scenario_plan nutzen. Erfrage beim Nutzer: nur, was die Suche eingrenzt (z. B. Bildungsstufe, Raum, Zeit, Gruppengröße, Technik).`,
+    `Facettierte Suche im Katalog (${store.bundle.bausteine.filter((b) => !istHilfe(b)).length} Methoden und ${store.bundle.bausteine.filter(istHilfe).length} Hilfen; eine Hilfe stützt Lernende innerhalb einer Methode und füllt keine Phase): Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad, Bedarf (Raum, Schrift, Termine) und Eintragsart. Treffer nennen Eintragsart, Gruppengröße, Technik, Bedarf (raumbedarf, schriftbedarf, termineMin), Eignung (fachbereichUngeeignet, ungeeignetBeiStufe, ungeeignetBeiVorwissen, eignungsgrund), Evidenzgrad und evidenzBezug sowie einordnung (Kette und Schritt, die die Methode füllen kann; Bezeichnungen in get_method). Zum Planen einer Stunde match_scenario oder build_scenario_plan nutzen. Erfrage beim Nutzer: nur, was die Suche eingrenzt (z. B. Bildungsstufe, Raum, Zeit, Gruppengröße, Technik).`,
     {
       text: z.string().max(MAX_TEXT_CHARS).optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
       lernfunktion: codes('lernfunktion').optional(),
@@ -224,28 +218,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         angezeigt: Math.min(hits.length, limit),
         dauerMs,
         ...(fachErkannt !== undefined ? { fachErkannt } : {}),
-        treffer: hits.slice(0, limit).map((b) => ({
-          kennung: b.kennung,
-          name: b.name,
-          kurzbeschreibung: b.kurzbeschreibung,
-          reichweite: b.reichweite,
-          status: b.status,
-          eintragsart: b.eintragsart || 'methode',
-          ansatz: b.ansatz,
-          dauerMin: b.dauerMin,
-          dauerMax: b.dauerMax,
-          lernfunktion: b.lernfunktion,
-          anleitung: b.anleitung,
-          engagement: b.engagement,
-          vorbedingung: b.vorbedingung,
-          nachbedingung: b.nachbedingung,
-          fachbereich: b.fachbereich || [],
-          raumbedarf: b.raumbedarf || [],
-          ...(b.fachausstattungArt ? { fachausstattungArt: b.fachausstattungArt } : {}),
-          schriftbedarf: b.schriftbedarf || [],
-          ...(b.termineMin != null ? { termineMin: b.termineMin } : {}),
-          evidenzgrad: store.search.bestGrade(b)
-        })),
+        treffer: hits.slice(0, limit).map((b) => methodenTreffer(store, b)),
         ...(semantic
           ? {
               semantischeVorschlaege: semantic.methodenVorschlaege.slice(0, 6),
@@ -267,14 +240,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     async ({ kennung }) => {
       const b = store.blocksById.get(kennung);
       if (!b) return errorResult(`Unbekannter Baustein „${kennung}“.`);
-      return textResult({
-        ...b,
-        eintragsart: b.eintragsart || 'methode',
-        einordnung: einordnungInKetten(b, store.bundle.ketten),
-        creator: store.bundle.creator,
-        license: store.bundle.license,
-        leitplankenHinweis: 'Hoch-inferente Facetten (A1, D1) sind Experteneinschätzungen; Evidenz gilt stets nur im angegebenen Geltungsbereich.'
-      });
+      return textResult(methodenDetail(store, b));
     }
   );
 
@@ -302,7 +268,6 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       };
       for (const f of store.bundle.facetten) vergleiche(f.feld, `${f.id} ${f.name}`, a[f.feld], b[f.feld]);
       // FMT 2.0 fields: entry kind, needs, fit and the basis of the evidence.
-      const evidenzBezug = (x: Baustein) => [...new Set((x.evidenz || []).map((e) => e.evidenzBezug || 'methode'))].sort();
       const merkmale: Array<[string, string, (x: Baustein) => unknown]> = [
         ['eintragsart', 'Eintragsart', (x) => x.eintragsart || 'methode'],
         ['raumbedarf', 'Bedarf: Raum', (x) => x.raumbedarf || []],
@@ -314,7 +279,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         ['ungeeignetBeiStufe', 'Eignung: ungeeignet für Bildungsstufe', (x) => x.ungeeignetBeiStufe || []],
         ['ungeeignetBeiVorwissen', 'Eignung: ungeeignet bei Vorwissen', (x) => x.ungeeignetBeiVorwissen || []],
         ['eignungsgrund', 'Eignung: Begründung', (x) => x.eignungsgrund],
-        ['evidenzBezug', 'Evidenzbezug', evidenzBezug]
+        ['evidenzBezug', 'Evidenzbezug', evidenzBezugVon]
       ];
       for (const [feld, label, wert] of merkmale) vergleiche(feld, label, wert(a), wert(b));
       return textResult({
@@ -401,21 +366,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     },
     async ({ limit, ...args }) => {
       try {
-        const t0 = process.hrtime.bigint();
-        const full = store.matcher.zuordnen(mitFachAufgeloest(store, args as MatchRequest));
-        const res =
-          full.modus === 'phase'
-            ? { ...full, vorschlaege: full.vorschlaege.slice(0, limit), vorschlaegeGesamt: full.vorschlaege.length }
-            : full;
-        const text = typeof args.text === 'string' ? args.text.trim() : '';
-        const extra = text
-          ? {
-              ...extractSubjectAndTopicFromText(text),
-              erkannteMatrixMerkmale: store.classifyText(text).matrixMerkmale
-            }
-          : {};
-        const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
-        return textResult({ ...res, dauerMs, ...extra, leitplanken: FMT_GUARDRAILS });
+        // Same answer as REST /match (shared builder).
+        return textResult(zuordnungsAntwort(store, args as MatchRequest, limit));
       } catch (e) {
         return errorResult(e instanceof Error ? e.message : 'Ungültige Anfrage.');
       }
@@ -442,7 +394,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 6. suggest_replacements
   server.tool(
     'suggest_replacements',
-    'Berechnet Ersatzbausteine an einem Knotenpfad eines Arrangements: jeder Kandidat ist live gegen R-00..R-12 geprüft, ist eine Methode (keine Hilfe) und trägt die Wissensart des Kettenschritts. Mit der Situation (raum, ohneSchrift, termine, zeitMin, gruppe, maxTechnik …, als Objekt `situation` oder als einzelne Felder) bleiben nur Kandidaten, deren Bedarf darin gedeckt ist; dieselbe Prüfung wie REST /replacements.',
+    'Berechnet Ersatzbausteine an einem Knotenpfad eines Arrangements: jeder Kandidat ist live gegen R-00..R-12 geprüft, ist eine Methode (keine Hilfe) und trägt die Wissensart des Kettenschritts. Mit der Situation (raum, ohneSchrift, termine, zeitMin, gruppe, maxTechnik …, als Objekt `situation` oder als einzelne Felder) bleiben nur Kandidaten, deren Bedarf darin gedeckt ist; dieselbe Prüfung wie REST /replacements. Jeder Kandidat nennt raumbedarf, schriftbedarf und termineMin; `ausgeschlossen` nennt die übrigen Methoden mit baustein, merkmal und grund.',
     {
       arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()),
       pfad: z.string().max(MAX_TEXT_CHARS).describe('JSON-Pfad des Knotens, z. B. "/ablauf/teile/0" oder "/ablauf/haupt/teile/1"'),
@@ -454,8 +406,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       const bad = situationFehler(store, situation);
       if (bad) return errorResult(bad.fehler);
       try {
-        const kandidaten = ersatzKandidaten(store, arrangement as unknown as Arrangement, pfad, situation);
-        return textResult({ pfad, hinweis: ersatzHinweis(situation), ...(situation ? { situation } : {}), kandidaten });
+        return textResult(ersatzAntwort(store, arrangement as unknown as Arrangement, pfad, situation));
       } catch (e) {
         return errorResult(e instanceof Error ? e.message : 'Ungültiger Pfad.');
       }
@@ -465,7 +416,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 7. list_vocabularies
   server.tool(
     'list_vocabularies',
-    'Listet alle FMT-Vokabulare, W-Felder (wfelder), Arten und Merkmale des Rasters, Funktionsketten mit Schritten (Funktion, Ziel, Rolle, Wissensart), Passungsregeln (mit Text, W-Feldern, Wirkung und Grundlage), Planungsprofile (Kernfelder, Begriffe, Module), die Teilgruppen-Tabelle „Tausch oder Hilfe“, Raumtypen, Zielarten, Binnendifferenzierungs-Personas und Anfragefelder auf; dieselben Einträge wie REST /meta.',
+    'Listet alle FMT-Vokabulare, W-Felder (wfelder), Arten und Merkmale des Rasters, Funktionsketten mit Schritten (Funktion, Ziel, Rolle, Wissensart), Passungsregeln (mit Text, W-Feldern, Wirkung und Grundlage), Planungsprofile (Kernfelder, Begriffe, Module), die Teilgruppen-Tabelle „Tausch oder Hilfe“, Raumtypen, Zielarten, Binnendifferenzierungs-Personas, Anfragefelder und die Zahl der Methoden und Hilfen auf; dieselben Einträge wie REST /meta.',
     {
       scheme: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Schema-ID wie "lernfunktion", "ansatz", "lernzustand", "bildungsstufe"')
     },
@@ -487,6 +438,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       }
       return textResult({
         schemes: store.bundle.schemes.map((s) => ({ id: s.id, titel: s.titel })),
+        // Methods and helps counted apart, as REST /meta counts them.
+        methoden: store.bundle.bausteine.filter((b) => !istHilfe(b)).length,
+        hilfen: store.bundle.bausteine.filter(istHilfe).length,
         // Same entries as /api/v1/meta.
         wfelder: store.bundle.wfelder,
         arten: store.bundle.arten,
@@ -805,7 +759,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     async (args) => {
       // Same check as REST /assistant/elaborate, before either branch.
       if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
-        return errorResult('Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.');
+        return errorResult(ARRANGEMENT_FEHLER);
       }
       try {
         const t0 = process.hrtime.bigint();
@@ -929,32 +883,14 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       // Same check as REST /classify.
       const text = roh.trim();
       if (!text) return errorResult('Bitte ein Feld "text" zur Klassifikation übergeben.');
-      const extracted = extractSubjectAndTopicFromText(text);
-      const cls = store.classifyText(text);
-      // Required details the text leaves open (ask back) and the ones assumed (state them), as the matcher reads them.
-      const pflichtangaben = store.matcher.zuordnen({ text }).pflichtangaben;
-      const weiter =
-        cls.kriterien.modus === 'phase'
-          ? 'match_scenario (modus: "phase") oder search_methods aufrufen'
-          : 'build_scenario_plan mit den vorab erkannten Kriterien aufrufen';
-      const fehlt = pflichtangaben?.fehlt || [];
-      return textResult({
-        ...cls,
-        erkanntesFach: extracted.fach,
-        erkanntesThema: extracted.thema,
-        pflichtangaben,
-        empfohlenerNaechsterSchritt: fehlt.length
-          ? `Frage zuerst in einer kurzen Frage nach: ${fehlt.join(', ')}. Danach ${weiter}; nenne pflichtangaben.angenommen als Annahmen.`
-          : `${weiter}; nenne pflichtangaben.angenommen als Annahmen.`,
-        leitplanken: FMT_GUARDRAILS
-      });
+      return textResult(klassifikationsAntwort(store, text));
     }
   );
 
   // 14. adapt_scenario (Standalone & FMT-integrated Zero-LLM differentiation + UDL + conflict resolution)
   server.tool(
     'adapt_scenario',
-    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`. Je Gruppe und Phase nennt `teilgruppenImpulse` die Antwort (`antwort`: passt, hilfe = die geplante Methode bleibt und die Gruppe bekommt eine Hilfe, oder tausch gegen eine gleichwertige Methode) mit `beleg` (Merkmal, Grundlage, Quelle), `hilfen` (je mit `abbau`, wann sie entfallen) und `alternativeMethoden` (nur beim Tausch). Steht `ohneMethode: true` (freier Text ohne geplante FMT-Methode), wurde keine Passung geprüft: `antwort: hilfe` nennt dann nur die Hilfen der Matrix für die Gruppe, keine Entscheidung über eine Methode; `teilgruppenHilfen`, `gesperrt` (Merkmale ohne Beleg, z. B. Lerntypen; kein Fehler) und `regelmeldungen` stehen auf oberster Ebene. Die Situation der Stunde (`anfrage` oder raum, ohneSchrift, termine … auf oberster Ebene) und `lehrende` prüfen, ob eine parallele Methode ihren Bedarf im selben Rahmen deckt; dieselbe Prüfung wie REST /adapt. Erfrage beim Nutzer: Teilgruppen mit Anzahl und Merkmalen (z. B. DaZ, liest noch nicht, kann sich nicht frei bewegen), Raum und Zahl der Lehrenden; beschreibe Gruppen, keine einzelnen Lernenden.',
+    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`. Je Gruppe und Phase nennt `teilgruppenImpulse` die Antwort (`antwort`: passt, hilfe = die geplante Methode bleibt und die Gruppe bekommt eine Hilfe, oder tausch gegen eine gleichwertige Methode) mit `beleg` (Merkmal, Grundlage, Quelle), `hilfen` (je mit `abbau`, wann sie entfallen) und `alternativeMethoden` (nur beim Tausch). Steht `ohneMethode: true` (freier Text ohne geplante FMT-Methode), wurde keine Passung geprüft: `antwort: hilfe` nennt dann nur die Hilfen der Matrix für die Gruppe, keine Entscheidung über eine Methode. `teilgruppenHilfen`, `gesperrt` (Merkmale ohne Beleg, z. B. Lerntypen; kein Fehler) und `regelmeldungen` stehen immer auf oberster Ebene. Die Situation der Stunde (`anfrage` oder raum, ohneSchrift, termine … auf oberster Ebene) und `lehrende` prüfen, ob eine parallele Methode ihren Bedarf im selben Rahmen deckt; dieselbe Prüfung wie REST /adapt. Erfrage beim Nutzer: Teilgruppen mit Anzahl und Merkmalen (z. B. DaZ, liest noch nicht, kann sich nicht frei bewegen), Raum und Zahl der Lehrenden; beschreibe Gruppen, keine einzelnen Lernenden.',
     {
       scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
       text: z.string().max(MAX_TEXT_CHARS).optional().describe('Gleichbedeutend mit scenarioText (wie REST /adapt)'),
@@ -1247,9 +1183,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
               `Unterrichtsvorhaben: "${szenario}"\n` +
               `Lerngruppe: "${lerngruppe}"\n\n` +
               `Vorgehen:\n` +
-              `1. Rufe \`adapt_scenario\` direkt mit \`scenarioText\` und \`lerngruppenText\` (und ggf. \`baustein\`, \`maxTechnik\`, \`ohneInternet\`) auf. Falls du exakte Merkmals-IDs brauchst, rufe vorher \`list_differentiation_options\` auf.\n` +
-              `2. Übernimm die zurückgegebene UDL-Basis, benenne Zielkonflikte offen mit ihrer Auflösungsstrategie und halte dich bei konkreten Methoden an \`methodenKontext.kernkomponente\`.\n` +
-              `3. Trenne klar zwischen der heuristischen Binnendifferenzierungsmatrix (-100 bis +100 %) und empirischen FMT-Evidenzgraden (A–C).`
+              `1. Erfrage beim Nutzer, was noch fehlt: Teilgruppen mit Anzahl und Merkmalen (z. B. „5 DaZ“, „4 lesen noch nicht“, „2 können sich nicht frei bewegen“), den Raum und die Zahl der Lehrenden. Beschreibe Gruppen, keine einzelnen Lernenden; keine Namen, keine Diagnosen.\n` +
+              `2. Rufe \`adapt_scenario\` mit \`scenarioText\` und \`lerngruppenText\` (oder \`gruppen\` mit \`ohneSchrift\`/\`ohneBewegung\`), dazu \`raum\`, \`lehrende\` und ggf. \`baustein\`, \`maxTechnik\`, \`ohneInternet\` auf. Falls du exakte Merkmals-IDs brauchst, rufe vorher \`list_differentiation_options\` auf.\n` +
+              `3. Lies \`teilgruppenImpulse\` je Gruppe und Phase: \`antwort\` (passt, hilfe = die Methode bleibt und die Gruppe bekommt eine Hilfe, tausch = gleichwertige Methode) mit \`beleg\` (Merkmal, Grundlage, Quelle); jede Hilfe nennt unter \`abbau\`, wann sie entfällt. Steht \`ohneMethode: true\`, wurde keine Passung geprüft. \`teilgruppenMethoden\` und \`zusatzphasen\` sind Vorschläge, kein geänderter Plan.\n` +
+              `4. Gib \`regelmeldungen\` mit ihrer Grundlage weiter. \`gesperrt\` nennt Merkmale ohne Beleg (z. B. Lerntypen); sie werden nicht ausgewertet, das ist kein Fehler.\n` +
+              `5. Übernimm die zurückgegebene UDL-Basis, benenne Zielkonflikte offen mit ihrer Auflösungsstrategie und halte dich bei konkreten Methoden an \`methodenKontext.kernkomponente\`.\n` +
+              `6. Trenne klar zwischen der heuristischen Binnendifferenzierungsmatrix (-100 bis +100 %) und empirischen FMT-Evidenzgraden (A–C).`
           }
         }
       ]
