@@ -27,7 +27,6 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['vorbedingung', 'lernzustand', true],
   ['nachbedingung', 'lernzustand', true],
   ['vorhanden', 'lernzustand', true],
-  ['geeignetBeiVorwissen', 'vorwissen', true],
   ['ungeeignetBeiVorwissen', 'vorwissen', true],
   ['vorwissen', 'vorwissen', false],
   ['ungeeignetBeiStufe', 'bildungsstufe', true],
@@ -514,7 +513,6 @@ export function buildSchema(D: FmtData) {
       sequenz: vocabProp.sequenz,
       vorbedingung: vocabProp.vorbedingung,
       nachbedingung: vocabProp.nachbedingung,
-      geeignetBeiVorwissen: vocabProp.geeignetBeiVorwissen,
       kernkomponente: {
         type: 'array',
         items: {

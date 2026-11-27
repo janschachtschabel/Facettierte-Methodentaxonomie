@@ -183,6 +183,20 @@ describe('FMT 2.0: Daten nach Durchsicht 2 (Tor D2)', () => {
     expect(D.bausteine.filter((x) => x.fachbereichUngeeignet?.length).map((x) => x.kennung).sort()).toEqual(['bestimmungsuebung', 'diktat-klassisch']);
   });
 
+  it('geeignetBeiVorwissen wird nirgends mehr gelesen: kein Merkmal, kein Schemafeld; die Suche liest ungeeignetBeiVorwissen', async () => {
+    expect(D.merkmale.map((m) => m.feld)).not.toContain('geeignetBeiVorwissen');
+    expect(D.merkmale.find((m) => m.feld === 'ungeeignetBeiVorwissen')).toMatchObject({ art: 'eignung', situation: ['vorwissen'] });
+    const { VOCAB_PROPS } = await import('../scripts/build-artefacts.js');
+    expect(VOCAB_PROPS.map(([p]) => p)).not.toContain('geeignetBeiVorwissen');
+    const { createSearch } = await import('../src/index.js');
+    const S = createSearch(D);
+    const ids = (vorwissen: string) => S.suche({ vorwissen }).map((b) => b.kennung);
+    expect(ids('hoch')).not.toContain('loesungsbeispiele');
+    expect(ids('gering')).toContain('loesungsbeispiele');
+    expect(ids('gering')).not.toContain('fehleranalyse');
+    expect(ids('mittel')).toEqual(expect.arrayContaining(['loesungsbeispiele', 'fehleranalyse', 'forschendes-lernen']));
+  });
+
   it('Teilgruppen: kultureller-hintergrund-neu fällt unter sonst, sehen-hoeren hat die Grundlage Recht', () => {
     const m = (id: string) => D.teilgruppen!.merkmale.find((x) => x.id === id)!;
     expect(m('sprachstand').auspraegungen).not.toContain('kultureller-hintergrund-neu');

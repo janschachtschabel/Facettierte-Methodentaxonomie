@@ -321,9 +321,8 @@ export interface Baustein {
   eintragsart?: 'methode' | 'hilfe';
   /** Reasons for the Eignung statements, per attribute, with their basis. */
   eignungsgrund?: Partial<Record<'stufe' | 'vorwissen' | 'fachbereich', { text: string; grundlage: 'E' | 'S' | 'A'; quelle?: string }>>;
-  /** Prior knowledge levels the method does not fit (replaces geeignetBeiVorwissen). */
+  /** Prior knowledge levels the method does not fit (replaces geeignetBeiVorwissen, removed with Tor D2). */
   ungeeignetBeiVorwissen?: string[];
-  geeignetBeiVorwissen?: string[];
   ungeeignetBeiStufe?: string[];
   problem: string;
   durchfuehrung: string[];

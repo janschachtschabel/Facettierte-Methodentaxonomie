@@ -2146,16 +2146,6 @@
       "grundlage": "A"
     },
     {
-      "feld": "geeignetBeiVorwissen",
-      "wfeld": "lernende",
-      "art": "eignung",
-      "situation": [
-        "vorwissen"
-      ],
-      "wirkung": "warnt",
-      "grundlage": "A"
-    },
-    {
       "feld": "ungeeignetBeiVorwissen",
       "wfeld": "lernende",
       "art": "eignung",

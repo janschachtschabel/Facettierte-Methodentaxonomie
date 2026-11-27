@@ -485,8 +485,11 @@ export function teil1(D: FmtData): Teil {
 /** Part 2: the entries geeignetBeiVorwissen against the rules about prior knowledge. */
 export function teil2(D: FmtData): Teil {
   const eintraege: Eintrag[] = [];
-  for (const b of D.bausteine.filter((x) => x.geeignetBeiVorwissen?.length)) {
-    const geeignet = b.geeignetBeiVorwissen!;
+  // The field geeignetBeiVorwissen left the data and the type with Task B6; read it raw to rebuild proposal 2 from an
+  // older data state (on current data part 2 is empty).
+  const altVorwissen = (x: Baustein) => (x as unknown as { geeignetBeiVorwissen?: string[] }).geeignetBeiVorwissen;
+  for (const b of D.bausteine.filter((x) => altVorwissen(x)?.length)) {
+    const geeignet = altVorwissen(b)!;
     const alt = VORWISSEN.filter((v) => !geeignet.includes(v));
     const regel = regelVorwissen(b, D.regeln);
     const regelStufen = Object.keys(regel);

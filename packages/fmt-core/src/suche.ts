@@ -154,7 +154,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (k.ohneInternet && b.internet) return false;
       if (given(k.raum) && raumFehlt(b, baueSituation({ raum: String(k.raum) }, data)).length) return false;
       if (given(k.kategorie) && !(b.kategorie || []).includes(String(k.kategorie))) return false;
-      if (k.vorwissen && b.geeignetBeiVorwissen && !b.geeignetBeiVorwissen.includes(k.vorwissen)) return false;
+      if (k.vorwissen && (b.ungeeignetBeiVorwissen || []).includes(k.vorwissen)) return false;
       if (k.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(k.bildungsstufe)) return false;
       if (minIdx >= 0) {
         const g = bestGrade(b);

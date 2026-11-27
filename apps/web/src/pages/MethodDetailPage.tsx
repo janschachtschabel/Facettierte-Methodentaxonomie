@@ -283,11 +283,11 @@ export function MethodDetailPage() {
               <strong>Q1 Kernkomponenten (Regel R-10):</strong>{' '}
               {b.kernkomponente.length ? b.kernkomponente.map((k) => k.name).join(' · ') : 'Keine (Kontrast-Baustein)'}
             </p>
-            {(b.hinweis || b.geeignetBeiVorwissen || b.ungeeignetBeiStufe) && (
+            {(b.hinweis || b.ungeeignetBeiVorwissen || b.ungeeignetBeiStufe) && (
               <p style={{ fontSize: 15 }}>
                 <strong>Q2 Bedingungen:</strong> {b.hinweis || ''}{' '}
-                {b.geeignetBeiVorwissen &&
-                  `Vorwissen: ${b.geeignetBeiVorwissen.map((v) => labelOf('vorwissen', v)).join(', ')}. `}
+                {b.ungeeignetBeiVorwissen &&
+                  `Passt weniger bei Vorwissen: ${b.ungeeignetBeiVorwissen.map((v) => labelOf('vorwissen', v)).join(', ')}. `}
                 {b.ungeeignetBeiStufe &&
                   `Nicht vorgesehen für: ${b.ungeeignetBeiStufe.map((s) => labelOf('bildungsstufe', s)).join(', ')}.`}
               </p>
