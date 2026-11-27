@@ -140,7 +140,7 @@ export function buildEntwurfFuerAusarbeitung(
       anzahl: body.anzahl,
       vorwissen: kontext.vorwissen,
       sprachniveau: kontext.sprachniveau,
-      teilgruppen: body.differenzierung,
+      teilgruppen: body.entwurfTeilgruppen ?? body.differenzierung,
       ausgangslage: body.problemstellung,
       hauptziel: body.lernziele?.trim() || chain?.label,
       einheit: body.einheit,
@@ -844,6 +844,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       matrixMassnahmen: g.matrixTop
     })),
     oerRessourcen: oerHits.map((o) => ({ titel: o.titel, wwwurl: o.wwwurl, lizenz: o.lizenz })),
+    // The draft names only groups the request names or passes in; the default groups stay in the matrix.
+    entwurfTeilgruppen:
+      activeGroups === defaultGroups ? [] : activeGroups.map((g) => ({ id: g.id, gruppe: g.label, anzahl: g.count, profil: g.profile })),
     // Draft: profile and assumptions from the core answer, the request as the matcher read it, the plan's notes.
     text: args.text,
     bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),

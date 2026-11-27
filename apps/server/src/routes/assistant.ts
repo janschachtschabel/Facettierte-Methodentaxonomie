@@ -54,6 +54,11 @@ export interface ElaboratePayload {
     anzahl?: number;
     matrixMassnahmen?: string[];
   }>;
+  /**
+   * Subgroups the draft names under Lernvoraussetzungen: only those read from the request or passed in, without
+   * matrix scores. Empty when the request names none; absent means `differenzierung` (elaborate, from the web app).
+   */
+  entwurfTeilgruppen?: Array<{ id?: string; gruppe: string; profil?: string; anzahl?: number }>;
   oerRessourcen?: Array<{
     stepKey?: string;
     titel: string;

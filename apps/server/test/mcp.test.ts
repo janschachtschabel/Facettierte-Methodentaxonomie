@@ -570,6 +570,28 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     }
   });
 
+  it('Entwurf: Lernvoraussetzungen nennen nur genannte Teilgruppen, ohne Matrixwerte (Fix-Welle D, Punkt 5)', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const lv = (p: { entwurf: { kernfelder: Array<{ id: string; inhalt: string }> } }) => p.entwurf.kernfelder.find((k) => k.id === 'lernvoraussetzungen')!.inhalt;
+    const post = async (body: object) =>
+      (await fetch(new URL('/api/v1/plan', baseUrl), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ umfang: 'voll', ...body }) })).json();
+    const text = 'Mathe Klasse 8, lineare Funktionen, 45 Minuten';
+    for (const p of [await post({ text }), parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text, umfang: 'voll' } }))]) {
+      const t = lv(p);
+      expect(t).toContain('- **Teilgruppen:** keine angegeben');
+      expect(t).not.toMatch(/Basisunterstützung|Vertiefung|\(\+\d+\)/);
+      // The default groups stay in the plan's matrix.
+      expect((p.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toContain('basis');
+    }
+    const mitAngaben = lv(await post({ text, vorwissen: 'gering' }));
+    expect(mitAngaben).toContain('- **Vorwissen:** gering');
+    const genannt = lv(await post({ text: 'Mathematik Klasse 7, 28 Kinder, davon 5 DaZ-Kinder, Bruchrechnen, 45 Minuten' }));
+    expect(genannt).toMatch(/DaZ/);
+    expect(genannt).not.toMatch(/\(\+\d+\)|Top-Maßnahmen/);
+    const uebergeben = lv(await post({ text, gruppen: [{ id: 'regel', label: 'Regelgruppe' }, { id: 'lese', label: 'Leseförderung', count: 4, profile: 'liest langsam' }] }));
+    expect(uebergeben).toContain('Leseförderung (4): liest langsam');
+  });
+
   it('kürzt die Vorschlagsliste von match_scenario', async () => {
     const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
     const std = parse(await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg Bruchrechnen Klasse 6' } }));

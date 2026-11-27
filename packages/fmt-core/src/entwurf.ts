@@ -173,7 +173,7 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
     lines.push(
       tg.length
         ? `- **Teilgruppen:**\n${tg.map((g) => `  - ${g.name}${g.anzahl ? ` (${g.anzahl})` : ''}${g.beschreibung ? `: ${g.beschreibung}` : ''}`).join('\n')}`
-        : '- **Teilgruppen:** keine'
+        : '- **Teilgruppen:** keine angegeben'
     );
     if (e.ausgangslage?.trim()) lines.push(`- **Ausgangslage:** ${e.ausgangslage.trim()}`);
     return lines.join('\n');
