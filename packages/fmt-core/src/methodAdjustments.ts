@@ -544,8 +544,8 @@ const GERINGE_LEISTUNG = ['vorwissen-gering', 'leistungsniveau-gering'];
 /**
  * Hints on grouping (built-in rules): a subgroup that gets neither a swap nor a help (gruppierung-nur-mit-anpassung),
  * and a group with low prior knowledge or performance in a method that works in cooperative small groups
- * (leistungsschwache-nicht-unter-sich, once per method). Groups whose profile names only blocked categories are left
- * out; the blocked note explains them.
+ * (leistungsschwache-nicht-unter-sich, once per method). Groups that name nothing (only a persona, or only blocked
+ * categories, which the blocked note explains) are left out.
  */
 export function teilgruppenHinweise(
   phases: MethodAdjustmentPhase[],
@@ -561,8 +561,10 @@ export function teilgruppenHinweise(
   for (const g of groups) {
     if (g.isMain || !hasAdjustmentProfile(g)) continue;
     const { profil } = bereinigeProfil(teilgruppenProfil(g, t), t);
-    const nurGesperrt = !Object.keys(profil.selectedValues).length && !profil.ohneSchrift?.length && !profil.ohneBewegung && !g.personaId;
-    if (nurGesperrt) continue;
+    // Without named values (only a persona, or only blocked traits) and without own statements there is nothing to
+    // adapt: no hint. The hint is for groups with named needs that end without swap and without help.
+    const nichtsGenannt = !genannteWerte(profil).length && !profil.ohneSchrift?.length && !profil.ohneBewegung;
+    if (nichtsGenannt) continue;
     const bekommt = adjustments.some((a) => a.groupId === g.id) || supports.some((s) => s.groupId === g.id && s.hilfen.length > 0);
     if (!bekommt) {
       const r = regeln.regel('gruppierung-nur-mit-anpassung');

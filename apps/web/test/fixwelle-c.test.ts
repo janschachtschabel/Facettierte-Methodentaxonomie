@@ -166,3 +166,12 @@ describe('Fix wave C, 7: eine veraltete Prüfung verschiebt auch ihre Vorschläg
     expect(verschiebePruefung(null, 0, 1)).toBeNull();
   });
 });
+
+describe('Fix wave C, Follow-up: Gruppe ohne genannte Werte', () => {
+  it('die Standardgruppe „basis“ (nur Persona) passt überall und bekommt keinen Hinweis', () => {
+    const basis: LearnerGroup = { id: 'basis', label: 'Basis', profile: '', focus: 'basis', active: true, personaId: 'languageAndCulture' };
+    const res = pruefeTeilgruppen(BUNDLE.bausteine, rowsFor('lehrervortrag', 'gruppenpuzzle'), [regel, basis], {}, REGELSATZ);
+    expect(res.antworten.filter((a) => a.groupId === 'basis').every((a) => a.antwort === 'passt')).toBe(true);
+    expect(res.hinweise.basis.some((m) => m.regel === 'gruppierung-nur-mit-anpassung')).toBe(false);
+  });
+});
