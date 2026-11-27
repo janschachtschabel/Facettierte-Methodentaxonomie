@@ -554,6 +554,22 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(mcp.kriterien.einheit).toBe('Reihe Funktionen');
   });
 
+  it('Entwurf: Sicherung aus dem Prüfschritt, nicht aus der Eingangsdiagnose oder der Wiederkehr (Fix-Welle D, Punkt 4)', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten';
+    const plan = parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text, umfang: 'voll' } }));
+    const rest = await (await fetch(new URL('/api/v1/plan', baseUrl), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, umfang: 'voll' }) })).json();
+    for (const p of [plan, rest]) {
+      const f = Object.fromEntries((p.entwurf.kernfelder as Array<{ id: string; inhalt: string }>).map((k) => [k.id, k.inhalt]));
+      const teile = p.maschinenlesbar.arrangement.ablauf.teile as Array<{ typ: string; baustein: string }>;
+      const name = (id: string) => (p.methodenDetails as Array<{ kennung: string; name: string }>).find((m) => m.kennung === id)?.name || id;
+      expect(f.lernerfolg).not.toContain(name(teile[0].baustein));
+      expect(f.lernerfolg).not.toMatch(/Wiederkehr/);
+      expect(f.reflexion).not.toMatch(/Wiederkehr/);
+      expect(f.reflexion).toContain(name(teile.filter((t) => t.typ !== 'Wiederkehr').at(-1)!.baustein));
+    }
+  });
+
   it('kürzt die Vorschlagsliste von match_scenario', async () => {
     const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
     const std = parse(await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg Bruchrechnen Klasse 6' } }));

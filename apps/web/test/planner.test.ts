@@ -733,6 +733,17 @@ describe('Entwurf mit sieben Kernfeldern und Begriffen des Planungsprofils (Pake
     expect(verlauf).toMatch(/Hilfe „Wortliste“/);
   });
 
+  it('Sicherung des Lernerfolgs nur aus dem Prüfschritt, nicht aus der Eingangsdiagnose oder der Wiederkehr (Fix-Welle D, Punkt 4)', () => {
+    const { sc, rows } = entwurfFuer('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    const f = Object.fromEntries(sc.kernfelder!.map((k) => [k.id, k.inhalt]));
+    const erste = rows[0].methodName;
+    expect(f.lernerfolg).not.toContain(erste);
+    expect(f.lernerfolg).not.toMatch(/Wiederkehr/);
+    expect(f.lernerfolg.split('\n').filter((l) => /Prüfschritt|Sicherung/.test(l))).toHaveLength(1);
+    expect(f.reflexion).not.toMatch(/Wiederkehr/);
+    expect(f.reflexion).toContain(rows.filter((r) => r.key !== 'wiederkehr' && !r.isNestedSlot).at(-1)!.methodName);
+  });
+
   it('Entwurf ohne Bildungsstufe enthält nirgends „Sekundarstufe I“', () => {
     const { sc, r } = entwurfFuer('Fotosynthese, Lichtreaktion, 45 Minuten');
     expect(r.planungsprofil).toBe('schule');

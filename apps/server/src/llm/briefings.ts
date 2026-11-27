@@ -3,6 +3,7 @@ import {
   FMT_GUARDRAILS,
   adaptScenario,
   entwurfMarkdown,
+  istPruefschritt,
   type Entwurf,
   computeMultiGroupSynthesis,
   detectLearnerGroupsFromText,
@@ -147,7 +148,17 @@ export function buildEntwurfFuerAusarbeitung(
       hinweise: [...(body.hinweise?.trim() ? [body.hinweise.trim()] : []), ...(body.hinweiseListe || [])],
       begleitziel: body.begleitziel,
       begleitstrang: body.begleitstrang,
-      schrittRolle: Object.fromEntries(geplant.map((p) => [p.key, p.kettenschritt ? rolleJeSchritt.get(p.kettenschritt) : undefined]))
+      schritte: Object.fromEntries(
+        geplant.map((p) => [
+          p.key,
+          {
+            rolle: p.kettenschritt ? rolleJeSchritt.get(p.kettenschritt) : undefined,
+            pruefschritt: istPruefschritt(chain, p.kettenschritt),
+            // The web app sends its repetition row under the key 'wiederkehr'.
+            wiederkehr: Boolean(p.wiederkehr) || p.key === 'wiederkehr'
+          }
+        ])
+      )
     },
     rows
   );

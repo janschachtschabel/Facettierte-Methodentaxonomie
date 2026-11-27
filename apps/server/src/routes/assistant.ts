@@ -78,6 +78,8 @@ export interface ElaboratePayload {
     subgroupMethods?: Record<string, { methodId: string; methodName: string }>;
     /** Chain step the phase fills (read from the arrangement). */
     kettenschritt?: string;
+    /** Distributed repetition (Wiederkehr node): never the check step or the closing step of the draft. */
+    wiederkehr?: boolean;
   }>;
   /** Bildungsstufe as code or label; read from the arrangement when absent. */
   bildungsstufe?: string;
@@ -204,7 +206,8 @@ export function extractScheduledPhases(
         phaseLabel: `Wiederkehr (${count}× à ${single} min)`,
         durationMin: single * count,
         methodId: n.baustein,
-        methodName: b?.name || n.baustein
+        methodName: b?.name || n.baustein,
+        wiederkehr: true
       });
       return;
     }

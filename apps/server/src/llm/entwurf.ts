@@ -89,8 +89,8 @@ export interface EntwurfKontext {
   begleitziel?: string | string[];
   /** Accompanying strand the plan proposes; method by name or id (D3). */
   begleitstrang?: Array<{ begleitziel: string; baustein?: string; name?: string; dauerMin: number }>;
-  /** Chain step role per phase key (from the arrangement). */
-  schrittRolle?: Record<string, string | undefined>;
+  /** Per phase key, from the arrangement: role of the chain step, whether it is the check step, whether it is a repetition. */
+  schritte?: Record<string, { rolle?: string; pruefschritt?: boolean; wiederkehr?: boolean } | undefined>;
 }
 
 /** Draft with the seven core fields from the deterministic table of an elaboration or a scenario plan. */
@@ -108,8 +108,9 @@ export function entwurfAusTabelle(store: CatalogStore, k: EntwurfKontext, zeilen
       medien: z.materialsAndOer,
       lehrende: z.teacherAction,
       lernende: z.learnerAction,
-      lernfunktion: b?.lernfunktion,
-      schrittRolle: k.schrittRolle?.[z.key],
+      schrittRolle: k.schritte?.[z.key]?.rolle,
+      pruefschritt: k.schritte?.[z.key]?.pruefschritt,
+      wiederkehr: k.schritte?.[z.key]?.wiederkehr,
       anpassungen: Object.entries(z.groupAdaptations || {})
         .filter(([gid]) => !isRegularGroupId(gid))
         .map(([gid, text]) => ({ gruppe: gruppenName.get(gid) || gid, text }))

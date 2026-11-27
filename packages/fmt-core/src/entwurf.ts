@@ -1,4 +1,4 @@
-import type { Kernfeld, Planungsprofil, PlanungsprofileRegelsatz } from './types.js';
+import type { Funktionskette, Kernfeld, Planungsprofil, PlanungsprofileRegelsatz } from './types.js';
 
 /** Guardrails for a language model that writes out a draft (verbatim, Paket D). */
 export const ENTWURF_LEITPLANKEN: readonly string[] = [
@@ -51,10 +51,12 @@ export interface EntwurfPhase {
   /** What the teaching person does / what the learners do in this phase. */
   lehrende?: string;
   lernende?: string;
-  /** Learning functions of the method; 'diagnose' marks the check step. */
-  lernfunktion?: string[];
   /** Role of the chain step ('sicherung' is the fallback for the check step). */
   schrittRolle?: string;
+  /** The phase fills the chain's check step (see istPruefschritt); a diagnosing method elsewhere does not count. */
+  pruefschritt?: boolean;
+  /** Distributed repetition (Wiederkehr): listed in the plan, never the check step or the closing step. */
+  wiederkehr?: boolean;
   /** Phase of the accompanying strand (Begleitstrang): listed in the plan, read as an accompanying goal. */
   begleitend?: boolean;
   /** Adaptations per subgroup already decided in the plan (help, own method). */
@@ -116,6 +118,19 @@ export interface Entwurf {
   kernfelder: EntwurfKernfeld[];
   /** Modules of the profile, empty to fill in (no generated text). */
   module: Array<{ id: string; name: string; inhalt: string }>;
+}
+
+/** Id of the check step the matcher inserts when a check is requested and the chain has none. */
+export const LEISTUNGSKONTROLLE_SCHRITT = 'leistungskontrolle';
+
+/**
+ * Whether a chain step is the check step of the plan (Prüfschritt): the step the matcher inserts for a requested check,
+ * or a step of the chain whose function is diagnose. The opening step is never one, even if its method diagnoses.
+ */
+export function istPruefschritt(kette: Pick<Funktionskette, 'schritte'> | null | undefined, schrittId: string | undefined): boolean {
+  if (!schrittId) return false;
+  if (schrittId === LEISTUNGSKONTROLLE_SCHRITT) return true;
+  return Boolean(kette?.schritte.find((st) => st.id === schrittId)?.funktion.includes('diagnose'));
 }
 
 const zelle = (s: string | undefined) => (s || '–').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ').trim() || '–';
@@ -194,9 +209,11 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
     return out.join('\n');
   };
 
+  // Design section 8: the check field comes from the check step, the reflection from the closing step of the lesson.
+  const stunde = plan.filter((p) => !p.wiederkehr);
   const lernerfolg = () => {
-    const pruef = plan.filter((p) => p.lernfunktion?.includes('diagnose'));
-    const schritte = pruef.length ? pruef : plan.filter((p) => p.schrittRolle === 'sicherung');
+    const pruef = stunde.filter((p) => p.pruefschritt);
+    const schritte = pruef.length ? pruef : stunde.filter((p) => p.schrittRolle === 'sicherung');
     const lines = schritte.length
       ? schritte.map((p) => `- **${pruef.length ? 'Prüfschritt' : 'Sicherung'}:** ${phaseKurz(p)}`)
       : ['- Kein eigener Prüfschritt im Ablauf.'];
@@ -205,7 +222,7 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
   };
 
   const reflexion = () => {
-    const last = plan[plan.length - 1];
+    const last = stunde[stunde.length - 1];
     const lines = [`- **Abschluss:** ${last ? phaseKurz(last) : 'nicht angegeben'}`];
     const hinweise = (e.hinweise || []).map((h) => h.trim()).filter(Boolean);
     if (hinweise.length) lines.push(`- **Hinweise:**\n${hinweise.map((h) => `  - ${h}`).join('\n')}`);

@@ -35,6 +35,7 @@ import { liesBegleitziele } from './begleitziel.js';
 import { waehlePlanungsprofil } from './planungsprofil.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 import { bewegungsKette, nachweisformen, normZielart, traegtBegleitziel, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
+import { LEISTUNGSKONTROLLE_SCHRITT } from './entwurf.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -1375,7 +1376,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         }
       } else {
         const check: PlanStep = {
-          id: 'leistungskontrolle',
+          id: LEISTUNGSKONTROLLE_SCHRITT,
           label: 'Leistung oder Lernstand überprüfen',
           funktion: ['diagnose'],
           ziel: 'lernstand-diagnostiziert',

@@ -4,6 +4,7 @@ import {
   entwurfMarkdown,
   extractSubjectAndTopic,
   isRegularGroupId,
+  istPruefschritt,
   profilBegriffe,
   scoreDifferentiationMatrix,
   waehlePlanungsprofil,
@@ -119,8 +120,10 @@ export interface ScenarioPhaseRow {
   oerResources: OerResource[];
   generatedMaterials: GeneratedMaterialItem[];
   block?: Baustein;
-  /** Role of the chain step the phase fills ('sicherung' is read as the check step when no method diagnoses). */
+  /** Role of the chain step the phase fills ('sicherung' is read as the check step when the chain has none). */
   chainRole?: string;
+  /** The phase fills the chain's check step (istPruefschritt). */
+  chainCheck?: boolean;
 }
 
 export interface MaterialTypeOption {
@@ -384,7 +387,8 @@ export function buildScenarioRows(
     isNestedSlot: boolean,
     slotKennung?: string,
     parentName?: string,
-    chainRole?: string
+    chainRole?: string,
+    chainCheck?: boolean
   ): ScenarioPhaseRow => {
     const b = blocksById.get(node.baustein);
     const social = (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || '–';
@@ -416,7 +420,8 @@ export function buildScenarioRows(
       oerResources: safeOerList(oerByStep[key]),
       generatedMaterials: generatedMaterials.filter((m) => m.stepKey === key),
       block: b,
-      ...(chainRole ? { chainRole } : {})
+      ...(chainRole ? { chainRole } : {}),
+      ...(chainCheck ? { chainCheck } : {})
     };
   };
 
@@ -424,10 +429,11 @@ export function buildScenarioRows(
     const realIdx = seq.teile.indexOf(node);
     const chainStep = node.kettenschritt && kette ? kette.schritte.find((s) => s.id === node.kettenschritt) : null;
     const phaseLabel = chainStep ? `${chainStep.id.toUpperCase()} · ${chainStep.label}` : `Phase ${visIdx + 1}`;
+    const check = istPruefschritt(kette, node.kettenschritt);
 
     if (node.typ === 'Einsatz') {
       const parentBlock = blocksById.get(node.baustein);
-      rows.push(makeRow(`step-${realIdx}`, `${visIdx + 1}`, realIdx, phaseLabel, node, false, undefined, undefined, chainStep?.rolle));
+      rows.push(makeRow(`step-${realIdx}`, `${visIdx + 1}`, realIdx, phaseLabel, node, false, undefined, undefined, chainStep?.rolle, check));
       (node.belegung || []).forEach((bel, si) => {
         if (bel.inhalt.typ === 'Einsatz') {
           const sl = parentBlock?.slot?.find((s) => s.kennung === bel.slotKennung);
@@ -458,7 +464,8 @@ export function buildScenarioRows(
               false,
               undefined,
               undefined,
-              chainStep?.rolle
+              chainStep?.rolle,
+              check
             )
           );
         }
@@ -694,8 +701,9 @@ export function buildScenarioEntwurf(
       medien: medien.join(', ') || undefined,
       lehrende: tr?.teacherAction || r.teacherRole,
       lernende: tr?.learnerAction || r.learnerRole,
-      lernfunktion: r.block?.lernfunktion,
       schrittRolle: r.chainRole,
+      pruefschritt: r.chainCheck,
+      wiederkehr: r.key === 'wiederkehr',
       begleitend: r.key.startsWith('parallel-'),
       anpassungen: anpassungenJeGruppe(r, groups)
     };

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
-import { ENTWURF_LEITPLANKEN, baueEntwurf, entwurfMarkdown, profilBegriffe, type EntwurfEingabe } from '../src/entwurf.js';
+import { ENTWURF_LEITPLANKEN, baueEntwurf, entwurfMarkdown, istPruefschritt, profilBegriffe, type EntwurfEingabe } from '../src/entwurf.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -11,7 +11,7 @@ const M = createMatcher(D, createValidator(D));
 const profil = (id: string) => D.planungsprofile.profile.find((p) => p.id === id)!;
 
 const PHASEN: EntwurfEingabe['phasen'] = [
-  { zeitMin: 10, phase: 'Einstieg', methode: 'Think-Pair-Share', sozialform: 'Partnerarbeit', medien: 'Tafel', lehrende: 'stellt die Leitfrage', lernende: 'notieren Ideen', lernfunktion: ['orientierung'] },
+  { zeitMin: 10, phase: 'Einstieg', methode: 'Think-Pair-Share', sozialform: 'Partnerarbeit', medien: 'Tafel', lehrende: 'stellt die Leitfrage', lernende: 'notieren Ideen', schrittRolle: 'rand' },
   {
     zeitMin: 25,
     phase: 'Erarbeitung',
@@ -19,11 +19,11 @@ const PHASEN: EntwurfEingabe['phasen'] = [
     sozialform: 'Gruppenarbeit',
     lehrende: 'begleitet',
     lernende: 'erarbeiten Texte',
-    lernfunktion: ['verstehen'],
+    schrittRolle: 'haupt',
     anpassungen: [{ gruppe: 'Sprachförderung', text: 'Wortliste und Satzanfänge' }]
   },
-  { zeitMin: 10, phase: 'Sicherung', methode: 'Abrufquiz', sozialform: 'Einzelarbeit', lehrende: 'wertet aus', lernende: 'beantworten Fragen', lernfunktion: ['diagnose'] },
-  { zeitMin: 5, phase: 'Abschluss', methode: 'Blitzlicht', sozialform: 'Plenum', lehrende: 'moderiert', lernende: 'geben Rückmeldung', lernfunktion: ['metakognition'] }
+  { zeitMin: 10, phase: 'Sicherung', methode: 'Abrufquiz', sozialform: 'Einzelarbeit', lehrende: 'wertet aus', lernende: 'beantworten Fragen', schrittRolle: 'rand', pruefschritt: true },
+  { zeitMin: 5, phase: 'Abschluss', methode: 'Blitzlicht', sozialform: 'Plenum', lehrende: 'moderiert', lernende: 'geben Rückmeldung', schrittRolle: 'rand' }
 ];
 
 const eingabe = (x: Partial<EntwurfEingabe> = {}): EntwurfEingabe => ({
@@ -136,6 +136,52 @@ describe('Entwurf mit sieben Kernfeldern', () => {
   it('ohne Prüfschritt sagt die Sicherung das, statt etwas zu erfinden', () => {
     const e = baueEntwurf(D.planungsprofile, eingabe({ phasen: PHASEN.filter((p) => p.methode !== 'Abrufquiz') }));
     expect(e.kernfelder[5].inhalt).toMatch(/Kein eigener Prüfschritt/);
+  });
+  it('Sicherung nur aus dem Prüfschritt der Kette: keine Eingangsdiagnose, keine Wiederkehr; Abschluss nur aus dem letzten Schritt der Stunde (Fix-Welle D, Punkt 4)', () => {
+    const phasen: EntwurfEingabe['phasen'] = [
+      { zeitMin: 5, phase: 'K1 · Vorwissen und Fehlvorstellungen sichtbar machen', methode: 'Live-Abstimmung', schrittRolle: 'rand' },
+      { zeitMin: 16, phase: 'K2 · Konzept', methode: 'Darstellungswechsel', schrittRolle: 'haupt' },
+      { zeitMin: 7, phase: 'K3 · Konsolidieren', methode: 'Brain Dump', schrittRolle: 'sicherung' },
+      { zeitMin: 12, phase: 'K4 · Transfer', methode: 'Blitz-Anwendung', schrittRolle: 'haupt' },
+      { zeitMin: 5, phase: 'K5 · Reflexion', methode: 'Reflexionsprompt', schrittRolle: 'rand' },
+      { zeitMin: 0, phase: 'Verteilte Wiederkehr in Folgestunden', methode: 'Brain Dump', wiederkehr: true }
+    ];
+    const f = Object.fromEntries(baueEntwurf(D.planungsprofile, eingabe({ phasen })).kernfelder.map((k) => [k.id, k.inhalt]));
+    expect(f.lernerfolg).toBe('- **Sicherung:** K3 · Konsolidieren – Brain Dump (7 min)');
+    expect(f.lernerfolg).not.toMatch(/Live-Abstimmung|Wiederkehr/);
+    expect(f.reflexion).toMatch(/^- \*\*Abschluss:\*\* K5 · Reflexion – Reflexionsprompt \(5 min\)/);
+    expect(f.reflexion).not.toMatch(/Wiederkehr/);
+    // A check step wins over the fallback, wherever it stands (a requested test may open the lesson).
+    const mitPruef = [{ zeitMin: 10, phase: 'Leistung oder Lernstand überprüfen', methode: 'Abrufquiz', schrittRolle: 'haupt', pruefschritt: true }, ...phasen];
+    const g = Object.fromEntries(baueEntwurf(D.planungsprofile, eingabe({ phasen: mitPruef })).kernfelder.map((k) => [k.id, k.inhalt]));
+    expect(g.lernerfolg).toBe('- **Prüfschritt:** Leistung oder Lernstand überprüfen – Abrufquiz (10 min)');
+  });
+  it('Prüfschritt ist der Kettenschritt mit Funktion diagnose oder die eingefügte Leistungskontrolle, nie der Einstieg', () => {
+    const kette = (id: string) => D.ketten.find((k) => k.id === id)!;
+    expect(istPruefschritt(kette('konzeptaufbau'), 'k1')).toBe(false);
+    expect(istPruefschritt(kette('konzeptaufbau'), 'k3')).toBe(false);
+    expect(istPruefschritt(kette('faktenwissen'), 'f4')).toBe(true);
+    expect(istPruefschritt(kette('vollstaendige-handlung'), 'h4')).toBe(true);
+    expect(istPruefschritt(kette('konzeptaufbau'), 'leistungskontrolle')).toBe(true);
+    expect(istPruefschritt(undefined, undefined)).toBe(false);
+  });
+  it('ein Ablauf aus dem Kern: die Eingangsdiagnose ist kein Prüfschritt (Biologie, Fotosynthese)', () => {
+    const r = M.zuordnen({ text: 'Biologie Klasse 7, Fotosynthese, 45 Minuten' });
+    if (r.modus !== 'ablauf' || !r.arrangement) throw new Error('kein Ablauf');
+    const kette = D.ketten.find((k) => k.id === r.arrangement!.zieltyp);
+    const teile = (r.arrangement.ablauf as { teile: Array<{ typ: string; baustein: string; dauerMin?: number; kettenschritt?: string }> }).teile;
+    const phasen: EntwurfEingabe['phasen'] = teile.map((t) => ({
+      zeitMin: t.dauerMin || 0,
+      phase: t.kettenschritt || 'Wiederkehr',
+      methode: t.baustein,
+      schrittRolle: kette?.schritte.find((s) => s.id === t.kettenschritt)?.rolle,
+      pruefschritt: istPruefschritt(kette, t.kettenschritt),
+      wiederkehr: t.typ === 'Wiederkehr'
+    }));
+    const f = Object.fromEntries(baueEntwurf(D.planungsprofile, eingabe({ phasen })).kernfelder.map((k) => [k.id, k.inhalt]));
+    expect(f.lernerfolg).not.toMatch(new RegExp(teile[0].baustein));
+    expect(f.lernerfolg.split('\n')).toHaveLength(1);
+    expect(f.reflexion).toContain(teile.filter((t) => t.typ !== 'Wiederkehr').at(-1)!.baustein);
   });
   it('Zellen mit senkrechtem Strich oder Zeilenumbruch zerbrechen die Tabelle nicht', () => {
     const e = baueEntwurf(D.planungsprofile, eingabe({ phasen: [{ ...PHASEN[0], lehrende: 'a | b\nc' }] }));
