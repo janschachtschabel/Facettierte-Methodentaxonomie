@@ -107,6 +107,10 @@ describe('nurSekundarEvidenz (eingebaute Regel evidenz-geltung)', () => {
     expect(nurSekundarEvidenz(mit('Sekundarstufe und Hochschule'))).toBe(true);
     expect(nurSekundarEvidenz(mit('Hochschule und Sekundarstufe II/Berufsbildung'))).toBe(true);
     expect(nurSekundarEvidenz(mit('Berufliche Schulen und Hochschulen'))).toBe(true);
+    // Fix round 1: "allgemeinbildend" with a secondary qualifier, and secondary schools by name, stay secondary only.
+    expect(nurSekundarEvidenz(mit('Sekundarstufe II allgemeinbildend'))).toBe(true);
+    expect(nurSekundarEvidenz(mit('Weiterführende Schulen und Hochschulen'))).toBe(true);
+    expect(nurSekundarEvidenz(mit('Allgemeinbildende Schulen der Sekundarstufe, Hochschulen'))).toBe(true);
     expect(nurSekundarEvidenz(mit('Sekundarstufe', 'Primarstufe'))).toBe(false);
   });
 

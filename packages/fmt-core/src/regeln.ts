@@ -21,15 +21,18 @@ const fold = (s: string) =>
 
 /**
  * Every stated scope of the method's evidence names secondary school, university or adult learning only. "Schule" and
- * "Schulen" in general (also "allgemeinbildende Schulen") include primary school; only vocational schools do not.
+ * "Schulen" in general include primary school; schools named as vocational or "weiterführend" do not. "Schulen" and
+ * "allgemeinbildende Schulen" count as school in general only without a secondary qualifier in the same scope.
  */
 export function nurSekundarEvidenz(b: Baustein): boolean {
   const scopes = (b.evidenz || []).map((e) => fold(e.geltung || '')).filter(Boolean);
   if (!scopes.length) return false;
+  const sekundar = /(?:sekundarstufe|oberstufe|\bsek\b)/;
+  const schuleAllgemein = (s: string) =>
+    /(?:\bschule\b|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s) ||
+    (!sekundar.test(s) && (/(?<!(?:beruflichen?|berufsbildenden?|weiterfuhrenden?) )\bschulen\b/.test(s) || (/allgemeinbildend/.test(s) && /\bschulen\b/.test(s))));
   return scopes.every(
-    (s) =>
-      /(?:sekundarstufe|oberstufe|hochschule|universitat|berufsbildung|erwachsenenbildung|ab\s+sek)/.test(s) &&
-      !/(?:\bschule\b|(?<!beruflichen? |berufsbildenden? )\bschulen\b|allgemeinbildend|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s)
+    (s) => /(?:sekundarstufe|oberstufe|hochschule|universitat|berufsbildung|erwachsenenbildung|ab\s+sek|weiterfuhrende)/.test(s) && !schuleAllgemein(s)
   );
 }
 
