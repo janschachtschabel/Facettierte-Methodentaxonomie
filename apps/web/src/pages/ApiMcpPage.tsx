@@ -153,11 +153,11 @@ export function ApiMcpPage() {
           </p>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
             <li><code>classify_scenario_text</code> – Freitext ohne LLM einordnen (Regeln + BM25/Trigram + opt. Model2Vec): Filterskalen, Fach/Thema, Matrix-Merkmale und <code>pflichtangaben</code> (was fehlt, was angenommen würde)</li>
-            <li><code>search_methods</code> – Facettierte Suche über {totalLabel}, auch nach <code>eintragsart</code> (Methoden oder Hilfen), <code>raum</code>, <code>raumbedarf</code>, <code>schriftbedarf</code>, <code>fach</code> oder <code>fachbereich</code></li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel}, auch nach <code>eintragsart</code> (Methoden oder Hilfen), <code>raum</code>, <code>raumbedarf</code>, <code>schriftbedarf</code>, <code>fach</code>, <code>fachbereich</code> oder Kette (<code>zieltyp</code>, optional <code>kettenschritt</code>)</li>
             <li><code>get_method</code> – Vollständiges Profil mit Bedarf, Eignung (<code>eignungsgrund</code>), Eintragsart, Evidenz samt Bezug und der Einordnung in Funktionsketten (frühere Kennungen werden weitergeleitet)</li>
             <li><code>compare_methods</code> – Vergleich zweier Einträge nach Facetten, Bedarf, Eignung, Eintragsart und Evidenzbezug</li>
             <li><code>match_scenario</code> – Deterministische Zuordnung in fünf Stufen (Kette nach Zielart, Bindung der Wissensart, Bedarf, Passungsregeln) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code> und <code>planungsprofil</code>; <code>fach</code> ist das erkannte Fach als Objekt (früher Text), der gelesene Fachname steht in <code>erkanntesFach</code>, das Thema in <code>erkanntesThema</code></li>
-            <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen (die Passungsregeln prüft die Zuordnung)</li>
+            <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen; mit <code>situation</code> auch die Passungsregeln für die Methoden des Ablaufs (<code>regelmeldungen</code>)</li>
             <li><code>suggest_replacements</code> – Ersatzkandidaten an einem Knotenpfad: nur Methoden, Bedarf in der Situation, Wissensart des Kettenschritts</li>
             <li><code>list_vocabularies</code> – Kontrollierte Codes, W-Felder, Arten, Merkmale, Funktionsketten mit Wissensart je Schritt, Passungsregeln, Raumtypen, Zielarten, Planungsprofile und Differenzierungs-Personas</li>
             <li><code>list_differentiation_options</code> – <strong>Eigenständiger Katalog</strong> der Lernvoraussetzungs-Merkmale, Schnellprofile, Personas &amp; Handlungsebenen, mit Tausch oder Hilfe je Merkmal und ohne gesperrte Merkmale (<code>GET /api/v1/differentiation/meta</code>)</li>
@@ -225,8 +225,9 @@ export function ApiMcpPage() {
                   Facettierte Suche. <code>fach=Physik</code> oder <code>fuerFachbereich=…</code>: Methoden des Fachbereichs und
                   fachübergreifende, ohne ungeeignete; <code>fachbereich=a,b</code>: streng nur diese Fachbereiche. Dazu{' '}
                   <code>eintragsart</code> (methode, hilfe), <code>raum</code> (Raumtyp deckt den Bedarf), <code>raumbedarf</code>,{' '}
-                  <code>ohneRaumbedarf</code>, <code>schriftbedarf</code>, <code>ohneSchrift</code> (lesen, schreiben) und{' '}
-                  <code>termine</code>
+                  <code>ohneRaumbedarf</code>, <code>schriftbedarf</code>, <code>ohneSchrift</code> (lesen, schreiben),{' '}
+                  <code>termine</code> sowie <code>zieltyp</code> (Kette: nur Methoden, die einen ihrer Schritte füllen können)
+                  und <code>kettenschritt</code> (Schritt-ID dieser Kette, nur zusammen mit <code>zieltyp</code>)
                 </td>
               </tr>
               <tr>
@@ -251,7 +252,12 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/validate</code></td>
-                <td>Prüfung eines Arrangements gegen R-00..R-12</td>
+                <td>
+                  Prüfung eines Arrangements gegen R-00..R-12. Mit <code>{'{ arrangement, situation }'}</code> (Felder der Anfrage
+                  wie bei <code>/match</code>, z. B. dessen <code>kriterien</code>) zusätzlich <code>regelmeldungen</code> in derselben
+                  Form wie bei <code>/match</code> und <code>/plan</code>: die Passungsregeln für die Methoden dieses Ablaufs, auch
+                  nach einer Änderung von Hand; das Ergebnis von R-00..R-12 bleibt gleich
+                </td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/replacements</code></td>

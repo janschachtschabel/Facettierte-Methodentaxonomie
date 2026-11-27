@@ -58,6 +58,25 @@ export function situationFehler(store: CatalogStore, s: MatchRequest | undefined
   return null;
 }
 
+/** Message for a situation of a check that is no object (REST /validate, MCP validate_arrangement). */
+export const PRUEF_SITUATION_FEHLER = 'Feld „situation“: erwartet wird ein Objekt mit Feldern der Anfrage (wie bei /match), z. B. vorwissen, bildungsstufe, komplexitaet, sprachniveau, fachbereich oder fach.';
+
+/**
+ * First fault of the situation of a check (REST /validate, MCP validate_arrangement), or null: an object with request
+ * fields of the core (lernort and fach as in /match), so the kriterien of a match answer can be passed on. Unknown
+ * fields are named as the matcher names them; codes and numbers are checked by situationFehler.
+ */
+export function pruefSituationFehler(store: CatalogStore, s: unknown): EingabeFehler | null {
+  if (s == null) return null;
+  if (typeof s !== 'object' || Array.isArray(s)) return { fehler: PRUEF_SITUATION_FEHLER };
+  const felder = store.matcher.felder().map((f) => f.feld);
+  const unbekannt = Object.keys(s).find((k) => !felder.includes(k) && k !== 'lernort' && k !== 'fach');
+  if (unbekannt) return { fehler: `Unbekanntes Feld „${unbekannt}“. Erlaubt: ${felder.join(', ')}.`, erlaubt: felder };
+  const { fach, ...rest } = s as Record<string, unknown>;
+  if (fach != null && typeof fach !== 'string') return { fehler: 'Feld „fach“: erwartet wird ein Text.' };
+  return situationFehler(store, rest as MatchRequest);
+}
+
 /** Note on replacement candidates, as REST /replacements and MCP suggest_replacements give it. */
 export function ersatzHinweis(situation: MatchRequest | undefined): string {
   return (

@@ -4,6 +4,7 @@ import {
   PFLICHTANGABEN_NAMEN,
   einordnungInKetten,
   istHilfe,
+  passungImArrangement,
   type Arrangement,
   type Baustein,
   type MatchRequest
@@ -144,6 +145,17 @@ export function ersatzAntwort(store: CatalogStore, arrangement: Arrangement, pfa
     ausgeschlossen: ausgeschlossen.slice(0, ERSATZ_AUSGESCHLOSSEN_MAX),
     ausgeschlossenGesamt: ausgeschlossen.length
   };
+}
+
+/**
+ * Check of an arrangement (REST /validate, MCP validate_arrangement): the composition rules R-00 to R-12 as before;
+ * with a situation (request fields, fach resolved as in /match) also the fit rules for the methods of the flow
+ * (core passungImArrangement), in the shape of the regelmeldungen of /match and /plan. Throws on a malformed arrangement.
+ */
+export function pruefungsAntwort(store: CatalogStore, arrangement: Arrangement, situation?: Record<string, unknown>) {
+  const res = store.validator.validate(arrangement, store.exampleRegistry);
+  if (!situation) return res;
+  return { ...res, regelmeldungen: passungImArrangement(arrangement, mitFachAufgeloest(store, situation as MatchRequest), store.bundle) };
 }
 
 /** Most methods left out that a replacement answer lists; ausgeschlossenGesamt counts all. */

@@ -27,9 +27,12 @@ export * from './raster.js';
 export {
   EIGNUNG_REGEL_NAMEN,
   GRUNDLAGE_KLARTEXT,
+  REGEL_LAGE_FELDER,
   WIRKUNG_KLARTEXT,
+  bausteineImArrangement,
   erstelleRegeln,
   grundlageKlartext,
+  passungImArrangement,
   passungNeuPruefen,
   regelLageAus,
   regelName,

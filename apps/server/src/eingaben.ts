@@ -114,6 +114,23 @@ export function zahlenFehler(werte: Record<string, unknown>, grenzen: Record<str
   return null;
 }
 
+/** Message for a chain step named without its chain (REST /methods, MCP search_methods). */
+export const KETTENSCHRITT_OHNE_ZIELTYP = 'Feld „kettenschritt“: nur zusammen mit zieltyp; eine Schritt-ID gilt innerhalb einer Kette.';
+
+/**
+ * A chain step outside its chain, or null: kettenschritt needs zieltyp and must be one of that chain's step ids (as
+ * einordnungInKetten names them). zieltyp itself is checked by codeFehler.
+ */
+export function kettenschrittFehler(store: CatalogStore, werte: Record<string, unknown>): EingabeFehler | null {
+  const schritt = werte.kettenschritt;
+  if (schritt == null || schritt === '') return null;
+  if (werte.zieltyp == null || werte.zieltyp === '') return { fehler: KETTENSCHRITT_OHNE_ZIELTYP };
+  const kette = store.bundle.ketten.find((k) => k.id === String(werte.zieltyp));
+  if (!kette) return null;
+  const ids = kette.schritte.map((st) => st.id);
+  return ids.includes(String(schritt)) ? null : { fehler: unbekannterWert('kettenschritt', String(schritt), ids), erlaubt: ids };
+}
+
 /** Message for a catalogue entry that is named but unknown (as get_method words it), or null. */
 export function bausteinFehler(store: CatalogStore, baustein: unknown): EingabeFehler | null {
   if (baustein == null || baustein === '') return null;

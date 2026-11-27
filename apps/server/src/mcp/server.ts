@@ -9,6 +9,7 @@ import {
   MCP_HINWEISE,
   MEASURE_LEVEL_ORDER,
   QUICK_LEARNER_GROUP_PROFILES,
+  REGEL_LAGE_FELDER,
   getDifferentiationMetaSummary,
   istHilfe,
   scoreDifferentiationMatrix,
@@ -22,17 +23,18 @@ import {
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
 import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
-import { SITUATION_FELDER, anpassungsAnfrage, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { SITUATION_FELDER, anpassungsAnfrage, pruefSituationFehler, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import {
   ersatzAntwort,
   evidenzBezugVon,
   klassifikationsAntwort,
   methodenDetail,
   methodenTreffer,
+  pruefungsAntwort,
   vokabularUebersicht,
   zuordnungsAntwort
 } from '../antworten.js';
-import { anpassungLeerFehler, ARRANGEMENT_FEHLER, bausteinFehler, MATERIAL_TYPEN, REGEL_GRUNDLAGEN, REGEL_WIRKUNGEN } from '../eingaben.js';
+import { anpassungLeerFehler, ARRANGEMENT_FEHLER, bausteinFehler, kettenschrittFehler, MATERIAL_TYPEN, REGEL_GRUNDLAGEN, REGEL_WIRKUNGEN } from '../eingaben.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import { elaborateScenarioCore, generateMaterialCore } from '../routes/assistant.js';
@@ -147,7 +149,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 1. search_methods
   server.tool(
     'search_methods',
-    `Facettierte Suche im Katalog (${store.bundle.bausteine.filter((b) => !istHilfe(b)).length} Methoden und ${store.bundle.bausteine.filter(istHilfe).length} Hilfen; eine Hilfe stützt Lernende innerhalb einer Methode und füllt keine Phase): Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad, Bedarf (Raum, Schrift, Termine) und Eintragsart. Treffer nennen Eintragsart, Gruppengröße, Technik, Bedarf (raumbedarf, schriftbedarf, termineMin), Eignung (fachbereichUngeeignet, ungeeignetBeiStufe, ungeeignetBeiVorwissen, eignungsgrund), Evidenzgrad und evidenzBezug sowie einordnung (Kette und Schritt, die die Methode füllen kann; Bezeichnungen in get_method). Zum Planen einer Stunde match_scenario oder build_scenario_plan nutzen. Erfrage beim Nutzer: nur, was die Suche eingrenzt (z. B. Bildungsstufe, Raum, Zeit, Gruppengröße, Technik).`,
+    `Facettierte Suche im Katalog (${store.bundle.bausteine.filter((b) => !istHilfe(b)).length} Methoden und ${store.bundle.bausteine.filter(istHilfe).length} Hilfen; eine Hilfe stützt Lernende innerhalb einer Methode und füllt keine Phase): Freitext, Synonyme, Phasennamen, 13 Facetten, didaktischer Ansatz, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad, Bedarf (Raum, Schrift, Termine), Eintragsart sowie Kette (zieltyp) und optional Kettenschritt (kettenschritt, nur mit zieltyp): dann nur Methoden, die einen Schritt der Kette füllen können. Treffer nennen Eintragsart, Gruppengröße, Technik, Bedarf (raumbedarf, schriftbedarf, termineMin), Eignung (fachbereichUngeeignet, ungeeignetBeiStufe, ungeeignetBeiVorwissen, eignungsgrund), Evidenzgrad und evidenzBezug sowie einordnung (Kette und Schritt, die die Methode füllen kann; Bezeichnungen in get_method). Zum Planen einer Stunde match_scenario oder build_scenario_plan nutzen. Erfrage beim Nutzer: nur, was die Suche eingrenzt (z. B. Bildungsstufe, Raum, Zeit, Gruppengröße, Technik).`,
     {
       text: z.string().max(MAX_TEXT_CHARS).optional().describe('Suchwort, Synonym (z. B. Jigsaw) oder Phasenname (Einstieg, Sicherung)'),
       lernfunktion: codes('lernfunktion').optional(),
@@ -200,9 +202,19 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .max(MAX_TEXT_CHARS)
         .optional()
         .describe('Fachname (Schul- oder Hochschulfach, z. B. "Physik"); wirkt wie fuerFachbereich mit dem Fachbereich des Fachs'),
+      zieltyp: code('zieltyp')
+        .optional()
+        .describe('Kette (Zieltyp): nur Methoden, die einen Schritt dieser Kette füllen können (Hilfen füllen keinen)'),
+      kettenschritt: z
+        .string()
+        .max(MAX_TEXT_CHARS)
+        .optional()
+        .describe('Schritt-ID der Kette (z. B. k2; Ketten und Schritte über list_vocabularies); nur zusammen mit zieltyp'),
       limit: z.number().int().min(1).max(100).optional().default(20)
     },
     async ({ limit, ...criteria }) => {
+      const badSchritt = kettenschrittFehler(store, criteria);
+      if (badSchritt) return errorResult(badSchritt.fehler);
       const t0 = process.hrtime.bigint();
       const fachErkannt = applySubjectFilter(store, criteria as SearchCriteria);
       const hits = store.search.suche(criteria as SearchCriteria);
@@ -380,13 +392,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 5. validate_arrangement
   server.tool(
     'validate_arrangement',
-    'Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]). Die Passungsregeln (Bedarf im Raum, Schrift, Zeit, Lehrende, Teilgruppen …, siehe fmt://rules) prüft dieses Werkzeug nicht, weil sie die Situation der Stunde brauchen; dafür match_scenario oder build_scenario_plan mit den Angaben aufrufen.',
+    `Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]). Mit \`situation\` (Felder der Anfrage wie bei match_scenario, z. B. die kriterien einer Antwort) nennt die Antwort zusätzlich \`regelmeldungen\` (Form wie bei match_scenario und build_scenario_plan): die Passungsregeln für die Methoden dieses Ablaufs, auch wenn er von Hand geändert wurde. Gelesen werden ${REGEL_LAGE_FELDER.join(', ')} (fach wie fachbereich); das Ergebnis von R-00 bis R-12 bleibt gleich. Bedarf im Raum, Schrift und Termine prüft suggest_replacements je Phase; einen neuen Ablauf wählt match_scenario.`,
     {
-      arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format')
+      arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format'),
+      // Unknown keys pass the schema and are answered by the shared check with the same text as REST.
+      situation: z
+        .object({ ...felderSchema(), ...lernortSchema(), fach: z.string().max(MAX_TEXT_CHARS).optional() })
+        .passthrough()
+        .optional()
+        .describe('Situation der Stunde (Felder der Anfrage); ohne sie bleibt die Antwort wie bisher')
     },
-    async ({ arrangement }) => {
+    async ({ arrangement, situation }) => {
+      const bad = pruefSituationFehler(store, situation);
+      if (bad) return errorResult(bad.fehler);
       try {
-        const res = store.validator.validate(arrangement as unknown as Arrangement, store.exampleRegistry);
+        const res = pruefungsAntwort(store, arrangement as unknown as Arrangement, situation as Record<string, unknown> | undefined);
         return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
       } catch (e) {
         return errorResult(e instanceof Error ? e.message : 'Ungültiges Arrangement.');
@@ -1083,7 +1103,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       {
         uri: uri.href,
         mimeType: 'application/json',
-        // Composition rules R-00..R-12 (validate_arrangement) and the fit rules of data/regeln.json (match/plan).
+        // Composition rules R-00..R-12 (validate_arrangement) and the fit rules of data/regeln.json (match/plan; validate_arrangement with situation).
         text: JSON.stringify({ regeln: FMT_RULES, passungsregeln: store.bundle.regeln, leitplanken: FMT_GUARDRAILS }, null, 2)
       }
     ]
@@ -1183,7 +1203,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             text:
               `Analysiere folgenden Unterrichtsentwurf mit den FMT-Tools:\n\n${entwurf}\n\n` +
               `1. Ordne die Phasen mit \`search_methods\` Methoden des Katalogs zu. Fehlen Raum, Zeit, Gruppengröße oder Bildungsstufe, stelle eine kurze Frage danach.\n` +
-              `2. Liegt ein Arrangement vor, prüfe es mit \`validate_arrangement\` (Kompositionsregeln R-00 bis R-12).\n` +
+              `2. Liegt ein Arrangement vor, prüfe es mit \`validate_arrangement\` (Kompositionsregeln R-00 bis R-12); mit den Angaben der Stunde als \`situation\` nennt es auch die regelmeldungen der Passungsregeln für die Methoden genau dieses Ablaufs.\n` +
               `3. Die Passungsregeln (Bedarf im Raum, Schrift, Zeit, Lehrende, Teilgruppen; fmt://rules) prüft \`match_scenario\` bzw. \`build_scenario_plan\` mit den Angaben der Stunde: nenne ihre regelmeldungen und pflichtangaben.angenommen als Annahmen.\n` +
               `4. Ersatz nur über \`suggest_replacements\` mit der Situation (raum, ohneSchrift, termine …).\n` +
               `Weise bei jeder Meldung ihre Grundlage aus (formal, [E], [S], [A]) und mache klar, dass ein gültiges Arrangement kein Qualitätsurteil über die Durchführung ist. Beschreibe Gruppen, keine einzelnen Lernenden.`

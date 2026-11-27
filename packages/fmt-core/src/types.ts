@@ -589,6 +589,10 @@ export interface SearchCriteria {
   ohneSchrift?: boolean | string | string[];
   /** Number of dates available: methods that need more (termineMin) are left out. */
   termine?: number | string;
+  /** Chain (Funktionskette id): only methods that can fill a step of it (einordnungInKetten); helps fill none. */
+  zieltyp?: string;
+  /** Step id inside the chain zieltyp; read only together with zieltyp. */
+  kettenschritt?: string;
   [facet: string]: unknown;
 }
 

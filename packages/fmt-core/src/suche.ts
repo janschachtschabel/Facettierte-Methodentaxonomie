@@ -13,6 +13,7 @@ import { raumFehlt, schriftFehlt } from './bedarf.js';
 import { ausschlussInSituation, kettenSchritt } from './alternativen.js';
 import { baueSituation } from './situation.js';
 import { erstelleRegeln } from './regeln.js';
+import { einordnungInKetten, type KettenEinordnung } from './zielart.js';
 import type { FmtValidator } from './validate.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -93,6 +94,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   const stateScheme = data.schemes.find((s) => s.id === 'lernzustand')!;
   const implies = new Map((stateScheme.werte || []).map((w) => [w.id, w.impliziert || []]));
   const regeln = erstelleRegeln(data.regeln || []);
+  /** Chain steps each method can fill (helps fill none), for the filters zieltyp and kettenschritt. */
+  const einordnung = new Map<string, KettenEinordnung[]>(data.bausteine.map((b) => [b.kennung, einordnungInKetten(b, data.ketten || [])]));
   const closure = (states: string[]): Set<string> => {
     const set = new Set<string>();
     const stack = [...states];
@@ -140,6 +143,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     const ohneSchriftRoh = k.ohneSchrift === false ? [] : k.ohneSchrift === true ? ['true'] : list(k.ohneSchrift);
     const ohneSchrift = ohneSchriftRoh.some((x) => x === 'true' || x === '1') ? ['lesen', 'schreiben'] : ohneSchriftRoh;
     const termine = given(k.termine) && Number.isFinite(Number(k.termine)) ? Number(k.termine) : undefined;
+    const zieltyp = given(k.zieltyp) ? String(k.zieltyp) : '';
+    const kettenschritt = zieltyp && given(k.kettenschritt) ? String(k.kettenschritt) : '';
     const hits = data.bausteine.filter((b) => {
       if (words.length) {
         const hay = haystackById.get(b.kennung) || '';
@@ -161,6 +166,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
       if (given(k.eintragsart) && (b.eintragsart || 'methode') !== k.eintragsart) return false;
+      // Chain (zieltyp) and optionally its step: the method can fill a step of the chain (einordnungInKetten).
+      if (zieltyp && !(einordnung.get(b.kennung) || []).some((e) => e.kette === zieltyp && (!kettenschritt || e.schritt === kettenschritt))) return false;
       const wantedArea = list(k.fachbereich);
       if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
       // Fits a subject area: at home there or without subject binding, and not marked as unsuitable for it.

@@ -19,9 +19,9 @@ import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValu
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
-import { anpassungsAnfrage, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
-import { ersatzAntwort, klassifikationsAntwort, methodenDetail, methodenTreffer, vokabularUebersicht, zuordnungsAntwort } from '../antworten.js';
-import { anpassungLeerFehler, bausteinFehler, codeFehler, zahlenFehler, type EingabeFehler } from '../eingaben.js';
+import { anpassungsAnfrage, pruefSituationFehler, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { ersatzAntwort, klassifikationsAntwort, methodenDetail, methodenTreffer, pruefungsAntwort, vokabularUebersicht, zuordnungsAntwort } from '../antworten.js';
+import { anpassungLeerFehler, bausteinFehler, codeFehler, kettenschrittFehler, zahlenFehler, type EingabeFehler } from '../eingaben.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
@@ -63,8 +63,8 @@ const SUCHE_LISTEN = new Set([
   'ohneRaumbedarf',
   'ohneSchrift'
 ]);
-/** Single codes of the search; lernort is the former name of raum. */
-const SUCHE_EINZELCODES = ['vorwissen', 'bildungsstufe', 'maxTechnik', 'raum', 'lernort', 'eintragsart', 'minEvidenz', 'fuerFachbereich'];
+/** Single codes of the search; lernort is the former name of raum, zieltyp names a chain (kettenschritt one of its steps). */
+const SUCHE_EINZELCODES = ['vorwissen', 'bildungsstufe', 'maxTechnik', 'raum', 'lernort', 'eintragsart', 'minEvidenz', 'fuerFachbereich', 'zieltyp'];
 /** Every parameter whose values are codes (checked against the core lists). */
 const SUCHE_CODES = [...SUCHE_LISTEN, ...SUCHE_EINZELCODES];
 const SUCHE_SCHALTER = new Set(['ohneInternet', 'ohneKI']);
@@ -78,7 +78,7 @@ const SUCHE_ZAHLEN: Record<string, ZahlGrenze> = {
   offset: { min: 0 }
 };
 /** All parameters GET /api/v1/methods reads; any other one is answered with 400. */
-const SUCHE_PARAMETER = new Set(['text', 'fach', 'kategorie', ...SUCHE_CODES, ...SUCHE_SCHALTER, ...Object.keys(SUCHE_ZAHLEN)]);
+const SUCHE_PARAMETER = new Set(['text', 'fach', 'kategorie', 'kettenschritt', ...SUCHE_CODES, ...SUCHE_SCHALTER, ...Object.keys(SUCHE_ZAHLEN)]);
 
 /** Bounds of the proposal limit of /match (as match_scenario's schema). */
 const MATCH_LIMIT: ZahlGrenze = { min: 1, max: 100 };
@@ -218,7 +218,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (Array.isArray(os) && os.length === 1 && ['true', '1', 'false', '0'].includes(os[0])) criteria.ohneSchrift = os[0] === 'true' || os[0] === '1';
     const bad =
       zahlenFehler(criteria, SUCHE_ZAHLEN) ||
-      codeFehler(store, typeof criteria.ohneSchrift === 'boolean' ? { ...criteria, ohneSchrift: undefined } : criteria, SUCHE_CODES, { eigene: suchCodes });
+      codeFehler(store, typeof criteria.ohneSchrift === 'boolean' ? { ...criteria, ohneSchrift: undefined } : criteria, SUCHE_CODES, { eigene: suchCodes }) ||
+      kettenschrittFehler(store, criteria);
     if (bad) return reply.code(400).send(bad);
     // Former name of raum, as the matcher reads it.
     if (criteria.lernort != null) {
@@ -283,13 +284,26 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     return handleMatch(body as MatchRequest, reply);
   });
 
+  // Body: the arrangement itself (as before) or { arrangement, situation }; with situation the fit rules are checked too.
   app.post('/api/v1/validate', async (req, reply) => {
-    const body = req.body as Arrangement | null;
-    if (!body || typeof body !== 'object' || Array.isArray(body) || body.typ !== 'Arrangement') {
-      return reply.code(400).send({ fehler: 'Erwartet wird ein FMT-Arrangement-Objekt mit typ: "Arrangement".' });
+    const body = req.body as Record<string, unknown> | null;
+    const istArrangement = (x: unknown): x is Arrangement =>
+      Boolean(x) && typeof x === 'object' && !Array.isArray(x) && (x as { typ?: unknown }).typ === 'Arrangement';
+    let arrangement: Arrangement | undefined;
+    if (istArrangement(body)) {
+      const { situation: _situation, ...rest } = body as Arrangement & { situation?: unknown };
+      arrangement = rest as Arrangement;
+    } else if (body && typeof body === 'object' && istArrangement(body.arrangement)) {
+      arrangement = body.arrangement;
     }
+    if (!arrangement) {
+      return reply.code(400).send({ fehler: 'Erwartet wird ein FMT-Arrangement-Objekt mit typ: "Arrangement" (oder ein Objekt mit arrangement und situation).' });
+    }
+    const situation = body!.situation;
+    const bad = pruefSituationFehler(store, situation);
+    if (bad) return reply.code(400).send(bad);
     try {
-      return store.validator.validate(body, store.exampleRegistry);
+      return pruefungsAntwort(store, arrangement, situation as Record<string, unknown> | undefined);
     } catch (e) {
       return reply.code(400).send({ fehler: e instanceof Error ? e.message : 'Ungültiges Arrangement.' });
     }

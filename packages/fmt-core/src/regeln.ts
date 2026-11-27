@@ -1,4 +1,5 @@
-import type { Baustein, Grundlage, Passungsregel, Regelmeldung, RegelSituation, Wirkung } from './types.js';
+import type { Arrangement, ArrangementNode, Baustein, FmtData, Grundlage, Passungsregel, Regelmeldung, RegelSituation, Wirkung } from './types.js';
+import { KennungIndex } from './kennung.js';
 import type { EntwurfRegelmeldung } from './entwurf.js';
 
 /** Suitability entries of a method come from the rule machine, not from data/regeln.json; they carry their own name. */
@@ -179,7 +180,8 @@ export function erstelleRegeln(regeln: Passungsregel[], label?: (schema: string,
   };
 }
 
-const REGEL_LAGE_FELDER = ['vorwissen', 'bildungsstufe', 'komplexitaet', 'sprachniveau', 'fachbereich'] as const;
+/** Request fields the fit rules read (prior knowledge, stage, complexity, language level, subject area). */
+export const REGEL_LAGE_FELDER = ['vorwissen', 'bildungsstufe', 'komplexitaet', 'sprachniveau', 'fachbereich'] as const;
 
 /**
  * Situation the fit rules read, from a request or the criteria of a match answer: prior knowledge, stage, complexity,
@@ -232,4 +234,50 @@ export function passungNeuPruefen(
   }
   if (!eingefuegt) aus.push(...neu);
   return aus;
+}
+
+/**
+ * Method ids an arrangement uses, in the order of the flow and each once: Einsatz and Wiederkehr nodes, slot fillings
+ * (after their method), every option of an Alternative and the accompanying strands of a Parallel. A Verweis to
+ * another arrangement is not followed.
+ */
+export function bausteineImArrangement(arr: Pick<Arrangement, 'ablauf'>): string[] {
+  const aus: string[] = [];
+  const liste = (x: unknown): ArrangementNode[] => (Array.isArray(x) ? (x as ArrangementNode[]) : []);
+  const besuche = (n: ArrangementNode | undefined, tiefe: number) => {
+    if (!n || typeof n !== 'object' || tiefe > 32) return;
+    if ((n.typ === 'Einsatz' || n.typ === 'Wiederkehr') && typeof n.baustein === 'string') {
+      if (!aus.includes(n.baustein)) aus.push(n.baustein);
+      if (n.typ === 'Einsatz') for (const bel of liste(n.belegung)) besuche((bel as { inhalt?: ArrangementNode })?.inhalt, tiefe + 1);
+      return;
+    }
+    if (n.typ === 'Sequenz') liste(n.teile).forEach((x) => besuche(x, tiefe + 1));
+    else if (n.typ === 'Parallel') [n.haupt, ...liste(n.begleitend)].forEach((x) => besuche(x, tiefe + 1));
+    else if (n.typ === 'Alternative') liste(n.optionen).forEach((x) => besuche(x, tiefe + 1));
+  };
+  besuche(arr?.ablauf, 0);
+  return aus;
+}
+
+/**
+ * Fit rules for a given flow in a situation (REST /validate, MCP validate_arrangement with situation): the warnings
+ * passungNeuPruefen computes for the methods of the arrangement (bausteineImArrangement; former ids are followed,
+ * unknown ids skipped) in the situation regelLageAus reads from the request. Same shape and wording as the
+ * regelmeldungen of a match answer.
+ */
+export function passungImArrangement(
+  arr: Pick<Arrangement, 'ablauf'>,
+  situation: Record<string, unknown> | null | undefined,
+  data: Pick<FmtData, 'bausteine' | 'regeln' | 'schemes' | 'weiterleitungen'>
+): Regelmeldung[] {
+  const index = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
+  const methoden = bausteineImArrangement(arr)
+    .map((k) => index.get(k))
+    .filter((b): b is Baustein => Boolean(b));
+  const label = (schema: string, code: string) => {
+    const s = data.schemes.find((x) => x.id === schema);
+    const w = (s?.werte || (s?.gruppen || []).flatMap((g) => g.werte)).find((x) => x.id === code);
+    return w ? w.label : code;
+  };
+  return passungNeuPruefen([], methoden, regelLageAus(situation), data.regeln || [], label);
 }
