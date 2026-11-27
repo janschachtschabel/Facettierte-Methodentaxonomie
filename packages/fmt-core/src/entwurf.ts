@@ -81,6 +81,8 @@ export interface EntwurfEingabe {
   ausgangslage?: string;
   hauptziel?: string;
   begleitziele?: string[];
+  /** Accompanying strand the plan proposes per accompanying goal (labels), not part of the lesson plan (D3). */
+  begleitstrang?: Array<{ begleitziel: string; methode: string; dauerMin: number }>;
   /** Larger unit the lesson belongs to (free text). */
   einheit?: string;
   phasen: EntwurfPhase[];
@@ -163,7 +165,11 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
   };
 
   const ziele = () => {
-    const begleit = [...(e.begleitziele || []), ...begleitstrang.map((p) => `Begleitstrang: ${p.methode}`)];
+    const begleit = [
+      ...(e.begleitziele || []),
+      ...begleitstrang.map((p) => `Begleitstrang: ${p.methode}`),
+      ...(e.begleitstrang || []).map((s) => `Begleitstrang (Vorschlag): ${s.methode}, ${s.dauerMin} min am Ende (${s.begleitziel})`)
+    ];
     return [`- **Hauptziel:** ${nichtAngegeben(e.hauptziel)}`, `- **Begleitziele:** ${begleit.length ? begleit.join('; ') : 'keine'}`].join('\n');
   };
 

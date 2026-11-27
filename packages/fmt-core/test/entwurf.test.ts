@@ -105,6 +105,16 @@ describe('Entwurf mit sieben Kernfeldern', () => {
     expect(f.ziele).toMatch(/Mittelwerte berechnen/);
     expect(f.ziele).toMatch(/Selbstregulation/);
   });
+  it('Ziele nennen den vorgeschlagenen Begleitstrang des Plans (D3); ohne Begleitziel „keine“', () => {
+    const e = baueEntwurf(
+      D.planungsprofile,
+      eingabe({ begleitziele: ['Soziales Lernen'], begleitstrang: [{ begleitziel: 'Soziales Lernen', methode: 'Blitzlicht-Runde', dauerMin: 3 }] })
+    );
+    const ziele = e.kernfelder.find((k) => k.id === 'ziele')!.inhalt;
+    expect(ziele).toContain('- **Begleitziele:** Soziales Lernen');
+    expect(ziele).toContain('Begleitstrang (Vorschlag): Blitzlicht-Runde, 3 min am Ende (Soziales Lernen)');
+    expect(baueEntwurf(D.planungsprofile, eingabe()).kernfelder.find((k) => k.id === 'ziele')!.inhalt).toContain('- **Begleitziele:** keine');
+  });
   it('Einordnung aus der Einheit, sonst ein Platz zum Ausfüllen mit dem Begriff des Profils', () => {
     const mit = baueEntwurf(D.planungsprofile, eingabe({ einheit: 'Unterrichtsreihe Daten' }));
     expect(mit.kernfelder[3].inhalt).toContain('Unterrichtsreihe Daten');
