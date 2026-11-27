@@ -8,6 +8,7 @@ import type {
 } from './types.js';
 import { raumFehlt } from './bedarf.js';
 import { baueSituation } from './situation.js';
+import { erstelleRegeln } from './regeln.js';
 import type { FmtValidator } from './validate.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -68,6 +69,13 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   const functionWords = new Map((fnScheme.werte || []).map((w) => [w.id, [w.label, ...(w.alt || [])].join(' ')]));
   const stateScheme = data.schemes.find((s) => s.id === 'lernzustand')!;
   const implies = new Map((stateScheme.werte || []).map((w) => [w.id, w.impliziert || []]));
+  // Tor D2 moved most stage and prior-knowledge entries into rules: the search excludes what such a rule warns about.
+  const regeln = erstelleRegeln(data.regeln || []);
+  const stufeOderVorwissen = (id: string) => {
+    if (id === 'eignung-stufe' || id === 'eignung-vorwissen' || id === 'evidenz-geltung') return true;
+    const lage = regeln.regel(id)?.wenn?.situation || {};
+    return 'bildungsstufe' in lage || 'vorwissen' in lage;
+  };
 
   const closure = (states: string[]): Set<string> => {
     const set = new Set<string>();
@@ -156,6 +164,10 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (given(k.kategorie) && !(b.kategorie || []).includes(String(k.kategorie))) return false;
       if (k.vorwissen && (b.ungeeignetBeiVorwissen || []).includes(k.vorwissen)) return false;
       if (k.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(k.bildungsstufe)) return false;
+      if (k.vorwissen || k.bildungsstufe) {
+        const lage = { vorwissen: k.vorwissen || undefined, bildungsstufe: k.bildungsstufe || undefined };
+        if (regeln.warnungen(b, lage).some((m) => m.wirkung === 'warnt' && stufeOderVorwissen(m.regel))) return false;
+      }
       if (minIdx >= 0) {
         const g = bestGrade(b);
         if (!g || GRADE_ORDER.indexOf(g) > minIdx) return false;

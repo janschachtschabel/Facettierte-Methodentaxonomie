@@ -197,6 +197,23 @@ describe('FMT 2.0: Daten nach Durchsicht 2 (Tor D2)', () => {
     expect(ids('mittel')).toEqual(expect.arrayContaining(['loesungsbeispiele', 'fehleranalyse', 'forschendes-lernen']));
   });
 
+  it('die Suche schließt aus, wovor eine Stufen- oder Vorwissensregel warnt, nicht nur die Listeneinträge', async () => {
+    const { createSearch } = await import('../src/index.js');
+    const S = createSearch(D);
+    const R = erstelleRegeln(D.regeln);
+    const STUFE_VORWISSEN = new Set(['eignung-stufe', 'eignung-vorwissen', 'evidenz-geltung', 'problemloesen-vor-instruktion-primar',
+      'wenig-anleitung-geringes-vorwissen', 'viel-anleitung-hohes-vorwissen']);
+    for (const lage of [{ bildungsstufe: 'primar' }, { vorwissen: 'gering' }, { vorwissen: 'hoch' }]) {
+      const treffer = new Set(S.suche(lage).map((b) => b.kennung));
+      const gewarnt = D.bausteine.filter((b) => R.warnungen(b, lage).some((m) => m.wirkung === 'warnt' && STUFE_VORWISSEN.has(m.regel)));
+      const nurListe = D.bausteine.filter((b) => (b.ungeeignetBeiStufe || []).includes(String(lage.bildungsstufe)) || (b.ungeeignetBeiVorwissen || []).includes(String(lage.vorwissen)));
+      // Direction: the rules exclude more than the lists that remain after Tor D2.
+      expect(gewarnt.length, JSON.stringify(lage)).toBeGreaterThan(nurListe.length);
+      for (const b of gewarnt) expect(treffer.has(b.kennung), `${JSON.stringify(lage)}: ${b.kennung}`).toBe(false);
+      expect(treffer.size + gewarnt.length, JSON.stringify(lage)).toBe(D.bausteine.length);
+    }
+  });
+
   it('Teilgruppen: kultureller-hintergrund-neu fällt unter sonst, sehen-hoeren hat die Grundlage Recht', () => {
     const m = (id: string) => D.teilgruppen!.merkmale.find((x) => x.id === id)!;
     expect(m('sprachstand').auspraegungen).not.toContain('kultureller-hintergrund-neu');
