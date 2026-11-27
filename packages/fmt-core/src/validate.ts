@@ -413,7 +413,7 @@ export function createValidator(data: FmtData): FmtValidator {
       else {
         kette.schritte
           .filter((s) => !st.zustand.has(s.ziel))
-          .forEach((s) => add('R-04', 'Fehler', '/ablauf', `Funktion „${s.label}“ ist nicht abgedeckt (Zielzustand ${s.ziel}).`));
+          .forEach((s) => add('R-04', 'Fehler', '/ablauf', `Funktion „${s.label}“ ist nicht abgedeckt (Zielzustand ${labelOf('lernzustand', s.ziel)}).`));
         if (
           kette.schritte.some((s) => s.ziel === 'wissen-konsolidiert') &&
           !st.wiederkehr.some((w) => w.anzahl >= MIN_SPACED_REPETITIONS)

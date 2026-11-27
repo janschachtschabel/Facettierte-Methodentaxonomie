@@ -155,6 +155,10 @@ export function buildTranslateBriefing(store: CatalogStore, text: string, festge
   };
 }
 
+/** Time of a table row as text: minutes in the lesson, or the minutes of a repetition in later sessions. */
+const zeitDerZeile = (r: Pick<ThematicTableRow, 'durationMin' | 'dauerAusserhalbMin'>) =>
+  r.dauerAusserhalbMin != null ? `in Folgestunden, ${r.dauerAusserhalbMin} min` : `${r.durationMin} min`;
+
 /**
  * Draft with the seven core fields for an elaboration: profile, terms and modules, from the given table rows
  * (deterministic or merged with LLM rows), as object and as Markdown.
@@ -224,7 +228,7 @@ export function buildEntwurfFuerAusarbeitung(
         '### Durchführung Phase für Phase',
         ...rows.map(
           (r) =>
-            `#### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **${spalten.lehrende}:** ${r.teacherAction}\n- **${spalten.lernende}:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
+            `#### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${zeitDerZeile(r)})\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **${spalten.lehrende}:** ${r.teacherAction}\n- **${spalten.lernende}:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
         )
       ].join('\n')
     })
@@ -283,7 +287,7 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
       : '');
 
   const arcOverview = fallbackTable
-    .map((r) => `${r.orderLabel}. ${r.phaseLabel} [${r.methodName}, ${r.durationMin} min]`)
+    .map((r) => `${r.orderLabel}. ${r.phaseLabel} [${r.methodName}, ${zeitDerZeile(r)}]`)
     .join(' → ');
 
   const CHUNK_SIZE = 3;
@@ -931,6 +935,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     return {
       phase: row.phaseLabel,
       dauerMinGeplant: row.durationMin,
+      ...(row.dauerAusserhalbMin != null ? { dauerAusserhalbMin: row.dauerAusserhalbMin } : {}),
       kennung: row.methodId,
       name: row.methodName,
       status: b?.status || 'entwurf',
@@ -949,12 +954,17 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     };
   });
 
+  // Repetitions in later sessions: listed in the table with 0 minutes, outside the time of this lesson.
+  const folgestunden = briefing.fallbackTable.filter((r) => r.dauerAusserhalbMin != null);
   const verbindlicheUmsetzungsregeln = [
     'METHODENTREUE: Setze alle ausgewählten FMT-Methoden aus `methodenDetails` mit Kennung, Status (`kuratiert`/`entwurf`) sowie ihren originalen Durchführungsschritten und Kernkomponenten konkret auf das Thema um. Ersetze sie nicht stillschweigend durch freie Eigenphasen; begründe und markiere eventuelle Abweichungen explizit.',
-    `ZEITKONSISTENZ: Übernimm exakt die geplanten Phasendauern aus \`thematischeTabelle\` (Summe = ${matched.pruefung?.dauerMin ?? briefing.pruefung.dauerMin} min, identisch mit \`pruefung.dauerMin\` und \`maschinenlesbar.arrangement\`).`,
+    `ZEITKONSISTENZ: Übernimm exakt die geplanten Phasendauern aus \`thematischeTabelle\` (Summe der ${briefing.entwurf.planungsprofil.einheit} = ${matched.pruefung?.dauerMin ?? briefing.pruefung.dauerMin} min, identisch mit \`pruefung.dauerMin\` und \`maschinenlesbar.arrangement\`).` +
+      (folgestunden.length
+        ? ` Die Zeile „Wiederkehr in Folgestunden“ (${folgestunden.map((r) => `${r.methodName}, zusammen ${r.dauerAusserhalbMin} min`).join('; ')}) gehört nicht dazu: Sie steht mit 0 min in der Tabelle und findet in späteren Stunden statt.`
+        : ''),
     'TRANSPARENZ (MATRIX, RISIKEN & EVIDENZ): Weise Binnendifferenzierungs-Empfehlungen aus `lerngruppenUndMatrix` mit dem Hinweis aus, dass es sich um Punkte der FMT-Differenzierungsmatrix handelt (keine empirischen Effektstärken), und nenne Qualitätsrisiken sowie Evidenz immer zusammen mit ihrem Geltungsbereich.',
     'TEILGRUPPEN & ZUSATZPHASEN: Die Regelgruppe folgt dem Ablauf. `teilgruppenMethoden` nennt je Phase (`stepKey` = Zeile in `thematischeTabelle`) parallele Methoden für einzelne Teilgruppen mit Grund; `zusatzphasen` sind kurze Phasen für die ganze Klasse (Anfang oder Ende). Beides sind Vorschläge: übernimm sie nur nach Rückfrage und nenne sie als solche.',
-    'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.5`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
+    'BAUKASTEN-IMPORT: Biete bei Bedarf den Block `maschinenlesbar` (`FmtScenarioPlan v1.6`) an, damit die Lehrkraft den Entwurf direkt über „📋 JSON einfügen“ im FMT-Szenario-Baukasten öffnen, grafisch prüfen und exportieren kann.'
   ];
 
   const plan = {
@@ -1005,7 +1015,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     llmBriefing: briefing.llmBriefing,
     maschinenlesbar: {
       '@type': 'FmtScenarioPlan',
-      schemaVersion: '1.5',
+      schemaVersion: '1.6',
       license: store.bundle.license,
       title: fach ? `${fach}: ${thema}` : thema,
       fach: fach || null,
@@ -1014,6 +1024,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       didaktischerAnsatz: args.didaktischerAnsatz || null,
       scenarioText: args.text,
       arrangement: matched.arrangement,
+      // Since 1.6: a repetition in later sessions carries wiederkehr and dauerAusserhalbMin and counts 0 minutes.
       thematicRows: briefing.fallbackTable,
       // Since 1.5: what the Baukasten needs to keep the plan's frame on import (codes; the assumed room stays an assumption).
       begleitziel: (matched.kriterien.begleitziel as string[] | undefined) || [],

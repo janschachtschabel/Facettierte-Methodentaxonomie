@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type Entwurf, type MatchRequest, type Regelmeldung, type ValidationResult } from '@fmt/core';
+import { FMT_GUARDRAILS, extractSubjectAndTopic, wiederkehrZeile, type Arrangement, type Entwurf, type MatchRequest, type Regelmeldung, type ValidationResult, type WiederkehrNode } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { LruTtlCache } from '../llm/cache.js';
@@ -39,6 +39,10 @@ export interface ThematicTableRow {
   learnerAction: string;
   groupAdaptations: Record<string, string>;
   materialsAndOer: string;
+  /** Distributed repetition (Wiederkehr node). */
+  wiederkehr?: boolean;
+  /** Minutes of the repetitions in later sessions: the row then counts 0 minutes in this plan (core wiederkehrZeile). */
+  dauerAusserhalbMin?: number;
 }
 
 export interface ElaboratePayload {
@@ -88,6 +92,8 @@ export interface ElaboratePayload {
     kettenschritt?: string;
     /** Distributed repetition (Wiederkehr node): never the check step or the closing step of the draft. */
     wiederkehr?: boolean;
+    /** Minutes of the repetitions in later sessions (durationMin is then 0). */
+    dauerAusserhalbMin?: number;
   }>;
   /** Bildungsstufe as code or label; read from the arrangement when absent. */
   bildungsstufe?: string;
@@ -210,19 +216,17 @@ export function extractScheduledPhases(
     if (typ === 'Wiederkehr' && typeof n.baustein === 'string') {
       const b = store.blocksById.get(n.baustein);
       const idx = rows.length;
-      const single =
-        typeof n.dauerMin === 'number' && Number.isFinite(n.dauerMin)
-          ? n.dauerMin
-          : (b?.dauerMin ?? 10);
-      const count = typeof n.anzahl === 'number' && n.anzahl > 0 ? n.anzahl : 1;
+      // Label and minutes from the core: repetitions in later sessions count 0 minutes in this plan.
+      const zeile = wiederkehrZeile(n as unknown as WiederkehrNode, b);
       rows.push({
         key: `step-${idx}`,
         orderLabel: String(idx + 1),
-        phaseLabel: `Wiederkehr (${count}× à ${single} min)`,
-        durationMin: single * count,
+        phaseLabel: zeile.phaseLabel,
+        durationMin: zeile.durationMin,
         methodId: n.baustein,
         methodName: b?.name || n.baustein,
-        wiederkehr: true
+        wiederkehr: true,
+        ...(zeile.dauerAusserhalbMin != null ? { dauerAusserhalbMin: zeile.dauerAusserhalbMin } : {})
       });
       return;
     }
@@ -312,7 +316,9 @@ export function buildDeterministicThematicTable(
       teacherAction: `Leitet „${p.methodName}“ zu ${topicTag} an: ${firstStep}`,
       learnerAction: `Erarbeiten ${topicTag} mittels ${p.methodName}: ${learnerSteps || b?.kurzbeschreibung || 'Aufgabenbearbeitung und Sicherung.'}`,
       groupAdaptations,
-      materialsAndOer: matParts.join(' | ') || 'Standardmaterial'
+      materialsAndOer: matParts.join(' | ') || 'Standardmaterial',
+      ...(p.wiederkehr ? { wiederkehr: true } : {}),
+      ...(p.dauerAusserhalbMin != null ? { dauerAusserhalbMin: p.dauerAusserhalbMin } : {})
     };
   });
 }

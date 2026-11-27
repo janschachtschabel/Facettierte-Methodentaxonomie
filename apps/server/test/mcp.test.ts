@@ -263,7 +263,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const planVoll = JSON.parse((planVollRes.content as Array<{ text: string }>)[0].text);
     expect(planVoll.llmBriefing.systemPrompt).toContain('FMT');
     expect(planVoll.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
-    expect(planVoll.maschinenlesbar.schemaVersion).toBe('1.5');
+    expect(planVoll.maschinenlesbar.schemaVersion).toBe('1.6');
     expect(planVoll.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
 
     // Regression test from live ChatGPT MCP session: Grundschule Mathematik Bruchteile 45 min analog
@@ -564,7 +564,9 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
       const teile = p.maschinenlesbar.arrangement.ablauf.teile as Array<{ typ: string; baustein: string }>;
       const name = (id: string) => (p.methodenDetails as Array<{ kennung: string; name: string }>).find((m) => m.kennung === id)?.name || id;
       expect(f.lernerfolg).not.toContain(name(teile[0].baustein));
-      expect(f.lernerfolg).not.toMatch(/Wiederkehr/);
+      // The repetition is never the securing step; it stands in its own line as taking place in later sessions (Q1).
+      expect(f.lernerfolg).not.toMatch(/\*\*(?:Sicherung|Prüfschritt):\*\*[^\n]*Wiederkehr/);
+      expect(f.lernerfolg).toMatch(/^- \*\*Wiederkehr in Folgestunden:\*\* .+ \(3× à \d+ min, außerhalb der 45 min\)$/m);
       expect(f.reflexion).not.toMatch(/Wiederkehr/);
       expect(f.reflexion).toContain(name(teile.filter((t) => t.typ !== 'Wiederkehr').at(-1)!.baustein));
     }

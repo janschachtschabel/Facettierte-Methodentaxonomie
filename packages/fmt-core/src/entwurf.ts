@@ -57,6 +57,8 @@ export interface EntwurfPhase {
   pruefschritt?: boolean;
   /** Distributed repetition (Wiederkehr): listed in the plan, never the check step or the closing step. */
   wiederkehr?: boolean;
+  /** Minutes of a repetition in later sessions: zeitMin is then 0 and the plan names the phase as outside the lesson. */
+  zeitAusserhalbMin?: number;
   /** Phase of the accompanying strand (Begleitstrang): listed in the plan, read as an accompanying goal. */
   begleitend?: boolean;
   /** Adaptations per subgroup already decided in the plan (help, own method). */
@@ -208,7 +210,7 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
     const kopf = `| ${spalten.zeit} | ${spalten.phase} | ${spalten.lehrende} | ${spalten.lernende} | ${spalten.methode} | ${spalten.medien} |`;
     const zeilen = e.phasen.map(
       (p) =>
-        `| ${p.zeitMin} min | ${zelle(p.begleitend ? `${p.phase} (Begleitstrang)` : p.phase)} | ${zelle(p.lehrende)} | ${zelle(p.lernende)} | ${zelle(
+        `| ${p.zeitAusserhalbMin != null ? `in Folgestunden (${p.zeitAusserhalbMin} min)` : `${p.zeitMin} min`} | ${zelle(p.begleitend ? `${p.phase} (Begleitstrang)` : p.phase)} | ${zelle(p.lehrende)} | ${zelle(p.lernende)} | ${zelle(
           p.sozialform ? `${p.methode} · ${p.sozialform}` : p.methode
         )} | ${zelle(p.medien)} |`
     );
@@ -231,6 +233,11 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
     const lines = schritte.length
       ? schritte.map((p) => `- **${pruef.length ? 'Prüfschritt' : 'Sicherung'}:** ${phaseKurz(p)}`)
       : ['- Kein eigener Prüfschritt im Ablauf.'];
+    // A repetition in later sessions secures the lesson's learning outside its time (label from wiederkehrZeile).
+    for (const p of plan.filter((x) => x.wiederkehr && x.zeitAusserhalbMin != null)) {
+      const takt = /\((\d+× à \d+ min)\)/.exec(p.phase)?.[1];
+      lines.push(`- **Wiederkehr in Folgestunden:** ${p.methode} (${takt ? `${takt}, ` : ''}außerhalb der ${e.dauerMin} min)`);
+    }
     if (e.nachweis?.trim()) lines.push(`- **Nachweis:** ${e.nachweis.trim()}`);
     if (e.bewertet === true) lines.push('- **Bewertung:** Das Ergebnis wird bewertet.');
     if (e.bewertet === false) lines.push('- **Bewertung:** nicht bewertet.');

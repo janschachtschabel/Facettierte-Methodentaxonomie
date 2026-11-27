@@ -41,6 +41,8 @@ export {
   regelmeldungenFuerEntwurf
 } from './regeln.js';
 export * from './teilgruppen.js';
+export { wiederkehrZeile } from './wiederkehr.js';
+export type { WiederkehrZeile } from './wiederkehr.js';
 export { waehlePlanungsprofil } from './planungsprofil.js';
 export { ENTWURF_LEITPLANKEN, LEISTUNGSKONTROLLE_SCHRITT, OHNE_BILDUNGSSTUFE, baueEntwurf, entwurfMarkdown, istPruefschritt, profilBegriffe } from './entwurf.js';
 export type { Entwurf, EntwurfEingabe, EntwurfKernfeld, EntwurfPhase, EntwurfRegelmeldung, ProfilBegriffe } from './entwurf.js';

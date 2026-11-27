@@ -274,7 +274,7 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(pg.pruefung.gueltig).toBe(true);
     expect(pg.pruefung.dauerMin).toBeLessThanOrEqual(45);
     expect(pg.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
-    expect(pg.maschinenlesbar.schemaVersion).toBe('1.5');
+    expect(pg.maschinenlesbar.schemaVersion).toBe('1.6');
     expect(pg.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
     expect(Array.isArray(pg.udlBasis)).toBe(true);
     expect(Array.isArray(pg.konflikte)).toBe(true);

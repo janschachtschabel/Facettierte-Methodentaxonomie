@@ -157,10 +157,10 @@ describe('Lesbare und gleiche Antworten: REST und MCP (Task A2, Lücken R01, R04
   describe('maschinenlesbar des Plans (R21)', () => {
     const text = 'Mathematik Bruchrechnen Klasse 6, 26 Lernende, 90 Minuten, Sprache nebenbei fördern';
 
-    it('trägt begleitziel, planungsprofil, raum und pflichtangaben.angenommen; schemaVersion 1.5', async () => {
+    it('trägt begleitziel, planungsprofil, raum und pflichtangaben.angenommen; schemaVersion 1.6', async () => {
       const p = (await post('/api/v1/plan', { text, raum: 'klassenraum', begleitziel: ['sprache'] })).json();
       const m = p.maschinenlesbar;
-      expect(m.schemaVersion).toBe('1.5');
+      expect(m.schemaVersion).toBe('1.6');
       expect(m.begleitziel).toEqual(['sprache']);
       expect(m.planungsprofil).toBe(p.planungsprofil.id);
       expect(m.raum).toBe('klassenraum');

@@ -12,7 +12,7 @@ import {
   type MeasureEffort,
   type MeasureLevel
 } from './differentiationMatrix.js';
-import type { Arrangement, Baustein, FmtData, Grundlage, MatchRequest, Regelmeldung } from './types.js';
+import type { Arrangement, Baustein, FmtData, Grundlage, MatchRequest, Regelmeldung, WiederkehrNode } from './types.js';
 import { KennungIndex } from './kennung.js';
 import { TECH_RANK, techLimitRank } from './technik.js';
 import {
@@ -34,6 +34,7 @@ import {
   type TeilgruppenRegelwerk
 } from './methodAdjustments.js';
 import { bereinigeProfil, type TeilgruppenEntscheidung } from './teilgruppen.js';
+import { wiederkehrZeile } from './wiederkehr.js';
 
 export interface AdaptGroupInput {
   id: string;
@@ -794,13 +795,11 @@ function extractPhasesFromArrangement(data: Pick<FmtData, 'bausteine' | 'ketten'
       return;
     }
     if (n.typ === 'Wiederkehr' && typeof n.baustein === 'string') {
-      const b = blocksById.get(n.baustein);
-      const single = typeof n.dauerMin === 'number' ? n.dauerMin : (b?.dauerMin ?? 10);
-      const count = typeof n.anzahl === 'number' && n.anzahl > 0 ? n.anzahl : 1;
+      const zeile = wiederkehrZeile(n as unknown as WiederkehrNode, blocksById.get(n.baustein));
       out.push({
         key: `step-${out.length}`,
-        phaseLabel: n.ausserhalbBudget ? `Wiederkehr in Folgestunden (${count}× à ${single} min)` : `Wiederkehr (${count}× à ${single} min)`,
-        durationMin: n.ausserhalbBudget ? 0 : single * count,
+        phaseLabel: zeile.phaseLabel,
+        durationMin: zeile.durationMin,
         baustein: n.baustein,
         lernfunktion: 'konsolidierung',
         locked: true

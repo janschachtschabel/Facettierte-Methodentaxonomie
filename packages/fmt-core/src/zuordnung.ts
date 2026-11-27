@@ -18,6 +18,7 @@ import type {
   Regelmeldung,
   RegelSituation,
   Scheme,
+  ValidationMessage,
   VocabValue
 } from './types.js';
 import type { FmtValidator } from './validate.js';
@@ -36,6 +37,7 @@ import { waehlePlanungsprofil } from './planungsprofil.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
 import { bewegungsKette, nachweisformen, normZielart, traegtBegleitziel, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
 import { LEISTUNGSKONTROLLE_SCHRITT } from './entwurf.js';
+import { wiederkehrZeile } from './wiederkehr.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -47,6 +49,15 @@ const SLOT_CANDIDATES = 8;
 const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
 /** Up to this budget a plan is one session (a double period plus breaks at most). */
 const SINGLE_SESSION_MAX_MIN = 180;
+
+/**
+ * Validator messages a plan under construction carries by design, so the step-by-step choice ignores them: a chain
+ * state not reached yet (R-04 at /ablauf; an open step is reported on its own), an open phase before its securing
+ * step (R-05), consolidation without spaced repetition (R-07), the total time over the budget (R-09 at /kontext).
+ */
+const imAufbauErwartet = (m: ValidationMessage) =>
+  (m.regel === 'R-04' && m.pfad === '/ablauf') || m.regel === 'R-05' || m.regel === 'R-07' || (m.regel === 'R-09' && m.pfad === '/kontext');
+
 /** Upper bound for a time budget (about a school year of one subject); keeps the allocation loops bounded. */
 const MAX_BUDGET_MIN = 20000;
 
@@ -1462,13 +1473,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
     const judge = (teile: ArrangementNode[]) => {
       const r = validator.validate(wrap(teile));
-      const rel = r.meldungen.filter(
-        (m) =>
-          !(m.regel === 'R-04' && m.pfad === '/ablauf') &&
-          m.regel !== 'R-05' &&
-          m.regel !== 'R-07' &&
-          !(m.regel === 'R-09' && m.pfad === '/kontext')
-      );
+      const rel = r.meldungen.filter((m) => !imAufbauErwartet(m));
       return { fehler: rel.filter((m) => m.schwere === 'Fehler').length, warnungen: rel.length, zustand: new Set(r.endzustand) };
     };
 
@@ -1956,9 +1961,48 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return r;
   }
 
+  /**
+   * Notes from the check of the plan (U7), so an incomplete or warned plan never goes out without a word:
+   * - first, one sentence per open step with its reason (offenGruende), led by „Der Ablauf ist unvollständig.“ when the
+   *   check fails;
+   * - then every validator message the plan does not carry by design (imAufbauErwartet; the open step replaces R-04 at
+   *   /ablauf) and no rule message says already (R-06 comes as fit rule), with its rule code and the phase it speaks about.
+   */
+  function mitPruefmeldungen(r: MatchResult): MatchResult {
+    if (r.modus !== 'ablauf' || !r.pruefung || !r.arrangement) return r;
+    const kette = r.kette ? chains.get(r.kette.id) : undefined;
+    const schrittLabel = (id: string) => kette?.schritte.find((st) => st.id === id)?.label || (r.schritte || []).find((st) => st.schritt === id)?.label || id;
+    const offen = (r.offenGruende || []).map((o) => `Der Schritt „${schrittLabel(o.schritt)}“ ist offen: ${o.grund}`);
+    if (offen.length && !r.pruefung.gueltig) offen[0] = `Der Ablauf ist unvollständig. ${offen[0]}`;
+    const teile = r.arrangement.ablauf.typ === 'Sequenz' ? r.arrangement.ablauf.teile : [r.arrangement.ablauf];
+    // The phase a message speaks about: the top-level node of its path, named by its chain step (or the step the core
+    // listed for it) and its method.
+    const phase = (pfad: string): string | undefined => {
+      const m = /^\/ablauf(?:\/teile\/(\d+))?/.exec(pfad);
+      const node = m?.[1] != null ? teile[Number(m[1])] : r.arrangement!.ablauf.typ === 'Sequenz' ? undefined : r.arrangement!.ablauf;
+      if (!node || (node.typ !== 'Einsatz' && node.typ !== 'Wiederkehr')) return undefined;
+      const b = blocks.get(node.baustein);
+      const name = b?.name || node.baustein;
+      const label =
+        node.typ === 'Wiederkehr'
+          ? wiederkehrZeile(node, b).phaseLabel
+          : (node.kettenschritt && schrittLabel(node.kettenschritt)) || (r.schritte || []).find((st) => st.baustein === node.baustein)?.label;
+      return label ? `Phase „${label}“: ${name}` : `Methode „${name}“`;
+    };
+    const gesagt = [...(r.hinweise || []), ...(r.regelmeldungen || []).map((m) => m.text)];
+    const pruef = r.pruefung.meldungen
+      .filter((m) => !imAufbauErwartet(m) && m.regel !== 'R-06' && !gesagt.some((h) => h.includes(m.meldung)))
+      .map((m) => {
+        const wo = phase(m.pfad);
+        return `${m.meldung} (Prüfregel ${m.regel}${wo ? `, ${wo}` : ''})`;
+      });
+    if (offen.length || pruef.length) r.hinweise = [...offen, ...(r.hinweise || []), ...pruef];
+    return r;
+  }
+
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     const r = mitRegelmeldungen(planen(anfrage), { raum: lastRoom, area: lastArea, mentions: lastMentions, situation: lastSituation });
-    return mitHilfen(mitBegleitzielen(r, lastSituation), lastNamedHelps);
+    return mitPruefmeldungen(mitHilfen(mitBegleitzielen(r, lastSituation), lastNamedHelps));
   }
 
   /** Name of an accompanying goal inside a sentence ("soziales Lernen"). */

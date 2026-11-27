@@ -9,7 +9,6 @@ import type { Qualitaetsfall } from './faelle.js';
  * A check that a later task fixes carries `bekannt` naming that task ("wartet auf Q3", "wartet auf QD2"); the task
  * removes it. Not part of the baseline file (ausgang.json).
  */
-const Q1 = 'wartet auf Q1';
 const Q2 = 'wartet auf Q2';
 const Q3 = 'wartet auf Q3';
 const Q4 = 'wartet auf Q4';
@@ -301,7 +300,7 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 'hs-vorlesung-statistik-250',
     text: 'Vorlesung Statistik I, Hörsaal, 250 Studierende, 90 Minuten, Hypothesentests einführen',
     erwartet: { kriterien: { raum: 'hoersaal' }, hinweis: [/Mehr als 20 Minuten am Stück im passiven Modus.*Phase/], themaNicht: ['Hörsaal'] },
-    bekannt: { hinweis: Q1, thema: Q2 }
+    bekannt: { thema: Q2 }
   },
   {
     id: 'hs-seminar-soziologie-12',
@@ -318,7 +317,7 @@ export const REIHE5: Qualitaetsfall[] = [
       hinweis: [{ muster: /unvollständig.*„Lösungsversuche“.*höchstens 35 Personen/s, erster: true }],
       hinweisNicht: ['loesungsversuche']
     },
-    bekannt: { gueltig: QD2, hinweis: Q1 }
+    bekannt: { gueltig: QD2 }
   },
   {
     id: 'hs-labor-titration',

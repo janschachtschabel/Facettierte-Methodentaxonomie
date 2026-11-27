@@ -65,6 +65,8 @@ export interface EntwurfZeile {
   learnerAction: string;
   groupAdaptations: Record<string, string>;
   materialsAndOer: string;
+  /** Minutes of a repetition in later sessions (the row counts 0 minutes in this plan). */
+  dauerAusserhalbMin?: number;
 }
 
 export interface EntwurfKontext {
@@ -116,6 +118,7 @@ export function entwurfAusTabelle(store: CatalogStore, k: EntwurfKontext, zeilen
       schrittRolle: k.schritte?.[z.key]?.rolle,
       pruefschritt: k.schritte?.[z.key]?.pruefschritt,
       wiederkehr: k.schritte?.[z.key]?.wiederkehr,
+      ...(z.dauerAusserhalbMin != null ? { zeitAusserhalbMin: z.dauerAusserhalbMin } : {}),
       anpassungen: Object.entries(z.groupAdaptations || {})
         .filter(([gid]) => !isRegularGroupId(gid))
         .map(([gid, text]) => ({ gruppe: gruppenName.get(gid) || gid, text }))
