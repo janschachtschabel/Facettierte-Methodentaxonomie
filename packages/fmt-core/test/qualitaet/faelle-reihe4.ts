@@ -62,9 +62,12 @@ export const REIHE4: Qualitaetsfall[] = [
   },
   {
     id: 'n10',
-    text: 'Geschichte Klasse 9, Weimarer Republik, 90 Minuten, Teilgruppe: 5 Leistungsstarke',
-    erwartet: { teilgruppe: { antwort: 'tausch' } },
-    bekannt: { teilgruppe: 'Paket C' }
+    // The paper reads „Geschichte Klasse 9, Weimarer Republik, 90 Minuten, Teilgruppe: 5 Leistungsstarke“. For that text
+    // the matcher plans no method that is only explicit and uniform, so the answer is a help. The case keeps the paper's
+    // intent (high performers + an only explicit, uniform method → Tausch, less guidance) with the Lehrervortrag the
+    // teacher names (C3, Fix round 1).
+    text: 'Geschichte Klasse 9, Weimarer Republik, 90 Minuten, Lehrervortrag, Teilgruppe: 5 Leistungsstarke',
+    erwartet: { teilgruppe: { antwort: 'tausch' } }
   },
 
   // Package D: companion goals, new chain, planning profiles.

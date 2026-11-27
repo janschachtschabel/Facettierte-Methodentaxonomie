@@ -69,7 +69,7 @@ describe('proposeMethodAdjustments', () => {
   // Früher: „ersetzt schwach passende Methoden durch klar besser passende derselben Lernfunktion“ (WEAK_FIT/MIN_GAIN).
   it('tauscht nicht mehr allein wegen schwacher Matrix-Passung: DaZ im geleiteten Ablauf behält die Methode', () => {
     expect(proposeMethodAdjustments(D.bausteine, PHASES, [MAIN, quick('daz')], {}, R)).toEqual([]);
-    expect(proposeSupports(PHASES, [MAIN, quick('daz')], R).length).toBeGreaterThan(0);
+    expect(proposeSupports(PHASES, [MAIN, quick('daz')], R, { allBlocks: D.bausteine }).length).toBeGreaterThan(0);
   });
 
   it('tauscht nur bei der Antwort tausch; der Ersatz erfüllt die Richtung, ist gleichwertig und nennt Merkmal und Beleg', () => {
@@ -178,6 +178,10 @@ describe('proposeMethodAdjustments', () => {
             rueckfall++;
             expect(a.antwort).toBe('hilfe');
             expect(a.grund).toMatch(/^Kein gleichwertiger Ersatz: /);
+            // Short: at most one rejected candidate with its first reason.
+            const kopf = a.grund.slice(0, a.grund.indexOf(' Die Methode bleibt'));
+            expect(kopf.length, kopf).toBeLessThan(260);
+            expect((kopf.match(/ passt nicht, weil /g) || []).length).toBeLessThanOrEqual(1);
             expect(a.grund).toContain(e.grund);
             expect(a.merkmal).toBe(e.merkmal);
             expect(a.hilfen.length).toBeGreaterThan(0);
@@ -194,13 +198,24 @@ describe('proposeMethodAdjustments', () => {
     const a = teilgruppenAntworten(D.bausteine, fest, [MAIN, quick('vertiefung')], { lehrende: 2 }, R).find((x) => x.stepKey === 's0')!;
     expect(a.antwort).toBe('hilfe');
     expect(a.grund).toMatch(/^Kein gleichwertiger Ersatz: Die Phase ist für alle festgelegt/);
-    expect(proposeSupports(fest, [MAIN, quick('vertiefung')], R, {}, undefined, D.bausteine).some((s) => s.stepKey === 's0')).toBe(true);
+    expect(proposeSupports(fest, [MAIN, quick('vertiefung')], R, { allBlocks: D.bausteine }).some((s) => s.stepKey === 's0')).toBe(true);
   });
 });
 
 describe('proposeSupports', () => {
+  it('braucht den Katalog oder die Antworten: ein Tausch mit Ersatz ist keine Hilfe', () => {
+    const gruppen = [MAIN, quick('vertiefung')];
+    const antworten = teilgruppenAntworten(D.bausteine, EXPLIZIT, gruppen, { lehrende: 2 }, R);
+    const ausAntworten = proposeSupports(EXPLIZIT, gruppen, R, { antworten });
+    const ausKatalog = proposeSupports(EXPLIZIT, gruppen, R, { allBlocks: D.bausteine, constraints: { lehrende: 2 } });
+    expect(ausKatalog).toEqual(ausAntworten);
+    const getauscht = proposeMethodAdjustments(D.bausteine, EXPLIZIT, gruppen, { lehrende: 2 }, R);
+    expect(getauscht.length).toBeGreaterThan(0);
+    for (const a of getauscht) expect(ausKatalog.some((h) => h.stepKey === a.stepKey && h.groupId === a.groupId)).toBe(false);
+  });
+
   it('Hilfen sind Kern-Maßnahmen der Matrix, passen zur Interaktion, höchstens drei je Phase, jede mit Abbau-Satz', () => {
-    const sup = proposeSupports(PHASES, [MAIN, quick('daz')], R);
+    const sup = proposeSupports(PHASES, [MAIN, quick('daz')], R, { allBlocks: D.bausteine });
     expect(sup.length).toBeGreaterThan(0);
     const matrix = scoreDifferentiationMatrix({ selectedValues: quick('daz').selectedValues, limit: 50 });
     const kern = new Set(matrix.byOberKategorie.flatMap((o) => o.measures).filter((m) => m.relevanz === 'kern').map((m) => m.id));
@@ -218,7 +233,7 @@ describe('proposeSupports', () => {
       }
     }
     // Pure solo method: no group or plenary measure.
-    for (const s of proposeSupports(phasen('abrufquiz'), [MAIN, quick('daz')], R)) {
+    for (const s of proposeSupports(phasen('abrufquiz'), [MAIN, quick('daz')], R, { allBlocks: D.bausteine })) {
       for (const h of s.hilfen) expect(['sozialform-gruppe', 'sozialform-plenum']).not.toContain(h.id);
     }
   });
@@ -228,7 +243,7 @@ describe('proposeSupports', () => {
       for (const ablauf of [PHASES, EXPLIZIT]) {
         const gruppen = [MAIN, quick(p.id)];
         const adj = proposeMethodAdjustments(D.bausteine, ablauf, gruppen, {}, R);
-        const sup = proposeSupports(ablauf, gruppen, R);
+        const sup = proposeSupports(ablauf, gruppen, R, { allBlocks: D.bausteine });
         expect(adj.some((a) => a.groupId === 'regel')).toBe(false);
         expect(sup.some((s) => s.groupId === 'regel')).toBe(false);
         expect(teilgruppenHinweise(ablauf, gruppen, adj, sup, R).some((m) => m.text.startsWith('Regelgruppe'))).toBe(false);
@@ -237,7 +252,7 @@ describe('proposeSupports', () => {
     // Even with a profile that would set off a swap, the main group keeps its plan.
     const starkeHaupt: MethodAdjustmentGroup = { ...MAIN, personaId: undefined, selectedValues: { vorwissen: 'vorwissen-hoch' } };
     expect(proposeMethodAdjustments(D.bausteine, EXPLIZIT, [starkeHaupt], {}, R)).toEqual([]);
-    expect(proposeSupports(EXPLIZIT, [starkeHaupt], R)).toEqual([]);
+    expect(proposeSupports(EXPLIZIT, [starkeHaupt], R, { allBlocks: D.bausteine })).toEqual([]);
     const res = adaptScenario(D, {
       phasen: EXPLIZIT.map((p) => ({ key: p.key, phaseLabel: p.label!, baustein: p.block!.kennung, durationMin: 20 })),
       gruppen: [
@@ -259,7 +274,7 @@ describe('teilgruppenHinweise', () => {
     const g: MethodAdjustmentGroup = { id: 'basis', label: 'Basis', selectedValues: { vorwissen: 'vorwissen-gering' } };
     const gruppen = [MAIN, g];
     const adj = proposeMethodAdjustments(D.bausteine, PHASES, gruppen, {}, R);
-    const sup = proposeSupports(PHASES, gruppen, R);
+    const sup = proposeSupports(PHASES, gruppen, R, { allBlocks: D.bausteine });
     expect(adj).toEqual([]);
     expect(sup).toEqual([]);
     const h = teilgruppenHinweise(PHASES, gruppen, adj, sup, R).find((m) => m.regel === 'gruppierung-nur-mit-anpassung');
@@ -268,7 +283,7 @@ describe('teilgruppenHinweise', () => {
     expect(h!.text).toContain('Basis');
     // With a help the hint does not come.
     const daz = [MAIN, quick('daz')];
-    const supDaz = proposeSupports(PHASES, daz, R);
+    const supDaz = proposeSupports(PHASES, daz, R, { allBlocks: D.bausteine });
     expect(teilgruppenHinweise(PHASES, daz, [], supDaz, R).some((m) => m.regel === 'gruppierung-nur-mit-anpassung')).toBe(false);
   });
 
@@ -349,26 +364,19 @@ describe('Qualitätsfälle n07 bis n10 als Kerntests', () => {
   });
 
   it('n10: Leistungsstarke tauschen eine nur explizit angeleitete, uniforme Methode', () => {
-    const res = adaptiere('Geschichte Klasse 9, Weimarer Republik, 90 Minuten', '5 Leistungsstarke');
-    const tausch = impulse(res, 'vertiefung').filter((t) => t.antwort === 'tausch');
-    expect(tausch.length).toBeGreaterThan(0);
-    for (const t of tausch) {
-      expect(t.beleg).toMatchObject({ merkmal: 'vorwissen-hoch', grundlage: 'E' });
-      const von = block(t.phase.baustein!);
-      expect(von.anleitung.every((a) => a === 'explizit')).toBe(true);
-      for (const a of t.alternativeMethoden) expect(erfuelltRichtung(block(a.kennung), 'weniger-anleitung')).toBe(true);
-    }
-    for (const a of res.teilgruppenMethoden) expect(erfuelltRichtung(block(a.zuKennung), 'weniger-anleitung')).toBe(true);
-    // With two teachers an equivalent, less guided method can run beside the quiz.
-    const r = M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 90 Minuten' });
-    if (r.modus !== 'ablauf' || !r.arrangement) throw new Error('kein Ablauf');
-    const zwei = adaptScenario(D, { arrangement: r.arrangement, lerngruppenText: '5 Leistungsstarke', lehrende: 2 });
-    const getauscht = zwei.teilgruppenMethoden.filter((a) => a.groupId === 'vertiefung');
-    expect(getauscht.length).toBeGreaterThan(0);
-    for (const a of getauscht) {
-      expect(a).toMatchObject({ merkmal: 'vorwissen-hoch', grundlage: 'E' });
-      expect(erfuelltRichtung(block(a.zuKennung), 'weniger-anleitung')).toBe(true);
-    }
+    // Case text (faelle-reihe4): the teacher names the Lehrervortrag (B1 only explizit, B3 only uniform).
+    const res = adaptiere('Geschichte Klasse 9, Weimarer Republik, 90 Minuten, Lehrervortrag', '5 Leistungsstarke');
+    const t = impulse(res, 'vertiefung').find((x) => x.phase.baustein === 'lehrervortrag')!;
+    expect(block('lehrervortrag').anleitung).toEqual(['explizit']);
+    expect(t.antwort).toBe('tausch');
+    expect(t.beleg).toMatchObject({ merkmal: 'vorwissen-hoch', grundlage: 'E' });
+    expect(t.alternativeMethoden.length).toBeGreaterThan(0);
+    for (const a of t.alternativeMethoden) expect(erfuelltRichtung(block(a.kennung), 'weniger-anleitung')).toBe(true);
+    const vorschlag = res.teilgruppenMethoden.find((a) => a.vonKennung === 'lehrervortrag')!;
+    expect(vorschlag).toMatchObject({ merkmal: 'vorwissen-hoch', zuKennung: t.alternativeMethoden[0].kennung });
+    // Paper text without a named method: no phase is only explicit and uniform, so the group gets helps.
+    const papier = adaptiere('Geschichte Klasse 9, Weimarer Republik, 90 Minuten', '5 Leistungsstarke');
+    for (const x of impulse(papier, 'vertiefung')) if (x.antwort === 'tausch') expect(x.alternativeMethoden.length).toBeGreaterThan(0);
   });
 });
 

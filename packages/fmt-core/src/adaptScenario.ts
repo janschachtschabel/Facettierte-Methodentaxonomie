@@ -1175,7 +1175,7 @@ export function adaptScenario(
   const teilgruppenMethoden = withMethods
     ? proposeMethodAdjustments(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz, antworten)
     : [];
-  const teilgruppenHilfen = withMethods ? proposeSupports(adjustmentPhases, adjustmentGroups, regelsatz, adjustmentConstraints, antworten) : [];
+  const teilgruppenHilfen = withMethods ? proposeSupports(adjustmentPhases, adjustmentGroups, regelsatz, { antworten }) : [];
   const regelmeldungen = withMethods
     ? teilgruppenHinweise(adjustmentPhases, adjustmentGroups, teilgruppenMethoden, teilgruppenHilfen, regelsatz)
     : [];

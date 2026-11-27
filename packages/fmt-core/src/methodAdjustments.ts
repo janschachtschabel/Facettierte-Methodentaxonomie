@@ -256,17 +256,17 @@ export interface PhasenAntwort {
   alternativen: GleichwertigerKandidat[];
 }
 
-const satz = (gruende: string[]) => gruende.map((g) => g.replace(/\.$/, '')).join('; ');
-
-/** Why no replacement was offered, in plain German: the first rejected candidates with their reasons. */
+/** Why no replacement was offered, in plain German and short: at most one rejected candidate with its first reason. */
 function keinErsatzGrund(abgelehnt: Abgelehnt[], vergeben: string[], locked: boolean): string {
   if (locked) return 'Kein gleichwertiger Ersatz: Die Phase ist für alle festgelegt, die Methode bleibt.';
-  const teile: string[] = [];
-  // The reasons of istGleichwertig name the candidate themselves.
-  for (const a of abgelehnt.slice(0, 2)) teile.push(satz(a.gruende));
-  if (vergeben.length) teile.push(`schon im Ablauf oder für die Gruppe vergeben: ${vergeben.slice(0, 3).join(', ')}`);
-  if (!teile.length) return 'Kein gleichwertiger Ersatz: Der Katalog hat keine Methode mit derselben Lernfunktion, die in diese Richtung geht.';
-  return `Kein gleichwertiger Ersatz: ${teile.join('. ')}.`;
+  const erster = abgelehnt[0];
+  if (erster) {
+    // Reasons read "Bereich: Satz."; the sentence alone, without the trailing dot.
+    const grund = erster.gruende[0].replace(/^[^:]+:\s*/, '').replace(/\.$/, '');
+    return `Kein gleichwertiger Ersatz: ${erster.name} passt nicht, weil: ${grund}.`;
+  }
+  if (vergeben.length) return `Kein gleichwertiger Ersatz: ${vergeben[0]} steht schon im Ablauf oder ist für die Gruppe vergeben.`;
+  return 'Kein gleichwertiger Ersatz: Der Katalog hat keine Methode mit derselben Lernfunktion, die in diese Richtung geht.';
 }
 
 /**
@@ -417,6 +417,12 @@ export function wohinVon(e: Pick<TeilgruppenEntscheidung, 'merkmal'>, t: Teilgru
 }
 
 /**
+ * Inputs proposeSupports needs for the full decision: the answers of teilgruppenAntworten, or the catalogue (and
+ * the frame) to compute them. Without the catalogue a swap could not find its replacement.
+ */
+export type SupportEingaben = { antworten: PhasenAntwort[] } | { allBlocks: Baustein[]; constraints?: MethodAdjustmentConstraints };
+
+/**
  * Helps inside the planned method for subgroups whose answer is 'hilfe' (also where a swap found no equivalent
  * replacement). The method stays; the help is laid on it and names when it is no longer needed. Locked phases get
  * helps as well, since a help does not change the method.
@@ -425,12 +431,12 @@ export function proposeSupports(
   phases: MethodAdjustmentPhase[],
   groups: MethodAdjustmentGroup[],
   regelsatz: TeilgruppenRegelwerk,
-  constraints: MethodAdjustmentConstraints = {},
-  antworten?: PhasenAntwort[],
-  allBlocks: Baustein[] = phases.map((p) => p.block).filter((b): b is Baustein => Boolean(b))
+  eingaben: SupportEingaben
 ): SupportProposal[] {
-  // Without the catalogue no replacement can be found; pass allBlocks (or the answers) for the full decision.
-  const liste = antworten ?? teilgruppenAntworten(allBlocks, phases, groups, constraints, regelsatz);
+  const liste =
+    'antworten' in eingaben
+      ? eingaben.antworten
+      : teilgruppenAntworten(eingaben.allBlocks, phases, groups, eingaben.constraints ?? {}, regelsatz);
   return liste
     .filter((a) => a.antwort === 'hilfe' && a.hilfen.length > 0)
     .map((a) => ({
