@@ -9,6 +9,12 @@ import { buildApp } from '../src/app.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
+const LEITPLANKEN = [
+  'Methoden, Reihenfolge und Kernkomponenten sind vorgegeben und werden nicht geändert.',
+  'Aussagen zur Wirksamkeit stammen nur aus dem Katalog, mit Grad, Geltung und Bezug.',
+  'Kennzeichne, was übernommen und was erzeugt ist.',
+  'Beschreibe Gruppen, keine einzelnen Lernenden.'
+];
 const EXPECTED_METHOD_COUNT = fs.readdirSync(path.join(ROOT, 'data', 'bausteine')).filter((f) => f.endsWith('.json')).length;
 
 describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
@@ -566,5 +572,43 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
 
     const ohne = parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Mathematik Klasse 7, Bruchrechnen, 45 Minuten' } }));
     expect((ohne.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toEqual(['basis', 'regel', 'vertiefung']);
+  });
+  it('build_scenario_plan: Entwurf für n15 nutzt Sitzung, Studierende, Modul und führt sieben Kernfelder (Paket D, D2)', async () => {
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const text = 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur';
+    const voll = await call('build_scenario_plan', { text, umfang: 'voll' });
+    expect(voll.entwurf.planungsprofil.id).toBe('hochschule');
+    expect(voll.entwurf.kernfelder.map((k: { id: string }) => k.id)).toEqual(['rahmendaten', 'lernvoraussetzungen', 'ziele', 'einordnung', 'verlauf', 'lernerfolg', 'reflexion']);
+    const entwurf = JSON.stringify(voll.entwurf);
+    for (const w of ['Sitzung', 'Studierende', 'Modul', 'Tätigkeit der Lehrenden']) expect(entwurf, w).toContain(w);
+    expect(voll.entwurf.module.every((m: { inhalt: string }) => m.inhalt === '')).toBe(true);
+    for (const satz of LEITPLANKEN) expect(voll.llmBriefing.systemPrompt, satz).toContain(satz);
+    expect(voll.llmBriefing.systemPrompt).toContain('Verlaufsplan der Sitzung');
+    const kompakt = await call('build_scenario_plan', { text, umfang: 'kompakt' });
+    expect(kompakt.planungsprofil).toMatchObject({ id: 'hochschule', angenommen: false, einheit: 'Sitzung' });
+
+    const ohne = await call('build_scenario_plan', { text: 'Fotosynthese, Lichtreaktion, 45 Minuten', umfang: 'voll' });
+    expect(JSON.stringify(ohne)).not.toContain('Sekundarstufe I');
+    expect(ohne.entwurf.planungsprofil).toMatchObject({ id: 'schule', angenommen: true });
+    expect(JSON.stringify(ohne.entwurf)).toContain('Bildungsstufe nicht angegeben');
+    expect(ohne.pflichtangaben.angenommen.map((a: { feld: string }) => a.feld)).toContain('planungsprofil');
+  });
+
+  it('elaborate_scenario liefert den Entwurf mit sieben Kernfeldern und die Leitplanken im Briefing (Paket D, D2)', async () => {
+    const plan = JSON.parse(
+      ((await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Volkshochschule, Kochkurs Grundtechniken, 3 Stunden, 12 Teilnehmende', umfang: 'voll' } })).content as Array<{ text: string }>)[0].text
+    );
+    const res = await client.callTool({
+      name: 'elaborate_scenario',
+      arguments: { arrangement: plan.maschinenlesbar.arrangement, thema: 'Kochkurs', planungsprofil: 'erwachsenenbildung' }
+    });
+    const j = JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    expect(j.entwurf.kernfelder).toHaveLength(7);
+    expect(j.ausarbeitung).toContain('Tätigkeit der Kursleitung');
+    for (const satz of LEITPLANKEN) expect(j.llmBriefing.systemPrompt, satz).toContain(satz);
   });
 });
