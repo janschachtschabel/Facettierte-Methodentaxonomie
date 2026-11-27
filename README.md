@@ -21,7 +21,7 @@ Eine offene, maschinenlesbare **Datenbank für 310 Unterrichtsmethoden und 4 Hil
   1. **Zero-LLM-Standard:** Server läuft ohne API-Key; API & MCP liefern bei komplexen Aufgaben fertige `llmBriefing`-Pakete für das eigene Enduser-LLM.
   2. **Eigene KI in den App-Einstellungen (`⚙ KI-Einstellungen`):** Endnutzer können direkt im Browser jede OpenAI-kompatible Anbindung eintragen (OpenAI, Google Gemini, Mistral AI, OpenRouter, GWDG Academic Cloud, Groq, **lokales Ollama / LM Studio** oder eigene LiteLLM/vLLM-Endpunkte – inkl. Browser-Direktmodus ohne Weitergabe des Keys an den FMT-Server).
   3. **Optionales Server-LLM per ENV:** Strikt opt-in über `LLM_API_KEY`.
-- **MCP-Server (15 Tools) & Linked Data:** Remote-MCP (`/mcp` via Streamable HTTP) + lokaler `stdio`-Start (inkl. eigenständiger Differenzierungs-Tools `list_differentiation_options`, `adapt_scenario` auch für Einzelmethoden & freie Chat-Entwürfe und `score_differentiation_matrix`), REST-API (`/api/v1/*`, `/api/v1/adapt`, `/api/v1/differentiation/meta` + v0.7.0-Aliase), 24 SKOS-Vokabulare (`.ttl`), JSON-LD, JSON Schema und `w3id.org/fmt/`-Content-Negotiation.
+- **MCP-Server (15 Tools) & Linked Data:** Remote-MCP (`/mcp` via Streamable HTTP) + lokaler `stdio`-Start (inkl. eigenständiger Differenzierungs-Tools `list_differentiation_options`, `adapt_scenario` auch für Einzelmethoden & freie Chat-Entwürfe und `score_differentiation_matrix`), REST-API (`/api/v1/*`, `/api/v1/adapt`, `/api/v1/differentiation/meta` + v0.7.0-Aliase), 36 SKOS-Vokabulare (`.ttl`: 35 Schemata aus `data/vocab.json` und die Funktionsketten), JSON-LD, JSON Schema und `w3id.org/fmt/`-Content-Negotiation.
 
 ---
 
@@ -92,8 +92,8 @@ git clone https://github.com/janschachtschabel/Facettierte-Methodentaxonomie.git
 cd Facettierte-Methodentaxonomie
 
 npm ci
-npm run build      # baut @fmt/core, dist-data/ (303 Methoden + 25 SKOS), @fmt/web und @fmt/server
-npm test           # führt alle 141 automatisierten Tests aus
+npm run build      # baut @fmt/core, dist-data/ (314 Einträge: 310 Methoden und 4 Hilfen, 36 SKOS-Vokabulare), @fmt/web und @fmt/server
+npm test           # führt alle 838 automatisierten Tests aus (Kern 591, Server 82, Web 165)
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -224,7 +224,7 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 587, Server 78, Web 160 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 591, Server 82, Web 165 Tests) |
 | `npm run qualitaet [-- reihe2\|reihe3\|reihe4]` | Qualitätsbericht der Szenariovorschläge je Testreihe (Markdown-Tabelle) |
 | `npm run qualitaet:ausgang` | Vergleicht die Reihen 1 bis 3 mit dem Ausgangsstand `ausgang.json`; meldet nur Verschlechterungen |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
