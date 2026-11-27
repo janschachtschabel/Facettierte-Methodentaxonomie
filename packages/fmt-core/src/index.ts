@@ -24,9 +24,19 @@ export * from './zielart.js';
 export { baueSituation } from './situation.js';
 export type { Situation, Annahme, Pflichtangabe } from './situation.js';
 export * from './raster.js';
-export { erstelleRegeln } from './regeln.js';
+export { erstelleRegeln, passungNeuPruefen, regelLageAus } from './regeln.js';
 export * from './teilgruppen.js';
 export { waehlePlanungsprofil } from './planungsprofil.js';
 export { ENTWURF_LEITPLANKEN, LEISTUNGSKONTROLLE_SCHRITT, OHNE_BILDUNGSSTUFE, baueEntwurf, entwurfMarkdown, istPruefschritt, profilBegriffe } from './entwurf.js';
 export type { Entwurf, EntwurfEingabe, EntwurfKernfeld, EntwurfPhase, ProfilBegriffe } from './entwurf.js';
 export { istHilfe, istMethode, nurMethoden } from './eintragsart.js';
+export {
+  GLEICHWERTIG_GEPRUEFT,
+  OHNE_GLEICHWERTIGKEITSPRUEFUNG,
+  alternativenFuerTeilgruppe,
+  ausschlussInSituation,
+  kettenSchritt,
+  pruefeAlternativen
+} from './alternativen.js';
+export type { AlternativenKontext, AlternativenPruefung, GepruefteAlternative, KandidatAusschluss, TeilgruppenAlternative } from './alternativen.js';
+export { KI_OPTIONALE_ANGABEN, KI_PFLICHTANGABEN, MCP_HINWEISE } from './kiHinweise.js';

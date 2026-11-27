@@ -1,7 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { lesart, nurMethoden, scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein, type Passungsregel, type Regelmeldung, type Scheme } from '@fmt/core';
+import { lesart, OHNE_GLEICHWERTIGKEITSPRUEFUNG, scoreDifferentiationMatrix, type Baustein, type Passungsregel, type Regelmeldung, type Scheme } from '@fmt/core';
 import { regelZeile } from '../planner/regelmeldung.js';
+import { parallelMethoden, weitereMethoden, type KandidatenRahmen, type WeitereRahmen } from '../planner/kandidaten.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
 import type { LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from '../planner/scenarioModel.js';
 
@@ -30,6 +31,11 @@ interface Props {
   schemes?: Scheme[];
   /** Goal kind of the plan (match result): learning states are shown in its reading (Lesart); without it, the labels. */
   zielart?: string;
+  /**
+   * Frame of the plan for other methods of a subgroup (situation, chain, rule set). With it the core checks them:
+   * methods only, needs covered, knowledge type of the step, equivalent where it can check that.
+   */
+  kandidaten?: KandidatenRahmen;
 }
 
 const RANGE_READABLE: Record<string, string> = {
@@ -39,7 +45,6 @@ const RANGE_READABLE: Record<string, string> = {
   R4: 'Modul / Kurs (R4)'
 };
 
-const RANGE_ORDER: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
 
 export function VerlaufsplanView({
   rows,
@@ -60,7 +65,8 @@ export function VerlaufsplanView({
   regeln = [],
   spalten,
   schemes,
-  zielart
+  zielart,
+  kandidaten
 }: Props) {
   const spalteLehrende = spalten?.lehrende || 'Tätigkeit der Lehrkraft';
   const spalteLernende = spalten?.lernende || 'Tätigkeit der Lernenden';
@@ -95,25 +101,14 @@ export function VerlaufsplanView({
 
   const activeGroups = groups.filter((g) => g.active);
 
-  /** Strictly filter alternative methods by matching purpose (Lernfunktion), compatible granularity (rang <= current), and duration. */
-  const compatibleAlternatives = (row: ScenarioPhaseRow): Baustein[] => {
-    const cur = row.block;
-    if (!cur) return [];
-    const fns = new Set(cur.lernfunktion || []);
-    const curRank = RANGE_ORDER[cur.reichweite] ?? 2;
-    const maxDur = Math.max(row.durationMin * 1.5, cur.dauerMax);
-    // Only methods: a help (eintragsart 'hilfe') is never a parallel method.
-    return nurMethoden(allBlocks)
-      .filter((b) => {
-        if (b.kennung === cur.kennung) return false;
-        if (!b.lernfunktion.some((f) => fns.has(f))) return false;
-        const bRank = RANGE_ORDER[b.reichweite] ?? 2;
-        if (bRank > curRank) return false;
-        if (b.dauerMin > maxDur) return false;
-        return true;
-      })
-      .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  // Without the plan's frame only the entry kind is checked (no situation, no chain); the pickers say what was checked.
+  const weitereRahmen: WeitereRahmen = kandidaten || {
+    constraints: { maxTechnik, ohneInternet, ohneKI },
+    ketten: [],
+    regelwerk: { schemes: schemes || [] }
   };
+  /** Methods of the same purpose, granularity and duration whose needs and chain step the core accepts. */
+  const compatibleAlternatives = (row: ScenarioPhaseRow): Baustein[] => weitereMethoden(row, allBlocks, weitereRahmen);
 
   return (
     <div className="card" style={{ padding: 16, marginTop: 12 }}>
@@ -214,6 +209,11 @@ export function VerlaufsplanView({
                         {r.methodName}
                       </Link>
                       {r.evidenceGrade && <EvidenceBadge grade={r.evidenceGrade as 'A' | 'B' | 'C'} />}
+                      {r.evidenceGrade && r.evidenceBezug?.length ? (
+                        <span className="muted" aria-label={`Evidenzbezug ${r.methodName}`} style={{ fontSize: 11.5 }}>
+                          {r.evidenceBezug.join(' · ')}
+                        </span>
+                      ) : null}
                     </div>
                     <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap', marginTop: 4 }}>
                       <span className="chip" style={{ fontSize: 11, padding: '1px 6px' }}>
@@ -313,9 +313,10 @@ export function VerlaufsplanView({
                               ? 'Bearbeitet'
                               : 'FMT';
                       const mRes = matrixByGroup.get(g.id);
+                      // Equivalent parallel methods for this subgroup, checked by the core (needs, binding, equivalence).
                       const recommendedAlts =
-                        isRowEditing && !isMain && mRes && r.block
-                          ? suggestAlternativeMethodsForGroup(mRes, r.block, allBlocks, 4, r.durationMin)
+                        isRowEditing && !isMain && mRes && r.block && kandidaten
+                          ? parallelMethoden(mRes, r, g, allBlocks, kandidaten, 4).alternativen
                           : [];
                       const recommendedSet = new Set(recommendedAlts.map((x) => x.kennung));
                       const otherCompat = compatBlocks.filter((b) => !recommendedSet.has(b.kennung));
@@ -368,7 +369,7 @@ export function VerlaufsplanView({
                                 >
                                   <option value="">Methode anpassen (Standard)</option>
                                   {recommendedAlts.length > 0 && (
-                                    <optgroup label="★ Passend zu Matrix, Zweck & Granularität">
+                                    <optgroup label="★ Gleichwertig für diese Gruppe (geprüft)">
                                       {recommendedAlts.map((a) => (
                                         <option key={a.kennung} value={a.kennung}>
                                           ★ {a.name} ({a.reichweite.toUpperCase()}, {a.dauerMin}–{a.dauerMax}m)
@@ -377,7 +378,7 @@ export function VerlaufsplanView({
                                     </optgroup>
                                   )}
                                   {otherCompat.length > 0 && (
-                                    <optgroup label="✓ Gleicher Zweck & passende Granularität">
+                                    <optgroup label={`✓ Gleicher Zweck${kandidaten ? ', Bedarf gedeckt' : ''} (${OHNE_GLEICHWERTIGKEITSPRUEFUNG})`}>
                                       {otherCompat.map((b) => (
                                         <option key={b.kennung} value={b.kennung}>
                                           🔀 {b.name} ({b.reichweite.toUpperCase()}, {b.dauerMin}–{b.dauerMax}m)

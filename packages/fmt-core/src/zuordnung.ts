@@ -21,7 +21,7 @@ import type {
   VocabValue
 } from './types.js';
 import type { FmtValidator } from './validate.js';
-import { erstelleRegeln } from './regeln.js';
+import { erstelleRegeln, regelLageAus } from './regeln.js';
 import { createSemanticClassifier } from './semantic.js';
 import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 import { createMentionDetector } from './mentions.js';
@@ -963,13 +963,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const rahmen = (b: Baustein, a: MatchRequest): string | null => rahmenLuecke(b, a)?.grund ?? null;
 
   /** Situation the fit rules read: prior knowledge, stage, complexity, language level and subject area of the request. */
-  const regelLage = (a: MatchRequest): RegelSituation => {
-    const lage: RegelSituation = {};
-    for (const feld of ['vorwissen', 'bildungsstufe', 'komplexitaet', 'sprachniveau', 'fachbereich'] as const) {
-      if (given(a[feld])) lage[feld] = String(a[feld]);
-    }
-    return lage;
-  };
+  const regelLage = (a: MatchRequest): RegelSituation => regelLageAus(a);
 
   /**
    * Warnings for the method in this situation (rule machine, regeln.ts): declarative fit rules, suitability entries

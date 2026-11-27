@@ -127,6 +127,14 @@ describe('FMT Differentiation Enrichment & adaptScenario Engine', () => {
       for (const m of tg.spezifischeMassnahmen) expect(m.meta.technik).toBe('analog');
     }
 
+    // Without a planned method no fit was checked: every answer says so (ohneMethode), and nothing is swapped.
+    const freeImpulse = freeRes.phasenAnpassungen.flatMap((p) => p.teilgruppenImpulse);
+    expect(freeImpulse.length).toBeGreaterThan(0);
+    for (const ti of freeImpulse) {
+      expect(ti.ohneMethode).toBe(true);
+      expect(ti.antwort).not.toBe('tausch');
+    }
+
     // 2. Single detected subgroup adds Regelniveau automatically
     const singleGroupRes = adaptScenario(D, {
       scenarioText: 'Biologie Klasse 6 Fotosynthese, 45 Minuten, 4 DaZ-Kinder'
@@ -150,6 +158,8 @@ describe('FMT Differentiation Enrichment & adaptScenario Engine', () => {
       });
       expect(arrRes.phasenAnpassungen.length).toBeGreaterThanOrEqual(4);
       expect(arrRes.phasenAnpassungen[0].baustein).toBeTruthy();
+      // With planned methods the answers are fit checks and carry no flag.
+      for (const ti of arrRes.phasenAnpassungen.flatMap((p) => p.teilgruppenImpulse)) expect(ti.ohneMethode).toBeUndefined();
       expect(arrRes.udlBasis.length).toBeGreaterThan(0);
       expect(arrRes.konflikte.length).toBeGreaterThan(0);
     }

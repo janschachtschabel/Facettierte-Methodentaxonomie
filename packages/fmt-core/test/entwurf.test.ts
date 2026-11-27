@@ -225,3 +225,22 @@ describe('Antwort des Kerns nennt das Planungsprofil', () => {
     expect((r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil')).toBe(false);
   });
 });
+
+describe('Bewertung (bewertet) im Entwurf', () => {
+  const feld = (e: ReturnType<typeof baueEntwurf>, id: string) => e.kernfelder.find((k) => k.id === id)!.inhalt;
+  it('Rahmendaten und Sicherung des Lernerfolgs nennen eine bewertete Stunde', () => {
+    const e = baueEntwurf(D.planungsprofile, eingabe({ bewertet: true }));
+    expect(feld(e, 'rahmendaten')).toContain('**Bewertung:** wird bewertet');
+    expect(feld(e, 'lernerfolg')).toMatch(/\*\*Bewertung:\*\* Das Ergebnis wird bewertet/);
+  });
+  it('nennt auch eine Stunde ohne Bewertung', () => {
+    const e = baueEntwurf(D.planungsprofile, eingabe({ bewertet: false }));
+    expect(feld(e, 'rahmendaten')).toContain('**Bewertung:** wird nicht bewertet');
+    expect(feld(e, 'lernerfolg')).toContain('**Bewertung:** nicht bewertet');
+  });
+  it('ohne Angabe bleibt der Entwurf wie bisher', () => {
+    const e = baueEntwurf(D.planungsprofile, eingabe());
+    expect(feld(e, 'rahmendaten')).not.toContain('Bewertung');
+    expect(feld(e, 'lernerfolg')).not.toContain('Bewertung');
+  });
+});

@@ -321,6 +321,8 @@ export interface PhaseAdaptationResult {
     beleg: { grund: string; merkmal?: string; grundlage?: Grundlage; quelle?: string };
     /** Helps inside the method (answer 'hilfe'), each with the sentence on when it is no longer needed. */
     hilfen: Hilfe[];
+    /** No method is planned in this phase: the answer is no fit check, the helps are the group's matrix helps. */
+    ohneMethode?: true;
   }>;
   passendeFmtMethoden: Array<{
     kennung: string;
@@ -1133,16 +1135,18 @@ export function adaptScenario(
   /** Answer, evidence, helps and equivalent alternatives of one group for one phase. */
   const entscheide = (groupId: string, stepKey: string, block: Baustein | undefined) => {
     const g = groupById.get(groupId);
+    // Without a planned method in the phase no fit is checked; the flag keeps callers from reading the answer as one.
+    const ohne = block ? {} : { ohneMethode: true as const };
     if (!g || g.isMain || !hasAdjustmentProfile(g)) {
-      return { antwort: 'passt' as const, beleg: { grund: g?.isMain ? PASST_REGEL : 'Für die Gruppe ist kein Bedarf angegeben.' }, hilfen: [], alternativeMethoden: [] };
+      return { antwort: 'passt' as const, beleg: { grund: g?.isMain ? PASST_REGEL : 'Für die Gruppe ist kein Bedarf angegeben.' }, hilfen: [], alternativeMethoden: [], ...ohne };
     }
     const a = block ? antwortByKey.get(`${groupId}|${stepKey}`) : undefined;
     if (!a) {
       // No planned method: nothing to swap; the matrix helps for the group stand in for the method's help.
       const hilfen = hilfenFuer(undefined, hilfsMatrix.get(groupId)!, data.teilgruppen);
       return hilfen.length
-        ? { antwort: 'hilfe' as const, beleg: { grund: 'Ohne geplante Methode: Hilfen der Matrix für die Teilgruppe.' }, hilfen, alternativeMethoden: [] }
-        : { antwort: 'passt' as const, beleg: { grund: 'Ohne geplante Methode und ohne Bedarf, der eine Hilfe braucht.' }, hilfen: [], alternativeMethoden: [] };
+        ? { antwort: 'hilfe' as const, beleg: { grund: 'Ohne geplante Methode: Hilfen der Matrix für die Teilgruppe.' }, hilfen, alternativeMethoden: [], ...ohne }
+        : { antwort: 'passt' as const, beleg: { grund: 'Ohne geplante Methode und ohne Bedarf, der eine Hilfe braucht.' }, hilfen: [], alternativeMethoden: [], ...ohne };
     }
     const beleg = {
       grund: a.grund,
@@ -1203,7 +1207,8 @@ export function adaptScenario(
         alternativeMethoden: antwort.alternativeMethoden,
         antwort: antwort.antwort,
         beleg: antwort.beleg,
-        hilfen: antwort.hilfen
+        hilfen: antwort.hilfen,
+        ...('ohneMethode' in antwort && antwort.ohneMethode ? { ohneMethode: true as const } : {})
       };
     });
 

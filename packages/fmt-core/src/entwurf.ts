@@ -90,6 +90,8 @@ export interface EntwurfEingabe {
   phasen: EntwurfPhase[];
   /** Form of proof (label). */
   nachweis?: string;
+  /** Whether the lesson or its result is graded; undefined: not stated (the draft says nothing). */
+  bewertet?: boolean;
   hinweise?: string[];
 }
 
@@ -163,7 +165,8 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
       `- **Dauer:** ${e.dauerMin} min (${b.einheit})`,
       `- **Ort:** ${nichtAngegeben(e.raum)}`,
       `- **Zielgruppe:** ${stufe}${e.anzahl ? ` · ${e.anzahl} ${b.lernende}` : ` · ${b.lernende}`}`,
-      `- **Dokument:** ${b.dokument}${e.profilAngenommen ? ` (Planungsprofil angenommen, weil keine Bildungsstufe angegeben ist)` : ''}`
+      `- **Dokument:** ${b.dokument}${e.profilAngenommen ? ` (Planungsprofil angenommen, weil keine Bildungsstufe angegeben ist)` : ''}`,
+      ...(e.bewertet == null ? [] : [`- **Bewertung:** ${e.bewertet ? 'wird bewertet' : 'wird nicht bewertet'}`])
     ].join('\n');
   };
 
@@ -218,6 +221,8 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
       ? schritte.map((p) => `- **${pruef.length ? 'Prüfschritt' : 'Sicherung'}:** ${phaseKurz(p)}`)
       : ['- Kein eigener Prüfschritt im Ablauf.'];
     if (e.nachweis?.trim()) lines.push(`- **Nachweis:** ${e.nachweis.trim()}`);
+    if (e.bewertet === true) lines.push('- **Bewertung:** Das Ergebnis wird bewertet.');
+    if (e.bewertet === false) lines.push('- **Bewertung:** nicht bewertet.');
     return lines.join('\n');
   };
 

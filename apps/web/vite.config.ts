@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:8080',
+      // With the slash: the web page /api-mcp must stay with the app (deep link, reload).
+      '/api/': 'http://localhost:8080',
       '/mcp': 'http://localhost:8080',
       '/vocabs': 'http://localhost:8080',
       '/bausteine': 'http://localhost:8080',

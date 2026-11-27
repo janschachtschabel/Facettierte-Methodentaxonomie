@@ -74,6 +74,24 @@ export function schemeValues(bundle: CatalogBundle, id: string): { id: string; l
   return werte.map((w) => ({ id: w.id, label: w.label }));
 }
 
+/** Function chains with their steps and the knowledge type each step binds (data/ketten.json), for /meta and MCP. */
+export function kettenUebersicht(bundle: CatalogBundle) {
+  return bundle.ketten.map((k) => ({
+    id: k.id,
+    label: k.label,
+    ...(k.zielart ? { zielart: k.zielart } : {}),
+    ...(k.ansatz ? { ansatz: k.ansatz } : {}),
+    schritte: k.schritte.map((st) => ({
+      id: st.id,
+      label: st.label,
+      funktion: st.funktion,
+      ziel: st.ziel,
+      ...(st.rolle ? { rolle: st.rolle } : {}),
+      ...(st.wissensart?.length ? { wissensart: st.wissensart } : {})
+    }))
+  }));
+}
+
 /**
  * What the table "Tausch oder Hilfe" provides for one matrix value, with basis and source. This is no answer for a
  * plan: a swap row swaps only when the planned method sets off the row's reason and adapts to nobody (`bedingung`).

@@ -9,6 +9,9 @@ import {
   type MeasureLevel
 } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
+import { ANTWORT_TITEL, TeilgruppenEntscheidung } from '../components/TeilgruppenEntscheidung.js';
+import { pruefungAusAnpassung } from '../planner/differentiationFlow.js';
+import { regelZeile } from '../planner/regelmeldung.js';
 import { exportMarkdownToPrintableHtml } from '../planner/arrangementOps.js';
 import {
   DIFF_HANDOFF_KEY,
@@ -160,6 +163,14 @@ function formatTechSummary(maxTechnik: string, ohneInternet: boolean, ohneKI: bo
   return parts.length ? parts.join(' · ') : 'Technik frei';
 }
 
+/** Shown instead of the decision cards while no method is planned (the core flags these answers ohneMethode). */
+export const OHNE_METHODE_TEXT =
+  'Noch keine Methode geplant: Plane zuerst im Baukasten, dann siehst du hier je Phase, ob die Methode passt, eine Hilfe reicht oder getauscht wird.';
+
+/** Short form of a decision for a phase box and the checklist; without a planned method it says so. */
+const antwortKurz = (ti: { antwort: 'passt' | 'hilfe' | 'tausch'; ohneMethode?: true }) =>
+  ti.ohneMethode ? 'Noch keine Methode geplant' : ANTWORT_TITEL[ti.antwort];
+
 function buildMarkdownChecklist(res: AdaptScenarioResult, scenarioText: string): string {
   const lines: string[] = [
     '# Binnendifferenzierungs- & Anpassungsplan',
@@ -203,8 +214,20 @@ function buildMarkdownChecklist(res: AdaptScenarioResult, scenarioText: string):
       lines.push(`- **Passende FMT-Methoden:** ${p.passendeFmtMethoden.map((m) => `${m.name} (${m.dauerMin}–${m.dauerMax} min${m.evidenzgrad ? `, Grad ${m.evidenzgrad}` : ''})`).join(' · ')}`);
     }
     for (const ti of p.teilgruppenImpulse) {
-      lines.push(`- **${ti.groupLabel}:** ${ti.massnahmen.map((m) => m.name).join(', ')}`);
+      const hilfen = ti.hilfen.length ? ` Hilfen: ${ti.hilfen.map((h) => `${h.name} (entfällt: ${h.abbau})`).join('; ')}.` : '';
+      lines.push(ti.ohneMethode ? `- **${ti.groupLabel}:** ${antwortKurz(ti)}.${hilfen}` : `- **${ti.groupLabel}:** ${antwortKurz(ti)}. Beleg: ${ti.beleg.grund}${hilfen}`);
+      if (ti.massnahmen.length) lines.push(`  - Maßnahmen aus der Matrix: ${ti.massnahmen.map((m) => m.name).join(', ')}`);
     }
+    lines.push('');
+  }
+  if (res.gesperrt.length) {
+    lines.push('## Nicht ausgewertet');
+    for (const g of res.gesperrt) lines.push(`- ${g.gruppe}: ${g.text}`);
+    lines.push('');
+  }
+  if (res.regelmeldungen.length) {
+    lines.push('## Hinweise zur Gruppierung');
+    for (const m of res.regelmeldungen) lines.push(`- ${m.text}`);
     lines.push('');
   }
   lines.push(`> ${res.epistemischerHinweis}`);
@@ -359,6 +382,9 @@ export function DifferentiationPage() {
     includeSystemMeasures
   ]);
 
+  // The same cards as step 3 of the planner (passt, Hilfe, Tausch with Beleg, Grundlage and abbau), read-only here.
+  const entscheidung = useMemo(() => (result ? pruefungAusAnpassung(result) : null), [result]);
+
   const applyPreset = (p: QuickPreset) => {
     setInputMode('free');
     setActivePresetId(p.id);
@@ -492,7 +518,7 @@ export function DifferentiationPage() {
         </h1>
         <p className="muted" style={{ margin: '6px 0 0', maxWidth: 820, fontSize: 15.5 }}>
           Überprüfe einen Unterrichtsentwurf oder dein laufendes Baukasten-Szenario auf heterogene Lernvoraussetzungen:
-          gemeinsame Basis (UDL), Zielkonflikte mit Lösungen und passende FMT-Methoden.
+          gemeinsame Basis (UDL), Zielkonflikte mit Lösungen, je Teilgruppe und Phase „passt“, „Hilfe“ oder „andere Methode“ mit Beleg und passende FMT-Methoden.
         </p>
       </header>
 
@@ -989,6 +1015,68 @@ export function DifferentiationPage() {
                   Konkrete Umsetzung entlang der Unterrichtsphasen – mit direkt verlinkten FMT-Methodenbausteinen.
                 </p>
 
+                <div role="region" aria-label="Passt, Hilfe oder andere Methode" style={{ marginTop: 14 }}>
+                  <h4 style={{ margin: '0 0 4px', fontFamily: 'var(--display)' }}>Passt, Hilfe oder andere Methode</h4>
+                  <p className="muted" style={{ margin: '0 0 10px', fontSize: 13.5, maxWidth: '76ch' }}>
+                    Je Teilgruppe und Phase entscheidet der Kern nach der Tabelle „Tausch oder Hilfe“: zuerst passt die
+                    Methode, sonst eine Hilfe in derselben Methode, nur mit Beleg eine andere Methode. Jede Hilfe sagt, wann
+                    sie entfällt. Übernehmen kannst du im Baukasten, Schritt 3.
+                  </p>
+                  {result.gesperrt.length > 0 && (
+                    <ul className="tg-hinweise" aria-label="Nicht ausgewertete Merkmale">
+                      {result.gesperrt.map((g, i) => (
+                        <li key={i}>
+                          <strong>{g.gruppe}:</strong> {g.text}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {result.regelmeldungen.length > 0 && (
+                    <ul className="tg-hinweise" aria-label="Hinweise zur Gruppierung">
+                      {result.regelmeldungen.map((m, i) => (
+                        <li key={i}>
+                          {m.text}
+                          <div className="muted tg-klein">{regelZeile(m, bundle?.regeln)}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {entscheidung && entscheidung.ohneMethode.length > 0 && (
+                    <div role="note" aria-label="Noch keine Methode geplant">
+                      <p style={{ margin: '0 0 8px', fontSize: 14 }}>
+                        <strong>{OHNE_METHODE_TEXT}</strong>
+                      </p>
+                      <ul className="tg-hinweise" aria-label="Hilfen der Matrix je Teilgruppe">
+                        {entscheidung.ohneMethode.filter((g) => g.hilfen.length > 0).map((g) => (
+                          <li key={g.groupId}>
+                            <strong>{g.groupLabel}:</strong> Hilfen der Matrix für die Gruppe
+                            <ul className="tg-hilfen">
+                              {g.hilfen.map((h) => (
+                                <li key={h.id}>
+                                  {h.name}
+                                  <div className="muted tg-klein">Wann die Hilfe entfällt: {h.abbau}</div>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {entscheidung && entscheidung.gruppen.length > 0 ? (
+                    <TeilgruppenEntscheidung
+                      subgroups={entscheidung.gruppen}
+                      pruefung={entscheidung.pruefung}
+                      rows={entscheidung.rows}
+                      subgroupMethods={{}}
+                      generatedMaterials={[]}
+                      regeln={bundle?.regeln}
+                    />
+                  ) : entscheidung && entscheidung.ohneMethode.length > 0 ? null : (
+                    <p className="muted">Keine Teilgruppe mit eigener Entscheidung erkannt.</p>
+                  )}
+                </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
                   {result.phasenAnpassungen.map((p) => (
                     <article key={p.key} className="diff-item-card">
@@ -1047,13 +1135,16 @@ export function DifferentiationPage() {
                               border: '1px solid var(--rule)'
                             }}
                           >
-                            <strong>{ti.groupLabel}</strong>
-                            <div style={{ marginTop: 3 }}>
-                              {ti.massnahmen.map((m) => `${m.name} (+${m.normalizedScore} %)`).join(' · ')}
-                            </div>
+                            <strong>{ti.groupLabel}</strong>: {antwortKurz(ti)}
+                            {ti.massnahmen.length > 0 && (
+                              <div style={{ marginTop: 3 }}>
+                                <span className="muted">Maßnahmen aus der Matrix:</span>{' '}
+                                {ti.massnahmen.map((m) => `${m.name} (+${m.normalizedScore} %)`).join(' · ')}
+                              </div>
+                            )}
                             {ti.alternativeMethoden.length > 0 && (
                               <div className="muted" style={{ fontSize: 12.5, marginTop: 5 }}>
-                                Alternative FMT-Methode: {ti.alternativeMethoden.slice(0, 2).map((a) => a.name).join(', ')}
+                                Gleichwertige andere Methode: {ti.alternativeMethoden.slice(0, 2).map((a) => a.name).join(', ')}
                               </div>
                             )}
                           </div>

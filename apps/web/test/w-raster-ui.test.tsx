@@ -195,7 +195,7 @@ describe('W-Raster in der Oberfläche', () => {
     expect(screen.getByText(/ordnest du sie in Schritt 3 den Phasen zu/)).toBeTruthy();
   }, 60_000);
 
-  it('Katalog filtert nach Raum und „ohne Lesen und Schreiben“', () => {
+  it('Katalog filtert nach Raum und „ohne Lesen“ / „ohne Schreiben“', () => {
     render(
       <MemoryRouter>
         <CatalogPage />
@@ -219,7 +219,8 @@ describe('W-Raster in der Oberfläche', () => {
     expect(screen.getByText('Lehrervortrag (klassisch)')).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText('Raum'), { target: { value: '' } });
-    fireEvent.click(screen.getByLabelText('ohne Lesen und Schreiben'));
+    fireEvent.click(screen.getByLabelText('ohne Lesen'));
+    fireEvent.click(screen.getByLabelText('ohne Schreiben'));
     // A learning journal (schreibt) goes; the warm-up (no reading or writing) is back.
     expect(anzahl()).toBeGreaterThan(0);
     expect(anzahl()).toBeLessThan(alle);

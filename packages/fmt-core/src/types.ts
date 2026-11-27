@@ -585,6 +585,10 @@ export interface SearchCriteria {
   ohneRaumbedarf?: string | string[];
   /** Kind of entry: only methods or only helps; without it the search returns both. */
   eintragsart?: 'methode' | 'hilfe';
+  /** What the learners cannot do (lesen, schreiben; true: both): methods that ask for it are left out. */
+  ohneSchrift?: boolean | string | string[];
+  /** Number of dates available: methods that need more (termineMin) are left out. */
+  termine?: number | string;
   [facet: string]: unknown;
 }
 

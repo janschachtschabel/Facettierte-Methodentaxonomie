@@ -6,6 +6,7 @@ import type {
   Baustein,
   CatalogBundle,
   FmtSearch,
+  MatchRequest,
   ReplacementCandidate,
   WiederkehrNode
 } from '@fmt/core';
@@ -32,6 +33,7 @@ import {
   wrapStepInAlternative
 } from '../planner/arrangementOps.js';
 import type { ExplainedValidationMessage } from '../planner/validationHelpers.js';
+import { schrittKandidaten, type WeitereRahmen } from '../planner/kandidaten.js';
 
 interface Props {
   arrangement: Arrangement;
@@ -44,6 +46,29 @@ interface Props {
   explainedMessages?: ExplainedValidationMessage[];
   onOpenOerForStep?: (stepKey: string) => void;
   onOpenMaterialForStep?: (stepKey: string) => void;
+  /** Situation of the plan (room, literacy, dates, time, technology); a replacement must cover its needs there. */
+  situation?: MatchRequest;
+  /** Frame of the page's pickers; with it the per-step and slot selects go through the core's candidate filter. */
+  kandidaten?: WeitereRahmen;
+}
+
+/** Splits a select's methods by the core's check; without a frame every method counts as fitting (no situation known). */
+const aufteilen = (cands: Baustein[], r: WeitereRahmen | undefined, schrittId?: string) =>
+  r ? schrittKandidaten(cands, r, schrittId) : { passend: cands, ausgeschlossen: [] as Array<{ b: Baustein; grund: string }> };
+
+/** Disabled entries for methods the core rejects here, each with its reason. */
+function PasstHierNicht({ liste, aktuell }: { liste: Array<{ b: Baustein; grund: string }>; aktuell?: string }) {
+  const rest = liste.filter((x) => x.b.kennung !== aktuell);
+  if (!rest.length) return null;
+  return (
+    <optgroup label="Passt hier nicht">
+      {rest.map(({ b, grund }) => (
+        <option key={b.kennung} value={b.kennung} disabled>
+          {b.name}: {grund}
+        </option>
+      ))}
+    </optgroup>
+  );
 }
 
 const RANGE_LABELS: Record<string, string> = {
@@ -97,7 +122,9 @@ export function PartiturView({
   labelOf,
   explainedMessages = [],
   onOpenOerForStep,
-  onOpenMaterialForStep
+  onOpenMaterialForStep,
+  situation,
+  kandidaten
 }: Props) {
   const [swapTarget, setSwapTarget] = useState<{ pfad: string; candidates: ReplacementCandidate[] } | null>(null);
   const { seq, prefix } = getMainSequence(arrangement);
@@ -112,7 +139,8 @@ export function PartiturView({
       return;
     }
     try {
-      const candidates = search.ersatz(arrangement, pfad, registry);
+      // The core keeps methods only, binds the chain step's knowledge type and checks the needs in the situation.
+      const candidates = search.ersatz(arrangement, pfad, registry, situation);
       setSwapTarget({ pfad, candidates });
     } catch {
       setSwapTarget({ pfad, candidates: [] });
@@ -124,6 +152,8 @@ export function PartiturView({
     setSwapTarget(null);
   };
 
+  // Pickers outside a chain step check the situation only.
+  const anfuegWahl = aufteilen(sortedBlocks, kandidaten);
   const mainSteps = seq.teile.filter((t) => t && t.typ !== 'Wiederkehr');
   const wkNode = seq.teile.find((t): t is WiederkehrNode => Boolean(t) && t.typ === 'Wiederkehr') || null;
   const parBegleitend =
@@ -167,17 +197,21 @@ export function PartiturView({
         const pfad = `${prefix}/teile/${realIdx}`;
         const chainStep = node.kettenschritt && kette ? kette.schritte.find((s) => s.id === node.kettenschritt) : null;
         const produced = [...new Set(statesOfNode(node))];
+        // Options of an alternative fill the same chain step: the same core check applies.
+        const altWahl = node.typ === 'Alternative' ? aufteilen(sortedBlocks, kandidaten, node.kettenschritt) : anfuegWahl;
 
         return (
           <div key={`${realIdx}-${visIdx}`}>
             {node.typ === 'Einsatz' && (() => {
               const b = blocksById.get(node.baustein);
               const slots = b?.slot || [];
-              const candsForStep = chainStep
+              const vorauswahl = chainStep
                 ? sortedBlocks.filter(
                     (cand) => (rangMap.get(cand.reichweite) ?? 0) <= 3 && cand.lernfunktion.some((f) => chainStep.funktion.includes(f))
                   )
                 : sortedBlocks;
+              // The core decides what fits here (needs in the situation, knowledge type of the chain step).
+              const { passend: candsForStep, ausgeschlossen: passtNicht } = aufteilen(vorauswahl, kandidaten, node.kettenschritt);
 
               const stepMsgs = explainedMessages.filter((em) => em.stepIndex === realIdx);
               const hasErr = stepMsgs.some((em) => em.raw.schwere === 'Fehler');
@@ -226,6 +260,7 @@ export function PartiturView({
                                 {cand.name} ({cand.reichweite.toUpperCase()})
                               </option>
                             ))}
+                            <PasstHierNicht liste={passtNicht} aktuell={node.baustein} />
                           </select>
                           <label style={{ fontFamily: 'var(--display)', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                             <input
@@ -272,7 +307,7 @@ export function PartiturView({
                         className="btn btn-sm"
                         title="In adaptive Alternative (2 Zweige) umwandeln"
                         onClick={() => {
-                          const alt = sortedBlocks.find((x) => x.kennung !== node.baustein) || b;
+                          const alt = candsForStep.find((x) => x.kennung !== node.baustein) || sortedBlocks.find((x) => x.kennung !== node.baustein) || b;
                           if (alt) onChange(wrapStepInAlternative(arrangement, realIdx, alt));
                         }}
                       >
@@ -406,11 +441,14 @@ export function PartiturView({
                               : innerBlock?.dauerMin ?? 10;
                           const parentR = rangMap.get(b.reichweite) ?? 3;
                           const slotR = rangMap.get(sl.reichweite) ?? 2;
-                          const slotCands = sortedBlocks.filter(
-                            (c) =>
-                              (rangMap.get(c.reichweite) ?? 0) < parentR &&
-                              (rangMap.get(c.reichweite) ?? 0) <= slotR &&
-                              c.lernfunktion.some((f) => sl.lernfunktion.includes(f))
+                          const { passend: slotCands, ausgeschlossen: slotPasstNicht } = aufteilen(
+                            sortedBlocks.filter(
+                              (c) =>
+                                (rangMap.get(c.reichweite) ?? 0) < parentR &&
+                                (rangMap.get(c.reichweite) ?? 0) <= slotR &&
+                                c.lernfunktion.some((f) => sl.lernfunktion.includes(f))
+                            ),
+                            kandidaten
                           );
                           return (
                             <div
@@ -442,11 +480,15 @@ export function PartiturView({
                                 }}
                               >
                                 <option value="">– Slot leer –</option>
+                                {innerBlock && !slotCands.some((c) => c.kennung === innerId) && (
+                                  <option value={innerBlock.kennung}>{innerBlock.name} ({innerBlock.reichweite.toUpperCase()})</option>
+                                )}
                                 {slotCands.map((c) => (
                                   <option key={c.kennung} value={c.kennung}>
                                     {c.name} ({c.reichweite.toUpperCase()})
                                   </option>
                                 ))}
+                                <PasstHierNicht liste={slotPasstNicht} aktuell={innerId} />
                               </select>
                               {innerBlock && (
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 6, fontSize: 12.5 }}>
@@ -557,11 +599,15 @@ export function PartiturView({
                             if (picked) onChange(updateAlternativeOption(arrangement, realIdx, oi, picked));
                           }}
                         >
-                          {sortedBlocks.map((cand) => (
+                          {optB && !altWahl.passend.some((c) => c.kennung === optId) && (
+                            <option value={optB.kennung}>{optB.name} ({optB.reichweite.toUpperCase()})</option>
+                          )}
+                          {altWahl.passend.map((cand) => (
                             <option key={cand.kennung} value={cand.kennung}>
                               {cand.name} ({cand.reichweite.toUpperCase()})
                             </option>
                           ))}
+                          <PasstHierNicht liste={altWahl.ausgeschlossen} aktuell={optId} />
                         </select>
                         {optB && (
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, fontSize: 12.5 }}>
@@ -640,11 +686,12 @@ export function PartiturView({
             }}
           >
             <option value="">Baustein auswählen…</option>
-            {sortedBlocks.map((b) => (
+            {anfuegWahl.passend.map((b) => (
               <option key={b.kennung} value={b.kennung}>
                 {b.name} ({b.reichweite.toUpperCase()})
               </option>
             ))}
+            <PasstHierNicht liste={anfuegWahl.ausgeschlossen} />
           </select>
         </div>
 
@@ -670,7 +717,7 @@ export function PartiturView({
                 'wiki-kollaboration',
                 'e-portfolio-kurs'
               ]);
-              const eligible = sortedBlocks.filter((b) => (rangMap.get(b.reichweite) ?? 0) <= 3);
+              const eligible = anfuegWahl.passend.filter((b) => (rangMap.get(b.reichweite) ?? 0) <= 3);
               const recommended = eligible.filter((b) => recommendedParallelIds.has(b.kennung));
               const others = eligible.filter((b) => !recommendedParallelIds.has(b.kennung));
               return (
@@ -694,6 +741,10 @@ export function PartiturView({
                       </option>
                     ))}
                   </optgroup>
+                  {parBlockId && !eligible.some((b) => b.kennung === parBlockId) && blocksById.get(parBlockId) && (
+                    <option value={parBlockId}>{blocksById.get(parBlockId)!.name}</option>
+                  )}
+                  <PasstHierNicht liste={anfuegWahl.ausgeschlossen.filter((x) => (rangMap.get(x.b.reichweite) ?? 0) <= 3)} aktuell={parBlockId} />
                 </select>
               );
             })()}
@@ -739,13 +790,20 @@ export function PartiturView({
               }}
             >
               <option value="">– keine Wiederkehr –</option>
-              {sortedBlocks
+              {wkNode && !anfuegWahl.passend.some((b) => b.kennung === wkNode.baustein) && blocksById.get(wkNode.baustein) && (
+                <option value={wkNode.baustein}>{blocksById.get(wkNode.baustein)!.name}</option>
+              )}
+              {anfuegWahl.passend
                 .filter((b) => b.reichweite === 'r1' && b.lernfunktion.includes('konsolidierung'))
                 .map((b) => (
                   <option key={b.kennung} value={b.kennung}>
                     {b.name}
                   </option>
                 ))}
+              <PasstHierNicht
+                liste={anfuegWahl.ausgeschlossen.filter((x) => x.b.reichweite === 'r1' && x.b.lernfunktion.includes('konsolidierung'))}
+                aktuell={wkNode?.baustein}
+              />
             </select>
             {wkNode && (
               <input

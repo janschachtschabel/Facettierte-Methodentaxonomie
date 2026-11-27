@@ -127,3 +127,58 @@ export function erstelleRegeln(regeln: Passungsregel[], label?: (schema: string,
     }
   };
 }
+
+const REGEL_LAGE_FELDER = ['vorwissen', 'bildungsstufe', 'komplexitaet', 'sprachniveau', 'fachbereich'] as const;
+
+/**
+ * Situation the fit rules read, from a request or the criteria of a match answer: prior knowledge, stage, complexity,
+ * language level and subject area. Empty values are left out (a field that is not given never fires a rule).
+ */
+export function regelLageAus(a: Record<string, unknown> | null | undefined): RegelSituation {
+  const lage: RegelSituation = {};
+  for (const feld of REGEL_LAGE_FELDER) {
+    const v = a?.[feld];
+    if (v != null && v !== '') lage[feld] = String(v);
+  }
+  return lage;
+}
+
+/**
+ * Rule messages after a change of the flow by hand. The warnings the rule machine gives per method and situation
+ * (declarative rules, suitability entries, evidenz-geltung) are computed again for the methods now in the flow, in
+ * the situation `lage`; every other message of the answer (situation-level notes, the safety note, a named wish, the
+ * form of proof, dates for accompanying goals) stays as the answer gave it. The new warnings stand where the first
+ * old one stood, or at the end.
+ */
+export function passungNeuPruefen(
+  meldungen: Regelmeldung[],
+  methoden: Baustein[],
+  lage: RegelSituation,
+  regeln: Passungsregel[],
+  label?: (schema: string, code: string) => string
+): Regelmeldung[] {
+  const maschine = erstelleRegeln(regeln, label);
+  const proMethode = (m: Regelmeldung) =>
+    Boolean(m.baustein) &&
+    !m.bausteine?.length &&
+    (maschine.regel(m.regel)?.art === 'deklarativ' || m.regel.startsWith('eignung-') || m.regel === 'evidenz-geltung');
+  const gesehen = new Set<string>();
+  const neu: Regelmeldung[] = [];
+  for (const b of methoden) {
+    if (gesehen.has(b.kennung)) continue;
+    gesehen.add(b.kennung);
+    neu.push(...maschine.warnungen(b, lage));
+  }
+  const aus: Regelmeldung[] = [];
+  let eingefuegt = false;
+  for (const m of meldungen) {
+    if (proMethode(m)) {
+      if (!eingefuegt) aus.push(...neu);
+      eingefuegt = true;
+      continue;
+    }
+    aus.push(m);
+  }
+  if (!eingefuegt) aus.push(...neu);
+  return aus;
+}

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { MCP_HINWEISE } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { katalogZahlenText } from '../data/katalogZahlen.js';
 
@@ -21,7 +22,37 @@ const FMT2_FELDER: Array<[string, string, ReactNode]> = [
   ['begleitstrang', 'Antwort', 'Je Begleitziel (sozial, selbstregulation) ein kurzer Vorschlag am Ende der Stunde mit Methode, Dauer und Grund. Er steht nicht im Ablauf.'],
   ['genannteHilfen', 'Antwort', 'Im Text genannte Hilfen (Eintragsart hilfe): nie eine Phase, sie gehören zu einer Methode.'],
   ['entwurf', 'Antwort (umfang „voll“)', 'Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, dazu Spalten des Verlaufsplans und Module. In methodenDetails steht je Methode status; „entwurf“ heißt Ersterfassung, noch nicht kuratiert.'],
-  ['teilgruppenImpulse', 'Antwort von POST /api/v1/adapt', 'Je Phase und Teilgruppe die Entscheidung antwort (passt, hilfe oder tausch) mit beleg (Grund, Merkmal, Grundlage, Quelle) und hilfen samt abbau; gesperrte Merkmale (Lerntypen) stehen unter gesperrt.']
+  ['teilgruppenImpulse', 'Antwort von POST /api/v1/adapt', 'Je Phase und Teilgruppe die Entscheidung antwort (passt; hilfe: die geplante Methode bleibt, die Gruppe bekommt eine Hilfe; tausch) mit beleg (Grund, Merkmal, Grundlage, Quelle) und hilfen samt abbau; gesperrte Merkmale (Lerntypen) stehen unter gesperrt.'],
+  ['ohneMethode', 'Antwort von POST /api/v1/adapt (je teilgruppenImpulse)', 'true, wenn für die Phase keine FMT-Methode geplant ist (freier Text ohne Bausteine). Dann ist keine Passung geprüft: antwort hilfe nennt nur die Hilfen der Matrix für die Gruppe, keine Entscheidung über eine Methode.']
+];
+
+/** Further request fields of FMT 2.0 (same names in REST and MCP; the list of the core is GET /api/v1/fields). */
+const FMT2_ANFRAGEFELDER: Array<[string, ReactNode]> = [
+  [
+    'zielart',
+    <>
+      Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung. Daraus
+      folgt die Funktionskette (etwa <code>handlung</code> → vollständige Handlung); die alten Codes (psychomotorik,
+      einstellungen) gelten weiter. <code>zieltyp</code> wählt eine Kette direkt.
+    </>
+  ],
+  ['komplexitaet', 'Komplexität des Inhalts (gering, mittel, hoch); Methoden mit hoher Eigenverantwortung warnen bei hoher Komplexität.'],
+  ['sprachniveau', 'Sprachniveau der ganzen Lerngruppe (A1 bis C2); Methoden mit viel Schrift warnen bei niedrigem Niveau. Nicht für eine Teilgruppe.'],
+  ['lehrende', 'Anzahl der Lehrenden im Raum (Teamteaching: 2). Mit einer Lehrkraft darf nur eine von zwei parallelen Methoden sie binden (Regel lehrkraft-nicht-doppelt); mit zwei entfällt das.'],
+  ['einheit', 'Einheit, zu der die Stunde gehört (Lernfeld, Unterrichtsreihe, Modul); sie steht in den Rahmendaten des Entwurfs.'],
+  ['bewertet', 'true, wenn die Stunde oder ihr Ergebnis bewertet wird; der Entwurf nennt es.'],
+  ['raumBietet', 'Raumeigenschaften, die der Raum abweichend vom Raumtyp bietet (z. B. bewegungsflaeche, wandflaeche).'],
+  ['fachausstattungArt', 'Art der Fachausstattung, die der Raum bietet (Sport, Musik, Labor, Werkstatt, Küche, Rechner).']
+];
+
+/** Fields of a method (catalogue entry) added by FMT 2.0. */
+const FMT2_METHODENFELDER: Array<[string, string]> = [
+  ['eintragsart', 'methode (trägt eine Phase) oder hilfe (stützt Lernende in einer Methode, nie eine eigene Phase).'],
+  ['raumbedarf', 'Raumeigenschaften, die die Methode braucht (schreibplatz, stellflaeche, bewegungsflaeche, wandflaeche, fachausstattung, aussenort).'],
+  ['schriftbedarf', 'liest und/oder schreibt: ob die Lernenden lesen oder schreiben; Gegenstück der Anfrage ist ohneSchrift.'],
+  ['termineMin', 'Wie viele Termine die Methode mindestens braucht; Gegenstück der Anfrage ist termine.'],
+  ['eignungsgrund', 'Je stufe, vorwissen, fachbereich der Grund einer Eignungsaussage mit grundlage (E belegt, S gefolgert, A Setzung) und quelle.'],
+  ['evidenz[].evidenzBezug', 'methode, prinzip oder programm: worauf sich ein Befund bezieht; programm heißt ganze Programme, nicht die einzelne Phase.']
 ];
 
 const FMT2_ANFRAGE = JSON.stringify(
@@ -93,8 +124,10 @@ export function ApiMcpPage() {
     <div className="page-section">
       <h1>API, MCP &amp; Linked Data (OER)</h1>
       <p className="muted" style={{ maxWidth: '72ch' }}>
-        {bundle ? `Alle ${katalogZahlenText(bundle.bausteine)}` : 'Alle Unterrichtsmethoden'}, {bundle?.schemes.length ?? 24} SKOS-Vokabulare, die deterministische 5-Stufen-Zuordnung
-        (&lt;1 ms, 0 LLM-Tokens) und der 13-Regeln-Validator stehen für externe KI-Agents über <strong>MCP</strong> und{' '}
+        {bundle ? `Alle ${katalogZahlenText(bundle.bausteine)}` : 'Alle Unterrichtsmethoden'},{' '}
+        {/* One SKOS file per scheme plus the vocabulary of the function chains (as built in dist-data). */}
+        {bundle ? `${bundle.schemes.length + 1} SKOS-Vokabulare` : 'die SKOS-Vokabulare'}, die deterministische Zuordnung in fünf
+        Stufen mit Passungsregeln (&lt;1 ms, 0 LLM-Tokens) und die Prüfung gegen die Kompositionsregeln R-00 bis R-12 stehen für externe KI-Agents über <strong>MCP</strong> und{' '}
         <strong>REST / JSON-LD</strong> offen unter <strong>CC BY 4.0 (Jan Schachtschabel)</strong> bereit.
       </p>
 
@@ -112,28 +145,28 @@ export function ApiMcpPage() {
         </div>
 
         <div className="card" style={{ padding: 18 }}>
-          <h2>Verfügbare MCP-Tools &amp; Resources (15 Tools · Zero-LLM-First)</h2>
+          <h2>Verfügbare MCP-Tools &amp; Resources (15 Tools · ohne LLM zuerst)</h2>
           <p className="muted" style={{ fontSize: 13.5, marginTop: 4 }}>
             Alle MCP-Tools antworten standardmäßig <strong>ohne Server-LLM in &lt;5 ms</strong> (Vorfilterung, Regelprüfung,
             Matrix-Scoring &amp; Klassifikation) und liefern bei komplexen Aufgaben ein fertiges <code>llmBriefing</code> für
             das Enduser-LLM. Klassifikations-Engine: <code>{meta?.embeddingsEngine || 'hybrid-bm25-trigram'}</code>.
           </p>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
-            <li><code>classify_scenario_text</code> – Zero-LLM Freitext-Klassifikation (Regeln + BM25/Trigram + opt. Model2Vec) auf 6 Skalen, Fach/Thema &amp; Matrix-Merkmale</li>
-            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} inkl. semantischer Vorschläge, auch nach <code>fach</code> oder <code>fachbereich</code></li>
-            <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen (frühere Kennungen werden weitergeleitet)</li>
-            <li><code>compare_methods</code> – Facette-für-Facette-Differenzvergleich</li>
-            <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung inkl. didaktischem Ansatz &amp; Matrix-Signalen</li>
-            <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen</li>
-            <li><code>suggest_replacements</code> – Formal gültige Ersatzkandidaten an einem Knotenpfad</li>
-            <li><code>list_vocabularies</code> – Kontrollierte Codes, Funktionsketten &amp; Differenzierungs-Personas</li>
-            <li><code>list_differentiation_options</code> – <strong>Eigenständiger Katalog</strong> aller 36 Lernvoraussetzungs-Variablen (115 Ausprägungen), 8 Schnellprofile, Personas &amp; Handlungsebenen (<code>GET /api/v1/differentiation/meta</code>)</li>
+            <li><code>classify_scenario_text</code> – Freitext ohne LLM einordnen (Regeln + BM25/Trigram + opt. Model2Vec): Filterskalen, Fach/Thema, Matrix-Merkmale und <code>pflichtangaben</code> (was fehlt, was angenommen würde)</li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel}, auch nach <code>eintragsart</code> (Methoden oder Hilfen), <code>raum</code>, <code>raumbedarf</code>, <code>schriftbedarf</code>, <code>fach</code> oder <code>fachbereich</code></li>
+            <li><code>get_method</code> – Vollständiges Profil mit Bedarf, Eignung (<code>eignungsgrund</code>), Eintragsart, Evidenz samt Bezug und der Einordnung in Funktionsketten (frühere Kennungen werden weitergeleitet)</li>
+            <li><code>compare_methods</code> – Vergleich zweier Einträge nach Facetten, Bedarf, Eignung, Eintragsart und Evidenzbezug</li>
+            <li><code>match_scenario</code> – Deterministische Zuordnung in fünf Stufen (Kette nach Zielart, Bindung der Wissensart, Bedarf, Passungsregeln) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code> und <code>planungsprofil</code></li>
+            <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen (die Passungsregeln prüft die Zuordnung)</li>
+            <li><code>suggest_replacements</code> – Ersatzkandidaten an einem Knotenpfad: nur Methoden, Bedarf in der Situation, Wissensart des Kettenschritts</li>
+            <li><code>list_vocabularies</code> – Kontrollierte Codes, W-Felder, Arten, Merkmale, Funktionsketten mit Wissensart je Schritt, Passungsregeln, Raumtypen, Zielarten, Planungsprofile und Differenzierungs-Personas</li>
+            <li><code>list_differentiation_options</code> – <strong>Eigenständiger Katalog</strong> der Lernvoraussetzungs-Merkmale, Schnellprofile, Personas &amp; Handlungsebenen, mit Tausch oder Hilfe je Merkmal und ohne gesperrte Merkmale (<code>GET /api/v1/differentiation/meta</code>)</li>
             <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code>, gefiltert nach Fach oder Fachbereich</li>
-            <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, <code>quickProfileId</code>, Ebenen-/Technikfilter) &amp; alternative Teilgruppen-Methoden</li>
-            <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong> (für freie Chat-Entwürfe, einzelne <code>baustein</code>-Methoden &amp; FMT-Arrangements): UDL-Basis, Zielkonflikte + Auflösungen, Methoden-Kontext, FMT-Methoden sowie <code>teilgruppenMethoden</code> und <code>zusatzphasen</code> wie Schritt 3 des Baukastens (<code>POST /api/v1/adapt</code>)</li>
-            <li><code>build_scenario_plan</code> – Kompletter Zero-LLM-Szenario-Plan (&lt;5 ms) mit Matrix, parallelen Methoden für Teilgruppen, Zusatzphasen für alle &amp; opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich <code>llmBriefing</code>, UDL/Konflikte und JSON-LD</li>
-            <li><code>elaborate_scenario</code> – Deterministische Verlaufstabelle + <code>llmBriefing</code> für das Enduser-LLM</li>
-            <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage (7 Typen) + <code>llmBriefing</code></li>
+            <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, <code>quickProfileId</code>, Ebenen-/Technikfilter) mit Tausch oder Hilfe je Merkmal</li>
+            <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong>: je Phase und Teilgruppe passt, Hilfe oder Tausch mit <code>beleg</code> und <code>abbau</code>, <code>gesperrt</code>, <code>regelmeldungen</code>, dazu UDL-Basis, Zielkonflikte, <code>teilgruppenMethoden</code> und <code>zusatzphasen</code> wie Schritt 3 des Baukastens (<code>POST /api/v1/adapt</code>)</li>
+            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan ohne LLM (&lt;5 ms) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, Begleitstrang, parallelen Methoden für Teilgruppen und opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich der <code>entwurf</code>, <code>llmBriefing</code> und JSON-LD</li>
+            <li><code>elaborate_scenario</code> – Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, Verlaufstabelle und <code>llmBriefing</code> für das Enduser-LLM</li>
+            <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage + <code>llmBriefing</code></li>
           </ul>
           <p style={{ fontSize: 14 }} className="muted">
             <strong>Resources:</strong> <code>fmt://catalog/summary</code> · <code>fmt://differentiation/options</code> ·{' '}
@@ -161,18 +194,21 @@ export function ApiMcpPage() {
               <tr>
                 <td><code>GET /api/v1/meta</code></td>
                 <td>
-                  Version, SHA-256 <code>versionHash</code>, Bausteine-Anzahl, Klassifikations-Engine (
+                  Version, SHA-256 <code>versionHash</code>, Anzahl der Methoden und Hilfen, <code>wfelder</code>, <code>arten</code>,{' '}
+                  <code>merkmale</code>, <code>regeln</code> (Passungsregeln), <code>raumtypen</code>, <code>zielarten</code>,{' '}
+                  <code>ketten</code> mit Wissensart je Schritt, <code>teilgruppen</code> (Tausch oder Hilfe),{' '}
+                  <code>planungsprofile</code>, Klassifikations-Engine (
                   <code>{meta?.embeddingsEngine || 'hybrid-bm25-trigram'}</code>), Server-LLM (
                   {meta?.llmConfigured ? `aktiv: ${meta.llmModel}` : 'Zero-LLM-Standard'})
                 </td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/classify</code></td>
-                <td>Zero-LLM Freitext-Klassifikation auf 6 Skalen, Fach/Thema, Methoden &amp; Matrix-Merkmale</td>
+                <td>Freitext ohne LLM einordnen: Filterskalen, Fach/Thema, Methoden, Matrix-Merkmale und <code>pflichtangaben</code></td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/plan</code></td>
-                <td>Zero-LLM End-to-End-Vorfilterung (&lt;5 ms): Arrangement, Matrix, Tabelle, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code> &amp; fertiges <code>llmBriefing</code> (mit <code>umfang: "voll"</code>)</td>
+                <td>Plan ohne LLM (&lt;5 ms) mit allen Anfragefeldern: Arrangement, <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code>, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code>; mit <code>umfang: "voll"</code> der <code>entwurf</code> und ein fertiges <code>llmBriefing</code></td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/briefing</code></td>
@@ -186,7 +222,10 @@ export function ApiMcpPage() {
                 <td><code>GET /api/v1/methods?text=…&amp;lernfunktion=…</code></td>
                 <td>
                   Facettierte Suche. <code>fach=Physik</code> oder <code>fuerFachbereich=…</code>: Methoden des Fachbereichs und
-                  fachübergreifende, ohne ungeeignete; <code>fachbereich=a,b</code>: streng nur diese Fachbereiche
+                  fachübergreifende, ohne ungeeignete; <code>fachbereich=a,b</code>: streng nur diese Fachbereiche. Dazu{' '}
+                  <code>eintragsart</code> (methode, hilfe), <code>raum</code> (Raumtyp deckt den Bedarf), <code>raumbedarf</code>,{' '}
+                  <code>ohneRaumbedarf</code>, <code>schriftbedarf</code>, <code>ohneSchrift</code> (lesen, schreiben) und{' '}
+                  <code>termine</code>
                 </td>
               </tr>
               <tr>
@@ -196,8 +235,9 @@ export function ApiMcpPage() {
               <tr>
                 <td><code>POST /api/v1/adapt</code></td>
                 <td>
-                  Anpassung an Lerngruppen: UDL-Basis, Zielkonflikte, Maßnahmen je Phase, <code>teilgruppenMethoden</code> und{' '}
-                  <code>zusatzphasen</code> (Gruppe mit <code>id: "regel"</code> = Regelgruppe)
+                  Anpassung an Lerngruppen: je Phase und Teilgruppe passt, Hilfe oder Tausch mit <code>beleg</code> und{' '}
+                  <code>abbau</code>, <code>gesperrt</code>, <code>regelmeldungen</code>, dazu UDL-Basis, Zielkonflikte,{' '}
+                  <code>teilgruppenMethoden</code> und <code>zusatzphasen</code> (Gruppe mit <code>id: "regel"</code> = Regelgruppe)
                 </td>
               </tr>
               <tr>
@@ -206,7 +246,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/match</code> (Alias: <code>POST /zuordnung</code>)</td>
-                <td>5-Stufen-Zuordnung (Freitext oder strukturiertes Schema)</td>
+                <td>Zuordnung in fünf Stufen (Freitext oder strukturiertes Schema) mit <code>pflichtangaben</code>, <code>regelmeldungen</code> und <code>begleitstrang</code></td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/validate</code></td>
@@ -214,7 +254,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/replacements</code></td>
-                <td>Austausch-Kandidaten (<code>ersatz()</code>) für einen Knotenpfad</td>
+                <td>Ersatzkandidaten für einen Knotenpfad: nur Methoden, Bedarf in der Situation (<code>raum</code>, <code>ohneSchrift</code>, <code>termine</code>), Wissensart des Kettenschritts</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/translate</code></td>
@@ -222,7 +262,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/elaborate</code></td>
-                <td>Thematische Verlaufstabelle + ausformulierter Unterrichtsentwurf unter 4 Leitplanken</td>
+                <td>Entwurf mit den sieben Kernfeldern (Begriffe des Planungsprofils), Verlaufstabelle und ausformulierter Entwurf unter 4 Leitplanken</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/differentiate</code></td>
@@ -263,8 +303,9 @@ export function ApiMcpPage() {
       <section className="card" style={{ padding: 18, marginTop: 24 }}>
         <h2>Neue Felder der FMT 2.0</h2>
         <p style={{ fontSize: 15, maxWidth: '76ch' }}>
-          Die Felder gelten gleich für <code>POST /api/v1/plan</code>, <code>POST /api/v1/match</code> und die MCP-Tools{' '}
-          <code>match_scenario</code>, <code>build_scenario_plan</code> und <code>elaborate_scenario</code>. Alte Aufrufe
+          Die Anfragefelder gelten gleich für <code>POST /api/v1/plan</code>, <code>POST /api/v1/match</code> und die
+          MCP-Tools <code>match_scenario</code> und <code>build_scenario_plan</code>; die vollständige Liste mit Werten
+          liefert <code>GET /api/v1/fields</code>. Alte Aufrufe
           laufen weiter: <code>lernort</code> gilt als <code>raum</code>, die sechs alten Codes in <code>zielart</code> und der
           Raumtyp <code>fachraum</code> bleiben gültig.
         </p>
@@ -290,6 +331,48 @@ export function ApiMcpPage() {
             </tbody>
           </table>
         </div>
+        <h3 style={{ marginTop: 18 }}>Weitere Anfragefelder</h3>
+        <div className="scroll">
+          <table aria-label="Weitere Anfragefelder der FMT 2.0">
+            <thead>
+              <tr>
+                <th>Feld</th>
+                <th>Bedeutung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FMT2_ANFRAGEFELDER.map(([feld, text]) => (
+                <tr key={feld}>
+                  <td>
+                    <code>{feld}</code>
+                  </td>
+                  <td>{text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <h3 style={{ marginTop: 18 }}>Neue Felder einer Methode</h3>
+        <div className="scroll">
+          <table aria-label="Neue Felder einer Methode">
+            <thead>
+              <tr>
+                <th>Feld</th>
+                <th>Bedeutung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FMT2_METHODENFELDER.map(([feld, text]) => (
+                <tr key={feld}>
+                  <td>
+                    <code>{feld}</code>
+                  </td>
+                  <td>{text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p style={{ fontSize: 15, marginTop: 12 }}>
           <strong>Beispielanfrage:</strong>
         </p>
@@ -300,6 +383,18 @@ export function ApiMcpPage() {
           <strong>Auszug der Antwort</strong> (gekürzt):
         </p>
         <pre aria-label="Auszug der Antwort">{FMT2_ANTWORT}</pre>
+      </section>
+
+      <section className="card" style={{ padding: 18, marginTop: 24 }}>
+        <h2>Was die KI beim Nutzer erfragen soll</h2>
+        <p style={{ fontSize: 15, maxWidth: '76ch' }}>
+          Der MCP-Server gibt einer aufrufenden KI diese Hinweise mit (<code>instructions</code>). Sie gelten genauso für
+          einen Aufruf über REST: Fehlt eine Pflichtangabe, nennt die Antwort sie unter <code>pflichtangaben.fehlt</code>,
+          und was angenommen wurde, steht unter <code>pflichtangaben.angenommen</code>.
+        </p>
+        <pre aria-label="Hinweise des MCP-Servers" style={{ whiteSpace: 'pre-wrap' }}>
+          {MCP_HINWEISE}
+        </pre>
       </section>
 
       <section className="card" style={{ padding: 18, marginTop: 24 }}>

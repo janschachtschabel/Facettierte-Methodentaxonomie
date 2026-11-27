@@ -5,14 +5,17 @@ import {
   FMT_GUARDRAILS,
   hasAdjustmentProfile,
   migrateKennungen,
+  passungNeuPruefen,
   proposeAdditionalPhases,
+  regelLageAus,
   type AdditionalPhaseProposal,
   type Arrangement,
   type Begleitstrang,
   type MethodAdjustment,
   type MatchRequest,
   type MatchResult,
-  type PhasenAntwort
+  type PhasenAntwort,
+  waehlePlanungsprofil
 } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { PartiturView } from '../components/PartiturView.js';
@@ -24,7 +27,6 @@ import { buildServerByokHeaders, isUserLlmConfigured, runDirectTranslate } from 
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
-  createChainPreset,
   createEmptyArrangement,
   findNextVariant,
   exportArrangementHtmlHandout,
@@ -83,9 +85,15 @@ import {
   saveScenarioToStorage,
   entwurfAngabenAus,
   type EntwurfAngaben,
+  type GewaehltesFeld,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
+import { mehrAngabenAusKontext, mehrAngabenInAnfrage, mehrAngabenLesen, ohneText, type CodeFeld, type MehrAngaben } from '../planner/mehrAngaben.js';
+import { BEISPIEL_ANFRAGEN, type BeispielAnfrage } from '../planner/beispiele.js';
+import { ausschlussZeilen, genannteHilfenNamen } from '../planner/ausschluesse.js';
+import { evidenzBezugBeiGrad } from '../planner/evidenz.js';
+import { situationsAnfrage, type KandidatenRahmen } from '../planner/kandidaten.js';
 
 type PlannerStep = 1 | 2 | 3 | 4 | 5;
 
@@ -128,117 +136,15 @@ const DIDACTIC_APPROACH_OPTIONS: DidacticApproachOption[] = [
 
 const APPROACH_BY_ID = new Map(DIDACTIC_APPROACH_OPTIONS.map((o) => [o.id, o]));
 
-interface StarterPreset {
-  id: string;
-  label: string;
-  fach: string;
-  thema: string;
-  text: string;
-  ansatz: string[];
-  lernziele: string;
-  problemstellung: string;
-  bildungsstufe: string;
-  vorwissen: string;
-  zeitMin: number;
-  chain: string;
-}
+/** Value of the chain select that only takes the chain off the current flow. */
+const FREIER_ABLAUF = '__frei';
 
-const STARTER_PRESETS: StarterPreset[] = [
-  {
-    id: 'mathe-bruch',
-    label: 'Mathe · Bruchrechnen (90 min)',
-    fach: 'Mathematik',
-    thema: 'Addition und Subtraktion von Brüchen',
-    text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
-    ansatz: ['instruktion', 'uebung'],
-    lernziele:
-      '1. Gleichnamige und ungleichnamige Brüche sicher addieren\n2. Rechenschritte begründen und typische Fehler (Nenner addieren) erkennen',
-    problemstellung:
-      'Viele Lernende addieren Zähler und Nenner getrennt; schrittweise Lösungsbeispiele mit Fading beugen diesem Fehlkonzept vor.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'gering',
-    zeitMin: 90,
-    chain: 'prozedur'
-  },
-  {
-    id: 'physik-dichte',
-    label: 'Physik · Dichte (Reihe, 270 min)',
-    fach: 'Physik',
-    thema: 'Dichte von Stoffen',
-    text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
-    ansatz: ['forschend'],
-    lernziele:
-      '1. Masse und Volumen als unabhängige Größen unterscheiden\n2. Dichte als Stoffkonstante berechnen und auf Schwimmen/Sinken anwenden',
-    problemstellung:
-      'Fehlvorstellung „schwere Dinge sinken immer“ – Vorhersage-Beobachtung-Erklärung macht das Alltagskonzept sichtbar.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'gering',
-    zeitMin: 270,
-    chain: 'konzeptaufbau'
-  },
-  {
-    id: 'bio-oekosystem',
-    label: 'Biologie · Ökosystem Wald (5E, 135 min)',
-    fach: 'Biologie',
-    thema: 'Ökosystem Wald & Nahrungsnetze',
-    text: 'Biologie Klasse 8 forschend 5E Ökosystem Wald, 135 Minuten, mittleres Vorwissen',
-    ansatz: ['forschend', 'kooperativ'],
-    lernziele:
-      '1. Produzenten, Konsumenten und Destruenten in Nahrungsnetzen vernetzen\n2. Folgen von Störungen im Ökosystem hypothesengeleitet untersuchen',
-    problemstellung: 'Abstrakte Stoffkreisläufe bleiben oft träges Wissen ohne eigene Erkundungs- und Erklärungsphase.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'mittel',
-    zeitMin: 135,
-    chain: 'fuenf-e'
-  },
-  {
-    id: 'deutsch-arg',
-    label: 'Deutsch · Argumentieren (90 min)',
-    fach: 'Deutsch',
-    thema: 'Überzeugend argumentieren & Debatte',
-    text: 'Deutsch Sekundarstufe I Doppelstunde 90 Minuten Argumentation und Problemlösen, mittleres Vorwissen',
-    ansatz: ['diskurs', 'kooperativ'],
-    lernziele: '1. These, Argument und Beispiel klar strukturieren\n2. Gegenargumente fair aufgreifen und entkräften',
-    problemstellung:
-      'Meinungen werden häufig ohne Beleg geäußert; strukturierte Austausch- und Vergleichsphasen schärfen die Argumentationsqualität.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'mittel',
-    zeitMin: 90,
-    chain: 'problemloesen'
-  },
-  {
-    id: 'gesch-demokratie',
-    label: 'Politik · Demokratie & DaZ (135 min)',
-    fach: 'Politik',
-    thema: 'Gewaltenteilung & Demokratie',
-    text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen, mehrere DaZ-Kinder',
-    ansatz: ['kooperativ'],
-    lernziele:
-      '1. Legislative, Exekutive und Judikative sicher zuordnen\n2. Kontrollmechanismen an einem aktuellen Fallbeispiel erläutern',
-    problemstellung:
-      'Institutionenkunde wirkt trocken, wenn Fachbegriffe nicht aktiv abgerufen und sprachsensibel (DaZ) an konkreten Fällen gesichert werden.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'gering',
-    zeitMin: 135,
-    chain: 'faktenwissen'
-  },
-  {
-    id: 'grundschule-sach',
-    label: 'Grundschule · Wasserkreislauf (45 min)',
-    fach: 'Sachunterricht',
-    thema: 'Der Wasserkreislauf im Alltag',
-    text: 'Grundschule Klasse 3 Sachunterricht Einzelstunde 45 Minuten Konzept Wasserkreislauf verstehen, geringes Vorwissen, ohne Internet',
-    ansatz: ['kooperativ', 'spiel-simulation'],
-    lernziele:
-      '1. Verdunstung, Kondensation und Niederschlag in einfachen Worten benennen\n2. Den Kreislauf an einer Skizze gemeinsam erklären',
-    problemstellung:
-      'Kinder kennen Regen und Pfützen, verbinden sie aber selten zu einem geschlossenen Kreislauf.',
-    bildungsstufe: 'primar',
-    vorwissen: 'gering',
-    zeitMin: 45,
-    chain: 'konzeptaufbau'
-  }
-];
+/** A proposal of the core asked for by an example (Beispiel) or by the chain select (Funktionskette). */
+interface MatchAuftrag {
+  nr: number;
+  art: 'beispiel' | 'kette';
+  label: string;
+}
 
 /** Context with one detail set, or removed when empty, so that an empty field is not sent. */
 function mitKontext<K extends keyof NonNullable<Arrangement['kontext']>>(
@@ -283,6 +189,9 @@ export function PlannerPage() {
   const [matchNotice, setMatchNotice] = useState<string | null>(null);
   // Counter behind „Anderer Vorschlag“: 0 is the first proposal for the current text.
   const [variante, setVariante] = useState(0);
+  // A proposal asked for by an example or the chain select: it runs once the fields of step 1 are set (next render).
+  const [matchAuftrag, setMatchAuftrag] = useState<MatchAuftrag | null>(null);
+  const runMatchRef = useRef<((a: MatchAuftrag) => void) | null>(null);
   const [busyAi, setBusyAi] = useState(false);
   const [listening, setListening] = useState(false);
 
@@ -309,6 +218,22 @@ export function PlannerPage() {
   const [termine, setTermine] = useState<string>('');
   // Accompanying goals (D3): nothing preselected; they only order equivalent methods and add a proposed strand.
   const [begleitziele, setBegleitziele] = useState<string[]>([]);
+  // Optional details of "Mehr Angaben" (request fields of the core); empty means not given. The planning profile is
+  // the same state in step 1 and step 5.
+  const [mehr, setMehr] = useState<MehrAngaben>({});
+  // Values of a request field as the core lists them (matcher.felder()), for the selects of "Mehr Angaben".
+  const feldWerte = useMemo(() => new Map((matcher?.felder() || []).map((f) => [f.feld, f.werte || []])), [matcher]);
+  const werteVon = (feld: string) => feldWerte.get(feld) || [];
+  /** Sets one detail of "Mehr Angaben"; an empty value removes it, so that it is not sent. */
+  const setMehrFeld = <K extends keyof MehrAngaben>(key: K, wert: MehrAngaben[K] | undefined) => {
+    setPresetContextSource(null);
+    setMehr((prev) => {
+      const next = { ...prev };
+      if (wert === undefined || wert === '' || (typeof wert === 'number' && !(wert > 0))) delete next[key];
+      else next[key] = wert;
+      return next;
+    });
+  };
   // Missing required details completed in the line "Fehlt noch" (step 1); empty means not given, nothing is preset.
   const [zielErg, setZielErg] = useState('');
   const [stufeErg, setStufeErg] = useState('');
@@ -360,6 +285,8 @@ export function PlannerPage() {
   // Snapshot of the template flow as loaded. Only a flow that still equals it is cleared on own input,
   // so imported, saved or hand-edited flows are never wiped.
   const templateFlowRef = useRef<string | null>(null);
+  // Core answer for the current request, kept while the request is unchanged (draft parts after a cleared choice).
+  const aktuelleAntwortRef = useRef<{ key: string; angaben: EntwurfAngaben } | null>(null);
   // Request for which `variante` counts; a changed request starts again at the first proposal.
   const variantKeyRef = useRef<string | null>(null);
 
@@ -480,6 +407,10 @@ export function PlannerPage() {
     });
   }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups, matchResult]);
 
+  useEffect(() => {
+    if (matchAuftrag) runMatchRef.current?.(matchAuftrag);
+  }, [matchAuftrag]);
+
   const validation = useMemo(() => {
     if (!validator || !arrangement) return null;
     return validator.validate(arrangement, exampleRegistry);
@@ -586,6 +517,7 @@ export function PlannerPage() {
       setOhneInternet(false);
       setOhneKI(false);
       setRaumzeitFilter('');
+      setMehr({});
       setGroups(STANDARD_LEARNER_GROUPS);
       setMatchNotice('Das Beispiel wurde für deine eigene Eingabe zurückgesetzt.');
     }
@@ -634,6 +566,7 @@ export function PlannerPage() {
   const signatureOf = (rows: typeof scenarioRows) => adjustmentSignature(rows, groups, checkConstraints);
 
   const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
+
 
   /**
    * Step 3: one answer per subgroup and phase (fits, help in the method, other method) and short phases the plan
@@ -825,9 +758,15 @@ export function PlannerPage() {
     // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
     const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
     if (fbFeld) req.fachbereich = fbFeld;
+    // "Mehr Angaben" are explicit choices of the teacher: they win over the text and over a completion.
+    Object.assign(req, mehrAngabenInAnfrage(mehr));
     return req;
   };
 
+  /**
+   * Text for the AI path: the description plus the free-text details that have no request field. Everything with a
+   * field (room, size, completions of "Fehlt noch", "Mehr Angaben" …) goes as structured field next to the text.
+   */
   const buildEnrichedAiText = (): string => {
     const extras: string[] = [];
     if (fach.trim()) extras.push(`Fach: ${fach.trim()}`);
@@ -837,62 +776,41 @@ export function PlannerPage() {
       extras.push(`Lehrkräfte/Begleitung: ${lehrkraefteInfo.trim()}`);
     }
     if (lernziele.trim()) extras.push(`Lernziele: ${lernziele.trim()}`);
-    if (gruppeSize && Number(gruppeSize) > 0) extras.push(`Klassengröße: ${gruppeSize} Lernende`);
-    if (maxTechnik) extras.push(`Technik höchstens: ${labelOf('technikbedarf', maxTechnik)}`);
-    if (ohneInternet) extras.push('ohne Internet');
-    if (ohneKI) extras.push('ohne KI');
-    if (raumzeitFilter) extras.push(`Raumzeit: ${labelOf('raumzeit', raumzeitFilter)}`);
-    if (raum) extras.push(`Raum: ${labelOf('raumtyp', raum)}`);
-    if (raum && raumBietet) {
-      extras.push(`Der Raum bietet: ${raumBietet.map((x) => raumEigenschaftLabel(x, labelOf)).join(', ') || 'nichts davon'}`);
-    }
-    if (ohneSchrift.includes('lesen')) extras.push('Die Lernenden können noch nicht lesen');
-    if (ohneSchrift.includes('schreiben')) extras.push('Die Lernenden können noch nicht schreiben');
-    if (Number(termine) > 0) extras.push(`Termine: ${Number(termine)}`);
-    if (begleitziele.length) extras.push(`Nebenbei fördern: ${begleitziele.map((c) => labelOf('begleitziel', c)).join(', ')}`);
     return extras.length ? `${scenarioText.trim()}\n\nZusatzangaben: ${extras.join('; ')}` : scenarioText;
   };
 
-  const applyStarterPreset = (p: StarterPreset) => {
-    setFach(p.fach);
-    setThema(p.thema);
-    setScenarioText(p.text);
-    setAnsatzCodes(
-      p.ansatz.map((code) =>
-        code === 'instruktion'
-          ? 'instruktionsorientiert'
-          : code === 'diskurs'
-            ? 'diskursiv'
-            : code === 'uebung'
-              ? 'instruktionsorientiert'
-              : code
-      ).filter((v, i, arr) => arr.indexOf(v) === i)
-    );
-    setLernziele(p.lernziele);
-    setProblemstellung(p.problemstellung);
+  /**
+   * An example is a request: it fills the fields of step 1 (with "Mehr Angaben") and asks the core for a proposal, so
+   * the chain, the methods and every check come from the matcher. What was set before is replaced by the example.
+   */
+  const applyBeispiel = (ex: BeispielAnfrage) => {
+    setFach(ex.fach);
+    setThema(ex.thema);
+    setScenarioText(ex.text);
+    setAnsatzCodes([...ex.ansatz]);
+    setCustomAnsatzText('');
+    setLernziele(ex.lernziele);
+    setProblemstellung(ex.problemstellung);
     setMaxTechnik('');
-    setOhneInternet(/ohne\s+internet/i.test(p.text));
+    setOhneInternet(/ohne\s+internet/i.test(ex.text));
     setOhneKI(false);
     setGruppeSize('');
+    setRaumzeitFilter('');
+    setRaum('');
+    setRaumBietet(null);
+    setOhneSchrift([]);
+    setTermine('');
+    setBegleitziele([]);
+    setMehr({ ...ex.mehr });
     setGroups(STANDARD_LEARNER_GROUPS);
-    setPresetContextSource(p.label);
-    const preset = createChainPreset(p.chain, bundle);
-    preset.name = `${p.fach}: ${p.thema}`;
-    preset.kontext = {
-      bildungsstufe: p.bildungsstufe,
-      vorwissen: p.vorwissen,
-      zeitbudgetMin: p.zeitMin
-    };
-    templateFlowRef.current = JSON.stringify(preset);
-    setArrangement(preset);
-    setMatchResult(null);
+    setPresetContextSource(ex.label);
     clearErgaenzungen();
-    resetFlowDerived();
-    setMatchNotice(`Beispiel „${p.label}“ geladen. Sieh dir den Ablauf in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`);
+    setMatchNotice(null);
+    setMatchAuftrag({ nr: Date.now(), art: 'beispiel', label: ex.label });
   };
 
-  const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null) => {
-    const local = extractSubjectAndTopic(scenarioText);
+  const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null, themaBehalten = false) => {
+    const local = themaBehalten ? { fach: '', thema: '' } : extractSubjectAndTopic(scenarioText);
     const nextFach = (serverFach || local.fach || '').trim();
     const nextThema = (serverThema || local.thema || '').trim();
     const topicChanged =
@@ -935,9 +853,13 @@ export function PlannerPage() {
     return [] as string[];
   };
 
-  const runDeterministicMatch = () => {
+  /**
+   * Asks the core for a proposal for the request of step 1. `auftrag`: the run comes from an example or from the chain
+   * select; then step 1 stays open and the notice says where the flow is. An example keeps its subject and topic.
+   */
+  const runDeterministicMatch = (auftrag?: MatchAuftrag) => {
     setMatchNotice(null);
-    const detectedMatrixTriggers = syncTopicFromScenarioText();
+    const detectedMatrixTriggers = syncTopicFromScenarioText(undefined, undefined, auftrag?.art === 'beispiel');
     const res = matcher.zuordnen(buildStructuredMatchRequest());
     setVariante(0);
     setMatchResult(res);
@@ -948,14 +870,26 @@ export function PlannerPage() {
     if (res.modus === 'ablauf' && res.arrangement) {
       setArrangement(res.arrangement);
       resetFlowDerived();
-      setMatchNotice(`Vorschlag für deinen Ablauf: ${res.kette?.label}. Du kannst ihn hier ansehen und anpassen.`);
-      setStep(2);
+      // The untouched flow of an example belongs to its text: an own description starts from an empty flow again.
+      templateFlowRef.current = auftrag?.art === 'beispiel' ? JSON.stringify(res.arrangement) : null;
+      if (auftrag?.art === 'beispiel') {
+        setMatchNotice(
+          `Beispiel „${auftrag.label}“ geladen: Vorschlag für deinen Ablauf: ${res.kette?.label}. Sieh ihn dir in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`
+        );
+      } else if (auftrag?.art === 'kette') {
+        setMatchNotice(`Neuer Vorschlag mit der Kette ${res.kette?.label}. Deine Angaben bleiben; sieh dir den Ablauf in Schritt 2 an.`);
+      } else {
+        setMatchNotice(`Vorschlag für deinen Ablauf: ${res.kette?.label}. Du kannst ihn hier ansehen und anpassen.`);
+        setStep(2);
+      }
     } else if (res.modus === 'phase') {
       setMatchNotice(
         `Das klingt nach einer einzelnen Phase: ${res.vorschlaege.length} passende Methoden gefunden. Klicke unten eine an, um sie zu übernehmen.${matrixHint}`
       );
     }
   };
+
+  runMatchRef.current = runDeterministicMatch;
 
   /** Next equally suitable flow for the same text; the matcher stays deterministic per variant number. */
   const runOtherProposal = () => {
@@ -988,13 +922,15 @@ export function PlannerPage() {
         erkanntesThema?: string | null;
         ergebnis?: MatchResult;
       };
+      // The structured fields win over what the language model reads (server and browser path alike).
+      const felder = ohneText(buildStructuredMatchRequest());
       if (byok.enabled && byok.directBrowser) {
-        json = await runDirectTranslate(byok, buildEnrichedAiText());
+        json = await runDirectTranslate(byok, buildEnrichedAiText(), felder);
       } else {
         const res = await fetch('/api/v1/assistant/translate', {
           method: 'POST',
           headers: byokHeaders(),
-          body: JSON.stringify({ text: buildEnrichedAiText() })
+          body: JSON.stringify({ ...felder, text: buildEnrichedAiText() })
         });
         json = await res.json();
         if (!res.ok) {
@@ -1187,6 +1123,7 @@ export function PlannerPage() {
     ohneSchrift,
     termine,
     begleitziele,
+    mehrAngaben: Object.keys(mehr).length ? mehr : undefined,
     lernziele,
     problemstellung,
     didaktischerAnsatz: didaktischerAnsatzLabel,
@@ -1236,6 +1173,14 @@ export function PlannerPage() {
     setOhneSchrift(rahmen.ohneSchrift ?? []);
     setTermine(rahmen.termine ?? '');
     setBegleitziele(Array.isArray(p.begleitziele) ? p.begleitziele.filter((x) => typeof x === 'string') : []);
+    // Files may come from anyone: only codes the core offers for the field are kept.
+    // Saved before "Mehr Angaben" existed: the selects show what the arrangement's context still holds.
+    const erlaubtFuer = (feld: CodeFeld) => werteVon(feld).map((w) => w.code);
+    setMehr(
+      p.mehrAngaben === undefined
+        ? mehrAngabenAusKontext(p.arrangement.kontext, erlaubtFuer)
+        : mehrAngabenLesen(p.mehrAngaben, erlaubtFuer) || {}
+    );
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
@@ -1323,7 +1268,22 @@ export function PlannerPage() {
   // A message about several methods (the safety note) stays while any of them is in the arrangement.
   // The answer's parts the draft reads: from the last proposal, else as saved with a loaded scenario.
   const angaben: EntwurfAngaben | null = matchResult ? entwurfAngabenAus(matchResult) : geladeneAngaben;
-  const regelmeldungen = meldungenImAblauf(angaben?.regelmeldungen || [], usedBlocks, bundle?.regeln);
+  // Fit rules for the flow as it is now: the core checks every method in it again in the plan's situation (the last
+  // answer, a choice of "Mehr Angaben" made since wins), so a method swapped in by hand gets its warning and one
+  // swapped out loses it. Notes that are not about one method stay as the answer gave them.
+  const regelLage = regelLageAus({
+    bildungsstufe: arrangement.kontext?.bildungsstufe,
+    vorwissen: arrangement.kontext?.vorwissen,
+    fachbereich: planFachbereich,
+    ...(angaben?.regelLage || {}),
+    ...(matchResult?.kriterien || {}),
+    ...mehrAngabenInAnfrage(mehr)
+  });
+  const regelmeldungen = meldungenImAblauf(
+    passungNeuPruefen(angaben?.regelmeldungen || [], usedBlocks, regelLage, bundle.regeln, labelOf),
+    usedBlocks,
+    bundle?.regeln
+  );
   const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
   const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
@@ -1337,14 +1297,34 @@ export function PlannerPage() {
   const begleitPhasenNow = begleitPhasen.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
   const begleitImAblauf = (st: Begleitstrang) => begleitPhasenNow.find((a) => a.kennung === st.baustein);
   const begleitHinweise = begleitzielHinweise(angaben?.hinweise);
+  // A choice of "Mehr Angaben" sent with the last proposal and cleared since: that answer still holds the old value, so
+  // the draft reads the core's answer for the current request instead (computed once per request).
+  const mehrJetzt = mehrAngabenInAnfrage(mehr);
+  const geleert = (f: GewaehltesFeld) => mehrJetzt[f] === undefined && Boolean(angaben?.gewaehlt?.includes(f));
+  const aktuelleAngaben = (): EntwurfAngaben => {
+    const req = buildStructuredMatchRequest();
+    const key = JSON.stringify(req);
+    if (aktuelleAntwortRef.current?.key !== key) aktuelleAntwortRef.current = { key, angaben: entwurfAngabenAus(matcher.zuordnen(req)) };
+    return aktuelleAntwortRef.current.angaben;
+  };
+  const quelleFuer = (f: GewaehltesFeld) => (geleert(f) ? aktuelleAngaben() : angaben);
+  // Planning profile of the draft: chosen in step 1 or 5, else the core's. When the last proposal had a chosen profile
+  // that is cleared now, the core derives it again from the Bildungsstufe and the text (no new proposal needed).
+  const profilAbgeleitet =
+    !mehr.planungsprofil && angaben?.planungsprofilGewaehlt && bundle?.planungsprofile?.profile?.length
+      ? waehlePlanungsprofil(bundle.planungsprofile.profile, { bildungsstufe: arrangement.kontext?.bildungsstufe, text: scenarioText })
+      : null;
   const entwurfMeta: EntwurfMeta = {
     planungsprofile: bundle?.planungsprofile,
-    planungsprofil: angaben?.planungsprofil,
-    planungsprofilAngenommen: Boolean(angaben?.planungsprofilAngenommen),
+    planungsprofil: mehr.planungsprofil || profilAbgeleitet?.profil.id || angaben?.planungsprofil,
+    planungsprofilAngenommen: mehr.planungsprofil ? false : profilAbgeleitet ? profilAbgeleitet.angenommen : Boolean(angaben?.planungsprofilAngenommen),
     raum: raumCode ? `${labelOf('raumtyp', raumCode)}${!raum && !angaben?.raum && angenommenRaum ? ' (angenommen)' : ''}` : undefined,
     anzahl: classSize,
-    einheit: angaben?.einheit,
-    nachweis: angaben?.nachweis?.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
+    // Unit, proof and grading as chosen in "Mehr Angaben" count at once; otherwise as the last proposal read them, or,
+    // for a choice cleared since, as the core answers the current request.
+    einheit: mehrJetzt.einheit || quelleFuer('einheit')?.einheit,
+    nachweis: (mehr.nachweis ? [mehr.nachweis] : quelleFuer('nachweis')?.nachweis)?.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
+    bewertet: mehrJetzt.bewertet ?? quelleFuer('bewertet')?.bewertet,
     hauptziel: zielCode ? labelOf('zielart', zielCode) : bundle?.ketten.find((k) => k.id === arrangement.zieltyp)?.label,
     begleitziele: begleitzielCodes.length ? begleitzielCodes.map((c) => labelOf('begleitziel', c)) : undefined,
     // A strand taken into the flow is a phase of the plan now, no longer a proposal.
@@ -1369,6 +1349,46 @@ export function PlannerPage() {
     generatedMaterials.length === 0 &&
     Object.keys(subgroupMethods).length === 0 &&
     !elaboration;
+
+  // Frame for every picker of another method (replacement in step 2, parallel method in step 3): the request as the
+  // core read it, else the fields of step 1, with the chain and the number of teachers. The core filters the candidates.
+  const kandidatenRahmen: KandidatenRahmen = {
+    constraints: { ...checkConstraints, anfrage: checkConstraints.anfrage ?? (ohneText(buildStructuredMatchRequest()) as MatchRequest) },
+    zieltyp: arrangement.zieltyp,
+    lehrende: mehr.lehrende,
+    ketten: bundle.ketten,
+    regelwerk: regelsatz
+  };
+  // What the core left out and why (with the method's field), and the helps the request named (no phase).
+  const ausschluesse = ausschlussZeilen(matchResult, blocksById, bundle);
+  const hilfenNamen = genannteHilfenNamen(matchResult, blocksById);
+  const AUSSCHLUSS_SICHTBAR = 8;
+  const ausschlussBlock = () =>
+    ausschluesse.length > 0 ? (
+      <section aria-label="Nicht eingeplant" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--grid)' }}>
+        <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+          {matchResult?.modus === 'ablauf' ? 'Genannt, aber nicht eingeplant' : 'Nicht vorgeschlagen, weil der Bedarf nicht gedeckt ist'}
+        </strong>
+        <ul style={{ margin: '4px 0 0', paddingLeft: 20, fontSize: 14 }}>
+          {ausschluesse.slice(0, AUSSCHLUSS_SICHTBAR).map((z) => (
+            <li key={z.baustein}>
+              <strong>{z.name}</strong> {z.grund}.
+              {z.merkmal && (
+                <div className="muted" style={{ fontSize: 12 }}>
+                  Merkmal: {z.merkmal}
+                  {z.wfeld ? ` · W-Feld: ${z.wfeld}` : ''}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+        {ausschluesse.length > AUSSCHLUSS_SICHTBAR && (
+          <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
+            Dazu {ausschluesse.length - AUSSCHLUSS_SICHTBAR} weitere Methoden.
+          </p>
+        )}
+      </section>
+    ) : null;
 
   const steps: Array<{ id: PlannerStep; label: string; sub: string; needsFlow: boolean }> = [
     { id: 1, label: 'Vorhaben', sub: 'Beschreiben, was du unterrichten willst', needsFlow: false },
@@ -1658,6 +1678,60 @@ export function PlannerPage() {
               placeholder="z. B. Mathematik Klasse 6, Brüche addieren, Doppelstunde mit 90 Minuten, 26 Lernende"
             />
 
+            {/* Room: a required detail, visible in step 1 (spec §8), with the properties it offers. */}
+            <div className="planner-raum" style={{ marginTop: 10, maxWidth: 640 }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
+                Raum
+                <select
+                  aria-label="Raum"
+                  style={{ width: '100%' }}
+                  value={raum}
+                  onChange={(e) => {
+                    setPresetContextSource(null);
+                    setRaum(e.target.value);
+                    setRaumBietet(null);
+                  }}
+                >
+                  <option value="">nicht angegeben</option>
+                  {valuesOf('raumtyp').map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {raum ? (
+                <fieldset style={{ border: 0, padding: 0, margin: '8px 0 0' }}>
+                  <legend className="muted" style={{ fontSize: 13, padding: 0, marginBottom: 4 }}>
+                    Was der Raum bietet (nimm weg, was fehlt):
+                  </legend>
+                  <div style={{ display: 'flex', gap: '6px 18px', flexWrap: 'wrap', fontSize: 14 }}>
+                    {Object.keys(RAUM_EIGENSCHAFT_KLARTEXT).map((code) => {
+                      const offered = valuesOf('raumtyp').find((w) => w.id === raum)?.bietet || [];
+                      const checked = (raumBietet ?? offered).includes(code);
+                      return (
+                        <label key={code} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setPresetContextSource(null);
+                              setRaumBietet(toggleRaumEigenschaft(raumBietet, offered, code, e.target.checked));
+                            }}
+                          />
+                          {raumEigenschaftLabel(code, labelOf)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : (
+                <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
+                  Steht der Raum nicht im Text, nimmt der Baukasten einen Raum an (meist den Klassenraum, im Fach Sport die Sporthalle) und sagt es dir.
+                </p>
+              )}
+            </div>
+
             {verstanden && (
               <section aria-label="Verstanden und fehlt noch" className="planner-verstanden" style={{ marginTop: 8, fontSize: 14 }}>
                 <p style={{ margin: 0 }}>
@@ -1793,58 +1867,6 @@ export function PlannerPage() {
               </section>
             )}
 
-            <div className="planner-raum" style={{ marginTop: 12 }}>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
-                Raum
-                <select
-                  aria-label="Raum"
-                  style={{ width: '100%' }}
-                  value={raum}
-                  onChange={(e) => {
-                    setPresetContextSource(null);
-                    setRaum(e.target.value);
-                    setRaumBietet(null);
-                  }}
-                >
-                  <option value="">nicht angegeben</option>
-                  {valuesOf('raumtyp').map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {raum ? (
-                <fieldset style={{ border: 0, padding: 0, margin: '8px 0 0' }}>
-                  <legend className="muted" style={{ fontSize: 13, padding: 0, marginBottom: 4 }}>
-                    Was der Raum bietet (nimm weg, was fehlt):
-                  </legend>
-                  <div style={{ display: 'flex', gap: '6px 18px', flexWrap: 'wrap', fontSize: 14 }}>
-                    {Object.keys(RAUM_EIGENSCHAFT_KLARTEXT).map((code) => {
-                      const offered = valuesOf('raumtyp').find((w) => w.id === raum)?.bietet || [];
-                      const checked = (raumBietet ?? offered).includes(code);
-                      return (
-                        <label key={code} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={(e) => {
-                              setPresetContextSource(null);
-                              setRaumBietet(toggleRaumEigenschaft(raumBietet, offered, code, e.target.checked));
-                            }}
-                          />
-                          {raumEigenschaftLabel(code, labelOf)}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </fieldset>
-              ) : (
-                <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
-                  Steht der Raum nicht im Text, nimmt der Baukasten einen Raum an (meist den Klassenraum, im Fach Sport die Sporthalle) und sagt es dir.
-                </p>
-              )}
-            </div>
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' }}>
               {llmAvailable ? (
@@ -1861,14 +1883,14 @@ export function PlannerPage() {
                     type="button"
                     className="btn"
                     disabled={!canPropose}
-                    onClick={runDeterministicMatch}
+                    onClick={() => runDeterministicMatch()}
                     title="Nutzt nur die festen Regeln der Methodendatenbank, ohne KI"
                   >
                     Ohne KI vorschlagen
                   </button>
                 </>
               ) : (
-                <button type="button" className="btn btn-primary" disabled={!canPropose} onClick={runDeterministicMatch}>
+                <button type="button" className="btn btn-primary" disabled={!canPropose} onClick={() => runDeterministicMatch()}>
                   Ablauf vorschlagen →
                 </button>
               )}
@@ -1927,11 +1949,16 @@ export function PlannerPage() {
                           }
                         }}
                       >
-                        + {v.name} ({v.dauerMin}–{v.dauerMax} min{v.evidenzgrad ? `, Grad ${v.evidenzgrad}` : ''})
+                        + {v.name} ({v.dauerMin}–{v.dauerMax} min
+                        {v.evidenzgrad
+                          ? `, Grad ${v.evidenzgrad}${evidenzBezugBeiGrad(blocksById.get(v.baustein), v.evidenzgrad).map((t) => `, ${t}`).join('')}`
+                          : ''}
+                        )
                       </button>
                     </li>
                   ))}
                 </ul>
+                {ausschlussBlock()}
               </div>
             )}
 
@@ -1989,10 +2016,14 @@ export function PlannerPage() {
               <div style={{ fontFamily: 'var(--display)', fontSize: 13.5, fontWeight: 700, marginBottom: 8 }}>
                 Oder mit einem Beispiel starten
               </div>
+              <p className="muted" style={{ fontSize: 13, margin: '0 0 8px' }}>
+                Ein Beispiel füllt die Angaben oben aus. Den Ablauf schlägt der Baukasten dann so vor wie für deine eigene
+                Beschreibung.
+              </p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {STARTER_PRESETS.map((p) => (
-                  <button key={p.id} type="button" className="btn btn-sm" onClick={() => applyStarterPreset(p)}>
-                    {p.label}
+                {BEISPIEL_ANFRAGEN.map((ex) => (
+                  <button key={ex.id} type="button" className="btn btn-sm" onClick={() => applyBeispiel(ex)}>
+                    {ex.label}
                   </button>
                 ))}
                 {bundle.beispiele.map((ex) => {
@@ -2023,7 +2054,8 @@ export function PlannerPage() {
           {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              Mehr Angaben (freiwillig): Fach, Lernziele, Klassengröße, Technik, Lesen und Schreiben, Termine
+              Mehr Angaben (freiwillig): Fach, Stufe, Vorwissen, Sprachniveau, Komplexität, Funktionskette, Lernziele, Klassengröße, Lehrende,
+              Fachausstattung, Technik, Lesen und Schreiben, Termine, Nachweis, Bewertung, Einheit, Planungsprofil, Begleitziel
             </summary>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 14 }}>
@@ -2069,15 +2101,15 @@ export function PlannerPage() {
                     Bildungsstufe
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.kontext?.bildungsstufe || ''}
+                      value={mehr.bildungsstufe || ''}
                       onChange={(e) => {
-                        setPresetContextSource(null);
+                        setMehrFeld('bildungsstufe', e.target.value || undefined);
                         setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'bildungsstufe', e.target.value || undefined) });
                       }}
                     >
                       <option value="">nicht angegeben</option>
-                      {valuesOf('bildungsstufe').map((w) => (
-                        <option key={w.id} value={w.id}>
+                      {werteVon('bildungsstufe').map((w) => (
+                        <option key={w.code} value={w.code}>
                           {w.label}
                         </option>
                       ))}
@@ -2087,15 +2119,51 @@ export function PlannerPage() {
                     Vorwissen
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.kontext?.vorwissen || ''}
+                      value={mehr.vorwissen || ''}
                       onChange={(e) => {
-                        setPresetContextSource(null);
+                        setMehrFeld('vorwissen', e.target.value || undefined);
                         setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'vorwissen', e.target.value || undefined) });
                       }}
                     >
                       <option value="">nicht angegeben</option>
-                      {valuesOf('vorwissen').map((w) => (
-                        <option key={w.id} value={w.id}>
+                      {werteVon('vorwissen').map((w) => (
+                        <option key={w.code} value={w.code}>
+                          {w.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Sprachniveau
+                    <select
+                      style={{ width: '100%' }}
+                      value={mehr.sprachniveau || ''}
+                      onChange={(e) => {
+                        setMehrFeld('sprachniveau', e.target.value || undefined);
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'sprachniveau', e.target.value || undefined) });
+                      }}
+                    >
+                      <option value="">nicht angegeben</option>
+                      {werteVon('sprachniveau').map((w) => (
+                        <option key={w.code} value={w.code}>
+                          {w.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Komplexität des Inhalts
+                    <select
+                      style={{ width: '100%' }}
+                      value={mehr.komplexitaet || ''}
+                      onChange={(e) => {
+                        setMehrFeld('komplexitaet', e.target.value || undefined);
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'komplexitaet', e.target.value || undefined) });
+                      }}
+                    >
+                      <option value="">nicht angegeben</option>
+                      {werteVon('komplexitaet').map((w) => (
+                        <option key={w.code} value={w.code}>
                           {w.label}
                         </option>
                       ))}
@@ -2108,10 +2176,10 @@ export function PlannerPage() {
                       style={{ width: '100%' }}
                       min={0}
                       placeholder="nicht angegeben"
-                      value={arrangement.kontext?.zeitbudgetMin ?? ''}
+                      value={mehr.zeitMin ?? ''}
                       onChange={(e) => {
-                        setPresetContextSource(null);
                         const min = Math.max(0, Number(e.target.value) || 0);
+                        setMehrFeld('zeitMin', min > 0 ? min : undefined);
                         setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'zeitbudgetMin', min > 0 ? min : undefined) });
                       }}
                     />
@@ -2120,14 +2188,33 @@ export function PlannerPage() {
                     Funktionskette / Zieltyp
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.zieltyp || ''}
+                      value={mehr.zieltyp || (!arrangement.zieltyp && hasFlow ? FREIER_ABLAUF : '')}
                       onChange={(e) => {
-                        setPresetContextSource(null);
-                        if (!e.target.value) setArrangement({ ...arrangement, zieltyp: undefined, name: 'Freier Ablauf' });
-                        else setArrangement(createChainPreset(e.target.value, bundle));
+                        const v = e.target.value;
+                        if (v === FREIER_ABLAUF) {
+                          // Only takes the chain off the current flow; no method is chosen or changed.
+                          setMehrFeld('zieltyp', undefined);
+                          setArrangement({ ...arrangement, zieltyp: undefined, name: 'Freier Ablauf' });
+                          return;
+                        }
+                        // The chain goes into the request; the core proposes again with everything else of step 1.
+                        setMehrFeld('zieltyp', v || undefined);
+                        const label = bundle.ketten.find((k) => k.id === v)?.label || 'aus der Zielart';
+                        // Same rule as "Anderer Vorschlag": a new proposal must not discard own work (hand edits,
+                        // subgroup methods, OER, materials, elaboration). Then the wish waits for the next proposal.
+                        if (hasFlow && !otherProposalSafe) {
+                          setMatchNotice(
+                            v
+                              ? `Die Kette „${label}“ gilt beim nächsten Vorschlag („Ablauf vorschlagen“). Dein Ablauf mit deinen Änderungen bleibt bis dahin, wie er ist.`
+                              : 'Die Kette aus der Zielart gilt beim nächsten Vorschlag („Ablauf vorschlagen“). Dein Ablauf mit deinen Änderungen bleibt bis dahin, wie er ist.'
+                          );
+                          return;
+                        }
+                        if (v || canPropose || matchResult) setMatchAuftrag({ nr: Date.now(), art: 'kette', label });
                       }}
                     >
-                      <option value="">Freier Ablauf (ohne Kette)</option>
+                      <option value="">Aus der Zielart (Vorschlag des Baukastens)</option>
+                      <option value={FREIER_ABLAUF}>Freier Ablauf (ohne Kette)</option>
                       {bundle.ketten.map((k) => (
                         <option key={k.id} value={k.id}>
                           {k.label}
@@ -2226,6 +2313,18 @@ export function PlannerPage() {
                       placeholder="z. B. 1 Lehrkraft, Co-Teaching + Sonderpädagogik"
                     />
                   </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Anzahl Lehrende
+                    <input
+                      type="number"
+                      style={{ width: '100%' }}
+                      min={1}
+                      max={10}
+                      value={mehr.lehrende ?? ''}
+                      placeholder="nicht angegeben (z. B. 2 beim Teamteaching)"
+                      onChange={(e) => setMehrFeld('lehrende', Number(e.target.value) > 0 ? Math.round(Number(e.target.value)) : undefined)}
+                    />
+                  </label>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
                   Bleibt die Klassengröße leer, übernimmt der Baukasten Zahlen aus deinem Text (z. B. „6 Kinder“ oder „120 Studierende“). Teilgruppen für die Binnendifferenzierung legst du erst in <strong>Schritt 3</strong> an.
@@ -2235,8 +2334,19 @@ export function PlannerPage() {
               {/* Group C: Technik & Raum */}
               <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  3. Rahmenbedingungen (Technik, Lesen und Schreiben, Termine – filtert Methoden direkt)
+                  3. Rahmen (Fachausstattung, Technik, Lesen und Schreiben, Termine – filtert Methoden direkt)
                 </strong>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360, marginTop: 10 }}>
+                  Art der Fachausstattung
+                  <select style={{ width: '100%' }} value={mehr.fachausstattungArt || ''} onChange={(e) => setMehrFeld('fachausstattungArt', e.target.value || undefined)}>
+                    <option value="">nicht angegeben</option>
+                    {werteVon('fachausstattungArt').map((w) => (
+                      <option key={w.code} value={w.code}>
+                        {w.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <div
                   style={{
                     display: 'grid',
@@ -2337,33 +2447,93 @@ export function PlannerPage() {
                   ))}
                 </div>
               </div>
-            </div>
-          </details>
 
-          {/* Accompanying goals (D3): collapsible, nothing preselected, nothing blocks. */}
-          <details className="card" style={{ padding: 18 }}>
-            <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              Was soll nebenbei gefördert werden?
-            </summary>
-            <div role="group" aria-label="Was soll nebenbei gefördert werden?" style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center', marginTop: 12, fontSize: 14 }}>
-              {valuesOf('begleitziel').map((w) => (
-                <label key={w.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={begleitziele.includes(w.id)}
-                    onChange={(e) => {
-                      setPresetContextSource(null);
-                      setBegleitziele((prev) => (e.target.checked ? [...prev.filter((x) => x !== w.id), w.id] : prev.filter((x) => x !== w.id)));
-                    }}
-                  />
-                  {w.label}
-                </label>
-              ))}
+              {/* Group D: proof, grading, unit and planning profile; they reach the matcher and the draft of step 5. */}
+              <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+                <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>4. Nachweis, Bewertung und Entwurf</strong>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(215px, 1fr))',
+                    gap: '10px 14px',
+                    marginTop: 8,
+                    alignItems: 'end'
+                  }}
+                >
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Nachweis
+                    <select style={{ width: '100%' }} value={mehr.nachweis || ''} onChange={(e) => setMehrFeld('nachweis', e.target.value || undefined)}>
+                      <option value="">nicht angegeben</option>
+                      {werteVon('nachweis').map((w) => (
+                        <option key={w.code} value={w.code}>
+                          {w.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Wird die Stunde bewertet?
+                    <select
+                      style={{ width: '100%' }}
+                      value={mehr.bewertet === undefined ? '' : mehr.bewertet ? 'ja' : 'nein'}
+                      onChange={(e) => setMehrFeld('bewertet', e.target.value === '' ? undefined : e.target.value === 'ja')}
+                    >
+                      <option value="">nicht angegeben</option>
+                      <option value="ja">ja</option>
+                      <option value="nein">nein</option>
+                    </select>
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Übergeordnete Einheit
+                    <input
+                      type="text"
+                      style={{ width: '100%' }}
+                      value={mehr.einheit ?? ''}
+                      placeholder="z. B. Lernfeld 3, Reihe Ökologie"
+                      onChange={(e) => setMehrFeld('einheit', e.target.value || undefined)}
+                    />
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Planungsprofil
+                    <select style={{ width: '100%' }} value={mehr.planungsprofil || ''} onChange={(e) => setMehrFeld('planungsprofil', e.target.value || undefined)}>
+                      <option value="">aus der Bildungsstufe</option>
+                      {werteVon('planungsprofil').map((w) => (
+                        <option key={w.code} value={w.code}>
+                          {w.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
+                  Das Planungsprofil bestimmt Begriffe und Aufbau des Entwurfs in Schritt 5. Du kannst es dort noch ändern.
+                </p>
+              </div>
+
+              {/* Group E: accompanying goals (D3): nothing preselected, nothing blocks. */}
+              <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
+                <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Was soll nebenbei gefördert werden?</strong>
+                <div role="group" aria-label="Was soll nebenbei gefördert werden?" style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center', marginTop: 8, fontSize: 14 }}>
+                  {valuesOf('begleitziel').map((w) => (
+                    <label key={w.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={begleitziele.includes(w.id)}
+                        onChange={(e) => {
+                          setPresetContextSource(null);
+                          setBegleitziele((prev) => (e.target.checked ? [...prev.filter((x) => x !== w.id), w.id] : prev.filter((x) => x !== w.id)));
+                        }}
+                      />
+                      {w.label}
+                    </label>
+                  ))}
+                </div>
+                <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
+                  Ein Begleitziel wählt nie den Ablauf. Unter gleichwertigen Methoden kommt eine passende nach vorn, und du bekommst einen
+                  kurzen Begleitstrang am Ende als Vorschlag. Wirkungen sind für Programme über mehrere Wochen belegt.
+                </p>
+              </div>
             </div>
-            <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
-              Ein Begleitziel wählt nie den Ablauf. Unter gleichwertigen Methoden kommt eine passende nach vorn, und du bekommst einen
-              kurzen Begleitstrang am Ende als Vorschlag. Wirkungen sind für Programme über mehrere Wochen belegt.
-            </p>
           </details>
         </section>
       )}
@@ -2552,6 +2722,16 @@ export function PlannerPage() {
               </ul>
             </section>
           )}
+          {ausschlussBlock()}
+          {hilfenNamen.length > 0 && (
+            <section aria-label="Genannte Hilfen" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Genannte Hilfen: {hilfenNamen.join(', ')}</strong>
+              <p style={{ fontSize: 14, margin: '4px 0 0' }}>
+                Eine Hilfe ist keine eigene Phase. Du ordnest sie in Schritt 3 den Phasen zu, für die ganze Klasse oder für eine
+                Teilgruppe.
+              </p>
+            </section>
+          )}
           {subgroups.length > 0 && hasFlow && (
             <p className="planner-notice" role="status">
               Teilgruppen ({subgroups.map((g) => g.label).join(', ')}) sind vorgemerkt. Hier siehst du den Ablauf für die
@@ -2637,6 +2817,7 @@ export function PlannerPage() {
               regeln={bundle.regeln}
               schemes={bundle.schemes}
               zielart={zielCode}
+              kandidaten={kandidatenRahmen}
               subgroupMethods={{}}
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}
@@ -2657,6 +2838,8 @@ export function PlannerPage() {
               explainedMessages={explainedMessages}
               onOpenOerForStep={(k) => jumpToResources('oer', k)}
               onOpenMaterialForStep={(k) => jumpToResources('material', k)}
+              situation={situationsAnfrage(kandidatenRahmen.constraints)}
+              kandidaten={kandidatenRahmen}
             />
           )}
         </section>
@@ -2678,6 +2861,7 @@ export function PlannerPage() {
           )}
           <ScenarioStudioPanel
             mode="diff"
+            kandidaten={kandidatenRahmen}
             diffMiddleSlot={
               subgroups.length > 0 ? (
                 <>
@@ -2845,6 +3029,7 @@ export function PlannerPage() {
                       allBlocks={bundle.bausteine}
                       schemes={bundle.schemes}
                       zielart={zielCode}
+                      kandidaten={kandidatenRahmen}
                       subgroupMethods={subgroupMethods}
                       onSubgroupMethodChange={handleSubgroupMethodChange}
                       onEditDiffMeasure={handleEditDiffMeasure}
@@ -3077,6 +3262,26 @@ export function PlannerPage() {
               subgroupMethods={subgroupMethods}
               ketten={bundle.ketten}
             />
+          </div>
+          {/* Planning profile of the draft: the same choice as in step 1 ("Mehr Angaben"); empty: from the Bildungsstufe. */}
+          <div className="no-print card" style={{ padding: '12px 16px', marginBottom: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+            <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center', fontSize: 14, fontWeight: 600, fontFamily: 'var(--display)' }}>
+              Planungsprofil
+              <select value={mehr.planungsprofil || ''} onChange={(e) => setMehrFeld('planungsprofil', e.target.value || undefined)}>
+                <option value="">aus der Bildungsstufe</option>
+                {werteVon('planungsprofil').map((w) => (
+                  <option key={w.code} value={w.code}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <span className="muted" style={{ fontSize: 13 }}>
+              {(() => {
+                const p = bundle.planungsprofile?.profile?.find((x) => x.id === entwurfMeta.planungsprofil);
+                return p ? `Der Entwurf folgt dem Profil „${labelOf('planungsprofil', p.id)}“: ${p.dokument}.` : 'Der Entwurf folgt der Bildungsstufe.';
+              })()}
+            </span>
           </div>
           <ScenarioStudioPanel
             mode="export"

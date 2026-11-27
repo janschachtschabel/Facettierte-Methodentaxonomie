@@ -1,5 +1,6 @@
 import {
   proposeMethodAdjustments,
+  type AdaptScenarioResult,
   proposeSupports,
   teilgruppenAntworten,
   teilgruppenHinweise,
@@ -288,4 +289,58 @@ export function nachErneuterPruefung(
 /** A check that is out of date moves with the flow: answers and proposals keep their phase. */
 export function verschiebePruefung(p: TeilgruppenPruefung | null, index: number, delta: 1 | -1): TeilgruppenPruefung | null {
   return p ? { ...p, antworten: shiftAdjustmentKeys(p.antworten, index, delta), vorschlaege: shiftAdjustmentKeys(p.vorschlaege, index, delta) } : p;
+}
+
+/** Matrix helps of a group while no method is planned: shown once per group, not as a decision per phase. */
+export interface HilfenOhneMethode {
+  groupId: string;
+  groupLabel: string;
+  hilfen: PhasenAntwort['hilfen'];
+}
+
+/**
+ * The answer of the core's adaptScenario in the shape of step 3 (the page Binnendifferenzierung shows the same cards):
+ * per phase and subgroup passt, Hilfe or Tausch with its Beleg, the helps with abbau, the swaps, and the groups.
+ * Answers the core flags ohneMethode (no planned method, so no fit was checked) give no card; their matrix helps are
+ * collected once per group. The grouping hints of the answer are not tied to one group; the page shows them once.
+ */
+export function pruefungAusAnpassung(res: Pick<AdaptScenarioResult, 'phasenAnpassungen' | 'teilgruppenMethoden' | 'teilgruppen'>): {
+  pruefung: TeilgruppenPruefung;
+  rows: Array<Pick<ScenarioPhaseRow, 'key' | 'orderLabel' | 'methodName'>>;
+  gruppen: LearnerGroup[];
+  ohneMethode: HilfenOhneMethode[];
+} {
+  const antworten: PhasenAntwort[] = [];
+  const ohne = new Map<string, HilfenOhneMethode>();
+  for (const p of res.phasenAnpassungen) {
+    for (const ti of p.teilgruppenImpulse) {
+      if (ti.ohneMethode) {
+        const g = ohne.get(ti.groupId) || { groupId: ti.groupId, groupLabel: ti.groupLabel, hilfen: [] };
+        for (const h of ti.hilfen) if (!g.hilfen.some((x) => x.id === h.id)) g.hilfen.push(h);
+        ohne.set(ti.groupId, g);
+        continue;
+      }
+      antworten.push({
+        stepKey: p.key,
+        groupId: ti.groupId,
+        groupLabel: ti.groupLabel,
+        antwort: ti.antwort,
+        grund: ti.beleg.grund,
+        ...(ti.beleg.merkmal ? { merkmal: ti.beleg.merkmal } : {}),
+        ...(ti.beleg.grundlage ? { grundlage: ti.beleg.grundlage } : {}),
+        ...(ti.beleg.quelle ? { quelle: ti.beleg.quelle } : {}),
+        hilfen: ti.hilfen,
+        alternativen: []
+      });
+    }
+  }
+  const mitAntwort = new Set(antworten.map((a) => a.groupId));
+  return {
+    pruefung: { antworten, vorschlaege: res.teilgruppenMethoden, hinweise: {} },
+    rows: res.phasenAnpassungen.map((p) => ({ key: p.key, orderLabel: p.orderLabel, methodName: p.bausteinName || p.phaseLabel })),
+    gruppen: res.teilgruppen
+      .filter((g) => mitAntwort.has(g.id))
+      .map((g) => ({ id: g.id, label: g.label, profile: '', focus: 'custom' as const, active: true, ...(g.count ? { count: g.count } : {}) })),
+    ohneMethode: [...ohne.values()]
+  };
 }

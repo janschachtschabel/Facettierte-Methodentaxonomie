@@ -1,4 +1,5 @@
 import type { Baustein, FmtData, Funktionskette, KettenSchritt } from './types.js';
+import { istMethode } from './eintragsart.js';
 
 /** Old knowledge-type codes accepted in the request field zielart. */
 export const ZIELART_ALIAS: Record<string, string> = { psychomotorik: 'bewegung', einstellungen: 'urteilen' };
@@ -79,6 +80,29 @@ export function traegtWissensart(b: Pick<Baustein, 'aufgabe'>, schritt: Pick<Ket
   if (schritt.rolle === 'rand' || !schritt.wissensart?.length) return true;
   const eigene = wissensartenVon(b);
   return schritt.wissensart.some((w) => eigene.includes(w));
+}
+
+export interface KettenEinordnung {
+  kette: string;
+  label: string;
+  schritt: string;
+  schrittLabel: string;
+}
+
+/**
+ * Chain steps a method can fill: the step asks for one of its learning functions and the method carries the knowledge
+ * type the step binds (edge steps do not bind). A help fills no step.
+ */
+export function einordnungInKetten(
+  b: Pick<Baustein, 'aufgabe' | 'lernfunktion' | 'eintragsart'>,
+  ketten: Funktionskette[]
+): KettenEinordnung[] {
+  if (!istMethode(b)) return [];
+  return ketten.flatMap((k) =>
+    k.schritte
+      .filter((st) => st.funktion.some((f) => (b.lernfunktion || []).includes(f)) && traegtWissensart(b, st))
+      .map((st) => ({ kette: k.id, label: k.label, schritt: st.id, schrittLabel: st.label }))
+  );
 }
 
 export type Nachweisform = 'schriftlich' | 'muendlich' | 'praktisch' | 'produkt';

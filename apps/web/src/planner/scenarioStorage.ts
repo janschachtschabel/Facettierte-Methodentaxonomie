@@ -1,6 +1,7 @@
-import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, regelLageAus, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung, type RegelSituation } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import type { AddedPhase } from './extraPhases.js';
+import type { MehrAngaben } from './mehrAngaben.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
   GeneratedMaterialItem,
@@ -82,6 +83,8 @@ export interface SavedScenario {
   termine?: string;
   /** Accompanying goals chosen in step 1 (codes of the scheme begleitziel). */
   begleitziele?: string[];
+  /** Optional details of "Mehr Angaben" (request fields); read back with mehrAngabenLesen, which checks the codes. */
+  mehrAngaben?: MehrAngaben;
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;
@@ -107,6 +110,15 @@ export interface SavedScenario {
 export interface EntwurfAngaben {
   planungsprofil?: string;
   planungsprofilAngenommen?: boolean;
+  /** The request stated the profile (chosen in step 1 or 5); clearing the choice then derives it again. */
+  planungsprofilGewaehlt?: boolean;
+  /** Whether the lesson is graded, as the request stated it; absent when not stated. */
+  bewertet?: boolean;
+  /**
+   * Of einheit, bewertet and nachweis: those the request set as explicit field (not only read from the text). When such
+   * a choice is cleared, the draft must not keep the value from this answer.
+   */
+  gewaehlt?: GewaehltesFeld[];
   /** Room the matcher assumed (code), when the request names none. */
   raumAngenommen?: string;
   /** Room as the matcher read it (code). */
@@ -116,26 +128,41 @@ export interface EntwurfAngaben {
   /** Forms of proof (codes of nachweisform). */
   nachweis?: string[];
   regelmeldungen?: Regelmeldung[];
+  /** Situation the fit rules read (prior knowledge, stage, complexity, language level, subject area), for a new check. */
+  regelLage?: RegelSituation;
   /** Accompanying goals as the matcher read them (codes). */
   begleitziele?: string[];
   begleitstrang?: Begleitstrang[];
   hinweise?: string[];
 }
 
+export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis';
+const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis'];
+
 /** The draft's parts of a matcher answer. */
 export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
   const k = (r.kriterien || {}) as Record<string, unknown>;
+  // A field counts as chosen when the request holds it but the text reading (erkannt) does not, or reads another value.
+  const gewaehlt = GEWAEHLTE_FELDER.filter((f) => {
+    if (k[f] === undefined || k[f] === null || k[f] === '') return false;
+    const gelesen = (r.erkannt || []).find((e) => e.feld === f);
+    return !gelesen || gelesen.wert !== k[f];
+  });
   const str = (v: unknown) => (typeof v === 'string' && v ? v : undefined);
   const angenommenRaum = r.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
   return {
     planungsprofil: r.planungsprofil,
     planungsprofilAngenommen: (r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+    planungsprofilGewaehlt: typeof k.planungsprofil === 'string' && k.planungsprofil !== '',
+    bewertet: typeof k.bewertet === 'boolean' ? k.bewertet : undefined,
+    gewaehlt,
     raumAngenommen: angenommenRaum ? String(angenommenRaum) : undefined,
     raum: str(k.raum),
     einheit: str(k.einheit),
     zielart: str(k.zielart),
     nachweis: r.nachweis?.formen,
     regelmeldungen: r.regelmeldungen,
+    regelLage: regelLageAus(k),
     begleitziele: Array.isArray(k.begleitziel) ? (k.begleitziel as string[]) : [],
     begleitstrang: r.modus === 'ablauf' ? r.begleitstrang : undefined,
     hinweise: r.hinweise
@@ -171,12 +198,19 @@ export function entwurfAngabenLesen(v: unknown): EntwurfAngaben | undefined {
   return {
     planungsprofil: str(o.planungsprofil),
     planungsprofilAngenommen: o.planungsprofilAngenommen === true,
+    planungsprofilGewaehlt: o.planungsprofilGewaehlt === true,
+    bewertet: typeof o.bewertet === 'boolean' ? o.bewertet : undefined,
+    gewaehlt: strs(o.gewaehlt)?.filter((x): x is GewaehltesFeld => (GEWAEHLTE_FELDER as string[]).includes(x)),
     raumAngenommen: str(o.raumAngenommen),
     raum: str(o.raum),
     einheit: str(o.einheit),
     zielart: str(o.zielart),
     nachweis: strs(o.nachweis),
     regelmeldungen: objs<Regelmeldung>(o.regelmeldungen, (y) => typeof y.regel === 'string' && typeof y.text === 'string'),
+    regelLage:
+      o.regelLage && typeof o.regelLage === 'object' && !Array.isArray(o.regelLage)
+        ? regelLageAus(Object.fromEntries(Object.entries(o.regelLage).filter(([, v]) => typeof v === 'string')))
+        : undefined,
     begleitziele: strs(o.begleitziele),
     begleitstrang: objs<Begleitstrang>(
       o.begleitstrang,
@@ -453,6 +487,11 @@ export function importScenarioProjectJson(
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
         ...rahmenAusAltbestand(parsed),
+        begleitziele: Array.isArray(parsed.begleitziele) ? parsed.begleitziele.filter((x): x is string => typeof x === 'string') : undefined,
+        mehrAngaben:
+          parsed.mehrAngaben && typeof parsed.mehrAngaben === 'object' && !Array.isArray(parsed.mehrAngaben)
+            ? (parsed.mehrAngaben as MehrAngaben)
+            : undefined,
         lernziele: strOrUndef(parsed.lernziele) || strOrUndef(maschinenlesbar?.lernziele),
         problemstellung: strOrUndef(parsed.problemstellung),
         didaktischerAnsatz: strOrUndef(parsed.didaktischerAnsatz) || strOrUndef(maschinenlesbar?.didaktischerAnsatz),

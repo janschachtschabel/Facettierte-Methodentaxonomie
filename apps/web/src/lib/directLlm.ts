@@ -245,11 +245,12 @@ export async function testOpenAiConnection(byok: ByokSettings): Promise<{ ok: bo
   }
 }
 
-export async function runDirectTranslate(byok: ByokSettings, text: string) {
+/** `felder`: structured request fields next to the text (e.g. the Baukasten's completions); they always win. */
+export async function runDirectTranslate(byok: ByokSettings, text: string, felder: Record<string, unknown> = {}) {
   const bRes = await fetch('/api/v1/assistant/briefing', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ task: 'translate', payload: { text } })
+    body: JSON.stringify({ task: 'translate', payload: { ...felder, text } })
   });
   const briefing = await bRes.json();
   if (!bRes.ok) throw new Error(briefing.fehler || 'Briefing fehlgeschlagen.');
@@ -263,7 +264,7 @@ export async function runDirectTranslate(byok: ByokSettings, text: string) {
   if (!parsed) throw new Error('Das eigene LLM hat kein gültiges JSON geliefert.');
   delete parsed.text;
   // The matcher reads the text as in the rule path; the LLM fields are explicit and take precedence.
-  const merged = { ...parsed, text };
+  const merged = { ...parsed, ...felder, text };
   const matchRes = await fetch('/api/v1/match', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -275,7 +276,7 @@ export async function runDirectTranslate(byok: ByokSettings, text: string) {
     const fbRes = await fetch('/api/v1/match', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ ...felder, text })
     });
     const fb = await fbRes.json();
     return {

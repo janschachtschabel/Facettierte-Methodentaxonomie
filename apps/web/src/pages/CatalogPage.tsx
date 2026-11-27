@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { istHilfe, type EvidenceGrade, type SearchCriteria } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
@@ -6,6 +6,7 @@ import { MethodPictogram } from '../components/MethodPictogram.js';
 import { MethodCardDiagram } from '../components/MethodCardDiagram.js';
 import { ProfileRadarSvg } from '../components/ProfileRadarSvg.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
+import { filterAusUrl, filterInUrl } from '../data/katalogFilter.js';
 
 const GRANULARITY_READABLE: Record<string, string> = {
   r1: 'Interaktion (R1)',
@@ -28,51 +29,27 @@ export function CatalogPage() {
     queueBlockForPlanner
   } = useCatalog();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [showExpert, setShowExpert] = useState(false);
-  const [filters, setFilters] = useState<SearchCriteria>(() => {
-    const init: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich', 'eintragsart'] as const;
-    for (const k of keys) {
-      const v = searchParams.get(k);
-      if (v) init[k] = k === 'maxDauer' ? Number(v) : v;
-    }
-    return init as SearchCriteria;
-  });
-
-  useEffect(() => {
-    if (![...searchParams.keys()].length) return;
-    const next: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich', 'eintragsart'] as const;
-    for (const k of keys) {
-      const v = searchParams.get(k);
-      if (v) next[k] = k === 'maxDauer' ? Number(v) : v;
-    }
-    if (Object.keys(next).length) setFilters(next as SearchCriteria);
-  }, [searchParams]);
+  // Every filter lives in the URL, so a shared link shows the same hits (criteria of the core search).
+  const filters = useMemo(() => filterAusUrl(searchParams), [searchParams]);
 
   const setFilter = (key: string, val: unknown) => {
-    setFilters((prev) => {
-      const next = { ...prev };
-      if (val === '' || val === false || val == null) delete next[key];
-      else next[key] = val;
-      return next;
-    });
+    const next: Record<string, unknown> = { ...filters };
+    if (val === '' || val === false || val == null || (Array.isArray(val) && !val.length)) delete next[key];
+    else next[key] = val;
+    setSearchParams(filterInUrl(next as SearchCriteria), { replace: true });
   };
 
-  // Learners who cannot read or write yet: only methods without reading or writing (field schriftbedarf).
-  const [ohneSchrift, setOhneSchrift] = useState(false);
-  const hits = useMemo(() => {
-    if (!search) return [];
-    const found = search.suche(filters);
-    return ohneSchrift ? found.filter((b) => !(b.schriftbedarf || []).length) : found;
-  }, [search, filters, ohneSchrift]);
-  const resetFilters = () => {
-    setFilters({});
-    setOhneSchrift(false);
-  };
+  // Learners who cannot read or cannot write yet: the core leaves out methods that ask for it (ohneSchrift).
+  const ohneSchrift = Array.isArray(filters.ohneSchrift) ? (filters.ohneSchrift as string[]) : [];
+  const toggleSchrift = (was: 'lesen' | 'schreiben', an: boolean) =>
+    setFilter('ohneSchrift', (['lesen', 'schreiben'] as const).filter((x) => (x === was ? an : ohneSchrift.includes(x))));
+
+  const hits = useMemo(() => (search ? search.suche(filters) : []), [search, filters]);
+  const resetFilters = () => setSearchParams(new URLSearchParams(), { replace: true });
 
   if (loading) return <div className="page-section">Lade FMT-Methodenkatalog…</div>;
   if (error || !bundle || !search) return <div className="page-section">Fehler: {error}</div>;
@@ -266,12 +243,19 @@ export function CatalogPage() {
             </select>
           </label>
 
-          <label style={{ justifyContent: 'flex-end' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
-              <input type="checkbox" checked={ohneSchrift} onChange={(e) => setOhneSchrift(e.target.checked)} />
-              ohne Lesen und Schreiben
+          <fieldset style={{ border: 0, margin: 0, padding: 0 }} title="Zeigt nur Methoden, bei denen die Lernenden das nicht brauchen (Schriftbedarf)">
+            <legend style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 14 }}>Lesen und Schreiben</legend>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 14, paddingTop: 8 }}>
+              <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <input type="checkbox" checked={ohneSchrift.includes('lesen')} onChange={(e) => toggleSchrift('lesen', e.target.checked)} />
+                ohne Lesen
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <input type="checkbox" checked={ohneSchrift.includes('schreiben')} onChange={(e) => toggleSchrift('schreiben', e.target.checked)} />
+                ohne Schreiben
+              </label>
             </span>
-          </label>
+          </fieldset>
 
           <label>
             Zeitbudget (min)
@@ -280,7 +264,7 @@ export function CatalogPage() {
               min={0}
               placeholder="verfügbar"
               value={filters.maxDauer ?? ''}
-              onChange={(e) => setFilter('maxDauer', e.target.value)}
+              onChange={(e) => setFilter('maxDauer', e.target.value === '' ? '' : Number(e.target.value))}
             />
           </label>
 
@@ -336,6 +320,42 @@ export function CatalogPage() {
               </select>
             </label>
 
+            <label title="Zeigt Methoden, die diese Raumeigenschaft brauchen">
+              Braucht im Raum
+              <select aria-label="Braucht im Raum" value={String(filters.raumbedarf || '')} onChange={(e) => setFilter('raumbedarf', e.target.value)}>
+                <option value="">beliebig</option>
+                {valuesOf('raumbedarf').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label title="Lässt Methoden weg, die diese Raumeigenschaft brauchen">
+              Ohne Bedarf an
+              <select aria-label="Ohne Bedarf an" value={String(filters.ohneRaumbedarf || '')} onChange={(e) => setFilter('ohneRaumbedarf', e.target.value)}>
+                <option value="">beliebig</option>
+                {valuesOf('raumbedarf').map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label title="Lässt Methoden weg, die mehr Termine brauchen (termineMin)">
+              Termine verfügbar
+              <input
+                type="number"
+                min={1}
+                aria-label="Termine verfügbar"
+                placeholder="z. B. 1"
+                value={filters.termine ?? ''}
+                onChange={(e) => setFilter('termine', e.target.value === '' ? '' : Number(e.target.value))}
+              />
+            </label>
+
             <label>
               Technik höchstens
               <select value={String(filters.maxTechnik || '')} onChange={(e) => setFilter('maxTechnik', e.target.value)}>
@@ -370,7 +390,7 @@ export function CatalogPage() {
                 min={1}
                 placeholder="z. B. 28"
                 value={filters.gruppe ?? ''}
-                onChange={(e) => setFilter('gruppe', e.target.value)}
+                onChange={(e) => setFilter('gruppe', e.target.value === '' ? '' : Number(e.target.value))}
               />
             </label>
 
@@ -417,7 +437,7 @@ export function CatalogPage() {
             <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowExpert((s) => !s)}>
               {showExpert ? '▲ Expertenfilter ausblenden' : '▼ Alle Facetten & Rahmenbedingungen'}
             </button>
-            {(Object.keys(filters).length > 0 || ohneSchrift) && (
+            {Object.keys(filters).length > 0 && (
               <button type="button" className="btn btn-sm" onClick={resetFilters}>
                 Filter zurücksetzen
               </button>

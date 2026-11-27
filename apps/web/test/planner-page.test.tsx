@@ -2,11 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createMatcher, createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
+import { baueSituation, createMatcher, createSearch, createValidator, erstelleRegeln, istMethode, ungedeckterBedarf, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PlannerPage } from '../src/pages/PlannerPage.js';
-import { createChainPreset } from '../src/planner/arrangementOps.js';
+import { createChainPreset } from './kettenVorlage.js';
 import { regelZeile } from '../src/planner/regelmeldung.js';
 import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY, SAVED_SCENARIOS_KEY } from '../src/planner/scenarioStorage.js';
 
@@ -781,5 +781,365 @@ describe('Schritt 5: Entwurf mit sieben Kernfeldern nach Planungsprofil (Paket D
       expect(text, t).toContain(t);
     }
     expect(text).not.toContain('Sekundarstufe I');
+  });
+});
+
+describe('Schritt 1 und 5: jede Angabe erreicht den Kern (App-Nachzug N3)', () => {
+  const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+  const waehle = (label: string, value: string) => fireEvent.change(within(mehrAngaben()).getByLabelText(label), { target: { value } });
+
+  it('„Mehr Angaben“ nennt alle freiwilligen Angaben, auch Begleitziel, und enthält sie; der Raum steht sichtbar in Schritt 1 (Spez. §8)', () => {
+    renderPlanner();
+    const zeile = screen.getByText(/^Mehr Angaben \(freiwillig\)/).textContent!;
+    for (const t of ['Fach', 'Stufe', 'Vorwissen', 'Sprachniveau', 'Komplexität', 'Lehrende', 'Fachausstattung', 'Technik', 'Lesen und Schreiben', 'Termine', 'Nachweis', 'Bewertung', 'Einheit', 'Planungsprofil', 'Begleitziel']) {
+      expect(zeile, t).toContain(t);
+    }
+    const mehr = mehrAngaben();
+    expect(within(mehr).queryByLabelText('Raum')).toBeNull();
+    expect(screen.getByLabelText('Raum')).toBeTruthy();
+    expect(within(mehr).getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).toBeTruthy();
+  });
+
+  it('neue Felder ohne Vorauswahl; alle gehen in die Anfrage an den Kern, Vorwissen und Bildungsstufe eingeschlossen', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    const mehr = mehrAngaben();
+    for (const name of ['Sprachniveau', 'Komplexität des Inhalts', 'Nachweis', 'Wird die Stunde bewertet?', 'Planungsprofil', 'Art der Fachausstattung']) {
+      expect((within(mehr).getByLabelText(name) as HTMLSelectElement).value, name).toBe('');
+    }
+    for (const name of ['Übergeordnete Einheit', 'Anzahl Lehrende']) expect((within(mehr).getByLabelText(name) as HTMLInputElement).value, name).toBe('');
+    // The options are the core's values of the field.
+    const opts = (label: string) => within(within(mehr).getByLabelText(label)).getAllByRole('option').map((o) => (o as HTMLOptionElement).value).filter(Boolean);
+    const kern = (feld: string) => CATALOG.matcher.felder().find((f) => f.feld === feld)!.werte!.map((w) => w.code);
+    expect(opts('Sprachniveau')).toEqual(kern('sprachniveau'));
+    expect(opts('Planungsprofil')).toEqual(kern('planungsprofil'));
+    expect(opts('Art der Fachausstattung')).toEqual(kern('fachausstattungArt'));
+    propose('Biologie, Fotosynthese, 45 Minuten');
+    const leer = spy.mock.calls.at(-1)![0]!;
+    for (const f of ['vorwissen', 'sprachniveau', 'komplexitaet', 'nachweis', 'einheit', 'bewertet', 'planungsprofil', 'lehrende', 'fachausstattungArt']) expect(leer[f], f).toBeUndefined();
+
+    fireEvent.click(stepButton(1));
+    waehle('Bildungsstufe', 'sek2');
+    waehle('Vorwissen', 'hoch');
+    waehle('Sprachniveau', 'b1');
+    waehle('Komplexität des Inhalts', 'hoch');
+    waehle('Nachweis', 'muendlich');
+    waehle('Übergeordnete Einheit', 'Reihe Ökologie');
+    waehle('Wird die Stunde bewertet?', 'nein');
+    waehle('Planungsprofil', 'erwachsenenbildung');
+    waehle('Anzahl Lehrende', '2');
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'fachraum' } });
+    waehle('Art der Fachausstattung', 'labor');
+    propose('Biologie, Fotosynthese, 45 Minuten');
+    expect(spy.mock.calls.at(-1)![0]).toMatchObject({
+      bildungsstufe: 'sek2',
+      vorwissen: 'hoch',
+      sprachniveau: 'b1',
+      komplexitaet: 'hoch',
+      nachweis: 'muendlich',
+      einheit: 'Reihe Ökologie',
+      bewertet: false,
+      planungsprofil: 'erwachsenenbildung',
+      lehrende: 2,
+      raum: 'fachraum',
+      fachausstattungArt: 'labor'
+    });
+    spy.mockRestore();
+  });
+
+  it('KI-Weg: die strukturierten Angaben samt Ergänzungen aus „Fehlt noch“ gehen neben dem Text an /assistant/translate', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: { body?: string }) => {
+        const body = JSON.parse(init?.body || '{}') as Record<string, unknown>;
+        if (url === '/api/v1/assistant/translate') bodies.push(body);
+        const { text, ...felder } = body;
+        const ergebnis = CATALOG.matcher.zuordnen({ ...felder, text: String(text || '') });
+        return { ok: true, status: 200, json: async () => ({ quelle: 'regeln-fallback', ergebnis }) };
+      })
+    );
+    const meta = CATALOG.meta;
+    (CATALOG as { meta: unknown }).meta = { llmConfigured: true, llmModel: 'test' };
+    try {
+      renderPlanner();
+      fireEvent.change(screen.getByLabelText('Unterrichtsvorhaben beschreiben'), { target: { value: 'etwas über Pflanzen' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Ohne KI vorschlagen' }));
+      fireEvent.click(stepButton(1));
+      const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+      fireEvent.change(within(zeile).getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'primar' } });
+      fireEvent.change(within(zeile).getByLabelText('Zeit in Minuten ergänzen'), { target: { value: '45' } });
+      waehle('Sprachniveau', 'a2');
+      fireEvent.click(screen.getByRole('button', { name: /✨ Ablauf vorschlagen/ }));
+      await waitFor(() => expect(bodies.length).toBe(1));
+      expect(bodies[0]).toMatchObject({ bildungsstufe: 'primar', zeitMin: 45, sprachniveau: 'a2' });
+      expect(String(bodies[0].text)).toContain('etwas über Pflanzen');
+    } finally {
+      (CATALOG as { meta: unknown }).meta = meta;
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('Schritt 5: Planungsprofil wählbar (derselbe Zustand wie in Schritt 1); leer folgt es wieder aus der Stufe', () => {
+    renderPlanner();
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Unterrichtsentwurf');
+    const profil = screen.getByLabelText('Planungsprofil') as HTMLSelectElement;
+    expect(profil.value).toBe('');
+    fireEvent.change(profil, { target: { value: 'hochschule' } });
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.click(stepButton(1));
+    expect((within(mehrAngaben()).getByLabelText('Planungsprofil') as HTMLSelectElement).value).toBe('hochschule');
+    // Proposed again with the profile chosen, then cleared in step 5: derived from the Stufe again.
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
+    expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+    expect(document.body.textContent).toContain('Unterrichtsentwurf');
+  });
+
+  it('Einheit und Bewertung aus Schritt 1 stehen im Entwurf und bleiben nach Speichern und Laden', () => {
+    renderPlanner();
+    waehle('Übergeordnete Einheit', 'Reihe Ökologie');
+    waehle('Wird die Stunde bewertet?', 'ja');
+    waehle('Vorwissen', 'gering');
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    const vorher = document.body.textContent || '';
+    expect(vorher).toContain('Reihe Ökologie');
+    expect(vorher).toContain('wird bewertet');
+    fireEvent.click(screen.getAllByRole('button', { name: /Speichern/ })[0]);
+    const gespeichert = JSON.parse(window.localStorage.getItem(SAVED_SCENARIOS_KEY)!)[0];
+    expect(gespeichert.mehrAngaben).toMatchObject({ einheit: 'Reihe Ökologie', bewertet: true, vorwissen: 'gering' });
+    expect(gespeichert.entwurfAngaben).toMatchObject({ einheit: 'Reihe Ökologie', bewertet: true });
+    cleanup();
+
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /Gespeichert \(1\)/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Laden' }));
+    fireEvent.click(stepButton(5));
+    const nachher = document.body.textContent || '';
+    expect(nachher).toContain('Reihe Ökologie');
+    expect(nachher).toContain('wird bewertet');
+    fireEvent.click(stepButton(1));
+    expect((within(mehrAngaben()).getByLabelText('Wird die Stunde bewertet?') as HTMLSelectElement).value).toBe('ja');
+    expect((within(mehrAngaben()).getByLabelText('Vorwissen') as HTMLSelectElement).value).toBe('gering');
+  });
+});
+
+describe('N3-Fix I1: Geleertes gilt sofort im Entwurf; das Planungsprofil findet die Stufe aus Text oder Ergänzung', () => {
+  const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+  const waehle = (label: string, value: string) => fireEvent.change(within(mehrAngaben()).getByLabelText(label), { target: { value } });
+
+  it('Bewertung, Einheit und Nachweis leeren: der Entwurf nennt sie nicht mehr, was der Text sagt, bleibt', () => {
+    renderPlanner();
+    waehle('Übergeordnete Einheit', 'Reihe Ökologie');
+    waehle('Wird die Stunde bewertet?', 'ja');
+    waehle('Nachweis', 'produkt');
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, Einheit Lernfeld 3';
+    propose(text);
+    fireEvent.click(stepButton(5));
+    const vorher = document.body.textContent || '';
+    expect(vorher).toContain('Reihe Ökologie');
+    expect(vorher).toContain('wird bewertet');
+    expect(vorher).toContain(`Nachweis: ${CATALOG.labelOf('nachweisform', 'produkt')}`);
+    fireEvent.click(stepButton(1));
+    waehle('Übergeordnete Einheit', '');
+    waehle('Wird die Stunde bewertet?', '');
+    waehle('Nachweis', '');
+    fireEvent.click(stepButton(5));
+    const nachher = document.body.textContent || '';
+    expect(nachher).not.toContain('Reihe Ökologie');
+    expect(nachher).toContain('Lernfeld 3');
+    expect(nachher).not.toMatch(/wird bewertet|Das Ergebnis wird bewertet/);
+    expect(nachher).not.toContain(`Nachweis: ${CATALOG.labelOf('nachweisform', 'produkt')}`);
+    // Same as the core's answer for the request without the cleared fields.
+    const kern = CATALOG.matcher.zuordnen({ text }) as { nachweis?: { formen: string[] } };
+    for (const f of kern.nachweis?.formen || []) expect(nachher).toContain(CATALOG.labelOf('nachweisform', f));
+  });
+
+  it('Planungsprofil leeren: die Stufe aus dem Text bestimmt es wieder (Berufsschule)', () => {
+    renderPlanner();
+    waehle('Planungsprofil', 'hochschule');
+    propose('Berufsschule, Elektrotechnik, Stromkreise, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
+    expect(document.body.textContent).toContain('Unterrichtsentwurf mit Lernsituation');
+    expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+  });
+
+  it('Planungsprofil leeren: eine Stufe aus „Fehlt noch“ bestimmt es wieder (Erwachsenenbildung)', () => {
+    renderPlanner();
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(1));
+    const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    fireEvent.change(within(zeile).getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'erwachsenenbildung' } });
+    waehle('Planungsprofil', 'hochschule');
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
+    expect(document.body.textContent).toContain('Kursverlaufsplan');
+    expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+  });
+});
+
+describe('Beispiele, Kettenwahl und Schritt 2 über den Kern (App-Nachzug N4)', () => {
+  const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+  const feld = (label: string) => within(mehrAngaben()).getByLabelText(label) as HTMLSelectElement | HTMLInputElement;
+
+  it('ein Beispiel füllt Schritt 1 samt „Mehr Angaben“ und fragt den Kern; der Ablauf ist sein Vorschlag', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: 'Mathe · Bruchrechnen (90 min)' }));
+    expect((screen.getByLabelText('Unterrichtsvorhaben beschreiben') as HTMLTextAreaElement).value).toMatch(/^Mathematik Bruchrechnen/);
+    expect(feld('Bildungsstufe').value).toBe('sek1');
+    expect(feld('Vorwissen').value).toBe('gering');
+    expect(feld('Zeitbudget (Min.)').value).toBe('90');
+    const req = spy.mock.calls.at(-1)![0]!;
+    expect(req).toMatchObject({ bildungsstufe: 'sek1', vorwissen: 'gering', zeitMin: 90 });
+    expect(req.zieltyp).toBeUndefined();
+    const res = spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>;
+    expect(res.modus).toBe('ablauf');
+    expect(screen.getByText(/Beispiel „Mathe · Bruchrechnen \(90 min\)“ geladen/)).toBeTruthy();
+    // The proposal of the core, with its line "Verstanden" (not a fixed flow without an answer).
+    fireEvent.click(stepButton(2));
+    expect(screen.getByRole('region', { name: 'Verstanden' })).toBeTruthy();
+    const schritte = res.modus === 'ablauf' ? res.schritte || [] : [];
+    expect(schritte.length).toBeGreaterThan(0);
+    for (const st of schritte) expect(screen.getAllByText(st.name).length, st.name).toBeGreaterThan(0);
+    spy.mockRestore();
+  });
+
+  it('das Berufsschul-Beispiel führt über die Zielart zur vollständigen Handlung', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /^Berufsschule · Kundenauftrag/ }));
+    const res = spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>;
+    expect(res.modus === 'ablauf' && res.kette?.id).toBe('vollstaendige-handlung');
+    expect(feld('Bildungsstufe').value).toBe('berufsbildung');
+    spy.mockRestore();
+  });
+
+  it('eigene Eingabe nach einem Beispiel leert auch dessen „Mehr Angaben“', () => {
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: 'Mathe · Bruchrechnen (90 min)' }));
+    fireEvent.change(screen.getByLabelText('Unterrichtsvorhaben beschreiben'), { target: { value: 'Sport Klasse 5, Ausdauer' } });
+    expect(feld('Bildungsstufe').value).toBe('');
+    expect(feld('Vorwissen').value).toBe('');
+  });
+
+  it('Funktionskette: die Wahl geht als zieltyp in die Anfrage, der eigene Kontext bleibt, der Kern schlägt neu vor', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'fachraum' } });
+    propose('Elektrotechnik Klasse 11, Schaltungen aufbauen, 90 Minuten');
+    fireEvent.click(stepButton(1));
+    const vorher = spy.mock.calls.length;
+    fireEvent.change(feld('Funktionskette / Zieltyp'), { target: { value: 'vollstaendige-handlung' } });
+    expect(spy.mock.calls.length).toBeGreaterThan(vorher);
+    const req = spy.mock.calls.at(-1)![0]!;
+    expect(req).toMatchObject({ zieltyp: 'vollstaendige-handlung', raum: 'fachraum' });
+    expect(req.text).toBe('Elektrotechnik Klasse 11, Schaltungen aufbauen, 90 Minuten');
+    const res = spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>;
+    expect(res.modus === 'ablauf' && res.arrangement?.zieltyp).toBe('vollstaendige-handlung');
+    expect(feld('Funktionskette / Zieltyp').value).toBe('vollstaendige-handlung');
+    expect(screen.getByText(/Neuer Vorschlag mit der Kette Berufliche Handlung/)).toBeTruthy();
+    // A new proposal keeps the chosen chain; "aus der Zielart" takes it out of the request again.
+    propose('Elektrotechnik Klasse 11, Schaltungen aufbauen, 90 Minuten');
+    expect(spy.mock.calls.at(-1)![0]!.zieltyp).toBe('vollstaendige-handlung');
+    fireEvent.click(stepButton(1));
+    fireEvent.change(feld('Funktionskette / Zieltyp'), { target: { value: '' } });
+    expect(spy.mock.calls.at(-1)![0]!.zieltyp).toBeUndefined();
+    spy.mockRestore();
+  });
+
+  it('Schritt 2 nennt Ausgeschlossenes mit Merkmal und W-Feld und die genannten Hilfen', () => {
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    propose('Statistik Hypothesentests, 90 Minuten, mit Autogrammjagd und Satzmuster und Redemittel');
+    const box = screen.getByRole('region', { name: 'Nicht eingeplant' });
+    expect(box.textContent).toContain('Autogrammjagd (Find Someone Who) braucht: Stellfläche.');
+    expect(box.textContent).toContain('Merkmal: Raumbedarf · W-Feld: Lernumgebung (Wo wird gelernt?)');
+    const hilfen = screen.getByRole('region', { name: 'Genannte Hilfen' });
+    expect(hilfen.textContent).toContain('Satzmuster und Redemittel');
+    expect(hilfen.textContent).toMatch(/keine eigene Phase.*Schritt 3/);
+  });
+
+  it('Schritt 2 zeigt neben dem Grad, worauf sich der Befund bezieht', () => {
+    renderPlanner();
+    propose('Mathematik Bruchrechnen Klasse 6, 90 Minuten, mit Lehrervortrag');
+    const bezug = screen.getByLabelText('Evidenzbezug Lehrervortrag (klassisch)');
+    expect(bezug.textContent).toBe('Befund zur Methode');
+  });
+
+  it('nach einem Tausch von Hand prüft der Kern die Passungsregeln neu', () => {
+    renderPlanner();
+    fireEvent.change(feld('Vorwissen'), { target: { value: 'hoch' } });
+    propose('Mathematik Bruchrechnen Klasse 6, 90 Minuten, mit Lehrervortrag');
+    const vorTausch = screen.getByLabelText('Hinweise zu Lehrervortrag (klassisch)');
+    expect(vorTausch.textContent).toContain(regelZeile(erstelleRegeln(BUNDLE.regeln).warnungen(CATALOG.blocksById.get('lehrervortrag')!, { vorwissen: 'hoch' })[0], BUNDLE.regeln));
+    fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
+    const selects = screen.getAllByLabelText(/^Baustein für Schritt \d+$/) as HTMLSelectElement[];
+    const select = selects.find((s) => s.value === 'lehrervortrag')!;
+    expect(select).toBeTruthy();
+    const regeln = erstelleRegeln(BUNDLE.regeln);
+    const ersatz = within(select)
+      .getAllByRole('option')
+      .map((o) => (o as HTMLOptionElement).value)
+      .map((k) => BUNDLE.bausteine.find((b) => b.kennung === k)!)
+      .find((b) => b.kennung !== 'lehrervortrag' && regeln.warnungen(b, { vorwissen: 'hoch' }).length > 0)!;
+    expect(ersatz).toBeTruthy();
+    fireEvent.change(select, { target: { value: ersatz.kennung } });
+    fireEvent.click(screen.getByRole('button', { name: /Übersicht/ }));
+    expect(screen.queryByLabelText('Hinweise zu Lehrervortrag (klassisch)')).toBeNull();
+    const neu = screen.getByLabelText(`Hinweise zu ${ersatz.name}`);
+    const erwartet = regeln.warnungen(ersatz, { vorwissen: 'hoch' })[0];
+    expect(neu.textContent).toContain(regelZeile(erwartet, BUNDLE.regeln));
+  });
+
+  it('Schritt 3: andere Methoden für eine Teilgruppe kommen durch den Kernfilter (nur Methoden, Bedarf im Raum gedeckt)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten, Teilgruppe: 4 Lernende DaZ Niveau A2');
+    const kriterien = (spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>).kriterien;
+    fireEvent.click(stepButton(3));
+    fireEvent.click(screen.getByRole('button', { name: '✏ Hinweise und Methoden bearbeiten' }));
+    const selects = screen.getAllByLabelText(/^Alternative Methode für /) as HTMLSelectElement[];
+    expect(selects.length).toBeGreaterThan(0);
+    const { text: _t, ...anfrage } = kriterien as Record<string, unknown>;
+    const lage = baueSituation(anfrage, BUNDLE);
+    let angeboten = 0;
+    for (const sel of selects) {
+      for (const group of Array.from(sel.querySelectorAll('optgroup'))) {
+        expect(group.label).toMatch(/Gleichwertig für diese Gruppe \(geprüft\)|Bedarf gedeckt \(ohne Gleichwertigkeitsprüfung\)/);
+      }
+      for (const o of Array.from(sel.options).filter((x) => x.value)) {
+        const b = CATALOG.blocksById.get(o.value)!;
+        expect(istMethode(b), b.kennung).toBe(true);
+        expect(ungedeckterBedarf(b, anfrage, lage, BUNDLE), b.kennung).toBeNull();
+        angeboten++;
+      }
+    }
+    expect(angeboten).toBeGreaterThan(0);
+    spy.mockRestore();
+  });
+
+  it('„Ersatz prüfen“ gibt die Situation des Plans an den Kern (search.ersatz)', () => {
+    const spy = vi.spyOn(CATALOG.search, 'ersatz');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    fireEvent.click(screen.getByLabelText('Die Lernenden können noch nicht lesen'));
+    propose('Statistik Hypothesentests, 90 Minuten');
+    fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Ersatz prüfen/ })[0]);
+    const situation = spy.mock.calls.at(-1)![3]!;
+    expect(situation).toMatchObject({ raum: 'hoersaal', ohneSchrift: ['lesen'] });
+    expect(situation.text).toBeUndefined();
+    spy.mockRestore();
   });
 });
