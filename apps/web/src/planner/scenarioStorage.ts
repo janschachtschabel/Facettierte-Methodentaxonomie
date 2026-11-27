@@ -79,6 +79,8 @@ export interface SavedScenario {
   ohneSchrift?: string[];
   /** Number of dates the unit runs over. */
   termine?: string;
+  /** Accompanying goals chosen in step 1 (codes of the scheme begleitziel). */
+  begleitziele?: string[];
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;

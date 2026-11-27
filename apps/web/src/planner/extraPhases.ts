@@ -3,7 +3,8 @@ import { getMainSequence, withMainSequence } from './arrangementOps.js';
 
 /** An additional phase the teacher took over from the proposals of step 3. */
 export interface AddedPhase {
-  art: AdditionalPhaseProposal['art'];
+  /** 'begleitstrang': the short strand at the end proposed for an accompanying goal (step 2, D3). */
+  art: AdditionalPhaseProposal['art'] | 'begleitstrang';
   kennung: string;
   name: string;
   dauerMin: number;
@@ -22,7 +23,7 @@ const minutes = (n: EinsatzNode) => n.dauerMin ?? 0;
 export function addExtraPhase(
   arr: Arrangement,
   blocksById: Map<string, Baustein>,
-  proposal: AdditionalPhaseProposal
+  proposal: Pick<AdditionalPhaseProposal, 'position' | 'kennung' | 'name' | 'dauerMin' | 'grund'> & { art: AddedPhase['art'] }
 ): { arrangement: Arrangement; index: number; added: AddedPhase } {
   const teile = getMainSequence(arr).seq.teile;
   const recurring = teile.findIndex((t) => t.typ === 'Wiederkehr');

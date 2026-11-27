@@ -8,6 +8,7 @@ import {
   proposeAdditionalPhases,
   type AdditionalPhaseProposal,
   type Arrangement,
+  type Begleitstrang,
   type MethodAdjustment,
   type MatchRequest,
   type MatchResult,
@@ -31,6 +32,7 @@ import {
 } from '../planner/arrangementOps.js';
 import { explainValidationMessage } from '../planner/validationHelpers.js';
 import { addExtraPhase, removeExtraPhase, shiftAdjustmentKeys, shiftStepKeys, type AddedPhase } from '../planner/extraPhases.js';
+import { begleitstrangAlsMaterial, begleitstrangAlsPhase, begleitstrangMaterialId, begleitzielHinweise } from '../planner/begleitziele.js';
 import {
   activeSubgroups,
   adjustmentGroups,
@@ -303,6 +305,8 @@ export function PlannerPage() {
   const [raumBietet, setRaumBietet] = useState<string[] | null>(null);
   const [ohneSchrift, setOhneSchrift] = useState<string[]>([]);
   const [termine, setTermine] = useState<string>('');
+  // Accompanying goals (D3): nothing preselected; they only order equivalent methods and add a proposed strand.
+  const [begleitziele, setBegleitziele] = useState<string[]>([]);
   // Missing required details completed in the line "Fehlt noch" (step 1); empty means not given, nothing is preset.
   const [zielErg, setZielErg] = useState('');
   const [stufeErg, setStufeErg] = useState('');
@@ -333,6 +337,8 @@ export function PlannerPage() {
   // Step 3: short phases for the whole class, proposed by the last check and taken over by the teacher.
   const [extraProposals, setExtraProposals] = useState<AdditionalPhaseProposal[]>([]);
   const [addedPhases, setAddedPhases] = useState<AddedPhase[]>([]);
+  // Accompanying strands the teacher took into the flow in step 2 (D3).
+  const [begleitPhasen, setBegleitPhasen] = useState<AddedPhase[]>([]);
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
   const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterialItem[]>([]);
   const [thematicRows, setThematicRows] = useState<ThematicPhaseRow[] | null>(null);
@@ -596,6 +602,7 @@ export function PlannerPage() {
     setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
+    setBegleitPhasen([]);
   };
 
   const subgroups = activeSubgroups(groups);
@@ -706,6 +713,19 @@ export function PlannerPage() {
     if (res) applyFlowChange(res.arrangement, res.index, -1);
   };
 
+  /** Takes the proposed accompanying strand into the flow as the last phase (D3); undone with removeBegleitstrang. */
+  const takeOverBegleitstrang = (st: Begleitstrang) => {
+    const res = addExtraPhase(arrangement, blocksById, begleitstrangAlsPhase(st));
+    applyFlowChange(res.arrangement, res.index, 1);
+    setBegleitPhasen((prev) => [...prev.filter((a) => a.kennung !== res.added.kennung), res.added]);
+  };
+
+  const removeBegleitstrang = (a: AddedPhase) => {
+    const res = removeExtraPhase(arrangement, a);
+    setBegleitPhasen((prev) => prev.filter((x) => x.kennung !== a.kennung));
+    if (res) applyFlowChange(res.arrangement, res.index, -1);
+  };
+
   const undoAdjustments = (list: MethodAdjustment[]) => {
     setSubgroupMethods((prev) => applyAdjustments(prev, list, []));
   };
@@ -786,6 +806,11 @@ export function PlannerPage() {
     if (Number(termine) > 0) req.termine = Number(termine);
     // A completion only fills a gap: what the text itself states wins (explicit fields would beat the text).
     const ausText = matcher ? matcher.lesen(scenarioText).kriterien : {};
+    // Accompanying goals: the boxes of step 1 together with those the text names (the field alone would drop them).
+    if (begleitziele.length) {
+      const gewaehlt = new Set([...begleitziele, ...((ausText.begleitziel as string[] | undefined) || [])]);
+      req.begleitziel = valuesOf('begleitziel').map((w) => w.id).filter((id) => gewaehlt.has(id));
+    }
     if (zielErg && !ausText.zielart && !ausText.zieltyp) req.zielart = zielErg;
     if (stufeErg && !ausText.bildungsstufe) req.bildungsstufe = stufeErg;
     if (Number(zeitErg) > 0 && !ausText.zeitMin) req.zeitMin = Number(zeitErg);
@@ -817,6 +842,7 @@ export function PlannerPage() {
     if (ohneSchrift.includes('lesen')) extras.push('Die Lernenden können noch nicht lesen');
     if (ohneSchrift.includes('schreiben')) extras.push('Die Lernenden können noch nicht schreiben');
     if (Number(termine) > 0) extras.push(`Termine: ${Number(termine)}`);
+    if (begleitziele.length) extras.push(`Nebenbei fördern: ${begleitziele.map((c) => labelOf('begleitziel', c)).join(', ')}`);
     return extras.length ? `${scenarioText.trim()}\n\nZusatzangaben: ${extras.join('; ')}` : scenarioText;
   };
 
@@ -1153,6 +1179,7 @@ export function PlannerPage() {
     raumBietet: raumBietet ?? undefined,
     ohneSchrift,
     termine,
+    begleitziele,
     lernziele,
     problemstellung,
     didaktischerAnsatz: didaktischerAnsatzLabel,
@@ -1199,6 +1226,7 @@ export function PlannerPage() {
     setRaumBietet(rahmen.raumBietet ?? null);
     setOhneSchrift(rahmen.ohneSchrift ?? []);
     setTermine(rahmen.termine ?? '');
+    setBegleitziele(Array.isArray(p.begleitziele) ? p.begleitziele.filter((x) => typeof x === 'string') : []);
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
@@ -1218,6 +1246,7 @@ export function PlannerPage() {
     setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
+    setBegleitPhasen([]);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
     if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
     if (p.elaboration !== undefined) setElaboration(p.elaboration);
@@ -1290,6 +1319,12 @@ export function PlannerPage() {
   const angenommenRaum = matchResult?.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
   const raumCode = raum || (matchResult?.kriterien?.raum as string | undefined) || (angenommenRaum ? String(angenommenRaum) : '');
   const zielCode = matchResult?.kriterien?.zielart as string | undefined;
+  // Accompanying goals as the matcher read them (boxes and text), the strands it proposes and those taken into the flow.
+  const begleitzielCodes = matchResult ? ((matchResult.kriterien?.begleitziel as string[] | undefined) || []) : begleitziele;
+  const begleitstraenge: Begleitstrang[] = (matchResult?.modus === 'ablauf' && matchResult.begleitstrang) || [];
+  const begleitPhasenNow = begleitPhasen.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
+  const begleitImAblauf = (st: Begleitstrang) => begleitPhasenNow.find((a) => a.kennung === st.baustein);
+  const begleitHinweise = begleitzielHinweise(matchResult?.hinweise);
   const entwurfMeta: EntwurfMeta = {
     planungsprofile: bundle?.planungsprofile,
     planungsprofil: matchResult?.planungsprofil,
@@ -1299,6 +1334,11 @@ export function PlannerPage() {
     einheit: typeof matchResult?.kriterien?.einheit === 'string' ? matchResult.kriterien.einheit : undefined,
     nachweis: matchResult?.nachweis?.formen.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
     hauptziel: zielCode ? labelOf('zielart', zielCode) : bundle?.ketten.find((k) => k.id === arrangement.zieltyp)?.label,
+    begleitziele: begleitzielCodes.length ? begleitzielCodes.map((c) => labelOf('begleitziel', c)) : undefined,
+    // A strand taken into the flow is a phase of the plan now, no longer a proposal.
+    begleitstrang: begleitstraenge
+      .filter((st) => !begleitImAblauf(st))
+      .map((st) => ({ begleitziel: labelOf('begleitziel', st.begleitziel), methode: st.name, dauerMin: st.dauerMin, baustein: st.baustein })),
     regelhinweise: regelmeldungen.map((m) => regelZeile(m, bundle?.regeln))
   };
   const exportProfil = entwurfBegriffe(entwurfMeta, arrangement.kontext?.bildungsstufe);
@@ -2287,6 +2327,32 @@ export function PlannerPage() {
               </div>
             </div>
           </details>
+
+          {/* Accompanying goals (D3): collapsible, nothing preselected, nothing blocks. */}
+          <details className="card" style={{ padding: 18 }}>
+            <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
+              Was soll nebenbei gefördert werden?
+            </summary>
+            <div role="group" aria-label="Was soll nebenbei gefördert werden?" style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center', marginTop: 12, fontSize: 14 }}>
+              {valuesOf('begleitziel').map((w) => (
+                <label key={w.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={begleitziele.includes(w.id)}
+                    onChange={(e) => {
+                      setPresetContextSource(null);
+                      setBegleitziele((prev) => (e.target.checked ? [...prev.filter((x) => x !== w.id), w.id] : prev.filter((x) => x !== w.id)));
+                    }}
+                  />
+                  {w.label}
+                </label>
+              ))}
+            </div>
+            <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>
+              Ein Begleitziel wählt nie den Ablauf. Unter gleichwertigen Methoden kommt eine passende nach vorn, und du bekommst einen
+              kurzen Begleitstrang am Ende als Vorschlag. Wirkungen sind für Programme über mehrere Wochen belegt.
+            </p>
+          </details>
         </section>
       )}
 
@@ -2417,6 +2483,47 @@ export function PlannerPage() {
                   <li key={t}>{t}</li>
                 ))}
               </ul>
+            </section>
+          )}
+          {hasFlow && (begleitstraenge.length > 0 || begleitHinweise.length > 0) && (
+            <section aria-label="Begleitziele" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+                Begleitziele: {begleitzielCodes.map((c) => labelOf('begleitziel', c)).join(', ')}
+              </strong>
+              <ul className="planner-adjust-list" style={{ margin: '6px 0 0' }}>
+                {begleitstraenge.map((st) => {
+                  const drin = begleitImAblauf(st);
+                  return (
+                    <li key={st.begleitziel}>
+                      <div>
+                        <div>
+                          <strong>
+                            Vorschlag: {st.name}, {st.dauerMin} min am Ende
+                          </strong>{' '}
+                          <span className="muted">({labelOf('begleitziel', st.begleitziel)})</span>
+                        </div>
+                        <div className="muted" style={{ fontSize: 13 }}>
+                          {drin ? `${st.name} steht jetzt als letzte Phase im Ablauf.` : st.grund}
+                        </div>
+                      </div>
+                      {drin ? (
+                        <button type="button" className="btn btn-sm" aria-label={`${st.name} wieder entfernen`} onClick={() => removeBegleitstrang(drin)}>
+                          Wieder entfernen
+                        </button>
+                      ) : (
+                        <button type="button" className="btn btn-sm" aria-label={`${st.name} am Ende übernehmen`} onClick={() => takeOverBegleitstrang(st)}>
+                          Übernehmen
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              {begleitHinweise.map((h) => (
+                <p key={h} style={{ fontSize: 14, margin: '6px 0 0' }}>
+                  {h}
+                </p>
+              ))}
             </section>
           )}
           {offeneSchritte.length > 0 && (
@@ -2829,6 +2936,51 @@ export function PlannerPage() {
               generatedMaterials={generatedMaterials}
             />
           </div>
+
+          {begleitstraenge.length > 0 && (
+            <section aria-label="Begleitstrang für Begleitziele" className="card no-print" style={{ padding: 14 }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Begleitstrang für Begleitziele</strong>
+              <ul className="planner-adjust-list" style={{ margin: '6px 0 0' }}>
+                {begleitstraenge.map((st) => {
+                  const ziel = labelOf('begleitziel', st.begleitziel);
+                  const angehaengt = generatedMaterials.some((m) => m.id === begleitstrangMaterialId(st));
+                  const letzte = scenarioRows[scenarioRows.length - 1]?.key;
+                  return (
+                    <li key={st.begleitziel}>
+                      <div>
+                        <div>
+                          <strong>{st.name}</strong> ({ziel}, {st.dauerMin} min am Ende)
+                        </div>
+                        <div className="muted" style={{ fontSize: 13 }}>
+                          {st.grund}
+                        </div>
+                      </div>
+                      {angehaengt ? (
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          aria-label={`Material zu ${st.name} zurücknehmen`}
+                          onClick={() => setGeneratedMaterials((prev) => prev.filter((m) => m.id !== begleitstrangMaterialId(st)))}
+                        >
+                          Zurücknehmen
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          aria-label={`${st.name} als Material anhängen`}
+                          disabled={!letzte}
+                          onClick={() => letzte && setGeneratedMaterials((prev) => [...prev.filter((m) => m.id !== begleitstrangMaterialId(st)), begleitstrangAlsMaterial(st, ziel, letzte)])}
+                        >
+                          Als Material anhängen
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
 
           <ScenarioStudioPanel
             mode="resources"

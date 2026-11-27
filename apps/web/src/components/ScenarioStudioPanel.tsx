@@ -377,7 +377,12 @@ export function ScenarioStudioPanel({
         anzahl: entwurfMeta.anzahl,
         einheit: entwurfMeta.einheit,
         nachweis: entwurfMeta.nachweis,
-        hinweiseListe: entwurfMeta.regelhinweise?.length ? entwurfMeta.regelhinweise : undefined
+        hinweiseListe: entwurfMeta.regelhinweise?.length ? entwurfMeta.regelhinweise : undefined,
+        // Accompanying goals and the proposed strand (labels; the server reads labels as well), for the field Ziele.
+        begleitziel: entwurfMeta.begleitziele?.length ? entwurfMeta.begleitziele : undefined,
+        begleitstrang: entwurfMeta.begleitstrang?.length
+          ? entwurfMeta.begleitstrang.map((s) => ({ begleitziel: s.begleitziel, baustein: s.baustein, name: s.methode, dauerMin: s.dauerMin }))
+          : undefined
       };
 
       let json: {

@@ -664,6 +664,59 @@ describe('Schritt 3: Entscheidung je Teilgruppe (Task C6)', () => {
 });
 
 describe('Schritt 5: Entwurf mit sieben Kernfeldern nach Planungsprofil (Paket D, D2)', () => {
+  it('Schritt 1: aufklappbares Feld „Was soll nebenbei gefördert werden?“ ohne Vorauswahl; die Auswahl geht als begleitziel an die Zuordnung (D3)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    expect(screen.getByText('Was soll nebenbei gefördert werden?')).toBeTruthy();
+    const feld = screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' });
+    const boxen = within(feld).getAllByRole('checkbox') as HTMLInputElement[];
+    expect(boxen.map((b) => b.closest('label')!.textContent)).toEqual(['Fach- und Bildungssprache', 'Soziales Lernen', 'Selbstregulation']);
+    expect(boxen.every((b) => !b.checked)).toBe(true);
+    propose('Physik Klasse 8, Stromkreis, 45 Minuten');
+    expect(spy.mock.calls.at(-1)![0]!.begleitziel).toBeUndefined();
+    fireEvent.click(stepButton(1));
+    fireEvent.click(within(screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).getByLabelText('Soziales Lernen'));
+    propose('Physik Klasse 8, Stromkreis, 45 Minuten, Lernstrategien');
+    // The field and the text together: what the text names is not lost.
+    expect(spy.mock.calls.at(-1)![0]!.begleitziel).toEqual(['sozial', 'selbstregulation']);
+    spy.mockRestore();
+  });
+
+  it('Schritt 2: Begleitstrang als Vorschlagskarte, übernehmen und wieder entfernen; Schritt 4 als Material; Schritt 5 nennt ihn (D3)', () => {
+    renderPlanner();
+    propose('Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken');
+    const strang = (CATALOG.matcher.zuordnen({ text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken' }) as { begleitstrang?: Array<{ name: string; dauerMin: number }> }).begleitstrang![0];
+    const box = screen.getByRole('region', { name: 'Begleitziele' });
+    expect(within(box).getByText(new RegExp(`Vorschlag: ${strang.name}, ${strang.dauerMin} min am Ende`))).toBeTruthy();
+    expect(within(box).getByText(/Ein Vorschlag zum Übernehmen/)).toBeTruthy();
+    // Nothing is taken over until you click.
+    const rows = () => within(screen.getByRole('table')).getAllByRole('row').length;
+    const vorher = rows();
+    fireEvent.click(within(box).getByRole('button', { name: `${strang.name} am Ende übernehmen` }));
+    expect(rows()).toBe(vorher + 1);
+    fireEvent.click(within(screen.getByRole('region', { name: 'Begleitziele' })).getByRole('button', { name: `${strang.name} wieder entfernen` }));
+    expect(rows()).toBe(vorher);
+
+    fireEvent.click(stepButton(4));
+    const mat = screen.getByRole('region', { name: 'Begleitstrang für Begleitziele' });
+    expect(within(mat).getAllByText(new RegExp(strang.name)).length).toBeGreaterThan(0);
+    fireEvent.click(within(mat).getByRole('button', { name: `${strang.name} als Material anhängen` }));
+    expect(within(screen.getByRole('region', { name: 'Begleitstrang für Begleitziele' })).getByRole('button', { name: `Material zu ${strang.name} zurücknehmen` })).toBeTruthy();
+
+    fireEvent.click(stepButton(5));
+    const text = document.body.textContent || '';
+    expect(text).toContain('Soziales Lernen');
+    expect(text).toContain(`Begleitstrang (Vorschlag): ${strang.name}, ${strang.dauerMin} min am Ende (Soziales Lernen)`);
+  });
+
+  it('Schritt 2: Begleitziel Sprache ohne Begleitstrang, mit dem Hinweis auf Hilfen in Schritt 3 (D3)', () => {
+    renderPlanner();
+    propose('Chemie Klasse 9, Säuren und Basen, 45 Minuten, sprachsensibel');
+    const box = screen.getByRole('region', { name: 'Begleitziele' });
+    expect(within(box).getByText(/Schritt 3/)).toBeTruthy();
+    expect(within(box).queryByRole('button', { name: /am Ende übernehmen$/ })).toBeNull();
+  });
+
   it('n15: Sitzung, Studierende, Modul; Spalten in den Begriffen der Hochschule', () => {
     renderPlanner();
     propose('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur');

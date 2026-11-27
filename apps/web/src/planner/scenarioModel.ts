@@ -596,6 +596,8 @@ export interface EntwurfMeta {
   /** Main goal as label when no learning objectives are written (e.g. the goal kind). */
   hauptziel?: string;
   begleitziele?: string[];
+  /** Accompanying strand the plan proposes and the teacher has not taken into the flow (labels, D3). */
+  begleitstrang?: Array<{ begleitziel: string; methode: string; dauerMin: number; baustein?: string }>;
   /** Notes of the plan (rule messages as text) for the field "Reflexion und Evaluation". */
   regelhinweise?: string[];
 }
@@ -714,6 +716,7 @@ export function buildScenarioEntwurf(
     ausgangslage: meta.problemstellung,
     hauptziel: meta.lernziele?.trim() || meta.hauptziel,
     begleitziele: meta.begleitziele,
+    begleitstrang: meta.begleitstrang?.map((s) => ({ begleitziel: s.begleitziel, methode: s.methode, dauerMin: s.dauerMin })),
     einheit: meta.einheit,
     phasen,
     nachweis: meta.nachweis,
