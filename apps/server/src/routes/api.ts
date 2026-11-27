@@ -98,6 +98,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       zielarten: schemeValues(store.bundle, 'zielart'),
       // Fit rules (data/regeln.json): what each rule checks, its effect and its basis.
       regeln: store.bundle.regeln,
+      // Planning profiles (data/planungsprofile.json): core fields, terms and modules per profile.
+      planungsprofile: store.bundle.planungsprofile,
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
