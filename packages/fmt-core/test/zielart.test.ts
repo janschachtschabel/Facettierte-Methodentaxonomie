@@ -81,11 +81,17 @@ describe('Bindung der Wissensart', () => {
 describe('Nachweisformen', () => {
   const m = (o: Partial<Baustein>) => ({ engagement: [], interaktion: ['einzel'], reichweite: 'r1', aufgabe: [], repraesentation: [], schriftbedarf: [], ...o }) as unknown as Baustein;
   it('praktisch, schriftlich, Produkt, mündlich', () => {
-    expect(nachweisformen(m({ repraesentation: ['enaktiv'] }))).toContain('praktisch');
+    expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['psychomotorik'] }))).toContain('praktisch');
+    expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['prozeduren'] }))).toContain('praktisch');
     expect(nachweisformen(m({ schriftbedarf: ['schreibt'] }))).toContain('schriftlich');
     expect(nachweisformen(m({ engagement: ['konstruktiv'], reichweite: 'r2' }))).toContain('produkt');
     expect(nachweisformen(m({ engagement: ['konstruktiv'], reichweite: 'r1' }))).not.toContain('produkt');
     expect(nachweisformen(m({ interaktion: ['partner'] }))).toEqual(['muendlich']);
     expect(nachweisformen(m({}))).toEqual([]);
+  });
+  it('enaktiv zählt nur bei Wissensart psychomotorik oder prozeduren als praktisch (Tor D2, T1)', () => {
+    expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['fakten'] }))).not.toContain('praktisch');
+    expect(nachweisformen(m({ repraesentation: ['enaktiv'] }))).not.toContain('praktisch');
+    expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['konzepte'], interaktion: ['plenum-lehrergeleitet'] }))).toEqual(['muendlich']);
   });
 });

@@ -57,7 +57,8 @@ export type Nachweisform = 'schriftlich' | 'muendlich' | 'praktisch' | 'produkt'
 /** Forms of proof a method yields (a setting, reported in the rule-hit report). */
 export function nachweisformen(b: Baustein): Nachweisform[] {
   const out: Nachweisform[] = [];
-  if ((b.repraesentation || []).includes('enaktiv')) out.push('praktisch');
+  // Enactive counts as practical only when the method trains movement or procedures (Tor D2): voting cards are no practice.
+  if ((b.repraesentation || []).includes('enaktiv') && wissensartenVon(b).some((x) => x === 'psychomotorik' || x === 'prozeduren')) out.push('praktisch');
   if ((b.schriftbedarf || []).includes('schreibt')) out.push('schriftlich');
   const reichweite = Number(/\d+/.exec(b.reichweite || '')?.[0] || 0);
   if ((b.engagement || []).includes('konstruktiv') && reichweite >= 2) out.push('produkt');
