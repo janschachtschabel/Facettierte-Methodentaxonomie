@@ -216,6 +216,18 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(fixed.reichweite).toBe('r3');
   });
 
+  it('Lösungshinweise der Regeln sprechen mit „du“ (Fix-Welle B, Punkt 4)', () => {
+    const arr = createChainPreset('konzeptaufbau', BUNDLE);
+    for (const regel of ['R-99', 'R-02', 'R-03', 'R-04', 'R-06', 'R-07', 'R-08', 'R-09', 'R-11']) {
+      const e = explainValidationMessage({ regel, schwere: 'Warnung', pfad: '/', meldung: '' } as never, arr, BLOCKS, BUNDLE, 45);
+      expect(e.howToFix, regel).not.toMatch(/\b(?:Sie|Ihr\w*)\b/);
+    }
+    const r06 = explainValidationMessage({ regel: 'R-06', schwere: 'Warnung', pfad: '/', meldung: '' } as never, arr, BLOCKS, BUNDLE, 45);
+    expect(r06.howToFix).toBe(
+      'Prüfe, ob die Methode zu Bildungsstufe, Vorwissen, Inhalt, Sprachniveau und Fach passt (der Hinweis nennt Regel und Grundlage), oder nutze „⇄ Ersatz“.'
+    );
+  });
+
   it('supports flexible slot durations, R-09 auto-fit quick fixes, IMS-LD scenario model, and .imscc / Moodle XML exports', () => {
     let arr = createChainPreset('konzeptaufbau', BUNDLE);
     // Edit slot duration directly inside VBE (step 0) and auto-fit container
