@@ -386,3 +386,25 @@ describe('API-Seite und Fußzeile (App-Nachzug N5)', () => {
     expect(fuss).not.toContain('1.0.0');
   });
 });
+
+describe('API-Seite: gleiche Eingaben und Antworten (Task A3)', () => {
+  it('nennt fach als Objekt mit erkanntesFach/erkanntesThema, den Standard von umfang und die Anfragefelder in /meta', () => {
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    const li = (t: string) => screen.getAllByText(t, { selector: 'li > code' })[0].closest('li')!.textContent || '';
+    expect(li('match_scenario')).toMatch(/erkanntesFach/);
+    expect(li('match_scenario')).toMatch(/erkanntesThema/);
+    const match = screen.getByText('POST /api/v1/match', { exact: false, selector: 'td > code' }).closest('tr')!.textContent || '';
+    expect(match).toMatch(/erkanntesFach/);
+    expect(li('build_scenario_plan')).toMatch(/kompakt/);
+    const plan = screen.getByText('POST /api/v1/plan', { selector: 'td > code' }).closest('tr')!.textContent || '';
+    expect(plan).toMatch(/ohne Angabe.*voll/);
+    const meta = screen.getByText('GET /api/v1/meta').closest('tr')!.textContent || '';
+    expect(meta).toMatch(/anfrageFelder/);
+    expect(meta).toMatch(/differenzierungsPersonas/);
+    expect(li('elaborate_scenario')).toMatch(/regelmeldungen/);
+  });
+});

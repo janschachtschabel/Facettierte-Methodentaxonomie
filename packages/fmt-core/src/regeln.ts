@@ -1,4 +1,55 @@
-import type { Baustein, Grundlage, Passungsregel, Regelmeldung, RegelSituation } from './types.js';
+import type { Baustein, Grundlage, Passungsregel, Regelmeldung, RegelSituation, Wirkung } from './types.js';
+import type { EntwurfRegelmeldung } from './entwurf.js';
+
+/** Suitability entries of a method come from the rule machine, not from data/regeln.json; they carry their own name. */
+export const EIGNUNG_REGEL_NAMEN: Readonly<Record<string, string>> = {
+  'eignung-stufe': 'Eignung für die Bildungsstufe',
+  'eignung-vorwissen': 'Eignung für das Vorwissen',
+  'eignung-fach': 'Eignung für den Fachbereich'
+};
+
+/** Effect of a rule message in plain German; the keys are every effect a message can have. */
+export const WIRKUNG_KLARTEXT: Readonly<Record<Wirkung, string>> = {
+  'schliesst-aus': 'schließt aus',
+  warnt: 'warnt',
+  ordnet: 'ordnet',
+  'weist-hin': 'weist hin'
+};
+
+/** Basis of a rule message in plain German (evidence is "belegt", a setting by the editors is "Setzung"); the keys are every basis. */
+export const GRUNDLAGE_KLARTEXT: Readonly<Record<Grundlage, string>> = {
+  E: 'belegt',
+  S: 'gefolgert',
+  A: 'Setzung',
+  Recht: 'Recht',
+  U: 'ungeklärt',
+  formal: 'formal'
+};
+
+/** Readable name of a rule: from data/regeln.json, else the suitability names, else the id. */
+export function regelName(id: string, regeln: readonly Passungsregel[] = []): string {
+  return regeln.find((r) => r.id === id)?.name || EIGNUNG_REGEL_NAMEN[id] || id;
+}
+
+/** Basis in plain German with its source in brackets: "belegt (Sinha & Kapur 2021)". */
+export function grundlageKlartext(m: Pick<Regelmeldung, 'grundlage' | 'quelle'>): string {
+  const g = GRUNDLAGE_KLARTEXT[m.grundlage] || m.grundlage;
+  return m.quelle ? `${g} (${m.quelle})` : g;
+}
+
+/** Rule messages of a plan in the readable form the draft lists (rule name, effect and basis in plain German). */
+export function regelmeldungenFuerEntwurf(
+  meldungen: ReadonlyArray<Pick<Regelmeldung, 'regel' | 'wirkung' | 'grundlage' | 'text'> & { quelle?: string }>,
+  regeln: readonly Passungsregel[] = []
+): EntwurfRegelmeldung[] {
+  return meldungen.map((m) => ({
+    text: m.text,
+    ...(m.quelle ? { quelle: m.quelle } : {}),
+    regel: regelName(m.regel, regeln),
+    wirkung: WIRKUNG_KLARTEXT[m.wirkung] || m.wirkung,
+    grundlage: GRUNDLAGE_KLARTEXT[m.grundlage] || m.grundlage
+  }));
+}
 
 type Listenvergleich = NonNullable<NonNullable<Passungsregel['wenn']>['methode']>[string];
 

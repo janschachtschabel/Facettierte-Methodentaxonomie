@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { createMatcher, createValidator } from '../src/index.js';
+import { createMatcher, createValidator, regelmeldungenFuerEntwurf } from '../src/index.js';
 import { ENTWURF_LEITPLANKEN, baueEntwurf, entwurfMarkdown, istPruefschritt, profilBegriffe, type EntwurfEingabe } from '../src/entwurf.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -242,5 +242,44 @@ describe('Bewertung (bewertet) im Entwurf', () => {
     const e = baueEntwurf(D.planungsprofile, eingabe());
     expect(feld(e, 'rahmendaten')).not.toContain('Bewertung');
     expect(feld(e, 'lernerfolg')).not.toContain('Bewertung');
+  });
+});
+
+describe('Regelmeldungen im Entwurf (Task A3, Lücke R22)', () => {
+  const meldung = {
+    regel: 'problemloesen-vor-instruktion-primar',
+    wirkung: 'warnt' as const,
+    grundlage: 'E' as const,
+    quelle: 'Sinha & Kapur 2021',
+    text: 'Problemlösen vor Instruktion in der Grundschule: Methoden tragen eine Warnung.'
+  };
+  const reflexion = (e: ReturnType<typeof baueEntwurf>) => e.kernfelder.find((k) => k.id === 'reflexion')!.inhalt;
+
+  it('jede Meldung steht mit Regel, Wirkung und Grundlage unter Reflexion', () => {
+    const e = baueEntwurf(D.planungsprofile, eingabe({ regelmeldungen: regelmeldungenFuerEntwurf([meldung], D.regeln) }));
+    const name = D.regeln.find((r) => r.id === meldung.regel)!.name;
+    expect(reflexion(e)).toContain('- **Regelmeldungen:**');
+    expect(reflexion(e)).toContain(`  - ${meldung.text} (Regel: ${name} · Wirkung: warnt · Grundlage: belegt (Sinha & Kapur 2021))`);
+  });
+
+  it('ein Hinweis mit demselben Text steht nicht noch einmal unter Hinweise', () => {
+    const e = baueEntwurf(
+      D.planungsprofile,
+      eingabe({ hinweise: [`${meldung.text} (${meldung.quelle})`, 'Eigener Hinweis'], regelmeldungen: regelmeldungenFuerEntwurf([meldung], D.regeln) })
+    );
+    expect(reflexion(e).split(meldung.text).length - 1).toBe(1);
+    expect(reflexion(e)).toContain('  - Eigener Hinweis');
+  });
+
+  it('Eignungsmeldungen tragen ihren Namen; eine unbekannte Regel bleibt bei ihrer Kennung', () => {
+    const [eignung, fremd] = regelmeldungenFuerEntwurf(
+      [
+        { regel: 'eignung-stufe', wirkung: 'warnt', grundlage: 'S', text: 'passt weniger' },
+        { regel: 'gibt-es-nicht', wirkung: 'ordnet', grundlage: 'A', text: 'x' }
+      ],
+      D.regeln
+    );
+    expect(eignung).toMatchObject({ regel: 'Eignung für die Bildungsstufe', wirkung: 'warnt', grundlage: 'gefolgert' });
+    expect(fremd).toMatchObject({ regel: 'gibt-es-nicht', wirkung: 'ordnet', grundlage: 'Setzung' });
   });
 });

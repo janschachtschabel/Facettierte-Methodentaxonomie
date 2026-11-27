@@ -1,5 +1,7 @@
 import {
   DIFF_MATRIX_PERSONAS,
+  GRUNDLAGE_KLARTEXT,
+  WIRKUNG_KLARTEXT,
   MEASURE_EFFORT_ORDER,
   MEASURE_LEVEL_ORDER,
   QUICK_LEARNER_GROUP_PROFILES,
@@ -7,6 +9,8 @@ import {
   zahlFehler,
   type BlockStatus,
   type FeldFehler,
+  type Grundlage,
+  type Wirkung,
   type ZahlGrenze
 } from '@fmt/core';
 import { schemeValues, type CatalogStore } from './catalog-store.js';
@@ -23,6 +27,13 @@ export const MATERIAL_TYPEN = ['arbeitsblatt', 'infoblatt', 'quiz', 'checkliste'
 
 /** Message for a draft request without a valid arrangement (REST /assistant/elaborate, MCP elaborate_scenario). */
 export const ARRANGEMENT_FEHLER = 'Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.';
+
+/** Message for a list of rule messages that is not in the form of the plan (REST /assistant/elaborate, MCP elaborate_scenario). */
+export const REGELMELDUNGEN_FEHLER = 'Feld „regelmeldungen“: erwartet wird eine Liste von Objekten mit regel, wirkung, grundlage und text (wie im Plan).';
+
+/** Effects and bases a rule message can have (core). */
+export const REGEL_WIRKUNGEN = Object.keys(WIRKUNG_KLARTEXT) as [Wirkung, ...Wirkung[]];
+export const REGEL_GRUNDLAGEN = Object.keys(GRUNDLAGE_KLARTEXT) as [Grundlage, ...Grundlage[]];
 
 /** Status of a catalogue entry (core type BlockStatus). */
 const STATUS: readonly BlockStatus[] = ['kuratiert', 'entwurf'];
@@ -122,6 +133,25 @@ export function entwurfFelderFehler(store: CatalogStore, body: Record<string, un
   const zahl = zahlenFehler(body, { anzahl: { min: 1 } });
   if (zahl) return zahl;
   if (body.bewertet != null && typeof body.bewertet !== 'boolean') return { fehler: 'Feld „bewertet“: erwartet wird wahr oder falsch.' };
+  return regelmeldungenFehler(body.regelmeldungen);
+}
+
+/** First fault of rule messages in the form of the plan (regel, wirkung, grundlage, text; quelle optional), or null. */
+export function regelmeldungenFehler(meldungen: unknown): EingabeFehler | null {
+  if (meldungen == null) return null;
+  const istText = (v: unknown) => typeof v === 'string' && v.trim().length > 0;
+  if (!Array.isArray(meldungen)) return { fehler: REGELMELDUNGEN_FEHLER };
+  for (const m of meldungen) {
+    if (!m || typeof m !== 'object' || Array.isArray(m)) return { fehler: REGELMELDUNGEN_FEHLER };
+    const r = m as Record<string, unknown>;
+    if (!istText(r.regel) || !istText(r.text) || (r.quelle != null && typeof r.quelle !== 'string')) return { fehler: REGELMELDUNGEN_FEHLER };
+    for (const [feld, erlaubt] of [
+      ['wirkung', REGEL_WIRKUNGEN as readonly string[]],
+      ['grundlage', REGEL_GRUNDLAGEN as readonly string[]]
+    ] as const) {
+      if (!erlaubt.includes(String(r[feld]))) return { fehler: unbekannterWert(`regelmeldungen.${feld}`, String(r[feld] ?? ''), erlaubt), erlaubt: [...erlaubt] };
+    }
+  }
   return null;
 }
 

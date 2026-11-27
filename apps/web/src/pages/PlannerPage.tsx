@@ -1331,7 +1331,8 @@ export function PlannerPage() {
     begleitstrang: begleitstraenge
       .filter((st) => !begleitImAblauf(st))
       .map((st) => ({ begleitziel: labelOf('begleitziel', st.begleitziel), methode: st.name, dauerMin: st.dauerMin, baustein: st.baustein })),
-    regelhinweise: regelmeldungen.map((m) => regelZeile(m, bundle?.regeln))
+    regelmeldungen: regelmeldungen.length ? regelmeldungen : undefined,
+    regeln: bundle?.regeln
   };
   const exportProfil = entwurfBegriffe(entwurfMeta, arrangement.kontext?.bildungsstufe);
   const verlaufSpalten = exportProfil?.spalten;

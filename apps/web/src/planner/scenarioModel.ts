@@ -6,12 +6,15 @@ import {
   isRegularGroupId,
   istPruefschritt,
   profilBegriffe,
+  regelmeldungenFuerEntwurf,
   scoreDifferentiationMatrix,
   waehlePlanungsprofil,
   type Arrangement,
   type Entwurf,
   type EntwurfPhase,
+  type Passungsregel,
   type PlanungsprofileRegelsatz,
+  type Regelmeldung,
   type ArrangementNode,
   type Baustein,
   type CatalogBundle,
@@ -617,8 +620,10 @@ export interface EntwurfMeta {
   begleitziele?: string[];
   /** Accompanying strand the plan proposes and the teacher has not taken into the flow (labels, D3). */
   begleitstrang?: Array<{ begleitziel: string; methode: string; dauerMin: number; baustein?: string }>;
-  /** Notes of the plan (rule messages as text) for the field "Reflexion und Evaluation". */
-  regelhinweise?: string[];
+  /** Rule messages of the plan for the field "Reflexion und Evaluation" (listed with rule, effect and basis). */
+  regelmeldungen?: Regelmeldung[];
+  /** Fit rules of the catalogue, for the readable rule names. */
+  regeln?: Passungsregel[];
 }
 
 interface LessonTextMeta extends EntwurfMeta {
@@ -741,7 +746,8 @@ export function buildScenarioEntwurf(
     phasen,
     nachweis: meta.nachweis,
     bewertet: meta.bewertet,
-    hinweise: [...(meta.hinweise?.trim() ? [meta.hinweise.trim()] : []), ...(meta.regelhinweise || [])]
+    hinweise: meta.hinweise?.trim() ? [meta.hinweise.trim()] : [],
+    ...(meta.regelmeldungen?.length ? { regelmeldungen: regelmeldungenFuerEntwurf(meta.regelmeldungen, meta.regeln) } : {})
   });
 }
 

@@ -11,6 +11,7 @@ import {
   phasesForAdjustment,
   proposeAdditionalPhases,
   proposeMethodAdjustments,
+  regelmeldungenFuerEntwurf,
   scoreDifferentiationMatrix,
   type AdaptScenarioInput,
   type Arrangement,
@@ -192,6 +193,7 @@ export function buildEntwurfFuerAusarbeitung(
       nachweis: body.nachweis,
       bewertet: typeof body.bewertet === 'boolean' ? body.bewertet : undefined,
       hinweise: [...(body.hinweise?.trim() ? [body.hinweise.trim()] : []), ...(body.hinweiseListe || [])],
+      regelmeldungen: body.regelmeldungen?.length ? regelmeldungenFuerEntwurf(body.regelmeldungen, store.bundle.regeln) : undefined,
       begleitziel: body.begleitziel,
       begleitstrang: body.begleitstrang,
       schritte: Object.fromEntries(
@@ -914,6 +916,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     bewertet: typeof matched.kriterien.bewertet === 'boolean' ? matched.kriterien.bewertet : args.bewertet,
     nachweis: matched.nachweis?.formen.map((f) => schemeValues(store.bundle, 'nachweisform').find((w) => w.id === f)?.label || f).join(' oder '),
     hinweiseListe: matched.hinweise || [],
+    // Rule messages with rule, effect and basis (the notes hold them as text; the draft lists each once).
+    regelmeldungen: matched.regelmeldungen,
     // Accompanying goals as the matcher read them (field or text) and the strand it proposes (D3).
     begleitziel: matched.kriterien.begleitziel as string[] | undefined,
     begleitstrang: matched.begleitstrang

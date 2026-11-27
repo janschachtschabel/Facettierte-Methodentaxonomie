@@ -63,6 +63,15 @@ export interface EntwurfPhase {
   anpassungen?: Array<{ gruppe: string; text: string }>;
 }
 
+/** Rule message of the plan in readable form (see regelmeldungenFuerEntwurf): rule name, effect and basis in plain German. */
+export interface EntwurfRegelmeldung {
+  text: string;
+  quelle?: string;
+  regel: string;
+  wirkung: string;
+  grundlage: string;
+}
+
 export interface EntwurfEingabe {
   profil: Planungsprofil;
   /** The profile was assumed (no Bildungsstufe, no stated profile). */
@@ -93,6 +102,8 @@ export interface EntwurfEingabe {
   /** Whether the lesson or its result is graded; undefined: not stated (the draft says nothing). */
   bewertet?: boolean;
   hinweise?: string[];
+  /** Rule messages of the plan; listed under Reflexion with rule, effect and basis (a note with the same text is dropped). */
+  regelmeldungen?: EntwurfRegelmeldung[];
 }
 
 export interface EntwurfKernfeld {
@@ -229,8 +240,16 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
   const reflexion = () => {
     const last = stunde[stunde.length - 1];
     const lines = [`- **Abschluss:** ${last ? phaseKurz(last) : 'nicht angegeben'}`];
-    const hinweise = (e.hinweise || []).map((h) => h.trim()).filter(Boolean);
+    const meldungen = e.regelmeldungen || [];
+    // The plan's notes hold each rule message as text ("text (quelle)"); it stands once, under Regelmeldungen.
+    const alsMeldung = new Set(meldungen.flatMap((m) => [m.text.trim(), ...(m.quelle ? [`${m.text.trim()} (${m.quelle})`] : [])]));
+    const hinweise = (e.hinweise || []).map((h) => h.trim()).filter((h) => h && !alsMeldung.has(h));
     if (hinweise.length) lines.push(`- **Hinweise:**\n${hinweise.map((h) => `  - ${h}`).join('\n')}`);
+    if (meldungen.length) {
+      const zeile = (m: EntwurfRegelmeldung) =>
+        `  - ${m.text} (Regel: ${m.regel} · Wirkung: ${m.wirkung} · Grundlage: ${m.grundlage}${m.quelle ? ` (${m.quelle})` : ''})`;
+      lines.push(`- **Regelmeldungen:**\n${meldungen.map(zeile).join('\n')}`);
+    }
     return lines.join('\n');
   };
 

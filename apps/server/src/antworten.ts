@@ -1,5 +1,14 @@
-import { FMT_GUARDRAILS, PFLICHTANGABEN_NAMEN, einordnungInKetten, type Arrangement, type Baustein, type MatchRequest } from '@fmt/core';
-import type { CatalogStore } from './catalog-store.js';
+import {
+  DIFF_MATRIX_PERSONAS,
+  FMT_GUARDRAILS,
+  PFLICHTANGABEN_NAMEN,
+  einordnungInKetten,
+  istHilfe,
+  type Arrangement,
+  type Baustein,
+  type MatchRequest
+} from '@fmt/core';
+import { kettenUebersicht, schemeValues, type CatalogStore } from './catalog-store.js';
 import { ersatzHinweis, mitFachAufgeloest } from './kandidaten.js';
 import { extractSubjectAndTopicFromText } from './routes/assistant.js';
 
@@ -127,5 +136,44 @@ export function zuordnungsAntwort(store: CatalogStore, anfrage: MatchRequest, li
  */
 export function ersatzAntwort(store: CatalogStore, arrangement: Arrangement, pfad: string, situation?: MatchRequest) {
   const { kandidaten, ausgeschlossen } = store.search.ersatzPruefung(arrangement, pfad, store.exampleRegistry, situation);
-  return { pfad, hinweis: ersatzHinweis(situation), ...(situation ? { situation } : {}), kandidaten, ausgeschlossen };
+  return {
+    pfad,
+    hinweis: ersatzHinweis(situation),
+    ...(situation ? { situation } : {}),
+    kandidaten,
+    ausgeschlossen: ausgeschlossen.slice(0, ERSATZ_AUSGESCHLOSSEN_MAX),
+    ausgeschlossenGesamt: ausgeschlossen.length
+  };
+}
+
+/** Most methods left out that a replacement answer lists; ausgeschlossenGesamt counts all. */
+export const ERSATZ_AUSGESCHLOSSEN_MAX = 20;
+
+/**
+ * Vocabularies and rule sets of the catalogue (REST /meta, MCP list_vocabularies): W fields, kinds and traits of the
+ * grid, chains, fit rules, planning profiles, the subgroup table, room types, goal kinds, the personas of the
+ * differentiation matrix, the request fields of the core and the number of methods and helps.
+ */
+export function vokabularUebersicht(store: CatalogStore) {
+  const b = store.bundle;
+  return {
+    // Methods and helps counted apart.
+    methoden: b.bausteine.filter((x) => !istHilfe(x)).length,
+    hilfen: b.bausteine.filter(istHilfe).length,
+    wfelder: b.wfelder,
+    arten: b.arten,
+    merkmale: b.merkmale,
+    // Function chains with their steps and the knowledge type each step binds (data/ketten.json).
+    ketten: kettenUebersicht(b),
+    // Fit rules (data/regeln.json): what each rule checks, its text, W fields, effect and basis.
+    regeln: b.regeln,
+    // Planning profiles (data/planungsprofile.json): core fields, terms and modules per profile.
+    planungsprofile: b.planungsprofile,
+    // Table "Tausch oder Hilfe" for subgroups (data/teilgruppen.json).
+    teilgruppen: b.teilgruppen,
+    raumtypen: schemeValues(b, 'raumtyp'),
+    zielarten: schemeValues(b, 'zielart'),
+    differenzierungsPersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
+    anfrageFelder: store.matcher.felder()
+  };
 }

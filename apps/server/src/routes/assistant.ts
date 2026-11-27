@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type Entwurf, type MatchRequest, type ValidationResult } from '@fmt/core';
+import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type Entwurf, type MatchRequest, type Regelmeldung, type ValidationResult } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { LruTtlCache } from '../llm/cache.js';
@@ -103,6 +103,11 @@ export interface ElaboratePayload {
   /** Whether the lesson or its result is graded; named in the core fields Rahmendaten and Lernerfolg. */
   bewertet?: boolean;
   hinweiseListe?: string[];
+  /**
+   * Rule messages of the plan (answer field regelmeldungen of /plan, build_scenario_plan): listed under Reflexion with
+   * rule, effect and basis; a note in hinweiseListe with the same text is not listed again.
+   */
+  regelmeldungen?: Array<Pick<Regelmeldung, 'regel' | 'wirkung' | 'grundlage' | 'text'> & Partial<Pick<Regelmeldung, 'quelle' | 'baustein' | 'bausteine'>>>;
   /** Request text (company words choose the profile betrieb). */
   text?: string;
   /** Accompanying goals (codes of the scheme begleitziel or labels), for the core field Ziele (D3). */
@@ -404,6 +409,7 @@ export async function elaborateScenarioCore(
     body.nachweis || '',
     body.bewertet ?? null,
     body.hinweiseListe || null,
+    body.regelmeldungen || null,
     body.begleitziel || null,
     body.begleitstrang || null,
     body.text || '',

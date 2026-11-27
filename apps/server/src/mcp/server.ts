@@ -21,7 +21,7 @@ import {
   type ZahlGrenze
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
-import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
+import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
 import { SITUATION_FELDER, anpassungsAnfrage, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import {
   ersatzAntwort,
@@ -29,9 +29,10 @@ import {
   klassifikationsAntwort,
   methodenDetail,
   methodenTreffer,
+  vokabularUebersicht,
   zuordnungsAntwort
 } from '../antworten.js';
-import { anpassungLeerFehler, ARRANGEMENT_FEHLER, bausteinFehler, MATERIAL_TYPEN } from '../eingaben.js';
+import { anpassungLeerFehler, ARRANGEMENT_FEHLER, bausteinFehler, MATERIAL_TYPEN, REGEL_GRUNDLAGEN, REGEL_WIRKUNGEN } from '../eingaben.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import { elaborateScenarioCore, generateMaterialCore } from '../routes/assistant.js';
@@ -116,8 +117,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     }
     return shape;
   };
-  /** Situation fields (room, literacy, dates, time, group, technology) as REST situationAus reads them. */
-  const situationSchema = () => felderSchema([], SITUATION_FELDER);
+  /** Former name of raum: stays accepted for old clients (as in REST), deliberately without a description. */
+  const lernortSchema = () => ({ lernort: code('raum').optional() });
+  /** Situation fields (room, literacy, dates, time, group, technology) as REST situationAus reads them, lernort included. */
+  const situationSchema = () => ({ ...felderSchema([], SITUATION_FELDER), ...lernortSchema() });
 
   // Codes of a facet's scheme (flat or grouped), for the facets that are not request fields.
   const facettenCode = (feld: string) => {
@@ -296,7 +299,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 4. match_scenario
   server.tool(
     'match_scenario',
-    `Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf (Funktionskette nach Zielart, Zieltyp oder Ansatz), ohne Halluzinationen, <1 ms. Die Antwort nennt pflichtangaben (fehlt: Angaben, nach denen du fragst; angenommen: Annahmen mit Feld, Wert und Grund), regelmeldungen (Passungsregeln mit Wirkung, Grundlage und Quelle), begleitstrang (kurze Methode zum Begleitziel, ein Vorschlag) und planungsprofil (Begriffe des Entwurfs). Ausdrücklich gesetzte Felder haben Vorrang vor dem Text; fach (Fachname) wird zum Fachbereich wie bei build_scenario_plan. Teilgruppen nimmt dieses Tool nicht an: dafür build_scenario_plan (gruppen) oder adapt_scenario. Erfrage beim Nutzer: ${PFLICHT}; wenn bekannt ${OPTIONAL_OHNE_TEILGRUPPEN}. ${RUECKFRAGE}`,
+    `Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf (Funktionskette nach Zielart, Zieltyp oder Ansatz), ohne Halluzinationen, <1 ms. Die Antwort nennt pflichtangaben (fehlt: Angaben, nach denen du fragst; angenommen: Annahmen mit Feld, Wert und Grund), regelmeldungen (Passungsregeln mit Wirkung, Grundlage und Quelle), begleitstrang (kurze Methode zum Begleitziel, ein Vorschlag) und planungsprofil (Begriffe des Entwurfs). Ausdrücklich gesetzte Felder haben Vorrang vor dem Text; fach (Fachname) wird zum Fachbereich wie bei build_scenario_plan. Wie REST /match ist fach in der Antwort das erkannte Fach als Objekt (früher Text); den gelesenen Fachnamen nennt erkanntesFach, das Thema erkanntesThema. Teilgruppen nimmt dieses Tool nicht an: dafür build_scenario_plan (gruppen) oder adapt_scenario. Erfrage beim Nutzer: ${PFLICHT}; wenn bekannt ${OPTIONAL_OHNE_TEILGRUPPEN}. ${RUECKFRAGE}`,
     {
       // Every core request field with its codes and meaning; the entries below refine the descriptions.
       ...felderSchema(),
@@ -438,22 +441,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       }
       return textResult({
         schemes: store.bundle.schemes.map((s) => ({ id: s.id, titel: s.titel })),
-        // Methods and helps counted apart, as REST /meta counts them.
-        methoden: store.bundle.bausteine.filter((b) => !istHilfe(b)).length,
-        hilfen: store.bundle.bausteine.filter(istHilfe).length,
-        // Same entries as /api/v1/meta.
-        wfelder: store.bundle.wfelder,
-        arten: store.bundle.arten,
-        merkmale: store.bundle.merkmale,
-        ketten: kettenUebersicht(store.bundle),
-        // What each fit rule checks, its text, W fields, effect and basis.
-        regeln: store.bundle.regeln,
-        planungsprofile: store.bundle.planungsprofile,
-        teilgruppen: store.bundle.teilgruppen,
-        raumtypen: schemeValues(store.bundle, 'raumtyp'),
-        zielarten: schemeValues(store.bundle, 'zielart'),
-        differenzierungsPersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
-        anfrageFelder: store.matcher.felder()
+        // Same entries as /api/v1/meta (shared builder).
+        ...vokabularUebersicht(store)
       });
     }
   );
@@ -488,7 +477,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 9. score_differentiation_matrix
   server.tool(
     'score_differentiation_matrix',
-    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins alternative Methoden für diese Teilgruppe vorgeschlagen: nur Methoden (nie Hilfen), deren Bedarf gedeckt ist und die der geplanten Methode gleichwertig sind (`alternativenPruefung` sagt, was geprüft ist). `merkmale` nennt je Ausprägung unter `vorgesehen`, ob die Tabelle einen Tausch oder eine Hilfe vorsieht (mit Grundlage und Quelle); ein Tausch gilt nur unter `bedingung` (die geplante Methode löst den Grund aus und passt sich niemandem an), die Antwort für einen Ablauf gibt adapt_scenario; gesperrte Kategorien (Lerntypen/Lernstile) werden nicht gewertet und stehen mit Begründung unter `gesperrt`, ohne Fehler. Die Situation (raum, termine, zeitMin …) und ohneSchrift/ohneBewegung der Teilgruppe prüft es wie REST /differentiation/score. Erfrage beim Nutzer: Merkmale der Teilgruppe als Gruppe (keine Diagnose einzelner Lernender), die geplante Methode und den Raum.',
+    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins alternative Methoden für diese Teilgruppe vorgeschlagen: nur Methoden (nie Hilfen), deren Bedarf gedeckt ist und die der geplanten Methode gleichwertig sind (`alternativenPruefung` sagt, was geprüft ist). `merkmale` nennt je Ausprägung unter `vorgesehen`, ob die Tabelle einen Tausch oder eine Hilfe vorsieht (mit Grundlage und Quelle); ein Tausch gilt nur unter `bedingung` (die geplante Methode löst den Grund aus und passt sich niemandem an), die Antwort für einen Ablauf gibt adapt_scenario; gesperrte Kategorien (Lerntypen/Lernstile) werden nicht gewertet und stehen mit Begründung unter `gesperrt`, ohne Fehler. Die Situation (raum, termine, zeitMin …, einzeln oder als Objekt `situation`) und ohneSchrift/ohneBewegung der Teilgruppe prüft es wie REST /differentiation/score. Erfrage beim Nutzer: Merkmale der Teilgruppe als Gruppe (keine Diagnose einzelner Lernender), die geplante Methode und den Raum.',
     {
       quickProfileId: z
         .enum(['daz', 'adhs', 'lrs', 'foerder-lernen', 'vorwissen-gering', 'vertiefung', 'schuechtern', 'barriere'])
@@ -523,7 +512,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       kettenschritt: z.string().max(MAX_TEXT_CHARS).optional().describe('Schritt-ID der Kette, den die Phase füllt (Ketten über list_vocabularies)'),
       dauerMin: z.number().int().min(1).optional().describe('Minuten der Phase'),
       // Remaining situation fields (raum, termine, zeitMin …); maxTechnik, ohneInternet, ohneKI and bildungsstufe stand above.
-      ...felderSchema([], SITUATION_FELDER.filter((f) => !['maxTechnik', 'ohneInternet', 'ohneKI', 'bildungsstufe', 'ohneSchrift'].includes(f)))
+      ...felderSchema([], SITUATION_FELDER.filter((f) => !['maxTechnik', 'ohneInternet', 'ohneKI', 'bildungsstufe', 'ohneSchrift'].includes(f))),
+      ...lernortSchema(),
+      situation: z.object(situationSchema()).optional().describe('Situation der Stunde als Objekt (wie REST /differentiation/score); einzelne Felder auf oberster Ebene haben Vorrang')
     },
     async (args) => {
       const { quickProfileId, personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures, maxAufwand, baustein, ebenen } = args;
@@ -629,7 +620,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .enum(['kompakt', 'voll'])
         .optional()
         .default('kompakt')
-        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen, Pflichtangaben (fehlt/angenommen), Regelmeldungen (Regel, Wirkung, Grundlage, Quelle, Text) und Planungsprofil. voll: zusätzlich entwurf (sieben Kernfelder mit den Begriffen des Planungsprofils, Module zum Ausfüllen), llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
+        .describe('kompakt (Standard dieses Tools; REST /plan antwortet ohne Angabe voll): Ablauf, Methodendetails, Tabelle, Lerngruppen, Pflichtangaben (fehlt/angenommen), Regelmeldungen (Regel, Wirkung, Grundlage, Quelle, Text) und Planungsprofil. voll: zusätzlich entwurf (sieben Kernfelder mit den Begriffen des Planungsprofils, Module zum Ausfüllen), llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
       gruppen: z
         .array(
           z.object({
@@ -639,6 +630,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             personaId: z.string().max(MAX_TEXT_CHARS).optional(),
             profile: z.string().max(MAX_TEXT_CHARS).optional(),
             selectedValues: z.record(z.string().max(MAX_TEXT_CHARS), z.string().max(MAX_TEXT_CHARS)).optional(),
+            genannt: z
+              .array(z.string().max(MAX_TEXT_CHARS))
+              .max(50)
+              .optional()
+              .describe('Ausprägungen, die der Text für die Gruppe nennt (wie REST /plan); nur sie entscheiden über Tausch oder Hilfe'),
             ohneSchrift: z.array(z.enum(['lesen', 'schreiben'])).optional().describe('Was die Gruppe nicht kann; Methoden mit diesem Schriftbedarf werden getauscht oder bekommen eine Hilfe'),
             ohneBewegung: z.boolean().optional().describe('true: die Gruppe kann sich nicht frei bewegen (Methoden mit Stell- oder Bewegungsfläche scheiden aus)')
           })
@@ -659,7 +655,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 11. elaborate_scenario (Zero-LLM by default: <2 ms deterministic table + ready-to-use llmBriefing for the caller's LLM!)
   server.tool(
     'elaborate_scenario',
-    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle und den Entwurf mit sieben Kernfeldern (Rahmendaten, Lernvoraussetzungen, Ziele, Einordnung, Verlaufsplan, Sicherung des Lernerfolgs, Reflexion) in den Begriffen des Planungsprofils, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann. Raum, Anzahl, Einheit, Nachweis, bewertet und hinweiseListe (aus build_scenario_plan: Raum, Gruppengröße, hinweise) erscheinen in den Rahmendaten und der Sicherung des Lernerfolgs; text, entwurfTeilgruppen, differenzierung, phasen und materialien wie REST /assistant/elaborate. Erfrage beim Nutzer: Raum, Gruppengröße, übergeordnete Einheit, Nachweis und ob bewertet wird, wenn sie noch nicht bekannt sind.',
+    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle und den Entwurf mit sieben Kernfeldern (Rahmendaten, Lernvoraussetzungen, Ziele, Einordnung, Verlaufsplan, Sicherung des Lernerfolgs, Reflexion) in den Begriffen des Planungsprofils, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann. Raum, Anzahl, Einheit, Nachweis, bewertet und hinweiseListe (aus build_scenario_plan: Raum, Gruppengröße, hinweise) erscheinen in den Rahmendaten und der Sicherung des Lernerfolgs; regelmeldungen (aus build_scenario_plan, unverändert) stehen mit Regel, Wirkung und Grundlage unter Reflexion; planungsprofilAngenommen markiert das Planungsprofil als Annahme; text, entwurfTeilgruppen, differenzierung, phasen und materialien wie REST /assistant/elaborate. Erfrage beim Nutzer: Raum, Gruppengröße, übergeordnete Einheit, Nachweis und ob bewertet wird, wenn sie noch nicht bekannt sind.',
     {
       arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement JSON-LD'),
       text: z.string().max(MAX_TEXT_CHARS).optional().describe('Text der Anfrage; Wörter wie Betrieb oder Ausbildung wählen das Planungsprofil'),
@@ -679,6 +675,22 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       nachweis: z.string().max(MAX_TEXT_CHARS).optional().describe('Woran sich der Lernerfolg zeigt: Code (schriftlich, muendlich, praktisch, produkt) oder Text'),
       bewertet: z.boolean().optional().describe(bedeutung('bewertet')),
       hinweiseListe: z.array(z.string().max(MAX_TEXT_CHARS)).max(50).optional().describe('Hinweise des Plans (Feld hinweise aus build_scenario_plan); erscheinen im Entwurf'),
+      regelmeldungen: z
+        .array(
+          z.object({
+            regel: z.string().min(1).max(MAX_TEXT_CHARS),
+            wirkung: z.enum(REGEL_WIRKUNGEN),
+            grundlage: z.enum(REGEL_GRUNDLAGEN),
+            quelle: z.string().max(MAX_TEXT_CHARS).optional(),
+            text: z.string().min(1).max(MAX_TEXT_CHARS),
+            baustein: z.string().max(MAX_TEXT_CHARS).optional(),
+            bausteine: z.array(z.string().max(MAX_TEXT_CHARS)).max(50).optional()
+          })
+        )
+        .max(50)
+        .optional()
+        .describe('Regelmeldungen des Plans (Feld regelmeldungen aus build_scenario_plan, unverändert); erscheinen unter Reflexion mit Regel, Wirkung und Grundlage'),
+      planungsprofilAngenommen: z.boolean().optional().describe('true: das Planungsprofil ist angenommen (aus pflichtangaben.angenommen des Plans); der Entwurf sagt es'),
       begleitstrang: z
         .array(
           z.object({
@@ -691,8 +703,21 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Begleitstrang aus build_scenario_plan (Feld begleitstrang); erscheint als Vorschlag im Kernfeld Ziele'),
       oerRessourcen: z
-        .array(z.object({ stepKey: z.string().max(MAX_TEXT_CHARS).optional(), titel: z.string().max(MAX_TEXT_CHARS), wwwurl: z.string().max(MAX_TEXT_CHARS) }))
-        .optional(),
+        .array(
+          z
+            .object({
+              stepKey: z.string().max(MAX_TEXT_CHARS).optional(),
+              titel: z.string().max(MAX_TEXT_CHARS),
+              wwwurl: z.string().max(MAX_TEXT_CHARS).optional(),
+              url: z.string().max(MAX_TEXT_CHARS).optional(),
+              lizenz: z.string().max(MAX_TEXT_CHARS).nullable().optional(),
+              notiz: z.string().max(MAX_TEXT_CHARS).optional()
+            })
+            .refine((o) => Boolean(o.wwwurl || o.url), { message: 'Feld „oerRessourcen“: je Eintrag wwwurl oder url angeben.' })
+        )
+        .max(100)
+        .optional()
+        .describe('OER je Phase (stepKey) oder für alle: titel und wwwurl (aus search_wlo_oer) oder url, dazu lizenz und notiz wie REST'),
       // Same fields as REST /assistant/elaborate (ElaboratePayload).
       entwurfTeilgruppen: z
         .array(
@@ -784,6 +809,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           nachweis: args.nachweis ? labelOf('nachweisform', args.nachweis) : undefined,
           bewertet: args.bewertet,
           hinweiseListe: args.hinweiseListe,
+          regelmeldungen: args.regelmeldungen,
+          planungsprofilAngenommen: args.planungsprofilAngenommen,
           text: args.text,
           entwurfTeilgruppen: args.entwurfTeilgruppen,
           differenzierung: args.differenzierung,
@@ -947,12 +974,13 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       lehrende: zahl('lehrende').optional().describe(bedeutung('lehrende') + '; mit zwei darf auch eine parallele Methode eine Lehrkraft binden'),
       // The request fields of the core (as match_scenario); lernort is the former name of raum.
       anfrage: z
-        .object({ ...felderSchema(), lernort: code('raum').optional() })
+        .object({ ...felderSchema(), ...lernortSchema() })
         .partial()
         .optional()
         .describe('Anfrage des Plans (Felder wie match_scenario, z. B. erkannteKriterien aus build_scenario_plan); eine parallele Methode muss ihren Bedarf im selben Rahmen decken'),
       // Situation of the whole class at the top level (raum, ohneSchrift, termine …); they win over `anfrage`.
-      ...felderSchema([], ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'gruppe', 'maxVorbereitung'])
+      ...felderSchema([], ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'gruppe', 'maxVorbereitung']),
+      ...lernortSchema()
     },
     async (args) => {
       // Same checks as REST /adapt.

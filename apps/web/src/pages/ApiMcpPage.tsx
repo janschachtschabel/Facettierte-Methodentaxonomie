@@ -156,7 +156,7 @@ export function ApiMcpPage() {
             <li><code>search_methods</code> – Facettierte Suche über {totalLabel}, auch nach <code>eintragsart</code> (Methoden oder Hilfen), <code>raum</code>, <code>raumbedarf</code>, <code>schriftbedarf</code>, <code>fach</code> oder <code>fachbereich</code></li>
             <li><code>get_method</code> – Vollständiges Profil mit Bedarf, Eignung (<code>eignungsgrund</code>), Eintragsart, Evidenz samt Bezug und der Einordnung in Funktionsketten (frühere Kennungen werden weitergeleitet)</li>
             <li><code>compare_methods</code> – Vergleich zweier Einträge nach Facetten, Bedarf, Eignung, Eintragsart und Evidenzbezug</li>
-            <li><code>match_scenario</code> – Deterministische Zuordnung in fünf Stufen (Kette nach Zielart, Bindung der Wissensart, Bedarf, Passungsregeln) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code> und <code>planungsprofil</code></li>
+            <li><code>match_scenario</code> – Deterministische Zuordnung in fünf Stufen (Kette nach Zielart, Bindung der Wissensart, Bedarf, Passungsregeln) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code> und <code>planungsprofil</code>; <code>fach</code> ist das erkannte Fach als Objekt (früher Text), der gelesene Fachname steht in <code>erkanntesFach</code>, das Thema in <code>erkanntesThema</code></li>
             <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen (die Passungsregeln prüft die Zuordnung)</li>
             <li><code>suggest_replacements</code> – Ersatzkandidaten an einem Knotenpfad: nur Methoden, Bedarf in der Situation, Wissensart des Kettenschritts</li>
             <li><code>list_vocabularies</code> – Kontrollierte Codes, W-Felder, Arten, Merkmale, Funktionsketten mit Wissensart je Schritt, Passungsregeln, Raumtypen, Zielarten, Planungsprofile und Differenzierungs-Personas</li>
@@ -164,8 +164,8 @@ export function ApiMcpPage() {
             <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code>, gefiltert nach Fach oder Fachbereich</li>
             <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, <code>quickProfileId</code>, Ebenen-/Technikfilter) mit Tausch oder Hilfe je Merkmal</li>
             <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong>: je Phase und Teilgruppe passt, Hilfe oder Tausch mit <code>beleg</code> und <code>abbau</code>, <code>gesperrt</code>, <code>regelmeldungen</code>, dazu UDL-Basis, Zielkonflikte, <code>teilgruppenMethoden</code> und <code>zusatzphasen</code> wie Schritt 3 des Baukastens (<code>POST /api/v1/adapt</code>)</li>
-            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan ohne LLM (&lt;5 ms) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, Begleitstrang, parallelen Methoden für Teilgruppen und opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich der <code>entwurf</code>, <code>llmBriefing</code> und JSON-LD</li>
-            <li><code>elaborate_scenario</code> – Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, Verlaufstabelle und <code>llmBriefing</code> für das Enduser-LLM</li>
+            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan ohne LLM (&lt;5 ms) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, Begleitstrang, parallelen Methoden für Teilgruppen und opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich der <code>entwurf</code>, <code>llmBriefing</code> und JSON-LD; ohne Angabe antwortet das Tool <code>kompakt</code> (REST <code>/plan</code> dagegen <code>voll</code>)</li>
+            <li><code>elaborate_scenario</code> – Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, Verlaufstabelle und <code>llmBriefing</code> für das Enduser-LLM; <code>regelmeldungen</code> des Plans stehen mit Regel, Wirkung und Grundlage unter Reflexion</li>
             <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage + <code>llmBriefing</code></li>
           </ul>
           <p style={{ fontSize: 14 }} className="muted">
@@ -197,7 +197,8 @@ export function ApiMcpPage() {
                   Version, SHA-256 <code>versionHash</code>, Anzahl der Methoden und Hilfen, <code>wfelder</code>, <code>arten</code>,{' '}
                   <code>merkmale</code>, <code>regeln</code> (Passungsregeln), <code>raumtypen</code>, <code>zielarten</code>,{' '}
                   <code>ketten</code> mit Wissensart je Schritt, <code>teilgruppen</code> (Tausch oder Hilfe),{' '}
-                  <code>planungsprofile</code>, Klassifikations-Engine (
+                  <code>planungsprofile</code>, <code>differenzierungsPersonas</code>, <code>anfrageFelder</code> (wie{' '}
+                  <code>list_vocabularies</code>), Klassifikations-Engine (
                   <code>{meta?.embeddingsEngine || 'hybrid-bm25-trigram'}</code>), Server-LLM (
                   {meta?.llmConfigured ? `aktiv: ${meta.llmModel}` : 'Zero-LLM-Standard'})
                 </td>
@@ -208,7 +209,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/plan</code></td>
-                <td>Plan ohne LLM (&lt;5 ms) mit allen Anfragefeldern: Arrangement, <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code>, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code>; mit <code>umfang: "voll"</code> der <code>entwurf</code> und ein fertiges <code>llmBriefing</code></td>
+                <td>Plan ohne LLM (&lt;5 ms) mit allen Anfragefeldern: Arrangement, <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code>, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code>; mit <code>umfang: "voll"</code> der <code>entwurf</code> und ein fertiges <code>llmBriefing</code>; ohne Angabe von <code>umfang</code> antwortet <code>/plan</code> voll (das MCP-Tool kompakt)</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/briefing</code></td>
@@ -246,7 +247,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/match</code> (Alias: <code>POST /zuordnung</code>)</td>
-                <td>Zuordnung in fünf Stufen (Freitext oder strukturiertes Schema) mit <code>pflichtangaben</code>, <code>regelmeldungen</code> und <code>begleitstrang</code></td>
+                <td>Zuordnung in fünf Stufen (Freitext oder strukturiertes Schema) mit <code>pflichtangaben</code>, <code>regelmeldungen</code> und <code>begleitstrang</code>; <code>fach</code> ist das erkannte Fach als Objekt, der gelesene Fachname steht in <code>erkanntesFach</code>, das Thema in <code>erkanntesThema</code></td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/validate</code></td>
@@ -254,7 +255,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/replacements</code></td>
-                <td>Ersatzkandidaten für einen Knotenpfad: nur Methoden, Bedarf in der Situation (<code>raum</code>, <code>ohneSchrift</code>, <code>termine</code>), Wissensart des Kettenschritts</td>
+                <td>Ersatzkandidaten für einen Knotenpfad: nur Methoden, Bedarf in der Situation (<code>raum</code>, <code>ohneSchrift</code>, <code>termine</code>), Wissensart des Kettenschritts; <code>ausgeschlossen</code> nennt bis zu 20 übrige Methoden, <code>ausgeschlossenGesamt</code> ihre Zahl</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/translate</code></td>
@@ -262,7 +263,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/elaborate</code></td>
-                <td>Entwurf mit den sieben Kernfeldern (Begriffe des Planungsprofils), Verlaufstabelle und ausformulierter Entwurf unter 4 Leitplanken</td>
+                <td>Entwurf mit den sieben Kernfeldern (Begriffe des Planungsprofils), Verlaufstabelle und ausformulierter Entwurf unter 4 Leitplanken; <code>regelmeldungen</code> des Plans stehen mit Regel, Wirkung und Grundlage unter Reflexion</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/differentiate</code></td>

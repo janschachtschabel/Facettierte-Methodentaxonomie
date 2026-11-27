@@ -15,12 +15,12 @@ import {
   type ZahlGrenze,
   ZAHL_GRENZEN
 } from '@fmt/core';
-import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
+import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { anpassungsAnfrage, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
-import { ersatzAntwort, klassifikationsAntwort, methodenDetail, methodenTreffer, zuordnungsAntwort } from '../antworten.js';
+import { ersatzAntwort, klassifikationsAntwort, methodenDetail, methodenTreffer, vokabularUebersicht, zuordnungsAntwort } from '../antworten.js';
 import { anpassungLeerFehler, bausteinFehler, codeFehler, zahlenFehler, type EingabeFehler } from '../eingaben.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
@@ -161,28 +161,15 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       versionHash: store.bundle.versionHash,
       builtAt: store.bundle.builtAt,
       bausteine: store.bundle.bausteine.length,
-      // Methods and helps counted apart (bausteine counts both).
-      methoden: store.bundle.bausteine.filter((b) => !istHilfe(b)).length,
-      hilfen: store.bundle.bausteine.filter(istHilfe).length,
       kuratiert: store.bundle.bausteine.filter((b) => b.status === 'kuratiert').length,
       entwurf: store.bundle.bausteine.filter((b) => b.status === 'entwurf').length,
       creator: store.bundle.creator,
       license: store.bundle.license,
       licenseName: store.bundle.licenseName,
       repository: store.bundle.repository,
-      wfelder: store.bundle.wfelder,
-      arten: store.bundle.arten,
-      merkmale: store.bundle.merkmale,
-      raumtypen: schemeValues(store.bundle, 'raumtyp'),
-      zielarten: schemeValues(store.bundle, 'zielart'),
-      // Fit rules (data/regeln.json): what each rule checks, its effect and its basis.
-      regeln: store.bundle.regeln,
-      // Planning profiles (data/planungsprofile.json): core fields, terms and modules per profile.
-      planungsprofile: store.bundle.planungsprofile,
-      // Function chains with their steps and the knowledge type each step binds (data/ketten.json).
-      ketten: kettenUebersicht(store.bundle),
-      // Table "Tausch oder Hilfe" for subgroups (data/teilgruppen.json).
-      teilgruppen: store.bundle.teilgruppen,
+      // Same entries as MCP list_vocabularies (shared builder): methods and helps counted apart (bausteine counts
+      // both), grid, chains, fit rules, planning profiles, subgroup table, personas and the request fields.
+      ...vokabularUebersicht(store),
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
