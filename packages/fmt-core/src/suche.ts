@@ -61,6 +61,16 @@ export interface FmtSearch {
   ersatz(arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>): ReplacementCandidate[];
 }
 
+/**
+ * Rules that exclude a method from the search for a stage or prior-knowledge level. Only the rules that replaced former
+ * list entries in Tor D2 ("… deckt" in parts 2 and 3 of durchsicht-2-eignung-geprueft.csv), plus the remaining lists
+ * (eignung-stufe, eignung-vorwissen). Other rules (e.g. viel-anleitung-hohes-vorwissen) only warn in the planner.
+ */
+export const SUCHE_AUSSCHLUSS_REGELN: Record<'bildungsstufe' | 'vorwissen', readonly string[]> = {
+  bildungsstufe: ['eignung-stufe', 'evidenz-geltung', 'problemloesen-vor-instruktion-primar'],
+  vorwissen: ['eignung-vorwissen', 'wenig-anleitung-geringes-vorwissen']
+};
+
 export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch {
   const facetFields = data.facetten.map((f) => f.feld).filter((f) => f !== 'steuerung');
   const techScheme = data.schemes.find((s) => s.id === 'technikbedarf')!;
@@ -69,14 +79,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   const functionWords = new Map((fnScheme.werte || []).map((w) => [w.id, [w.label, ...(w.alt || [])].join(' ')]));
   const stateScheme = data.schemes.find((s) => s.id === 'lernzustand')!;
   const implies = new Map((stateScheme.werte || []).map((w) => [w.id, w.impliziert || []]));
-  // Tor D2 moved most stage and prior-knowledge entries into rules: the search excludes what such a rule warns about.
   const regeln = erstelleRegeln(data.regeln || []);
-  const stufeOderVorwissen = (id: string) => {
-    if (id === 'eignung-stufe' || id === 'eignung-vorwissen' || id === 'evidenz-geltung') return true;
-    const lage = regeln.regel(id)?.wenn?.situation || {};
-    return 'bildungsstufe' in lage || 'vorwissen' in lage;
-  };
-
   const closure = (states: string[]): Set<string> => {
     const set = new Set<string>();
     const stack = [...states];
@@ -164,9 +167,10 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (given(k.kategorie) && !(b.kategorie || []).includes(String(k.kategorie))) return false;
       if (k.vorwissen && (b.ungeeignetBeiVorwissen || []).includes(k.vorwissen)) return false;
       if (k.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(k.bildungsstufe)) return false;
-      if (k.vorwissen || k.bildungsstufe) {
-        const lage = { vorwissen: k.vorwissen || undefined, bildungsstufe: k.bildungsstufe || undefined };
-        if (regeln.warnungen(b, lage).some((m) => m.wirkung === 'warnt' && stufeOderVorwissen(m.regel))) return false;
+      for (const feld of ['bildungsstufe', 'vorwissen'] as const) {
+        if (!k[feld]) continue;
+        const ids = SUCHE_AUSSCHLUSS_REGELN[feld];
+        if (regeln.warnungen(b, { [feld]: k[feld] }).some((m) => m.wirkung === 'warnt' && ids.includes(m.regel))) return false;
       }
       if (minIdx >= 0) {
         const g = bestGrade(b);
