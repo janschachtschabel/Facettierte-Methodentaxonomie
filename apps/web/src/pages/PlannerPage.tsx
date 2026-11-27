@@ -62,7 +62,9 @@ import {
   type OerResource,
   type StepDiffSuggestion,
   type SubgroupMethodMap,
-  type ThematicPhaseRow
+  type ThematicPhaseRow,
+  type EntwurfMeta,
+  entwurfSpalten
 } from '../planner/scenarioModel.js';
 import {
   deleteSavedScenario,
@@ -1078,7 +1080,8 @@ export function PlannerPage() {
             problemstellung,
             hinweise,
             totalDurationMin: validation.dauerMin,
-            labelOf
+            labelOf,
+            ...entwurfMeta
           });
     const sc = buildNeutralLearningScenario(arrangement, scenarioRows, groups, {
       fach,
@@ -1092,7 +1095,8 @@ export function PlannerPage() {
       elaboration: effNarrative,
       generatedMaterials,
       totalDurationMin: validation.dauerMin,
-      labelOf
+      labelOf,
+      ...entwurfMeta
     });
     const html = exportArrangementHtmlHandout(arrangement, blocksById, validation, {
       fach,
@@ -1279,6 +1283,22 @@ export function PlannerPage() {
   const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
   const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
+  // Draft (step 5): planning profile from the core answer, room, size, unit, proof and the plan's notes.
+  const angenommenRaum = matchResult?.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
+  const raumCode = raum || (matchResult?.kriterien?.raum as string | undefined) || (angenommenRaum ? String(angenommenRaum) : '');
+  const zielCode = matchResult?.kriterien?.zielart as string | undefined;
+  const entwurfMeta: EntwurfMeta = {
+    planungsprofile: bundle?.planungsprofile,
+    planungsprofil: matchResult?.planungsprofil,
+    planungsprofilAngenommen: (matchResult?.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+    raum: raumCode ? `${labelOf('raumtyp', raumCode)}${!raum && !matchResult?.kriterien?.raum && angenommenRaum ? ' (angenommen)' : ''}` : undefined,
+    anzahl: classSize,
+    einheit: typeof matchResult?.kriterien?.einheit === 'string' ? matchResult.kriterien.einheit : undefined,
+    nachweis: matchResult?.nachweis?.formen.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
+    hauptziel: zielCode ? labelOf('zielart', zielCode) : bundle?.ketten.find((k) => k.id === arrangement.zieltyp)?.label,
+    regelhinweise: regelmeldungen.map((m) => regelZeile(m, bundle?.regeln))
+  };
+  const verlaufSpalten = entwurfSpalten(entwurfMeta, arrangement.kontext?.bildungsstufe);
   const step2Groups = mainGroupOnly(groups, classSize);
   const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
   // In step 2 another proposal is only offered while it cannot discard own work:
@@ -2486,6 +2506,7 @@ export function PlannerPage() {
               rows={scenarioRows}
               groups={step2Groups}
               lehrkraefteInfo={lehrkraefteInfo}
+              spalten={verlaufSpalten}
               allBlocks={bundle.bausteine}
               regelmeldungen={regelmeldungen}
               regeln={bundle.regeln}
@@ -2693,6 +2714,7 @@ export function PlannerPage() {
                       rows={scenarioRows}
                       groups={groups}
                       lehrkraefteInfo={lehrkraefteInfo}
+                      spalten={verlaufSpalten}
                       allBlocks={bundle.bausteine}
                       subgroupMethods={subgroupMethods}
                       onSubgroupMethodChange={handleSubgroupMethodChange}
@@ -2759,6 +2781,7 @@ export function PlannerPage() {
             maxTechnik={maxTechnik || undefined}
             ohneInternet={ohneInternet}
             ohneKI={ohneKI}
+            entwurfMeta={entwurfMeta}
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
             <button type="button" className="btn" onClick={() => setStep(2)}>
@@ -2852,6 +2875,7 @@ export function PlannerPage() {
             maxTechnik={maxTechnik || undefined}
             ohneInternet={ohneInternet}
             ohneKI={ohneKI}
+            entwurfMeta={entwurfMeta}
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
             <button type="button" className="btn" onClick={() => setStep(3)}>
@@ -2929,6 +2953,7 @@ export function PlannerPage() {
             maxTechnik={maxTechnik || undefined}
             ohneInternet={ohneInternet}
             ohneKI={ohneKI}
+            entwurfMeta={entwurfMeta}
           />
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 14 }}>
             <button type="button" className="btn" onClick={() => setStep(4)}>

@@ -193,6 +193,8 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         regeln: bundle.regeln ?? [],
         // A bundle cached before the subgroup table has none; empty means no row triggers.
         teilgruppen: bundle.teilgruppen ?? { merkmale: [], sonst: { antwort: 'hilfe', grundlage: 'U', wohin: '' }, gesperrt: [], gesperrtText: '', abbau: {}, neutral: [] },
+        // A bundle cached before the planning profiles has none; the matcher then names no profile.
+        planungsprofile: bundle.planungsprofile ?? { kernfelder: [], profile: [] },
         bausteine: bundle.bausteine,
         beispiele: bundle.beispiele,
         faecher: bundle.faecher,

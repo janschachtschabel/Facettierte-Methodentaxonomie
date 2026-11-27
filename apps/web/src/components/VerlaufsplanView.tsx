@@ -24,6 +24,8 @@ interface Props {
   /** Rule messages of the proposal; those about a method stand in its row with rule and basis. */
   regelmeldungen?: Regelmeldung[];
   regeln?: Passungsregel[];
+  /** Column names for the activities in the terms of the planning profile ("Tätigkeit der Kursleitung"). */
+  spalten?: { lehrende: string; lernende: string };
 }
 
 const RANGE_READABLE: Record<string, string> = {
@@ -51,8 +53,11 @@ export function VerlaufsplanView({
   lead,
   editLabel,
   regelmeldungen = [],
-  regeln = []
+  regeln = [],
+  spalten
 }: Props) {
+  const spalteLehrende = spalten?.lehrende || 'Tätigkeit der Lehrkraft';
+  const spalteLernende = spalten?.lernende || 'Tätigkeit der Lernenden';
   const [editMode, setEditMode] = useState(false);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(null);
 
@@ -123,8 +128,8 @@ export function VerlaufsplanView({
           <p className="muted" style={{ fontSize: 13.5, margin: '4px 0 0', maxWidth: 760 }}>
             {lead || (
               <>
-                Jede Zeile ist eine Phase mit ihrer Methode: was die Lehrkraft tut und was die Lernenden tun. Alle Angaben
-                stammen aus der Methodendatenbank, ohne KI.
+                Jede Zeile ist eine Phase mit ihrer Methode: {spalteLehrende} und {spalteLernende}. Alle Angaben stammen aus
+                der Methodendatenbank, ohne KI.
               </>
             )}
           </p>
@@ -150,7 +155,12 @@ export function VerlaufsplanView({
               <th style={{ width: '21%' }}>Phase &amp; FMT-Methode</th>
               <th style={{ width: 78 }}>Zeit</th>
               <th style={{ width: '20%', background: 'color-mix(in srgb, var(--dA-soft) 55%, var(--surface))' }}>
-                👩‍🏫 {lehrkraefteInfo || 'Lehrkraft'}
+                👩‍🏫 {spalteLehrende}
+                {lehrkraefteInfo ? (
+                  <span className="muted" style={{ display: 'block', fontWeight: 500, fontSize: 12 }}>
+                    {lehrkraefteInfo}
+                  </span>
+                ) : null}
               </th>
               {activeGroups.length > 0 ? (
                 activeGroups.map((g) => (
@@ -175,7 +185,7 @@ export function VerlaufsplanView({
                   </th>
                 ))
               ) : (
-                <th>👥 Lernende</th>
+                <th>👥 {spalteLernende}</th>
               )}
             </tr>
           </thead>

@@ -59,6 +59,7 @@ const DATA: FmtData = {
   ketten: BUNDLE.ketten,
   regeln: BUNDLE.regeln,
   teilgruppen: BUNDLE.teilgruppen,
+  planungsprofile: BUNDLE.planungsprofile,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele
 };
@@ -683,3 +684,76 @@ describe('Schnellkorrekturen bieten keine Hilfe als Phase oder Slot an (Task C4)
   });
 });
 
+
+describe('Entwurf mit sieben Kernfeldern und Begriffen des Planungsprofils (Paket D, D2)', () => {
+  const labelOf = (schemeId: string, code: string) => {
+    const s = BUNDLE.schemes.find((x) => x.id === schemeId);
+    const vals = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
+    return vals.find((w) => w.id === code)?.label || code;
+  };
+  const matcher = createMatcher(DATA, VALIDATOR);
+  const entwurfFuer = (text: string, extra: Record<string, unknown> = {}) => {
+    const r = matcher.zuordnen({ text });
+    if (r.modus !== 'ablauf' || !r.arrangement) throw new Error('kein Ablauf');
+    const arr = r.arrangement;
+    const groups = DEFAULT_LEARNER_GROUPS.map((g) => (g.id === 'basis' ? { ...g, active: true, count: 4 } : g));
+    const rows = buildScenarioRows(arr, BUNDLE, BLOCKS, labelOf, groups, {}, {}, '', {}, [
+      { id: 'h1', stepKey: 'step-1', title: 'Wortliste', materialType: 'hilfe', content: 'x', createdAt: '2026-11-27T00:00:00Z', groupId: 'basis' }
+    ]);
+    const sc = buildNeutralLearningScenario(arr, rows, groups, {
+      fach: 'Statistik',
+      thema: 'Mittelwerte',
+      totalDurationMin: VALIDATOR.validate(arr).dauerMin,
+      labelOf,
+      planungsprofile: BUNDLE.planungsprofile,
+      planungsprofil: r.planungsprofil,
+      planungsprofilAngenommen: (r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+      ...extra
+    });
+    return { sc, rows, r };
+  };
+
+  it('n15: Entwurf nutzt „Sitzung“, „Studierende“, „Modul“ und führt sieben Kernfelder', () => {
+    const { sc } = entwurfFuer('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur');
+    expect(sc.planungsprofil?.id).toBe('hochschule');
+    expect(sc.kernfelder?.map((k) => k.id)).toEqual(['rahmendaten', 'lernvoraussetzungen', 'ziele', 'einordnung', 'verlauf', 'lernerfolg', 'reflexion']);
+    const text = sc.generated_content.narrative_lesson_plan_markdown;
+    for (const w of ['Sitzung', 'Studierende', 'Modul']) expect(text, w).toContain(w);
+    expect(text).toContain('Tätigkeit der Lehrenden');
+    expect(sc.module?.map((m) => m.id)).toEqual(['arbeitsaufwand-leistungspunkte', 'pruefungsform', 'abstimmung-ziel-pruefung-methode']);
+    sc.module?.forEach((m) => expect(m.inhalt).toBe(''));
+  });
+
+  it('Verlaufsplan trägt die Anpassungen je Teilgruppe (Hilfe aus Schritt 3)', () => {
+    const { sc } = entwurfFuer('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende');
+    const verlauf = sc.kernfelder!.find((k) => k.id === 'verlauf')!.inhalt;
+    expect(verlauf).toContain('Anpassungen je Teilgruppe');
+    expect(verlauf).toMatch(/Hilfe „Wortliste“/);
+  });
+
+  it('Entwurf ohne Bildungsstufe enthält nirgends „Sekundarstufe I“', () => {
+    const { sc, r } = entwurfFuer('Fotosynthese, Lichtreaktion, 45 Minuten');
+    expect(r.planungsprofil).toBe('schule');
+    expect(sc.planungsprofil).toMatchObject({ id: 'schule', angenommen: true });
+    const all = JSON.stringify(sc);
+    expect(all).not.toContain('Sekundarstufe I');
+    expect(all).toContain('Bildungsstufe nicht angegeben');
+  });
+
+  it('Exporte folgen den Begriffen: Erwachsenenbildung nennt „Tätigkeit der Kursleitung“', () => {
+    const { sc, rows } = entwurfFuer('Volkshochschule, Kochkurs Grundtechniken, 3 Stunden, 12 Teilnehmende');
+    expect(sc.planungsprofil?.id).toBe('erwachsenenbildung');
+    const moodle = exportScenarioToMoodleXml(sc, rows);
+    expect(moodle).toContain('Tätigkeit der Kursleitung');
+    expect(moodle).not.toContain('Rolle Lehrkraft');
+    const zip = new TextDecoder().decode(exportScenarioToImscc(sc, rows));
+    expect(zip).toContain('Tätigkeit der Teilnehmenden');
+    expect(sc.generated_content.narrative_lesson_plan_markdown).toContain('Kursverlaufsplan');
+  });
+
+  it('Schule: „Tätigkeit der Lehrkraft“ bleibt', () => {
+    const { sc } = entwurfFuer('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    expect(sc.planungsprofil?.spalten.lehrende).toBe('Tätigkeit der Lehrkraft');
+    expect(sc.generated_content.narrative_lesson_plan_markdown).toContain('Tätigkeit der Schülerinnen und Schüler');
+  });
+});

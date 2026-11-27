@@ -31,6 +31,7 @@ const DATA: FmtData = {
   ketten: BUNDLE.ketten,
   regeln: BUNDLE.regeln,
   teilgruppen: BUNDLE.teilgruppen,
+  planungsprofile: BUNDLE.planungsprofile,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele
 };
@@ -247,3 +248,29 @@ describe('Verlaufsplan bietet keine Hilfe als Methode einer Teilgruppe an (Task 
   });
 });
 
+
+describe('Verlaufsplan nutzt die Begriffe des Planungsprofils (Paket D, D2)', () => {
+  it('Spaltenkopf „Tätigkeit der Kursleitung“, ohne Teilgruppen „Tätigkeit der Teilnehmenden“', () => {
+    const preset = createChainPreset('konzeptaufbau', BUNDLE);
+    const rows = buildScenarioRows(preset, BUNDLE, BLOCKS, labelOf, [], {}, {}, '', {});
+    const { container } = render(
+      <MemoryRouter>
+        <VerlaufsplanView
+          rows={rows}
+          groups={[]}
+          lehrkraefteInfo="1 Kursleitung"
+          spalten={{ lehrende: 'Tätigkeit der Kursleitung', lernende: 'Tätigkeit der Teilnehmenden' }}
+          allBlocks={BUNDLE.bausteine}
+          subgroupMethods={{}}
+          onSubgroupMethodChange={() => {}}
+          onEditDiffMeasure={() => {}}
+          onOpenResourcesForStep={() => {}}
+        />
+      </MemoryRouter>
+    );
+    const kopf = [...container.querySelectorAll('thead th')].map((th) => th.textContent || '').join(' | ');
+    expect(kopf).toContain('Tätigkeit der Kursleitung');
+    expect(kopf).toContain('Tätigkeit der Teilnehmenden');
+    expect(container.textContent).not.toMatch(/was die Lehrkraft tut/);
+  });
+});

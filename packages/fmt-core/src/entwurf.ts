@@ -229,13 +229,17 @@ export function baueEntwurf(regelsatz: PlanungsprofileRegelsatz, e: EntwurfEinga
   };
 }
 
-/** The draft as Markdown: numbered core fields, then the modules as headings to fill in. */
-export function entwurfMarkdown(e: Entwurf, ebene = 3): string {
+/**
+ * The draft as Markdown: numbered core fields, then the modules as headings to fill in.
+ * `nach` adds caller text after a core field (e.g. the phase-by-phase procedure after the lesson plan).
+ */
+export function entwurfMarkdown(e: Entwurf, ebene = 3, nach: Partial<Record<Kernfeld['id'], string>> = {}): string {
   const h = '#'.repeat(ebene);
   const lines: string[] = [];
   e.kernfelder.forEach((k, i) => {
     if (i) lines.push('');
     lines.push(`${h} ${i + 1}. ${k.titel}`, k.inhalt);
+    if (nach[k.id]?.trim()) lines.push('', nach[k.id]!.trim());
   });
   if (e.module.length) {
     lines.push('', `${h} Module (${e.planungsprofil.dokument})`);

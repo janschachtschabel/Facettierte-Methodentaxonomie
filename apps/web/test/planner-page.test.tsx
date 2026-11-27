@@ -662,3 +662,17 @@ describe('Schritt 3: Entscheidung je Teilgruppe (Task C6)', () => {
     expect(screen.queryByText(BUNDLE.teilgruppen.gesperrtText!)).toBeNull();
   });
 });
+
+describe('Schritt 5: Entwurf mit sieben Kernfeldern nach Planungsprofil (Paket D, D2)', () => {
+  it('n15: Sitzung, Studierende, Modul; Spalten in den Begriffen der Hochschule', () => {
+    renderPlanner();
+    propose('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur');
+    expect(screen.getAllByText(/Tätigkeit der Lehrenden/).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(5));
+    const text = document.body.textContent || '';
+    for (const t of ['Ablaufplan der Sitzung', 'Lernvoraussetzungen der Studierenden', 'Einordnung in das Modul', 'Verlaufsplan der Sitzung', 'Sicherung und Kontrolle des Lernerfolgs', 'Reflexion und Evaluation', 'Prüfungsform']) {
+      expect(text, t).toContain(t);
+    }
+    expect(text).not.toContain('Sekundarstufe I');
+  });
+});

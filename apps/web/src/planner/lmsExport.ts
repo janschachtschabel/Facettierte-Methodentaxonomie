@@ -115,7 +115,13 @@ export function buildStoredZip(files: Array<{ path: string; content: string }>):
   return out;
 }
 
-function buildPhaseHtmlPage(row: ScenarioPhaseRow, scenarioTitle: string): string {
+/** Column names of the phase page: the planning profile's terms when the scenario carries a draft. */
+function rollenSpalten(scenario: NeutralLearningScenario): { lehrende: string; lernende: string } {
+  const sp = scenario.planungsprofil?.spalten;
+  return sp ? { lehrende: sp.lehrende, lernende: sp.lernende } : { lehrende: 'Rolle Lehrkraft', lernende: 'Rolle Lernende' };
+}
+
+function buildPhaseHtmlPage(row: ScenarioPhaseRow, scenarioTitle: string, spalten: { lehrende: string; lernende: string }): string {
   const stepsHtml = (row.block?.durchfuehrung || []).length
     ? `<ol>${row.block!.durchfuehrung.map((s) => `<li>${escHtml(s)}</li>`).join('')}</ol>`
     : '<p>Gemäß Methodenprofil durchführen.</p>';
@@ -171,7 +177,7 @@ function buildPhaseHtmlPage(row: ScenarioPhaseRow, scenarioTitle: string): strin
     <strong>Lernumgebung:</strong> ${escHtml(row.environment)}
   </div>
   <table>
-    <tr><th>Rolle Lehrkraft</th><th>Rolle Lernende</th><th>Materialien</th></tr>
+    <tr><th>${escHtml(spalten.lehrende)}</th><th>${escHtml(spalten.lernende)}</th><th>Materialien</th></tr>
     <tr>
       <td>${escHtml(row.teacherRole)}</td>
       <td>${escHtml(row.learnerRole)}</td>
@@ -214,7 +220,7 @@ export function exportScenarioToImscc(
     const itemId = `item_phase_${idx + 1}`;
     const resId = `res_phase_${idx + 1}`;
     const href = `web_resources/phase_${idx + 1}_${row.methodId.replace(/[^a-z0-9_-]/gi, '_')}.html`;
-    files.push({ path: href, content: buildPhaseHtmlPage(row, scenario.metadata.title) });
+    files.push({ path: href, content: buildPhaseHtmlPage(row, scenario.metadata.title, rollenSpalten(scenario)) });
 
     let childLinks = '';
     safeOerList(row.oerResources).forEach((oer, oi) => {
@@ -312,7 +318,7 @@ export function exportScenarioToMoodleXml(
   if (scenario.generated_content?.narrative_lesson_plan_markdown) {
     activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="page" contextid="${actId + 1000}">
       <page id="${actId}">
-        <name>${escXml(`Unterrichtsentwurf: ${scenario.metadata.title}`)}</name>
+        <name>${escXml(`${scenario.planungsprofil?.dokument || 'Unterrichtsentwurf'}: ${scenario.metadata.title}`)}</name>
         <intro>${escXml(`Fach: ${scenario.metadata.subject} · Thema: ${scenario.metadata.topic}`)}</intro>
         <introformat>1</introformat>
         <content>${escXml(`<pre style="white-space:pre-wrap;font-family:inherit">${escHtml(scenario.generated_content.narrative_lesson_plan_markdown)}</pre>`)}</content>
@@ -325,7 +331,7 @@ export function exportScenarioToMoodleXml(
   }
 
   rows.forEach((row) => {
-    const pageHtml = buildPhaseHtmlPage(row, scenario.metadata.title);
+    const pageHtml = buildPhaseHtmlPage(row, scenario.metadata.title, rollenSpalten(scenario));
     activities.push(`    <activity id="${actId}" moduleid="${actId}" modulename="page" contextid="${actId + 1000}">
       <page id="${actId}">
         <name>${escXml(`${row.orderLabel} ${row.phaseLabel}: ${row.methodName} (${row.durationMin} min)`)}</name>
