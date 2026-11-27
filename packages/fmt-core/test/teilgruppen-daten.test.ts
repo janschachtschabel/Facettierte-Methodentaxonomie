@@ -40,6 +40,17 @@ describe('Tabelle „Tausch oder Hilfe“ als Daten', () => {
       if (m.grundlage === 'E') expect(m.quelle, m.id).toBeTruthy();
     }
   });
+  it('neutrale Ausprägungen existieren in der Matrix und stehen in keiner Zeile', () => {
+    expect(T.neutral.length).toBeGreaterThan(0);
+    const inZeile = new Set(T.merkmale.flatMap((m) => m.auspraegungen));
+    expect(new Set(T.neutral).size).toBe(T.neutral.length);
+    for (const a of T.neutral) {
+      expect(alleAuspraegungen.has(a), a).toBe(true);
+      expect(inZeile.has(a), a).toBe(false);
+      expect(T.gesperrt.some((k) => a.startsWith(k + '-')), a).toBe(false);
+    }
+    expect(T.neutral).toContain('vorwissen-mittel');
+  });
   it('Auffangantwort und Abbau', () => {
     expect(T.sonst).toMatchObject({ antwort: 'hilfe', grundlage: 'U' });
     expect(Object.keys(T.abbau).sort()).toEqual(['aufgaben', 'lernmaterialien', 'lernzeit', 'sonst', 'unterstuetzung']);

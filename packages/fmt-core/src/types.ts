@@ -112,6 +112,8 @@ export interface TeilgruppenRegelsatz {
   merkmale: MerkmalAntwort[];
   /** Answer for matrix values no row names. */
   sonst: { antwort: 'hilfe'; grundlage: 'U'; wohin: string };
+  /** Matrix value ids that mean no need (average, typical, none); they are ignored like not selected. */
+  neutral: string[];
   /** Matrix category ids that never trigger anything. */
   gesperrt: string[];
   gesperrtText: string;

@@ -123,7 +123,8 @@ describe('Teilgruppen: Antwort je Teilgruppe', () => {
       sonst: { antwort: 'hilfe', grundlage: 'U', wohin: 'Hilfe' },
       gesperrt: ['y'],
       gesperrtText: 'nicht belegt',
-      abbau: {}
+      abbau: {},
+      neutral: ['z-mittel']
     };
     const geleitet = baustein({ anleitung: ['geleitet'] });
     expect(entscheideTeilgruppe(geleitet, gruppe({ x: 'x-a' }), synth)).toMatchObject({ antwort: 'tausch', merkmal: 'zeile-tausch', richtung: 'explizit-mit-strategie' });
@@ -133,6 +134,22 @@ describe('Teilgruppen: Antwort je Teilgruppe', () => {
     expect(entscheideTeilgruppe(geleitet, gruppe({ x: 'x-c' }), synth)).toMatchObject({ antwort: 'hilfe', merkmal: 'zeile-hilfe', grundlage: 'S' });
     expect(entscheideTeilgruppe(geleitet, gruppe({ z: 'z-unbekannt' }), synth)).toMatchObject({ antwort: 'hilfe', merkmal: 'sonst', grundlage: 'U' });
     expect(entscheideTeilgruppe(geleitet, gruppe({ y: 'y-1' }), synth)).toMatchObject({ antwort: 'passt', gesperrt: ['y'] });
+    const sonst = entscheideTeilgruppe(geleitet, gruppe({ z: 'z-unbekannt' }), synth).grund;
+    expect(sonst).toContain('Grundlage ungeklärt');
+    expect(sonst.endsWith('.')).toBe(true);
+    // Neutral values mean no need: ignored like not selected.
+    expect(entscheideTeilgruppe(geleitet, gruppe({ z: 'z-mittel' }), synth).antwort).toBe('passt');
+    expect(entscheideTeilgruppe(geleitet, gruppe({ z: 'z-mittel', x: 'x-c' }), synth)).toMatchObject({ antwort: 'hilfe', merkmal: 'zeile-hilfe' });
+  });
+
+  it('neutrale Ausprägungen der Tabelle: passt statt Hilfe', () => {
+    const neutral = gruppe({ vorwissen: 'vorwissen-mittel', 'foerderbedarf-sehen': 'foerderbedarf-sehen-keine' });
+    expect(entscheideTeilgruppe(baustein({ anleitung: ['offen'] }), neutral, T).antwort).toBe('passt');
+  });
+
+  it('fehlendes B3 gilt als uniform: Tausch bleibt Tausch', () => {
+    const offen = baustein({ anleitung: ['offen'], adaptivitaet: [] });
+    expect(entscheideTeilgruppe(offen, gruppe({ vorwissen: 'vorwissen-gering' }), T).antwort).toBe('tausch');
   });
 
   it('bereinigeProfil entfernt gesperrte Kategorien und übernimmt formale Zeilen als Angabe', () => {
@@ -200,13 +217,32 @@ describe('Teilgruppen: Gleichwertigkeit eines Ersatzes', () => {
     expect(istGleichwertig(baustein({ ...ersatz, internet: true }), geplant, kontext()).gruende.join(' ')).toMatch(/Internet/);
   });
 
-  it('Ersatz mit Warnung für die Teilgruppe oder formalem Ausschluss ist nicht gleichwertig', () => {
+  it('Ersatz mit neuer Warnung für die Teilgruppe oder formalem Ausschluss ist nicht gleichwertig', () => {
+    // The planned method is guided: an only open candidate gets a warning the planned one does not get.
+    const geleitet = baustein({ ...geplant, anleitung: ['geleitet'] });
     const offen = baustein({ ...ersatz, anleitung: ['offen'] });
-    expect(istGleichwertig(offen, geplant, kontext()).gruende.join(' ')).toMatch(/Teilgruppe/);
+    const g0 = istGleichwertig(offen, geleitet, kontext());
+    expect(g0.ok).toBe(false);
+    expect(g0.gruende.join(' ')).toMatch(/Teilgruppe: neue Warnung/);
     const liest = baustein({ ...ersatz, schriftbedarf: ['liest'] });
     const g = istGleichwertig(liest, geplant, kontext(undefined, { profil: gruppe({}, { ohneSchrift: ['lesen'] }) }));
     expect(g.ok).toBe(false);
     expect(g.gruende.join(' ')).toMatch(/Lesen/);
+  });
+
+  it('eine Warnung, die auch die geplante Methode bekommt, ist keine neue Warnung', () => {
+    // geplant is only open, like the candidate: both get the warning for low prior knowledge.
+    const offen = baustein({ ...ersatz, anleitung: ['offen'] });
+    expect(istGleichwertig(offen, geplant, kontext())).toEqual({ ok: true, gruende: [] });
+  });
+
+  it('mit der Tabelle im Kontext zählen formale Zeilen auch bei unbereinigtem Profil', () => {
+    const stell = baustein({ ...ersatz, raumbedarf: ['stellflaeche'] });
+    const profil = gruppe({ 'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-deutlich' });
+    expect(istGleichwertig(stell, geplant, kontext(undefined, { profil })).ok).toBe(true);
+    const g = istGleichwertig(stell, geplant, kontext(undefined, { profil, t: T }));
+    expect(g.ok).toBe(false);
+    expect(g.gruende.join(' ')).toMatch(/bewegen/);
   });
 
   it('zwei lehrkraftgebundene Methoden sind nicht nebeneinander führbar; mit zwei Lehrenden schon', () => {

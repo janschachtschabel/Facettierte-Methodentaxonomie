@@ -54,8 +54,9 @@ const MATRIX_LABEL: Map<string, string> = new Map(
 const merkmalLabel = (wert: string) => MATRIX_LABEL.get(wert) ?? wert;
 
 const nurUniform = (b: Pick<Baustein, 'adaptivitaet'>) => {
+  // A method without B3 counts as uniform, so a missing value never turns a swap into a help.
   const a = b.adaptivitaet || [];
-  return a.length > 0 && a.every((x) => x === 'uniform');
+  return !a.length || a.every((x) => x === 'uniform');
 };
 
 /** Whether the method fulfils the direction of a swap (a replacement has to). */
@@ -165,7 +166,9 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
   const formal = formaleLuecken(geplant, profil, t)[0];
   if (formal) return { antwort: 'tausch', merkmal: formal.merkmal, richtung: formal.richtung, grund: formal.grund, grundlage: 'formal', gesperrt };
 
-  const werte = Object.values(profil.selectedValues).filter(Boolean);
+  // Neutral values (average, typical, none) mean no need: ignored like not selected. Older bundles have no list.
+  const neutral = new Set(t.neutral ?? []);
+  const werte = Object.values(profil.selectedValues).filter((w) => Boolean(w) && !neutral.has(w));
 
   // 3. Swap rows of the group whose reason the method sets off; B3 decides between swap and help.
   const ausgeloest = t.merkmale
@@ -209,7 +212,7 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
     return {
       antwort: 'hilfe',
       merkmal: 'sonst',
-      grund: `${merkmalLabel(ungenannt)}: ${t.sonst.wohin} (Grundlage ungeklärt)`,
+      grund: `${merkmalLabel(ungenannt)}: ${t.sonst.wohin.replace(/\.$/, '')}${mitQuelle(t.sonst)}.`,
       grundlage: t.sonst.grundlage,
       gesperrt
     };
@@ -252,8 +255,8 @@ function regelLageDerGruppe(anfrage: MatchRequest, profil: TeilgruppenProfil): R
 
 /**
  * Whether a parallel method may replace the planned one for a subgroup. All four conditions must hold; every failed
- * condition adds its own reason. ctx.profil should be the cleaned profile (bereinigeProfil), so formal rows of the
- * table count as the group's own statements.
+ * condition adds its own reason. Pass the table as ctx.t (or a profile already cleaned with bereinigeProfil), so
+ * formal rows of the table count as the group's own statements.
  */
 export function istGleichwertig(
   kandidat: Baustein,
@@ -267,10 +270,13 @@ export function istGleichwertig(
     lehrende?: number;
     data: Pick<FmtData, 'schemes'>;
     regeln: ReturnType<typeof erstelleRegeln>;
+    /** With the table, the profile is cleaned here (bereinigeProfil), so formal rows always count. */
+    t?: TeilgruppenRegelsatz;
   }
 ): Gleichwertigkeit {
   const gruende: string[] = [];
   const { schritt, data } = ctx;
+  const profil = ctx.t ? bereinigeProfil(ctx.profil, ctx.t).profil : ctx.profil;
 
   // 1. Same learning state for the same knowledge type.
   const liefert = huelle(data, kandidat.nachbedingung || []);
@@ -297,10 +303,13 @@ export function istGleichwertig(
   const mehr = mehrTechnikAls(kandidat, geplant);
   if (mehr) gruende.push(`Bedarf: ${kandidat.name} braucht ${RAHMEN_TEXT[mehr]}, ${geplant.name} nicht.`);
 
-  // 3. Fits the subgroup: no formal exclusion, no warning in the group's situation.
-  for (const f of formaleLuecken(kandidat, ctx.profil)) gruende.push(`Teilgruppe: ${f.grund}`);
-  const warnungen = ctx.regeln.pruefe(kandidat, regelLageDerGruppe(ctx.anfrage, ctx.profil)).filter((m) => m.wirkung === 'warnt');
-  for (const w of warnungen) gruende.push(`Teilgruppe: ${w.text}`);
+  // 3. Fits the subgroup: no formal exclusion, no new warning in the group's situation (one the planned method does
+  // not get there as well, compared by rule id).
+  for (const f of formaleLuecken(kandidat, profil)) gruende.push(`Teilgruppe: ${f.grund}`);
+  const lage = regelLageDerGruppe(ctx.anfrage, profil);
+  const warnt = (b: Baustein) => ctx.regeln.pruefe(b, lage).filter((m) => m.wirkung === 'warnt');
+  const schonGeplant = new Set(warnt(geplant).map((m) => m.regel));
+  for (const w of warnt(kandidat)) if (!schonGeplant.has(w.regel)) gruende.push(`Teilgruppe: neue Warnung – ${w.text}`);
 
   // 4. Both methods can run side by side: not both bind the teacher, unless there are two teachers.
   if (lehrkraftGebunden(kandidat) && lehrkraftGebunden(geplant) && (ctx.lehrende ?? 1) < 2) {
