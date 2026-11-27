@@ -21,6 +21,8 @@ export interface MehrAngaben {
   /** Number of teachers or adults in the room (the free text "Lehrkraft / Begleitung" stays for the draft). */
   lehrende?: number;
   fachausstattungArt?: string;
+  /** Wished chain ("Funktionskette"); empty: the core chooses the chain from the goal kind. */
+  zieltyp?: string;
 }
 
 /** Fields whose values are codes of the core (field list of matcher.felder()). */
@@ -31,7 +33,8 @@ export const MEHR_ANGABEN_CODEFELDER = [
   'komplexitaet',
   'nachweis',
   'planungsprofil',
-  'fachausstattungArt'
+  'fachausstattungArt',
+  'zieltyp'
 ] as const;
 
 type CodeFeld = (typeof MEHR_ANGABEN_CODEFELDER)[number];

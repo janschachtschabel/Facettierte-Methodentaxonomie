@@ -4,6 +4,7 @@ import { scoreDifferentiationMatrix, type Arrangement, type Baustein, type Valid
 import { InlineMarkdown, SimpleMarkdown } from './SimpleMarkdown.js';
 import { WloOerCards, wloPreviewPath } from './WloOerCards.js';
 import { DifferentiationMatrixPanel } from './DifferentiationMatrixPanel.js';
+import type { KandidatenRahmen } from '../planner/kandidaten.js';
 import {
   exportArrangementHtmlHandout,
   exportArrangementMarkdown,
@@ -43,6 +44,8 @@ interface Props {
   totalClassSize?: number;
   /** Step 3 only: content between group picker and detail tabs. */
   diffMiddleSlot?: ReactNode;
+  /** Frame of the plan for other methods of a subgroup (core filter), passed on to the matrix panel. */
+  kandidaten?: KandidatenRahmen;
   focusedStepKey: string | null;
   onSelectStepKey?: (stepKey: string) => void;
   arrangement: Arrangement;
@@ -101,6 +104,7 @@ export function ScenarioStudioPanel({
   onResourceTabChange,
   totalClassSize,
   diffMiddleSlot,
+  kandidaten,
   focusedStepKey,
   onSelectStepKey,
   arrangement,
@@ -609,6 +613,7 @@ export function ScenarioStudioPanel({
           ohneKI={ohneKI}
           totalClassSize={totalClassSize}
           middleSlot={diffMiddleSlot}
+          kandidaten={kandidaten}
         />
         {onNextStep && (
           <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--rule)' }}>

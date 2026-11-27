@@ -10,7 +10,8 @@ import { TimelineBandSvg } from '../src/components/TimelineBandSvg.js';
 import { CatalogAnalytics } from '../src/components/CatalogAnalytics.js';
 import { MethodCardDiagram } from '../src/components/MethodCardDiagram.js';
 import { VerlaufsplanView } from '../src/components/VerlaufsplanView.js';
-import { createChainPreset, setRecurrence } from '../src/planner/arrangementOps.js';
+import { setRecurrence } from '../src/planner/arrangementOps.js';
+import { createChainPreset } from './kettenVorlage.js';
 import { buildScenarioRows, DEFAULT_LEARNER_GROUPS } from '../src/planner/scenarioModel.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');

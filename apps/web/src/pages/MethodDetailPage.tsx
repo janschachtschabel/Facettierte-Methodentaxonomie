@@ -8,13 +8,9 @@ import { ControlBars } from '../components/ControlBars.js';
 import { InterfaceFlow } from '../components/InterfaceFlow.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { bedarfNachWFeld } from '../planner/bedarfAnzeige.js';
+import { EVIDENZBEZUG_TEXT } from '../planner/evidenz.js';
 
-/** What a finding rests on, as a phrase after "Der Befund" (Evidenzaussage.evidenzBezug). */
-export const EVIDENZBEZUG_TEXT: Record<'methode' | 'prinzip' | 'programm', string> = {
-  methode: 'gilt der Methode',
-  prinzip: 'gilt dem Wirkprinzip',
-  programm: 'gilt ganzen Programmen, nicht der einzelnen Phase'
-};
+export { EVIDENZBEZUG_TEXT };
 
 /** Aesthetic practice is justified by its own value; no transfer promise (FMT 2.0, Recherche C). */
 export const AESTHETIK_EIGENWERT = 'Begründet mit dem Eigenwert; ein Transfer auf andere Leistungen ist nicht belegt (Sala & Gobet 2020).';

@@ -1,4 +1,4 @@
-import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, regelLageAus, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung, type RegelSituation } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import type { AddedPhase } from './extraPhases.js';
 import type { MehrAngaben } from './mehrAngaben.js';
@@ -128,6 +128,8 @@ export interface EntwurfAngaben {
   /** Forms of proof (codes of nachweisform). */
   nachweis?: string[];
   regelmeldungen?: Regelmeldung[];
+  /** Situation the fit rules read (prior knowledge, stage, complexity, language level, subject area), for a new check. */
+  regelLage?: RegelSituation;
   /** Accompanying goals as the matcher read them (codes). */
   begleitziele?: string[];
   begleitstrang?: Begleitstrang[];
@@ -160,6 +162,7 @@ export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
     zielart: str(k.zielart),
     nachweis: r.nachweis?.formen,
     regelmeldungen: r.regelmeldungen,
+    regelLage: regelLageAus(k),
     begleitziele: Array.isArray(k.begleitziel) ? (k.begleitziel as string[]) : [],
     begleitstrang: r.modus === 'ablauf' ? r.begleitstrang : undefined,
     hinweise: r.hinweise
@@ -204,6 +207,10 @@ export function entwurfAngabenLesen(v: unknown): EntwurfAngaben | undefined {
     zielart: str(o.zielart),
     nachweis: strs(o.nachweis),
     regelmeldungen: objs<Regelmeldung>(o.regelmeldungen, (y) => typeof y.regel === 'string' && typeof y.text === 'string'),
+    regelLage:
+      o.regelLage && typeof o.regelLage === 'object' && !Array.isArray(o.regelLage)
+        ? regelLageAus(Object.fromEntries(Object.entries(o.regelLage).filter(([, v]) => typeof v === 'string')))
+        : undefined,
     begleitziele: strs(o.begleitziele),
     begleitstrang: objs<Begleitstrang>(
       o.begleitstrang,

@@ -5,7 +5,9 @@ import {
   FMT_GUARDRAILS,
   hasAdjustmentProfile,
   migrateKennungen,
+  passungNeuPruefen,
   proposeAdditionalPhases,
+  regelLageAus,
   type AdditionalPhaseProposal,
   type Arrangement,
   type Begleitstrang,
@@ -25,7 +27,6 @@ import { buildServerByokHeaders, isUserLlmConfigured, runDirectTranslate } from 
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
-  createChainPreset,
   createEmptyArrangement,
   findNextVariant,
   exportArrangementHtmlHandout,
@@ -89,6 +90,10 @@ import {
 } from '../planner/scenarioStorage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
 import { mehrAngabenInAnfrage, mehrAngabenLesen, ohneText, type MehrAngaben } from '../planner/mehrAngaben.js';
+import { BEISPIEL_ANFRAGEN, type BeispielAnfrage } from '../planner/beispiele.js';
+import { ausschlussZeilen, genannteHilfenNamen } from '../planner/ausschluesse.js';
+import { evidenzBezugBeiGrad } from '../planner/evidenz.js';
+import { situationsAnfrage, type KandidatenRahmen } from '../planner/kandidaten.js';
 
 type PlannerStep = 1 | 2 | 3 | 4 | 5;
 
@@ -131,117 +136,15 @@ const DIDACTIC_APPROACH_OPTIONS: DidacticApproachOption[] = [
 
 const APPROACH_BY_ID = new Map(DIDACTIC_APPROACH_OPTIONS.map((o) => [o.id, o]));
 
-interface StarterPreset {
-  id: string;
-  label: string;
-  fach: string;
-  thema: string;
-  text: string;
-  ansatz: string[];
-  lernziele: string;
-  problemstellung: string;
-  bildungsstufe: string;
-  vorwissen: string;
-  zeitMin: number;
-  chain: string;
-}
+/** Value of the chain select that only takes the chain off the current flow. */
+const FREIER_ABLAUF = '__frei';
 
-const STARTER_PRESETS: StarterPreset[] = [
-  {
-    id: 'mathe-bruch',
-    label: 'Mathe · Bruchrechnen (90 min)',
-    fach: 'Mathematik',
-    thema: 'Addition und Subtraktion von Brüchen',
-    text: 'Mathematik Bruchrechnen Doppelstunde Klasse 6, 90 Minuten, geringes Vorwissen',
-    ansatz: ['instruktion', 'uebung'],
-    lernziele:
-      '1. Gleichnamige und ungleichnamige Brüche sicher addieren\n2. Rechenschritte begründen und typische Fehler (Nenner addieren) erkennen',
-    problemstellung:
-      'Viele Lernende addieren Zähler und Nenner getrennt; schrittweise Lösungsbeispiele mit Fading beugen diesem Fehlkonzept vor.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'gering',
-    zeitMin: 90,
-    chain: 'prozedur'
-  },
-  {
-    id: 'physik-dichte',
-    label: 'Physik · Dichte (Reihe, 270 min)',
-    fach: 'Physik',
-    thema: 'Dichte von Stoffen',
-    text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
-    ansatz: ['forschend'],
-    lernziele:
-      '1. Masse und Volumen als unabhängige Größen unterscheiden\n2. Dichte als Stoffkonstante berechnen und auf Schwimmen/Sinken anwenden',
-    problemstellung:
-      'Fehlvorstellung „schwere Dinge sinken immer“ – Vorhersage-Beobachtung-Erklärung macht das Alltagskonzept sichtbar.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'gering',
-    zeitMin: 270,
-    chain: 'konzeptaufbau'
-  },
-  {
-    id: 'bio-oekosystem',
-    label: 'Biologie · Ökosystem Wald (5E, 135 min)',
-    fach: 'Biologie',
-    thema: 'Ökosystem Wald & Nahrungsnetze',
-    text: 'Biologie Klasse 8 forschend 5E Ökosystem Wald, 135 Minuten, mittleres Vorwissen',
-    ansatz: ['forschend', 'kooperativ'],
-    lernziele:
-      '1. Produzenten, Konsumenten und Destruenten in Nahrungsnetzen vernetzen\n2. Folgen von Störungen im Ökosystem hypothesengeleitet untersuchen',
-    problemstellung: 'Abstrakte Stoffkreisläufe bleiben oft träges Wissen ohne eigene Erkundungs- und Erklärungsphase.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'mittel',
-    zeitMin: 135,
-    chain: 'fuenf-e'
-  },
-  {
-    id: 'deutsch-arg',
-    label: 'Deutsch · Argumentieren (90 min)',
-    fach: 'Deutsch',
-    thema: 'Überzeugend argumentieren & Debatte',
-    text: 'Deutsch Sekundarstufe I Doppelstunde 90 Minuten Argumentation und Problemlösen, mittleres Vorwissen',
-    ansatz: ['diskurs', 'kooperativ'],
-    lernziele: '1. These, Argument und Beispiel klar strukturieren\n2. Gegenargumente fair aufgreifen und entkräften',
-    problemstellung:
-      'Meinungen werden häufig ohne Beleg geäußert; strukturierte Austausch- und Vergleichsphasen schärfen die Argumentationsqualität.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'mittel',
-    zeitMin: 90,
-    chain: 'problemloesen'
-  },
-  {
-    id: 'gesch-demokratie',
-    label: 'Politik · Demokratie & DaZ (135 min)',
-    fach: 'Politik',
-    thema: 'Gewaltenteilung & Demokratie',
-    text: 'Politik Klasse 9 Faktenwissen und Verständnis Gewaltenteilung, 135 Minuten, wenig Vorwissen, mehrere DaZ-Kinder',
-    ansatz: ['kooperativ'],
-    lernziele:
-      '1. Legislative, Exekutive und Judikative sicher zuordnen\n2. Kontrollmechanismen an einem aktuellen Fallbeispiel erläutern',
-    problemstellung:
-      'Institutionenkunde wirkt trocken, wenn Fachbegriffe nicht aktiv abgerufen und sprachsensibel (DaZ) an konkreten Fällen gesichert werden.',
-    bildungsstufe: 'sek1',
-    vorwissen: 'gering',
-    zeitMin: 135,
-    chain: 'faktenwissen'
-  },
-  {
-    id: 'grundschule-sach',
-    label: 'Grundschule · Wasserkreislauf (45 min)',
-    fach: 'Sachunterricht',
-    thema: 'Der Wasserkreislauf im Alltag',
-    text: 'Grundschule Klasse 3 Sachunterricht Einzelstunde 45 Minuten Konzept Wasserkreislauf verstehen, geringes Vorwissen, ohne Internet',
-    ansatz: ['kooperativ', 'spiel-simulation'],
-    lernziele:
-      '1. Verdunstung, Kondensation und Niederschlag in einfachen Worten benennen\n2. Den Kreislauf an einer Skizze gemeinsam erklären',
-    problemstellung:
-      'Kinder kennen Regen und Pfützen, verbinden sie aber selten zu einem geschlossenen Kreislauf.',
-    bildungsstufe: 'primar',
-    vorwissen: 'gering',
-    zeitMin: 45,
-    chain: 'konzeptaufbau'
-  }
-];
+/** A proposal of the core asked for by an example (Beispiel) or by the chain select (Funktionskette). */
+interface MatchAuftrag {
+  nr: number;
+  art: 'beispiel' | 'kette';
+  label: string;
+}
 
 /** Context with one detail set, or removed when empty, so that an empty field is not sent. */
 function mitKontext<K extends keyof NonNullable<Arrangement['kontext']>>(
@@ -286,6 +189,9 @@ export function PlannerPage() {
   const [matchNotice, setMatchNotice] = useState<string | null>(null);
   // Counter behind „Anderer Vorschlag“: 0 is the first proposal for the current text.
   const [variante, setVariante] = useState(0);
+  // A proposal asked for by an example or the chain select: it runs once the fields of step 1 are set (next render).
+  const [matchAuftrag, setMatchAuftrag] = useState<MatchAuftrag | null>(null);
+  const runMatchRef = useRef<((a: MatchAuftrag) => void) | null>(null);
   const [busyAi, setBusyAi] = useState(false);
   const [listening, setListening] = useState(false);
 
@@ -501,6 +407,10 @@ export function PlannerPage() {
     });
   }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups, matchResult]);
 
+  useEffect(() => {
+    if (matchAuftrag) runMatchRef.current?.(matchAuftrag);
+  }, [matchAuftrag]);
+
   const validation = useMemo(() => {
     if (!validator || !arrangement) return null;
     return validator.validate(arrangement, exampleRegistry);
@@ -607,6 +517,7 @@ export function PlannerPage() {
       setOhneInternet(false);
       setOhneKI(false);
       setRaumzeitFilter('');
+      setMehr({});
       setGroups(STANDARD_LEARNER_GROUPS);
       setMatchNotice('Das Beispiel wurde für deine eigene Eingabe zurückgesetzt.');
     }
@@ -655,6 +566,7 @@ export function PlannerPage() {
   const signatureOf = (rows: typeof scenarioRows) => adjustmentSignature(rows, groups, checkConstraints);
 
   const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
+
 
   /**
    * Step 3: one answer per subgroup and phase (fits, help in the method, other method) and short phases the plan
@@ -867,46 +779,38 @@ export function PlannerPage() {
     return extras.length ? `${scenarioText.trim()}\n\nZusatzangaben: ${extras.join('; ')}` : scenarioText;
   };
 
-  const applyStarterPreset = (p: StarterPreset) => {
-    setFach(p.fach);
-    setThema(p.thema);
-    setScenarioText(p.text);
-    setAnsatzCodes(
-      p.ansatz.map((code) =>
-        code === 'instruktion'
-          ? 'instruktionsorientiert'
-          : code === 'diskurs'
-            ? 'diskursiv'
-            : code === 'uebung'
-              ? 'instruktionsorientiert'
-              : code
-      ).filter((v, i, arr) => arr.indexOf(v) === i)
-    );
-    setLernziele(p.lernziele);
-    setProblemstellung(p.problemstellung);
+  /**
+   * An example is a request: it fills the fields of step 1 (with "Mehr Angaben") and asks the core for a proposal, so
+   * the chain, the methods and every check come from the matcher. What was set before is replaced by the example.
+   */
+  const applyBeispiel = (ex: BeispielAnfrage) => {
+    setFach(ex.fach);
+    setThema(ex.thema);
+    setScenarioText(ex.text);
+    setAnsatzCodes([...ex.ansatz]);
+    setCustomAnsatzText('');
+    setLernziele(ex.lernziele);
+    setProblemstellung(ex.problemstellung);
     setMaxTechnik('');
-    setOhneInternet(/ohne\s+internet/i.test(p.text));
+    setOhneInternet(/ohne\s+internet/i.test(ex.text));
     setOhneKI(false);
     setGruppeSize('');
+    setRaumzeitFilter('');
+    setRaum('');
+    setRaumBietet(null);
+    setOhneSchrift([]);
+    setTermine('');
+    setBegleitziele([]);
+    setMehr({ ...ex.mehr });
     setGroups(STANDARD_LEARNER_GROUPS);
-    setPresetContextSource(p.label);
-    const preset = createChainPreset(p.chain, bundle);
-    preset.name = `${p.fach}: ${p.thema}`;
-    preset.kontext = {
-      bildungsstufe: p.bildungsstufe,
-      vorwissen: p.vorwissen,
-      zeitbudgetMin: p.zeitMin
-    };
-    templateFlowRef.current = JSON.stringify(preset);
-    setArrangement(preset);
-    setMatchResult(null);
+    setPresetContextSource(ex.label);
     clearErgaenzungen();
-    resetFlowDerived();
-    setMatchNotice(`Beispiel „${p.label}“ geladen. Sieh dir den Ablauf in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`);
+    setMatchNotice(null);
+    setMatchAuftrag({ nr: Date.now(), art: 'beispiel', label: ex.label });
   };
 
-  const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null) => {
-    const local = extractSubjectAndTopic(scenarioText);
+  const syncTopicFromScenarioText = (serverFach?: string | null, serverThema?: string | null, themaBehalten = false) => {
+    const local = themaBehalten ? { fach: '', thema: '' } : extractSubjectAndTopic(scenarioText);
     const nextFach = (serverFach || local.fach || '').trim();
     const nextThema = (serverThema || local.thema || '').trim();
     const topicChanged =
@@ -949,9 +853,13 @@ export function PlannerPage() {
     return [] as string[];
   };
 
-  const runDeterministicMatch = () => {
+  /**
+   * Asks the core for a proposal for the request of step 1. `auftrag`: the run comes from an example or from the chain
+   * select; then step 1 stays open and the notice says where the flow is. An example keeps its subject and topic.
+   */
+  const runDeterministicMatch = (auftrag?: MatchAuftrag) => {
     setMatchNotice(null);
-    const detectedMatrixTriggers = syncTopicFromScenarioText();
+    const detectedMatrixTriggers = syncTopicFromScenarioText(undefined, undefined, auftrag?.art === 'beispiel');
     const res = matcher.zuordnen(buildStructuredMatchRequest());
     setVariante(0);
     setMatchResult(res);
@@ -962,14 +870,26 @@ export function PlannerPage() {
     if (res.modus === 'ablauf' && res.arrangement) {
       setArrangement(res.arrangement);
       resetFlowDerived();
-      setMatchNotice(`Vorschlag für deinen Ablauf: ${res.kette?.label}. Du kannst ihn hier ansehen und anpassen.`);
-      setStep(2);
+      // The untouched flow of an example belongs to its text: an own description starts from an empty flow again.
+      templateFlowRef.current = auftrag?.art === 'beispiel' ? JSON.stringify(res.arrangement) : null;
+      if (auftrag?.art === 'beispiel') {
+        setMatchNotice(
+          `Beispiel „${auftrag.label}“ geladen: Vorschlag für deinen Ablauf: ${res.kette?.label}. Sieh ihn dir in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`
+        );
+      } else if (auftrag?.art === 'kette') {
+        setMatchNotice(`Neuer Vorschlag mit der Kette ${res.kette?.label}. Deine Angaben bleiben; sieh dir den Ablauf in Schritt 2 an.`);
+      } else {
+        setMatchNotice(`Vorschlag für deinen Ablauf: ${res.kette?.label}. Du kannst ihn hier ansehen und anpassen.`);
+        setStep(2);
+      }
     } else if (res.modus === 'phase') {
       setMatchNotice(
         `Das klingt nach einer einzelnen Phase: ${res.vorschlaege.length} passende Methoden gefunden. Klicke unten eine an, um sie zu übernehmen.${matrixHint}`
       );
     }
   };
+
+  runMatchRef.current = runDeterministicMatch;
 
   /** Next equally suitable flow for the same text; the matcher stays deterministic per variant number. */
   const runOtherProposal = () => {
@@ -1342,7 +1262,22 @@ export function PlannerPage() {
   // A message about several methods (the safety note) stays while any of them is in the arrangement.
   // The answer's parts the draft reads: from the last proposal, else as saved with a loaded scenario.
   const angaben: EntwurfAngaben | null = matchResult ? entwurfAngabenAus(matchResult) : geladeneAngaben;
-  const regelmeldungen = meldungenImAblauf(angaben?.regelmeldungen || [], usedBlocks, bundle?.regeln);
+  // Fit rules for the flow as it is now: the core checks every method in it again in the plan's situation (the last
+  // answer, a choice of "Mehr Angaben" made since wins), so a method swapped in by hand gets its warning and one
+  // swapped out loses it. Notes that are not about one method stay as the answer gave them.
+  const regelLage = regelLageAus({
+    bildungsstufe: arrangement.kontext?.bildungsstufe,
+    vorwissen: arrangement.kontext?.vorwissen,
+    fachbereich: planFachbereich,
+    ...(angaben?.regelLage || {}),
+    ...(matchResult?.kriterien || {}),
+    ...mehrAngabenInAnfrage(mehr)
+  });
+  const regelmeldungen = meldungenImAblauf(
+    passungNeuPruefen(angaben?.regelmeldungen || [], usedBlocks, regelLage, bundle.regeln, labelOf),
+    usedBlocks,
+    bundle?.regeln
+  );
   const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
   const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
@@ -1408,6 +1343,45 @@ export function PlannerPage() {
     generatedMaterials.length === 0 &&
     Object.keys(subgroupMethods).length === 0 &&
     !elaboration;
+
+  // Frame for every picker of another method (replacement in step 2, parallel method in step 3): the request as the
+  // core read it, else the fields of step 1, with the chain and the number of teachers. The core filters the candidates.
+  const kandidatenRahmen: KandidatenRahmen = {
+    constraints: { ...checkConstraints, anfrage: checkConstraints.anfrage ?? (ohneText(buildStructuredMatchRequest()) as MatchRequest) },
+    zieltyp: arrangement.zieltyp,
+    lehrende: mehr.lehrende,
+    ketten: bundle.ketten,
+    regelwerk: regelsatz
+  };  // What the core left out and why (with the method's field), and the helps the request named (no phase).
+  const ausschluesse = ausschlussZeilen(matchResult, blocksById, bundle);
+  const hilfenNamen = genannteHilfenNamen(matchResult, blocksById);
+  const AUSSCHLUSS_SICHTBAR = 8;
+  const ausschlussBlock = () =>
+    ausschluesse.length > 0 ? (
+      <section aria-label="Nicht eingeplant" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--grid)' }}>
+        <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+          {matchResult?.modus === 'ablauf' ? 'Genannt, aber nicht eingeplant' : 'Nicht vorgeschlagen, weil der Bedarf nicht gedeckt ist'}
+        </strong>
+        <ul style={{ margin: '4px 0 0', paddingLeft: 20, fontSize: 14 }}>
+          {ausschluesse.slice(0, AUSSCHLUSS_SICHTBAR).map((z) => (
+            <li key={z.baustein}>
+              <strong>{z.name}</strong> {z.grund}.
+              {z.merkmal && (
+                <div className="muted" style={{ fontSize: 12 }}>
+                  Merkmal: {z.merkmal}
+                  {z.wfeld ? ` · W-Feld: ${z.wfeld}` : ''}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+        {ausschluesse.length > AUSSCHLUSS_SICHTBAR && (
+          <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
+            Dazu {ausschluesse.length - AUSSCHLUSS_SICHTBAR} weitere Methoden.
+          </p>
+        )}
+      </section>
+    ) : null;
 
   const steps: Array<{ id: PlannerStep; label: string; sub: string; needsFlow: boolean }> = [
     { id: 1, label: 'Vorhaben', sub: 'Beschreiben, was du unterrichten willst', needsFlow: false },
@@ -1848,14 +1822,14 @@ export function PlannerPage() {
                     type="button"
                     className="btn"
                     disabled={!canPropose}
-                    onClick={runDeterministicMatch}
+                    onClick={() => runDeterministicMatch()}
                     title="Nutzt nur die festen Regeln der Methodendatenbank, ohne KI"
                   >
                     Ohne KI vorschlagen
                   </button>
                 </>
               ) : (
-                <button type="button" className="btn btn-primary" disabled={!canPropose} onClick={runDeterministicMatch}>
+                <button type="button" className="btn btn-primary" disabled={!canPropose} onClick={() => runDeterministicMatch()}>
                   Ablauf vorschlagen →
                 </button>
               )}
@@ -1914,11 +1888,16 @@ export function PlannerPage() {
                           }
                         }}
                       >
-                        + {v.name} ({v.dauerMin}–{v.dauerMax} min{v.evidenzgrad ? `, Grad ${v.evidenzgrad}` : ''})
+                        + {v.name} ({v.dauerMin}–{v.dauerMax} min
+                        {v.evidenzgrad
+                          ? `, Grad ${v.evidenzgrad}${evidenzBezugBeiGrad(blocksById.get(v.baustein), v.evidenzgrad).map((t) => `, ${t}`).join('')}`
+                          : ''}
+                        )
                       </button>
                     </li>
                   ))}
                 </ul>
+                {ausschlussBlock()}
               </div>
             )}
 
@@ -1976,10 +1955,14 @@ export function PlannerPage() {
               <div style={{ fontFamily: 'var(--display)', fontSize: 13.5, fontWeight: 700, marginBottom: 8 }}>
                 Oder mit einem Beispiel starten
               </div>
+              <p className="muted" style={{ fontSize: 13, margin: '0 0 8px' }}>
+                Ein Beispiel füllt die Angaben oben aus. Den Ablauf schlägt der Baukasten dann so vor wie für deine eigene
+                Beschreibung.
+              </p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {STARTER_PRESETS.map((p) => (
-                  <button key={p.id} type="button" className="btn btn-sm" onClick={() => applyStarterPreset(p)}>
-                    {p.label}
+                {BEISPIEL_ANFRAGEN.map((ex) => (
+                  <button key={ex.id} type="button" className="btn btn-sm" onClick={() => applyBeispiel(ex)}>
+                    {ex.label}
                   </button>
                 ))}
                 {bundle.beispiele.map((ex) => {
@@ -2010,7 +1993,7 @@ export function PlannerPage() {
           {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              Mehr Angaben (freiwillig): Fach, Stufe, Vorwissen, Sprachniveau, Komplexität, Lernziele, Klassengröße, Lehrende, Raum,
+              Mehr Angaben (freiwillig): Fach, Stufe, Vorwissen, Sprachniveau, Komplexität, Funktionskette, Lernziele, Klassengröße, Lehrende, Raum,
               Technik, Lesen und Schreiben, Termine, Nachweis, Bewertung, Einheit, Planungsprofil, Begleitziel
             </summary>
 
@@ -2144,14 +2127,25 @@ export function PlannerPage() {
                     Funktionskette / Zieltyp
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.zieltyp || ''}
+                      value={mehr.zieltyp || (!arrangement.zieltyp && hasFlow ? FREIER_ABLAUF : '')}
                       onChange={(e) => {
-                        setPresetContextSource(null);
-                        if (!e.target.value) setArrangement({ ...arrangement, zieltyp: undefined, name: 'Freier Ablauf' });
-                        else setArrangement(createChainPreset(e.target.value, bundle));
+                        const v = e.target.value;
+                        if (v === FREIER_ABLAUF) {
+                          // Only takes the chain off the current flow; no method is chosen or changed.
+                          setMehrFeld('zieltyp', undefined);
+                          setArrangement({ ...arrangement, zieltyp: undefined, name: 'Freier Ablauf' });
+                          return;
+                        }
+                        // The chain goes into the request; the core proposes again with everything else of step 1.
+                        setMehrFeld('zieltyp', v || undefined);
+                        if (v || canPropose || matchResult) {
+                          const label = bundle.ketten.find((k) => k.id === v)?.label || 'aus der Zielart';
+                          setMatchAuftrag({ nr: Date.now(), art: 'kette', label });
+                        }
                       }}
                     >
-                      <option value="">Freier Ablauf (ohne Kette)</option>
+                      <option value="">Aus der Zielart (Vorschlag des Baukastens)</option>
+                      <option value={FREIER_ABLAUF}>Freier Ablauf (ohne Kette)</option>
                       {bundle.ketten.map((k) => (
                         <option key={k.id} value={k.id}>
                           {k.label}
@@ -2711,6 +2705,16 @@ export function PlannerPage() {
               </ul>
             </section>
           )}
+          {ausschlussBlock()}
+          {hilfenNamen.length > 0 && (
+            <section aria-label="Genannte Hilfen" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Genannte Hilfen: {hilfenNamen.join(', ')}</strong>
+              <p style={{ fontSize: 14, margin: '4px 0 0' }}>
+                Eine Hilfe ist keine eigene Phase. Du ordnest sie in Schritt 3 den Phasen zu, für die ganze Klasse oder für eine
+                Teilgruppe.
+              </p>
+            </section>
+          )}
           {subgroups.length > 0 && hasFlow && (
             <p className="planner-notice" role="status">
               Teilgruppen ({subgroups.map((g) => g.label).join(', ')}) sind vorgemerkt. Hier siehst du den Ablauf für die
@@ -2796,6 +2800,7 @@ export function PlannerPage() {
               regeln={bundle.regeln}
               schemes={bundle.schemes}
               zielart={zielCode}
+              kandidaten={kandidatenRahmen}
               subgroupMethods={{}}
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}
@@ -2816,6 +2821,7 @@ export function PlannerPage() {
               explainedMessages={explainedMessages}
               onOpenOerForStep={(k) => jumpToResources('oer', k)}
               onOpenMaterialForStep={(k) => jumpToResources('material', k)}
+              situation={situationsAnfrage(kandidatenRahmen.constraints)}
             />
           )}
         </section>
@@ -2837,6 +2843,7 @@ export function PlannerPage() {
           )}
           <ScenarioStudioPanel
             mode="diff"
+            kandidaten={kandidatenRahmen}
             diffMiddleSlot={
               subgroups.length > 0 ? (
                 <>
@@ -3004,6 +3011,7 @@ export function PlannerPage() {
                       allBlocks={bundle.bausteine}
                       schemes={bundle.schemes}
                       zielart={zielCode}
+                      kandidaten={kandidatenRahmen}
                       subgroupMethods={subgroupMethods}
                       onSubgroupMethodChange={handleSubgroupMethodChange}
                       onEditDiffMeasure={handleEditDiffMeasure}

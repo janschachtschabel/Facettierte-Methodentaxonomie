@@ -6,6 +6,7 @@ import type {
   Baustein,
   CatalogBundle,
   FmtSearch,
+  MatchRequest,
   ReplacementCandidate,
   WiederkehrNode
 } from '@fmt/core';
@@ -44,6 +45,8 @@ interface Props {
   explainedMessages?: ExplainedValidationMessage[];
   onOpenOerForStep?: (stepKey: string) => void;
   onOpenMaterialForStep?: (stepKey: string) => void;
+  /** Situation of the plan (room, literacy, dates, time, technology); a replacement must cover its needs there. */
+  situation?: MatchRequest;
 }
 
 const RANGE_LABELS: Record<string, string> = {
@@ -97,7 +100,8 @@ export function PartiturView({
   labelOf,
   explainedMessages = [],
   onOpenOerForStep,
-  onOpenMaterialForStep
+  onOpenMaterialForStep,
+  situation
 }: Props) {
   const [swapTarget, setSwapTarget] = useState<{ pfad: string; candidates: ReplacementCandidate[] } | null>(null);
   const { seq, prefix } = getMainSequence(arrangement);
@@ -112,7 +116,8 @@ export function PartiturView({
       return;
     }
     try {
-      const candidates = search.ersatz(arrangement, pfad, registry);
+      // The core keeps methods only, binds the chain step's knowledge type and checks the needs in the situation.
+      const candidates = search.ersatz(arrangement, pfad, registry, situation);
       setSwapTarget({ pfad, candidates });
     } catch {
       setSwapTarget({ pfad, candidates: [] });

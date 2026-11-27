@@ -9,7 +9,7 @@ import { DifferentiationPage } from '../src/pages/DifferentiationPage.js';
 import { DifferentiationMatrixPanel } from '../src/components/DifferentiationMatrixPanel.js';
 import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY } from '../src/planner/scenarioStorage.js';
 import { buildScenarioRows, STANDARD_LEARNER_GROUPS, type LearnerGroup } from '../src/planner/scenarioModel.js';
-import { createChainPreset } from '../src/planner/arrangementOps.js';
+import { createChainPreset } from './kettenVorlage.js';
 import { useState } from 'react';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');

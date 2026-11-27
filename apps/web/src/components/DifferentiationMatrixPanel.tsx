@@ -6,9 +6,8 @@ import {
   DIFF_MATRIX_PERSONAS,
   DIFF_MATRIX_VARIABLES,
   GESPERRTE_MATRIX_KATEGORIEN,
+  OHNE_GLEICHWERTIGKEITSPRUEFUNG,
   scoreDifferentiationMatrix,
-  suggestAlternativeMethodsForGroup,
-  nurMethoden,
   type Baustein,
   type MeasureEffort,
   type MeasureLevel
@@ -24,6 +23,7 @@ import {
   type SubgroupMethodMap
 } from '../planner/scenarioModel.js';
 import { gruppeAusVorlage, setzeGruppenwert } from '../planner/gruppen.js';
+import { parallelMethoden, weitereMethoden, type KandidatenRahmen, type WeitereRahmen } from '../planner/kandidaten.js';
 
 interface Props {
   groups: LearnerGroup[];
@@ -47,6 +47,8 @@ interface Props {
   totalClassSize?: number;
   /** Rendered between the group picker and the detail tabs (step 3: adjust methods, updated plan). */
   middleSlot?: ReactNode;
+  /** Frame of the plan for other methods of a subgroup; the core checks them (needs, binding, equivalence). */
+  kandidaten?: KandidatenRahmen;
 }
 
 type PanelTab = 'udl' | 'konflikte' | 'gruppen' | 'phasen';
@@ -128,7 +130,8 @@ export function DifferentiationMatrixPanel({
   ohneInternet,
   ohneKI,
   totalClassSize,
-  middleSlot
+  middleSlot,
+  kandidaten
 }: Props) {
   const [selectedGroupId, setSelectedGroupId] = useState<string>(groups[0]?.id || 'regel');
   const [activeTab, setActiveTab] = useState<PanelTab>('udl');
@@ -185,8 +188,9 @@ export function DifferentiationMatrixPanel({
   }, [activeGroups, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures]);
 
   const activeMatrix = selectedGroup ? matrixByGroup.get(selectedGroup.id) : null;
-  // Only methods are offered for a phase or a subgroup; a help (eintragsart 'hilfe') is never a parallel method.
-  const sortedBlocks = useMemo(() => nurMethoden(allBlocks).sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);
+  // Other methods for a subgroup go through the core's filter (methods only, needs, binding); without the plan's
+  // frame only the entry kind and the technology of step 1 are checked.
+  const weitereRahmen: WeitereRahmen = kandidaten || { constraints: { maxTechnik, ohneInternet, ohneKI }, ketten: [], regelwerk: { schemes: [] } };
 
   const updateGroup = (id: string, patch: Partial<LearnerGroup>) => {
     onGroupsChange(groups.map((g) => (g.id === id ? { ...g, ...patch } : g)));
@@ -915,27 +919,13 @@ export function DifferentiationMatrixPanel({
                           const diff = r.differentiation.find((d) => d.groupId === g.id);
                           const altId = subgroupMethods[r.key]?.[g.id] || '';
                           const mRes = matrixByGroup.get(g.id);
+                          // Equivalent parallel methods for this subgroup, checked by the core.
                           const suggestedAlts =
-                            mRes && r.block && g.focus !== 'regel'
-                              ? suggestAlternativeMethodsForGroup(mRes, r.block, allBlocks, 5, r.durationMin, {
-                                  maxTechnik,
-                                  ohneInternet,
-                                  ohneKI
-                                })
+                            mRes && r.block && g.focus !== 'regel' && kandidaten
+                              ? parallelMethoden(mRes, r, g, allBlocks, kandidaten, 5).alternativen
                               : [];
                           const sugIds = new Set(suggestedAlts.map((x) => x.kennung));
-                          const rangeOrd: Record<string, number> = { r1: 1, r2: 2, r3: 3, r4: 4, r5: 5 };
-                          const curRank = r.block ? rangeOrd[r.block.reichweite] ?? 2 : 2;
-                          const fns = new Set(r.block?.lernfunktion || []);
-                          const maxDur = Math.max(r.durationMin * 1.5, r.block?.dauerMax ?? 45);
-                          const compatRest = sortedBlocks.filter(
-                            (b) =>
-                              b.kennung !== r.methodId &&
-                              !sugIds.has(b.kennung) &&
-                              b.lernfunktion.some((f) => fns.has(f)) &&
-                              (rangeOrd[b.reichweite] ?? 2) <= curRank &&
-                              b.dauerMin <= maxDur
-                          );
+                          const compatRest = g.focus !== 'regel' ? weitereMethoden(r, allBlocks, weitereRahmen, sugIds) : [];
                           const textareaId = `diff-measure-${r.key}-${g.id}`;
                           return (
                             <div
@@ -974,7 +964,7 @@ export function DifferentiationMatrixPanel({
                                     >
                                       <option value="">Gleiche Methode wie Hauptgruppe (nur anpassen)</option>
                                       {suggestedAlts.length > 0 && (
-                                        <optgroup label="★ Passend zu Matrix, Zweck & Granularität">
+                                        <optgroup label="★ Gleichwertig für diese Gruppe (geprüft)">
                                           {suggestedAlts.map((a) => (
                                             <option key={a.kennung} value={a.kennung}>
                                               ★ {a.name} ({a.dauerMin}–{a.dauerMax} Min. · {a.grund})
@@ -983,7 +973,7 @@ export function DifferentiationMatrixPanel({
                                         </optgroup>
                                       )}
                                       {compatRest.length > 0 && (
-                                        <optgroup label="✓ Weitere passende Methoden">
+                                        <optgroup label={`✓ Weitere Methoden${kandidaten ? ', Bedarf gedeckt' : ''} (${OHNE_GLEICHWERTIGKEITSPRUEFUNG})`}>
                                           {compatRest.map((b) => (
                                             <option key={b.kennung} value={b.kennung}>
                                               {b.name} ({b.dauerMin}–{b.dauerMax} Min.)

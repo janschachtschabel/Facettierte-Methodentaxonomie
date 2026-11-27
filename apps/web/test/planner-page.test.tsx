@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createMatcher, createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
+import { baueSituation, createMatcher, createSearch, createValidator, erstelleRegeln, istMethode, ungedeckterBedarf, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PlannerPage } from '../src/pages/PlannerPage.js';
-import { createChainPreset } from '../src/planner/arrangementOps.js';
+import { createChainPreset } from './kettenVorlage.js';
 import { regelZeile } from '../src/planner/regelmeldung.js';
 import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY, SAVED_SCENARIOS_KEY } from '../src/planner/scenarioStorage.js';
 
@@ -983,5 +983,162 @@ describe('N3-Fix I1: Geleertes gilt sofort im Entwurf; das Planungsprofil findet
     fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
     expect(document.body.textContent).toContain('Kursverlaufsplan');
     expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+  });
+});
+
+describe('Beispiele, Kettenwahl und Schritt 2 über den Kern (App-Nachzug N4)', () => {
+  const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+  const feld = (label: string) => within(mehrAngaben()).getByLabelText(label) as HTMLSelectElement | HTMLInputElement;
+
+  it('ein Beispiel füllt Schritt 1 samt „Mehr Angaben“ und fragt den Kern; der Ablauf ist sein Vorschlag', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: 'Mathe · Bruchrechnen (90 min)' }));
+    expect((screen.getByLabelText('Unterrichtsvorhaben beschreiben') as HTMLTextAreaElement).value).toMatch(/^Mathematik Bruchrechnen/);
+    expect(feld('Bildungsstufe').value).toBe('sek1');
+    expect(feld('Vorwissen').value).toBe('gering');
+    expect(feld('Zeitbudget (Min.)').value).toBe('90');
+    const req = spy.mock.calls.at(-1)![0]!;
+    expect(req).toMatchObject({ bildungsstufe: 'sek1', vorwissen: 'gering', zeitMin: 90 });
+    expect(req.zieltyp).toBeUndefined();
+    const res = spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>;
+    expect(res.modus).toBe('ablauf');
+    expect(screen.getByText(/Beispiel „Mathe · Bruchrechnen \(90 min\)“ geladen/)).toBeTruthy();
+    // The proposal of the core, with its line "Verstanden" (not a fixed flow without an answer).
+    fireEvent.click(stepButton(2));
+    expect(screen.getByRole('region', { name: 'Verstanden' })).toBeTruthy();
+    const schritte = res.modus === 'ablauf' ? res.schritte || [] : [];
+    expect(schritte.length).toBeGreaterThan(0);
+    for (const st of schritte) expect(screen.getAllByText(st.name).length, st.name).toBeGreaterThan(0);
+    spy.mockRestore();
+  });
+
+  it('das Berufsschul-Beispiel führt über die Zielart zur vollständigen Handlung', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /^Berufsschule · Kundenauftrag/ }));
+    const res = spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>;
+    expect(res.modus === 'ablauf' && res.kette?.id).toBe('vollstaendige-handlung');
+    expect(feld('Bildungsstufe').value).toBe('berufsbildung');
+    spy.mockRestore();
+  });
+
+  it('eigene Eingabe nach einem Beispiel leert auch dessen „Mehr Angaben“', () => {
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: 'Mathe · Bruchrechnen (90 min)' }));
+    fireEvent.change(screen.getByLabelText('Unterrichtsvorhaben beschreiben'), { target: { value: 'Sport Klasse 5, Ausdauer' } });
+    expect(feld('Bildungsstufe').value).toBe('');
+    expect(feld('Vorwissen').value).toBe('');
+  });
+
+  it('Funktionskette: die Wahl geht als zieltyp in die Anfrage, der eigene Kontext bleibt, der Kern schlägt neu vor', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'fachraum' } });
+    propose('Elektrotechnik Klasse 11, Schaltungen aufbauen, 90 Minuten');
+    fireEvent.click(stepButton(1));
+    const vorher = spy.mock.calls.length;
+    fireEvent.change(feld('Funktionskette / Zieltyp'), { target: { value: 'vollstaendige-handlung' } });
+    expect(spy.mock.calls.length).toBeGreaterThan(vorher);
+    const req = spy.mock.calls.at(-1)![0]!;
+    expect(req).toMatchObject({ zieltyp: 'vollstaendige-handlung', raum: 'fachraum' });
+    expect(req.text).toBe('Elektrotechnik Klasse 11, Schaltungen aufbauen, 90 Minuten');
+    const res = spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>;
+    expect(res.modus === 'ablauf' && res.arrangement?.zieltyp).toBe('vollstaendige-handlung');
+    expect(feld('Funktionskette / Zieltyp').value).toBe('vollstaendige-handlung');
+    expect(screen.getByText(/Neuer Vorschlag mit der Kette Berufliche Handlung/)).toBeTruthy();
+    // A new proposal keeps the chosen chain; "aus der Zielart" takes it out of the request again.
+    propose('Elektrotechnik Klasse 11, Schaltungen aufbauen, 90 Minuten');
+    expect(spy.mock.calls.at(-1)![0]!.zieltyp).toBe('vollstaendige-handlung');
+    fireEvent.click(stepButton(1));
+    fireEvent.change(feld('Funktionskette / Zieltyp'), { target: { value: '' } });
+    expect(spy.mock.calls.at(-1)![0]!.zieltyp).toBeUndefined();
+    spy.mockRestore();
+  });
+
+  it('Schritt 2 nennt Ausgeschlossenes mit Merkmal und W-Feld und die genannten Hilfen', () => {
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    propose('Statistik Hypothesentests, 90 Minuten, mit Autogrammjagd und Satzmuster und Redemittel');
+    const box = screen.getByRole('region', { name: 'Nicht eingeplant' });
+    expect(box.textContent).toContain('Autogrammjagd (Find Someone Who) braucht: Stellfläche.');
+    expect(box.textContent).toContain('Merkmal: Raumbedarf · W-Feld: Lernumgebung (Wo wird gelernt?)');
+    const hilfen = screen.getByRole('region', { name: 'Genannte Hilfen' });
+    expect(hilfen.textContent).toContain('Satzmuster und Redemittel');
+    expect(hilfen.textContent).toMatch(/keine eigene Phase.*Schritt 3/);
+  });
+
+  it('Schritt 2 zeigt neben dem Grad, worauf sich der Befund bezieht', () => {
+    renderPlanner();
+    propose('Mathematik Bruchrechnen Klasse 6, 90 Minuten, mit Lehrervortrag');
+    const bezug = screen.getByLabelText('Evidenzbezug Lehrervortrag (klassisch)');
+    expect(bezug.textContent).toBe('Befund zur Methode');
+  });
+
+  it('nach einem Tausch von Hand prüft der Kern die Passungsregeln neu', () => {
+    renderPlanner();
+    fireEvent.change(feld('Vorwissen'), { target: { value: 'hoch' } });
+    propose('Mathematik Bruchrechnen Klasse 6, 90 Minuten, mit Lehrervortrag');
+    const vorTausch = screen.getByLabelText('Hinweise zu Lehrervortrag (klassisch)');
+    expect(vorTausch.textContent).toContain(regelZeile(erstelleRegeln(BUNDLE.regeln).warnungen(CATALOG.blocksById.get('lehrervortrag')!, { vorwissen: 'hoch' })[0], BUNDLE.regeln));
+    fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
+    const selects = screen.getAllByLabelText(/^Baustein für Schritt \d+$/) as HTMLSelectElement[];
+    const select = selects.find((s) => s.value === 'lehrervortrag')!;
+    expect(select).toBeTruthy();
+    const regeln = erstelleRegeln(BUNDLE.regeln);
+    const ersatz = within(select)
+      .getAllByRole('option')
+      .map((o) => (o as HTMLOptionElement).value)
+      .map((k) => BUNDLE.bausteine.find((b) => b.kennung === k)!)
+      .find((b) => b.kennung !== 'lehrervortrag' && regeln.warnungen(b, { vorwissen: 'hoch' }).length > 0)!;
+    expect(ersatz).toBeTruthy();
+    fireEvent.change(select, { target: { value: ersatz.kennung } });
+    fireEvent.click(screen.getByRole('button', { name: /Übersicht/ }));
+    expect(screen.queryByLabelText('Hinweise zu Lehrervortrag (klassisch)')).toBeNull();
+    const neu = screen.getByLabelText(`Hinweise zu ${ersatz.name}`);
+    const erwartet = regeln.warnungen(ersatz, { vorwissen: 'hoch' })[0];
+    expect(neu.textContent).toContain(regelZeile(erwartet, BUNDLE.regeln));
+  });
+
+  it('Schritt 3: andere Methoden für eine Teilgruppe kommen durch den Kernfilter (nur Methoden, Bedarf im Raum gedeckt)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    propose('Biologie Klasse 7, Fotosynthese, 45 Minuten, Teilgruppe: 4 Lernende DaZ Niveau A2');
+    const kriterien = (spy.mock.results.at(-1)!.value as ReturnType<typeof CATALOG.matcher.zuordnen>).kriterien;
+    fireEvent.click(stepButton(3));
+    fireEvent.click(screen.getByRole('button', { name: '✏ Hinweise und Methoden bearbeiten' }));
+    const selects = screen.getAllByLabelText(/^Alternative Methode für /) as HTMLSelectElement[];
+    expect(selects.length).toBeGreaterThan(0);
+    const { text: _t, ...anfrage } = kriterien as Record<string, unknown>;
+    const lage = baueSituation(anfrage, BUNDLE);
+    let angeboten = 0;
+    for (const sel of selects) {
+      for (const group of Array.from(sel.querySelectorAll('optgroup'))) {
+        expect(group.label).toMatch(/Gleichwertig für diese Gruppe \(geprüft\)|Bedarf gedeckt \(ohne Gleichwertigkeitsprüfung\)/);
+      }
+      for (const o of Array.from(sel.options).filter((x) => x.value)) {
+        const b = CATALOG.blocksById.get(o.value)!;
+        expect(istMethode(b), b.kennung).toBe(true);
+        expect(ungedeckterBedarf(b, anfrage, lage, BUNDLE), b.kennung).toBeNull();
+        angeboten++;
+      }
+    }
+    expect(angeboten).toBeGreaterThan(0);
+    spy.mockRestore();
+  });
+
+  it('„Ersatz prüfen“ gibt die Situation des Plans an den Kern (search.ersatz)', () => {
+    const spy = vi.spyOn(CATALOG.search, 'ersatz');
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'hoersaal' } });
+    fireEvent.click(screen.getByLabelText('Die Lernenden können noch nicht lesen'));
+    propose('Statistik Hypothesentests, 90 Minuten');
+    fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Ersatz prüfen/ })[0]);
+    const situation = spy.mock.calls.at(-1)![3]!;
+    expect(situation).toMatchObject({ raum: 'hoersaal', ohneSchrift: ['lesen'] });
+    expect(situation.text).toBeUndefined();
+    spy.mockRestore();
   });
 });

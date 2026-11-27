@@ -6,7 +6,6 @@ import { createSearch, createMatcher, createValidator, type Arrangement, type Ca
 import {
   appendBlockToArrangement,
   collectUsedBlocks,
-  createChainPreset,
   createEmptyArrangement,
   findNextVariant,
   exportArrangementHtmlHandout,
@@ -26,6 +25,7 @@ import {
   updateSlotDuration,
   wrapStepInAlternative
 } from '../src/planner/arrangementOps.js';
+import { createChainPreset } from './kettenVorlage.js';
 import { explainValidationMessage } from '../src/planner/validationHelpers.js';
 import {
   buildNeutralLearningScenario,

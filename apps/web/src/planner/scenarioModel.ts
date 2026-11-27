@@ -19,6 +19,7 @@ import {
 } from '@fmt/core';
 import { getMainSequence } from './arrangementOps.js';
 import { safeOerList } from './safeUrl.js';
+import { evidenzBezugBeiGrad } from './evidenz.js';
 
 export interface LearnerGroup {
   id: string;
@@ -110,6 +111,8 @@ export interface ScenarioPhaseRow {
   methodRange: string;
   methodUrl: string;
   evidenceGrade: string | null;
+  /** What the findings of that grade rest on, in plain German ("Befund zur Methode"). */
+  evidenceBezug?: string[];
   teacherRole: string;
   learnerRole: string;
   socialForm: string;
@@ -124,6 +127,8 @@ export interface ScenarioPhaseRow {
   chainRole?: string;
   /** The phase fills the chain's check step (istPruefschritt). */
   chainCheck?: boolean;
+  /** Id of the chain step the phase fills (its knowledge type binds a replacement). */
+  chainStep?: string;
 }
 
 export interface MaterialTypeOption {
@@ -388,7 +393,8 @@ export function buildScenarioRows(
     slotKennung?: string,
     parentName?: string,
     chainRole?: string,
-    chainCheck?: boolean
+    chainCheck?: boolean,
+    chainStepId?: string
   ): ScenarioPhaseRow => {
     const b = blocksById.get(node.baustein);
     const social = (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || '–';
@@ -410,6 +416,7 @@ export function buildScenarioRows(
       methodRange: (b?.reichweite || '').toUpperCase(),
       methodUrl: `${baseUrl}/methoden/${node.baustein}`,
       evidenceGrade: gradeOf(b),
+      ...(evidenzBezugBeiGrad(b, gradeOf(b)).length ? { evidenceBezug: evidenzBezugBeiGrad(b, gradeOf(b)) } : {}),
       teacherRole: b ? summarizeTeacherRole(b, labelOf) : 'Moderation',
       learnerRole: b ? summarizeLearnerRole(b, labelOf) : 'Bearbeitung',
       socialForm: social,
@@ -421,7 +428,8 @@ export function buildScenarioRows(
       generatedMaterials: generatedMaterials.filter((m) => m.stepKey === key),
       block: b,
       ...(chainRole ? { chainRole } : {}),
-      ...(chainCheck ? { chainCheck } : {})
+      ...(chainCheck ? { chainCheck } : {}),
+      ...(chainStepId ? { chainStep: chainStepId } : {})
     };
   };
 
@@ -433,7 +441,7 @@ export function buildScenarioRows(
 
     if (node.typ === 'Einsatz') {
       const parentBlock = blocksById.get(node.baustein);
-      rows.push(makeRow(`step-${realIdx}`, `${visIdx + 1}`, realIdx, phaseLabel, node, false, undefined, undefined, chainStep?.rolle, check));
+      rows.push(makeRow(`step-${realIdx}`, `${visIdx + 1}`, realIdx, phaseLabel, node, false, undefined, undefined, chainStep?.rolle, check, chainStep?.id));
       (node.belegung || []).forEach((bel, si) => {
         if (bel.inhalt.typ === 'Einsatz') {
           const sl = parentBlock?.slot?.find((s) => s.kennung === bel.slotKennung);
@@ -465,7 +473,8 @@ export function buildScenarioRows(
               undefined,
               undefined,
               chainStep?.rolle,
-              check
+              check,
+              chainStep?.id
             )
           );
         }
@@ -499,6 +508,7 @@ export function buildScenarioRows(
       methodRange: (b?.reichweite || 'r1').toUpperCase(),
       methodUrl: `${baseUrl}/methoden/${wk.baustein}`,
       evidenceGrade: gradeOf(b),
+      ...(evidenzBezugBeiGrad(b, gradeOf(b)).length ? { evidenceBezug: evidenzBezugBeiGrad(b, gradeOf(b)) } : {}),
       teacherRole: 'Verteilte Abruftermine ansetzen und kurz auswerten',
       learnerRole: b ? summarizeLearnerRole(b, labelOf) : 'Wiederholter Abruf',
       socialForm: (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || 'Einzelarbeit',
