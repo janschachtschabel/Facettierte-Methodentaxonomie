@@ -369,8 +369,14 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
     renderPlanner();
     propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
-    fireEvent.change(screen.getByLabelText('Zeit in Minuten ergänzen'), { target: { value: '45' } });
-    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal, Doppelstunde, 90 Minuten');
+    const zeit = screen.getByLabelText('Zeit in Minuten ergänzen') as HTMLInputElement;
+    fireEvent.change(zeit, { target: { value: '45' } });
+    // Typing in the text keeps the completion; the gap-only check lets the time in the text win.
+    fireEvent.change(screen.getByLabelText('Unterrichtsvorhaben beschreiben'), {
+      target: { value: 'Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal, Doppelstunde, 90 Minuten' }
+    });
+    expect(zeit.value).toBe('45');
+    fireEvent.click(screen.getByRole('button', { name: /Ablauf vorschlagen/ }));
     expect(spy.mock.calls.at(-1)![0]!.zeitMin).toBeUndefined();
     expect((spy.mock.results.at(-1)!.value as { kriterien: { zeitMin?: number } }).kriterien.zeitMin).toBe(90);
 
@@ -383,6 +389,17 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     fireEvent.click(stepButton(1));
     propose('etwas über Tiere');
     expect(spy.mock.calls.at(-1)![0]!.bildungsstufe).toBeUndefined();
+    spy.mockRestore();
+  });
+
+  it('Ergänzungen bleiben beim Tippen im Text erhalten (Fix-Welle B, Punkt 7)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(1));
+    fireEvent.change(screen.getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'primar' } });
+    propose('etwas über Pflanzen und Tiere');
+    expect(spy.mock.calls.at(-1)![0]!.bildungsstufe).toBe('primar');
     spy.mockRestore();
   });
 

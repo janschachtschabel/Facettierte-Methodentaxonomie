@@ -518,14 +518,13 @@ export function PlannerPage() {
    * Fach/Thema/Lernziele/Ansätze never contaminate the new scenario.
    */
   const handleScenarioTextChange = (nextText: string) => {
+    // Completions stay while typing: buildRequest sends a completion only for a gap the text leaves open.
     setScenarioText(nextText);
-    clearErgaenzungen();
     if (templateFlowRef.current && JSON.stringify(arrangement) === templateFlowRef.current) {
       // The untouched template flow belongs to the template text; an own description starts from an empty flow.
       templateFlowRef.current = null;
       setArrangement(createEmptyArrangement(bundle));
       setMatchResult(null);
-    clearErgaenzungen();
       resetFlowDerived();
       setMatchNotice('Der Ablauf des Beispiels wurde für deine eigene Eingabe geleert.');
     }
@@ -1830,7 +1829,7 @@ export function PlannerPage() {
                         setArrangement(JSON.parse(JSON.stringify(ex)) as Arrangement);
                         templateFlowRef.current = null;
                         setMatchResult(null);
-    clearErgaenzungen();
+                        clearErgaenzungen();
                         setMatchNotice(null);
                         resetFlowDerived();
                         setStep(2);
