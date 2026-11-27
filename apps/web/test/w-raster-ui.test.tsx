@@ -71,6 +71,22 @@ describe('W-Raster in der Oberfläche', () => {
     expect(sec.textContent).not.toMatch(/Lernort/);
   });
 
+  it('Systematik zeigt die Kette vollständige Handlung mit ihrer Grundlage (Paket D, D5)', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    const tabelle = screen.getByRole('table', { name: 'Funktionsketten' });
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(BUNDLE.ketten.length);
+    const zeile = within(tabelle).getByText('Berufliche Handlung (vollständige Handlung)').closest('tr') as HTMLElement;
+    expect(within(zeile).getByText(/Auftrag analysieren, informieren/)).toBeTruthy();
+    expect(zeile.textContent).toContain('Grundlage: ungeklärt (U)');
+    expect(zeile.textContent).toContain('KMK 2021: Lernsituationen im Lernfeld; Lernwirksamkeit der Phasenfolge kaum geprüft');
+    const ziele = screen.getByRole('table', { name: 'Zielarten' });
+    expect(within(ziele).getAllByText('Berufliche Handlung (vollständige Handlung)').length).toBe(1);
+  });
+
   it('Systematik zeigt die Passungsregeln aus den Daten neben den 13 Kompositionsregeln (Task B4)', () => {
     render(
       <MemoryRouter>

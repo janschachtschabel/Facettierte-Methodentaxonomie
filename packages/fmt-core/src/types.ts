@@ -270,6 +270,10 @@ export interface Funktionskette {
   zielart?: string[];
   /** Approaches (vocab ansatz) that pick this chain among those of one goal kind. */
   ansatz?: string[];
+  /** Evidence basis of the step sequence (FMT 2.0); a chain without it is a setting of the data. */
+  grundlage?: Grundlage;
+  /** Source of the chain, shown with its basis. */
+  quelle?: string;
   closeMatch?: string | string[];
   relatedMatch?: string | string[];
   broadMatch?: string | string[];

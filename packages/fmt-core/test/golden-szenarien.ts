@@ -190,6 +190,18 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Geschichte Klasse 8, Industrialisierung, 45 Minuten, Bildungssprache und soziales Lernen', erwartet: { begleitziel: ['sprache', 'sozial'] } },
   // A team workshop on collaboration names its topic, not an accompanying goal.
   { text: 'Teamworkshop in einer Firma, 15 Mitarbeitende, Zusammenarbeit verbessern, halber Tag', erwartet: {}, nicht: { begleitziel: ['sozial'] } },
+  // Complete action (Paket D, D5): the keywords name the goal kind only together with vocational education; a short
+  // instruction (n14) stays a movement skill.
+  { text: 'Berufsschule, Lernfeld 3 Kfz-Mechatronik, Bremsanlage prüfen, Werkstatt, 180 Minuten', erwartet: { bildungsstufe: 'berufsbildung', zielart: 'handlung' } },
+  { text: 'Berufsschule Industriekaufleute: Lernsituation Angebot erstellen, 90 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Ausbildung Elektroniker, Kundenauftrag Beleuchtung planen, 135 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Auszubildende Tischler, Arbeitsauftrag Regal bauen, 180 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Berufsschule, vollstaendige Handlung: Wartung einer Pumpe, 90 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten', erwartet: { zielart: 'bewegung' } },
+  { text: 'Deutsch Klasse 8: Lernsituation Kundenauftrag, 45 Minuten', erwartet: {}, nicht: { zielart: 'handlung' } },
+  // A goal kind with higher priority read from the text wins over the keyword.
+  { text: 'Berufsschule Elektroniker, Lernfeld 2: Schaltpläne lesen, 90 Minuten', erwartet: { zielart: 'prozeduren' } },
+  { text: 'Fachinformatiker Lernfeld 3: Netzwerk planen, 90 Minuten', erwartet: {}, nicht: { zielart: 'handlung' } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

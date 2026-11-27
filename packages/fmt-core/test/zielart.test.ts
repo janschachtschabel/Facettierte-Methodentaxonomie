@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen, traegtBegleitziel, lesart, LESART_JE_ZIELART } from '../src/zielart.js';
 import type { Baustein } from '../src/types.js';
+import { createMatcher, createValidator } from '../src/index.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -58,9 +59,12 @@ describe('Bindung der Wissensart', () => {
     expect(wissensartenVon({ aufgabe: ['afb2', 'prozeduren', 'fall', 'konzepte'] } as unknown as Baustein).sort()).toEqual(['konzepte', 'prozeduren']);
   });
   it('jede Hauptschritt und Sicherungsschritt trägt eine Wissensart, Randschritte keine', () => {
+    // Taken verbatim from the FMT 2.0 rule set without a knowledge type (Paket D, D5): checking one's own work binds no
+    // knowledge type, every diagnosing method carries the step.
+    const ohneBindung = ['vollstaendige-handlung/h4'];
     for (const k of D.ketten)
       for (const s of k.schritte) {
-        if (s.rolle === 'rand') expect(s.wissensart, `${k.id}/${s.id}`).toBeUndefined();
+        if (s.rolle === 'rand' || ohneBindung.includes(`${k.id}/${s.id}`)) expect(s.wissensart, `${k.id}/${s.id}`).toBeUndefined();
         else expect(s.wissensart?.length, `${k.id}/${s.id}`).toBeGreaterThan(0);
       }
   });
@@ -169,5 +173,58 @@ describe('Lesarten der Lernstände je Zielart (Paket D, D4)', () => {
       ['lernstand-diagnostiziert', 'Lernstand diagnostiziert'],
       ['lernen-reflektiert', 'Eigenes Lernen reflektiert']
     ]);
+  });
+});
+
+describe('Kette „vollständige Handlung“ (Paket D, D5)', () => {
+  const M = createMatcher(D, createValidator(D));
+  it('steht wörtlich aus dem Regelsatz in den Daten, gebunden an die Zielart handlung, Grundlage ungeklärt', () => {
+    const k = kette('vollstaendige-handlung');
+    expect(k.label).toBe('Berufliche Handlung (vollständige Handlung)');
+    expect(k.zielart).toEqual(['handlung']);
+    expect(k.grundlage).toBe('U');
+    expect(k.quelle).toBe('KMK 2021: Lernsituationen im Lernfeld; Lernwirksamkeit der Phasenfolge kaum geprüft');
+    expect(k.schritte.map((s) => [s.id, s.label, s.funktion, s.ziel, s.rolle, s.zeitanteil, s.wissensart])).toEqual([
+      ['h1', 'Auftrag analysieren, informieren', ['orientierung'], 'problem-erschlossen', 'rand', 10, undefined],
+      ['h2', 'Planen und entscheiden', ['problemloesen', 'verstehen'], 'loesungsversuche', 'haupt', 20, ['prozeduren', 'konzepte']],
+      ['h3', 'Ausführen', ['anwendung', 'konsolidierung'], 'prozedur-gelaeufig', 'haupt', 45, ['prozeduren', 'psychomotorik']],
+      ['h4', 'Kontrollieren', ['diagnose'], 'lernstand-diagnostiziert', 'sicherung', 13, undefined],
+      ['h5', 'Bewerten und reflektieren', ['metakognition'], 'lernen-reflektiert', 'rand', 12, undefined]
+    ]);
+  });
+  it('Zielart handlung wählt die Kette', () => {
+    expect(wahl({ zielart: 'handlung' })?.kette.id).toBe('vollstaendige-handlung');
+    expect(wahl({ zielart: 'handlung' })?.grund).toBe('zielart');
+  });
+  it('n13: Lernfeld in der Berufsschule ergibt die Kette vollständige Handlung', () => {
+    const r = M.zuordnen({ text: 'Berufsschule, Lernfeld 3 Kfz-Mechatronik, Bremsanlage prüfen, Werkstatt, 180 Minuten' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(r.kette?.id).toBe('vollstaendige-handlung');
+      expect(r.pruefung?.gueltig).toBe(true);
+    }
+  });
+  it('n14: eine kurze Unterweisung bleibt Bewegung und Einzelphase', () => {
+    const r = M.zuordnen({ text: 'Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten' });
+    expect(r.modus).toBe('phase');
+    expect(M.lesen('Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten').kriterien.zielart).toBe('bewegung');
+  });
+  it('Prüfschritt ohne Wissensart: eine praktische Prüfung, die nicht in die Zeit oder nicht zum Fach passt, wird gesagt, nicht geplant', () => {
+    const r = M.zuordnen({ text: 'Elektroniker Lernfeld 3, Fehlersuche an Schaltungen, 45 Minuten, am Ende praktische Prüfung' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('vollstaendige-handlung');
+    if (r.modus !== 'ablauf') return;
+    expect(r.pruefung?.dauerMin).toBeLessThanOrEqual(45);
+    const h4 = (r.schritte || []).find((s) => s.schritt === 'h4')!;
+    expect(['fall-simulation-osce', 'sportmotorischer-test']).not.toContain(h4.baustein);
+    expect((r.regelmeldungen || []).some((x) => x.regel === 'nachweis-passt-zum-ziel')).toBe(true);
+  });
+  it('Leseregel nur mit Bildungsstufe berufsbildung; eine angegebene Bildungsstufe zählt, eine angegebene Zielart gewinnt', () => {
+    expect(M.lesen('Lernsituation Angebot erstellen, 90 Minuten').kriterien.zielart).toBeUndefined();
+    expect(M.lesen('Lernsituation Angebot erstellen, 90 Minuten', 'berufsbildung').kriterien.zielart).toBe('handlung');
+    expect(M.lesen('Berufsschule: Lernsituation Angebot erstellen, 90 Minuten', 'sek2').kriterien.zielart).toBeUndefined();
+    const r = M.zuordnen({ text: 'Berufsschule, Lernsituation Angebot erstellen, 90 Minuten', zielart: 'konzepte' });
+    if (r.modus === 'ablauf') expect(r.kette?.id).not.toBe('vollstaendige-handlung');
+    const r2 = M.zuordnen({ text: 'Lernsituation Angebot erstellen, 90 Minuten', bildungsstufe: 'berufsbildung' });
+    expect(r2.modus === 'ablauf' && r2.kette?.id).toBe('vollstaendige-handlung');
   });
 });

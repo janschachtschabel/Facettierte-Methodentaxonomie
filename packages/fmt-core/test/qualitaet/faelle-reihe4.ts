@@ -86,7 +86,7 @@ export const REIHE4: Qualitaetsfall[] = [
     id: 'n13',
     text: 'Berufsschule, Lernfeld 3 Kfz-Mechatronik, Bremsanlage prüfen, Werkstatt, 180 Minuten',
     erwartet: { kette: 'vollstaendige-handlung', planungsprofil: 'berufsschule' },
-    bekannt: { kette: 'Paket D', profil: 'Paket D' }
+    bekannt: { profil: 'Paket D' }
   },
   {
     id: 'n14',

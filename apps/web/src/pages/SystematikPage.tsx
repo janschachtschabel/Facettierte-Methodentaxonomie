@@ -967,7 +967,7 @@ export function SystematikPage() {
           zählen nicht zum Budget der geplanten Stunde.
         </p>
         <div className="scroll">
-          <table>
+          <table aria-label="Funktionsketten">
             <thead>
               <tr>
                 <th>Funktionskette</th>
@@ -979,7 +979,15 @@ export function SystematikPage() {
                 const total = k.schritte.reduce((n, st) => n + (st.zeitanteil || 0), 0);
                 return (
                   <tr key={k.id}>
-                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{k.label}</td>
+                    <td>
+                      <span style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{k.label}</span>
+                      {k.grundlage ? (
+                        <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
+                          Grundlage: {GRUNDLAGE_TEXT[k.grundlage] || k.grundlage}
+                          {k.quelle ? ` – ${k.quelle}` : ''}
+                        </div>
+                      ) : null}
+                    </td>
                     <td>
                       <ul className="chips">
                         {k.schritte.map((st) => (

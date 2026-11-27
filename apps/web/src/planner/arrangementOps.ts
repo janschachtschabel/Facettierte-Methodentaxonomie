@@ -322,6 +322,24 @@ export function createChainPreset(zieltyp: string, bundle: CatalogBundle): Arran
     };
   }
 
+  if (zieltyp === 'vollstaendige-handlung') {
+    return {
+      ...base,
+      kontext: { bildungsstufe: 'berufsbildung', vorwissen: 'mittel', zeitbudgetMin: 180 },
+      ablauf: {
+        typ: 'Sequenz',
+        teile: [
+          E('ankerfall', 20, { kettenschritt: 'h1' }),
+          E('erfindungsaufgabe', 35, { kettenschritt: 'h2' }),
+          E('vier-stufen-methode', 45, { kettenschritt: 'h3' }),
+          E('praxisauftrag-arbeitsplatz', 30, { kettenschritt: 'h3' }),
+          E('fall-simulation-osce', 30, { kettenschritt: 'h4' }),
+          E('reflexionsprompt', 10, { kettenschritt: 'h5' })
+        ]
+      }
+    };
+  }
+
   if (zieltyp === 'produktion') {
     return {
       ...base,

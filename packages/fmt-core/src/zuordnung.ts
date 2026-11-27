@@ -806,6 +806,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     [/\bzentralperspektive\b|\bcollage\w*/, 'aesthetik']
   ];
 
+  /** Keywords of a vocational learning situation (Paket D, D5); they count only together with the stage berufsbildung. */
+  const HANDLUNG_WORTE = /\blernfeld\w*|\blernsituation\w*|\bvollst(?:a|ae)ndige\w*\s+handlung\b|\bkundenauftrag\w*|\barbeitsauftrag\w*/;
+
   const subjects = createSubjectDetector(data.faecher);
 
   function lesen(volltext: string, stufe?: string) {
@@ -828,6 +831,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const m = re.exec(NEGATION_AWARE.has(feld) ? t : tPos);
       if (m) take(feld, fn(m), m[0].trim());
     });
+    // A learning situation of vocational education (Paket D, D5) names the goal kind handlung, but only at the stage
+    // berufsbildung (stated, or read from the text) and only when no goal kind or chain was read above and no action
+    // verb names one ("Lernfeld 3: Netzwerk planen" stays a project): those are more specific and win.
+    if (
+      !('zielart' in kriterien) &&
+      !('zieltyp' in kriterien) &&
+      (stufe || kriterien.bildungsstufe) === 'berufsbildung' &&
+      !VERB_CHAINS.some(([re]) => re.test(tPos))
+    ) {
+      const m = HANDLUNG_WORTE.exec(tPos);
+      if (m) take('zielart', 'handlung', m[0].trim());
+    }
     // The unit keeps the case and umlauts of the text: cut the phrase from the original at the position the folded text matched.
     const eh = erkannt.find((e) => e.feld === 'einheit');
     if (eh) {
@@ -1589,6 +1604,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           .map((b) => rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b), hardCap))
       );
       const isCheck = (b: Baustein) => b.lernfunktion[0] === 'diagnose';
+      const passtZeit = (b: Baustein) => hardCap == null || b.dauerMin <= hardCap;
       // Few methods carry psychomotorik, and after Tor D2 only vier-stufen-methode of them names nawi-technik (it does not
       // deliver Erstwissen). In a bound step, carrying methods of the lesson's subject come first; when none of them fits
       // here, a practice method whose subject areas name the lesson's subject comes before a carrying method of another
@@ -1624,11 +1640,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             )
           : [];
       const ersatzIds = new Set(ersatzFach.map((b) => b.kennung));
+      const pruefungPasst = (b: Baustein) => formPasst(b) && passtZeit(b) && !fremd(b);
       const cands =
         step.id === checkStepId
           ? [
-              ...primaryCands.filter((b) => isCheck(b) && formPasst(b)),
-              ...primaryCands.filter((b) => isCheck(b) && !formPasst(b)),
+              // A check of the wanted form comes first only if it fits the time left and the lesson's subject (W5: an
+              // overlong test or a sports test in an electronics lesson is said, not planned).
+              ...primaryCands.filter((b) => isCheck(b) && pruefungPasst(b)),
+              ...primaryCands.filter((b) => isCheck(b) && !pruefungPasst(b)),
               ...primaryCands.filter((b) => !isCheck(b)),
               ...fallbackCands
             ]
