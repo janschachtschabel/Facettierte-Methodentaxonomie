@@ -788,14 +788,15 @@ describe('Schritt 1 und 5: jede Angabe erreicht den Kern (App-Nachzug N3)', () =
   const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
   const waehle = (label: string, value: string) => fireEvent.change(within(mehrAngaben()).getByLabelText(label), { target: { value } });
 
-  it('„Mehr Angaben“ nennt alle freiwilligen Angaben, auch Raum und Begleitziel, und enthält sie', () => {
+  it('„Mehr Angaben“ nennt alle freiwilligen Angaben, auch Begleitziel, und enthält sie; der Raum steht sichtbar in Schritt 1 (Spez. §8)', () => {
     renderPlanner();
     const zeile = screen.getByText(/^Mehr Angaben \(freiwillig\)/).textContent!;
-    for (const t of ['Fach', 'Stufe', 'Vorwissen', 'Sprachniveau', 'Komplexität', 'Lehrende', 'Raum', 'Technik', 'Lesen und Schreiben', 'Termine', 'Nachweis', 'Bewertung', 'Einheit', 'Planungsprofil', 'Begleitziel']) {
+    for (const t of ['Fach', 'Stufe', 'Vorwissen', 'Sprachniveau', 'Komplexität', 'Lehrende', 'Fachausstattung', 'Technik', 'Lesen und Schreiben', 'Termine', 'Nachweis', 'Bewertung', 'Einheit', 'Planungsprofil', 'Begleitziel']) {
       expect(zeile, t).toContain(t);
     }
     const mehr = mehrAngaben();
-    expect(within(mehr).getByLabelText('Raum')).toBeTruthy();
+    expect(within(mehr).queryByLabelText('Raum')).toBeNull();
+    expect(screen.getByLabelText('Raum')).toBeTruthy();
     expect(within(mehr).getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).toBeTruthy();
   });
 
@@ -827,7 +828,7 @@ describe('Schritt 1 und 5: jede Angabe erreicht den Kern (App-Nachzug N3)', () =
     waehle('Wird die Stunde bewertet?', 'nein');
     waehle('Planungsprofil', 'erwachsenenbildung');
     waehle('Anzahl Lehrende', '2');
-    waehle('Raum', 'fachraum');
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'fachraum' } });
     waehle('Art der Fachausstattung', 'labor');
     propose('Biologie, Fotosynthese, 45 Minuten');
     expect(spy.mock.calls.at(-1)![0]).toMatchObject({

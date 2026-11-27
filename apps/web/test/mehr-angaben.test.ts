@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createMatcher, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
-import { MEHR_ANGABEN_CODEFELDER, mehrAngabenInAnfrage, mehrAngabenLesen, ohneText } from '../src/planner/mehrAngaben.js';
+import { MEHR_ANGABEN_CODEFELDER, mehrAngabenAusKontext, mehrAngabenInAnfrage, mehrAngabenLesen, ohneText } from '../src/planner/mehrAngaben.js';
 import { entwurfAngabenAus, entwurfAngabenLesen } from '../src/planner/scenarioStorage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -94,5 +94,20 @@ describe('EntwurfAngaben: bewertet und ein gewähltes Planungsprofil bleiben bei
     expect(entwurfAngabenAus(matcher.zuordnen({ text })).gewaehlt).toEqual([]);
     expect(entwurfAngabenAus(matcher.zuordnen({ text, einheit: 'Reihe X', nachweis: 'produkt' })).gewaehlt).toEqual(['einheit', 'nachweis']);
     expect(entwurfAngabenLesen({ gewaehlt: ['bewertet', 'raum'] })!.gewaehlt).toEqual(['bewertet']);
+  });
+});
+
+describe('Mehr Angaben aus dem Kontext eines alten Szenarios (Schlussreview, Minor 3)', () => {
+  const erlaubt = (feld: (typeof MEHR_ANGABEN_CODEFELDER)[number]) => werte(feld);
+  it('liest Stufe (auch das alte Feld stufe), Vorwissen, Sprachniveau, Komplexität und Zeitbudget; Unbekanntes entfällt', () => {
+    expect(mehrAngabenAusKontext({ bildungsstufe: 'sek1', vorwissen: 'gering', sprachniveau: 'b1', komplexitaet: 'hoch', zeitbudgetMin: 90 }, erlaubt)).toEqual({
+      bildungsstufe: 'sek1',
+      vorwissen: 'gering',
+      sprachniveau: 'b1',
+      komplexitaet: 'hoch',
+      zeitMin: 90
+    });
+    expect(mehrAngabenAusKontext({ stufe: 'primar', vorwissen: 'quatsch', zeitbudgetMin: -5 }, erlaubt)).toEqual({ bildungsstufe: 'primar' });
+    expect(mehrAngabenAusKontext(undefined, erlaubt)).toEqual({});
   });
 });

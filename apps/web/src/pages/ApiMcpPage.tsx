@@ -22,7 +22,8 @@ const FMT2_FELDER: Array<[string, string, ReactNode]> = [
   ['begleitstrang', 'Antwort', 'Je Begleitziel (sozial, selbstregulation) ein kurzer Vorschlag am Ende der Stunde mit Methode, Dauer und Grund. Er steht nicht im Ablauf.'],
   ['genannteHilfen', 'Antwort', 'Im Text genannte Hilfen (Eintragsart hilfe): nie eine Phase, sie gehören zu einer Methode.'],
   ['entwurf', 'Antwort (umfang „voll“)', 'Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, dazu Spalten des Verlaufsplans und Module. In methodenDetails steht je Methode status; „entwurf“ heißt Ersterfassung, noch nicht kuratiert.'],
-  ['teilgruppenImpulse', 'Antwort von POST /api/v1/adapt', 'Je Phase und Teilgruppe die Entscheidung antwort (passt, hilfe oder tausch) mit beleg (Grund, Merkmal, Grundlage, Quelle) und hilfen samt abbau; gesperrte Merkmale (Lerntypen) stehen unter gesperrt.']
+  ['teilgruppenImpulse', 'Antwort von POST /api/v1/adapt', 'Je Phase und Teilgruppe die Entscheidung antwort (passt; hilfe: die geplante Methode bleibt, die Gruppe bekommt eine Hilfe; tausch) mit beleg (Grund, Merkmal, Grundlage, Quelle) und hilfen samt abbau; gesperrte Merkmale (Lerntypen) stehen unter gesperrt.'],
+  ['ohneMethode', 'Antwort von POST /api/v1/adapt (je teilgruppenImpulse)', 'true, wenn für die Phase keine FMT-Methode geplant ist (freier Text ohne Bausteine). Dann ist keine Passung geprüft: antwort hilfe nennt nur die Hilfen der Matrix für die Gruppe, keine Entscheidung über eine Methode.']
 ];
 
 /** Further request fields of FMT 2.0 (same names in REST and MCP; the list of the core is GET /api/v1/fields). */

@@ -89,7 +89,7 @@ import {
   type SavedScenario
 } from '../planner/scenarioStorage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
-import { mehrAngabenInAnfrage, mehrAngabenLesen, ohneText, type MehrAngaben } from '../planner/mehrAngaben.js';
+import { mehrAngabenAusKontext, mehrAngabenInAnfrage, mehrAngabenLesen, ohneText, type CodeFeld, type MehrAngaben } from '../planner/mehrAngaben.js';
 import { BEISPIEL_ANFRAGEN, type BeispielAnfrage } from '../planner/beispiele.js';
 import { ausschlussZeilen, genannteHilfenNamen } from '../planner/ausschluesse.js';
 import { evidenzBezugBeiGrad } from '../planner/evidenz.js';
@@ -1174,7 +1174,13 @@ export function PlannerPage() {
     setTermine(rahmen.termine ?? '');
     setBegleitziele(Array.isArray(p.begleitziele) ? p.begleitziele.filter((x) => typeof x === 'string') : []);
     // Files may come from anyone: only codes the core offers for the field are kept.
-    setMehr(mehrAngabenLesen(p.mehrAngaben, (feld) => werteVon(feld).map((w) => w.code)) || {});
+    // Saved before "Mehr Angaben" existed: the selects show what the arrangement's context still holds.
+    const erlaubtFuer = (feld: CodeFeld) => werteVon(feld).map((w) => w.code);
+    setMehr(
+      p.mehrAngaben === undefined
+        ? mehrAngabenAusKontext(p.arrangement.kontext, erlaubtFuer)
+        : mehrAngabenLesen(p.mehrAngaben, erlaubtFuer) || {}
+    );
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
@@ -1352,7 +1358,8 @@ export function PlannerPage() {
     lehrende: mehr.lehrende,
     ketten: bundle.ketten,
     regelwerk: regelsatz
-  };  // What the core left out and why (with the method's field), and the helps the request named (no phase).
+  };
+  // What the core left out and why (with the method's field), and the helps the request named (no phase).
   const ausschluesse = ausschlussZeilen(matchResult, blocksById, bundle);
   const hilfenNamen = genannteHilfenNamen(matchResult, blocksById);
   const AUSSCHLUSS_SICHTBAR = 8;
@@ -1670,6 +1677,60 @@ export function PlannerPage() {
               onChange={(e) => handleScenarioTextChange(e.target.value)}
               placeholder="z. B. Mathematik Klasse 6, Brüche addieren, Doppelstunde mit 90 Minuten, 26 Lernende"
             />
+
+            {/* Room: a required detail, visible in step 1 (spec §8), with the properties it offers. */}
+            <div className="planner-raum" style={{ marginTop: 10, maxWidth: 640 }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
+                Raum
+                <select
+                  aria-label="Raum"
+                  style={{ width: '100%' }}
+                  value={raum}
+                  onChange={(e) => {
+                    setPresetContextSource(null);
+                    setRaum(e.target.value);
+                    setRaumBietet(null);
+                  }}
+                >
+                  <option value="">nicht angegeben</option>
+                  {valuesOf('raumtyp').map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {raum ? (
+                <fieldset style={{ border: 0, padding: 0, margin: '8px 0 0' }}>
+                  <legend className="muted" style={{ fontSize: 13, padding: 0, marginBottom: 4 }}>
+                    Was der Raum bietet (nimm weg, was fehlt):
+                  </legend>
+                  <div style={{ display: 'flex', gap: '6px 18px', flexWrap: 'wrap', fontSize: 14 }}>
+                    {Object.keys(RAUM_EIGENSCHAFT_KLARTEXT).map((code) => {
+                      const offered = valuesOf('raumtyp').find((w) => w.id === raum)?.bietet || [];
+                      const checked = (raumBietet ?? offered).includes(code);
+                      return (
+                        <label key={code} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setPresetContextSource(null);
+                              setRaumBietet(toggleRaumEigenschaft(raumBietet, offered, code, e.target.checked));
+                            }}
+                          />
+                          {raumEigenschaftLabel(code, labelOf)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : (
+                <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
+                  Steht der Raum nicht im Text, nimmt der Baukasten einen Raum an (meist den Klassenraum, im Fach Sport die Sporthalle) und sagt es dir.
+                </p>
+              )}
+            </div>
 
             {verstanden && (
               <section aria-label="Verstanden und fehlt noch" className="planner-verstanden" style={{ marginTop: 8, fontSize: 14 }}>
@@ -1993,8 +2054,8 @@ export function PlannerPage() {
           {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              Mehr Angaben (freiwillig): Fach, Stufe, Vorwissen, Sprachniveau, Komplexität, Funktionskette, Lernziele, Klassengröße, Lehrende, Raum,
-              Technik, Lesen und Schreiben, Termine, Nachweis, Bewertung, Einheit, Planungsprofil, Begleitziel
+              Mehr Angaben (freiwillig): Fach, Stufe, Vorwissen, Sprachniveau, Komplexität, Funktionskette, Lernziele, Klassengröße, Lehrende,
+              Fachausstattung, Technik, Lesen und Schreiben, Termine, Nachweis, Bewertung, Einheit, Planungsprofil, Begleitziel
             </summary>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 14 }}>
@@ -2138,10 +2199,18 @@ export function PlannerPage() {
                         }
                         // The chain goes into the request; the core proposes again with everything else of step 1.
                         setMehrFeld('zieltyp', v || undefined);
-                        if (v || canPropose || matchResult) {
-                          const label = bundle.ketten.find((k) => k.id === v)?.label || 'aus der Zielart';
-                          setMatchAuftrag({ nr: Date.now(), art: 'kette', label });
+                        const label = bundle.ketten.find((k) => k.id === v)?.label || 'aus der Zielart';
+                        // Same rule as "Anderer Vorschlag": a new proposal must not discard own work (hand edits,
+                        // subgroup methods, OER, materials, elaboration). Then the wish waits for the next proposal.
+                        if (hasFlow && !otherProposalSafe) {
+                          setMatchNotice(
+                            v
+                              ? `Die Kette „${label}“ gilt beim nächsten Vorschlag („Ablauf vorschlagen“). Dein Ablauf mit deinen Änderungen bleibt bis dahin, wie er ist.`
+                              : 'Die Kette aus der Zielart gilt beim nächsten Vorschlag („Ablauf vorschlagen“). Dein Ablauf mit deinen Änderungen bleibt bis dahin, wie er ist.'
+                          );
+                          return;
                         }
+                        if (v || canPropose || matchResult) setMatchAuftrag({ nr: Date.now(), art: 'kette', label });
                       }}
                     >
                       <option value="">Aus der Zielart (Vorschlag des Baukastens)</option>
@@ -2265,60 +2334,8 @@ export function PlannerPage() {
               {/* Group C: Technik & Raum */}
               <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  3. Raum und Rahmen (Raum, Technik, Lesen und Schreiben, Termine – filtert Methoden direkt)
+                  3. Rahmen (Fachausstattung, Technik, Lesen und Schreiben, Termine – filtert Methoden direkt)
                 </strong>
-                <div className="planner-raum" style={{ marginTop: 12, maxWidth: 640 }}>
-                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
-                    Raum
-                    <select
-                      aria-label="Raum"
-                      style={{ width: '100%' }}
-                      value={raum}
-                      onChange={(e) => {
-                        setPresetContextSource(null);
-                        setRaum(e.target.value);
-                        setRaumBietet(null);
-                      }}
-                    >
-                      <option value="">nicht angegeben</option>
-                      {valuesOf('raumtyp').map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  {raum ? (
-                    <fieldset style={{ border: 0, padding: 0, margin: '8px 0 0' }}>
-                      <legend className="muted" style={{ fontSize: 13, padding: 0, marginBottom: 4 }}>
-                        Was der Raum bietet (nimm weg, was fehlt):
-                      </legend>
-                      <div style={{ display: 'flex', gap: '6px 18px', flexWrap: 'wrap', fontSize: 14 }}>
-                        {Object.keys(RAUM_EIGENSCHAFT_KLARTEXT).map((code) => {
-                          const offered = valuesOf('raumtyp').find((w) => w.id === raum)?.bietet || [];
-                          const checked = (raumBietet ?? offered).includes(code);
-                          return (
-                            <label key={code} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={(e) => {
-                                  setPresetContextSource(null);
-                                  setRaumBietet(toggleRaumEigenschaft(raumBietet, offered, code, e.target.checked));
-                                }}
-                              />
-                              {raumEigenschaftLabel(code, labelOf)}
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </fieldset>
-                  ) : (
-                    <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
-                      Steht der Raum nicht im Text, nimmt der Baukasten einen Raum an (meist den Klassenraum, im Fach Sport die Sporthalle) und sagt es dir.
-                    </p>
-                  )}
-                </div>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360, marginTop: 10 }}>
                   Art der Fachausstattung
                   <select style={{ width: '100%' }} value={mehr.fachausstattungArt || ''} onChange={(e) => setMehrFeld('fachausstattungArt', e.target.value || undefined)}>
@@ -2822,6 +2839,7 @@ export function PlannerPage() {
               onOpenOerForStep={(k) => jumpToResources('oer', k)}
               onOpenMaterialForStep={(k) => jumpToResources('material', k)}
               situation={situationsAnfrage(kandidatenRahmen.constraints)}
+              kandidaten={kandidatenRahmen}
             />
           )}
         </section>

@@ -1,4 +1,4 @@
-import type { MatchRequest } from '@fmt/core';
+import type { ArrangementKontext, MatchRequest } from '@fmt/core';
 
 /**
  * Optional details of step 1 ("Mehr Angaben"). Every key is a request field of the core (matcher.felder()); empty
@@ -37,7 +37,7 @@ export const MEHR_ANGABEN_CODEFELDER = [
   'zieltyp'
 ] as const;
 
-type CodeFeld = (typeof MEHR_ANGABEN_CODEFELDER)[number];
+export type CodeFeld = (typeof MEHR_ANGABEN_CODEFELDER)[number];
 
 const positiv = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? Math.round(v) : undefined);
 
@@ -87,4 +87,25 @@ export function ohneText(req: MatchRequest): Record<string, unknown> {
     out[k] = v;
   }
   return out;
+}
+
+/**
+ * Details for a scenario saved before "Mehr Angaben" existed: the values its arrangement context still holds (and that
+ * still reach the draft and the rule check), so the selects show them and they can be cleared. Codes must be among
+ * the values the core offers for the field.
+ */
+export function mehrAngabenAusKontext(kontext: ArrangementKontext | undefined, erlaubt: (feld: CodeFeld) => string[]): MehrAngaben {
+  if (!kontext) return {};
+  return (
+    mehrAngabenLesen(
+      {
+        bildungsstufe: kontext.bildungsstufe || kontext.stufe,
+        vorwissen: kontext.vorwissen,
+        sprachniveau: kontext.sprachniveau,
+        komplexitaet: kontext.komplexitaet,
+        zeitMin: kontext.zeitbudgetMin
+      },
+      erlaubt
+    ) || {}
+  );
 }
