@@ -70,6 +70,26 @@ describe('W-Raster in der Oberfläche', () => {
     expect(sec.textContent).not.toMatch(/Lernort/);
   });
 
+  it('Systematik zeigt die Passungsregeln aus den Daten neben den 13 Kompositionsregeln (Task B4)', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    const sec = sectionOf('Passungsregeln');
+    const tabelle = within(sec).getByRole('table', { name: 'Passungsregeln' });
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(BUNDLE.regeln!.length);
+    expect(within(tabelle).getByText('Schrift bei niedrigem Sprachniveau')).toBeTruthy();
+    expect(within(tabelle).getAllByText(/Höfler et al\. 2024/).length).toBeGreaterThan(0);
+    const wirkung = within(sec).getByRole('table', { name: 'Welche Wirkung hat welche Art' });
+    for (const w of ['schließt aus', 'warnt', 'ordnet', 'weist hin']) expect(within(wirkung).getByRole('rowheader', { name: w })).toBeTruthy();
+    expect(within(wirkung).getByText('Eignung')).toBeTruthy();
+    // The section stands next to the composition rules.
+    const kompo = sectionOf('Die 13 Kompositionsregeln (R-00 bis R-12)');
+    expect(kompo.nextElementSibling).toBe(sec);
+    expect(sec.textContent).not.toMatch(/Bedingungsraum|Anforderung/);
+  });
+
   it('Methodendetail zeigt „Was die Methode braucht“ nach W-Feld mit dem Hinweis zum Raum', () => {
     const b = BUNDLE.bausteine.find((x) => x.raumhinweis && (x.raumbedarf || []).length)!;
     render(

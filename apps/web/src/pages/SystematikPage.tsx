@@ -81,6 +81,14 @@ const WIRKUNG_TEXT: Record<string, string> = {
   'weist-hin': 'weist hin'
 };
 
+/** The four effects in the order they act on the rank of a method (spec 6, "Reihenfolge der Wirkung"). */
+const WIRKUNG_REIHE: Array<[string, string]> = [
+  ['schliesst-aus', 'Die Methode kommt nicht in Frage, weil etwas Ablesbares nicht passt.'],
+  ['warnt', 'Die Methode bleibt wählbar und trägt einen Hinweis mit Grundlage. Sie steht weiter hinten, außer die Regel sieht keinen Tausch vor oder die Lehrkraft hat sie selbst genannt.'],
+  ['ordnet', 'Die Methode rückt nach vorn oder hinten; nichts fällt weg.'],
+  ['weist-hin', 'Ein Hinweis für die Lehrkraft; die Rangfolge ändert sich nicht.']
+];
+
 const ROLE_LABEL: Record<string, string> = { rand: 'Rand', haupt: 'Haupt', sicherung: 'Sicherung' };
 
 const MATCH_STAGES = [
@@ -1040,6 +1048,94 @@ export function SystematikPage() {
                   <td>
                     <span className="basis-tag">{r.grundlage === 'formal' ? 'formal' : `[${r.grundlage}]`}</span>
                     {r.begruendung}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 7b. Passungsregeln (data/regeln.json, live from the bundle) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Passungsregeln</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Die Kompositionsregeln prüfen einen fertigen Ablauf. Die Passungsregeln verbinden die Situation mit der Methode:
+          Sie lesen, was die Lehrkraft angibt (Vorwissen, Bildungsstufe, Inhalt, Sprachniveau, Fach, Raum), und sagen, was
+          das für eine Methode heißt. Jede Regel nennt ihre Wirkung und ihre Grundlage. Eine Regel mit Grundlage „belegt“
+          nennt die Studie, eine Setzung bleibt als Setzung sichtbar. Im Baukasten steht unter jedem Hinweis, welche Regel
+          ihn auslöst und worauf sie sich stützt.
+        </p>
+        <h3 style={{ marginTop: 22 }}>Welche Wirkung hat welche Art</h3>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          In dieser Reihenfolge wirken die Angaben in der Rangfolge einer Methode. Ein genannter Wunsch der Lehrkraft steht
+          vor den Warnungen.
+        </p>
+        <div className="scroll">
+          <table aria-label="Welche Wirkung hat welche Art">
+            <thead>
+              <tr>
+                <th>Wirkung</th>
+                <th>Was in der Zuordnung geschieht</th>
+                <th>Art der Aussage</th>
+                <th>Passungsregeln</th>
+              </tr>
+            </thead>
+            <tbody>
+              {WIRKUNG_REIHE.map(([w, tut]) => {
+                const text = WIRKUNG_TEXT[w];
+                const arten = (bundle.arten || []).filter((a) => a.wirkung.includes(text));
+                const regeln = (bundle.regeln || []).filter((r) => r.wirkung === w);
+                return (
+                  <tr key={w}>
+                    <th scope="row" style={{ fontFamily: 'var(--display)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      {text}
+                    </th>
+                    <td>{tut}</td>
+                    <td>{arten.length ? arten.map((a) => a.name).join(', ') : '–'}</td>
+                    <td>{regeln.length}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <h3 style={{ marginTop: 22 }}>Die {(bundle.regeln || []).length} Passungsregeln</h3>
+        <div className="scroll">
+          <table aria-label="Passungsregeln">
+            <thead>
+              <tr>
+                <th>Regel</th>
+                <th>Sagt</th>
+                <th>Wirkung</th>
+                <th>Grundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(bundle.regeln || []).map((r) => (
+                <tr key={r.id}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                    {r.name}
+                    <div className="muted" style={{ fontFamily: 'var(--mono)', fontWeight: 400, fontSize: 11.5 }}>
+                      {r.id}
+                    </div>
+                  </td>
+                  <td>
+                    {r.text.replace(/^\{methode\}/, 'Die Methode').replace(/\{methode\}/g, 'die Methode')}
+                    {r.keinTausch && (
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        Warnt und zeigt Hilfe, die Methode bleibt im Ablauf.
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{WIRKUNG_TEXT[r.wirkung] || r.wirkung}</td>
+                  <td>
+                    {GRUNDLAGE_TEXT[r.grundlage] || r.grundlage}
+                    {r.quelle && (
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        {r.quelle}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -102,6 +102,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       merkmale: store.bundle.merkmale,
       raumtypen: schemeValues('raumtyp'),
       zielarten: schemeValues('zielart'),
+      // Fit rules (data/regeln.json): what each rule checks, its effect and its basis.
+      regeln: store.bundle.regeln,
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,

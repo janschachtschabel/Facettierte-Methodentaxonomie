@@ -69,6 +69,19 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(meta.zielarten).toHaveLength(9);
   });
 
+  it('/meta führt die Passungsregeln; /plan nennt Regelmeldungen mit Regel, Wirkung, Grundlage, Quelle, Text (Task B4)', async () => {
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/meta' })).json();
+    expect(meta.regeln).toHaveLength(16);
+    const schrift = meta.regeln.find((r: { id: string }) => r.id === 'schrift-niedriges-sprachniveau');
+    expect(schrift).toEqual(expect.objectContaining({ wirkung: 'warnt', grundlage: 'E', quelle: expect.stringContaining('Höfler') }));
+    const plan = (
+      await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende' } })
+    ).json();
+    expect(plan.pflichtangaben).toBeDefined();
+    const m = plan.regelmeldungen.find((x: { regel: string }) => x.regel === 'schrift-niedriges-sprachniveau');
+    expect(m).toEqual(expect.objectContaining({ wirkung: 'warnt', grundlage: 'E', quelle: expect.any(String), text: expect.any(String) }));
+  });
+
   it('/methods filtert nach Raumbedarf, Schriftbedarf und ohneRaumbedarf', async () => {
     const get = async (q: string) => (await app.inject({ method: 'GET', url: '/api/v1/methods?' + q })).json();
     const alle = await get('');

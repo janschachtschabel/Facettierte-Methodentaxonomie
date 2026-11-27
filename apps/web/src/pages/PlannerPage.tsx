@@ -41,6 +41,8 @@ import {
   outdatedAdjustments
 } from '../planner/differentiationFlow.js';
 import { fachbereichFromField } from '../planner/fachFeld.js';
+import { verstandenAus } from '../planner/pflichtangaben.js';
+import { regelZeile } from '../planner/regelmeldung.js';
 import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
@@ -278,6 +280,11 @@ export function PlannerPage() {
   const [raumBietet, setRaumBietet] = useState<string[] | null>(null);
   const [ohneSchrift, setOhneSchrift] = useState<string[]>([]);
   const [termine, setTermine] = useState<string>('');
+  // Missing required details completed in the line "Fehlt noch" (step 1); empty means not given, nothing is preset.
+  const [zielErg, setZielErg] = useState('');
+  const [stufeErg, setStufeErg] = useState('');
+  const [zeitErg, setZeitErg] = useState('');
+  const [themaErg, setThemaErg] = useState('');
 
   const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
@@ -666,6 +673,10 @@ export function PlannerPage() {
     if (raum && raumBietet) req.raumBietet = raumBietet;
     if (ohneSchrift.length) req.ohneSchrift = SCHRIFT_ORDER.filter((x) => ohneSchrift.includes(x));
     if (Number(termine) > 0) req.termine = Number(termine);
+    if (zielErg) req.zielart = zielErg;
+    if (stufeErg) req.bildungsstufe = stufeErg;
+    if (Number(zeitErg) > 0) req.zeitMin = Number(zeitErg);
+    if (themaErg.trim()) req.thema = themaErg.trim();
     // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
     const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
     if (fbFeld) req.fachbereich = fbFeld;
@@ -1137,6 +1148,12 @@ export function PlannerPage() {
           label: bundle?.ketten.find((k) => k.id === matchResult.kette?.id)?.schritte.find((st) => st.id === o.schritt)?.label || o.schritt
         }))
       : [];
+  // The line "Verstanden" and "Fehlt noch" read back from the last proposal (W13).
+  const verstanden = matchResult ? verstandenAus(matchResult, labelOf, themaErg.trim() || extractSubjectAndTopic(scenarioText).thema || undefined) : null;
+  // Rule messages: method messages stand at their row in step 2, situation-level ones (no method) under the notes.
+  const regelmeldungen = matchResult?.regelmeldungen || [];
+  const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
+  const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
   const step2Groups = mainGroupOnly(groups, classSize);
   const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
@@ -1438,6 +1455,128 @@ export function PlannerPage() {
               onChange={(e) => handleScenarioTextChange(e.target.value)}
               placeholder="z. B. Mathematik Klasse 6, Brüche addieren, Doppelstunde mit 90 Minuten, 26 Lernende"
             />
+
+            {verstanden && (
+              <section aria-label="Verstanden und fehlt noch" className="planner-verstanden" style={{ marginTop: 8, fontSize: 14 }}>
+                <p style={{ margin: 0 }}>
+                  <strong>Verstanden:</strong> {verstanden.verstanden.length ? verstanden.verstanden.join(' · ') : 'noch nichts'}
+                </p>
+                {verstanden.fehlt.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px', marginTop: 4 }}>
+                    <span>
+                      <strong>Fehlt noch:</strong> {verstanden.fehlt.map((f) => f.label).join(', ')}
+                    </span>
+                    {verstanden.fehlt.map((f) => {
+                      const feldStil = { fontSize: 13.5, padding: '2px 6px' };
+                      if (f.feld === 'ziel')
+                        return (
+                          <select key={f.feld} aria-label="Ziel ergänzen" style={feldStil} value={zielErg} onChange={(e) => setZielErg(e.target.value)}>
+                            <option value="">Ziel …</option>
+                            {valuesOf('zielart').map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      if (f.feld === 'fach-und-thema')
+                        return (
+                          <span key={f.feld} style={{ display: 'inline-flex', gap: 6 }}>
+                            {f.teil !== 'thema' && (
+                              <input
+                                type="text"
+                                aria-label="Fach ergänzen"
+                                placeholder="Fach"
+                                style={{ ...feldStil, width: 130 }}
+                                value={fach}
+                                onChange={(e) => {
+                                  setPresetContextSource(null);
+                                  setFach(e.target.value);
+                                }}
+                              />
+                            )}
+                            {f.teil !== 'fach' && (
+                              <input
+                                type="text"
+                                aria-label="Thema ergänzen"
+                                placeholder="Thema"
+                                style={{ ...feldStil, width: 150 }}
+                                value={themaErg}
+                                onChange={(e) => {
+                                  setThemaErg(e.target.value);
+                                  if (e.target.value.trim()) setThema(e.target.value.trim());
+                                }}
+                              />
+                            )}
+                          </span>
+                        );
+                      if (f.feld === 'bildungsstufe')
+                        return (
+                          <select key={f.feld} aria-label="Bildungsstufe ergänzen" style={feldStil} value={stufeErg} onChange={(e) => setStufeErg(e.target.value)}>
+                            <option value="">Bildungsstufe …</option>
+                            {valuesOf('bildungsstufe').map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      if (f.feld === 'anzahl')
+                        return (
+                          <input
+                            key={f.feld}
+                            type="number"
+                            min={1}
+                            aria-label="Anzahl der Lernenden ergänzen"
+                            placeholder="Lernende"
+                            style={{ ...feldStil, width: 100 }}
+                            value={gruppeSize}
+                            onChange={(e) => setGruppeSize(e.target.value)}
+                          />
+                        );
+                      if (f.feld === 'raum')
+                        return (
+                          <select
+                            key={f.feld}
+                            aria-label="Raum ergänzen"
+                            style={feldStil}
+                            value={raum}
+                            onChange={(e) => {
+                              setPresetContextSource(null);
+                              setRaum(e.target.value);
+                              setRaumBietet(null);
+                            }}
+                          >
+                            <option value="">Raum …</option>
+                            {valuesOf('raumtyp').map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      return (
+                        <input
+                          key={f.feld}
+                          type="number"
+                          min={1}
+                          aria-label="Zeit in Minuten ergänzen"
+                          placeholder="Minuten"
+                          style={{ ...feldStil, width: 100 }}
+                          value={zeitErg}
+                          onChange={(e) => setZeitErg(e.target.value)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+                {verstanden.fehlt.length > 0 && (
+                  <p className="muted" style={{ fontSize: 12.5, margin: '4px 0 0' }}>
+                    Der Ablauf entsteht auch mit Lücken. Was du ergänzt, gilt beim nächsten Vorschlag.
+                  </p>
+                )}
+              </section>
+            )}
 
             <div className="planner-raum" style={{ marginTop: 12 }}>
               <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
@@ -2069,6 +2208,14 @@ export function PlannerPage() {
               {matchNotice}
             </p>
           )}
+          {verstanden && verstanden.fehlt.length > 0 && (
+            <p className="planner-notice" style={{ marginTop: 10 }}>
+              Fehlt noch: {verstanden.fehlt.map((f) => f.label).join(', ')}.{' '}
+              <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
+                In Schritt 1 ergänzen
+              </button>
+            </p>
+          )}
           {annahmenListe.length > 0 && (
             <section aria-label="Angenommen" className="card planner-annahmen" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>
               <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Angenommen, weil die Angabe fehlte</strong>
@@ -2082,10 +2229,18 @@ export function PlannerPage() {
               </button>
             </section>
           )}
-          {ablaufHinweise.length > 0 && (
+          {(ablaufHinweise.length > 0 || ablaufRegelmeldungen.length > 0) && (
             <section aria-label="Hinweise zum Ablauf" className="card planner-ablauf-hinweise" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--grid)' }}>
               <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Hinweise zum Ablauf</strong>
               <ul style={{ margin: '4px 0 6px', paddingLeft: 20, fontSize: 14 }}>
+                {ablaufRegelmeldungen.map((m, i) => (
+                  <li key={`r${i}`}>
+                    {m.text}
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {regelZeile(m, bundle?.regeln)}
+                    </div>
+                  </li>
+                ))}
                 {ablaufHinweise.map((t) => (
                   <li key={t}>{t}</li>
                 ))}
@@ -2186,6 +2341,8 @@ export function PlannerPage() {
               groups={step2Groups}
               lehrkraefteInfo={lehrkraefteInfo}
               allBlocks={bundle.bausteine}
+              regelmeldungen={regelmeldungen}
+              regeln={bundle.regeln}
               subgroupMethods={{}}
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}

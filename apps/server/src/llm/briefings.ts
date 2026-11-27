@@ -779,6 +779,15 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     annahmen: matched.annahmen || [],
     hinweise: matched.hinweise || [],
     pflichtangaben: matched.pflichtangaben,
+    // Each rule message with rule, effect, basis, source and text (and the method it speaks about, if any).
+    regelmeldungen: (matched.regelmeldungen || []).map((m) => ({
+      regel: m.regel,
+      wirkung: m.wirkung,
+      grundlage: m.grundlage,
+      ...(m.quelle ? { quelle: m.quelle } : {}),
+      text: m.text,
+      ...(m.baustein ? { baustein: m.baustein } : {})
+    })),
     methodenDetails,
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
     konflikte: multiGroupSynthesis.konflikte.slice(0, 4),

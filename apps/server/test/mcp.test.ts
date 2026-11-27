@@ -154,6 +154,15 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const offenJson = JSON.parse((offen.content as Array<{ text: string }>)[0].text);
     expect(offenJson.offenGruende?.length).toBeGreaterThan(0);
     expect(offenJson.nachweis?.formen).toContain('praktisch');
+    const vhs = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: { text: 'VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende', umfang: 'kompakt' }
+    });
+    const vhsJson = JSON.parse((vhs.content as Array<{ text: string }>)[0].text);
+    expect(vhsJson.pflichtangaben.fehlt).toEqual(expect.any(Array));
+    expect(vhsJson.regelmeldungen).toContainEqual(
+      expect.objectContaining({ regel: 'schrift-niedriges-sprachniveau', wirkung: 'warnt', grundlage: 'E', quelle: expect.any(String), text: expect.any(String) })
+    );
 
     const valRes = await client.callTool({
       name: 'validate_arrangement',
@@ -182,6 +191,12 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const vocabRes = await client.callTool({ name: 'list_vocabularies', arguments: { scheme: 'ansatz' } });
     const vocabJson = JSON.parse((vocabRes.content as Array<{ text: string }>)[0].text);
     expect(vocabJson.werte.length).toBe(12);
+    const alleRes = await client.callTool({ name: 'list_vocabularies', arguments: {} });
+    const alle = JSON.parse((alleRes.content as Array<{ text: string }>)[0].text);
+    expect(alle.regeln).toHaveLength(16);
+    expect(alle.regeln[0]).toEqual(expect.objectContaining({ id: expect.any(String), name: expect.any(String), wirkung: expect.any(String), grundlage: expect.any(String) }));
+    expect(alle.raumtypen.map((r: { id: string }) => r.id)).toEqual(expect.arrayContaining(['klassenraum', 'fachraum']));
+    expect(alle.zielarten).toHaveLength(9);
 
     // New v1.5 MCP tools: score_differentiation_matrix, build_scenario_plan, elaborate_scenario, generate_phase_material
     const diffRes = await client.callTool({

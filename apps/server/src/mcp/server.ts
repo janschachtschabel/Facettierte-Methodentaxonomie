@@ -320,6 +320,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   );
 
   // 7. list_vocabularies
+  const schemeWerte = (id: string) => {
+    const s = store.bundle.schemes.find((x) => x.id === id);
+    return (s?.werte || (s?.gruppen || []).flatMap((g) => g.werte)).map((w) => ({ id: w.id, label: w.label }));
+  };
   server.tool(
     'list_vocabularies',
     'Listet alle FMT-Vokabulare, Funktionsketten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
@@ -345,6 +349,17 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       return textResult({
         schemes: store.bundle.schemes.map((s) => ({ id: s.id, titel: s.titel })),
         ketten: store.bundle.ketten.map((k) => ({ id: k.id, label: k.label, zielart: k.zielart })),
+        regeln: store.bundle.regeln.map((r) => ({
+          id: r.id,
+          name: r.name,
+          art: r.art,
+          wirkung: r.wirkung,
+          grundlage: r.grundlage,
+          ...(r.quelle ? { quelle: r.quelle } : {}),
+          ...(r.keinTausch ? { keinTausch: true } : {})
+        })),
+        raumtypen: schemeWerte('raumtyp'),
+        zielarten: schemeWerte('zielart'),
         differenzierungsPersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
         anfrageFelder: store.matcher.felder()
       });
@@ -487,7 +502,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .enum(['kompakt', 'voll'])
         .optional()
         .default('kompakt')
-        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen. voll: zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
+        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen, Pflichtangaben (fehlt/angenommen) und Regelmeldungen (Regel, Wirkung, Grundlage, Quelle, Text). voll: zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
       gruppen: z
         .array(
           z.object({

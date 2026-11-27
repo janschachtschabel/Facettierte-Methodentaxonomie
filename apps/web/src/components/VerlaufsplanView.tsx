@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein } from '@fmt/core';
+import { scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein, type Passungsregel, type Regelmeldung } from '@fmt/core';
+import { regelZeile } from '../planner/regelmeldung.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
 import type { LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from '../planner/scenarioModel.js';
 
@@ -20,6 +21,9 @@ interface Props {
   heading?: string;
   lead?: ReactNode;
   editLabel?: string;
+  /** Rule messages of the proposal; those about a method stand in its row with rule and basis. */
+  regelmeldungen?: Regelmeldung[];
+  regeln?: Passungsregel[];
 }
 
 const RANGE_READABLE: Record<string, string> = {
@@ -45,7 +49,9 @@ export function VerlaufsplanView({
   ohneKI,
   heading,
   lead,
-  editLabel
+  editLabel,
+  regelmeldungen = [],
+  regeln = []
 }: Props) {
   const [editMode, setEditMode] = useState(false);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(null);
@@ -200,6 +206,21 @@ export function VerlaufsplanView({
                         {r.socialForm}
                       </span>
                     </div>
+                    {(() => {
+                      const eigene = regelmeldungen.filter((m) => m.baustein === r.methodId);
+                      return eigene.length ? (
+                        <ul aria-label={`Hinweise zu ${r.methodName}`} style={{ margin: '6px 0 0', paddingLeft: 16, fontSize: 12.5, lineHeight: 1.4 }}>
+                          {eigene.map((m, i) => (
+                            <li key={i} style={{ color: m.wirkung === 'warnt' ? 'var(--err)' : 'var(--ink)' }}>
+                              {m.text}
+                              <div className="muted" style={{ fontSize: 11.5 }}>
+                                {regelZeile(m, regeln)}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null;
+                    })()}
                     {r.block?.durchfuehrung?.length ? (
                       <details style={{ marginTop: 5, fontSize: 12, color: 'var(--ink-2)' }}>
                         <summary style={{ cursor: 'pointer', fontFamily: 'var(--display)', fontWeight: 600, color: 'var(--dA)' }}>

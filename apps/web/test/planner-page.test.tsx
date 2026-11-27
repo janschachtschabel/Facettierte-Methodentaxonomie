@@ -7,6 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { createMatcher, createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PlannerPage } from '../src/pages/PlannerPage.js';
 import { createChainPreset } from '../src/planner/arrangementOps.js';
+import { regelZeile } from '../src/planner/regelmeldung.js';
 import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY, SAVED_SCENARIOS_KEY } from '../src/planner/scenarioStorage.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -260,5 +261,92 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     window.sessionStorage.setItem(DIFF_HANDOFF_KEY, JSON.stringify({ returnToStep3: true }));
     renderPlanner();
     expect(stepButton(1).getAttribute('aria-current')).toBe('step');
+  });
+
+  it('Schritt 1: nach dem Vorschlag „Verstanden“ und „Fehlt noch“, jede Lücke direkt ergänzbar, nichts vorbelegt (Task B4)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    expect(screen.queryByRole('region', { name: 'Verstanden und fehlt noch' })).toBeNull();
+    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    // A single phase stays in step 1.
+    const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    expect(zeile.textContent).toContain('Verstanden: Ethik · Klasse 10 · 30 Lernende · Hörsaal');
+    expect(within(zeile).getByText(/Fehlt noch:/).parentElement!.textContent).toBe('Fehlt noch: Zeit');
+    const zeit = within(zeile).getByLabelText('Zeit in Minuten ergänzen') as HTMLInputElement;
+    expect(zeit.value).toBe('');
+    fireEvent.change(zeit, { target: { value: '45' } });
+    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    expect(spy.mock.calls.at(-1)![0]!.zeitMin).toBe(45);
+    spy.mockRestore();
+    fireEvent.click(stepButton(1));
+    const neu = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    expect(neu.textContent).toContain('45 Minuten');
+    expect(within(neu).queryByLabelText('Zeit in Minuten ergänzen')).toBeNull();
+  });
+
+  it('Schritt 1: jede der sechs Angaben ist ergänzbar, ohne Vorauswahl; der Ablauf entsteht trotz Lücken (Task B4)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(1));
+    const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    const felder = ['Ziel ergänzen', 'Fach ergänzen', 'Thema ergänzen', 'Bildungsstufe ergänzen', 'Anzahl der Lernenden ergänzen', 'Raum ergänzen', 'Zeit in Minuten ergänzen'];
+    for (const f of felder) {
+      const el = within(zeile).queryByLabelText(f) as HTMLInputElement | HTMLSelectElement | null;
+      if (el) expect(el.value, f).toBe('');
+    }
+    expect(within(zeile).getByLabelText('Bildungsstufe ergänzen')).toBeTruthy();
+    expect(within(zeile).getByLabelText('Anzahl der Lernenden ergänzen')).toBeTruthy();
+    expect(within(zeile).getByLabelText('Raum ergänzen')).toBeTruthy();
+    fireEvent.change(within(zeile).getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'primar' } });
+    fireEvent.change(within(zeile).getByLabelText('Anzahl der Lernenden ergänzen'), { target: { value: '22' } });
+    fireEvent.change(within(zeile).getByLabelText('Raum ergänzen'), { target: { value: 'draussen' } });
+    const ziel = within(zeile).queryByLabelText('Ziel ergänzen');
+    if (ziel) fireEvent.change(ziel, { target: { value: 'konzepte' } });
+    propose('etwas über Pflanzen');
+    const req = spy.mock.calls.at(-1)![0]!;
+    expect(req.bildungsstufe).toBe('primar');
+    expect(req.gruppe).toBe(22);
+    expect(req.raum).toBe('draussen');
+    if (ziel) expect(req.zielart).toBe('konzepte');
+    spy.mockRestore();
+  });
+
+  it('Schritt 2 nennt, was noch fehlt, mit einem Weg zurück zu Schritt 1 (Task B4)', () => {
+    renderPlanner();
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    const fehlt = screen.getByText(/^Fehlt noch: Raum/);
+    fireEvent.click(within(fehlt.closest('p')!).getByRole('button', { name: /In Schritt 1 ergänzen/ }));
+    expect(stepButton(1).getAttribute('aria-current')).toBe('step');
+    expect((screen.getByLabelText('Raum ergänzen') as HTMLSelectElement).value).toBe('');
+  });
+
+  it('Schritt 2: je Warnung der Satz und darunter Regel und Grundlage; „Ablauf stimmig“ ohne Wertung (Task B4)', () => {
+    renderPlanner();
+    propose('VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende');
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    const tabelle = screen.getByRole('table');
+    const warnung = within(tabelle).getAllByText(/verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig/)[0];
+    const zeile = warnung.closest('li')!;
+    expect(within(zeile).getByText('Regel: Schrift bei niedrigem Sprachniveau · Grundlage: belegt (Höfler et al. 2024)')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Ablauf stimmig|zu prüfen/ })).toBeTruthy();
+    // No rating in the planner's own words (method descriptions in the table may say "sehr gut / sicher").
+    const schritt2 = tabelle.closest('section')!.cloneNode(true) as HTMLElement;
+    schritt2.querySelectorAll('table').forEach((t) => t.remove());
+    expect(schritt2.textContent).not.toMatch(/\bgut\b|empfohlen/i);
+    expect(within(tabelle).queryAllByText(/^Regel: /).every((e) => !/\bgut\b|empfohlen/i.test(e.textContent || ''))).toBe(true);
+  });
+
+  it('Regelzeile: belegt mit Quelle, Setzung, Eignungsregeln mit eigenem Namen', () => {
+    const regeln = BUNDLE.regeln!;
+    expect(regelZeile({ regel: 'entdecken-nur-mit-stuetze', wirkung: 'warnt', grundlage: 'E', quelle: 'Alfieri et al. 2011', text: 'x' }, regeln)).toBe(
+      'Regel: Entdecken nur mit Stütze · Grundlage: belegt (Alfieri et al. 2011)'
+    );
+    expect(regelZeile({ regel: 'genannter-wunsch-bleibt', wirkung: 'weist-hin', grundlage: 'A', text: 'x' }, regeln)).toBe('Regel: Genannter Wunsch bleibt · Grundlage: Setzung');
+    expect(regelZeile({ regel: 'eignung-stufe', wirkung: 'warnt', grundlage: 'A', text: 'x' }, regeln)).toBe('Regel: Eignung für die Bildungsstufe · Grundlage: Setzung');
+    expect(regelZeile({ regel: 'eignung-fach', wirkung: 'warnt', grundlage: 'S', quelle: 'Redaktion 2026', text: 'x' }, regeln)).toBe(
+      'Regel: Eignung für den Fachbereich · Grundlage: gefolgert (Redaktion 2026)'
+    );
   });
 });
