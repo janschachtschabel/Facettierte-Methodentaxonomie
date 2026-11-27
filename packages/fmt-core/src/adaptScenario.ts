@@ -41,6 +41,10 @@ export interface AdaptGroupInput {
   personaId?: string;
   selectedValues?: Record<string, string>;
   text?: string;
+  /** The group cannot read or write (statement of the group, not a matrix trait). */
+  ohneSchrift?: Array<'lesen' | 'schreiben'>;
+  /** The group cannot move freely (statement of the group, not a matrix trait). */
+  ohneBewegung?: boolean;
 }
 
 export interface AdaptPhaseInput {
@@ -1042,7 +1046,9 @@ export function adaptScenario(
       label: g.label,
       isMain,
       personaId: g.personaId,
-      ...(Object.keys(selectedValues).length ? { selectedValues } : {})
+      ...(Object.keys(selectedValues).length ? { selectedValues } : {}),
+      ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+      ...(g.ohneBewegung ? { ohneBewegung: true } : {})
     };
   });
   const adjustmentConstraints = {

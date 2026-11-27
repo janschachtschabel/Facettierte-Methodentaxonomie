@@ -284,6 +284,81 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(aj.udlBasis.every((u: { meta: { technik: string; ebene: string } }) => u.meta.technik === 'analog' && u.meta.ebene !== 'organisation-system')).toBe(true);
   });
 
+  it('names Tausch or Hilfe per Merkmal with source, hides blocked categories and never offers helps as alternatives (C5)', async () => {
+    const hilfen = new Set(
+      (JSON.parse(fs.readFileSync(path.join(DIST_DATA, 'catalog.bundle.json'), 'utf8')).bausteine as Array<{ kennung: string; eintragsart?: string }>)
+        .filter((b) => b.eintragsart === 'hilfe')
+        .map((b) => b.kennung)
+    );
+    expect(hilfen.size).toBeGreaterThan(0);
+
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/differentiation/meta' })).json();
+    const kategorien = meta.variables.flatMap((v: { kategorien: unknown[] }) => v.kategorien) as Array<{
+      id: string;
+      auspraegungen: Array<{ id: string; teilgruppe?: { antwort: string; quelle?: string; grundlage: string } }>;
+    }>;
+    expect(kategorien.find((k) => k.id === 'sensorische')).toBeUndefined();
+    expect(meta.gesperrteKategorien).toEqual([expect.objectContaining({ id: 'sensorische' })]);
+    const aus = (id: string) => kategorien.flatMap((k) => k.auspraegungen).find((a) => a.id === id);
+    expect(aus('vorwissen-gering')?.teilgruppe).toMatchObject({ antwort: 'tausch', grundlage: 'E' });
+    expect(aus('vorwissen-gering')?.teilgruppe?.quelle).toContain('Tetzlaff');
+    expect(aus('sprachkompetenz-gering')?.teilgruppe).toMatchObject({ antwort: 'hilfe' });
+
+    const score = (
+      await app.inject({
+        method: 'POST',
+        url: '/api/v1/differentiation/score',
+        payload: {
+          selectedValues: { vorwissen: 'vorwissen-gering', sprachkompetenz: 'sprachkompetenz-gering', sensorische: 'sensorische-visuell' },
+          baustein: 'gruppenpuzzle',
+          bildungsstufe: 'sek1'
+        }
+      })
+    ).json();
+    expect(score.alternativeMethoden.every((a: { kennung: string }) => !hilfen.has(a.kennung))).toBe(true);
+    const byMerkmal = Object.fromEntries(score.merkmale.map((m: { wert: string }) => [m.wert, m]));
+    expect(byMerkmal['vorwissen-gering']).toMatchObject({ antwort: 'tausch', merkmal: 'vorwissen-gering' });
+    expect(byMerkmal['vorwissen-gering'].quelle).toBeTruthy();
+    expect(byMerkmal['sprachkompetenz-gering']).toMatchObject({ antwort: 'hilfe' });
+    expect(score.gesperrt).toEqual([expect.objectContaining({ kategorie: 'sensorische', text: expect.stringContaining('Lerntypen') })]);
+  });
+
+  it('adapt takes ohneSchrift/ohneBewegung per group and reports antwort, beleg, hilfen and gesperrt (C5)', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: {
+        baustein: 'cornell-methode',
+        bildungsstufe: 'sek1',
+        gruppen: [
+          { id: 'regel', label: 'Klasse' },
+          { id: 'g1', label: 'Kinder ohne Schrift', ohneSchrift: ['schreiben'] },
+          { id: 'g2', label: 'Lerntyp visuell', selectedValues: { sensorische: 'sensorische-visuell' } }
+        ]
+      }
+    });
+    expect(res.statusCode).toBe(200);
+    const j = res.json();
+    const impulse = j.phasenAnpassungen[0].teilgruppenImpulse as Array<{ groupId: string; antwort: string; beleg: { grund: string } }>;
+    const g1 = impulse.find((i) => i.groupId === 'g1')!;
+    expect(['tausch', 'hilfe']).toContain(g1.antwort);
+    expect(g1.beleg.grund).toContain('Schreiben');
+    expect(j.gesperrt).toEqual([expect.objectContaining({ gruppe: 'Lerntyp visuell' })]);
+
+    const bad = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: { baustein: 'cornell-methode', gruppen: [{ id: 'g', label: 'x', ohneSchrift: ['malen'] }] }
+    });
+    expect(bad.statusCode).toBe(400);
+    const bad2 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: { baustein: 'cornell-methode', gruppen: [{ id: 'g', label: 'x', ohneBewegung: 'ja' }] }
+    });
+    expect(bad2.statusCode).toBe(400);
+  });
+
   it('serves SKOS Turtle, JSON-LD, canonical w3id.org content negotiation and SPA fallback cleanly (Review Focus #4)', async () => {
     const ttl = await app.inject({ method: 'GET', url: '/vocabs/lernfunktion.ttl' });
     expect(ttl.statusCode).toBe(200);

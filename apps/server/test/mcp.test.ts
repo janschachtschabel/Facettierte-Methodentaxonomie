@@ -384,6 +384,46 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(optJson.anzahlMassnahmen).toBe(172);
     expect(optJson.schnellProfile.length).toBeGreaterThanOrEqual(8);
     expect(optJson.anpassungsvariablen.length).toBeGreaterThanOrEqual(8);
+    // C5: no blocked category, each value names Tausch or Hilfe with source
+    const kats = optJson.anpassungsvariablen.flatMap((v: { kategorien: unknown[] }) => v.kategorien) as Array<{
+      id: string;
+      auspraegungen: Array<{ id: string; teilgruppe?: { antwort: string; quelle?: string } }>;
+    }>;
+    expect(kats.find((k) => k.id === 'sensorische')).toBeUndefined();
+    expect(optJson.gesperrteKategorien[0].id).toBe('sensorische');
+    expect(kats.flatMap((k) => k.auspraegungen).find((a) => a.id === 'vorwissen-gering')?.teilgruppe).toMatchObject({ antwort: 'tausch' });
+    const filtered = JSON.parse(
+      ((await client.callTool({ name: 'list_differentiation_options', arguments: { oberkategorie: 'sensorische' } })).content as Array<{ text: string }>)[0].text
+    );
+    expect(filtered.anpassungsvariablen.flatMap((v: { kategorien: Array<{ id: string }> }) => v.kategorien).some((k: { id: string }) => k.id === 'sensorische')).toBe(false);
+
+    // adapt_scenario: groups with ohneSchrift/ohneBewegung; blocked value gives text, no error
+    const adaptGrp = JSON.parse(
+      ((await client.callTool({
+        name: 'adapt_scenario',
+        arguments: {
+          baustein: 'cornell-methode',
+          bildungsstufe: 'sek1',
+          gruppen: [
+            { id: 'regel', label: 'Klasse' },
+            { id: 'g1', label: 'Ohne Schreiben', ohneSchrift: ['schreiben'], ohneBewegung: true },
+            { id: 'g2', label: 'Lerntyp', selectedValues: { sensorische: 'sensorische-visuell' } }
+          ]
+        }
+      })).content as Array<{ text: string }>)[0].text
+    );
+    const imp = adaptGrp.phasenAnpassungen[0].teilgruppenImpulse as Array<{ groupId: string; antwort: string }>;
+    expect(['tausch', 'hilfe']).toContain(imp.find((i) => i.groupId === 'g1')!.antwort);
+    expect(adaptGrp.gesperrt).toEqual([expect.objectContaining({ gruppe: 'Lerntyp' })]);
+
+    const scoreC5 = JSON.parse(
+      ((await client.callTool({
+        name: 'score_differentiation_matrix',
+        arguments: { selectedValues: { vorwissen: 'vorwissen-gering', sensorische: 'sensorische-visuell' }, baustein: 'gruppenpuzzle', bildungsstufe: 'sek1' }
+      })).content as Array<{ text: string }>)[0].text
+    );
+    expect(scoreC5.merkmale[0]).toMatchObject({ wert: 'vorwissen-gering', antwort: 'tausch' });
+    expect(scoreC5.gesperrt[0].kategorie).toBe('sensorische');
 
     const singleMethodRes = await client.callTool({
       name: 'adapt_scenario',

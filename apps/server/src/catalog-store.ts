@@ -7,6 +7,8 @@ import {
   createValidator,
   detectMatrixTraitsFromText,
   type Arrangement,
+  DIFF_MATRIX_VARIABLES,
+  getPersonaValues,
   type Baustein,
   type CatalogBundle,
   type FmtData,
@@ -70,6 +72,71 @@ export function schemeValues(bundle: CatalogBundle, id: string): { id: string; l
   const s = bundle.schemes.find((x) => x.id === id);
   const werte = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
   return werte.map((w) => ({ id: w.id, label: w.label }));
+}
+
+/** Answer of the table "Tausch oder Hilfe" for one matrix value, with basis and source. */
+export interface MerkmalsAntwort {
+  antwort: 'tausch' | 'hilfe' | 'passt';
+  merkmal?: string;
+  richtung?: string;
+  wohin?: string;
+  grundlage?: string;
+  quelle?: string;
+}
+
+/** Row of teilgruppen.json that covers a matrix value; neutral values fit, unnamed ones get the default help. */
+export function merkmalsAntwort(bundle: CatalogBundle, wert: string): MerkmalsAntwort {
+  const t = bundle.teilgruppen;
+  if (t.neutral.includes(wert)) return { antwort: 'passt' };
+  const m = t.merkmale.find((x) => x.auspraegungen.includes(wert));
+  if (!m) return { antwort: t.sonst.antwort, wohin: t.sonst.wohin, grundlage: t.sonst.grundlage };
+  return {
+    antwort: m.antwort,
+    merkmal: m.id,
+    ...(m.richtung ? { richtung: m.richtung } : {}),
+    wohin: m.wohin,
+    grundlage: m.grundlage,
+    ...(m.quelle ? { quelle: m.quelle } : {})
+  };
+}
+
+/**
+ * Matrix variables without the blocked categories (teilgruppen.json); every value says whether the subgroup gets
+ * a swap or a help, with basis and source. The blocked categories are listed with the reason.
+ */
+export function differenzierungsMerkmale(bundle: CatalogBundle, oberkategorie?: string) {
+  const t = bundle.teilgruppen;
+  const needle = oberkategorie?.toLowerCase();
+  const variables = DIFF_MATRIX_VARIABLES.filter((v) => !needle || v.id === oberkategorie || v.name.toLowerCase().includes(needle))
+    .map((v) => ({
+      ...v,
+      kategorien: v.kategorien
+        .filter((k) => !t.gesperrt.includes(k.id))
+        .map((k) => ({ ...k, auspraegungen: k.auspraegungen.map((a) => ({ ...a, teilgruppe: merkmalsAntwort(bundle, a.id) })) }))
+    }))
+    .filter((v) => v.kategorien.length > 0);
+  const gesperrteKategorien = DIFF_MATRIX_VARIABLES.flatMap((v) => v.kategorien)
+    .filter((k) => t.gesperrt.includes(k.id))
+    .map((k) => ({ id: k.id, name: k.name, text: t.gesperrtText }));
+  return { variables, gesperrteKategorien };
+}
+
+/** Per selected value the answer of the table, and the blocked categories of the request (no error, only the text). */
+export function merkmalsEntscheidungen(bundle: CatalogBundle, selectedValues: Record<string, string>) {
+  const t = bundle.teilgruppen;
+  const merkmale = Object.entries(selectedValues)
+    .filter(([kategorie, wert]) => !t.gesperrt.includes(kategorie) && !t.neutral.includes(wert))
+    .map(([kategorie, wert]) => ({ kategorie, wert, ...merkmalsAntwort(bundle, wert) }));
+  const gesperrt = Object.keys(selectedValues)
+    .filter((kategorie) => t.gesperrt.includes(kategorie))
+    .map((kategorie) => ({ kategorie, text: t.gesperrtText }));
+  return { merkmale, gesperrt };
+}
+
+/** Decision per value of a score request: persona and values count, only the values named by the caller can be reported as blocked. */
+export function merkmalsEntscheidungenFuerAnfrage(bundle: CatalogBundle, personaId: string | undefined, selectedValues: Record<string, string>) {
+  const alle = merkmalsEntscheidungen(bundle, { ...(personaId ? getPersonaValues(personaId) : {}), ...selectedValues });
+  return { merkmale: alle.merkmale, gesperrt: alle.gesperrt.filter((g) => g.kategorie in selectedValues) };
 }
 
 export function loadCatalogStore(distDataDir: string): CatalogStore {

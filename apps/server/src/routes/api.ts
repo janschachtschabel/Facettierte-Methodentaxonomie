@@ -1,9 +1,9 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import {
   DIFF_MATRIX_PERSONAS,
-  DIFF_MATRIX_VARIABLES,
   FmtRequestError,
   QUICK_LEARNER_GROUP_PROFILES,
+  nurMethoden,
   getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
@@ -14,12 +14,12 @@ import {
   type MeasureLevel,
   type SearchCriteria
 } from '@fmt/core';
-import { schemeValues, type CatalogStore } from '../catalog-store.js';
+import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
-import { MAX_TEXT_CHARS, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
+import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
  * A subject name (`fach`, e.g. "Mathematik" or "Physik") becomes the filter `fuerFachbereich`: methods of the
@@ -275,7 +275,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
 
   app.get('/api/v1/differentiation/meta', async () => ({
     ...getDifferentiationMetaSummary(),
-    variables: DIFF_MATRIX_VARIABLES,
+    ...differenzierungsMerkmale(store.bundle),
     personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
   }));
 
@@ -298,6 +298,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (body.gruppen != null && !isGroupList(body.gruppen)) {
       return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
     }
+    const badGroupField = groupFieldError(body.gruppen);
+    if (badGroupField) return reply.code(400).send({ fehler: badGroupField });
     if (body.phasen != null && !isPhaseList(body.phasen)) {
       return reply.code(400).send({ fehler: 'Feld „phasen“: erwartet wird eine Liste von Objekten mit phaseLabel.' });
     }
@@ -343,6 +345,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     const scoreResult = scoreDifferentiationMatrix({
       personaId: body.personaId ?? quickProfile?.personaId,
       selectedValues: Object.keys(mergedSelected).length ? mergedSelected : undefined,
+      gesperrt: store.bundle.teilgruppen.gesperrt,
       minScore: body.minScore,
       limit: body.limit,
       ebenen: body.ebenen,
@@ -354,7 +357,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     });
     const currentBlock = body.baustein ? store.blocksById.get(body.baustein) : undefined;
     const alternativeMethoden = currentBlock
-      ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5, undefined, {
+      ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, nurMethoden(store.bundle.bausteine), 5, undefined, {
           maxTechnik: body.maxTechnik,
           ohneInternet: body.ohneInternet,
           ohneKI: body.ohneKI,
@@ -363,6 +366,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       : [];
     return {
       ...scoreResult,
+      ...merkmalsEntscheidungenFuerAnfrage(store.bundle, body.personaId ?? quickProfile?.personaId, mergedSelected),
       alternativeMethoden,
       personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
       schnellProfile: QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ id: p.id, label: p.label, profile: p.profile }))
