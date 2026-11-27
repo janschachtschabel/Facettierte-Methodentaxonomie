@@ -138,4 +138,16 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
     expect(hits3.length).toBeGreaterThanOrEqual(10);
     expect(elapsed).toBeLessThan(50);
   });
+
+  it('sucht nach Eintragsart: ohne Angabe beide, sonst nur Methoden oder nur Hilfen (Task C4)', () => {
+    const data = { ...BUNDLE, VERSION: BUNDLE.version } as unknown as FmtData;
+    const search = createSearch(data);
+    const alle = search.suche({});
+    const hilfen = search.suche({ eintragsart: 'hilfe' });
+    const methoden = search.suche({ eintragsart: 'methode' });
+    expect(alle.length).toBe(EXPECTED_METHOD_COUNT);
+    expect(hilfen.length).toBe(BUNDLE.bausteine.filter((b) => b.eintragsart === 'hilfe').length);
+    expect(hilfen.length + methoden.length).toBe(alle.length);
+    expect(methoden.some((b) => b.eintragsart === 'hilfe')).toBe(false);
+  });
 });

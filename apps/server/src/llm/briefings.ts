@@ -774,6 +774,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     pruefung: matched.pruefung,
     verankert: matched.verankert || [],
     nichtVerankert: matched.nichtVerankert || [],
+    // Helps named in the text: never a phase, they go to the phases in step 3 (hinweise says so).
+    genannteHilfen: matched.genannteHilfen || [],
     // Steps left open and why (uncovered need), and the form of proof the check is ordered by.
     ...(matched.modus === 'ablauf' && matched.offenGruende?.length ? { offenGruende: matched.offenGruende } : {}),
     ...(matched.nachweis ? { nachweis: matched.nachweis } : {}),

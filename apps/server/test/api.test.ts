@@ -119,6 +119,28 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     }
   });
 
+  it('GET /methods unterscheidet Methoden und Hilfen; POST /plan nennt eine genannte Hilfe unter genannteHilfen, auch kompakt', async () => {
+    const get = async (q: string) => (await app.inject({ method: 'GET', url: `/api/v1/methods?${q}` })).json();
+    const alle = await get('');
+    const hilfen = await get('eintragsart=hilfe');
+    const methoden = await get('eintragsart=methode');
+    expect(hilfen.anzahl).toBeGreaterThan(0);
+    expect(hilfen.anzahl + methoden.anzahl).toBe(alle.anzahl);
+    expect(hilfen.treffer.every((b: { eintragsart?: string }) => b.eintragsart === 'hilfe')).toBe(true);
+    // A help of the catalogue (whichever it is), named by its main name.
+    const hilfe = hilfen.treffer[0] as { kennung: string; name: string };
+    const name = hilfe.name.replace(/\s*\(.*\)\s*$/, '');
+    for (const umfang of ['voll', 'kompakt']) {
+      const r = (
+        await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: `Deutsch Klasse 5, Märchen, 45 Minuten, mit ${name}`, umfang, includeWloOer: false } })
+      ).json();
+      expect(r.genannteHilfen, umfang).toEqual([hilfe.kennung]);
+      expect(r.hinweise).toContain(`‚${hilfe.name}‘ ist eine Hilfe und wird in Schritt 3 den Phasen zugeordnet`);
+      expect(r.nichtVerankert.map((n: { baustein: string }) => n.baustein)).not.toContain(hilfe.kennung);
+      expect(r.methodenDetails.map((m: { kennung: string }) => m.kennung)).not.toContain(hilfe.kennung);
+    }
+  });
+
   it('POST /match nimmt lernort weiter an', async () => {
     const r = await app.inject({ method: 'POST', url: '/api/v1/match', payload: { text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' } });
     expect(r.statusCode).toBe(200);

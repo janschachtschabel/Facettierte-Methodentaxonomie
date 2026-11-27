@@ -77,6 +77,7 @@ export function MethodDetailPage() {
               <span className="range-badge">
                 {b.reichweite.toUpperCase()} {labelOf('reichweite', b.reichweite)}
               </span>
+              {b.eintragsart === 'hilfe' && <span className="status-badge">Hilfe</span>}
               {b.komposit && <span className="status-badge">Kompositbaustein</span>}
               {b.ki && <span className="status-badge">KI-Beteiligung</span>}
               <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
@@ -150,16 +151,23 @@ export function MethodDetailPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => {
-                queueBlockForPlanner(b.kennung);
-                navigate('/planer');
-              }}
-            >
-              + In Szenario-Baukasten übernehmen
-            </button>
+            {b.eintragsart === 'hilfe' ? (
+              <p className="muted" style={{ margin: 0, maxWidth: '60ch' }}>
+                Eine Hilfe ist keine eigene Phase: Sie stützt Lernende innerhalb einer Methode. Im Baukasten ordnest du sie in
+                Schritt 3 den Phasen zu.
+              </p>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  queueBlockForPlanner(b.kennung);
+                  navigate('/planer');
+                }}
+              >
+                + In Szenario-Baukasten übernehmen
+              </button>
+            )}
             <button
               type="button"
               className="btn"

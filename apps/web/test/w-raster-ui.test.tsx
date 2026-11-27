@@ -126,6 +126,40 @@ describe('W-Raster in der Oberfläche', () => {
     expect(within(sectionOf('Was die Methode braucht')).getByText(`mindestens ${t.termineMin} Termine`, { exact: false })).toBeTruthy();
   });
 
+  it('Katalog schaltet zwischen Methoden und Hilfen um; eine Hilfe kommt nicht als Phase in den Baukasten (Task C4)', () => {
+    render(
+      <MemoryRouter>
+        <CatalogPage />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Tabelle' }));
+    const anzahl = () => Number((screen.getByTestId('trefferzahl').textContent || '').match(/\d+/)![0]);
+    const hilfen = BUNDLE.bausteine.filter((b) => b.eintragsart === 'hilfe');
+    expect(hilfen.length).toBeGreaterThan(0);
+    const umschalter = screen.getByRole('group', { name: 'Methoden / Hilfen' });
+    expect(anzahl()).toBe(BUNDLE.bausteine.length);
+    fireEvent.click(within(umschalter).getByRole('button', { name: /^Hilfen/ }));
+    expect(anzahl()).toBe(hilfen.length);
+    expect(screen.getByText(hilfen[0].name)).toBeTruthy();
+    // A help has no button "+ Baukasten": it is assigned to the phases in step 3.
+    expect(screen.queryAllByRole('button', { name: '+ Baukasten' })).toEqual([]);
+    fireEvent.click(within(umschalter).getByRole('button', { name: /^Methoden \(/ }));
+    expect(anzahl()).toBe(BUNDLE.bausteine.length - hilfen.length);
+    expect(screen.queryByText(hilfen[0].name)).toBeNull();
+
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${hilfen[0].kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Hilfe', { selector: '.status-badge' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /In Szenario-Baukasten übernehmen/ })).toBeNull();
+    expect(screen.getByText(/ordnest du sie in Schritt 3 den Phasen zu/)).toBeTruthy();
+  }, 60_000);
+
   it('Katalog filtert nach Raum und „ohne Lesen und Schreiben“', () => {
     render(
       <MemoryRouter>

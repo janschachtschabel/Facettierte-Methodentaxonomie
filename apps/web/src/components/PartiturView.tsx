@@ -101,7 +101,8 @@ export function PartiturView({
   const [swapTarget, setSwapTarget] = useState<{ pfad: string; candidates: ReplacementCandidate[] } | null>(null);
   const { seq, prefix } = getMainSequence(arrangement);
   const kette = arrangement.zieltyp ? bundle.ketten.find((k) => k.id === arrangement.zieltyp) : null;
-  const sortedBlocks = [...bundle.bausteine].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  // Only methods can fill a phase or a slot; a help (eintragsart 'hilfe') is assigned to phases in step 3.
+  const sortedBlocks = bundle.bausteine.filter((b) => b.eintragsart !== 'hilfe').sort((a, b) => a.name.localeCompare(b.name, 'de'));
   const rangMap = new Map((bundle.schemes.find((s) => s.id === 'reichweite')?.werte || []).map((w) => [w.id, w.rang ?? 0]));
 
   const openSwap = (pfad: string) => {

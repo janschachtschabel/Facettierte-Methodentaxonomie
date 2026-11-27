@@ -96,6 +96,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Nur Methoden, die Lesen (liest) oder Schreiben (schreibt) brauchen; lesen/schreiben werden auch angenommen'),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
+      eintragsart: z
+        .enum(['methode', 'hilfe'])
+        .optional()
+        .describe('Nur Methoden (tragen eine Phase) oder nur Hilfen (stützen Lernende innerhalb einer Methode); ohne Angabe beide'),
       fachbereich: codes('fachbereich')
         .optional()
         .describe('Streng: nur Methoden, die diesem Fachbereich zugeordnet sind ("uebergreifend" = ohne Fachbindung)'),
@@ -128,6 +132,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           kurzbeschreibung: b.kurzbeschreibung,
           reichweite: b.reichweite,
           status: b.status,
+          eintragsart: b.eintragsart || 'methode',
           ansatz: b.ansatz,
           dauerMin: b.dauerMin,
           dauerMax: b.dauerMax,

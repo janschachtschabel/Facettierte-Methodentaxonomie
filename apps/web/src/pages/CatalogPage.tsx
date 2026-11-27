@@ -34,7 +34,7 @@ export function CatalogPage() {
   const [showExpert, setShowExpert] = useState(false);
   const [filters, setFilters] = useState<SearchCriteria>(() => {
     const init: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich'] as const;
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich', 'eintragsart'] as const;
     for (const k of keys) {
       const v = searchParams.get(k);
       if (v) init[k] = k === 'maxDauer' ? Number(v) : v;
@@ -45,7 +45,7 @@ export function CatalogPage() {
   useEffect(() => {
     if (![...searchParams.keys()].length) return;
     const next: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich'] as const;
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich', 'eintragsart'] as const;
     for (const k of keys) {
       const v = searchParams.get(k);
       if (v) next[k] = k === 'maxDauer' ? Number(v) : v;
@@ -79,6 +79,10 @@ export function CatalogPage() {
 
   const ansatzValues = valuesOf('ansatz');
   const activeAnsatz = typeof filters.ansatz === 'string' ? filters.ansatz : '';
+  const activeArt = filters.eintragsart || '';
+  const hilfenAnzahl = bundle.bausteine.filter((b) => b.eintragsart === 'hilfe').length;
+  const istHilfe = (b: { eintragsart?: string }) => b.eintragsart === 'hilfe';
+  const HILFE_TITEL = 'Eine Hilfe stützt Lernende innerhalb einer Methode; du ordnest sie in Schritt 3 des Baukastens den Phasen zu.';
 
   const pickForCompare = (kennung: string) => {
     setComparePair([kennung, comparePair[0] === kennung ? comparePair[1] : comparePair[0]]);
@@ -110,8 +114,40 @@ export function CatalogPage() {
         </div>
       </div>
 
-      {/* Quick Ansatz Tabs */}
+      {/* Methods carry a phase, helps support learners inside a method */}
       <div style={{ marginTop: 18 }}>
+        <ul className="chips" role="group" aria-label="Methoden / Hilfen">
+          <li>
+            <button type="button" className="btn btn-sm" aria-pressed={!activeArt} onClick={() => setFilter('eintragsart', '')}>
+              Methoden und Hilfen ({bundle.bausteine.length})
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={activeArt === 'methode'}
+              onClick={() => setFilter('eintragsart', activeArt === 'methode' ? '' : 'methode')}
+            >
+              Methoden ({bundle.bausteine.length - hilfenAnzahl})
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={activeArt === 'hilfe'}
+              title={HILFE_TITEL}
+              onClick={() => setFilter('eintragsart', activeArt === 'hilfe' ? '' : 'hilfe')}
+            >
+              Hilfen ({hilfenAnzahl})
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      {/* Quick Ansatz Tabs */}
+      <div style={{ marginTop: 10 }}>
         <ul className="chips" role="group" aria-label="Filter nach didaktischem Ansatz">
           <li>
             <button
@@ -447,6 +483,11 @@ export function CatalogPage() {
                         <span className="range-badge" title={`FMT-Granularitätsebene ${b.reichweite.toUpperCase()}`}>
                           {GRANULARITY_READABLE[b.reichweite] || b.reichweite.toUpperCase()}
                         </span>
+                        {istHilfe(b) && (
+                          <span className="status-badge" title={HILFE_TITEL}>
+                            Hilfe
+                          </span>
+                        )}
                         {b.komposit && <span className="status-badge">Container</span>}
                         {b.ki && <span className="status-badge">KI</span>}
                         <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
@@ -498,9 +539,11 @@ export function CatalogPage() {
                     <button type="button" className="btn btn-sm" onClick={() => pickForCompare(b.kennung)}>
                       Vergleich
                     </button>
-                    <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
-                      + Baukasten
-                    </button>
+                    {!istHilfe(b) && (
+                      <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
+                        + Baukasten
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>
@@ -544,9 +587,15 @@ export function CatalogPage() {
                     <EvidenceBadge grade={search.bestGrade(b)} />
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
-                    <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
-                      + Baukasten
-                    </button>
+                    {istHilfe(b) ? (
+                      <span className="muted" title={HILFE_TITEL}>
+                        Hilfe
+                      </span>
+                    ) : (
+                      <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
+                        + Baukasten
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

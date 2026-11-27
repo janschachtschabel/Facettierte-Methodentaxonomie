@@ -102,6 +102,24 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(beides.anzahl).toBe(erwartet);
   });
 
+  it('search_methods filtert nach eintragsart; build_scenario_plan nennt genannteHilfen', async () => {
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const hilfen = await call('search_methods', { eintragsart: 'hilfe', limit: 100 });
+    expect(hilfen.anzahl).toBeGreaterThan(0);
+    expect(hilfen.treffer.every((b: { eintragsart?: string }) => b.eintragsart === 'hilfe')).toBe(true);
+    const methoden = await call('search_methods', { eintragsart: 'methode', limit: 100 });
+    expect(methoden.treffer.some((b: { eintragsart?: string }) => b.eintragsart === 'hilfe')).toBe(false);
+    const hilfe = hilfen.treffer[0] as { kennung: string; name: string };
+    const name = hilfe.name.replace(/\s*\(.*\)\s*$/, '');
+    const plan = await call('build_scenario_plan', { text: `Deutsch Klasse 5, Märchen, 45 Minuten, mit ${name}`, umfang: 'kompakt' });
+    expect(plan.genannteHilfen).toEqual([hilfe.kennung]);
+    expect(plan.nichtVerankert.map((n: { baustein: string }) => n.baustein)).not.toContain(hilfe.kennung);
+  });
+
   it('executes search_methods, get_method, compare_methods, match_scenario, validate_arrangement, suggest_replacements and list_vocabularies', async () => {
     const searchRes = await client.callTool({
       name: 'search_methods',
