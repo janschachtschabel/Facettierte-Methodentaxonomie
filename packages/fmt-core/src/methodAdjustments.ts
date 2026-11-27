@@ -15,6 +15,7 @@ import {
   bereinigeProfil,
   entscheideTeilgruppe,
   erfuelltRichtung,
+  genannteWerte,
   istGleichwertig,
   type TeilgruppenEntscheidung,
   type TeilgruppenProfil
@@ -40,6 +41,21 @@ export interface MethodAdjustmentGroup {
   ohneSchrift?: Array<'lesen' | 'schreiben'>;
   /** The group cannot move freely (statement of the group, not a matrix trait). */
   ohneBewegung?: boolean;
+  /**
+   * Values of selectedValues the teacher named (core values of a preset, traits read from the text). Only these decide
+   * the table rows; the others only order the matrix. Undefined: every value of selectedValues counts.
+   */
+  genannt?: string[];
+}
+
+/** One help inside the method; the row's own help carries its basis and source. */
+export interface Hilfe {
+  id: string;
+  name: string;
+  /** When the help is no longer needed. */
+  abbau: string;
+  grundlage?: Grundlage;
+  quelle?: string;
 }
 
 export interface MethodAdjustmentConstraints {
@@ -86,8 +102,8 @@ export interface SupportProposal {
   grund: string;
   grundlage?: Grundlage;
   quelle?: string;
-  /** Measures of the matrix the help consists of; each says when it is no longer needed. */
-  hilfen: Array<{ id: string; name: string; abbau: string }>;
+  /** The row's own help (E, A, Recht) and measures of the matrix; each says when it is no longer needed. */
+  hilfen: Hilfe[];
 }
 
 /** Subgroups can only be checked when a persona, matrix values or own statements describe their needs. */
@@ -98,16 +114,20 @@ export function hasAdjustmentProfile(g: Pick<MethodAdjustmentGroup, 'personaId' 
 /**
  * Profile of a group for the subgroup decision: persona values below the group's own values. Blocked categories of
  * the persona are dropped here (a persona is no statement of the teacher); blocked categories the group names itself
- * stay and are reported by the decision.
+ * stay and are reported by the decision. Only the group's named values decide (genannt): its own values, or the
+ * subset it names; persona values only order the matrix.
  */
 export function teilgruppenProfil(g: MethodAdjustmentGroup, t: TeilgruppenRegelsatz): TeilgruppenProfil {
   const persona = Object.fromEntries(
     Object.entries(g.personaId ? getPersonaValues(g.personaId) : {}).filter(([k]) => !t.gesperrt.includes(k))
   );
+  const eigene = Object.values(g.selectedValues || {});
+  const genannt = g.genannt ? eigene.filter((w) => g.genannt!.includes(w)) : eigene;
   return {
     id: g.id,
     label: g.label,
     selectedValues: { ...persona, ...(g.selectedValues || {}) },
+    genannt,
     ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
     ...(g.ohneBewegung ? { ohneBewegung: true } : {})
   };
@@ -252,7 +272,7 @@ export interface PhasenAntwort {
   merkmal?: string;
   grundlage?: Grundlage;
   quelle?: string;
-  hilfen: Array<{ id: string; name: string; abbau: string }>;
+  hilfen: Hilfe[];
   /** Equivalent replacements not planned elsewhere and not yet given to the group; the first one is proposed. */
   alternativen: GleichwertigerKandidat[];
 }
@@ -292,7 +312,6 @@ export function teilgruppenAntworten(
     if (g.isMain || !hasAdjustmentProfile(g)) continue;
     const profil = teilgruppenProfil(g, t);
     const matrix = matrixFuer(g, t, constraints);
-    const hilfsMatrix = matrixFuer(g, t, constraints, 50);
     const usedForGroup = new Set<string>();
 
     for (const p of phases) {
@@ -308,7 +327,7 @@ export function teilgruppenAntworten(
         out.push({ ...basis, antwort: 'passt', grund: e.grund, hilfen: [], alternativen: [] });
         continue;
       }
-      const wohin = wohinVon(e, t);
+      const hilfen = hilfenDerEntscheidung(p.block, e, profil, t, constraints);
       if (e.antwort === 'tausch') {
         const { kandidaten, abgelehnt } = p.locked
           ? { kandidaten: [], abgelehnt: [] }
@@ -320,9 +339,6 @@ export function teilgruppenAntworten(
           continue;
         }
         const vergeben = kandidaten.map((c) => c.name);
-        let hilfen = hilfenFuer(p.block, hilfsMatrix, t, wohin);
-        // The help must name something: without a matrix measure the row's own help stands.
-        if (!hilfen.length && wohin) hilfen = [{ id: `teilgruppe:${e.merkmal ?? 'sonst'}`, name: wohin, abbau: t.abbau.sonst }];
         out.push({
           ...basis,
           antwort: 'hilfe',
@@ -332,7 +348,7 @@ export function teilgruppenAntworten(
         });
         continue;
       }
-      out.push({ ...basis, antwort: 'hilfe', grund: e.grund, hilfen: hilfenFuer(p.block, hilfsMatrix, t, wohin), alternativen: [] });
+      out.push({ ...basis, antwort: 'hilfe', grund: e.grund, hilfen, alternativen: [] });
     }
   }
   return out;
@@ -390,26 +406,90 @@ const stems = (text: string) =>
       .filter((w) => !KEINE_HILFE.has(w))
   );
 
+/** Two helps are variants of each other when the word stems of one are all in the other. */
+function aehnlich(a: string, b: string): boolean {
+  const x = stems(a);
+  const y = stems(b);
+  if (!x.size || !y.size) return false;
+  return [...x].every((w) => y.has(w)) || [...y].every((w) => x.has(w));
+}
+
 /**
- * Helps of the matrix for a group in one method: core measures that fit the interaction of the method, at most three.
- * Order: measures that name what the table row asks for (shared word stems with its `wohin`), then measures of the
- * help areas (the areas teilgruppen.json gives a sentence on when the help ends), then the order of the matrix.
+ * Helps of the matrix for a group in one method: core measures that fit the interaction of the method, at most three
+ * (with `erste`, the row's own help, in front). Order: measures that name what the table row asks for (shared word
+ * stems with its `wohin`), then measures of the help areas (the areas teilgruppen.json gives a sentence on when the
+ * help ends), then the order of the matrix. A measure whose word stems are all in an already picked help, or the
+ * other way round, is left out.
  */
 export function hilfenFuer(
   block: Baustein | undefined,
   matrix: MatrixScoreResult,
   t: TeilgruppenRegelsatz,
-  wohin?: string
-): Array<{ id: string; name: string; abbau: string }> {
+  wohin?: string,
+  erste?: Hilfe,
+  ohne: ReadonlySet<string> = new Set()
+): Hilfe[] {
   const gesucht = stems(wohin || '');
   const nennt = (name: string) => [...stems(name)].some((w) => gesucht.has(w));
   const bereich = (id: string) => (id in t.abbau && id !== 'sonst' ? 0 : 1);
-  return matrix.topRecommendations
+  const out: Hilfe[] = erste ? [erste] : [];
+  const sortiert = matrix.topRecommendations
     .map((m, i) => ({ m, i }))
-    .filter(({ m }) => m.relevanz === 'kern' && !conflictsWithMethodInteraction(m.id, block))
-    .sort((a, b) => Number(nennt(b.m.name)) - Number(nennt(a.m.name)) || bereich(a.m.oberKategorieId) - bereich(b.m.oberKategorieId) || a.i - b.i)
-    .slice(0, MAX_HILFEN)
-    .map(({ m }) => ({ id: m.id, name: m.name, abbau: t.abbau[m.oberKategorieId] ?? t.abbau.sonst }));
+    .filter(({ m }) => m.relevanz === 'kern' && !ohne.has(m.id) && !conflictsWithMethodInteraction(m.id, block))
+    .sort((a, b) => Number(nennt(b.m.name)) - Number(nennt(a.m.name)) || bereich(a.m.oberKategorieId) - bereich(b.m.oberKategorieId) || a.i - b.i);
+  for (const { m } of sortiert) {
+    if (out.length >= MAX_HILFEN) break;
+    if (out.some((h) => aehnlich(h.name, m.name))) continue;
+    out.push({ id: m.id, name: m.name, abbau: t.abbau[m.oberKategorieId] ?? t.abbau.sonst });
+  }
+  return out;
+}
+
+/**
+ * Measures of special-needs support: a help only where a deciding value is a formal need (foerderbedarf-*), never for
+ * e.g. second-language learners, whose language level alone scores them in the matrix.
+ */
+const NUR_BEI_FOERDERBEDARF: ReadonlySet<string> = new Set([
+  'unterstuetzungsintensitaet-intensiv',
+  'unterstuetzungsintensitaet-kontinuierlich',
+  'lernwerkzeuge-assistiv'
+]);
+
+/** Bases whose row sentence names a help the teacher can use as it stands (not U, S or formal). */
+const BELEGTE_HILFE: ReadonlySet<Grundlage> = new Set<Grundlage>(['E', 'A', 'Recht']);
+
+/** The row's own help: its `wohin`, with basis and source, when the row rests on evidence, an analogy or law. */
+export function zeilenHilfe(e: Pick<TeilgruppenEntscheidung, 'merkmal'>, t: TeilgruppenRegelsatz): Hilfe | undefined {
+  const m = e.merkmal && e.merkmal !== 'sonst' ? t.merkmale.find((x) => x.id === e.merkmal) : undefined;
+  if (!m || !BELEGTE_HILFE.has(m.grundlage)) return undefined;
+  return { id: `teilgruppe:${m.id}`, name: m.wohin, abbau: t.abbau.sonst, grundlage: m.grundlage, ...(m.quelle ? { quelle: m.quelle } : {}) };
+}
+
+/**
+ * Helps for a decision: the row's own help first (E, A, Recht), then matrix measures scored only with the group's
+ * values in the deciding row (for sonst: that one value). Persona values and extras of a preset play no part here.
+ */
+export function hilfenDerEntscheidung(
+  block: Baustein | undefined,
+  e: Pick<TeilgruppenEntscheidung, 'merkmal' | 'werte'>,
+  profil: Pick<TeilgruppenProfil, 'selectedValues'>,
+  t: TeilgruppenRegelsatz,
+  constraints: MethodAdjustmentConstraints = {}
+): Hilfe[] {
+  const erste = zeilenHilfe(e, t);
+  const werte = new Set(e.werte || []);
+  const selectedValues = Object.fromEntries(Object.entries(profil.selectedValues || {}).filter(([, w]) => werte.has(w)));
+  if (!Object.keys(selectedValues).length) return erste ? [erste] : [];
+  const matrix = scoreDifferentiationMatrix({
+    selectedValues,
+    gesperrt: t.gesperrt,
+    maxTechnik: constraints.maxTechnik,
+    ohneInternet: constraints.ohneInternet,
+    ohneKI: constraints.ohneKI,
+    limit: 50
+  });
+  const foerderbedarf = [...werte].some((w) => w.startsWith('foerderbedarf-'));
+  return hilfenFuer(block, matrix, t, wohinVon(e, t), erste, foerderbedarf ? undefined : NUR_BEI_FOERDERBEDARF);
 }
 
 /** The table row's `wohin` behind a decision (for the order of the helps). */
@@ -482,7 +562,7 @@ export function teilgruppenHinweise(
       const m = r && regeln.meldung(r.id, undefined, `${g.label}: ${r.text}`);
       if (m) out.push(m);
     }
-    if (Object.values(profil.selectedValues).some((w) => GERINGE_LEISTUNG.includes(w))) {
+    if (genannteWerte(profil).some((w) => GERINGE_LEISTUNG.includes(w))) {
       for (const p of phases) {
         if (!p.block || kooperativGemeldet.has(p.block.kennung)) continue;
         if (!(p.block.interaktion || []).includes('kleingruppe-kooperativ')) continue;

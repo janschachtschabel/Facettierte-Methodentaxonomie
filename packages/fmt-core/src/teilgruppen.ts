@@ -23,6 +23,20 @@ export interface TeilgruppenProfil {
   selectedValues: Record<string, string>;
   ohneSchrift?: Array<'lesen' | 'schreiben'>;
   ohneBewegung?: boolean;
+  /**
+   * Values the teacher named (explicit values, traits read from the text, core values of a preset). Only these decide
+   * the rows of the table and `sonst`; the other values (persona, extras of a preset) only order the matrix measures.
+   * Undefined: every value in selectedValues counts.
+   */
+  genannt?: string[];
+}
+
+/** Values of the profile that decide (see TeilgruppenProfil.genannt). */
+export function genannteWerte(p: Pick<TeilgruppenProfil, 'selectedValues' | 'genannt'>): string[] {
+  const werte = Object.values(p.selectedValues || {}).filter(Boolean);
+  if (!p.genannt) return werte;
+  const genannt = new Set(p.genannt);
+  return werte.filter((w) => genannt.has(w));
 }
 
 export interface TeilgruppenEntscheidung {
@@ -36,6 +50,8 @@ export interface TeilgruppenEntscheidung {
   quelle?: string;
   /** Traits on the blocklist the group named. */
   gesperrt: string[];
+  /** The group's named values in the deciding row (for sonst: the one value); the helps are scored with these only. */
+  werte?: string[];
 }
 
 export interface Gleichwertigkeit {
@@ -102,7 +118,7 @@ export function bereinigeProfil(p: TeilgruppenProfil, t: TeilgruppenRegelsatz): 
   }
   const ohneSchrift = new Set(p.ohneSchrift || []);
   let ohneBewegung = Boolean(p.ohneBewegung);
-  for (const wert of Object.values(selectedValues)) {
+  for (const wert of genannteWerte({ selectedValues, genannt: p.genannt })) {
     const r = zeileVon(t, wert)?.richtung;
     if (r === 'ohne-bewegung') ohneBewegung = true;
     if (r === 'ohne-lesen') ohneSchrift.add('lesen');
@@ -125,7 +141,8 @@ function formaleLuecken(b: Baustein, p: TeilgruppenProfil, t?: TeilgruppenRegels
   const aus: FormalerBedarf[] = [];
   const ohne = p.ohneSchrift || [];
   // The table row with a formal direction names the trait; without one it is the group's own statement.
-  const zeile = (r: Richtung) => t?.merkmale.find((m) => m.richtung === r && m.auspraegungen.some((a) => Object.values(p.selectedValues || {}).includes(a)));
+  const werte = genannteWerte(p);
+  const zeile = (r: Richtung) => t?.merkmale.find((m) => m.richtung === r && m.auspraegungen.some((a) => werte.includes(a)));
   for (const [r, wert, eigen] of [
     ['ohne-lesen', 'lesen', 'kann-nicht-lesen'],
     ['ohne-schreiben', 'schreiben', 'kann-nicht-schreiben']
@@ -163,12 +180,25 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
   const { profil, gesperrt } = bereinigeProfil(p, t);
 
   // 2. Formal needs: the group cannot read, write or move freely and the method needs it.
-  const formal = formaleLuecken(geplant, profil, t)[0];
-  if (formal) return { antwort: 'tausch', merkmal: formal.merkmal, richtung: formal.richtung, grund: formal.grund, grundlage: 'formal', gesperrt };
-
   // Neutral values (average, typical, none) mean no need: ignored like not selected. Older bundles have no list.
+  // Only named values decide (persona values and extras of a preset only order the matrix).
   const neutral = new Set(t.neutral ?? []);
-  const werte = Object.values(profil.selectedValues).filter((w) => Boolean(w) && !neutral.has(w));
+  const werte = genannteWerte(profil).filter((w) => !neutral.has(w));
+  const inZeile = (m: Pick<MerkmalAntwort, 'auspraegungen'>) => werte.filter((w) => m.auspraegungen.includes(w));
+
+  const formal = formaleLuecken(geplant, profil, t)[0];
+  if (formal) {
+    const zeile = t.merkmale.find((m) => m.id === formal.merkmal);
+    return {
+      antwort: 'tausch',
+      merkmal: formal.merkmal,
+      richtung: formal.richtung,
+      grund: formal.grund,
+      grundlage: 'formal',
+      gesperrt,
+      werte: zeile ? inZeile(zeile) : []
+    };
+  }
 
   // 3. Swap rows of the group whose reason the method sets off; B3 decides between swap and help.
   const ausgeloest = t.merkmale
@@ -180,7 +210,16 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
     const anlass = `${merkmalLabel(wert)}: ${geplant.name} ${ANLASS[m.richtung!]}${mitQuelle(m)}.`;
     const quelle = m.quelle ? { quelle: m.quelle } : {};
     if (nurUniform(geplant)) {
-      return { antwort: 'tausch', merkmal: m.id, richtung: m.richtung, grund: `${anlass} Tausch gegen: ${m.wohin}.`, grundlage: m.grundlage, ...quelle, gesperrt };
+      return {
+        antwort: 'tausch',
+        merkmal: m.id,
+        richtung: m.richtung,
+        grund: `${anlass} Tausch gegen: ${m.wohin}.`,
+        grundlage: m.grundlage,
+        ...quelle,
+        gesperrt,
+        werte: inZeile(m)
+      };
     }
     return {
       antwort: 'hilfe',
@@ -189,7 +228,8 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
       grund: `${anlass} Die Methode lässt sich anpassen; sie bleibt und bekommt: ${m.wohin}.`,
       grundlage: m.grundlage,
       ...quelle,
-      gesperrt
+      gesperrt,
+      werte: inZeile(m)
     };
   }
 
@@ -204,7 +244,8 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
       grund: `${merkmalLabel(wert)}: Hilfe in derselben Methode – ${hilfe.wohin}${mitQuelle(hilfe)}.`,
       grundlage: hilfe.grundlage,
       ...(hilfe.quelle ? { quelle: hilfe.quelle } : {}),
-      gesperrt
+      gesperrt,
+      werte: inZeile(hilfe)
     };
   }
   const ungenannt = werte.find((w) => !swapWerte.has(w) && !zeileVon(t, w));
@@ -214,7 +255,8 @@ export function entscheideTeilgruppe(geplant: Baustein, p: TeilgruppenProfil, t:
       merkmal: 'sonst',
       grund: `${merkmalLabel(ungenannt)}: ${t.sonst.wohin.replace(/\.$/, '')}${mitQuelle(t.sonst)}.`,
       grundlage: t.sonst.grundlage,
-      gesperrt
+      gesperrt,
+      werte: [ungenannt]
     };
   }
 

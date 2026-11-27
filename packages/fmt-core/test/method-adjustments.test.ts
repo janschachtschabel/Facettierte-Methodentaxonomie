@@ -229,8 +229,10 @@ describe('proposeSupports', () => {
       expect(s.hilfen.length).toBeLessThanOrEqual(3);
       expect(s.grundlage).toBe('E');
       expect(s.quelle).toContain('Höfler');
+      // Fix wave C (1c): the row's own help (E) comes first, the matrix measures follow.
+      expect(s.hilfen[0]).toMatchObject({ id: 'teilgruppe:sprachstand', grundlage: 'E' });
       for (const h of s.hilfen) {
-        expect(kern.has(h.id), h.id).toBe(true);
+        if (!h.id.startsWith('teilgruppe:')) expect(kern.has(h.id), h.id).toBe(true);
         expect(abbauTexte.has(h.abbau), h.abbau).toBe(true);
       }
     }
@@ -302,13 +304,14 @@ describe('teilgruppenHinweise', () => {
 
 describe('Qualitätsfälle n07 bis n10 als Kerntests', () => {
   it('n07: geringes Vorwissen tauscht eine nur offene, uniforme Methode gegen eine angeleitete', () => {
-    // Paper text: the matcher plans only guided methods, so nothing sets off the swap; the group gets helps.
+    // Paper text: the matcher plans only guided methods, so nothing sets off the swap. Fix wave C (1a): only the named
+    // values (vorwissen-gering, leistungsniveau-gering) decide, so the extra value lernstrategien-kaum gives no U help:
+    // the guided methods fit.
     const papier = adaptiere('Mathematik Klasse 8, lineare Funktionen, 45 Minuten', '6 Lernende mit geringem Vorwissen');
     const tg = impulse(papier, 'vorwissen-gering');
     expect(tg.length).toBeGreaterThan(0);
     for (const t of tg) {
-      expect(t.antwort, t.phase.baustein!).toBe('hilfe');
-      expect(t.hilfen.length).toBeGreaterThan(0);
+      expect(t.antwort, t.phase.baustein!).toBe('passt');
       expect(block(t.phase.baustein!).anleitung.some((a) => a === 'explizit' || a === 'geleitet')).toBe(true);
     }
     expect(papier.teilgruppenMethoden).toEqual([]);
@@ -341,7 +344,7 @@ describe('Qualitätsfälle n07 bis n10 als Kerntests', () => {
     for (const t of hilfe) {
       expect(t.beleg.grund).toContain('sprachliches Gerüst');
       // The help that names the row's need comes first.
-      expect(t.hilfen[0].name).toMatch(/Sprach/);
+      expect(t.hilfen[0].name).toMatch(/sprach/i);
       expect(t.beleg.quelle).toContain('Höfler');
       expect(t.hilfen.length).toBeGreaterThan(0);
       for (const h of t.hilfen) expect(h.abbau).toMatch(/Entfällt|zurücknehmen/);

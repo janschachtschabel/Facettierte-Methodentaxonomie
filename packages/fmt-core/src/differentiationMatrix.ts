@@ -552,8 +552,8 @@ const MATRIX_TRAIT_RULES: Array<{
     re: /\b(?:daz|deutsch als zweitsprache|sprachsensib\w*|sprachfoerder\w*|sprachförder\w*|geringe\s+sprach\w*|wenig\s+deutsch|mehrsprachig\w*|nicht-?muttersprach\w*)/i,
     personaHint: 'languageAndCulture',
     traits: [
+      // DaZ is second-language acquisition, not a special need (no foerderbedarf-sprache).
       { categoryId: 'sprachkompetenz', valueId: 'sprachkompetenz-gering', label: 'Geringe Sprachkompetenz (DaZ / Sprachförderung)' },
-      { categoryId: 'foerderbedarf-sprache', valueId: 'foerderbedarf-sprache-erheblich', label: 'Sprachlicher Förderbedarf' },
       { categoryId: 'ausdrucksfaehigkeit', valueId: 'ausdrucksfaehigkeit-eingeschraenkt', label: 'Eingeschränkte Fachsprache' }
     ]
   },

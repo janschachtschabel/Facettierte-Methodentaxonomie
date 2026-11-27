@@ -26,6 +26,7 @@ import {
   teilgruppenHinweise,
   teilgruppenAntworten,
   type AdditionalPhaseProposal,
+  type Hilfe,
   type MethodAdjustment,
   type MethodAdjustmentGroup,
   type MethodAdjustmentPhase,
@@ -45,6 +46,11 @@ export interface AdaptGroupInput {
   ohneSchrift?: Array<'lesen' | 'schreiben'>;
   /** The group cannot move freely (statement of the group, not a matrix trait). */
   ohneBewegung?: boolean;
+  /**
+   * Values of selectedValues the teacher named (core values of a preset or of a group read from the text); only these
+   * decide the table rows, the others only order the matrix. Undefined: every value of selectedValues counts.
+   */
+  genannt?: string[];
 }
 
 export interface AdaptPhaseInput {
@@ -92,6 +98,11 @@ export interface QuickLearnerGroupProfile {
   defaultCount: number;
   personaId?: string;
   selectedValues: Record<string, string>;
+  /**
+   * Core values of the preset: what the chip names. Only these decide the table rows of the subgroup decision; the
+   * other values (and the persona) only order the matrix measures.
+   */
+  kern: string[];
 }
 
 /**
@@ -110,9 +121,9 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
     defaultCount: 5,
     selectedValues: {
       sprachkompetenz: 'sprachkompetenz-gering',
-      'foerderbedarf-sprache': 'foerderbedarf-sprache-erheblich',
       ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt'
-    }
+    },
+    kern: ['sprachkompetenz-gering', 'ausdrucksfaehigkeit-eingeschraenkt']
   },
   {
     id: 'adhs',
@@ -127,7 +138,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       'foerderbedarf-emotional-sozial': 'foerderbedarf-emotional-sozial-gelegentlich',
       engagement: 'engagement-gering',
       methoden: 'methoden-direkt'
-    }
+    },
+    kern: ['strukturierung-stark', 'foerderbedarf-emotional-sozial-gelegentlich']
   },
   {
     id: 'lrs',
@@ -141,7 +153,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
       'foerderbedarf-sprache': 'foerderbedarf-sprache-gelegentlich',
       strukturierung: 'strukturierung-stark'
-    }
+    },
+    kern: ['ausdrucksfaehigkeit-eingeschraenkt', 'foerderbedarf-sprache-gelegentlich']
   },
   {
     id: 'foerder-lernen',
@@ -158,7 +171,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       leistungsniveau: 'leistungsniveau-gering',
       denkverarbeitung: 'denkverarbeitung-langsam',
       strukturierung: 'strukturierung-stark'
-    }
+    },
+    kern: ['foerderbedarf-lernen-umfassend']
   },
   {
     id: 'vorwissen-gering',
@@ -173,7 +187,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       leistungsniveau: 'leistungsniveau-gering',
       strukturierung: 'strukturierung-stark',
       lernstrategien: 'lernstrategien-kaum'
-    }
+    },
+    kern: ['vorwissen-gering', 'leistungsniveau-gering']
   },
   {
     id: 'vertiefung',
@@ -189,7 +204,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       denkverarbeitung: 'denkverarbeitung-schnell',
       strukturierung: 'strukturierung-offen',
       metakognitive: 'metakognitive-stark'
-    }
+    },
+    kern: ['vorwissen-hoch', 'leistungsniveau-hoch']
   },
   {
     id: 'schuechtern',
@@ -204,7 +220,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       werte: 'werte-vermeidung',
       selbstwirksamkeit: 'selbstwirksamkeit-gering',
       arbeitsformen: 'arbeitsformen-partner'
-    }
+    },
+    kern: ['soziale-kompetenzen-eingeschraenkt', 'selbstwirksamkeit-gering']
   },
   {
     id: 'barriere',
@@ -218,9 +235,21 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       'foerderbedarf-sehen': 'foerderbedarf-sehen-leicht',
       'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung',
       'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-leicht'
-    }
+    },
+    kern: ['foerderbedarf-sehen-leicht', 'foerderbedarf-hoeren-beeintraechtigung', 'foerderbedarf-koerperlich-leicht']
   }
 ];
+
+/** A subgroup from a preset: its values, its persona, and only its core values as the named ones. */
+export function schnellprofilGruppe(p: QuickLearnerGroupProfile): AdaptGroupInput & { selectedValues: Record<string, string>; genannt: string[] } {
+  return {
+    id: p.id,
+    label: p.label,
+    ...(p.personaId ? { personaId: p.personaId } : {}),
+    selectedValues: { ...p.selectedValues },
+    genannt: [...p.kern]
+  };
+}
 
 export interface UdlMeasure {
   id: string;
@@ -286,7 +315,7 @@ export interface PhaseAdaptationResult {
     /** Why: the row of the table, its basis and source. */
     beleg: { grund: string; merkmal?: string; grundlage?: Grundlage; quelle?: string };
     /** Helps inside the method (answer 'hilfe'), each with the sentence on when it is no longer needed. */
-    hilfen: Array<{ id: string; name: string; abbau: string }>;
+    hilfen: Hilfe[];
   }>;
   passendeFmtMethoden: Array<{
     kennung: string;
@@ -347,6 +376,8 @@ interface SubgroupPattern {
   re: RegExp;
   countRe: RegExp;
   selectedValues: Record<string, string>;
+  /** Values the text names with this pattern; only these decide the table rows (see QuickLearnerGroupProfile.kern). */
+  kern: string[];
   signalLabel: string;
 }
 
@@ -362,9 +393,9 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:daz|deutsch als zweitsprache|sprachf[oö]rder\w*)/i,
     selectedValues: {
       sprachkompetenz: 'sprachkompetenz-gering',
-      'foerderbedarf-sprache': 'foerderbedarf-sprache-erheblich',
       ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt'
     },
+    kern: ['sprachkompetenz-gering', 'ausdrucksfaehigkeit-eingeschraenkt'],
     signalLabel: 'DaZ / Sprachförderbedarf'
   },
   {
@@ -377,6 +408,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       'foerderbedarf-sprache': 'foerderbedarf-sprache-gelegentlich',
       strukturierung: 'strukturierung-stark'
     },
+    kern: ['ausdrucksfaehigkeit-eingeschraenkt', 'foerderbedarf-sprache-gelegentlich'],
     signalLabel: 'LRS / Leseschwäche'
   },
   {
@@ -390,6 +422,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       engagement: 'engagement-gering',
       methoden: 'methoden-direkt'
     },
+    kern: ['strukturierung-stark', 'foerderbedarf-emotional-sozial-gelegentlich'],
     signalLabel: 'ADHS / Konzentrations- & Strukturbedarf'
   },
   {
@@ -402,6 +435,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       strukturierung: 'strukturierung-stark',
       arbeitsformen: 'arbeitsformen-einzel'
     },
+    kern: ['foerderbedarf-autismus-deutlich'],
     signalLabel: 'Autismus-Spektrum'
   },
   {
@@ -416,6 +450,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       denkverarbeitung: 'denkverarbeitung-langsam',
       strukturierung: 'strukturierung-stark'
     },
+    kern: ['foerderbedarf-lernen-umfassend'],
     signalLabel: 'Förderbedarf Lernen'
   },
   {
@@ -429,6 +464,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       strukturierung: 'strukturierung-stark',
       lernstrategien: 'lernstrategien-kaum'
     },
+    kern: ['vorwissen-gering', 'leistungsniveau-gering'],
     signalLabel: 'Geringes Vorwissen'
   },
   {
@@ -442,6 +478,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       selbstwirksamkeit: 'selbstwirksamkeit-gering',
       arbeitsformen: 'arbeitsformen-partner'
     },
+    kern: ['soziale-kompetenzen-eingeschraenkt', 'selbstwirksamkeit-gering'],
     signalLabel: 'Schüchtern / geringe Beteiligung'
   },
   {
@@ -455,6 +492,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       relevanz: 'relevanz-gering',
       methoden: 'methoden-spielerisch'
     },
+    kern: ['engagement-gering', 'interessen-desinteresse'],
     signalLabel: 'Geringe Motivation'
   },
   {
@@ -466,6 +504,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-deutlich',
       'zeitliche-verfuegbarkeit': 'zeitliche-verfuegbarkeit-eingeschraenkt'
     },
+    kern: ['foerderbedarf-koerperlich-deutlich'],
     signalLabel: 'Motorische / körperliche Unterstützung'
   },
   {
@@ -476,6 +515,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     selectedValues: {
       'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung'
     },
+    kern: ['foerderbedarf-hoeren-beeintraechtigung'],
     signalLabel: 'Hörbeeinträchtigung'
   },
   {
@@ -486,6 +526,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     selectedValues: {
       'foerderbedarf-sehen': 'foerderbedarf-sehen-deutlich'
     },
+    kern: ['foerderbedarf-sehen-deutlich'],
     signalLabel: 'Sehbeeinträchtigung'
   },
   {
@@ -495,6 +536,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\b(?:(?:visuell|auditiv|haptisch|kin[aä]sthetisch)\w*\s+(?:lerntyp|lernstil|lerner|lernende)\w*|lerntyp\w*|lernstil\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:visuell\w*|auditiv\w*|haptisch\w*)\s+(?:lerntyp|lerner|lernende)/i,
     selectedValues: { sensorische: 'sensorische-multimodal' },
+    kern: ['sensorische-multimodal'],
     signalLabel: 'Lerntypen (nicht ausgewertet)'
   },
   {
@@ -509,6 +551,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       strukturierung: 'strukturierung-offen',
       metakognitive: 'metakognitive-stark'
     },
+    kern: ['vorwissen-hoch', 'leistungsniveau-hoch'],
     signalLabel: 'Leistungsstark / Vertiefungsbedarf'
   }
 ];
@@ -530,7 +573,8 @@ export function detectLearnerGroupsFromText(text: string): {
         id: pat.id,
         label: pat.label,
         ...(count && count > 0 ? { count } : {}),
-        selectedValues: { ...pat.selectedValues }
+        selectedValues: { ...pat.selectedValues },
+        genannt: [...pat.kern]
       });
       signalsByGroupId[pat.id] = [pat.signalLabel];
     }
@@ -1039,14 +1083,17 @@ export function adaptScenario(
     const det = g.text ? detectMatrixTraitsFromText(g.text, { gesperrt: data.teilgruppen.gesperrt }) : null;
     const selectedValues = { ...(det?.selectedValues || {}), ...(g.selectedValues || {}) };
     const isMain = isRegularGroupId(g.id);
-    const genannt = bereinigeProfil({ id: g.id, label: g.label, selectedValues }, data.teilgruppen).gesperrt;
-    if (!isMain && (genannt.length || det?.gesperrt.length)) gesperrt.push({ gruppe: g.label, text: data.teilgruppen.gesperrtText });
+    const gesperrtGenannt = bereinigeProfil({ id: g.id, label: g.label, selectedValues }, data.teilgruppen).gesperrt;
+    if (!isMain && (gesperrtGenannt.length || det?.gesperrt.length)) gesperrt.push({ gruppe: g.label, text: data.teilgruppen.gesperrtText });
+    // Traits read from the group's text are named; with a core list, they join it.
+    const genannt = g.genannt ? [...g.genannt, ...Object.values(det?.selectedValues || {})] : undefined;
     return {
       id: g.id,
       label: g.label,
       isMain,
       personaId: g.personaId,
       ...(Object.keys(selectedValues).length ? { selectedValues } : {}),
+      ...(genannt ? { genannt } : {}),
       ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
       ...(g.ohneBewegung ? { ohneBewegung: true } : {})
     };
