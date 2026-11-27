@@ -40,6 +40,7 @@ import { markdownToHtml, renderInlineMarkdownHtml } from '../src/planner/markdow
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../src/planner/lmsExport.js';
 import {
   deleteSavedScenario,
+  entwurfAngabenAus,
   exportScenarioProjectJson,
   importScenarioProjectJson,
   loadSavedScenarios,
@@ -402,6 +403,39 @@ describe('Modular Scenario Planner Tree Operations', () => {
     mem.set('fmt_saved_scenarios_v1', JSON.stringify([{ ...saved, raumFilter: 'hoersaal' }]));
     expect(loadSavedScenarios(storage)[0].raum).toBe('hoersaal');
     expect(deleteSavedScenario(saved.id, storage).length).toBe(0);
+  });
+
+  it('Projektdatei behält die Angaben des Entwurfs: Planungsprofil betrieb, Einheit, Nachweis, Regelmeldungen, Begleitstrang (Fix-Welle D, Punkt 7)', () => {
+    const r = createMatcher(DATA, VALIDATOR).zuordnen({ text: 'Berufsschule, Unterweisung im Betrieb: Bohrmaschine sicher bedienen, Einheit Lernfeld 3, 45 Minuten, soziales Lernen stärken' });
+    const angaben = entwurfAngabenAus(r);
+    expect(angaben).toMatchObject({ planungsprofil: 'betrieb', einheit: 'Lernfeld 3', nachweis: ['praktisch'], begleitziele: ['sozial'] });
+    const phase = { art: 'begleitstrang' as const, kennung: angaben.begleitstrang![0].baustein, name: 'x', dauerMin: 3, grund: 'g', donors: [{ kennung: 'a', minutes: 3 }] };
+    const json = exportScenarioProjectJson({
+      title: 'T',
+      fach: 'Metall',
+      thema: 'Bohren',
+      hinweise: '',
+      arrangement: (r as { arrangement: Arrangement }).arrangement,
+      groups: DEFAULT_LEARNER_GROUPS,
+      aiDiffByStep: {},
+      oerByStep: {},
+      elaboration: null,
+      entwurfAngaben: angaben,
+      begleitPhasen: [phase]
+    });
+    const imp = importScenarioProjectJson(json);
+    if (!imp.ok) throw new Error(imp.fehler);
+    expect(imp.project.entwurfAngaben).toEqual(JSON.parse(JSON.stringify(angaben)));
+    expect(imp.project.begleitPhasen).toEqual([phase]);
+    // Files may come from anyone: malformed entries are dropped.
+    const kaputt = importScenarioProjectJson(
+      JSON.stringify({ ...JSON.parse(json), entwurfAngaben: { planungsprofil: 7, regelmeldungen: [{ regel: 1 }], begleitstrang: ['x'] }, begleitPhasen: [{ kennung: 3 }] })
+    );
+    if (!kaputt.ok) throw new Error(kaputt.fehler);
+    expect(kaputt.project.entwurfAngaben?.planungsprofil).toBeUndefined();
+    expect(kaputt.project.entwurfAngaben?.regelmeldungen).toEqual([]);
+    expect(kaputt.project.entwurfAngaben?.begleitstrang).toEqual([]);
+    expect(kaputt.project.begleitPhasen).toEqual([]);
   });
 
   it('renders GFM Markdown tables, rules, blockquotes, KaTeX formulas (UI & MathML print) and escapes XSS safely', () => {

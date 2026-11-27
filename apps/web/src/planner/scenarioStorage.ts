@@ -1,5 +1,6 @@
-import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type MatchRequest } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
+import type { AddedPhase } from './extraPhases.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
   GeneratedMaterialItem,
@@ -93,6 +94,96 @@ export interface SavedScenario {
   generatedMaterials?: GeneratedMaterialItem[];
   thematicRows?: ThematicPhaseRow[] | null;
   elaboration: string | null;
+  /** What the draft in step 5 takes from the matcher's answer; kept so a loaded scenario keeps its draft. */
+  entwurfAngaben?: EntwurfAngaben;
+  /** Accompanying strands taken into the flow (step 2), so "Wieder entfernen" works after loading. */
+  begleitPhasen?: AddedPhase[];
+}
+
+/**
+ * The parts of the matcher's answer the draft (step 5) and the notes of step 2 read: planning profile, unit, form of
+ * proof, rule notes, accompanying goals and strands. Saved with the scenario, because loading does not match again.
+ */
+export interface EntwurfAngaben {
+  planungsprofil?: string;
+  planungsprofilAngenommen?: boolean;
+  /** Room the matcher assumed (code), when the request names none. */
+  raumAngenommen?: string;
+  /** Room as the matcher read it (code). */
+  raum?: string;
+  einheit?: string;
+  zielart?: string;
+  /** Forms of proof (codes of nachweisform). */
+  nachweis?: string[];
+  regelmeldungen?: Regelmeldung[];
+  /** Accompanying goals as the matcher read them (codes). */
+  begleitziele?: string[];
+  begleitstrang?: Begleitstrang[];
+  hinweise?: string[];
+}
+
+/** The draft's parts of a matcher answer. */
+export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
+  const k = (r.kriterien || {}) as Record<string, unknown>;
+  const str = (v: unknown) => (typeof v === 'string' && v ? v : undefined);
+  const angenommenRaum = r.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
+  return {
+    planungsprofil: r.planungsprofil,
+    planungsprofilAngenommen: (r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+    raumAngenommen: angenommenRaum ? String(angenommenRaum) : undefined,
+    raum: str(k.raum),
+    einheit: str(k.einheit),
+    zielart: str(k.zielart),
+    nachweis: r.nachweis?.formen,
+    regelmeldungen: r.regelmeldungen,
+    begleitziele: Array.isArray(k.begleitziel) ? (k.begleitziel as string[]) : [],
+    begleitstrang: r.modus === 'ablauf' ? r.begleitstrang : undefined,
+    hinweise: r.hinweise
+  };
+}
+
+/** Reads saved or imported strands taken into the flow; malformed entries are dropped. */
+export function begleitPhasenLesen(v: unknown): AddedPhase[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  return v
+    .filter((y): y is Record<string, unknown> => Boolean(y) && typeof y === 'object')
+    .filter((y) => typeof y.kennung === 'string' && typeof y.name === 'string' && typeof y.dauerMin === 'number')
+    .map((y) => ({
+      art: 'begleitstrang' as const,
+      kennung: y.kennung as string,
+      name: y.name as string,
+      dauerMin: y.dauerMin as number,
+      grund: typeof y.grund === 'string' ? y.grund : '',
+      donors: (Array.isArray(y.donors) ? y.donors : [])
+        .filter((d): d is { kennung: string; minutes: number } => Boolean(d) && typeof d.kennung === 'string' && typeof d.minutes === 'number')
+        .map((d) => ({ kennung: d.kennung, minutes: d.minutes }))
+    }));
+}
+
+/** Reads saved or imported draft parts; files may come from anyone, so only well-formed values are kept. */
+export function entwurfAngabenLesen(v: unknown): EntwurfAngaben | undefined {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+  const o = v as Record<string, unknown>;
+  const str = (x: unknown) => (typeof x === 'string' && x ? x : undefined);
+  const strs = (x: unknown) => (Array.isArray(x) ? x.filter((y): y is string => typeof y === 'string') : undefined);
+  const objs = <T>(x: unknown, ok: (y: Record<string, unknown>) => boolean) =>
+    Array.isArray(x) ? (x.filter((y) => y && typeof y === 'object' && ok(y as Record<string, unknown>)) as T[]) : undefined;
+  return {
+    planungsprofil: str(o.planungsprofil),
+    planungsprofilAngenommen: o.planungsprofilAngenommen === true,
+    raumAngenommen: str(o.raumAngenommen),
+    raum: str(o.raum),
+    einheit: str(o.einheit),
+    zielart: str(o.zielart),
+    nachweis: strs(o.nachweis),
+    regelmeldungen: objs<Regelmeldung>(o.regelmeldungen, (y) => typeof y.regel === 'string' && typeof y.text === 'string'),
+    begleitziele: strs(o.begleitziele),
+    begleitstrang: objs<Begleitstrang>(
+      o.begleitstrang,
+      (y) => typeof y.begleitziel === 'string' && typeof y.baustein === 'string' && typeof y.name === 'string' && typeof y.dauerMin === 'number' && typeof y.grund === 'string'
+    ),
+    hinweise: strs(o.hinweise)
+  };
 }
 
 /**
@@ -381,6 +472,8 @@ export function importScenarioProjectJson(
           : undefined,
         thematicRows,
         elaboration: strOrUndef(parsed.elaboration) || strOrUndef(parsed.ausarbeitung) || null,
+        entwurfAngaben: entwurfAngabenLesen(parsed.entwurfAngaben),
+        begleitPhasen: begleitPhasenLesen(parsed.begleitPhasen),
         arrangement: checked.arrangement
       }
     };

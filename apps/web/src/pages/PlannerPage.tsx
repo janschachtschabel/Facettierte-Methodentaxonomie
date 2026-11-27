@@ -81,6 +81,8 @@ import {
   printHtmlDocument,
   saveActivePlannerDraft,
   saveScenarioToStorage,
+  entwurfAngabenAus,
+  type EntwurfAngaben,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
@@ -339,6 +341,8 @@ export function PlannerPage() {
   const [addedPhases, setAddedPhases] = useState<AddedPhase[]>([]);
   // Accompanying strands the teacher took into the flow in step 2 (D3).
   const [begleitPhasen, setBegleitPhasen] = useState<AddedPhase[]>([]);
+  // The draft's parts of the matcher answer, as saved with a loaded scenario (loading does not match again).
+  const [geladeneAngaben, setGeladeneAngaben] = useState<EntwurfAngaben | null>(null);
   const [oerByStep, setOerByStep] = useState<Record<string, OerResource[]>>({});
   const [generatedMaterials, setGeneratedMaterials] = useState<GeneratedMaterialItem[]>([]);
   const [thematicRows, setThematicRows] = useState<ThematicPhaseRow[] | null>(null);
@@ -603,6 +607,7 @@ export function PlannerPage() {
     setExtraProposals([]);
     setAddedPhases([]);
     setBegleitPhasen([]);
+    setGeladeneAngaben(null);
   };
 
   const subgroups = activeSubgroups(groups);
@@ -1193,7 +1198,9 @@ export function PlannerPage() {
     subgroupMethods,
     generatedMaterials,
     thematicRows,
-    elaboration
+    elaboration,
+    entwurfAngaben: angaben || undefined,
+    begleitPhasen: begleitPhasen.length ? begleitPhasen : undefined
   });
 
   const handleSaveBrowser = (asNew = false) => {
@@ -1248,7 +1255,8 @@ export function PlannerPage() {
     setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
-    setBegleitPhasen([]);
+    setBegleitPhasen(p.begleitPhasen || []);
+    setGeladeneAngaben(p.entwurfAngaben || null);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
     if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
     if (p.elaboration !== undefined) setElaboration(p.elaboration);
@@ -1313,28 +1321,30 @@ export function PlannerPage() {
   // Method messages stand at their row in step 2; situation-level ones (no method) and those of a method in the
   // arrangement without a row of its own (e.g. in a slot) stand under "Hinweise zum Ablauf".
   // A message about several methods (the safety note) stays while any of them is in the arrangement.
-  const regelmeldungen = meldungenImAblauf(matchResult?.regelmeldungen || [], usedBlocks, bundle?.regeln);
+  // The answer's parts the draft reads: from the last proposal, else as saved with a loaded scenario.
+  const angaben: EntwurfAngaben | null = matchResult ? entwurfAngabenAus(matchResult) : geladeneAngaben;
+  const regelmeldungen = meldungenImAblauf(angaben?.regelmeldungen || [], usedBlocks, bundle?.regeln);
   const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
   const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
   // Draft (step 5): planning profile from the core answer, room, size, unit, proof and the plan's notes.
-  const angenommenRaum = matchResult?.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
-  const raumCode = raum || (matchResult?.kriterien?.raum as string | undefined) || (angenommenRaum ? String(angenommenRaum) : '');
-  const zielCode = matchResult?.kriterien?.zielart as string | undefined;
+  const angenommenRaum = angaben?.raumAngenommen;
+  const raumCode = raum || angaben?.raum || angenommenRaum || '';
+  const zielCode = angaben?.zielart;
   // Accompanying goals as the matcher read them (boxes and text), the strands it proposes and those taken into the flow.
-  const begleitzielCodes = matchResult ? ((matchResult.kriterien?.begleitziel as string[] | undefined) || []) : begleitziele;
-  const begleitstraenge: Begleitstrang[] = (matchResult?.modus === 'ablauf' && matchResult.begleitstrang) || [];
+  const begleitzielCodes = angaben?.begleitziele || begleitziele;
+  const begleitstraenge: Begleitstrang[] = angaben?.begleitstrang || [];
   const begleitPhasenNow = begleitPhasen.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
   const begleitImAblauf = (st: Begleitstrang) => begleitPhasenNow.find((a) => a.kennung === st.baustein);
-  const begleitHinweise = begleitzielHinweise(matchResult?.hinweise);
+  const begleitHinweise = begleitzielHinweise(angaben?.hinweise);
   const entwurfMeta: EntwurfMeta = {
     planungsprofile: bundle?.planungsprofile,
-    planungsprofil: matchResult?.planungsprofil,
-    planungsprofilAngenommen: (matchResult?.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
-    raum: raumCode ? `${labelOf('raumtyp', raumCode)}${!raum && !matchResult?.kriterien?.raum && angenommenRaum ? ' (angenommen)' : ''}` : undefined,
+    planungsprofil: angaben?.planungsprofil,
+    planungsprofilAngenommen: Boolean(angaben?.planungsprofilAngenommen),
+    raum: raumCode ? `${labelOf('raumtyp', raumCode)}${!raum && !angaben?.raum && angenommenRaum ? ' (angenommen)' : ''}` : undefined,
     anzahl: classSize,
-    einheit: typeof matchResult?.kriterien?.einheit === 'string' ? matchResult.kriterien.einheit : undefined,
-    nachweis: matchResult?.nachweis?.formen.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
+    einheit: angaben?.einheit,
+    nachweis: angaben?.nachweis?.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
     hauptziel: zielCode ? labelOf('zielart', zielCode) : bundle?.ketten.find((k) => k.id === arrangement.zieltyp)?.label,
     begleitziele: begleitzielCodes.length ? begleitzielCodes.map((c) => labelOf('begleitziel', c)) : undefined,
     // A strand taken into the flow is a phase of the plan now, no longer a proposal.

@@ -735,6 +735,34 @@ describe('Schritt 5: Entwurf mit sieben Kernfeldern nach Planungsprofil (Paket D
     expect(text).not.toContain(`Begleitstrang (${'Soziales Lernen'}): ${a.name}`);
   });
 
+  it('Speichern und Laden behält Planungsprofil, Einheit, Nachweis, Regelhinweise und Begleitstrang im Entwurf (Fix-Welle D, Punkt 7)', () => {
+    const text = 'Berufsschule, Unterweisung im Betrieb: Bohrmaschine sicher bedienen, Einheit Lernfeld 3, 45 Minuten, Lernstand prüfen, soziales Lernen stärken';
+    renderPlanner();
+    propose(text);
+    fireEvent.click(stepButton(5));
+    const vorher = document.body.textContent || '';
+    const erwartet = ['Konzept zur Ausbildungssituation', 'Lernfeld 3', 'Begleitstrang (Vorschlag)', 'Tätigkeit der Ausbilderin oder des Ausbilders'];
+    for (const t of erwartet) expect(vorher, t).toContain(t);
+    fireEvent.click(screen.getAllByRole('button', { name: /Speichern/ })[0]);
+    const gespeichert = JSON.parse(window.localStorage.getItem(SAVED_SCENARIOS_KEY)!)[0];
+    expect(gespeichert.entwurfAngaben).toMatchObject({ planungsprofil: 'betrieb', einheit: 'Lernfeld 3' });
+    cleanup();
+
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /Gespeichert \(1\)/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Laden' }));
+    fireEvent.click(stepButton(5));
+    const nachher = document.body.textContent || '';
+    for (const t of erwartet) expect(nachher, t).toContain(t);
+    expect(nachher).not.toContain('Unterrichtsentwurf mit Lernsituation');
+    const nachweis = CATALOG.labelOf('nachweisform', 'praktisch');
+    expect(vorher).toContain(`**Nachweis:** ${nachweis}`.replace(/\*\*/g, ''));
+    expect(nachher).toContain(`Nachweis: ${nachweis}`);
+    const regel = BUNDLE.regeln!.find((r) => r.id === 'sicherheitshinweis')!;
+    expect(vorher).toContain(regel.name);
+    expect(nachher).toContain(regel.name);
+  });
+
   it('Schritt 2: Begleitziel Sprache ohne Begleitstrang, mit dem Hinweis auf Hilfen in Schritt 3 (D3)', () => {
     renderPlanner();
     propose('Chemie Klasse 9, Säuren und Basen, 45 Minuten, sprachsensibel');
