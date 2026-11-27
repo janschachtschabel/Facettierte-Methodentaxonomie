@@ -5,16 +5,15 @@ import {
   FMT_GUARDRAILS,
   FMT_RULES,
   QUICK_LEARNER_GROUP_PROFILES,
-  nurMethoden,
   getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
-  suggestAlternativeMethodsForGroup,
   type Arrangement,
   type MatchRequest,
   type SearchCriteria
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
 import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
+import { teilgruppenAlternativen } from '../kandidaten.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import {
@@ -402,7 +401,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 9. score_differentiation_matrix
   server.tool(
     'score_differentiation_matrix',
-    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins passende alternative Methoden für diese Teilgruppe vorgeschlagen (nie Hilfen, nur Methoden). `merkmale` nennt je Ausprägung unter `vorgesehen`, ob die Tabelle einen Tausch oder eine Hilfe vorsieht (mit Grundlage und Quelle); ein Tausch gilt nur unter `bedingung` (die geplante Methode löst den Grund aus und passt sich niemandem an), die Antwort für einen Ablauf gibt adapt_scenario; gesperrte Kategorien (Lerntypen/Lernstile) werden nicht gewertet und stehen mit Begründung unter `gesperrt`, ohne Fehler.',
+    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins alternative Methoden für diese Teilgruppe vorgeschlagen: nur Methoden (nie Hilfen), deren Bedarf gedeckt ist und die der geplanten Methode gleichwertig sind (`alternativenPruefung` sagt, was geprüft ist). `merkmale` nennt je Ausprägung unter `vorgesehen`, ob die Tabelle einen Tausch oder eine Hilfe vorsieht (mit Grundlage und Quelle); ein Tausch gilt nur unter `bedingung` (die geplante Methode löst den Grund aus und passt sich niemandem an), die Antwort für einen Ablauf gibt adapt_scenario; gesperrte Kategorien (Lerntypen/Lernstile) werden nicht gewertet und stehen mit Begründung unter `gesperrt`, ohne Fehler.',
     {
       quickProfileId: z
         .enum(['daz', 'adhs', 'lrs', 'foerder-lernen', 'vorwissen-gering', 'vertiefung', 'schuechtern', 'barriere'])
@@ -450,19 +449,22 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         includeSystemMeasures,
         maxAufwand
       });
-      const currentBlock = baustein ? store.blocksById.get(baustein) : undefined;
-      const alternativeMethoden = currentBlock
-        ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, nurMethoden(store.bundle.bausteine), 5, undefined, {
-            maxTechnik,
-            ohneInternet,
-            ohneKI,
-            bildungsstufe
-          })
-        : [];
+      // Same core filter as REST /differentiation/score: methods only, needs covered, equivalent to the planned method.
+      const pruefung = teilgruppenAlternativen(store, {
+        matrix: scoreResult,
+        baustein,
+        personaId: personaId ?? quickProfile?.personaId,
+        selectedValues: mergedSelected,
+        situation: { maxTechnik, ohneInternet, ohneKI, bildungsstufe }
+      });
+      const alternativeMethoden = pruefung.alternativen;
       return textResult({
         ...scoreResult,
         ...merkmalsEntscheidungenFuerAnfrage(store.bundle, personaId ?? quickProfile?.personaId, mergedSelected),
         alternativeMethoden,
+        ...(baustein
+          ? { alternativenPruefung: { gleichwertigGeprueft: pruefung.gleichwertigGeprueft, hinweis: pruefung.hinweis, ausgeschlossen: pruefung.ausgeschlossen.slice(0, 10) } }
+          : {}),
         verfuegbareSchnellProfile: QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ id: p.id, label: p.label, profile: p.profile })),
         verfuegbarePersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
       });

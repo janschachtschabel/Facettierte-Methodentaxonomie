@@ -3,10 +3,9 @@ import {
   DIFF_MATRIX_PERSONAS,
   FmtRequestError,
   QUICK_LEARNER_GROUP_PROFILES,
-  nurMethoden,
+  istHilfe,
   getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
-  suggestAlternativeMethodsForGroup,
   type AdaptScenarioInput,
   type Arrangement,
   type MatchRequest,
@@ -19,6 +18,7 @@ import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
+import { ersatzKandidaten, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
@@ -85,6 +85,9 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       versionHash: store.bundle.versionHash,
       builtAt: store.bundle.builtAt,
       bausteine: store.bundle.bausteine.length,
+      // Methods and helps counted apart (bausteine counts both).
+      methoden: store.bundle.bausteine.filter((b) => !istHilfe(b)).length,
+      hilfen: store.bundle.bausteine.filter(istHilfe).length,
       kuratiert: store.bundle.bausteine.filter((b) => b.status === 'kuratiert').length,
       entwurf: store.bundle.bausteine.filter((b) => b.status === 'entwurf').length,
       creator: store.bundle.creator,
@@ -100,6 +103,23 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       regeln: store.bundle.regeln,
       // Planning profiles (data/planungsprofile.json): core fields, terms and modules per profile.
       planungsprofile: store.bundle.planungsprofile,
+      // Function chains with their steps and the knowledge type each step binds (data/ketten.json).
+      ketten: store.bundle.ketten.map((k) => ({
+        id: k.id,
+        label: k.label,
+        ...(k.zielart ? { zielart: k.zielart } : {}),
+        ...(k.ansatz ? { ansatz: k.ansatz } : {}),
+        schritte: k.schritte.map((st) => ({
+          id: st.id,
+          label: st.label,
+          funktion: st.funktion,
+          ziel: st.ziel,
+          ...(st.rolle ? { rolle: st.rolle } : {}),
+          ...(st.wissensart?.length ? { wissensart: st.wissensart } : {})
+        }))
+      })),
+      // Table "Tausch oder Hilfe" for subgroups (data/teilgruppen.json).
+      teilgruppen: store.bundle.teilgruppen,
       llmConfigured: Boolean(config.llmApiKey),
       llmModel: config.llmApiKey ? config.llmModel : null,
       llmAllowByok: config.llmAllowByok,
@@ -147,7 +167,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       'fachbereich',
       'raumbedarf',
       'schriftbedarf',
-      'ohneRaumbedarf'
+      'ohneRaumbedarf',
+      'ohneSchrift'
     ]);
     for (const [k, raw] of Object.entries(q)) {
       if (raw == null || raw === '') continue;
@@ -168,9 +189,15 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
         ? store.classifyText(textQuery)
         : null;
     const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
+    const hilfenGesamt = store.bundle.bausteine.filter(istHilfe).length;
+    const hilfenTreffer = hits.filter(istHilfe).length;
     return {
       gesamt: store.bundle.bausteine.length,
+      gesamtMethoden: store.bundle.bausteine.length - hilfenGesamt,
+      gesamtHilfen: hilfenGesamt,
       anzahl: hits.length,
+      anzahlMethoden: hits.length - hilfenTreffer,
+      anzahlHilfen: hilfenTreffer,
       dauerMs,
       ...(fachErkannt !== undefined ? { fachErkannt } : {}),
       treffer: hits,
@@ -217,15 +244,23 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
   });
 
   app.post('/api/v1/replacements', async (req, reply) => {
-    const body = req.body as { arrangement?: Arrangement; pfad?: string } | null;
+    const body = req.body as ({ arrangement?: Arrangement; pfad?: string } & Record<string, unknown>) | null;
     if (!body?.arrangement || typeof body.pfad !== 'string') {
       return reply.code(400).send({ fehler: 'Erwartet wird { arrangement, pfad }.' });
     }
+    // Situation of the lesson (raum, ohneSchrift, termine …), as object `situation` or as top-level fields.
+    const situation = situationAus(body);
+    const badSituation = situationFehler(situation);
+    if (badSituation) return reply.code(400).send({ fehler: badSituation });
     try {
-      const kandidaten = store.search.ersatz(body.arrangement, body.pfad, store.exampleRegistry);
+      const kandidaten = ersatzKandidaten(store, body.arrangement, body.pfad, situation);
       return {
         pfad: body.pfad,
-        hinweis: 'Kandidaten passen formal (Arrangement bleibt gültig). Gleiche Wirkung ist nicht garantiert (Loibl et al. 2024).',
+        hinweis:
+          'Kandidaten passen formal (Arrangement bleibt gültig), sind Methoden und tragen die Wissensart des Kettenschritts' +
+          (situation ? '; ihr Bedarf ist in der angegebenen Situation gedeckt' : '') +
+          '. Gleiche Wirkung ist nicht garantiert (Loibl et al. 2024).',
+        ...(situation ? { situation } : {}),
         kandidaten
       };
     } catch (e) {
@@ -239,11 +274,14 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (!text) {
       return reply.code(400).send({ fehler: 'Bitte ein Feld "text" zur Klassifikation übergeben.' });
     }
+    if (text.length > MAX_TEXT_CHARS) return reply.code(400).send({ fehler: tooLongMessage('text') });
     const extracted = extractSubjectAndTopicFromText(text);
     return {
       ...store.classifyText(text),
       erkanntesFach: extracted.fach,
-      erkanntesThema: extracted.thema
+      erkanntesThema: extracted.thema,
+      // Required details the text leaves open (ask back) and the ones assumed (state them), as the matcher reads them.
+      pflichtangaben: store.matcher.zuordnen({ text }).pflichtangaben
     };
   });
 
@@ -261,6 +299,9 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (b.gruppen != null && !(Array.isArray(b.gruppen) && b.gruppen.every(isGroup))) {
       return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
     }
+    const badGroup = groupFieldError(b.gruppen);
+    if (badGroup) return reply.code(400).send({ fehler: badGroup });
+    if (b.bewertet != null && typeof b.bewertet !== 'boolean') return reply.code(400).send({ fehler: 'Feld „bewertet“: erwartet wird wahr oder falsch.' });
     try {
       return await buildScenarioPlanZeroLlm(store, {
         ...(body as ScenarioPlanArgs),
@@ -336,7 +377,15 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       ohneInternet?: boolean;
       ohneKI?: boolean;
       maxAufwand?: MeasureEffort;
-    };
+      /** The group cannot read or write / move freely (as in /adapt). */
+      ohneSchrift?: Array<'lesen' | 'schreiben'>;
+      ohneBewegung?: boolean;
+      lehrende?: number;
+      /** Chain and step of the phase: binding and learning state the parallel method must reach. */
+      zieltyp?: string;
+      kettenschritt?: string;
+      dauerMin?: number;
+    } & Record<string, unknown>;
     const quickProfile = body.quickProfileId
       ? QUICK_LEARNER_GROUP_PROFILES.find((p) => p.id === body.quickProfileId)
       : undefined;
@@ -357,19 +406,29 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       ohneKI: body.ohneKI,
       maxAufwand: body.maxAufwand
     });
-    const currentBlock = body.baustein ? store.blocksById.get(body.baustein) : undefined;
-    const alternativeMethoden = currentBlock
-      ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, nurMethoden(store.bundle.bausteine), 5, undefined, {
-          maxTechnik: body.maxTechnik,
-          ohneInternet: body.ohneInternet,
-          ohneKI: body.ohneKI,
-          bildungsstufe: body.bildungsstufe
-        })
-      : [];
+    // Parallel methods: methods only, needs covered in the situation, equivalent to the planned method (core).
+    const situation = situationAus(body) || {};
+    const pruefung = teilgruppenAlternativen(store, {
+      matrix: scoreResult,
+      baustein: body.baustein,
+      personaId: body.personaId ?? quickProfile?.personaId,
+      selectedValues: mergedSelected,
+      ohneSchrift: Array.isArray(body.ohneSchrift) ? body.ohneSchrift : undefined,
+      ohneBewegung: body.ohneBewegung === true,
+      situation,
+      lehrende: typeof body.lehrende === 'number' ? body.lehrende : undefined,
+      zieltyp: body.zieltyp,
+      kettenschritt: body.kettenschritt,
+      dauerMin: typeof body.dauerMin === 'number' ? body.dauerMin : undefined
+    });
+    const alternativeMethoden = pruefung.alternativen;
     return {
       ...scoreResult,
       ...merkmalsEntscheidungenFuerAnfrage(store.bundle, body.personaId ?? quickProfile?.personaId, mergedSelected),
       alternativeMethoden,
+      ...(body.baustein
+        ? { alternativenPruefung: { gleichwertigGeprueft: pruefung.gleichwertigGeprueft, hinweis: pruefung.hinweis, ausgeschlossen: pruefung.ausgeschlossen.slice(0, 10) } }
+        : {}),
       personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
       schnellProfile: QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ id: p.id, label: p.label, profile: p.profile }))
     };

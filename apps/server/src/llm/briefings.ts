@@ -72,25 +72,69 @@ function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> 
   return out;
 }
 
-export function buildTranslateBriefing(store: CatalogStore, text: string) {
-  const pre = store.classifyText(text);
-  const extracted = extractSubjectAndTopicFromText(text);
-  const systemPrompt =
+/** Examples per goal kind for the translation prompt; a goal kind without one is listed with its label only. */
+const ZIELART_BEISPIEL: Record<string, string> = {
+  fakten: 'Vokabeln, Begriffslisten, Merkwissen',
+  konzepte: 'Begriffs- und Systemverständnis, z. B. Fotosynthese, Demokratie, Dichte',
+  prozeduren: 'Rechen-, Übungs- und Verfahrenskompetenzen, z. B. Bruchrechnen, Rechtschreibung',
+  problemloesen: 'offene Anwendungs- und Transferprobleme',
+  bewegung: 'Bewegung und praktische Fertigkeit, z. B. Handstand, Sägen, Pipettieren',
+  kondition: 'Ausdauer, Kraft, Schnelligkeit trainieren',
+  urteilen: 'Streitfragen beurteilen, Werte abwägen, ein Werk betrachten',
+  gestalten: 'Texte schreiben, gestalten, produzieren, programmieren',
+  handlung: 'berufliche Handlung planen, ausführen und kontrollieren (Lernfeld, Arbeitsauftrag)'
+};
+
+const codesOf = (store: CatalogStore, scheme: string) =>
+  schemeValues(store.bundle, scheme)
+    .map((w) => `"${w.id}" (${w.label})`)
+    .join(', ');
+
+/**
+ * System prompt for translating a free-text scenario into the FMT request: goal kinds, chains, accompanying goals,
+ * room, literacy, dates, proof and planning profile, all read from the data. The language model never picks methods.
+ */
+export function translateSystemPrompt(store: CatalogStore, extra: { vorfilterung?: unknown } = {}): string {
+  const zielarten = schemeValues(store.bundle, 'zielart')
+    .map((w) => `  • "${w.id}" – ${w.label}${ZIELART_BEISPIEL[w.id] ? ` (${ZIELART_BEISPIEL[w.id]})` : ''}`)
+    .join('\n');
+  const ketten = store.bundle.ketten.map((k) => `"${k.id}"`).join(', ');
+  return (
     'Du übersetzt deutsche Unterrichtsszenarien strikt in ein JSON-Objekt gemäß folgendem FMT-Anfrage-Schema. ' +
     'Antworte AUSSCHLIESSLICH mit einem gültigen JSON-Objekt ohne Erklärtext. ' +
-    'Verwende NUR erlaubte Enum-Codes aus dem Schema. Setze das Feld "text" NICHT.\n' +
+    'Verwende NUR erlaubte Enum-Codes aus dem Schema. Setze das Feld "text" NICHT. Wähle keine Methoden aus.\n' +
     'Wichtige Zuordnungsregeln:\n' +
-    '- Wenn eine ganze Stunde, Doppelstunde (90 min), Einzelstunde (45 min) oder Unterrichtsreihe beschrieben wird, setze "modus": "ablauf" und wähle den passendsten "zieltyp":\n' +
-    '  • "prozedur" für Rechen-/Übungs-/Verfahrenskompetenzen (z. B. Bruchrechnen, Gleichungen, Rechtschreibung)\n' +
-    '  • "konzeptaufbau" für Begriffs- und Systemverständnis (z. B. Fotosynthese, Demokratie, Dichte)\n' +
-    '  • "problemloesen" für offene Anwendungs-/Transferprobleme\n' +
-    '  • "faktenwissen" für Vokabeln, Begriffslisten, Merkwissen\n' +
-    '  • "fuenf-e" für forschend-entdeckende naturwissenschaftliche Einheiten\n' +
-    '  • "pbl-siebensprung" für problemorientiertes Lernen\n' +
+    '- Wenn eine ganze Stunde, Doppelstunde (90 min), Einzelstunde (45 min) oder Unterrichtsreihe beschrieben wird, setze "modus": "ablauf" und die Art des Lernziels als "zielart" (daraus folgt die Funktionskette):\n' +
+    `${zielarten}\n` +
+    `- Setze "zieltyp" nur, wenn ausdrücklich eine bestimmte Funktionskette gewünscht ist (${ketten}); z. B. "vollstaendige-handlung" für eine berufliche Handlung nach dem Modell der vollständigen Handlung.\n` +
+    `- "begleitziel": was nebenbei gefördert werden soll (${codesOf(store, 'begleitziel')}); es wählt nie die Kette.\n` +
+    `- "raum": der Raumtyp der Stunde (${codesOf(store, 'raumtyp')}); Eigenschaften des Raums darüber hinaus in "raumBietet".\n` +
+    '- "ohneSchrift": ["lesen"] und/oder ["schreiben"], wenn die Lernenden (noch) nicht lesen oder schreiben können.\n' +
+    '- "termine": Anzahl der Termine (Sitzungen, Stunden) einer Einheit, wenn genannt.\n' +
+    `- "nachweis": woran sich der Lernerfolg zeigen soll (${codesOf(store, 'nachweisform')}).\n` +
+    `- "planungsprofil": nur wenn der Rahmen ausdrücklich genannt ist (${codesOf(store, 'planungsprofil')}); sonst folgt es aus der Bildungsstufe.\n` +
+    '- "bewertet": true, wenn die Stunde oder ihr Ergebnis benotet wird; "einheit": die größere Einheit (Lernfeld, Unterrichtsreihe, Modul).\n' +
     '- Wenn ein didaktischer Ansatz erwähnt wird (z. B. problemorientiertes Lernen -> ["forschend"], kooperatives Lernen -> ["kooperativ"], direkte Instruktion -> ["instruktion"]), setze das Array "ansatz".\n' +
-    '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose), setze "modus": "phase" und die passende "lernfunktion".\n\n' +
-    `Vorfilterung (bereits deterministisch erkannt – bitte nur präzisieren/ergänzen):\n${JSON.stringify(pre.kriterien)}\n\n` +
-    `Schema:\n${store.anfrageSchemaJson}`;
+    '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose), setze "modus": "phase" und die passende "lernfunktion".\n' +
+    '- Was du nicht aus dem Text liest, lässt du weg; die Zuordnung nennt fehlende Pflichtangaben selbst.\n\n' +
+    (extra.vorfilterung !== undefined
+      ? `Vorfilterung (bereits deterministisch erkannt – bitte nur präzisieren/ergänzen):\n${JSON.stringify(extra.vorfilterung)}\n\n`
+      : '') +
+    `Schema:\n${store.anfrageSchemaJson}`
+  );
+}
+
+/** User prompt: the text, and fields the caller already set (they win over anything read from the text). */
+export function translateUserPrompt(text: string, festgelegt: Record<string, unknown> = {}): string {
+  return Object.keys(festgelegt).length
+    ? `${text}\n\nBereits festgelegt (nicht ändern, nicht wiederholen): ${JSON.stringify(festgelegt)}`
+    : text;
+}
+
+export function buildTranslateBriefing(store: CatalogStore, text: string, festgelegt: Record<string, unknown> = {}) {
+  const pre = store.classifyText(text);
+  const extracted = extractSubjectAndTopicFromText(text);
+  const systemPrompt = translateSystemPrompt(store, { vorfilterung: pre.kriterien });
 
   return {
     erkanntesFach: extracted.fach,
@@ -99,9 +143,9 @@ export function buildTranslateBriefing(store: CatalogStore, text: string) {
     llmBriefing: {
       zweck: 'Freitext-Unterrichtsszenario auf das strenge FMT-Anfrage-JSON-Schema abbilden',
       ausfuehrungHinweis:
-        'Das Ergebnis-JSON anschließend an POST /api/v1/match (oder MCP match_scenario) übergeben, um einen deterministisch geprüften Ablauf zu erzeugen.',
+        'Das Ergebnis-JSON anschließend an POST /api/v1/match (oder MCP match_scenario) übergeben, um einen deterministisch geprüften Ablauf zu erzeugen. Bereits festgelegte Felder haben Vorrang vor dem Ergebnis.',
       systemPrompt,
-      userPrompt: text,
+      userPrompt: translateUserPrompt(text, festgelegt),
       jsonMode: true,
       maxTokens: 1200,
       leitplanken: FMT_GUARDRAILS
@@ -145,6 +189,7 @@ export function buildEntwurfFuerAusarbeitung(
       hauptziel: body.lernziele?.trim() || chain?.label,
       einheit: body.einheit,
       nachweis: body.nachweis,
+      bewertet: typeof body.bewertet === 'boolean' ? body.bewertet : undefined,
       hinweise: [...(body.hinweise?.trim() ? [body.hinweise.trim()] : []), ...(body.hinweiseListe || [])],
       begleitziel: body.begleitziel,
       begleitstrang: body.begleitstrang,
@@ -519,6 +564,20 @@ export interface ScenarioPlanArgs {
   nachweis?: string;
   /** Accompanying goals (scheme begleitziel): order equivalent methods and propose a short accompanying strand. */
   begleitziel?: string | string[];
+  /** Desired chain (e.g. vollstaendige-handlung); otherwise it follows from zielart and text. */
+  zieltyp?: string;
+  komplexitaet?: string;
+  sprachniveau?: string;
+  /** Number of teachers or adults leading the lesson (rule lehrkraft-nicht-doppelt). */
+  lehrende?: number;
+  /** Larger unit the lesson belongs to (Lernfeld, Unterrichtsreihe, Modul). */
+  einheit?: string;
+  /** Whether the lesson or its result is graded. */
+  bewertet?: boolean;
+  lernfunktion?: string | string[];
+  liefert?: string | string[];
+  raumzeit?: string | string[];
+  vorhanden?: string | string[];
   /** 0 = first proposal; higher values give the next equally suitable combination. */
   variante?: number;
   includeWloOer?: boolean;
@@ -533,6 +592,10 @@ export interface ScenarioPlanArgs {
     selectedValues?: Record<string, string>;
     /** Values the text named (core values of the pattern); only these decide the subgroup check. */
     genannt?: string[];
+    /** The group cannot read or write (statement of the group, as in /adapt). */
+    ohneSchrift?: Array<'lesen' | 'schreiben'>;
+    /** The group cannot move freely (statement of the group, as in /adapt). */
+    ohneBewegung?: boolean;
   }>;
 }
 
@@ -623,35 +686,19 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   // Subject words the vocabulary does not hold (e.g. "Naturwissenschaften") still reach the text rules.
   const fachbereichAusFeld = args.fach?.trim() ? (store.matcher.lesen(args.fach).kriterien.fachbereich as string | undefined) : undefined;
 
-  const matchReq: MatchRequest = {
-    text: args.text,
-    modus: 'ablauf',
-    ansatz: args.ansatz,
-    anleitung: args.anleitung,
-    engagement: args.engagement,
-    interaktion: args.interaktion,
-    reichweite: args.reichweite,
-    zeitMin: args.zeitMin,
-    gruppe: args.gruppe,
-    bildungsstufe: args.bildungsstufe,
-    planungsprofil: args.planungsprofil,
-    vorwissen: args.vorwissen,
-    maxTechnik: args.maxTechnik,
-    maxVorbereitung: args.maxVorbereitung,
-    ohneInternet: args.ohneInternet,
-    ohneKI: args.ohneKI,
-    variante: args.variante,
-    zielart: args.zielart,
-    raum: args.raum || args.lernort,
-    raumBietet: args.raumBietet,
-    fachausstattungArt: args.fachausstattungArt,
-    ohneSchrift: args.ohneSchrift,
-    termine: args.termine,
-    nachweis: args.nachweis,
-    begleitziel: args.begleitziel,
-    fachbereich:
-      args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld)
-  };
+  // Every request field of the core (matcher.felder()) is passed as given; text and modus are set by the plan.
+  const matchReq: MatchRequest = { text: args.text, modus: 'ablauf' };
+  const argsRecord = args as unknown as Record<string, unknown>;
+  for (const { feld } of store.matcher.felder()) {
+    if (feld === 'text' || feld === 'modus' || feld === 'lernort') continue;
+    const v = argsRecord[feld];
+    if (v !== undefined) (matchReq as Record<string, unknown>)[feld] = v;
+  }
+  const raum = args.raum || args.lernort;
+  if (raum) matchReq.raum = raum;
+  const fachbereich =
+    args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld);
+  if (fachbereich) matchReq.fachbereich = fachbereich;
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;
   if (matched.modus !== 'ablauf' || !matched.arrangement) {
@@ -792,8 +839,11 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     isMain: isRegularGroupId(g.id),
     personaId: fromText && g.selectedValues && Object.keys(g.selectedValues).length ? undefined : g.personaId,
     selectedValues: g.selectedValues,
-    ...(g.genannt ? { genannt: g.genannt } : {})
+    ...(g.genannt ? { genannt: g.genannt } : {}),
+    ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+    ...(g.ohneBewegung ? { ohneBewegung: true } : {})
   }));
+  const lehrende = typeof matched.kriterien.lehrende === 'number' ? matched.kriterien.lehrende : args.lehrende;
   const adjustmentConstraints = {
     maxTechnik: effectiveMaxTechnik,
     ohneInternet: effectiveOhneInternet,
@@ -801,7 +851,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
     fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined,
     // The request as the matcher read it (room, time …): a parallel method must cover its needs in that frame.
-    anfrage: matched.kriterien as MatchRequest
+    anfrage: matched.kriterien as MatchRequest,
+    // With two teachers both methods may bind a teacher (rule lehrkraft-nicht-doppelt).
+    ...(lehrende != null ? { lehrende } : {})
   };
   const regelsatz = { teilgruppen: store.bundle.teilgruppen, regeln: store.bundle.regeln, schemes: store.bundle.schemes };
   const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz);
@@ -854,7 +906,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     planungsprofilAngenommen: (matched.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
     raum: raumLabel(store, matched),
     anzahl: groupSize,
-    einheit: typeof matched.kriterien.einheit === 'string' ? matched.kriterien.einheit : undefined,
+    einheit: typeof matched.kriterien.einheit === 'string' ? matched.kriterien.einheit : args.einheit,
+    bewertet: typeof matched.kriterien.bewertet === 'boolean' ? matched.kriterien.bewertet : args.bewertet,
     nachweis: matched.nachweis?.formen.map((f) => schemeValues(store.bundle, 'nachweisform').find((w) => w.id === f)?.label || f).join(' oder '),
     hinweiseListe: matched.hinweise || [],
     // Accompanying goals as the matcher read them (field or text) and the strand it proposes (D3).
@@ -878,7 +931,13 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       durchfuehrung: b?.durchfuehrung || [],
       kernkomponente: (b?.kernkomponente || []).map((k) => k.name),
       qualitaetsrisiko: b?.qualitaetsrisiko || [],
-      evidenz: b?.evidenz || []
+      evidenz: b?.evidenz || [],
+      // FMT 2.0: kind of entry, needs (room, literacy, dates) and the basis of its suitability.
+      eintragsart: b?.eintragsart || 'methode',
+      raumbedarf: b?.raumbedarf || [],
+      schriftbedarf: b?.schriftbedarf || [],
+      ...(b?.termineMin != null ? { termineMin: b.termineMin } : {}),
+      ...(b?.eignungsgrund ? { eignungsgrund: b.eignungsgrund } : {})
     };
   });
 

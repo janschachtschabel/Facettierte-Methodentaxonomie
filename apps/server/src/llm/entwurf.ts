@@ -84,6 +84,8 @@ export interface EntwurfKontext {
   hauptziel?: string;
   einheit?: string;
   nachweis?: string;
+  /** Whether the lesson or its result is graded. */
+  bewertet?: boolean;
   hinweise?: string[];
   /** Accompanying goals as codes or labels (D3). */
   begleitziel?: string | string[];
@@ -134,6 +136,7 @@ export function entwurfAusTabelle(store: CatalogStore, k: EntwurfKontext, zeilen
     einheit: k.einheit,
     phasen,
     nachweis: k.nachweis,
+    ...(typeof k.bewertet === 'boolean' ? { bewertet: k.bewertet } : {}),
     hinweise: k.hinweise,
     ...begleitAngaben(store, k)
   });

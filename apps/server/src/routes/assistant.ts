@@ -18,6 +18,8 @@ import {
   buildEntwurfFuerAusarbeitung,
   buildMaterialBriefing,
   buildTranslateBriefing,
+  translateSystemPrompt,
+  translateUserPrompt,
   type DifferentiateBriefingPayload,
   type LlmBriefingPacket
 } from '../llm/briefings.js';
@@ -97,6 +99,8 @@ export interface ElaboratePayload {
   anzahl?: number;
   einheit?: string;
   nachweis?: string;
+  /** Whether the lesson or its result is graded; named in the core fields Rahmendaten and Lernerfolg. */
+  bewertet?: boolean;
   hinweiseListe?: string[];
   /** Request text (company words choose the profile betrieb). */
   text?: string;
@@ -397,6 +401,7 @@ export async function elaborateScenarioCore(
     body.anzahl ?? null,
     body.einheit || '',
     body.nachweis || '',
+    body.bewertet ?? null,
     body.hinweiseListe || null,
     body.begleitziel || null,
     body.begleitstrang || null,
@@ -894,11 +899,31 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     }
   };
 
+  // Request fields a caller may send next to the text (all of matcher.felder() except text).
+  const anfrageFelder = store.matcher.felder().map((f) => f.feld).filter((f) => f !== 'text');
+  /** Structured fields of a body (they win over what the text or the language model reads); a German error when invalid. */
+  const festgelegteFelder = (body: Record<string, unknown> | null | undefined): { felder: Record<string, unknown>; fehler?: string } => {
+    const felder: Record<string, unknown> = {};
+    for (const f of anfrageFelder) {
+      const v = body?.[f];
+      if (v !== undefined && v !== null && v !== '') felder[f] = v;
+    }
+    if (Object.keys(felder).length && !validateAnfrage(felder)) {
+      const e = validateAnfrage.errors?.[0];
+      const feld = e?.instancePath?.split('/').filter(Boolean)[0];
+      return { felder, fehler: `Feld „${feld || 'Anfrage'}“: ${feld ? 'unbekannter oder ungültiger Wert' : 'ungültig'}.` };
+    }
+    return { felder };
+  };
+
   app.post('/api/v1/assistant/translate', { config: rateLimitConfig }, async (req, reply) => {
-    const body = req.body as { text?: string } | null;
+    const body = req.body as ({ text?: string } & Record<string, unknown>) | null;
     const text = typeof body?.text === 'string' ? body.text.trim() : '';
     if (!text) return reply.code(400).send({ fehler: 'Bitte ein Szenario im Feld „text“ angeben.' });
     if (text.length > 4000) return reply.code(400).send({ fehler: 'Eingabetext zu lang (max. 4000 Zeichen).' });
+    // Structured fields (e.g. the completions of the Baukasten) are merged with the text; they always win.
+    const { felder: festgelegt, fehler: feldFehler } = festgelegteFelder(body);
+    if (feldFehler) return reply.code(400).send({ fehler: feldFehler });
 
     let target;
     try {
@@ -910,14 +935,14 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
 
     const extractedMeta = extractSubjectAndTopicFromText(text);
     const fallback = (hinweis: string) => {
-      const ergebnis = store.matcher.zuordnen({ text });
+      const ergebnis = store.matcher.zuordnen({ ...festgelegt, text } as MatchRequest);
       return reply.send({
         quelle: 'regeln-fallback',
         gecacht: false,
         hinweis,
         erkanntesFach: extractedMeta.fach,
         erkanntesThema: extractedMeta.thema,
-        anfrage: ergebnis.kriterien,
+        anfrage: { ...ergebnis.kriterien, ...festgelegt },
         ergebnis,
         leitplanken: FMT_GUARDRAILS
       });
@@ -927,7 +952,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       return fallback('Kein LLM-API-Key konfiguriert – deterministische Regel-Zuordnung wurde direkt ausgeführt.');
     }
 
-    const cacheKey = hashKey(['translate', store.bundle.versionHash, target.model, text.toLowerCase()]);
+    const cacheKey = hashKey(['translate', store.bundle.versionHash, target.model, text.toLowerCase(), festgelegt]);
     if (!target.isByok) {
       const cached = translateCache.get(cacheKey);
       if (cached) {
@@ -944,27 +969,14 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       }
     }
 
-    const systemPrompt =
-      'Du übersetzt deutsche Unterrichtsszenarien strikt in ein JSON-Objekt gemäß folgendem FMT-Anfrage-Schema. ' +
-      'Antworte AUSSCHLIESSLICH mit einem gültigen JSON-Objekt ohne Erklärtext. ' +
-      'Verwende NUR erlaubte Enum-Codes aus dem Schema. Setze das Feld "text" NICHT.\n' +
-      'Wichtige Zuordnungsregeln:\n' +
-      '- Wenn eine ganze Stunde, Doppelstunde (90 min), Einzelstunde (45 min) oder Unterrichtsreihe beschrieben wird, setze "modus": "ablauf" und wähle den passendsten "zieltyp":\n' +
-      '  • "prozedur" für Rechen-/Übungs-/Verfahrenskompetenzen (z. B. Bruchrechnen, Gleichungen, Rechtschreibung)\n' +
-      '  • "konzeptaufbau" für Begriffs- und Systemverständnis (z. B. Fotosynthese, Demokratie, Dichte)\n' +
-      '  • "problemloesen" für offene Anwendungs-/Transferprobleme\n' +
-      '  • "faktenwissen" für Vokabeln, Begriffslisten, Merkwissen\n' +
-      '  • "fuenf-e" für forschend-entdeckende naturwissenschaftliche Einheiten\n' +
-      '- Wenn ein didaktischer Ansatz erwähnt wird (z. B. problemorientiertes Lernen -> ["forschend"], kooperatives Lernen -> ["kooperativ"], direkte Instruktion -> ["instruktion"]), setze das Array "ansatz".\n' +
-      '- Wenn nur eine einzelne Phase gesucht wird (z. B. Einstieg, Sicherung, Diagnose), setze "modus": "phase" und die passende "lernfunktion".\n\n' +
-      `Schema:\n${store.anfrageSchemaJson}`;
+    const systemPrompt = translateSystemPrompt(store);
 
     try {
       const raw = await callChatCompletion(
         target,
         [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: text }
+          { role: 'user', content: translateUserPrompt(text, festgelegt) }
         ],
         {
           jsonMode: true,
@@ -981,11 +993,12 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       }
       // The text stays in the request, so the matcher reads it exactly as in the rule path (named methods,
       // negations, topic, subgroups). The LLM fields are explicit fields and take precedence over that reading.
-      const merged: Record<string, unknown> = { ...parsed, text };
+      const base: Record<string, unknown> = { ...parsed, ...festgelegt, text };
+      const merged: Record<string, unknown> = { ...base };
       if (!merged.modus && (merged.zieltyp || merged.zielart) && !merged.lernfunktion && !merged.liefert) {
         merged.modus = 'ablauf';
       }
-      const anfrage = (validateAnfrage(merged) ? merged : { ...parsed, text }) as MatchRequest;
+      const anfrage = (validateAnfrage(merged) ? merged : base) as MatchRequest;
       const ergebnis = store.matcher.zuordnen(anfrage);
       if (!target.isByok) translateCache.set(cacheKey, { anfrage });
       return reply.send({
@@ -1020,7 +1033,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       if (task === 'translate') {
         const text = typeof payload.text === 'string' ? payload.text.trim() : '';
         if (!text) return reply.code(400).send({ fehler: 'Bitte payload.text übergeben.' });
-        const b = buildTranslateBriefing(store, text);
+        const { felder: festgelegtB, fehler: feldFehlerB } = festgelegteFelder(payload);
+        if (feldFehlerB) return reply.code(400).send({ fehler: feldFehlerB });
+        const b = buildTranslateBriefing(store, text, festgelegtB);
         return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
       }
       if (task === 'elaborate') {
@@ -1063,6 +1078,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     const body = req.body as (Partial<ElaboratePayload> & { mode?: 'ki' | 'briefing' }) | null;
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
       return reply.code(400).send({ fehler: 'Bitte ein gültiges FMT-Arrangement übergeben.' });
+    }
+    if (body.bewertet != null && typeof body.bewertet !== 'boolean') {
+      return reply.code(400).send({ fehler: 'Feld „bewertet“: erwartet wird wahr oder falsch.' });
     }
 
     if (body.mode === 'briefing') {

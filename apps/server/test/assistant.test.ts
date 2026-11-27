@@ -179,6 +179,28 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     mockBehavior = 'valid';
   });
 
+  it('merges structured fields with the LLM answer; the fields win (App-Nachzug N1)', async () => {
+    mockBehavior = 'valid';
+    const r = await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/translate',
+      payload: { text: 'Einstieg zum Thema Fotosynthese, 15 Minuten', bildungsstufe: 'primar', raum: 'draussen' }
+    });
+    expect(r.statusCode).toBe(200);
+    const j = r.json();
+    expect(j.quelle).toBe('llm');
+    // The mock LLM answers bildungsstufe sek1; the structured field wins.
+    expect(j.anfrage.bildungsstufe).toBe('primar');
+    expect(j.anfrage.raum).toBe('draussen');
+    expect(j.anfrage.maxTechnik).toBe('t-keine');
+    const sys = String((lastMockBody as { messages: Array<{ content: string }> }).messages[0].content);
+    expect(sys).toContain('"zielart"');
+    expect(sys).toContain('vollstaendige-handlung');
+    const user = String((lastMockBody as { messages: Array<{ content: string }> }).messages[1].content);
+    expect(user).toContain('Bereits festgelegt');
+    expect(user).toContain('"primar"');
+  });
+
   it('falls back cleanly to deterministic lesen() on bad JSON, hallucinated enums, or upstream error (Review Focus #2)', async () => {
     mockBehavior = 'bad-json';
     const rBad = await appWithKey.inject({
