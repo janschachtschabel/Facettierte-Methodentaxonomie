@@ -106,3 +106,26 @@ export function weitereMethoden(row: ScenarioPhaseRow, allBlocks: Baustein[], r:
     )
     .sort((a, b) => a.name.localeCompare(b.name, 'de'));
 }
+
+/**
+ * Methods for the per-step select of the Partitur (and its slots), split by the core's check: `passend` covers the
+ * needs in the situation and carries the chain step's knowledge type; `ausgeschlossen` names the core's reason. The
+ * teacher sees both, the rejected ones only as disabled entries with the reason.
+ */
+export function schrittKandidaten(
+  cands: Baustein[],
+  r: WeitereRahmen,
+  schrittId?: string
+): { passend: Baustein[]; ausgeschlossen: Array<{ b: Baustein; grund: string }> } {
+  const anfrage = situationsAnfrage(r.constraints);
+  const situation = baueSituation(anfrage, r.regelwerk);
+  const schritt = kettenSchritt({ ketten: r.ketten }, r.zieltyp, schrittId);
+  const passend: Baustein[] = [];
+  const ausgeschlossen: Array<{ b: Baustein; grund: string }> = [];
+  for (const b of cands) {
+    const aus = ausschlussInSituation(b, { anfrage, situation, schritt, data: r.regelwerk });
+    if (aus) ausgeschlossen.push({ b, grund: aus.grund });
+    else passend.push(b);
+  }
+  return { passend, ausgeschlossen };
+}

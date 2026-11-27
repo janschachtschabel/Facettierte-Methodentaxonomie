@@ -16,7 +16,8 @@ import {
   type FmtData
 } from '@fmt/core';
 import { buildScenarioRows, STANDARD_LEARNER_GROUPS, type LearnerGroup } from '../src/planner/scenarioModel.js';
-import { parallelMethoden, situationsAnfrage, weitereMethoden, type KandidatenRahmen } from '../src/planner/kandidaten.js';
+import { parallelMethoden, schrittKandidaten, situationsAnfrage, weitereMethoden, type KandidatenRahmen } from '../src/planner/kandidaten.js';
+import { ausschlussInSituation } from '@fmt/core';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BUNDLE = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist-data', 'catalog.bundle.json'), 'utf8')) as CatalogBundle;
@@ -75,5 +76,24 @@ describe('Kandidaten im Baukasten über den Kernfilter (App-Nachzug N4)', () => 
       }
     }
     expect(geprueft).toBeGreaterThan(0);
+  });
+});
+
+describe('Partitur: Auswahl je Schritt über den Kernfilter (Schlussreview I2)', () => {
+  it('teilt die Methoden in passende und „passt hier nicht“ mit dem Grund des Kerns', () => {
+    const { r, rahmen } = plan('Bruchrechnen Klasse 2, können noch nicht lesen, 45 Minuten', { raum: 'klassenraum', ohneSchrift: ['lesen'], zieltyp: 'direkte-instruktion' });
+    if (r.modus !== 'ablauf' || !r.arrangement) throw new Error('kein Ablauf');
+    const anfrage = situationsAnfrage(rahmen.constraints);
+    const situation = baueSituation(anfrage, BUNDLE);
+    const methoden = BUNDLE.bausteine.filter(istMethode);
+    for (const schrittId of (r.arrangement.ablauf as { teile?: Array<{ kettenschritt?: string }> }).teile?.map((t) => t.kettenschritt) || []) {
+      const schritt = kettenSchritt(BUNDLE, r.arrangement.zieltyp, schrittId);
+      const { passend, ausgeschlossen } = schrittKandidaten(methoden, rahmen, schrittId);
+      expect(passend.length + ausgeschlossen.length).toBe(methoden.length);
+      for (const b of passend) expect(ausschlussInSituation(b, { anfrage, situation, schritt, data: BUNDLE }), b.kennung).toBeNull();
+      for (const x of ausgeschlossen) expect(x.grund).toBe(ausschlussInSituation(x.b, { anfrage, situation, schritt, data: BUNDLE })!.grund);
+    }
+    // Room and literacy reject something here (e.g. a method that needs reading).
+    expect(schrittKandidaten(methoden, rahmen).ausgeschlossen.length).toBeGreaterThan(0);
   });
 });
