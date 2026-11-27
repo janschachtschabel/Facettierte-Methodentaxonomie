@@ -728,7 +728,8 @@ export interface MatchHead {
   /** Planning profile of the draft (terms and modules): stated, read from Bildungsstufe and text, or assumed (then under pflichtangaben.angenommen). */
   planungsprofil?: Planungsprofil['id'];
   /** Form of proof the check is ordered by (rule nachweis-passt-zum-ziel): stated in the request or carried by the goal kind. */
-  nachweis?: { formen: string[]; quelle: 'anfrage' | 'zielart'; grund: string };
+  /** quelle 'annahme': assumed (a graded test as the lesson is written); listed under pflichtangaben.angenommen. */
+  nachweis?: { formen: string[]; quelle: 'anfrage' | 'zielart' | 'annahme'; grund: string };
 }
 
 export interface PhaseMatchResult extends MatchHead {

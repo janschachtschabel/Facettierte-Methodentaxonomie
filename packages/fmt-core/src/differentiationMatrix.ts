@@ -219,17 +219,17 @@ export function getPersonaValues(personaId: string): Record<string, string> {
 }
 
 /**
+ * A learner who uses a wheelchair ("im Rollstuhl", "Rollstuhlfahrer", "Kind mit Rollstuhl"); the wheelchair as an object
+ * ("Transfer in den Rollstuhl") or in a topic ("Transfer eines Kindes mit Rollstuhl") names no learner. Source string of a
+ * case-insensitive pattern, shared by the matrix traits and the learner groups of adaptScenario.
+ */
+export const ROLLSTUHL_LERNENDE =
+  String.raw`\brollstuhl(?:fahr|nutz)\w*|\bim\s+rollstuhl\b|\b(?:kind(?:er)?|sch[uü]ler(?:in(?:nen)?)?|lernende[rn]?|person(?:en)?|teilnehm(?:er(?:in(?:nen)?)?|ende[rn]?)|jugendliche[rn]?|studierende[rn]?|auszubildende[rn]?|azubis?)\s+mit\s+(?:einem\s+)?rollstuhl\b`;
+
+/**
  * Matrix categories that are never evaluated (Lerntypen/Lernstile, Pashler et al. 2008). Mirrors `gesperrt` in
  * data/teilgruppen.json (a test keeps both in step); callers with the data pass its list as `gesperrt`.
  */
-/**
- * A learner who uses a wheelchair ("im Rollstuhl", "Rollstuhlfahrer", "Kind mit Rollstuhl"); the wheelchair as an object
- * ("Transfer in den Rollstuhl") names no learner. Source string of a case-insensitive pattern, shared by the matrix traits and
- * the learner groups of adaptScenario.
- */
-export const ROLLSTUHL_LERNENDE =
-  String.raw`\brollstuhl(?:fahr|nutz)\w*|\bim\s+rollstuhl\b|\b(?:kind\w*|sch[uü]ler\w*|lernende\w*|person\w*|teilnehm\w*|jugendliche\w*|studierende\w*|auszubildende\w*|azubis?)\s+mit\s+(?:einem\s+)?rollstuhl\b`;
-
 export const GESPERRTE_MATRIX_KATEGORIEN: readonly string[] = ['sensorische'];
 
 export interface ScoreMatrixInput {

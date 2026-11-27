@@ -35,10 +35,11 @@ describe('Qualitätstest: realistische Anfragen fachdidaktisch geprüft', () => 
 });
 
 describe('Qualitätstest: Thema aus der Anfrage', () => {
+  // The topic stays literal (FMT 2.1 E3): a subject word at the start without a separator stays in the topic.
   it.each([
     ['Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle', 'Sport', 'ausdauertraining'],
-    ['Physik Klasse 9 Ohmsches Gesetz, 45 Minuten, Lernzielkontrolle am Ende', 'Physik', 'Ohmsches Gesetz'],
-    ['Sport Klasse 8 Weitsprung mit Leistungsmessung am Ende, Doppelstunde', 'Sport', 'Weitsprung'],
+    ['Physik Klasse 9 Ohmsches Gesetz, 45 Minuten, Lernzielkontrolle am Ende', 'Physik', 'Physik Ohmsches Gesetz'],
+    ['Sport Klasse 8 Weitsprung mit Leistungsmessung am Ende, Doppelstunde', 'Sport', 'Sport Weitsprung'],
     ['Geschichte: Ablauf der Französischen Revolution, 45 Minuten', 'Geschichte', 'Ablauf der Französischen Revolution'],
     ['Musikunterricht Klasse 5: Rhythmus klatschen, 45 Minuten', 'Musik', 'Rhythmus klatschen']
   ])('%s', (text, fach, thema) => {

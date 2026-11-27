@@ -1,3 +1,5 @@
+import { foldDe } from './semantic.js';
+
 /**
  * Room words of a free-text request (folded text: lower case, no diacritics, ß as ss). Shared by the reading of the
  * request (zuordnung.ts, field raum) and by the topic (thema.ts), which drops a comma part that only names the room.
@@ -42,16 +44,9 @@ export const RAUM_REGELN: ReadonlyArray<readonly [string, RegExp]> = [
   ['digital', /\bonline\b|\bvideokonferenz\w*/]
 ];
 
-const fold = (s: string) =>
-  String(s)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/ß/g, 'ss');
-
 /** Whether a part of the text names only the room ("Hörsaal", "Biologie-Fachraum", "draußen", "Skills Lab"). */
 export function nurRaumangabe(teil: string): boolean {
-  const t = fold(teil).trim();
+  const t = foldDe(teil).trim();
   if (!t) return false;
   return RAUM_REGELN.some(([, re]) => {
     const m = re.exec(t);

@@ -34,7 +34,8 @@ describe('Themenerkennung ohne Rahmenreste', () => {
       expect(r).not.toMatch(/\b(?:in|im|für|mit|und|zur|zum)$/i);
       expect(r).not.toMatch(/^(?:in|im|für|mit|und)\b/i);
     }
-    expect(thema('Ich möchte in Deutsch Klasse 9 eine Erörterung schreiben lassen, 90 Minuten')).toBe('eine Erörterung schreiben');
+    // The topic stays literal (FMT 2.1 E3): a subject word inside the phrase stays.
+    expect(thema('Ich möchte in Deutsch Klasse 9 eine Erörterung schreiben lassen, 90 Minuten')).toBe('Deutsch eine Erörterung schreiben');
     expect(thema('Doppelstunde Chemie, Säuren und Basen, Klasse 9, 30 Lernende, nur ein Beamer')).toBe('Säuren und Basen');
   });
 

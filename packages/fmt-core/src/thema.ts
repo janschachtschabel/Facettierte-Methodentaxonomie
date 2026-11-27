@@ -67,14 +67,13 @@ const INLINE_FRAME: RegExp[] = [
   /^\s*(?:das\s+)?thema\b:?/gi
 ];
 
-// The subject read as the subject: at the start of the text or as its own comma part. Elsewhere a subject word belongs to the
-// topic ("funktionelle Gruppen der organischen Chemie"); so does one followed by its object ("Geschichte des Internets",
-// "Religion und Staat", "die Geschichte vom barmherzigen Samariter").
-const SUBJECT_NAME = `${SUBJECT_WORDS}(?:unterricht)?\\b(?!\\s+(?:des|der|und|als|im|in\\s+der|vom|von|über|zu[mr]?)\\b)(?!-)`;
-const SUBJECT_AT_START = new RegExp(`^[\\s.:;,–-]*(?:(?:in|im)\\s+)?${SUBJECT_NAME}`, 'i');
-const SUBJECT_PART = new RegExp(`^${SUBJECT_NAME}$`, 'i');
-// A comma part that only names a phase of the lesson ("20 Minuten Wiederholung") says what the lesson does, not its topic.
+// The topic stays literal (FMT 2.1 E3): no word is cut out of a phrase. Only a part separated by comma or colon that
+// consists of nothing but the subject ("Chemie Oberstufe: …" once the stage is read), a room the room rules read, or a
+// phase of the lesson ("20 Minuten Wiederholung") is dropped. A subject word inside a phrase stays ("Mathe Bruchrechnen",
+// "funktionelle Gruppen der organischen Chemie").
+const SUBJECT_PART = new RegExp(`^${SUBJECT_WORDS}(?:unterricht)?$`, 'i');
 const PHASE_PART = /^(?:wiederholung|einstieg|sicherung|übung|übungsstunde|erarbeitung|abschluss)$/i;
+const nurRahmenwort = (teil: string) => SUBJECT_PART.test(teil) || PHASE_PART.test(teil) || nurRaumangabe(teil);
 
 // Frame information that also occurs as a topic ("Leben ohne Strom", "Die 3 Kinder aus …").
 // It is only dropped when it fills a whole comma-separated part.
@@ -110,12 +109,17 @@ export function extractSubjectAndTopic(raw: string): SubjectAndTopic {
 
   let text = firstLine;
   for (const re of INLINE_FRAME) text = text.replace(re, ' ');
-  text = text.replace(SUBJECT_AT_START, ' ');
 
   const trim = (p: string) => p.replace(/\s{2,}/g, ' ').replace(/\s+([:?!])/g, '$1').replace(/^[\s.:;–-]+|[\s.:;–-]+$/g, '').trim();
   const cleanPart = (p: string) => {
-    let out = trim(p);
-    if (WHOLE_PART_FRAME.some((re) => re.test(out)) || SUBJECT_PART.test(out) || PHASE_PART.test(out) || nurRaumangabe(out)) return '';
+    // Colon-separated segments of a part that name only the subject, a room or a phase go; the others stay as written.
+    let out = trim(
+      p
+        .split(':')
+        .filter((seg) => !nurRahmenwort(trim(seg)))
+        .join(':')
+    );
+    if (WHOLE_PART_FRAME.some((re) => re.test(out))) return '';
     out = trim(out.replace(TRAILING_FRAME, ''));
     if (WHOLE_PART_FRAME.some((re) => re.test(out))) return '';
     // "Leben ohne Strom" keeps its preposition; only a part that starts with one loses it.

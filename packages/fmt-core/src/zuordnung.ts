@@ -573,6 +573,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const form = String(a.nachweis);
       return { formen: [form], quelle: 'anfrage', grund: `Nachweis „${label('nachweisform', form)}“ laut Anfrage.` };
     }
+    // A graded test as the lesson is written; assumed, it only orders the checks.
+    if (benoteterTestAlsStunde(a)) return { formen: ['schriftlich'], quelle: 'annahme', grund: NACHWEIS_ANNAHME };
     const zielarten = given(a.zielart) ? [normZielart(String(a.zielart))!] : kette?.zielart || [];
     for (const z of zielarten) {
       const w = values(scheme('zielart')).find((x) => x.id === z);
@@ -590,6 +592,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     zwei: 2, drei: 3, vier: 4, funf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwolf: 12
   };
   const stageOfGrade = (n: number) => (n <= 4 ? 'primar' : n <= 10 ? 'sek1' : 'sek2');
+  /** A written test after "Vorbereitung auf …", "Besprechung der …" and the like is none in this lesson (folded text). */
+  const NICHT_NACH_VORBEREITUNG = String.raw`(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})`;
+  /** Nor is one that is to be prepared, discussed or practised ("Klausur vorbereiten"). */
+  const NICHT_VOR_VORBEREITUNG = String.raw`(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))`;
   const RULES: Array<[string, RegExp, (m: RegExpExecArray) => unknown]> = [
     // Multiplicative durations first (e.g. "2 x 45 Minuten", "3 × 45 min")
     ['zeitMin', /(\d{1,2})\s*[x×]\s*(\d{1,3})\s*(?:min\b|minuten)/, (m) => Number(m[1]) * Number(m[2])],
@@ -707,7 +713,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // Preparing for a Klausur ("Klausurvorbereitung", "Wiederholung vor der Klausur") is no proof in this lesson.
     [
       'nachweis',
-      /(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})\bklausur(?!vorbereit|nachbesprech|besprech|ruckgabe|berichtigung|korrektur|training|tipps|angst)\w*(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))|(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})(?:\bschriftlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung|test|arbeit)\w*|\bklassenarbeit\s+schreiben\b)(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))/,
+      new RegExp(
+        `${NICHT_NACH_VORBEREITUNG}\\bklausur(?!vorbereit|nachbesprech|besprech|ruckgabe|berichtigung|korrektur|training|tipps|angst)\\w*${NICHT_VOR_VORBEREITUNG}` +
+          `|${NICHT_NACH_VORBEREITUNG}(?:\\bschriftlich\\w*\\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung|test|arbeit)\\w*|\\bklassenarbeit\\s+schreiben\\b)${NICHT_VOR_VORBEREITUNG}`
+      ),
       () => 'schriftlich'
     ],
     ['nachweis', /\bmundlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'muendlich'],
@@ -1356,8 +1365,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // or gets learners on their feet (movement, hands-on work, or a need for standing or moving space).
     const sitzendImRaum = (b: Baustein) =>
       raumUngenutzt(b) && !praxisMethode(b) && !(b.raumbedarf || []).some((x) => x === 'stellflaeche' || x === 'bewegungsflaeche');
+    // Nor may it lift an opener of another subject (a rhythm warm-up from music in an Excel course) past the subject's own
+    // or cross-subject ones.
+    const fremdesFach = (b: Baustein) => Boolean(currentArea) && Boolean(b.fachbereich?.length) && !areaFits(b) && !b.fachbereich!.includes('uebergreifend');
     return order(
-      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1, sitzendImRaum(x.b) ? 1 : 0] })),
+      ranked.map((x) => ({ ...x, hard: [...x.hard, fitsTime(x.b) ? 0 : 1, fremdesFach(x.b) ? 1 : 0, sitzendImRaum(x.b) ? 1 : 0] })),
       OPENING_TOLERANCE
     );
   }
@@ -1391,6 +1403,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   /** Verbs of learning something in the lesson; a graded test without them is the lesson itself. */
   const LERNVERB = /\b(?:ub(?:en|t|ung\w*)|einuben|einfuhr\w*|erarbeit\w*|wiederhol\w*|lernen|erklar\w*|entdeck\w*|vertief\w*|festig\w*)\b/;
+  /** A graded check in this lesson and no learning verb ("Test mit Note", "Klassenarbeit, benotet"): the test is the lesson. */
+  const benoteterTestAlsStunde = (a: MatchRequest) =>
+    a.bewertet === true && list(a.liefert).includes('lernstand-diagnostiziert') && !LERNVERB.test(withoutNegated(currentRawText));
+  const NACHWEIS_ANNAHME = 'Nachweis „schriftlich“ angenommen, weil der Test benotet wird.';
 
   /** A check that opens a movement lesson still comes after the warm-up. */
   const firstAfterWarmUp = (kette: Funktionskette, steps: PlanStep[]) =>
@@ -1425,7 +1441,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         steps.splice(at, 0, check);
       }
       // A graded test is the lesson ("schriftlicher Test mit Note"): the check step holds the main share of the time.
-      if (a.bewertet === true && !LERNVERB.test(withoutNegated(currentRawText))) {
+      if (benoteterTestAlsStunde(a)) {
         const pruefSchritt = steps.find((st) => st.pruefung)!;
         const gewicht = (st: PlanStep) => (st.zeitanteil && st.zeitanteil > 0 ? st.zeitanteil : (FUNCTION_SHARE[st.funktion[0]] ?? 15));
         pruefSchritt.zeitanteil = steps.filter((st) => st !== pruefSchritt).reduce((sum, st) => sum + gewicht(st), 0);
@@ -2296,6 +2312,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // A goal only guessed from the text (semantic reading) does not fill the gap "ziel"; it is named below (W13).
         const zielGeraten = guessedFn && !given(a.zielart) && !given(a.zieltyp) && !list(a.liefert).length;
         if (zielGeraten && !fehlt.includes('ziel')) fehlt = ['ziel', ...fehlt];
+        // A subject guessed from a topic word only is assumed: like an assumed subject area it still counts as missing.
+        if (fachAusThema && !fehlt.includes('fach-und-thema')) fehlt = ['fach-und-thema', ...fehlt];
         // The subject: guessed from a topic word only ("Klimawandel" → Geografie), or not recognised at all.
         const fachAnnahme: Annahme[] = fachAusThema
           ? [{ feld: 'fach', wert: themaUndFach.fach, grund: `Kein Fach genannt: ${themaUndFach.fach} angenommen aus dem Thema.` }]
@@ -2314,7 +2332,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                 }
               ]
             : [];
-        return { fehlt, angenommen: [...fachAnnahmen, ...fachAnnahme, ...p.angenommen, ...zielVermutet, ...extra, ...profilAnnahme] };
+        // The written form of a graded test as the lesson is assumed (nachweisWunsch), so it is named.
+        const nachweisAnnahme: Annahme[] =
+          !given(a.nachweis) && benoteterTestAlsStunde(a) ? [{ feld: 'nachweis', wert: 'schriftlich', grund: NACHWEIS_ANNAHME }] : [];
+        return { fehlt, angenommen: [...fachAnnahmen, ...fachAnnahme, ...p.angenommen, ...zielVermutet, ...extra, ...nachweisAnnahme, ...profilAnnahme] };
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));

@@ -222,9 +222,9 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 's2-geschichte-projekttag',
     text: 'Projekttag Geschichte Oberstufe: Alltag in der DDR, Zeitzeugeninterviews vorbereiten und auswerten, 20 Schüler',
-    erwartet: { pflichtFehlt: ['zeit'], angenommenWert: { zeit: 270 } },
-    // The project owner dropped the ruling „Projekttag = 270 min“ (2026-11-27): the time stays the assumed lesson.
-    bekannt: { pflichtangaben: 'wartet auf FMT 2.1 Paket 3' }
+    // The project owner dropped the ruling „Projekttag = 270 min“ (2026-11-27): no time is read, the time stays missing.
+    // FMT 2.1 (Paket 3) asks back for the time instead of assuming one; that target is not tested here yet.
+    erwartet: { pflichtFehlt: ['zeit'] }
   },
   {
     id: 's2-philo-kant-urteil',
@@ -280,7 +280,7 @@ export const REIHE5: Qualitaetsfall[] = [
     // Q3 asks for the plan (modus ablauf); that /match plans on its own is Q6 (server test).
     anfrage: { modus: 'ablauf' },
     erwartet: { planungsprofil: 'betrieb', nicht: ['gebundene-musik-rhythmus'], pflichtFehlt: ['ziel'], enthaelt: 'vier-stufen-methode' },
-    bekannt: { fachpassung: Q3, nicht: Q3, enthaelt: QD2 }
+    bekannt: { enthaelt: QD2 }
   },
   {
     id: 'bs-wirtschaft-pruefungsvorb',
@@ -332,9 +332,7 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 'vhs-excel-4',
     text: 'VHS-Kurs Excel Grundlagen: Formeln und Funktionen, Computerraum, 4 Teilnehmer, 90 Minuten',
-    // With the subject read, the opener of another subject (gebundene-musik-rhythmus) shows; Q3 names or avoids it.
-    erwartet: { kriterien: { fachbereich: 'mathe-informatik' }, kette: 'prozedur' },
-    bekannt: { fachpassung: Q3 }
+    erwartet: { kriterien: { fachbereich: 'mathe-informatik' }, kette: 'prozedur' }
   },
   {
     id: 'verein-rueckenfit-60',

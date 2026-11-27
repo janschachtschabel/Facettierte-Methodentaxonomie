@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator, detectLearnerGroupsFromText, detectMatrixTraitsFromText } from '../src/index.js';
 import { extractSubjectAndTopic } from '../src/thema.js';
+import { nachweisformen } from '../src/zielart.js';
 import type { EinsatzNode, FmtData } from '../src/types.js';
 
 /** Task Q2 (scenario test 2026-11-27, causes U3 and U9): reading free text, topic and required details. */
@@ -35,9 +36,13 @@ describe('Wortregeln (U3 b)', () => {
       expect(motorik(t), t).toBe(true);
       expect(merkmal(t), t).toBe(true);
     }
-    const objekt = 'Pflegeausbildung 2. Lehrjahr: Transfer vom Bett in den Rollstuhl üben, Skills Lab, 90 Minuten, 16 Auszubildende';
-    expect(motorik(objekt)).toBe(false);
-    expect(merkmal(objekt)).toBe(false);
+    for (const objekt of [
+      'Pflegeausbildung 2. Lehrjahr: Transfer vom Bett in den Rollstuhl üben, Skills Lab, 90 Minuten, 16 Auszubildende',
+      'Pflege: Transfer eines Kindes mit Rollstuhl üben, 90 Minuten'
+    ]) {
+      expect(motorik(objekt), objekt).toBe(false);
+      expect(merkmal(objekt), objekt).toBe(false);
+    }
   });
 
   it('eine semantisch geratene Lernfunktion kommt nicht aus einem Text ohne Rahmen und nicht aus „prüfen“ allein', () => {
@@ -127,7 +132,8 @@ describe('Pflichtangaben (U9)', () => {
     expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'lernfunktion' }));
   });
 
-  it('ein Fach, das nur aus einem Themenwort geraten ist, steht unter angenommen; ein genanntes nicht', () => {
+  it('ein Fach, das nur aus einem Themenwort geraten ist, steht unter angenommen und fehlt weiter; ein genanntes nicht', () => {
+    expect(zuordnen('Irgendwas Aktivierendes zum Thema Klimawandel').pflichtangaben?.fehlt).toContain('fach-und-thema');
     expect(zuordnen('Irgendwas Aktivierendes zum Thema Klimawandel').pflichtangaben?.angenommen).toContainEqual({
       feld: 'fach',
       wert: 'Geografie',
@@ -150,12 +156,15 @@ describe('Pflichtangaben (U9)', () => {
 });
 
 describe('Thema (U3 f)', () => {
-  it('nur das als Fach gelesene Wort fällt weg (Textanfang oder eigener Kommateil)', () => {
+  it('das Thema bleibt wörtlich: nur ein durch Komma oder Doppelpunkt getrennter Teil aus Fach, Raum oder Phase fällt weg', () => {
     expect(thema('Chemie Oberstufe: funktionelle Gruppen der organischen Chemie auswendig können, 20 Minuten Wiederholung, 19 Schüler')).toBe(
       'funktionelle Gruppen der organischen Chemie auswendig können'
     );
     expect(thema('Klasse 7, Bruchrechnen, Mathe, 45 Minuten')).toBe('Bruchrechnen');
     expect(thema('Religion Klasse 2, die Geschichte vom barmherzigen Samariter im Erzählkreis')).toContain('Geschichte vom barmherzigen Samariter');
+    // A subject word at the start without a separator stays, so does one inside a phrase.
+    expect(thema('Mathe Klasse 6 Bruchrechnen, 45 Minuten')).toBe('Mathe Bruchrechnen');
+    expect(thema('Projekttag Geschichte Oberstufe: Alltag in der DDR, 20 Schüler')).toBe('Projekttag Geschichte: Alltag in der DDR');
   });
 
   it('Ordnungszahlen bleiben ganz („2. Lehrjahr“, „1. Semester“)', () => {
@@ -171,6 +180,16 @@ describe('Thema (U3 f)', () => {
 });
 
 describe('Benoteter Test als Stunde (U3)', () => {
+  it('„Test mit Note“ ohne „schriftlich“: die Prüfung ist schriftlich (angenommen), auch mit dem heutigen Katalog', () => {
+    const r = zuordnen('Mathe Klasse 6 Bruchrechnen, Test mit Note, 45 Minuten, 27 Schüler');
+    expect(r.nachweis?.quelle).toBe('annahme');
+    if (r.modus !== 'ablauf' || !r.arrangement || r.arrangement.ablauf.typ !== 'Sequenz') throw new Error('kein Ablauf');
+    const pruef = r.arrangement.ablauf.teile.filter((n): n is EinsatzNode => n.typ === 'Einsatz' && !n.kettenschritt);
+    expect(pruef.some((n) => nachweisformen(D.bausteine.find((b) => b.kennung === n.baustein)!).includes('schriftlich'))).toBe(true);
+    // A stated form is not overridden.
+    expect(zuordnen('Mathe Klasse 6, Test mit Note, mündliche Prüfung, 45 Minuten').nachweis?.formen).toEqual(['muendlich']);
+  });
+
   // Fixture: a written check of up to 40 minutes, as the catalogue lacks one until QD2.
   const mitLangemTest = (): FmtData => {
     const kopie = structuredClone(D);
@@ -195,6 +214,11 @@ describe('Benoteter Test als Stunde (U3)', () => {
     const { pruef, gesamt } = pruefschrittMin(benotet);
     expect(pruef * 2).toBeGreaterThanOrEqual(gesamt);
     expect(benotet.nachweis?.formen).toEqual(['schriftlich']);
+    // Without „schriftlich“ in the text the written form is assumed (it only orders the checks) and named.
+    const ohneWort = MF.zuordnen({ text: 'Mathe Klasse 6 Bruchrechnen, Test mit Note, 45 Minuten, 27 Schüler' });
+    expect(ohneWort.nachweis).toEqual({ formen: ['schriftlich'], quelle: 'annahme', grund: 'Nachweis „schriftlich“ angenommen, weil der Test benotet wird.' });
+    expect(ohneWort.pflichtangaben?.angenommen).toContainEqual({ feld: 'nachweis', wert: 'schriftlich', grund: 'Nachweis „schriftlich“ angenommen, weil der Test benotet wird.' });
+    expect(pruefschrittMin(ohneWort).pruef * 2).toBeGreaterThanOrEqual(pruefschrittMin(ohneWort).gesamt);
     const ohneNote = pruefschrittMin(MF.zuordnen({ text: 'Mathe Klasse 6 Bruchrechnen üben, schriftlicher Test, 45 Minuten, 27 Schüler' }));
     expect(ohneNote.pruef * 2).toBeLessThan(ohneNote.gesamt);
   });
