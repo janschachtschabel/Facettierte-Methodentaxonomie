@@ -927,3 +927,61 @@ describe('Schritt 1 und 5: jede Angabe erreicht den Kern (App-Nachzug N3)', () =
     expect((within(mehrAngaben()).getByLabelText('Vorwissen') as HTMLSelectElement).value).toBe('gering');
   });
 });
+
+describe('N3-Fix I1: Geleertes gilt sofort im Entwurf; das Planungsprofil findet die Stufe aus Text oder Ergänzung', () => {
+  const mehrAngaben = () => screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+  const waehle = (label: string, value: string) => fireEvent.change(within(mehrAngaben()).getByLabelText(label), { target: { value } });
+
+  it('Bewertung, Einheit und Nachweis leeren: der Entwurf nennt sie nicht mehr, was der Text sagt, bleibt', () => {
+    renderPlanner();
+    waehle('Übergeordnete Einheit', 'Reihe Ökologie');
+    waehle('Wird die Stunde bewertet?', 'ja');
+    waehle('Nachweis', 'produkt');
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, Einheit Lernfeld 3';
+    propose(text);
+    fireEvent.click(stepButton(5));
+    const vorher = document.body.textContent || '';
+    expect(vorher).toContain('Reihe Ökologie');
+    expect(vorher).toContain('wird bewertet');
+    expect(vorher).toContain(`Nachweis: ${CATALOG.labelOf('nachweisform', 'produkt')}`);
+    fireEvent.click(stepButton(1));
+    waehle('Übergeordnete Einheit', '');
+    waehle('Wird die Stunde bewertet?', '');
+    waehle('Nachweis', '');
+    fireEvent.click(stepButton(5));
+    const nachher = document.body.textContent || '';
+    expect(nachher).not.toContain('Reihe Ökologie');
+    expect(nachher).toContain('Lernfeld 3');
+    expect(nachher).not.toMatch(/wird bewertet|Das Ergebnis wird bewertet/);
+    expect(nachher).not.toContain(`Nachweis: ${CATALOG.labelOf('nachweisform', 'produkt')}`);
+    // Same as the core's answer for the request without the cleared fields.
+    const kern = CATALOG.matcher.zuordnen({ text }) as { nachweis?: { formen: string[] } };
+    for (const f of kern.nachweis?.formen || []) expect(nachher).toContain(CATALOG.labelOf('nachweisform', f));
+  });
+
+  it('Planungsprofil leeren: die Stufe aus dem Text bestimmt es wieder (Berufsschule)', () => {
+    renderPlanner();
+    waehle('Planungsprofil', 'hochschule');
+    propose('Berufsschule, Elektrotechnik, Stromkreise, 45 Minuten');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
+    expect(document.body.textContent).toContain('Unterrichtsentwurf mit Lernsituation');
+    expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+  });
+
+  it('Planungsprofil leeren: eine Stufe aus „Fehlt noch“ bestimmt es wieder (Erwachsenenbildung)', () => {
+    renderPlanner();
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(1));
+    const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    fireEvent.change(within(zeile).getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'erwachsenenbildung' } });
+    waehle('Planungsprofil', 'hochschule');
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(5));
+    expect(document.body.textContent).toContain('Ablaufplan der Sitzung');
+    fireEvent.change(screen.getByLabelText('Planungsprofil'), { target: { value: '' } });
+    expect(document.body.textContent).toContain('Kursverlaufsplan');
+    expect(document.body.textContent).not.toContain('Ablaufplan der Sitzung');
+  });
+});

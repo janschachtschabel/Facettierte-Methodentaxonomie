@@ -88,4 +88,11 @@ describe('EntwurfAngaben: bewertet und ein gewähltes Planungsprofil bleiben bei
     expect(entwurfAngabenLesen({ bewertet: false, planungsprofilGewaehlt: true })).toMatchObject({ bewertet: false, planungsprofilGewaehlt: true });
     expect(entwurfAngabenLesen({ bewertet: 'ja' })!.bewertet).toBeUndefined();
   });
+
+  it('gewaehlt: nur Felder, die die Anfrage ausdrücklich setzt, nicht was der Text sagt', () => {
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, Einheit Lernfeld 3, wird benotet';
+    expect(entwurfAngabenAus(matcher.zuordnen({ text })).gewaehlt).toEqual([]);
+    expect(entwurfAngabenAus(matcher.zuordnen({ text, einheit: 'Reihe X', nachweis: 'produkt' })).gewaehlt).toEqual(['einheit', 'nachweis']);
+    expect(entwurfAngabenLesen({ gewaehlt: ['bewertet', 'raum'] })!.gewaehlt).toEqual(['bewertet']);
+  });
 });

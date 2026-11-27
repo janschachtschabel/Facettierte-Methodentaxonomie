@@ -84,6 +84,7 @@ import {
   saveScenarioToStorage,
   entwurfAngabenAus,
   type EntwurfAngaben,
+  type GewaehltesFeld,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
@@ -378,6 +379,8 @@ export function PlannerPage() {
   // Snapshot of the template flow as loaded. Only a flow that still equals it is cleared on own input,
   // so imported, saved or hand-edited flows are never wiped.
   const templateFlowRef = useRef<string | null>(null);
+  // Core answer for the current request, kept while the request is unchanged (draft parts after a cleared choice).
+  const aktuelleAntwortRef = useRef<{ key: string; angaben: EntwurfAngaben } | null>(null);
   // Request for which `variante` counts; a changed request starts again at the first proposal.
   const variantKeyRef = useRef<string | null>(null);
 
@@ -1353,6 +1356,17 @@ export function PlannerPage() {
   const begleitPhasenNow = begleitPhasen.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
   const begleitImAblauf = (st: Begleitstrang) => begleitPhasenNow.find((a) => a.kennung === st.baustein);
   const begleitHinweise = begleitzielHinweise(angaben?.hinweise);
+  // A choice of "Mehr Angaben" sent with the last proposal and cleared since: that answer still holds the old value, so
+  // the draft reads the core's answer for the current request instead (computed once per request).
+  const mehrJetzt = mehrAngabenInAnfrage(mehr);
+  const geleert = (f: GewaehltesFeld) => mehrJetzt[f] === undefined && Boolean(angaben?.gewaehlt?.includes(f));
+  const aktuelleAngaben = (): EntwurfAngaben => {
+    const req = buildStructuredMatchRequest();
+    const key = JSON.stringify(req);
+    if (aktuelleAntwortRef.current?.key !== key) aktuelleAntwortRef.current = { key, angaben: entwurfAngabenAus(matcher.zuordnen(req)) };
+    return aktuelleAntwortRef.current.angaben;
+  };
+  const quelleFuer = (f: GewaehltesFeld) => (geleert(f) ? aktuelleAngaben() : angaben);
   // Planning profile of the draft: chosen in step 1 or 5, else the core's. When the last proposal had a chosen profile
   // that is cleared now, the core derives it again from the Bildungsstufe and the text (no new proposal needed).
   const profilAbgeleitet =
@@ -1365,10 +1379,11 @@ export function PlannerPage() {
     planungsprofilAngenommen: mehr.planungsprofil ? false : profilAbgeleitet ? profilAbgeleitet.angenommen : Boolean(angaben?.planungsprofilAngenommen),
     raum: raumCode ? `${labelOf('raumtyp', raumCode)}${!raum && !angaben?.raum && angenommenRaum ? ' (angenommen)' : ''}` : undefined,
     anzahl: classSize,
-    // Unit, proof and grading as chosen in "Mehr Angaben" count at once; otherwise as the last proposal read them.
-    einheit: mehr.einheit?.trim() || angaben?.einheit,
-    nachweis: (mehr.nachweis ? [mehr.nachweis] : angaben?.nachweis)?.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
-    bewertet: mehr.bewertet ?? angaben?.bewertet,
+    // Unit, proof and grading as chosen in "Mehr Angaben" count at once; otherwise as the last proposal read them, or,
+    // for a choice cleared since, as the core answers the current request.
+    einheit: mehrJetzt.einheit || quelleFuer('einheit')?.einheit,
+    nachweis: (mehr.nachweis ? [mehr.nachweis] : quelleFuer('nachweis')?.nachweis)?.map((f) => labelOf('nachweisform', f)).join(' oder ') || undefined,
+    bewertet: mehrJetzt.bewertet ?? quelleFuer('bewertet')?.bewertet,
     hauptziel: zielCode ? labelOf('zielart', zielCode) : bundle?.ketten.find((k) => k.id === arrangement.zieltyp)?.label,
     begleitziele: begleitzielCodes.length ? begleitzielCodes.map((c) => labelOf('begleitziel', c)) : undefined,
     // A strand taken into the flow is a phase of the plan now, no longer a proposal.

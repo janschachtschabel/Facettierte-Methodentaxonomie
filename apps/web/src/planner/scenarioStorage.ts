@@ -114,6 +114,11 @@ export interface EntwurfAngaben {
   planungsprofilGewaehlt?: boolean;
   /** Whether the lesson is graded, as the request stated it; absent when not stated. */
   bewertet?: boolean;
+  /**
+   * Of einheit, bewertet and nachweis: those the request set as explicit field (not only read from the text). When such
+   * a choice is cleared, the draft must not keep the value from this answer.
+   */
+  gewaehlt?: GewaehltesFeld[];
   /** Room the matcher assumed (code), when the request names none. */
   raumAngenommen?: string;
   /** Room as the matcher read it (code). */
@@ -129,9 +134,18 @@ export interface EntwurfAngaben {
   hinweise?: string[];
 }
 
+export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis';
+const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis'];
+
 /** The draft's parts of a matcher answer. */
 export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
   const k = (r.kriterien || {}) as Record<string, unknown>;
+  // A field counts as chosen when the request holds it but the text reading (erkannt) does not, or reads another value.
+  const gewaehlt = GEWAEHLTE_FELDER.filter((f) => {
+    if (k[f] === undefined || k[f] === null || k[f] === '') return false;
+    const gelesen = (r.erkannt || []).find((e) => e.feld === f);
+    return !gelesen || gelesen.wert !== k[f];
+  });
   const str = (v: unknown) => (typeof v === 'string' && v ? v : undefined);
   const angenommenRaum = r.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
   return {
@@ -139,6 +153,7 @@ export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
     planungsprofilAngenommen: (r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
     planungsprofilGewaehlt: typeof k.planungsprofil === 'string' && k.planungsprofil !== '',
     bewertet: typeof k.bewertet === 'boolean' ? k.bewertet : undefined,
+    gewaehlt,
     raumAngenommen: angenommenRaum ? String(angenommenRaum) : undefined,
     raum: str(k.raum),
     einheit: str(k.einheit),
@@ -182,6 +197,7 @@ export function entwurfAngabenLesen(v: unknown): EntwurfAngaben | undefined {
     planungsprofilAngenommen: o.planungsprofilAngenommen === true,
     planungsprofilGewaehlt: o.planungsprofilGewaehlt === true,
     bewertet: typeof o.bewertet === 'boolean' ? o.bewertet : undefined,
+    gewaehlt: strs(o.gewaehlt)?.filter((x): x is GewaehltesFeld => (GEWAEHLTE_FELDER as string[]).includes(x)),
     raumAngenommen: str(o.raumAngenommen),
     raum: str(o.raum),
     einheit: str(o.einheit),
