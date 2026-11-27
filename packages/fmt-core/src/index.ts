@@ -23,3 +23,4 @@ export * from './zielart.js';
 export { baueSituation } from './situation.js';
 export type { Situation, Annahme, Pflichtangabe } from './situation.js';
 export * from './raster.js';
+export { erstelleRegeln } from './regeln.js';

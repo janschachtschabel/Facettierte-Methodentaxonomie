@@ -84,6 +84,7 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     arten: bundle.arten,
     merkmale: bundle.merkmale,
     ketten: bundle.ketten,
+    regeln: bundle.regeln,
     bausteine: bundle.bausteine,
     beispiele: bundle.beispiele,
     faecher: bundle.faecher,

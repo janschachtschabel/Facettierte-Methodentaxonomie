@@ -156,6 +156,7 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
       arten: bundle.arten,
       merkmale: bundle.merkmale,
       ketten: bundle.ketten,
+      regeln: bundle.regeln,
       bausteine: bundle.bausteine,
       beispiele: bundle.beispiele,
       oeh: bundle.oeh,

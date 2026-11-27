@@ -1,13 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { OehSubjectCrosswalk } from './fach.js';
-import type { Arrangement, Aussageart, Baustein, FacetMeta, FmtData, FmtMeta, Funktionskette, Merkmal, Scheme, WFeld } from './types.js';
+import type { Arrangement, Aussageart, Baustein, FacetMeta, FmtData, FmtMeta, Funktionskette, Passungsregel, Merkmal, Scheme, WFeld } from './types.js';
 
 export function loadFmtData(dataDir: string): FmtData {
   const readJson = <T>(rel: string): T => JSON.parse(fs.readFileSync(path.join(dataDir, rel), 'utf8')) as T;
   const meta = readJson<FmtMeta>('meta.json');
   const vocab = readJson<{ schemes: Scheme[]; facetten: FacetMeta[]; wfelder: WFeld[]; arten: Aussageart[]; merkmale: Merkmal[] }>('vocab.json');
   const ketten = readJson<Funktionskette[]>('ketten.json');
+  const regeln = readJson<Passungsregel[]>('regeln.json');
 
   const bausteineDir = path.join(dataDir, 'bausteine');
   const bausteine = fs
@@ -44,6 +45,7 @@ export function loadFmtData(dataDir: string): FmtData {
     arten: vocab.arten,
     merkmale: vocab.merkmale,
     ketten,
+    regeln,
     bausteine,
     beispiele,
     faecher,

@@ -120,6 +120,7 @@ describe('Client Catalog Cache & Fast Faceted Search', () => {
       arten: BUNDLE.arten,
       merkmale: BUNDLE.merkmale,
       ketten: BUNDLE.ketten,
+      regeln: BUNDLE.regeln,
       bausteine: BUNDLE.bausteine,
       beispiele: BUNDLE.beispiele
     };

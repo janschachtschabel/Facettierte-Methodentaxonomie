@@ -121,6 +121,37 @@ export interface Merkmal {
   regel?: string;
 }
 
+export type ListenVergleich = { enthaelt?: string[]; nur?: string[]; ohne?: string[] };
+/** One fit rule (Passungsregel) as data; built-in rules are applied by the matcher and only carry text and basis here. */
+export interface Passungsregel {
+  id: string;
+  name: string;
+  wfelder: string[];
+  art: 'deklarativ' | 'eingebaut';
+  wenn?: { methode?: Record<string, ListenVergleich>; situation?: Record<string, string[]> };
+  wirkung: Wirkung;
+  grundlage: Grundlage;
+  quelle?: string;
+  /** Plain German sentence shown to the teacher; {methode} is replaced by the method name. */
+  text: string;
+  ersetzt?: string;
+}
+export interface Regelmeldung {
+  regel: string;
+  wirkung: Wirkung;
+  grundlage: Grundlage;
+  quelle?: string;
+  text: string;
+  baustein?: string;
+}
+export interface RegelSituation {
+  vorwissen?: string;
+  bildungsstufe?: string;
+  komplexitaet?: string;
+  sprachniveau?: string;
+  fachbereich?: string;
+}
+
 export interface FacetMeta {
   id: string;
   inferenz: InferenceLevel;
@@ -385,6 +416,8 @@ export interface FmtData {
   arten: Aussageart[];
   merkmale: Merkmal[];
   ketten: Funktionskette[];
+  /** Fit rules (Passungsregeln). */
+  regeln: Passungsregel[];
   bausteine: Baustein[];
   beispiele: Arrangement[];
   /** OEH school and university subjects mapped to FMT subject areas (recognition layer, optional). */
@@ -610,6 +643,7 @@ export interface CatalogBundle {
   arten: Aussageart[];
   merkmale: Merkmal[];
   ketten: Funktionskette[];
+  regeln: Passungsregel[];
   bausteine: Baustein[];
   beispiele: Arrangement[];
   oeh: Record<string, string>;
