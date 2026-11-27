@@ -75,7 +75,17 @@ describe('Fix wave Paket B', () => {
   });
 
   it('1: eine eindeutig einzelne Phase bleibt eine Phase, ein Thema allein ist kein Rahmen', () => {
-    for (const text of ['Einstieg für Mathe Klasse 7 Brüche', 'eine Methode für Mathe Klasse 7 Brüche', 'Sicherung Geschichte Klasse 9 Weimarer Republik', 'Fotosynthese']) {
+    for (const text of [
+      'Einstieg für Mathe Klasse 7 Brüche',
+      'eine Methode für Mathe Klasse 7 Brüche',
+      'Sicherung Geschichte Klasse 9 Weimarer Republik',
+      'Fotosynthese',
+      // Round 2: plural "Methoden/Ideen für", a short loosening-up, the start of the lesson, "ein Spiel für".
+      'Methoden für Mathe Klasse 7 Brüche',
+      'Kurze Auflockerung für Klasse 5',
+      'Ideen für den Stundenanfang, Mathe Klasse 7',
+      'ein Spiel für Deutsch Klasse 6'
+    ]) {
       expect(M.zuordnen({ text }).modus, text).toBe('phase');
     }
   });

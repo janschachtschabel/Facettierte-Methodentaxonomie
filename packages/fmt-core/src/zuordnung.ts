@@ -456,9 +456,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const ACTIVITY_WORD = /^(?:uben|ubt|wiederhol|festig|trainier|automatisier)/;
   /** Course stages that end in "-phase" but name no phase of a lesson. */
   const STAGE_PHASE = /\be-?phase\b|einfuhrungsphase|qualifikationsphase/g;
+  /**
+   * Words that ask for one method or activity, not a whole lesson: "eine Methode für …", "Methoden/Ideen für …",
+   * "ein Spiel für …", a loosening-up ("Auflockerung") or the start of the lesson ("Stundenanfang").
+   */
+  const SINGLE_METHOD_WORD =
+    /\b(?:eine|einzelne|nur\s+eine)\s+(?:methode|phase|aktivitat)\b|\b(?:methoden?|ideen?|aktivitaten)\s+(?:fur|zu[mr]?)\b|\bein\s+spiel\s+(?:fur|zu[mr]?)\b|\bauflockerung\w*|\bstundenanfang\w*/;
   /** Words that ask for one phase of a lesson. */
-  /** Words that ask for one method ("eine Methode für …"), not a whole lesson. */
-  const SINGLE_METHOD_WORD = /\b(?:eine|einzelne|nur\s+eine)\s+(?:methode|phase|aktivitat)\b|\bmethode\s+(?:fur|zu[mr]?)\b/;
   const PHASE_WORD =
     /\b(?:einstieg\w*|eroffnung|sicherung\w*|abschluss\w*|ausstieg|warm-?up|aufwarm\w*|stundenbeginn|stundenende|\w*phase|zum\s+(?:beginn|ende|schluss)|am\s+(?:anfang|ende|schluss)|zu\s+beginn)\b/;
 
