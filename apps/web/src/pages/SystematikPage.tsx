@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FMT_RULES, nurMethoden, oehDisciplinesForFachbereich, traegtBegleitziel } from '@fmt/core';
+import { FMT_RULES, istHilfe, nurMethoden, oehDisciplinesForFachbereich, traegtBegleitziel, type Passungsregel } from '@fmt/core';
 import { katalogZahlen, katalogZahlenText } from '../data/katalogZahlen.js';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
@@ -132,13 +132,41 @@ const WIRKUNG_REIHE: Array<[string, string]> = [
 
 const ROLE_LABEL: Record<string, string> = { rand: 'Rand', haupt: 'Haupt', sicherung: 'Sicherung' };
 
-const MATCH_STAGES = [
-  ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', 'Beitrag: Zielart, Lernfunktion, gewünschter Lernzustand; Wissensart je Kettenschritt', 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
-  ['2 Rahmen', 'Was ist praktisch möglich?', 'Bedarf gegen Rahmenbedingungen: Zeit, Termine, Gruppengröße, Technik, Raum mit Eigenschaften, Lesen und Schreiben, Vorbereitung, ohne KI/Internet', 'schließt aus (ein angenommener Raum nur ordnend)', 'formal'],
-  ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Bedarf: Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
-  ['4 Passung', 'Für wen passt es?', 'Eignung: Vorwissen (Expertise-Reversal), Bildungsstufe, Fachbereich', 'warnt', 'Tetzlaff et al. 2025; Sinha & Kapur 2021'],
-  ['5 Auswahl', 'Welcher der verbleibenden?', 'Punktzahl aus Fachbereich, Ansatz, Anleitung, Zeit, Technik, Textnähe und Evidenz (Studie zur Methode vor abgeleitetem Prinzip); im Text genannte Methoden haben Vorrang', 'ordnet (Lehrkraft entscheidet)', 'Setzung']
-];
+/** Rules that act in stage 1 (binding) and 2 (needs); every other fit rule acts in stage 4. */
+const REGEL_STUFE: Record<string, number> = { 'zielart-bindung': 1, 'bedarf-gedeckt': 2 };
+
+/**
+ * The five stages of the assignment. Stage 4 names every fit rule of the data with its effect (besides suitability),
+ * stage 5 says that an accompanying goal orders only inside the tolerance of equivalent methods.
+ */
+export function zuordnungsStufen(regeln: ReadonlyArray<Pick<Passungsregel, 'id' | 'name' | 'wirkung'>>): string[][] {
+  const namen = (stufe: number) =>
+    regeln
+      .filter((r) => (REGEL_STUFE[r.id] ?? 4) === stufe)
+      .map((r) => `${r.name} (${WIRKUNG_TEXT[r.wirkung] || r.wirkung})`)
+      .join(', ');
+  const wirkungen4 = [...new Set(regeln.filter((r) => (REGEL_STUFE[r.id] ?? 4) === 4).map((r) => WIRKUNG_TEXT[r.wirkung] || r.wirkung))];
+  const regel = (stufe: number) => (namen(stufe) ? `; Regel: ${namen(stufe)}` : '');
+  return [
+    ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', `Beitrag: Zielart, Lernfunktion, gewünschter Lernzustand; Wissensart je Kettenschritt${regel(1)}`, 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
+    ['2 Rahmen', 'Was ist praktisch möglich?', `Bedarf gegen Rahmenbedingungen: Zeit, Termine, Gruppengröße, Technik, Raum mit Eigenschaften, Lesen und Schreiben, Vorbereitung, ohne KI/Internet${regel(2)}`, 'schließt aus (ein angenommener Raum nur ordnend)', 'formal'],
+    ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Bedarf: Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
+    [
+      '4 Passung',
+      'Für wen passt es?',
+      `Eignung: Vorwissen (Expertise-Reversal), Bildungsstufe, Fachbereich; Passungsregeln: ${namen(4)}`,
+      `warnt (Eignung); je Regel: ${wirkungen4.join(', ')}`,
+      'je Regel (Tabelle Passungsregeln); Tetzlaff et al. 2025; Sinha & Kapur 2021'
+    ],
+    [
+      '5 Auswahl',
+      'Welcher der verbleibenden?',
+      'Punktzahl aus Fachbereich, Ansatz, Anleitung, Zeit, Technik, Textnähe und Evidenz (Studie zur Methode vor abgeleitetem Prinzip); im Text genannte Methoden haben Vorrang. Ein Begleitziel ordnet nur innerhalb der Toleranz, in der Methoden als gleichwertig gelten; es verdrängt keine Methode, die besser zum Ziel passt',
+      'ordnet (Lehrkraft entscheidet)',
+      'Setzung'
+    ]
+  ];
+}
 
 const LLM_BOUNDARY = [
   ['Bausteine filtern, Anschluss prüfen, Rangfolge bilden', 'Nein – deterministischer Code (< 1 ms)'],
@@ -1063,7 +1091,7 @@ export function SystematikPage() {
               </tr>
             </thead>
             <tbody>
-              {MATCH_STAGES.map(([s, q, m, w, g]) => (
+              {zuordnungsStufen(bundle.regeln).map(([s, q, m, w, g]) => (
                 <tr key={s}>
                   <td style={{ fontFamily: 'var(--display)', fontWeight: 700, whiteSpace: 'nowrap' }}>{s}</td>
                   <td>{q}</td>
@@ -1100,7 +1128,7 @@ export function SystematikPage() {
         </div>
       </section>
 
-      {/* 6. Live Catalog Analytics Dashboard (200 Methods) */}
+      {/* Live catalogue analytics (counts of methods and helps from the data) */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
         <h2>Auswertungen &amp; Verortung des Katalogs ({katalogZahlenText(bundle.bausteine)} live)</h2>
         <p className="muted" style={{ maxWidth: '76ch', marginBottom: 18 }}>
@@ -1291,6 +1319,25 @@ export function SystematikPage() {
           Gesperrt: {bundle.teilgruppen.gesperrtText} Durchschnittliche oder unauffällige Ausprägungen ({bundle.teilgruppen.neutral.length})
           lösen nichts aus.
         </p>
+
+        <h3 style={{ marginTop: 22 }}>Eintragsart Hilfe</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Der Katalog führt zwei Eintragsarten. Eine <strong>Methode</strong> trägt eine Phase. Eine <strong>Hilfe</strong>{' '}
+          trägt keine Phase: Sie hat keine Nachbedingung, erscheint in keinem Kettenschritt und kommt nie als eigener Schritt
+          in einen Ablauf. Sie stützt Lernende innerhalb einer Methode. Sieht die Tabelle „Tausch oder Hilfe“ für ein Merkmal
+          eine Hilfe vor, schlägt Schritt 3 des Baukastens sie der Teilgruppe vor, mit dem Satz, wann sie entfällt. Im Katalog
+          hat die Eintragsart einen eigenen Filter; gezählt wird getrennt ({katalogZahlenText(bundle.bausteine)}). Die
+          Maßnahmen der Binnendifferenzierungsmatrix bleiben, wo sie sind, und gelten ebenfalls als Hilfen.
+        </p>
+        <ul className="chips" aria-label="Hilfen im Katalog">
+          {bundle.bausteine.filter(istHilfe).map((h) => (
+            <li key={h.kennung}>
+              <Link className="chip" to={`/methoden/${h.kennung}`}>
+                {h.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
         <h3 style={{ marginTop: 22 }}>Planungsprofile: {bundle.planungsprofile.profile.length} Bereiche, {bundle.planungsprofile.kernfelder.length} Kernfelder</h3>
         <p style={{ maxWidth: '76ch' }}>

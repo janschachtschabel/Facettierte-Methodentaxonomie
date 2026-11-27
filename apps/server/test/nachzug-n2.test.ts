@@ -7,6 +7,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { buildApp } from '../src/app.js';
 import { anpassungsAnfrage } from '../src/kandidaten.js';
+import { MCP_HINWEISE } from '@fmt/core';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
@@ -85,6 +86,13 @@ describe('App-Nachzug N2: MCP auf FMT-2.0-Stand, Hinweise zum Erfragen', () => {
       expect(ins).toMatch(/Katalog/);
       expect(ins).toMatch(/Gruppen/);
       for (const w of VERBOTEN) expect(ins).not.toContain(w);
+    });
+
+    it('die instructions sind der Text aus dem Kern (dieselben Worte wie die Seite API & MCP) und sagen, was ohne Antwort gilt', () => {
+      const ins = client.getInstructions() || '';
+      expect(ins).toBe(MCP_HINWEISE);
+      // The user cannot or will not answer: plan anyway and name the assumptions (N2 review, minor 4).
+      expect(ins).toMatch(/Kann oder will der Nutzer nicht antworten, plane trotzdem weiter und nenne die Annahmen aus pflichtangaben\.angenommen/);
     });
 
     it('die Werkzeuge, die eine Anfrage annehmen, sagen, was beim Nutzer zu erfragen ist', () => {

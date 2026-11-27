@@ -4,6 +4,9 @@ import {
   DIFF_MATRIX_PERSONAS,
   FMT_GUARDRAILS,
   FMT_RULES,
+  KI_OPTIONALE_ANGABEN,
+  KI_PFLICHTANGABEN,
+  MCP_HINWEISE,
   MEASURE_LEVEL_ORDER,
   QUICK_LEARNER_GROUP_PROFILES,
   einordnungInKetten,
@@ -44,37 +47,14 @@ import { LLM_BUDGET_EXCEEDED, serverLlmBudget } from '../llm/budget.js';
 import { MAX_TEXT_CHARS } from '../routes/validation.js';
 import { applySubjectFilter } from '../routes/api.js';
 
-/** Required details for a plan, as the calling AI should ask its user for them (core Pflichtangabe codes in brackets). */
-const PFLICHT = 'Bildungsstufe, Fach und Thema, Zeit, Gruppengröße, Raum, Ziel bzw. Zielart';
-/** Optional details that change the plan when the user knows them. */
-const OPTIONAL = 'Vorwissen, Sprachniveau, Komplexität, Teilgruppen mit Merkmalen, Begleitziel, Planungsprofil, Termine, Nachweis, Lehrende';
+/** Required and optional details (shared with the web page "API & MCP" via the core). */
+const PFLICHT = KI_PFLICHTANGABEN;
+const OPTIONAL = KI_OPTIONALE_ANGABEN;
 /** One line for tools whose answer carries pflichtangaben. */
 const RUECKFRAGE = 'Lies pflichtangaben.fehlt und frage nach (eine kurze Frage, kein Formular); nenne pflichtangaben.angenommen als Annahmen.';
 
-/**
- * Server instructions for the calling AI: what to ask its user, how to read the answer, what never to do.
- * Kept short on purpose (rough notes, not a form); ApiMcpPage mirrors this text.
- */
-export const MCP_HINWEISE = [
-  'FMT-Methodendatenbank: Der Server wählt Methoden deterministisch aus dem Katalog. Du wählst keine Methoden selbst und erfindest keine.',
-  '',
-  'Erfrage beim Nutzer grob, was er noch nicht gesagt hat:',
-  `- nötig: ${PFLICHT} (Ziel: was die Lernenden danach können sollen).`,
-  `- wenn bekannt: ${OPTIONAL} (z. B. Teamteaching).`,
-  'Teilgruppen beschreibst du als Gruppe mit Anzahl und Merkmal (z. B. „4 Kinder lesen noch nicht“, „5 DaZ“), nie als einzelne Person.',
-  '',
-  'Ablauf:',
-  '1. Den Text des Nutzers an classify_scenario_text, match_scenario oder build_scenario_plan geben; klar genannte Angaben zusätzlich als Felder.',
-  '2. pflichtangaben.fehlt lesen. Fehlt etwas, stelle eine kurze Frage nach genau diesen Angaben und rufe danach mit den Antworten als Feldern erneut auf (ziel → zielart, fach-und-thema → fach und thema, bildungsstufe, anzahl → gruppe, raum, zeit → zeitMin). Optionales nur nachfragen, wenn es der Nutzer andeutet; kein Formular.',
-  '3. pflichtangaben.angenommen dem Nutzer als Annahme nennen (Feld, Wert, Grund), damit er sie korrigieren kann.',
-  '4. regelmeldungen und hinweise mit ihrer Grundlage weitergeben; teilgruppenMethoden, zusatzphasen und begleitstrang sind Vorschläge zum Übernehmen, kein geänderter Plan.',
-  '',
-  'Für deine Antwort:',
-  '- Methoden, Reihenfolge, Dauer und Kernkomponenten kommen aus dem Katalog und bleiben so.',
-  '- Kennzeichne, was aus dem Katalog übernommen und was von dir erzeugt ist (Aufgaben, Beispiele, Formulierungen).',
-  '- Wirkungsaussagen nur aus dem Katalog, mit Evidenzgrad, Geltung und Bezug.',
-  '- Beschreibe Gruppen, keine einzelnen Lernenden; keine Namen, keine Diagnosen.'
-].join('\n');
+/** Server instructions for the calling AI; the text lives in the core so ApiMcpPage shows the same. */
+export { MCP_HINWEISE };
 
 export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): McpServer {
   const effectiveConfig = config ?? loadConfig();

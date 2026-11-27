@@ -6,17 +6,19 @@ import type { GeneratedMaterialItem, LearnerGroup, ScenarioPhaseRow, SubgroupMet
 
 interface Props {
   subgroups: LearnerGroup[];
-  onGroupChange: (id: string, patch: Partial<LearnerGroup>) => void;
+  /** Without it the page only shows the decision: no boxes for what a group cannot do yet. */
+  onGroupChange?: (id: string, patch: Partial<LearnerGroup>) => void;
   /** Result of the last check; null while there is none or it is out of date (no cards then). */
   pruefung: TeilgruppenPruefung | null;
-  rows: ScenarioPhaseRow[];
+  rows: Array<Pick<ScenarioPhaseRow, 'key' | 'orderLabel' | 'methodName'>>;
   subgroupMethods: SubgroupMethodMap;
   generatedMaterials: GeneratedMaterialItem[];
   regeln?: Passungsregel[];
-  onTauschUebernehmen: (a: MethodAdjustment) => void;
-  onTauschZuruecknehmen: (a: MethodAdjustment) => void;
-  onHilfeUebernehmen: (a: PhasenAntwort, phaseLabel: string) => void;
-  onHilfeZuruecknehmen: (a: PhasenAntwort) => void;
+  /** Without the four handlers the cards show no buttons (read-only view, e.g. the page Binnendifferenzierung). */
+  onTauschUebernehmen?: (a: MethodAdjustment) => void;
+  onTauschZuruecknehmen?: (a: MethodAdjustment) => void;
+  onHilfeUebernehmen?: (a: PhasenAntwort, phaseLabel: string) => void;
+  onHilfeZuruecknehmen?: (a: PhasenAntwort) => void;
 }
 
 /** Shown in a help card when the table names no help the teacher can use as it stands. */
@@ -74,7 +76,7 @@ export function TeilgruppenEntscheidung({
               type="checkbox"
               checked={checked}
               onChange={(e) =>
-                onGroupChange(
+                onGroupChange?.(
                   g.id,
                   id === 'bewegen' ? { ohneBewegung: e.target.checked || undefined } : { ohneSchrift: toggleSchrift(g, id, e.target.checked) }
                 )
@@ -89,10 +91,12 @@ export function TeilgruppenEntscheidung({
               <strong>{g.label}</strong>
               {g.count ? <span className="muted"> · {g.count} Lernende</span> : null}
             </div>
-            <fieldset className="tg-kann">
-              <legend className="sr-only">Was {g.label} noch nicht kann</legend>
-              {kann}
-            </fieldset>
+            {onGroupChange && (
+              <fieldset className="tg-kann">
+                <legend className="sr-only">Was {g.label} noch nicht kann</legend>
+                {kann}
+              </fieldset>
+            )}
             {g.personaId && !nenntMerkmale(g) && <p className="muted tg-klein">{KEINE_MERKMALE_TEXT}</p>}
             {antworten.length > 0 && (
               <ul className="tg-karten">
@@ -129,6 +133,8 @@ export function TeilgruppenEntscheidung({
                           <div className="tg-klein">Beleg: {belegOhneQuelle(a.grund)}</div>
                           <div className="muted tg-klein">{belegZeile(a)}</div>
                           {a.hilfen.length > 0 &&
+                            onHilfeUebernehmen &&
+                            onHilfeZuruecknehmen &&
                             (hilfeDa ? (
                               <div className="tg-aktion">
                                 <span className="tg-klein">Übernommen. Die Hilfe steht als Material in Schritt 4.</span>
@@ -165,7 +171,7 @@ export function TeilgruppenEntscheidung({
                           {a.sonstHilfen && a.sonstHilfen.length > 0 && (
                             <div className="tg-klein">Sonst: Hilfe – {sichtbareHilfen({ hilfen: a.sonstHilfen }).map((h) => h.name).join('; ')}</div>
                           )}
-                          {tauschUebernommen ? (
+                          {!onTauschUebernehmen || !onTauschZuruecknehmen ? null : tauschUebernommen ? (
                             <div className="tg-aktion">
                               <span className="tg-klein">
                                 Übernommen: {g.label} arbeitet in dieser Phase mit {vorschlag.zuName}.

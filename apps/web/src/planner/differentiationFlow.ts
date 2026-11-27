@@ -1,5 +1,6 @@
 import {
   proposeMethodAdjustments,
+  type AdaptScenarioResult,
   proposeSupports,
   teilgruppenAntworten,
   teilgruppenHinweise,
@@ -288,4 +289,38 @@ export function nachErneuterPruefung(
 /** A check that is out of date moves with the flow: answers and proposals keep their phase. */
 export function verschiebePruefung(p: TeilgruppenPruefung | null, index: number, delta: 1 | -1): TeilgruppenPruefung | null {
   return p ? { ...p, antworten: shiftAdjustmentKeys(p.antworten, index, delta), vorschlaege: shiftAdjustmentKeys(p.vorschlaege, index, delta) } : p;
+}
+
+/**
+ * The answer of the core's adaptScenario in the shape of step 3 (the page Binnendifferenzierung shows the same cards):
+ * per phase and subgroup passt, Hilfe or Tausch with its Beleg, the helps with abbau, the swaps, and the groups.
+ * The grouping hints of the answer are not tied to one group; the page shows them once, above the groups.
+ */
+export function pruefungAusAnpassung(res: Pick<AdaptScenarioResult, 'phasenAnpassungen' | 'teilgruppenMethoden' | 'teilgruppen'>): {
+  pruefung: TeilgruppenPruefung;
+  rows: Array<Pick<ScenarioPhaseRow, 'key' | 'orderLabel' | 'methodName'>>;
+  gruppen: LearnerGroup[];
+} {
+  const antworten: PhasenAntwort[] = res.phasenAnpassungen.flatMap((p) =>
+    p.teilgruppenImpulse.map((ti) => ({
+      stepKey: p.key,
+      groupId: ti.groupId,
+      groupLabel: ti.groupLabel,
+      antwort: ti.antwort,
+      grund: ti.beleg.grund,
+      ...(ti.beleg.merkmal ? { merkmal: ti.beleg.merkmal } : {}),
+      ...(ti.beleg.grundlage ? { grundlage: ti.beleg.grundlage } : {}),
+      ...(ti.beleg.quelle ? { quelle: ti.beleg.quelle } : {}),
+      hilfen: ti.hilfen,
+      alternativen: []
+    }))
+  );
+  const mitAntwort = new Set(antworten.map((a) => a.groupId));
+  return {
+    pruefung: { antworten, vorschlaege: res.teilgruppenMethoden, hinweise: {} },
+    rows: res.phasenAnpassungen.map((p) => ({ key: p.key, orderLabel: p.orderLabel, methodName: p.bausteinName || p.phaseLabel })),
+    gruppen: res.teilgruppen
+      .filter((g) => mitAntwort.has(g.id))
+      .map((g) => ({ id: g.id, label: g.label, profile: '', focus: 'custom' as const, active: true, ...(g.count ? { count: g.count } : {}) }))
+  };
 }

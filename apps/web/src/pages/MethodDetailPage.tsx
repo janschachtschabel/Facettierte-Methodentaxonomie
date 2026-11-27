@@ -8,12 +8,46 @@ import { ControlBars } from '../components/ControlBars.js';
 import { InterfaceFlow } from '../components/InterfaceFlow.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { bedarfNachWFeld } from '../planner/bedarfAnzeige.js';
+import { beitragNachWFeld, eignungNachWFeld, einordnungNachWFeld, kettenPlaetze, type RasterZeile } from '../planner/methodeRaster.js';
 import { EVIDENZBEZUG_TEXT } from '../planner/evidenz.js';
 
 export { EVIDENZBEZUG_TEXT };
 
 /** Aesthetic practice is justified by its own value; no transfer promise (FMT 2.0, Recherche C). */
 export const AESTHETIK_EIGENWERT = 'Begründet mit dem Eigenwert; ein Transfer auf andere Leistungen ist nicht belegt (Sala & Gobet 2020).';
+
+/** One table of a W-Raster kind: a row per W-field with its question and the lines of the method. */
+function RasterTabelle({ label, zeilen }: { label: string; zeilen: RasterZeile[] }) {
+  return (
+    <div className="card" style={{ padding: 0 }}>
+      <table aria-label={label} style={{ margin: 0 }}>
+        <tbody>
+          {zeilen.map((row) => (
+            <tr key={row.wfeld}>
+              <th scope="row" style={{ width: '24%', verticalAlign: 'top' }}>
+                {row.name}
+                <div className="muted" style={{ fontSize: 12.5, fontWeight: 400 }}>
+                  {row.frage}
+                </div>
+              </th>
+              <td>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {row.zeilen.map((z) => (
+                    <li key={z}>{z}</li>
+                  ))}
+                </ul>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** What a help supports, for the place of the radar on a help's page (a help has no phase). */
+export const HILFE_ERKLAERUNG =
+  'Eine Hilfe ist keine eigene Phase und steht in keinem Kettenschritt: Sie stützt Lernende innerhalb einer Methode. Im Baukasten schlägt Schritt 3 sie einer Teilgruppe vor, wenn die Tabelle „Tausch oder Hilfe“ für deren Merkmal eine Hilfe vorsieht; dort ordnest du sie der Phase zu.';
 
 export function MethodDetailPage() {
   const { kennung } = useParams();
@@ -39,6 +73,10 @@ export function MethodDetailPage() {
   }
 
   const activeFacet = selectedFacet || bundle.facetten[0];
+  const beitrag = beitragNachWFeld(b, bundle, labelOf);
+  const eignung = eignungNachWFeld(b, bundle, labelOf);
+  const einordnung = einordnungNachWFeld(b, bundle, labelOf);
+  const plaetze = kettenPlaetze(b, bundle, labelOf);
   const grade = search.bestGrade(b);
 
   const renderFacetVal = (f: FacetMeta) => {
@@ -118,12 +156,6 @@ export function MethodDetailPage() {
               </li>
             ))}
           </ul>
-          {(b.fachbereichUngeeignet || []).length > 0 && (
-            <p className="muted" style={{ fontSize: 14, marginTop: -8 }}>
-              Weniger geeignet für: {(b.fachbereichUngeeignet || []).map((f) => labelOf('fachbereich', f)).join(', ')}
-            </p>
-          )}
-
           {/* Practical Quick-Facts */}
           <div
             className="card"
@@ -159,8 +191,7 @@ export function MethodDetailPage() {
           <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
             {istHilfe(b) ? (
               <p className="muted" style={{ margin: 0, maxWidth: '60ch' }}>
-                Eine Hilfe ist keine eigene Phase: Sie stützt Lernende innerhalb einer Methode. Im Baukasten ordnest du sie in
-                Schritt 3 den Phasen zu.
+                Eine Hilfe ist keine eigene Phase. Im Baukasten ordnest du sie in Schritt 3 den Phasen zu.
               </p>
             ) : (
               <button
@@ -190,39 +221,67 @@ export function MethodDetailPage() {
           </div>
         </div>
 
-        {/* Interactive 13-Facet Profile Radar */}
-        <div className="card" style={{ padding: 18 }}>
-          <h3 style={{ textAlign: 'center', marginBottom: 4 }}>13-Facetten-Profil</h3>
-          <p className="muted" style={{ fontSize: 13.5, textAlign: 'center', marginBottom: 10 }}>
-            Facette anklicken für Ausprägung, Leitfrage &amp; Kodiersicherheit
-          </p>
-          <ProfileRadarSvg
-            baustein={b}
-            facetten={bundle.facetten}
-            mode="full"
-            selectedFacetId={activeFacet.id}
-            onSelectFacet={setSelectedFacet}
-          />
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--grid)', fontSize: 14.5 }}>
-            <div style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
-              {activeFacet.id} {activeFacet.name}{' '}
-              <span className="status-badge">Inferenz: {activeFacet.inferenz}</span>
-            </div>
-            <p className="muted" style={{ fontSize: 13.5, margin: '4px 0' }}>
-              {activeFacet.leitfrage}
+        {/* A help has no phase: instead of the 13-facet radar the page says what it supports. */}
+        {istHilfe(b) ? (
+          <div className="card" style={{ padding: 18 }} role="region" aria-label="Was die Hilfe stützt">
+            <h3>Was die Hilfe stützt</h3>
+            <p style={{ fontSize: 15 }}>{HILFE_ERKLAERUNG}</p>
+            {b.lernfunktion.length > 0 && (
+              <p style={{ fontSize: 15 }}>
+                <strong>Stützt Lernende in Phasen mit der Funktion:</strong>{' '}
+                {b.lernfunktion.map((f) => labelOf('lernfunktion', f)).join(', ')}
+              </p>
+            )}
+            {b.problem && (
+              <p style={{ fontSize: 15, marginBottom: 0 }}>
+                <strong>Wobei sie hilft:</strong> {b.problem}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="card" style={{ padding: 18 }}>
+            <h3 style={{ textAlign: 'center', marginBottom: 4 }}>13-Facetten-Profil</h3>
+            <p className="muted" style={{ fontSize: 13.5, textAlign: 'center', marginBottom: 10 }}>
+              Facette anklicken für Ausprägung, Leitfrage &amp; Kodiersicherheit
             </p>
-            <div>
-              <strong>Ausprägung:</strong> {renderFacetVal(activeFacet)}
+            <ProfileRadarSvg
+              baustein={b}
+              facetten={bundle.facetten}
+              mode="full"
+              selectedFacetId={activeFacet.id}
+              onSelectFacet={setSelectedFacet}
+            />
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--grid)', fontSize: 14.5 }}>
+              <div style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                {activeFacet.id} {activeFacet.name}{' '}
+                <span className="status-badge">Inferenz: {activeFacet.inferenz}</span>
+              </div>
+              <p className="muted" style={{ fontSize: 13.5, margin: '4px 0' }}>
+                {activeFacet.leitfrage}
+              </p>
+              <div>
+                <strong>Ausprägung:</strong> {renderFacetVal(activeFacet)}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Interface Flow */}
-      <section style={{ marginTop: 32 }}>
-        <h2>Schnittstelle &amp; Anschlussfähigkeit</h2>
-        <InterfaceFlow baustein={b} allBlocks={bundle.bausteine} labelOf={labelOf} />
-      </section>
+      {/* Interface Flow (a help has no phase, so no neighbours) */}
+      {!istHilfe(b) && (
+        <section style={{ marginTop: 32 }}>
+          <h2>Schnittstelle &amp; Anschlussfähigkeit</h2>
+          <InterfaceFlow baustein={b} allBlocks={bundle.bausteine} labelOf={labelOf} />
+        </section>
+      )}
+
+      {/* Contribution of the method, grouped by W-field (W-Raster, kind "Beitrag") */}
+      {beitrag.length > 0 && (
+        <section style={{ marginTop: 32 }}>
+          <h2>Was die Methode beiträgt</h2>
+          <RasterTabelle label="Beitrag nach W-Feld" zeilen={beitrag} />
+        </section>
+      )}
 
       {/* Need of the method, grouped by W-field (W-Raster, kind "Bedarf") */}
       <section style={{ marginTop: 32 }}>
@@ -231,29 +290,101 @@ export function MethodDetailPage() {
           Der Bedarf der Methode, geordnet nach den Fragen des W-Rasters. Nennt dein Szenario das Gegenstück (etwa einen
           Raum ohne freie Fläche), scheidet die Methode im Baukasten aus.
         </p>
-        <div className="card" style={{ padding: 0 }}>
-          <table aria-label="Bedarf nach W-Feld" style={{ margin: 0 }}>
-            <tbody>
-              {bedarfNachWFeld(b, bundle, labelOf).map((row) => (
-                <tr key={row.wfeld}>
-                  <th scope="row" style={{ width: '24%', verticalAlign: 'top' }}>
-                    {row.name}
-                    <div className="muted" style={{ fontSize: 12.5, fontWeight: 400 }}>
-                      {row.frage}
-                    </div>
-                  </th>
-                  <td>
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {row.zeilen.map((z) => (
-                        <li key={z}>{z}</li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <RasterTabelle label="Bedarf nach W-Feld" zeilen={bedarfNachWFeld(b, bundle, labelOf)} />
+      </section>
+
+      {/* Suitability, grouped by W-field (kind "Eignung"), each statement with its reason and basis */}
+      <section style={{ marginTop: 32 }}>
+        <h2>Eignung</h2>
+        <p className="muted" style={{ fontSize: 14, maxWidth: '76ch' }}>
+          Für wen die Methode weniger passt. Nennt dein Szenario eine solche Stufe, ein solches Vorwissen oder einen solchen
+          Fachbereich, bleibt die Methode wählbar, trägt aber einen Hinweis mit dieser Grundlage.
+        </p>
+        {eignung.length === 0 ? (
+          <p>Keine Einschränkung nach Bildungsstufe, Vorwissen oder Fachbereich erfasst.</p>
+        ) : (
+          <div className="card" style={{ padding: 0 }}>
+            <table aria-label="Eignung nach W-Feld" style={{ margin: 0 }}>
+              <tbody>
+                {eignung.map((row) => (
+                  <tr key={row.wfeld}>
+                    <th scope="row" style={{ width: '24%', verticalAlign: 'top' }}>
+                      {row.name}
+                      <div className="muted" style={{ fontSize: 12.5, fontWeight: 400 }}>
+                        {row.frage}
+                      </div>
+                    </th>
+                    <td>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {row.zeilen.map((e) => (
+                          <li key={e.art}>
+                            <strong>{e.merkmal}:</strong> {e.aussage}
+                            {e.grund && <div>{e.grund}</div>}
+                            <div className="muted" style={{ fontSize: 13 }}>
+                              Grundlage: {e.grundlage}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* Place in the catalogue and in the chains (kind "Einordnung") */}
+      <section style={{ marginTop: 32 }}>
+        <h2>Einordnung</h2>
+        <RasterTabelle label="Einordnung nach W-Feld" zeilen={einordnung} />
+        <h3 style={{ marginTop: 18 }}>In Funktionsketten</h3>
+        {istHilfe(b) ? (
+          <p>Eine Hilfe füllt keinen Kettenschritt; sie gehört zu der Methode, in der sie Lernende stützt.</p>
+        ) : plaetze.length === 0 ? (
+          <p>Die Methode füllt keinen Schritt der Funktionsketten (keine passende Lernfunktion mit der gebundenen Wissensart).</p>
+        ) : (
+          <>
+            <p className="muted" style={{ fontSize: 14, maxWidth: '76ch' }}>
+              Schritte, die die Methode füllen kann: Der Schritt verlangt eine ihrer Lernfunktionen, und sie trägt die
+              Wissensart, die der Schritt bindet. Vorher und Nachher stehen in der Lesart der Zielart der Kette.
+            </p>
+            <div className="scroll">
+              <table aria-label="Einordnung in Funktionsketten" style={{ fontSize: 14.5 }}>
+                <thead>
+                  <tr>
+                    <th>Kette (Zielart)</th>
+                    <th>Schritt und gebundene Wissensart</th>
+                    <th>Vorher → Nachher in dieser Lesart</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {plaetze.map((k) => (
+                    <tr key={k.kette}>
+                      <td>
+                        <strong>{k.label}</strong>
+                        {k.zielart && <div className="muted">{k.zielart}</div>}
+                      </td>
+                      <td>
+                        <ul style={{ margin: 0, paddingLeft: 18 }}>
+                          {k.schritte.map((st) => (
+                            <li key={st.id}>
+                              {st.label} <span className="muted">({st.wissensart})</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td>
+                        {k.vorher.join(', ') || '–'} → {k.nachher.join(', ') || '–'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </section>
 
       {/* Practice & Steering */}
@@ -278,11 +409,6 @@ export function MethodDetailPage() {
               <strong>Varianten:</strong> {b.variante.join(' · ')}
             </p>
           )}
-          {(b.kategorie || []).length > 0 && (
-            <p style={{ fontSize: 14 }} className="muted">
-              <strong>OpenEduHub-Kategorien:</strong> {(b.kategorie || []).map((iri) => bundle.oeh[iri] || iri).join(', ')}
-            </p>
-          )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -292,18 +418,14 @@ export function MethodDetailPage() {
           </div>
 
           <div className="card" style={{ padding: 18 }}>
-            <h3>Q1–Q3 Kernkomponenten, Bedingungen &amp; Risiken</h3>
+            <h3>Kernkomponenten, Hinweise &amp; Risiken</h3>
             <p style={{ fontSize: 15 }}>
               <strong>Q1 Kernkomponenten (Regel R-10):</strong>{' '}
               {b.kernkomponente.length ? b.kernkomponente.map((k) => k.name).join(' · ') : 'Keine (Kontrast-Baustein)'}
             </p>
-            {(b.hinweis || b.ungeeignetBeiVorwissen || b.ungeeignetBeiStufe) && (
+            {b.hinweis && (
               <p style={{ fontSize: 15 }}>
-                <strong>Q2 Bedingungen:</strong> {b.hinweis || ''}{' '}
-                {b.ungeeignetBeiVorwissen &&
-                  `Passt weniger bei Vorwissen: ${b.ungeeignetBeiVorwissen.map((v) => labelOf('vorwissen', v)).join(', ')}. `}
-                {b.ungeeignetBeiStufe &&
-                  `Nicht vorgesehen für: ${b.ungeeignetBeiStufe.map((s) => labelOf('bildungsstufe', s)).join(', ')}.`}
+                <strong>Hinweis zum Einsatz:</strong> {b.hinweis}
               </p>
             )}
             {b.qualitaetsrisiko && b.qualitaetsrisiko.length > 0 && (

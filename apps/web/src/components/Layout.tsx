@@ -121,7 +121,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <footer className="footer">
         <div className="wrap footer-inner">
           <div>
-            <strong>Facettierte Methodentaxonomie (FMT)</strong> · Version {bundle?.version || '1.0.0'}
+            <strong>Facettierte Methodentaxonomie (FMT)</strong>
+            {bundle?.version ? ` · Version ${bundle.version}` : ''}
             <br />
             Inhalte, Daten, Vokabulare &amp; Grafiken:{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noreferrer">
