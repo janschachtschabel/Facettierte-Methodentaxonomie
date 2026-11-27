@@ -1,5 +1,5 @@
 import type { MethodAdjustment, Passungsregel, PhasenAntwort } from '@fmt/core';
-import { belegZeile, hilfeUebernommen, type TeilgruppenPruefung } from '../planner/differentiationFlow.js';
+import { belegOhneQuelle, belegZeile, hilfeUebernommen, sichtbareHilfen, type TeilgruppenPruefung } from '../planner/differentiationFlow.js';
 import { regelZeile } from '../planner/regelmeldung.js';
 import type { GeneratedMaterialItem, LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from '../planner/scenarioModel.js';
 
@@ -17,6 +17,9 @@ interface Props {
   onHilfeUebernehmen: (a: PhasenAntwort, phaseLabel: string) => void;
   onHilfeZuruecknehmen: (a: PhasenAntwort) => void;
 }
+
+/** Shown in a help card when the table names no help the teacher can use as it stands. */
+export const KEINE_HILFE_TEXT = 'Für diese Gruppe ist hier keine belegte Hilfe hinterlegt. Prüfe selbst, was sie in dieser Methode braucht.';
 
 const TITEL: Record<PhasenAntwort['antwort'], string> = {
   passt: 'Passt so',
@@ -99,21 +102,25 @@ export function TeilgruppenEntscheidung({
                       <strong className="tg-karte-titel">{TITEL[a.antwort]}</strong>
                       {a.antwort === 'passt' && (
                         <>
-                          <div className="muted tg-klein">{a.grund}</div>
+                          <div className="muted tg-klein">{belegOhneQuelle(a.grund)}</div>
                           {a.grundlage && <div className="muted tg-klein">{belegZeile(a)}</div>}
                         </>
                       )}
                       {a.antwort === 'hilfe' && (
                         <>
-                          <ul className="tg-hilfen">
-                            {a.hilfen.slice(0, 3).map((h) => (
-                              <li key={h.id}>
-                                <strong>{h.name}</strong>
-                                <div className="muted tg-klein">Wann die Hilfe entfällt: {h.abbau}</div>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="tg-klein">Beleg: {a.grund}</div>
+                          {a.hilfen.length > 0 ? (
+                            <ul className="tg-hilfen">
+                              {sichtbareHilfen(a).map((h) => (
+                                <li key={h.id}>
+                                  <strong>{h.name}</strong>
+                                  <div className="muted tg-klein">Wann die Hilfe entfällt: {h.abbau}</div>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <div className="tg-klein">{KEINE_HILFE_TEXT}</div>
+                          )}
+                          <div className="tg-klein">Beleg: {belegOhneQuelle(a.grund)}</div>
                           <div className="muted tg-klein">{belegZeile(a)}</div>
                           {a.hilfen.length > 0 &&
                             (hilfeDa ? (
@@ -147,8 +154,11 @@ export function TeilgruppenEntscheidung({
                           <div>
                             <strong>{vorschlag.zuName}</strong> statt {vorschlag.vonName}
                           </div>
-                          <div className="tg-klein">Beleg: {a.grund}</div>
+                          <div className="tg-klein">Beleg: {belegOhneQuelle(a.grund)}</div>
                           <div className="muted tg-klein">{belegZeile(a)}</div>
+                          {a.sonstHilfen && a.sonstHilfen.length > 0 && (
+                            <div className="tg-klein">Sonst: Hilfe – {sichtbareHilfen({ hilfen: a.sonstHilfen }).map((h) => h.name).join('; ')}</div>
+                          )}
                           {tauschUebernommen ? (
                             <div className="tg-aktion">
                               <span className="tg-klein">

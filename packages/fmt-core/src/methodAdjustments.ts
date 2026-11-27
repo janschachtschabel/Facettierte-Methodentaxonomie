@@ -278,6 +278,8 @@ export interface PhasenAntwort {
   grundlage?: Grundlage;
   quelle?: string;
   hilfen: Hilfe[];
+  /** With 'tausch': the help the group gets if the teacher keeps the planned method. */
+  sonstHilfen?: Hilfe[];
   /** Equivalent replacements not planned elsewhere and not yet given to the group; the first one is proposed. */
   alternativen: GleichwertigerKandidat[];
 }
@@ -340,7 +342,7 @@ export function teilgruppenAntworten(
         const frei = kandidaten.filter((c) => !planned.has(c.kennung) && !usedForGroup.has(c.kennung));
         if (frei.length) {
           usedForGroup.add(frei[0].kennung);
-          out.push({ ...basis, antwort: 'tausch', grund: e.grund, hilfen: [], alternativen: frei.slice(0, 3) });
+          out.push({ ...basis, antwort: 'tausch', grund: e.grund, hilfen: [], sonstHilfen: hilfen, alternativen: frei.slice(0, 3) });
           continue;
         }
         const vergeben = kandidaten.map((c) => c.name);

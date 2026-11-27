@@ -187,3 +187,13 @@ describe('Fix wave C, 2: die Gleichwertigkeit liest Raum und Zeit der Anfrage', 
     expect(t.alternativeMethoden.map((a) => a.kennung)).not.toContain(ziel);
   });
 });
+
+describe('Fix wave C, 9: ein Tausch nennt die Hilfe, die sonst gilt', () => {
+  it('n07: die Tausch-Antwort trägt sonstHilfen, die erste ist das „wohin“ der Zeile', () => {
+    const g: MethodAdjustmentGroup = { id: 'vg', label: 'VG', selectedValues: { vorwissen: 'vorwissen-gering' } };
+    const a = teilgruppenAntworten(D.bausteine, phasen('erfindungsaufgabe'), [g], { lehrende: 2 }, R)[0];
+    expect(a.antwort).toBe('tausch');
+    expect(a.hilfen).toEqual([]);
+    expect(a.sonstHilfen?.[0]).toMatchObject({ name: T.merkmale.find((m) => m.id === 'vorwissen-gering')!.wohin, grundlage: 'E' });
+  });
+});

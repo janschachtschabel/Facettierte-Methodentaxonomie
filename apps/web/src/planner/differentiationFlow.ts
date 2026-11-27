@@ -185,17 +185,33 @@ export function belegZeile(b: { grundlage?: Grundlage; quelle?: string }): strin
   return `Grundlage: ${grundlageKlartext({ grundlage: b.grundlage ?? 'U', quelle: b.quelle })}`;
 }
 
+/**
+ * The decision's reason without the basis in brackets (" (Quelle: …)", " (Grundlage ungeklärt)", " (Setzung der
+ * Redaktion)"): the line under it (belegZeile) names the basis once. A source may hold one pair of brackets itself.
+ */
+export function belegOhneQuelle(grund: string): string {
+  return grund.replace(/ \((?:Quelle: (?:[^()]|\([^()]*\))*|Grundlage ungeklärt|Setzung der Redaktion)\)/g, '');
+}
+
+const MAX_HILFEN_KARTE = 3;
+
+/** The helps a card shows and a taken-over help puts into step 4: the same ones, cut in this one place. */
+export function sichtbareHilfen(a: Pick<PhasenAntwort, 'hilfen'>): PhasenAntwort['hilfen'] {
+  return a.hilfen.slice(0, MAX_HILFEN_KARTE);
+}
+
 /** A help taken over in step 3 goes into step 4 as material of its phase. */
 export function hilfeAlsMaterial(a: PhasenAntwort, phaseLabel: string, now = new Date()): GeneratedMaterialItem {
-  const namen = a.hilfen.map((h) => h.name).join(', ');
+  const hilfen = sichtbareHilfen(a);
+  const namen = hilfen.map((h) => h.name).join(', ');
   const content = [
     `# Hilfe für ${a.groupLabel}`,
     '',
     `Phase: ${phaseLabel}`,
     '',
-    ...a.hilfen.flatMap((h) => [`- **${h.name}**`, `  Wann die Hilfe entfällt: ${h.abbau}`]),
+    ...hilfen.flatMap((h) => [`- **${h.name}**`, `  Wann die Hilfe entfällt: ${h.abbau}`]),
     '',
-    `Beleg: ${a.grund}`,
+    `Beleg: ${belegOhneQuelle(a.grund)}`,
     '',
     belegZeile(a)
   ].join('\n');
