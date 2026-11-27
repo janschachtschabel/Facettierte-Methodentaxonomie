@@ -238,6 +238,18 @@ describe('Teilgruppen: Gleichwertigkeit eines Ersatzes', () => {
     expect(istGleichwertig(offen, geplant, kontext())).toEqual({ ok: true, gruende: [] });
   });
 
+  it('die eingebaute Regel evidenz-geltung zählt als neue Warnung', () => {
+    // Primary school; the candidate's evidence names secondary school only, the planned method has none.
+    const anfrage: MatchRequest = { raum: 'klassenraum', zeitMin: 45, bildungsstufe: 'primar' };
+    const sek = baustein({ ...ersatz, evidenz: [{ grad: 'A', befund: 'wirkt', geltung: 'Sekundarstufe I' }] } as Partial<Baustein>);
+    const g = istGleichwertig(sek, geplant, kontext(anfrage));
+    expect(g.ok).toBe(false);
+    expect(g.gruende.join(' ')).toMatch(/Teilgruppe: neue Warnung – Die Belege für Ersatz/);
+    // The planned method with the same scope gets the warning as well: no new warning.
+    const geplantSek = baustein({ ...geplant, evidenz: [{ grad: 'A', befund: 'wirkt', geltung: 'Sekundarstufe I' }] } as Partial<Baustein>);
+    expect(istGleichwertig(sek, geplantSek, kontext(anfrage)).ok).toBe(true);
+  });
+
   it('mit der Tabelle im Kontext zählen formale Zeilen auch bei unbereinigtem Profil', () => {
     const stell = baustein({ ...ersatz, raumbedarf: ['stellflaeche'] });
     const profil = gruppe({ 'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-deutlich' });

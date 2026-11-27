@@ -172,13 +172,16 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
 
   it('passt in Schritt 3 das Vorgehen an, zeigt den aktualisierten Ablauf und nimmt Anpassungen zurück', () => {
     renderPlanner();
-    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    // Since Paket C a method is swapped only where the subgroup decision asks for it (teilgruppen.json), no longer
+    // for a weak matrix fit: DaZ and ADHS in the guided Brüche plan keep their methods and get helps. The class test
+    // (klassenarbeit-summativ, only explicit and uniform) sets off the swap for high performers.
+    propose('Mathematik Klasse 6, Brüche, Klassenarbeit, 90 Minuten, 26 Lernende');
     fireEvent.click(stepButton(3));
     // Without subgroups there is nothing to adjust yet.
     expect(screen.queryByRole('button', { name: 'Vorgehen an die Teilgruppen anpassen' })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/ }));
-    fireEvent.click(screen.getByRole('button', { name: /ADHS \/ Fokusstruktur/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Leistungsstark \/ Vertiefung/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Vorgehen an die Teilgruppen anpassen' }));
 
     expect(screen.getByText(/Methode(n)? angepasst:/)).toBeTruthy();
@@ -187,7 +190,7 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     // The updated plan shows every subgroup and the method entered for it.
     expect(screen.getByText('Ablauf mit allen Teilgruppen')).toBeTruthy();
     expect(screen.getAllByText(/Eigene Methode für diese Gruppe/).length).toBe(undo.length);
-    expect(stepButton(3).textContent).toMatch(/2 Teilgruppen · \d+ Methoden angepasst/);
+    expect(stepButton(3).textContent).toMatch(/2 Teilgruppen · \d+ Methoden? angepasst/);
 
     fireEvent.click(screen.getByRole('button', { name: 'Alle Anpassungen zurücknehmen' }));
     expect(screen.queryByText(/Eigene Methode für diese Gruppe/)).toBeNull();
@@ -195,7 +198,18 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
 
     // Step 2 still shows the plan for the whole class only.
     fireEvent.click(stepButton(2));
-    expect(within(screen.getByRole('table')).queryByText(/ADHS/)).toBeNull();
+    expect(within(screen.getByRole('table')).queryByText(/Leistungsstark/)).toBeNull();
+  });
+
+  it('tauscht in Schritt 3 nicht mehr allein wegen schwacher Matrix-Passung', () => {
+    renderPlanner();
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    fireEvent.click(stepButton(3));
+    fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/ }));
+    fireEvent.click(screen.getByRole('button', { name: /ADHS \/ Fokusstruktur/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Vorgehen an die Teilgruppen anpassen' }));
+    expect(screen.getByText(/muss keine Methode getauscht werden/)).toBeTruthy();
+    expect(screen.queryByText(/Eigene Methode für diese Gruppe/)).toBeNull();
   });
 
   it('schlägt in Schritt 3 zusätzliche Phasen für alle vor, fügt sie ein und nimmt sie wieder heraus', () => {

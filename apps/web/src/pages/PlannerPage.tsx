@@ -581,7 +581,8 @@ export function PlannerPage() {
   /** Step 3: enters better fitting parallel methods for the subgroups and lists short phases the plan lacks. */
   const runMethodAdjustment = () => {
     const phases = adjustmentPhases(scenarioRows);
-    const next = proposeMethodAdjustments(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints);
+    const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
+    const next = proposeMethodAdjustments(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints, regelsatz);
     setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
     setAutoAdjustments(next);
     setExtraProposals(proposeAdditionalPhases(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints));

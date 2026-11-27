@@ -133,8 +133,10 @@ describe('Plan-API und Baukasten schlagen für dieselben Teilgruppen dasselbe vo
     ];
     const phases = core.phasesForAdjustment(app.fmtStore.bundle, plan.maschinenlesbar.arrangement);
     const constraints = { bildungsstufe: plan.erkannteKriterien.bildungsstufe, fachbereich: plan.erkannteKriterien.fachbereich };
-    const ui = core.proposeMethodAdjustments(app.fmtStore.bundle.bausteine, phases, groups, constraints);
-    expect(ui.length).toBeGreaterThan(0);
+    const b = app.fmtStore.bundle;
+    // Since Paket C a swap needs the subgroup decision (teilgruppen.json), no longer a weak matrix fit; so the list may
+    // be empty here. Both sides still have to agree.
+    const ui = core.proposeMethodAdjustments(b.bausteine, phases, groups, constraints, { teilgruppen: b.teilgruppen, regeln: b.regeln, schemes: b.schemes });
     const pick = (xs: Array<{ groupId: string; stepKey: string; zuKennung: string }>) =>
       xs.map((x) => `${x.groupId}|${x.stepKey}|${x.zuKennung}`).sort();
     expect(pick(plan.teilgruppenMethoden)).toEqual(pick(ui));

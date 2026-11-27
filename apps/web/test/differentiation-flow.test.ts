@@ -24,7 +24,8 @@ const adj = (stepKey: string, groupId: string, zu: string): MethodAdjustment => 
   vonName: 'Alt',
   zuKennung: zu,
   zuName: zu,
-  grund: 'passt besser'
+  grund: 'passt besser',
+  merkmal: 'vorwissen-hoch'
 });
 
 describe('Schritt 2 zeigt nur die Regelgruppe', () => {

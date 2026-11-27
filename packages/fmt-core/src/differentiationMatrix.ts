@@ -217,9 +217,17 @@ export function getPersonaValues(personaId: string): Record<string, string> {
   return found ? { ...found.values } : {};
 }
 
+/**
+ * Matrix categories that are never evaluated (Lerntypen/Lernstile, Pashler et al. 2008). Mirrors `gesperrt` in
+ * data/teilgruppen.json (a test keeps both in step); callers with the data pass its list as `gesperrt`.
+ */
+export const GESPERRTE_MATRIX_KATEGORIEN: readonly string[] = ['sensorische'];
+
 export interface ScoreMatrixInput {
   personaId?: string;
   selectedValues?: Record<string, string>;
+  /** Categories that are ignored (default GESPERRTE_MATRIX_KATEGORIEN). */
+  gesperrt?: readonly string[];
   minScore?: number;
   limit?: number;
   onlyBestPerCategory?: boolean;
@@ -238,10 +246,13 @@ export interface ScoreMatrixInput {
  * and filters out school/system-level or tech-incompatible measures by default.
  */
 export function scoreDifferentiationMatrix(input: ScoreMatrixInput = {}): MatrixScoreResult {
-  const merged: Record<string, string> = {
-    ...(input.personaId ? getPersonaValues(input.personaId) : {}),
-    ...(input.selectedValues || {})
-  };
+  const gesperrt = new Set(input.gesperrt ?? GESPERRTE_MATRIX_KATEGORIEN);
+  const merged: Record<string, string> = Object.fromEntries(
+    Object.entries({
+      ...(input.personaId ? getPersonaValues(input.personaId) : {}),
+      ...(input.selectedValues || {})
+    }).filter(([kategorie]) => !gesperrt.has(kategorie))
+  );
   const activeAuspraegungen = Object.values(merged).filter((v) => typeof v === 'string' && Boolean(MATRIX_LOOKUP[v]));
   const selectedCount = activeAuspraegungen.length;
 
@@ -523,6 +534,8 @@ export interface DetectedMatrixTrait {
 export interface MatrixTraitDetectionResult {
   selectedValues: Record<string, string>;
   signals: DetectedMatrixTrait[];
+  /** Traits of blocked categories the text names (e.g. Lerntypen); they are not in selectedValues and never score. */
+  gesperrt: DetectedMatrixTrait[];
   suggestedPersonaId: string | null;
   matrixScore: MatrixScoreResult | null;
 }
@@ -546,8 +559,7 @@ const MATRIX_TRAIT_RULES: Array<{
     personaHint: 'foerderLernen',
     traits: [
       { categoryId: 'ausdrucksfaehigkeit', valueId: 'ausdrucksfaehigkeit-eingeschraenkt', label: 'LRS / Lese-Rechtschreib-Unterstützung' },
-      { categoryId: 'foerderbedarf-sprache', valueId: 'foerderbedarf-sprache-gelegentlich', label: 'Sprach-/Leseunterstützung' },
-      { categoryId: 'sensorische', valueId: 'sensorische-multimodal', label: 'Multimodale Darstellung bevorzugen' }
+      { categoryId: 'foerderbedarf-sprache', valueId: 'foerderbedarf-sprache-gelegentlich', label: 'Sprach-/Leseunterstützung' }
     ]
   },
   {
@@ -587,15 +599,13 @@ const MATRIX_TRAIT_RULES: Array<{
   {
     re: /\b(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*|geh[oö]rlos\w*)/i,
     traits: [
-      { categoryId: 'foerderbedarf-hoeren', valueId: 'foerderbedarf-hoeren-beeintraechtigung', label: 'Hörbeeinträchtigung (visuelle Sicherung)' },
-      { categoryId: 'sensorische', valueId: 'sensorische-visuell', label: 'Visuelle Unterstützung priorisieren' }
+      { categoryId: 'foerderbedarf-hoeren', valueId: 'foerderbedarf-hoeren-beeintraechtigung', label: 'Hörbeeinträchtigung (visuelle Sicherung)' }
     ]
   },
   {
     re: /\b(?:sehbeeintr[aä]cht\w*|sehbehindert\w*|blind\w*)/i,
     traits: [
-      { categoryId: 'foerderbedarf-sehen', valueId: 'foerderbedarf-sehen-deutlich', label: 'Sehbeeinträchtigung (Kontrast / Audio)' },
-      { categoryId: 'sensorische', valueId: 'sensorische-auditiv', label: 'Auditive/taktile Zugänge stärken' }
+      { categoryId: 'foerderbedarf-sehen', valueId: 'foerderbedarf-sehen-deutlich', label: 'Sehbeeinträchtigung (Kontrast / Audio)' }
     ]
   },
   {
@@ -620,6 +630,23 @@ const MATRIX_TRAIT_RULES: Array<{
       { categoryId: 'interessen', valueId: 'interessen-desinteresse', label: 'Interesse aktivierend wecken' }
     ]
   },
+  // Learning styles: recognised so the answer can say why they are not evaluated (blocked category).
+  {
+    re: /\bvisuell\w*\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
+    traits: [{ categoryId: 'sensorische', valueId: 'sensorische-visuell', label: 'Visueller Lerntyp' }]
+  },
+  {
+    re: /\bauditiv\w*\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
+    traits: [{ categoryId: 'sensorische', valueId: 'sensorische-auditiv', label: 'Auditiver Lerntyp' }]
+  },
+  {
+    re: /\b(?:haptisch\w*|kin[aä]sthetisch\w*)\s+(?:lerntyp\w*|lernstil\w*|lerner\w*|lernende\w*)/i,
+    traits: [{ categoryId: 'sensorische', valueId: 'sensorische-kinaesthetisch', label: 'Kinästhetischer Lerntyp' }]
+  },
+  {
+    re: /\b(?:lerntyp\w*|lernstil\w*)/i,
+    traits: [{ categoryId: 'sensorische', valueId: 'sensorische-multimodal', label: 'Lerntyp / Lernstil' }]
+  },
   {
     re: /\b(?:kein\w*|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)/i,
     traits: [
@@ -632,14 +659,16 @@ const MATRIX_TRAIT_RULES: Array<{
  * Deterministically maps heterogeneity, language, motivation, and inclusion cues from free text
  * onto the 115 exact traits of the Binnendifferenzierungsmatrix (zero LLM required).
  */
-export function detectMatrixTraitsFromText(text: string): MatrixTraitDetectionResult {
+export function detectMatrixTraitsFromText(text: string, opts: { gesperrt?: readonly string[] } = {}): MatrixTraitDetectionResult {
   const raw = (text || '').trim();
   const selectedValues: Record<string, string> = {};
   const signals: DetectedMatrixTrait[] = [];
+  const gesperrt: DetectedMatrixTrait[] = [];
+  const blockiert = new Set(opts.gesperrt ?? GESPERRTE_MATRIX_KATEGORIEN);
   let suggestedPersonaId: string | null = null;
 
   if (!raw) {
-    return { selectedValues, signals, suggestedPersonaId, matrixScore: null };
+    return { selectedValues, signals, gesperrt, suggestedPersonaId, matrixScore: null };
   }
 
   for (const rule of MATRIX_TRAIT_RULES) {
@@ -647,7 +676,9 @@ export function detectMatrixTraitsFromText(text: string): MatrixTraitDetectionRe
     if (!m) continue;
     if (!suggestedPersonaId && rule.personaHint) suggestedPersonaId = rule.personaHint;
     for (const t of rule.traits) {
-      if (!(t.categoryId in selectedValues)) {
+      if (blockiert.has(t.categoryId)) {
+        if (!gesperrt.some((g) => g.categoryId === t.categoryId)) gesperrt.push({ ...t, trigger: m[0].trim() });
+      } else if (!(t.categoryId in selectedValues)) {
         selectedValues[t.categoryId] = t.valueId;
         signals.push({ ...t, trigger: m[0].trim() });
       }
@@ -655,7 +686,7 @@ export function detectMatrixTraitsFromText(text: string): MatrixTraitDetectionRe
   }
 
   const matrixScore =
-    Object.keys(selectedValues).length > 0 ? scoreDifferentiationMatrix({ selectedValues, limit: 6 }) : null;
+    Object.keys(selectedValues).length > 0 ? scoreDifferentiationMatrix({ selectedValues, limit: 6, gesperrt: [...blockiert] }) : null;
 
-  return { selectedValues, signals, suggestedPersonaId, matrixScore };
+  return { selectedValues, signals, gesperrt, suggestedPersonaId, matrixScore };
 }

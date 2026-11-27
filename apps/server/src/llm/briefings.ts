@@ -689,7 +689,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
     fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined
   };
-  const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints);
+  const regelsatz = { teilgruppen: store.bundle.teilgruppen, regeln: store.bundle.regeln, schemes: store.bundle.schemes };
+  const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz);
   const zusatzphasen = proposeAdditionalPhases(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints);
 
   let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];

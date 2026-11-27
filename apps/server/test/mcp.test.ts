@@ -387,7 +387,8 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
       arguments: { quickProfileId: 'daz', baustein: 'gruppenpuzzle', bildungsstufe: 'sek1', maxTechnik: 't-keine' }
     });
     const quickScore = JSON.parse((quickScoreRes.content as Array<{ text: string }>)[0].text);
-    expect(quickScore.selectedCount).toBe(4);
+    // The DaZ preset no longer carries the blocked category sensorische (Lerntypen, teilgruppen.json): three values.
+    expect(quickScore.selectedCount).toBe(3);
     expect(quickScore.topRecommendations.length).toBeGreaterThan(0);
   });
 

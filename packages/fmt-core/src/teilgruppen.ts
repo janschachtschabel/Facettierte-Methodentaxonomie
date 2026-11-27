@@ -307,7 +307,8 @@ export function istGleichwertig(
   // not get there as well, compared by rule id).
   for (const f of formaleLuecken(kandidat, profil)) gruende.push(`Teilgruppe: ${f.grund}`);
   const lage = regelLageDerGruppe(ctx.anfrage, profil);
-  const warnt = (b: Baustein) => ctx.regeln.pruefe(b, lage).filter((m) => m.wirkung === 'warnt');
+  // warnungen includes the built-in rule evidenz-geltung, which pruefe does not know.
+  const warnt = (b: Baustein) => ctx.regeln.warnungen(b, lage);
   const schonGeplant = new Set(warnt(geplant).map((m) => m.regel));
   for (const w of warnt(kandidat)) if (!schonGeplant.has(w.regel)) gruende.push(`Teilgruppe: neue Warnung – ${w.text}`);
 
