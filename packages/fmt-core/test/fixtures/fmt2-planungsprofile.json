@@ -1,0 +1,146 @@
+{
+  "planungsprofile": {
+    "kernfelder": [
+      {
+        "id": "rahmendaten",
+        "name": "Rahmendaten: Titel, Bereich, Dauer, Ort, Zielgruppe",
+        "wfelder": [
+          "lerninhalte",
+          "zeit",
+          "lernumgebung",
+          "lernende"
+        ]
+      },
+      {
+        "id": "lernvoraussetzungen",
+        "name": "Lernvoraussetzungen",
+        "wfelder": [
+          "lernende"
+        ]
+      },
+      {
+        "id": "ziele",
+        "name": "Ziele oder Lernergebnisse",
+        "wfelder": [
+          "lernziele"
+        ]
+      },
+      {
+        "id": "einordnung",
+        "name": "Einordnung in die größere Einheit",
+        "wfelder": [
+          "lerninhalte"
+        ]
+      },
+      {
+        "id": "verlauf",
+        "name": "Verlaufsplan: Zeit, Phase, Tätigkeit, Methode und Sozialform, Medien",
+        "wfelder": [
+          "methode",
+          "medien",
+          "zeit"
+        ]
+      },
+      {
+        "id": "lernerfolg",
+        "name": "Sicherung und Kontrolle des Lernerfolgs",
+        "wfelder": [
+          "ueberpruefung"
+        ]
+      },
+      {
+        "id": "reflexion",
+        "name": "Reflexion und Evaluation",
+        "wfelder": [
+          "ueberpruefung"
+        ]
+      }
+    ],
+    "bereiche": [
+      {
+        "bildungsstufe": [
+          "primar",
+          "sek1",
+          "sek2"
+        ],
+        "einheit": "Unterrichtsstunde",
+        "groessereEinheit": "Unterrichtsreihe",
+        "dokument": "Unterrichtsentwurf",
+        "lehrende": "Lehrkraft",
+        "lernende": "Schülerinnen und Schüler",
+        "status": "vorgeschrieben in der Prüfung, sonst üblich",
+        "module": [
+          "sachanalyse",
+          "didaktische-begruendung",
+          "differenzierung",
+          "erwartungshorizont"
+        ]
+      },
+      {
+        "bildungsstufe": [
+          "berufsbildung"
+        ],
+        "variante": "Berufsschule",
+        "einheit": "Lernsituation",
+        "groessereEinheit": "Lernfeld",
+        "dokument": "Unterrichtsentwurf mit Lernsituation",
+        "lehrende": "Lehrkraft",
+        "lernende": "Auszubildende",
+        "status": "Lernsituation curricular gefordert, Form frei (KMK 2021)",
+        "module": [
+          "handlungssituation",
+          "phasen-vollstaendige-handlung"
+        ]
+      },
+      {
+        "bildungsstufe": [
+          "berufsbildung"
+        ],
+        "variante": "Betrieb",
+        "einheit": "Ausbildungssituation, Unterweisung",
+        "groessereEinheit": "Ausbildungsrahmenplan, betrieblicher Ausbildungsplan",
+        "dokument": "Konzept zur Ausbildungssituation",
+        "lehrende": "Ausbilderin, Ausbilder",
+        "lernende": "Auszubildende",
+        "status": "Prüfung geregelt (AusbEignV § 4); Konzeptpapier je Kammer verschieden",
+        "module": [
+          "ausbildungsberuf",
+          "ausbildungsstand",
+          "unterweisungsmethode"
+        ]
+      },
+      {
+        "bildungsstufe": [
+          "hochschule"
+        ],
+        "einheit": "Sitzung, Lehrveranstaltung",
+        "groessereEinheit": "Modul",
+        "dokument": "Ablaufplan der Sitzung; Modulbeschreibung",
+        "lehrende": "Lehrende",
+        "lernende": "Studierende",
+        "status": "Modul vorgeschrieben (MRVO § 7), Sitzung üblich",
+        "module": [
+          "arbeitsaufwand-leistungspunkte",
+          "pruefungsform",
+          "abstimmung-ziel-pruefung-methode"
+        ]
+      },
+      {
+        "bildungsstufe": [
+          "erwachsenenbildung"
+        ],
+        "einheit": "Kurseinheit, Kurstag",
+        "groessereEinheit": "Kurs, Programm",
+        "dokument": "Kursverlaufsplan",
+        "lehrende": "Kursleitung",
+        "lernende": "Teilnehmende",
+        "status": "üblich; Konzeptpflicht nur für geförderte Maßnahmen (AZAV § 3)",
+        "module": [
+          "rolle-kursleitung",
+          "teilnehmendenorientierung"
+        ]
+      }
+    ],
+    "hinweis": "Geprüft sind acht Länder (BY, NW, HE, NI, SN, BW, BE, BB). Die Spalten des Verlaufsplans sind nirgends normiert (E, Recherche B)."
+  }
+}

@@ -8,8 +8,9 @@ import { waehlePlanungsprofil } from '../src/planungsprofil.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
 const P = D.planungsprofile.profile;
+// Slice of fmt2-regelsatz.json (key planungsprofile), kept in the repo so the verbatim check always runs.
 const quelle = JSON.parse(
-  fs.readFileSync('/mnt/project-files/fmt2/quellen/fmt2-vorschlag/fmt2-regelsatz.json', 'utf8')
+  fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', 'fmt2-planungsprofile.json'), 'utf8')
 ).planungsprofile;
 
 const wahl = (a: Parameters<typeof waehlePlanungsprofil>[1]) => {
@@ -67,6 +68,12 @@ describe('Planungsprofil wählen', () => {
     'berufsbildung mit „%s“ ergibt betrieb',
     (w) => {
       expect(wahl({ bildungsstufe: 'berufsbildung', text: `Übung im ${w.toLowerCase()} heute` })).toEqual(['betrieb', false]);
+    }
+  );
+  it.each(['Betriebe', 'Betrieben', 'Betriebs', 'Ausbilders', 'Ausbildern', 'Ausbilderinnen', 'Unterweisungen', 'Lehrwerkstätten'])(
+    'gebeugtes „%s“ ergibt betrieb',
+    (w) => {
+      expect(wahl({ bildungsstufe: 'berufsbildung', text: `Übung im ${w} heute` })).toEqual(['betrieb', false]);
     }
   );
   it('ohne Bildungsstufe: schule, angenommen', () => {
