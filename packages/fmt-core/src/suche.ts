@@ -144,6 +144,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (without.length && (b.raumbedarf || []).some((v) => without.includes(v))) return false;
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
+      if (given(k.eintragsart) && (b.eintragsart || 'methode') !== k.eintragsart) return false;
       const wantedArea = list(k.fachbereich);
       if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
       // Fits a subject area: at home there or without subject binding, and not marked as unsuitable for it.
@@ -229,8 +230,9 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     if (!node || !node.baustein) throw new Error('Kein Einsatz an ' + pfad);
 
     const out: ReplacementCandidate[] = [];
+    // A help is never a phase: it is no replacement for one.
     data.bausteine
-      .filter((b) => b.kennung !== node.baustein)
+      .filter((b) => b.kennung !== node.baustein && b.eintragsart !== 'hilfe')
       .forEach((b) => {
         const copy = JSON.parse(JSON.stringify(arrangement)) as Arrangement;
         const at = locate(copy, pfad);

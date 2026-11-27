@@ -170,6 +170,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const techRank = new Map((scheme('technikbedarf').werte || []).map((w) => [w.id, w.rang ?? 0]));
   const implies = new Map((scheme('lernzustand').werte || []).map((w) => [w.id, w.impliziert || []]));
   const blocks: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
+  /** Entries that may carry a chain step, a slot or a phase: every entry except the helps (eintragsart 'hilfe'). */
+  const methoden = data.bausteine.filter((b) => b.eintragsart !== 'hilfe');
   const chains = new Map<string, Funktionskette>(data.ketten.map((k) => [k.id, k]));
 
   const closure = (states: string[]): Set<string> => {
@@ -965,6 +967,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentRawText = '';
   let currentSemanticScores = new Map<string, number>();
   let currentMentions = new Set<string>();
+  /** Helps named in the request (eintragsart 'hilfe'): no wish for a phase, only a note (genannteHilfen). */
+  let currentNamedHelps: string[] = [];
   /** Named methods dropped because the subject marks them unsuitable, with the reason (for nichtVerankert). */
   let currentDroppedMentions: Array<{ baustein: string; grund: string }> = [];
   let currentAnchorStep = new Map<string, number>();
@@ -1190,7 +1194,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
     const hits: Ranked[] = [];
 
-    data.bausteine.forEach((b) => {
+    methoden.forEach((b) => {
       const gives = closure(b.nachbedingung || []);
       if (
         (filterFn.length && !filterFn.some((f) => b.lernfunktion.includes(f))) ||
@@ -1216,7 +1220,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     });
 
     const ordered = order(hits, 0);
-    const n = data.bausteine.length;
+    const n = methoden.length;
     return {
       modus: 'phase',
       vorschlaege: ordered.map((b) => describe(b, a, fn)),
@@ -1249,7 +1253,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     schritt?: Pick<KettenSchritt, 'rolle' | 'wissensart'>
   ): Baustein[] {
     const opening = currentStepRole === 'rand' && currentStepIndex === 0;
-    const ranked = data.bausteine
+    const ranked = methoden
         .filter(
           (b) =>
             (rang.get(b.reichweite) ?? 0) <= maxRang &&
@@ -1360,7 +1364,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       ? `Keine Methode im Katalog liefert ‚${zustand}‘ für ${wissensartLabel(step.wissensart!)} unter diesen Rahmenbedingungen.`
       : `Keine Methode im Katalog liefert ‚${zustand}‘ unter diesen Rahmenbedingungen.`;
     const gruende = new Map<string, number>();
-    for (const b of data.bausteine) {
+    for (const b of methoden) {
       if ((rang.get(b.reichweite) ?? 0) > 3 || !closure(b.nachbedingung || []).has(step.ziel) || !traegt(b, step)) continue;
       const grund = rahmen(b, a);
       if (grund) gruende.set(grund, (gruende.get(grund) || 0) + 1);
@@ -1506,7 +1510,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentStepRole = 'pruefung';
       currentStepIndex = checkAt;
       currentStepGebunden = gebunden(steps[checkAt]);
-      const passend = data.bausteine
+      const passend = methoden
         .filter(
           (b) =>
             b.lernfunktion[0] === 'diagnose' &&
@@ -1548,7 +1552,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       // Fallback: if strict setting constraints (e.g. gruppe=180, distanz, asynchron) leave no primary-function method
       // reaching step.ziel, include any valid method that delivers step.ziel directly.
       const fallbackCands = order(
-        data.bausteine
+        methoden
           .filter(
             (b) =>
               (rang.get(b.reichweite) ?? 0) <= 3 &&
@@ -1578,7 +1582,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const ersatzFach =
         gebunden(step) && currentArea && (step.wissensart || []).includes('psychomotorik') && fremdTragend.length
           ? order(
-              data.bausteine
+              methoden
                 .filter(
                   (b) =>
                     (rang.get(b.reichweite) ?? 0) <= 3 &&
@@ -1880,7 +1884,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // One check per method; the ids of every firing rule are collected once (not one full run per rule).
     const lageJetzt = regelLage(a);
     const feuernd = new Set<string>();
-    for (const b of data.bausteine) for (const m of regeln.pruefe(b, lageJetzt)) feuernd.add(m.regel);
+    for (const b of methoden) for (const m of regeln.pruefe(b, lageJetzt)) feuernd.add(m.regel);
     const lageMeldungen: Regelmeldung[] = regeln
       .alle()
       .filter((x) => x.art === 'deklarativ' && !x.keinTausch && Object.keys(x.wenn?.situation || {}).length > 0 && feuernd.has(x.id))
@@ -1916,14 +1920,28 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   }
 
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
-    const r = planen(anfrage);
-    return mitRegelmeldungen(r, { raum: lastRoom, area: lastArea, mentions: lastMentions, situation: lastSituation });
+    const r = mitRegelmeldungen(planen(anfrage), { raum: lastRoom, area: lastArea, mentions: lastMentions, situation: lastSituation });
+    return mitHilfen(r, lastNamedHelps);
+  }
+
+  /** Named helps: listed under genannteHilfen and noted, never placed (they go to the phases in step 3). */
+  function mitHilfen(r: MatchResult, hilfen: string[]): MatchResult {
+    if (!hilfen.length) return r;
+    r.genannteHilfen = [...hilfen];
+    const neu = [...(r.hinweise || [])];
+    for (const id of hilfen) {
+      const h = `‚${blocks.get(id)?.name || id}‘ ist eine Hilfe und wird in Schritt 3 den Phasen zugeordnet`;
+      if (!neu.includes(h)) neu.push(h);
+    }
+    r.hinweise = neu;
+    return r;
   }
 
   /** Room, subject area, named methods and situation of the last planning run, kept past their reset for the notes. */
   let lastRoom = '';
   let lastArea = '';
   let lastMentions = new Set<string>();
+  let lastNamedHelps: string[] = [];
   let lastSituation: Situation = keineSituation();
 
   const mitNachweis = (n: MatchResult['nachweis'] | null) => (n ? { nachweis: n } : {});
@@ -1965,7 +1983,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       delete a.variante;
       // Methods named in a negated phrase ("keine Gruppenarbeit") are no wish for them.
       const detected = given(anfrage.text) ? mentionDetector.detect(withoutNegated(currentRawText)) : [];
-      currentMentions = new Set(detected.map((m) => m.kennung));
+      // A named help is never a phase: it leaves the mentions and is only named in the answer.
+      currentNamedHelps = detected.filter((m) => m.hilfe).map((m) => m.kennung);
+      currentMentions = new Set(detected.filter((m) => !m.hilfe).map((m) => m.kennung));
       const mainMentions = new Set(detected.filter((m) => m.main).map((m) => m.kennung));
       currentSeed = topicSeed(currentRawText);
       // The goal kind conditioning (stated, or the goal kind of the stated chain) is a sports goal: without a stated
@@ -2263,10 +2283,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       lastRoom = raumKlasse(currentSituation.raum);
       lastArea = currentArea;
       lastMentions = currentMentions;
+      lastNamedHelps = currentNamedHelps;
       lastSituation = currentSituation;
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
+      currentNamedHelps = [];
       currentDroppedMentions = [];
       currentAnchorStep = new Map();
       currentStepIndex = -1;

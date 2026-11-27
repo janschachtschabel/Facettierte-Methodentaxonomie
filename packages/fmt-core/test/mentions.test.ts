@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createMentionDetector, createValidator } from '../src/index.js';
 import type { PhaseMatchResult } from '../src/types.js';
+import { FIXTURE_HILFE, mitHilfe } from './fixtures/hilfe.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const detector = createMentionDetector(loadFmtData(path.join(ROOT, 'data')));
@@ -62,5 +63,31 @@ describe('Genannter Wunsch bleibt (Regel genannter-wunsch-bleibt)', () => {
     const r = M.zuordnen({ text: 'Sterbehilfe als Fishbowl diskutieren, Klasse 10, 45 Minuten' });
     expect(r.modus === 'ablauf' && (r.verankert || []).some((v) => v.baustein === 'fishbowl')).toBe(true);
     expect((r.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'fishbowl')).toBe(false);
+  });
+});
+
+describe('Genannte Hilfen (Task C4)', () => {
+  const DH = mitHilfe(loadFmtData(path.join(ROOT, 'data')));
+  const MH = createMatcher(DH, createValidator(DH));
+
+  it('der Detektor kennzeichnet eine genannte Hilfe', () => {
+    const m = createMentionDetector(DH).detect('Gruppenpuzzle mit Wortspeicher');
+    expect(m.find((x) => x.kennung === FIXTURE_HILFE)?.hilfe).toBe(true);
+    expect(m.find((x) => x.kennung === 'gruppenpuzzle')?.hilfe).toBeUndefined();
+  });
+
+  it('eine genannte Hilfe steht unter genannteHilfen und im Hinweis, die genannte Methode wird verankert', () => {
+    const r = MH.zuordnen({ text: 'Industrialisierung als Gruppenpuzzle mit Wortspeicher, Klasse 9, 90 Minuten' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus !== 'ablauf') return;
+    expect(r.genannteHilfen).toEqual([FIXTURE_HILFE]);
+    expect(r.hinweise).toContain('‚Wortspeicher‘ ist eine Hilfe und wird in Schritt 3 den Phasen zugeordnet');
+    expect((r.verankert || []).map((v) => v.baustein)).toContain('gruppenpuzzle');
+    expect((r.nichtVerankert || []).map((v) => v.baustein)).not.toContain(FIXTURE_HILFE);
+  });
+
+  it('eine verneinte Hilfe ist nicht genannt', () => {
+    const r = MH.zuordnen({ text: 'Deutsch Klasse 5, Märchen, 45 Minuten, ohne Wortspeicher' });
+    expect(r.genannteHilfen).toBeUndefined();
   });
 });

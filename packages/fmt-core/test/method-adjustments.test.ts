@@ -23,6 +23,8 @@ import {
   type MethodAdjustmentGroup,
   type MethodAdjustmentPhase
 } from '../src/index.js';
+import { suggestAlternativeMethodsForGroup } from '../src/differentiationMatrix.js';
+import { alsHilfe } from './fixtures/hilfe.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -397,5 +399,29 @@ describe('Ein Entscheidungsweg für Tabelle und Vorschläge', () => {
       expect(hilfe.length).toBe(z.antwort === 'hilfe' && z.hilfen.length ? 1 : 0);
       if (hilfe[0]) expect(hilfe[0].hilfen).toEqual(z.hilfen);
     }
+  });
+});
+
+describe('Hilfen sind nie parallele Methode (Task C4)', () => {
+  it('eine Hilfe erscheint weder als Tausch-Kandidat noch als Alternative einer Teilgruppe', () => {
+    const gruppen = [MAIN, quick('vertiefung')];
+    const vorher = teilgruppenAntworten(D.bausteine, EXPLIZIT, gruppen, { lehrende: 2 }, R);
+    const alternativen = new Set(vorher.flatMap((a) => a.alternativen.map((c) => c.kennung)));
+    expect(alternativen.size).toBeGreaterThan(0);
+    // The same catalogue with every former alternative marked as a help (fixture: independent of the real helps).
+    const DX = alsHilfe(D, alternativen);
+    const nachher = teilgruppenAntworten(DX.bausteine, EXPLIZIT, gruppen, { lehrende: 2 }, R);
+    for (const a of nachher) expect(a.alternativen.map((c) => c.kennung).filter((k) => alternativen.has(k))).toEqual([]);
+    const getauscht = proposeMethodAdjustments(DX.bausteine, EXPLIZIT, gruppen, { lehrende: 2 }, R);
+    expect(getauscht.filter((x) => alternativen.has(x.zuKennung))).toEqual([]);
+  });
+
+  it('suggestAlternativeMethodsForGroup schlägt keine Hilfe vor', () => {
+    const matrix = scoreDifferentiationMatrix({ personaId: 'languageAndCulture', limit: 8 });
+    const offen = block('erfindungsaufgabe');
+    const vorher = suggestAlternativeMethodsForGroup(matrix, offen, D.bausteine, 50).map((c) => c.kennung);
+    expect(vorher.length).toBeGreaterThan(0);
+    const DX = alsHilfe(D, vorher);
+    expect(suggestAlternativeMethodsForGroup(matrix, offen, DX.bausteine, 50).filter((c) => vorher.includes(c.kennung))).toEqual([]);
   });
 });

@@ -546,6 +546,7 @@ export function proposeAdditionalPhases(
   const maxTech = Math.min(1, constraints.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 1) : 1);
 
   const inFrame = (b: Baustein) =>
+    b.eintragsart !== 'hilfe' &&
     b.dauerMin <= EXTRA_PHASE_MAX_MIN &&
     b.anleitung.includes('explizit') &&
     (TECH_RANK[b.technik] ?? 0) <= maxTech &&

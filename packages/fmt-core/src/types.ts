@@ -526,6 +526,8 @@ export interface SearchCriteria {
   schriftbedarf?: string | string[];
   /** Methods that need none of these room properties. */
   ohneRaumbedarf?: string | string[];
+  /** Kind of entry: only methods or only helps; without it the search returns both. */
+  eintragsart?: 'methode' | 'hilfe';
   [facet: string]: unknown;
 }
 
@@ -632,6 +634,8 @@ export interface MatchHead {
   fach?: DetectedSubject;
   /** Notes for the teacher as text (rule message plus source in brackets), filled from regelmeldungen. */
   hinweise?: string[];
+  /** Helps (eintragsart 'hilfe') named in the request: never a phase, they go to the phases in step 3 of the planner. */
+  genannteHilfen?: string[];
   /**
    * Rule messages of the answer: warnings of the chosen methods, the safety note, named wishes that stay.
    * Each names rule, effect, basis, source and text, and the method when it concerns one.

@@ -472,6 +472,8 @@ export function suggestAlternativeMethodsForGroup(
   const scored = allBlocks
     .filter((b) => {
       if (b.kennung === currentBlock.kennung) return false;
+      // A help supports learners inside a method; it is never a parallel method.
+      if (b.eintragsart === 'hilfe') return false;
       if (!b.lernfunktion.some((f) => fns.has(f))) return false;
       const bRank = RANGE_ORDER[b.reichweite] ?? 2;
       if (bRank > curRank) return false;

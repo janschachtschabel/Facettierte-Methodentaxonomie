@@ -15,6 +15,9 @@ const CLEARING_FUNCTIONS = ['verstehen', 'konsolidierung'];
 const CLEARING_GUIDANCE = ['explizit', 'geleitet'];
 const PASSIVE_LIMIT_MIN = 20;
 const MIN_SPACED_REPETITIONS = 2;
+/** R-00 for a help (eintragsart 'hilfe') used as a phase: a help supports learners inside a method. */
+const hilfeAlsPhase = (b: Baustein) =>
+  `„${b.name}“ ist eine Hilfe und keine Phase: Sie stützt Lernende innerhalb einer Methode und wird einer Phase zugeordnet.`;
 import { KennungIndex } from './kennung.js';
 
 export interface FmtValidator {
@@ -197,6 +200,7 @@ export function createValidator(data: FmtData): FmtValidator {
         add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
         return typeof node.dauerMin === 'number' ? node.dauerMin : 0;
       }
+      if (b.eintragsart === 'hilfe') add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
       const r = rang.get(b.reichweite) || 0;
       if (r > arrRang) {
         add('R-01', 'Fehler', pfad, `„${b.name}“ (${b.reichweite}) passt nicht in ein Arrangement der Reichweite ${arr.reichweite}.`);
@@ -311,6 +315,7 @@ export function createValidator(data: FmtData): FmtValidator {
             add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
             return 0;
           }
+          if (b.eintragsart === 'hilfe') add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
           if ((rang.get(b.reichweite) || 0) > arrRang) {
             add('R-01', 'Fehler', pfad, `„${b.name}“ hat größere Reichweite als das Arrangement.`);
           }

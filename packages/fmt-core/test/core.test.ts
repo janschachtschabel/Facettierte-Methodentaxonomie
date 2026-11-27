@@ -18,6 +18,7 @@ import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } fr
 import { nachweisformen } from '../src/zielart.js';
 import { erstelleRegeln } from '../src/regeln.js';
 import { mitEintraegen } from './fixtures/eignung.js';
+import { alsHilfe, FIXTURE_HILFE, mitHilfe } from './fixtures/hilfe.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -957,5 +958,104 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
       ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: offen.kennung, dauerMin: offen.dauerMin }] }
     });
     expect(e.meldungen.filter((m) => m.regel === 'R-06' && /Tetzlaff/.test(m.meldung)).every((m) => m.grundlage === 'E')).toBe(true);
+  });
+});
+
+describe('Eintragsart Hilfe: nie Schritt, Slot oder Phase (Task C4)', () => {
+  const D = loadFmtData(DATA_DIR);
+  const DH = mitHilfe(D);
+  const VH = createValidator(DH);
+  const MH = createMatcher(DH, VH);
+  const SH = createSearch(DH, VH);
+  const HINWEIS = '‚Wortspeicher‘ ist eine Hilfe und wird in Schritt 3 den Phasen zugeordnet';
+  const imArrangement = (r: MatchResult, id: string) => r.modus === 'ablauf' && JSON.stringify(r.arrangement || {}).includes(`"${id}"`);
+
+  it('Review Focus 5: eine im Freitext genannte Hilfe erscheint als Hilfe-Hinweis, nie als Phase; nichtVerankert bleibt leer', () => {
+    const r = MH.zuordnen({ text: 'Deutsch Klasse 5, Märchen, 45 Minuten, mit Wortspeicher' }) as AblaufMatchResult;
+    expect(r.modus).toBe('ablauf');
+    expect(r.genannteHilfen).toEqual([FIXTURE_HILFE]);
+    expect(r.hinweise).toContain(HINWEIS);
+    expect(r.nichtVerankert).toEqual([]);
+    expect((r.verankert || []).map((v) => v.baustein)).not.toContain(FIXTURE_HILFE);
+    expect((r.schritte || []).some((s) => s.baustein === FIXTURE_HILFE || s.slots.some((x) => x.baustein === FIXTURE_HILFE))).toBe(false);
+    expect(imArrangement(r, FIXTURE_HILFE)).toBe(false);
+  });
+
+  it('eine genannte Hilfe steht auch bei einer einzelnen Phase nur im Hinweis', () => {
+    const r = MH.zuordnen({ text: 'Einstieg mit Wortspeicher, 15 Minuten' }) as PhaseMatchResult;
+    expect(r.modus).toBe('phase');
+    expect(r.genannteHilfen).toEqual([FIXTURE_HILFE]);
+    expect(r.hinweise).toContain(HINWEIS);
+    expect(r.vorschlaege.map((v) => v.baustein)).not.toContain(FIXTURE_HILFE);
+  });
+
+  it('ohne genannte Hilfe gibt es kein Feld genannteHilfen', () => {
+    const r = MH.zuordnen({ text: 'Deutsch Klasse 5, Märchen, 45 Minuten' });
+    expect(r.genannteHilfen).toBeUndefined();
+  });
+
+  it('eine Hilfe ist nie Kandidat: Methoden, die der Planer wählt, werden als Hilfe nicht mehr gewählt', () => {
+    const anfragen = [
+      { text: 'Biologie Klasse 7 Fotosynthese, 45 Minuten' },
+      { text: 'Mathe Klasse 8 Prozentrechnung, 90 Minuten' },
+      { lernfunktion: 'orientierung', zeitMin: 15 },
+      { liefert: 'vorwissen-aktiviert' }
+    ];
+    const M = createMatcher(D, createValidator(D));
+    const gewaehlt = new Set<string>();
+    for (const a of anfragen) {
+      const r = M.zuordnen(a);
+      if (r.modus === 'phase') r.vorschlaege.forEach((v) => gewaehlt.add(v.baustein));
+      else for (const m of JSON.stringify(r.arrangement || {}).match(/"baustein":"[^"]+"/g) || []) gewaehlt.add(m.slice(12, -1));
+    }
+    expect(gewaehlt.size).toBeGreaterThan(5);
+    const DX = alsHilfe(D, gewaehlt);
+    const MX = createMatcher(DX, createValidator(DX));
+    for (const a of anfragen) {
+      const r = MX.zuordnen(a);
+      const ids =
+        r.modus === 'phase'
+          ? r.vorschlaege.map((v) => v.baustein)
+          : (JSON.stringify(r.arrangement || {}).match(/"baustein":"[^"]+"/g) || []).map((m) => m.slice(12, -1));
+      expect(ids.filter((id) => gewaehlt.has(id)), JSON.stringify(a)).toEqual([]);
+    }
+  });
+
+  it('der Prüfer meldet eine Hilfe als Phase mit R-00', () => {
+    const arr: Arrangement = {
+      typ: 'Arrangement',
+      name: 'h',
+      reichweite: 'r3',
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: FIXTURE_HILFE, dauerMin: 15 }] }
+    };
+    const res = VH.validate(arr);
+    expect(res.gueltig).toBe(false);
+    expect(res.meldungen).toContainEqual(expect.objectContaining({ regel: 'R-00', schwere: 'Fehler', pfad: '/ablauf/teile/0' }));
+    expect(res.meldungen.find((m) => m.regel === 'R-00')!.meldung).toContain('Wortspeicher');
+    // The same method as a method is no structural error.
+    const ok = VH.validate({ ...arr, ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: 'placemat', dauerMin: 15 }] } } as Arrangement);
+    expect(ok.meldungen.filter((m) => m.regel === 'R-00')).toEqual([]);
+  });
+
+  it('die Suche unterscheidet Methoden und Hilfen; ohne Angabe liefert sie beide', () => {
+    const alle = SH.suche({}).map((b) => b.kennung);
+    const hilfen = SH.suche({ eintragsart: 'hilfe' }).map((b) => b.kennung);
+    const methoden = SH.suche({ eintragsart: 'methode' }).map((b) => b.kennung);
+    expect(alle).toContain(FIXTURE_HILFE);
+    expect(hilfen).toContain(FIXTURE_HILFE);
+    expect(methoden).not.toContain(FIXTURE_HILFE);
+    expect(methoden).toContain('placemat');
+    expect(hilfen.every((id) => DH.bausteine.find((b) => b.kennung === id)!.eintragsart === 'hilfe')).toBe(true);
+    expect(hilfen.length + methoden.length).toBe(alle.length);
+  });
+
+  it('der Ersatz bietet nie eine Hilfe an', () => {
+    const r = MH.zuordnen({ text: 'Biologie Klasse 7 Fotosynthese, 45 Minuten' }) as AblaufMatchResult;
+    const arr = r.arrangement!;
+    const seq = arr.ablauf as { teile: Array<{ typ: string }> };
+    const i = seq.teile.findIndex((t) => t.typ === 'Einsatz');
+    const cands = SH.ersatz(arr, `/ablauf/teile/${i}`).map((c) => c.baustein);
+    expect(cands.length).toBeGreaterThan(0);
+    expect(cands).not.toContain(FIXTURE_HILFE);
   });
 });
