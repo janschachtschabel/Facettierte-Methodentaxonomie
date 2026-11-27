@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { erstelleRegeln } from '../src/regeln.js';
+import { erstelleRegeln, nurSekundarEvidenz } from '../src/regeln.js';
 import type { Baustein } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -75,5 +75,28 @@ describe('Regelmaschine', () => {
       expect(R.regel(r.id)).toBe(r);
     }
     expect(R.regel('genannter-wunsch-bleibt')!.text).toMatch(/angenommen/i);
+  });
+});
+
+describe('nurSekundarEvidenz (eingebaute Regel evidenz-geltung)', () => {
+  const mit = (...geltung: string[]) => ({ evidenz: geltung.map((g) => ({ grad: 'C', befund: 'b', quelle: 'q', geltung: g })) }) as unknown as Baustein;
+
+  it('„Schulen“ allgemein heißt nicht nur Sekundarstufe (Tor D2)', () => {
+    expect(nurSekundarEvidenz(mit('Allgemeinbildende & berufliche Schulen, Hochschulen'))).toBe(false);
+    expect(nurSekundarEvidenz(mit('Schulen und Hochschulen'))).toBe(false);
+    expect(nurSekundarEvidenz(mit('Schule und Hochschule'))).toBe(false);
+  });
+
+  it('nur Sekundarstufe, berufliche Schulen oder später bleibt nur Sekundarstufe', () => {
+    expect(nurSekundarEvidenz(mit('Sekundarstufe und Hochschule'))).toBe(true);
+    expect(nurSekundarEvidenz(mit('Hochschule und Sekundarstufe II/Berufsbildung'))).toBe(true);
+    expect(nurSekundarEvidenz(mit('Berufliche Schulen und Hochschulen'))).toBe(true);
+    expect(nurSekundarEvidenz(mit('Sekundarstufe', 'Primarstufe'))).toBe(false);
+  });
+
+  it('in den Daten: diktat-klassisch, vokabeltest-kurzkontrolle und vorlesen-lesung warnen nicht mehr', () => {
+    for (const k of ['diktat-klassisch', 'vokabeltest-kurzkontrolle', 'vorlesen-lesung']) {
+      expect(nurSekundarEvidenz(D.bausteine.find((b) => b.kennung === k)!), k).toBe(false);
+    }
   });
 });

@@ -19,14 +19,17 @@ const fold = (s: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/ß/g, 'ss');
 
-/** Every stated scope of the method's evidence names secondary school, university or adult learning only. */
+/**
+ * Every stated scope of the method's evidence names secondary school, university or adult learning only. "Schule" and
+ * "Schulen" in general (also "allgemeinbildende Schulen") include primary school; only vocational schools do not.
+ */
 export function nurSekundarEvidenz(b: Baustein): boolean {
   const scopes = (b.evidenz || []).map((e) => fold(e.geltung || '')).filter(Boolean);
   if (!scopes.length) return false;
   return scopes.every(
     (s) =>
       /(?:sekundarstufe|oberstufe|hochschule|universitat|berufsbildung|erwachsenenbildung|ab\s+sek)/.test(s) &&
-      !/(?:\bschule\b|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s)
+      !/(?:\bschule\b|(?<!beruflichen? |berufsbildenden? )\bschulen\b|allgemeinbildend|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s)
   );
 }
 
