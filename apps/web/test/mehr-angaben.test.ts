@@ -94,6 +94,9 @@ describe('EntwurfAngaben: bewertet und ein gewähltes Planungsprofil bleiben bei
     expect(entwurfAngabenAus(matcher.zuordnen({ text })).gewaehlt).toEqual([]);
     expect(entwurfAngabenAus(matcher.zuordnen({ text, einheit: 'Reihe X', nachweis: 'produkt' })).gewaehlt).toEqual(['einheit', 'nachweis']);
     expect(entwurfAngabenLesen({ gewaehlt: ['bewertet', 'raum'] })!.gewaehlt).toEqual(['bewertet']);
+    // The fields of "Mehr Angaben" that the fit rules read count as well (R02: clearing them leaves the rule situation).
+    expect(entwurfAngabenAus(matcher.zuordnen({ text, sprachniveau: 'a1', vorwissen: 'hoch' })).gewaehlt).toEqual(['vorwissen', 'sprachniveau']);
+    expect(entwurfAngabenLesen({ gewaehlt: ['komplexitaet', 'bildungsstufe'] })!.gewaehlt).toEqual(['komplexitaet', 'bildungsstufe']);
   });
 });
 

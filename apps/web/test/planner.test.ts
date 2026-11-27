@@ -749,6 +749,20 @@ describe('Entwurf mit sieben Kernfeldern und Begriffen des Planungsprofils (Pake
     return { sc, rows, r };
   };
 
+  it('A3/R22: Regelmeldungen des Plans stehen unter Reflexion mit Regel, Wirkung und Grundlage, ihr Text nur einmal', () => {
+    const text = 'Klasse 1 Sachunterricht Pflanzen, 20 Kinder können noch nicht lesen, 45 Minuten';
+    const r0 = matcher.zuordnen({ text });
+    expect(r0.regelmeldungen?.length).toBeGreaterThan(0);
+    const { sc } = entwurfFuer(text, { regelmeldungen: r0.regelmeldungen, regeln: BUNDLE.regeln });
+    const reflexion = sc.kernfelder!.find((k) => k.id === 'reflexion')!.inhalt;
+    const m = r0.regelmeldungen![0];
+    const name = BUNDLE.regeln.find((x) => x.id === m.regel)?.name;
+    expect(name).toBeTruthy();
+    expect(reflexion).toContain(`(Regel: ${name} · Wirkung: `);
+    expect(reflexion).toContain('· Grundlage: ');
+    expect(reflexion.split(m.text).length - 1).toBe(1);
+  });
+
   it('n15: Entwurf nutzt „Sitzung“, „Studierende“, „Modul“ und führt sieben Kernfelder', () => {
     const { sc } = entwurfFuer('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur');
     expect(sc.planungsprofil?.id).toBe('hochschule');

@@ -93,7 +93,7 @@ cd Facettierte-Methodentaxonomie
 
 npm ci
 npm run build      # baut @fmt/core, dist-data/ (314 Einträge: 310 Methoden und 4 Hilfen, 36 SKOS-Vokabulare), @fmt/web und @fmt/server
-npm test           # führt alle 838 automatisierten Tests aus (Kern 591, Server 82, Web 165)
+npm test           # führt alle 1067 automatisierten Tests aus (Kern 638, Server 203, Web 226)
 
 # Optional: lokale Konfiguration anlegen (wird beim Start automatisch aus ./.env geladen)
 cp .env.example .env
@@ -118,7 +118,7 @@ npm run dev:web    # Terminal 2: Vite Dev-Server (Proxy zu 8080)
 | URL | Zweck |
 |---|---|
 | `http://localhost:8080/` | Web-App (Methodenkatalog, Szenario-Baukasten, Vergleich, Systematik) |
-| `http://localhost:8080/mcp` | Remote-MCP-Server (Streamable HTTP, 14 Zero-LLM-Tools) |
+| `http://localhost:8080/mcp` | Remote-MCP-Server (Streamable HTTP, 15 Zero-LLM-Tools) |
 | `http://localhost:8080/api/v1/meta` | Status, Version, Hash, Methodenanzahl, Klassifikations-Engine & LLM-Status |
 | `http://localhost:8080/api/v1/plan` | Ein-Schritt-Zero-LLM-Vorfilterung inkl. `llmBriefing` (`POST`); `umfang: "kompakt"` lässt die langen Blöcke weg, ungültige Angaben ergeben HTTP 400 |
 | `http://localhost:8080/api/v1/classify` | Hybride Freitext-Klassifikation auf 6 Skalen & Matrix-Merkmale (`POST`) |
@@ -181,7 +181,27 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 
 Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche, 5-Stufen-Zuordnung, Regelprüfung, Binnendifferenzierungsmatrix, hybride Freitext-Klassifikation) und liefern bei komplexen Aufgaben ein fertiges **`llmBriefing`** für das aufrufende Enduser-LLM.
 
-Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `match_scenario` liefert im Modus `phase` höchstens `limit` Vorschläge (Standard 10) und nennt die Gesamtzahl in `vorschlaegeGesamt`. `build_scenario_plan` antwortet standardmäßig kompakt (rund 19 KB statt 51 KB); `umfang: "voll"` ergänzt `llmBriefing`, `maschinenlesbar` für den Baukasten-Import, `udlBasis` und `konflikte`. Im Text genannte Teilgruppen (z. B. „5 DaZ-Kinder, 4 leistungsstarke“) werden als Lerngruppen übernommen.
+Erlaubte Werte stehen als Enum im Tool-Schema. `match_scenario` liefert im Modus `phase` höchstens `limit` Vorschläge (Standard 10) und nennt die Gesamtzahl in `vorschlaegeGesamt`. `build_scenario_plan` antwortet standardmäßig kompakt (rund 19 KB statt 51 KB); `umfang: "voll"` ergänzt `llmBriefing`, `maschinenlesbar` für den Baukasten-Import, `udlBasis` und `konflikte`. Im Text genannte Teilgruppen (z. B. „5 DaZ-Kinder, 4 leistungsstarke“) werden als Lerngruppen übernommen.
+
+**Fehler:** Eigene Fehler der Tools kommen mit `isError: true` und demselben deutschen Text wie REST (HTTP 400 `{ fehler, erlaubt? }`). Fehler aus der Schemaprüfung des MCP-SDK (z. B. ein Wert außerhalb eines Enums: `match_scenario { raum: "mondbasis" }`) kommen dagegen als englischer SDK-Text („MCP error -32602: Input validation error … Invalid option: expected one of …“), ebenfalls mit `isError: true`; die erlaubten Werte stehen in diesem Text und als Enum im Tool-Schema.
+
+**Die 15 Tools** (`/mcp` und `stdio`):
+
+1. `search_methods` – Facettierte Suche im Katalog (310 Methoden und 4 Hilfen): Freitext, 13 Facetten, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad, Bedarf, Eintragsart sowie Kette (`zieltyp`) und Kettenschritt (`kettenschritt`); Treffer mit Bedarf, Eignung, Evidenzbezug und `einordnung`
+2. `get_method` – Vollständiger Eintrag einer Methode oder Hilfe: 13-Facetten-Profil, Durchführung, Schnittstellen, Kernkomponenten, Risiken, Bedarf, Eignung, Evidenz mit Geltung und Evidenzbezug, Quellen und `einordnung` (Kettenschritte)
+3. `compare_methods` – Vergleicht zwei Einträge Facette für Facette, dazu Eintragsart, Bedarf, Eignung und Evidenzbezug (`unterschiede`, `verglichen`)
+4. `match_scenario` – Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf mit `pflichtangaben`, `regelmeldungen`, `begleitstrang` und `planungsprofil`
+5. `validate_arrangement` – Prüft ein Arrangement gegen `R-00` bis `R-12` mit Grundlage (`formal`, `[E]`, `[S]`, `[A]`); mit `situation` zusätzlich die Passungsregeln dieses (auch von Hand geänderten) Ablaufs als `regelmeldungen`
+6. `suggest_replacements` – Ersatzkandidaten an einem Knotenpfad, live gegen `R-00` bis `R-12` geprüft; mit der Situation nur Kandidaten, deren Bedarf gedeckt ist, dazu `ausgeschlossen`: bis zu 20 übrige Methoden mit baustein, merkmal und grund, `ausgeschlossenGesamt` ihre Zahl
+7. `list_vocabularies` – Alle Vokabulare, W-Felder, Arten und Merkmale, Funktionsketten mit Schritten, Passungsregeln, Planungsprofile, Teilgruppen-Tabelle, Raumtypen, Zielarten, Personas, Anfragefelder und die Zahl der Methoden und Hilfen (wie REST `/meta`)
+8. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline (`redaktion.openeduhub.net`) mit offiziellen Fach-, Bildungsstufen- und Medientyp-URIs; jeder Treffer mit `wwwurl`
+9. `score_differentiation_matrix` – Binnendifferenzierungsmatrix (115 Ausprägungen × 172 Maßnahmen, −100..+100 %) nach Schnellprofil, Persona oder eigenen Werten; mit Baustein geprüfte alternative Methoden für die Teilgruppe (`alternativenPruefung`)
+10. `build_scenario_plan` – Vollständiges, `R-00`..`R-12`-geprüftes Szenario ohne Server-LLM (Ablauf, `methodenDetails`, Matrix, `thematischeTabelle`, `teilgruppenMethoden`, `zusatzphasen`); `umfang: "voll"` ergänzt `llmBriefing` und `maschinenlesbar`
+11. `elaborate_scenario` – Verlaufstabelle und Entwurf mit sieben Kernfeldern in den Begriffen des Planungsprofils, dazu ein gefiltertes `llmBriefing`; `regelmeldungen` aus dem Plan stehen unter Reflexion
+12. `generate_phase_material` – Druckfertige Material-Strukturvorlage (7 Typen) zu einer Methode, Hilfe oder Methode des Begleitstrangs, mit gestuften Hilfen je Lerngruppe und `llmBriefing`
+13. `classify_scenario_text` – Freitext-Klassifikation ohne LLM (Regeln, BM25/Trigram, optional Model2Vec) auf Filterskalen, Fach/Thema, Methoden und Matrix-Merkmale; `pflichtangaben` nennt, was fehlt und was angenommen würde
+14. `adapt_scenario` – Anpassung eines freien Szenarios, einer Methode (`baustein`) oder eines Arrangements an Lernvoraussetzungen: UDL-Basis, Zielkonflikte, Maßnahmen, `teilgruppenImpulse`, `teilgruppenMethoden`, `zusatzphasen`, `gesperrt` und `regelmeldungen` (auch als `POST /api/v1/adapt`)
+15. `list_differentiation_options` – Alle Lernvoraussetzungs-Merkmale (36 Variablen mit 115 Ausprägungen), 8 Schnellprofile, Personas und Handlungsebenen; je Ausprägung, ob die Tabelle Tausch oder Hilfe vorsieht; gesperrte Kategorien unter `gesperrteKategorien`
 
 ### Remote MCP (`Streamable HTTP` – z. B. hinter Hostinger HTTPS)
 
@@ -224,7 +244,7 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 591, Server 82, Web 165 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 638, Server 203, Web 226 Tests) |
 | `npm run qualitaet [-- reihe2\|reihe3\|reihe4]` | Qualitätsbericht der Szenariovorschläge je Testreihe (Markdown-Tabelle) |
 | `npm run qualitaet:ausgang` | Vergleicht die Reihen 1 bis 3 mit dem Ausgangsstand `ausgang.json`; meldet nur Verschlechterungen |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |

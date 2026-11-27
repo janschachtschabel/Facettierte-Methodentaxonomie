@@ -24,6 +24,19 @@ export interface Situation {
 const list = (x: unknown): string[] => (x == null || x === '' ? [] : Array.isArray(x) ? x.map(String) : [String(x)]);
 const given = (v: unknown) => v != null && v !== '';
 
+/** Room types that share the class of another one (a lab is a specialist room), or none ('' for computer room, digital). */
+const RAUM_KLASSE: Record<string, string> = {
+  'fachraum-nawi': 'fachraum',
+  musikraum: 'fachraum',
+  werkraum: 'fachraum',
+  lehrkueche: 'fachraum',
+  computerraum: '',
+  ausserschulisch: 'draussen',
+  digital: ''
+};
+/** Class of a room type (fachraum, bewegungsraum, draussen, klassenraum …); '' when no room is given. */
+export const raumKlasse = (raum: unknown): string => (given(raum) ? (RAUM_KLASSE[String(raum)] ?? String(raum)) : '');
+
 /** Old callers sent a flag; the field holds what the learners cannot do. */
 function ohneSchriftListe(v: unknown): string[] {
   if (v === true) return ['lesen', 'schreiben'];

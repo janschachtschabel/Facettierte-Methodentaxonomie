@@ -142,6 +142,19 @@ describe('search.ersatz mit Situation und Bindung', () => {
       expect((b(id).termineMin ?? 0) <= 1, id).toBe(true);
     }
   });
+
+  it('ersatzPruefung nennt den Bedarf der Kandidaten und die ausgeschlossenen Methoden mit Merkmal und Grund', () => {
+    const lage = { ohneSchrift: ['lesen', 'schreiben'], termine: 1 };
+    const r = S.ersatzPruefung(dichte, '/ablauf/haupt/teile/1', reg, lage);
+    expect(r.kandidaten).toEqual(S.ersatz(dichte, '/ablauf/haupt/teile/1', reg, lage));
+    const vp = r.kandidaten.find((k) => k.baustein === 'vortrag-prompts')!;
+    expect(vp.raumbedarf).toEqual(b('vortrag-prompts').raumbedarf || []);
+    expect(vp.schriftbedarf).toEqual([]);
+    expect(r.ausgeschlossen.find((a) => a.baustein === 'kooperatives-skript')?.merkmal).toBe('schriftbedarf');
+    expect(r.ausgeschlossen.some((a) => a.merkmal === 'wissensart')).toBe(true);
+    // Helps are never candidates and are not listed.
+    expect(r.ausgeschlossen.every((a) => b(a.baustein).eintragsart !== 'hilfe')).toBe(true);
+  });
 });
 
 describe('search.suche: ohneSchrift und termine', () => {

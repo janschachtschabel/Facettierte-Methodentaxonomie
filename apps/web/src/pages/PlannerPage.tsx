@@ -5,9 +5,8 @@ import {
   FMT_GUARDRAILS,
   hasAdjustmentProfile,
   migrateKennungen,
-  passungNeuPruefen,
   proposeAdditionalPhases,
-  regelLageAus,
+  regelmeldungenNeuPruefen,
   type AdditionalPhaseProposal,
   type Arrangement,
   type Begleitstrang,
@@ -85,6 +84,7 @@ import {
   saveScenarioToStorage,
   entwurfAngabenAus,
   type EntwurfAngaben,
+  REGEL_MEHR_FELDER,
   type GewaehltesFeld,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
@@ -1268,19 +1268,48 @@ export function PlannerPage() {
   // A message about several methods (the safety note) stays while any of them is in the arrangement.
   // The answer's parts the draft reads: from the last proposal, else as saved with a loaded scenario.
   const angaben: EntwurfAngaben | null = matchResult ? entwurfAngabenAus(matchResult) : geladeneAngaben;
-  // Fit rules for the flow as it is now: the core checks every method in it again in the plan's situation (the last
-  // answer, a choice of "Mehr Angaben" made since wins), so a method swapped in by hand gets its warning and one
-  // swapped out loses it. Notes that are not about one method stay as the answer gave them.
-  const regelLage = regelLageAus({
+  // A choice of "Mehr Angaben" sent with the last proposal and cleared since: that answer still holds the old value, so
+  // the draft and the rule check read the core's answer for the current request instead (computed once per request).
+  const mehrJetzt = mehrAngabenInAnfrage(mehr);
+  const geleert = (f: GewaehltesFeld) => mehrJetzt[f] === undefined && Boolean(angaben?.gewaehlt?.includes(f));
+  const aktuelleAngaben = (): EntwurfAngaben => {
+    const req = buildStructuredMatchRequest();
+    const key = JSON.stringify(req);
+    if (aktuelleAntwortRef.current?.key !== key) aktuelleAntwortRef.current = { key, angaben: entwurfAngabenAus(matcher.zuordnen(req)) };
+    return aktuelleAntwortRef.current.angaben;
+  };
+  const quelleFuer = (f: GewaehltesFeld) => (geleert(f) ? aktuelleAngaben() : angaben);
+  // Rule messages for the flow as it is now (core regelmeldungenNeuPruefen): every method in it is checked again in
+  // the plan's situation (the last answer, a choice of "Mehr Angaben" made since wins), and so are the messages of the
+  // situation (fit rules without a method, safety note, accompanying goal without dates, form of proof). A method
+  // swapped in by hand gets its warning, one swapped out loses it, and a cleared choice leaves no old message: the
+  // field then holds what the core reads from the current request (e.g. the stage from the text), or nothing.
+  // Dates, accompanying goals and room as the current request holds them (a field of step 1, else the reading of the
+  // text), so a value changed or cleared since the last proposal leaves no old begleitziel-braucht-termine or safety
+  // note: no dates means one lesson, as the core reads it.
+  const anfrageJetzt: Record<string, unknown> = buildStructuredMatchRequest();
+  const textJetzt = matcher ? matcher.lesen(scenarioText).kriterien : {};
+  const jetzt = (f: 'termine' | 'begleitziel' | 'raum') => anfrageJetzt[f] ?? textJetzt[f];
+  const regelAnfrage: Record<string, unknown> = {
     bildungsstufe: arrangement.kontext?.bildungsstufe,
     vorwissen: arrangement.kontext?.vorwissen,
     fachbereich: planFachbereich,
     ...(angaben?.regelLage || {}),
     ...(matchResult?.kriterien || {}),
-    ...mehrAngabenInAnfrage(mehr)
-  });
+    ...mehrJetzt,
+    ...Object.fromEntries(REGEL_MEHR_FELDER.filter(geleert).map((f) => [f, aktuelleAngaben().regelLage?.[f] ?? ''])),
+    termine: jetzt('termine'),
+    begleitziel: jetzt('begleitziel'),
+    raum: jetzt('raum'),
+    lernort: undefined
+  };
+  const nachweisJetzt = mehr.nachweis ? [mehr.nachweis] : quelleFuer('nachweis')?.nachweis;
   const regelmeldungen = meldungenImAblauf(
-    passungNeuPruefen(angaben?.regelmeldungen || [], usedBlocks, regelLage, bundle.regeln, labelOf),
+    regelmeldungenNeuPruefen(angaben?.regelmeldungen || [], usedBlocks, regelAnfrage, bundle, {
+      raum: (jetzt('raum') as string | undefined) || angaben?.raumAngenommen || undefined,
+      modus: matchResult?.modus,
+      ...(nachweisJetzt ? { nachweis: nachweisJetzt } : {})
+    }),
     usedBlocks,
     bundle?.regeln
   );
@@ -1297,17 +1326,6 @@ export function PlannerPage() {
   const begleitPhasenNow = begleitPhasen.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
   const begleitImAblauf = (st: Begleitstrang) => begleitPhasenNow.find((a) => a.kennung === st.baustein);
   const begleitHinweise = begleitzielHinweise(angaben?.hinweise);
-  // A choice of "Mehr Angaben" sent with the last proposal and cleared since: that answer still holds the old value, so
-  // the draft reads the core's answer for the current request instead (computed once per request).
-  const mehrJetzt = mehrAngabenInAnfrage(mehr);
-  const geleert = (f: GewaehltesFeld) => mehrJetzt[f] === undefined && Boolean(angaben?.gewaehlt?.includes(f));
-  const aktuelleAngaben = (): EntwurfAngaben => {
-    const req = buildStructuredMatchRequest();
-    const key = JSON.stringify(req);
-    if (aktuelleAntwortRef.current?.key !== key) aktuelleAntwortRef.current = { key, angaben: entwurfAngabenAus(matcher.zuordnen(req)) };
-    return aktuelleAntwortRef.current.angaben;
-  };
-  const quelleFuer = (f: GewaehltesFeld) => (geleert(f) ? aktuelleAngaben() : angaben);
   // Planning profile of the draft: chosen in step 1 or 5, else the core's. When the last proposal had a chosen profile
   // that is cleared now, the core derives it again from the Bildungsstufe and the text (no new proposal needed).
   const profilAbgeleitet =
@@ -1331,7 +1349,8 @@ export function PlannerPage() {
     begleitstrang: begleitstraenge
       .filter((st) => !begleitImAblauf(st))
       .map((st) => ({ begleitziel: labelOf('begleitziel', st.begleitziel), methode: st.name, dauerMin: st.dauerMin, baustein: st.baustein })),
-    regelhinweise: regelmeldungen.map((m) => regelZeile(m, bundle?.regeln))
+    regelmeldungen: regelmeldungen.length ? regelmeldungen : undefined,
+    regeln: bundle?.regeln
   };
   const exportProfil = entwurfBegriffe(entwurfMeta, arrangement.kontext?.bildungsstufe);
   const verlaufSpalten = exportProfil?.spalten;

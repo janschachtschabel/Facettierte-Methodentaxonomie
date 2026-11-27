@@ -6,6 +6,7 @@ import {
   waehlePlanungsprofil,
   type Entwurf,
   type EntwurfPhase,
+  type EntwurfRegelmeldung,
   type Planungsprofil,
   type ProfilBegriffe
 } from '@fmt/core';
@@ -87,6 +88,8 @@ export interface EntwurfKontext {
   /** Whether the lesson or its result is graded. */
   bewertet?: boolean;
   hinweise?: string[];
+  /** Rule messages of the plan in readable form (core regelmeldungenFuerEntwurf). */
+  regelmeldungen?: EntwurfRegelmeldung[];
   /** Accompanying goals as codes or labels (D3). */
   begleitziel?: string | string[];
   /** Accompanying strand the plan proposes; method by name or id (D3). */
@@ -138,6 +141,7 @@ export function entwurfAusTabelle(store: CatalogStore, k: EntwurfKontext, zeilen
     nachweis: k.nachweis,
     ...(typeof k.bewertet === 'boolean' ? { bewertet: k.bewertet } : {}),
     hinweise: k.hinweise,
+    ...(k.regelmeldungen?.length ? { regelmeldungen: k.regelmeldungen } : {}),
     ...begleitAngaben(store, k)
   });
 }

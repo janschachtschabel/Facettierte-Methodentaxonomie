@@ -437,7 +437,7 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
 
   it('Schritt 2 zeigt nur Meldungen zu Methoden im Ablauf (Fix-Welle B, Punkt 3)', () => {
     renderPlanner();
-    // A single phase: the safety note stands at a proposal (Stummer Impuls) the teacher may not take.
+    // A single phase: the safety note stands at a hands-on proposal (Soziometrische Aufstellung) the teacher may not take.
     propose('Einstieg Chemie Klasse 8 Säuren');
     const vorschlag = (name: RegExp) => screen.getAllByRole('button').find((b) => /^\+ /.test(b.textContent || '') && name.test(b.textContent || ''))!;
     fireEvent.click(vorschlag(/Daily Review|Rosenshine/));
@@ -445,20 +445,20 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
     // Taken into the flow, the method shows its message at its row; removed again, the message is gone.
     fireEvent.click(stepButton(1));
-    fireEvent.click(vorschlag(/Stummer Impuls/));
-    expect(screen.getByRole('list', { name: /Hinweise zu Stummer Impuls/ }).textContent).toMatch(/praktisch gearbeitet/);
+    fireEvent.click(vorschlag(/Soziometrische Aufstellung/));
+    expect(screen.getByRole('list', { name: /Hinweise zu Soziometrische Aufstellung/ }).textContent).toMatch(/praktisch gearbeitet/);
     fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
     const entfernen = screen.getAllByRole('button', { name: 'Schritt entfernen' });
     fireEvent.click(entfernen[entfernen.length - 1]);
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
     fireEvent.click(screen.getByRole('button', { name: /Übersicht/ }));
-    expect(screen.queryByRole('list', { name: /Hinweise zu Stummer Impuls/ })).toBeNull();
+    expect(screen.queryByRole('list', { name: /Hinweise zu Soziometrische Aufstellung/ })).toBeNull();
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
   });
 
   it('Der Sicherheitshinweis bleibt, solange eine praktische Methode im Ablauf steht, und nennt nur diese (Runde 2, Punkt 1)', () => {
     renderPlanner();
-    // Single phase: the note stands at Stummer Impuls and names Soziometrische Aufstellung; taking the latter keeps it.
+    // Single phase: the note names Soziometrische Aufstellung (Stummer Impuls is no hands-on method since gate V2); taking it keeps the note.
     propose('Einstieg Chemie Klasse 8 Säuren');
     const vorschlag = (name: RegExp) => screen.getAllByRole('button').find((b) => /^\+ /.test(b.textContent || '') && name.test(b.textContent || ''))!;
     fireEvent.click(vorschlag(/Soziometrische Aufstellung/));
@@ -958,6 +958,84 @@ describe('N3-Fix I1: Geleertes gilt sofort im Entwurf; das Planungsprofil findet
     // Same as the core's answer for the request without the cleared fields.
     const kern = CATALOG.matcher.zuordnen({ text }) as { nachweis?: { formen: string[] } };
     for (const f of kern.nachweis?.formen || []) expect(nachher).toContain(CATALOG.labelOf('nachweisform', f));
+  });
+
+  it('Sprachniveau leeren: die Warnung verschwindet ohne neuen Vorschlag (R02)', () => {
+    renderPlanner();
+    waehle('Sprachniveau', 'a1');
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, 24 Lernende';
+    propose(text);
+    fireEvent.click(stepButton(2));
+    const satz = /verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig/;
+    expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(1));
+    waehle('Sprachniveau', '');
+    fireEvent.click(stepButton(2));
+    expect(screen.queryAllByText(satz)).toEqual([]);
+    // The core's answer for the request without the field says nothing about the language level either.
+    const kern = CATALOG.matcher.zuordnen({ text });
+    expect((kern.regelmeldungen || []).some((m) => m.regel === 'schrift-niedriges-sprachniveau')).toBe(false);
+  });
+
+  it('Bildungsstufe leeren: der Lage-Hinweis der alten Stufe verschwindet, die Stufe aus dem Text gilt (R02)', () => {
+    renderPlanner();
+    waehle('Bildungsstufe', 'primar');
+    const text = 'Biologie Klasse 9, Fotosynthese, 45 Minuten, 24 Lernende';
+    propose(text);
+    fireEvent.click(stepButton(2));
+    const lageSatz = /^Problemlösen vor Instruktion in der Grundschule: Methoden, für die das gilt/;
+    expect(screen.queryAllByText(lageSatz).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(1));
+    waehle('Bildungsstufe', '');
+    fireEvent.click(stepButton(2));
+    expect(screen.queryAllByText(lageSatz)).toEqual([]);
+    expect(screen.queryAllByText(/passt weniger zur Bildungsstufe „Primar/)).toEqual([]);
+  });
+
+  describe('Termine, Begleitziel und Raum geändert: begleitziel-braucht-termine gilt für die aktuelle Anfrage (Final-Review I2)', () => {
+    const satz = /^Wirkungen auf .+ sind für Programme über mehrere Wochen belegt/;
+    const begleitBox = (label: string) => within(screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).getByLabelText(label);
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, 24 Lernende';
+
+    it('Termine von 1 auf 4: der Hinweis verschwindet ohne neuen Vorschlag', () => {
+      renderPlanner();
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '1' } });
+      propose(text);
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+      fireEvent.click(stepButton(1));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '4' } });
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz)).toEqual([]);
+    });
+
+    it('Termine geleert: der Hinweis erscheint, wie der Kern ohne Termine antwortet', () => {
+      renderPlanner();
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '4' } });
+      propose(text);
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz)).toEqual([]);
+      fireEvent.click(stepButton(1));
+      fireEvent.change(screen.getByLabelText('Termine'), { target: { value: '' } });
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+      const kern = CATALOG.matcher.zuordnen({ text, begleitziel: ['sozial'] });
+      expect((kern.regelmeldungen || []).some((m) => m.regel === 'begleitziel-braucht-termine')).toBe(true);
+    });
+
+    it('Begleitziel abgewählt: der Hinweis verschwindet ohne neuen Vorschlag', () => {
+      renderPlanner();
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      propose(text);
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+      fireEvent.click(stepButton(1));
+      fireEvent.click(begleitBox('Soziales Lernen'));
+      fireEvent.click(stepButton(2));
+      expect(screen.queryAllByText(satz)).toEqual([]);
+    });
   });
 
   it('Planungsprofil leeren: die Stufe aus dem Text bestimmt es wieder (Berufsschule)', () => {

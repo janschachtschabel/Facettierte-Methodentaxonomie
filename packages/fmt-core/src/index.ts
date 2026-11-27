@@ -4,8 +4,8 @@ export { createValidator } from './validate.js';
 export type { FmtValidator } from './validate.js';
 export { createSearch, locate } from './suche.js';
 export type { FmtSearch } from './suche.js';
-export { createMatcher, FmtRequestError } from './zuordnung.js';
-export type { FmtMatcher } from './zuordnung.js';
+export { createMatcher, FmtRequestError, ZAHL_GRENZEN, unbekannterWert, zahlFehler } from './zuordnung.js';
+export type { FeldFehler, FmtMatcher, ZahlGrenze } from './zuordnung.js';
 export * from './differentiationMatrix.js';
 export * from './adaptScenario.js';
 export * from './methodAdjustments.js';
@@ -24,11 +24,26 @@ export * from './zielart.js';
 export { baueSituation } from './situation.js';
 export type { Situation, Annahme, Pflichtangabe } from './situation.js';
 export * from './raster.js';
-export { erstelleRegeln, passungNeuPruefen, regelLageAus } from './regeln.js';
+export {
+  EIGNUNG_REGEL_NAMEN,
+  GRUNDLAGE_KLARTEXT,
+  MELDUNG_LAGE_FELDER,
+  REGEL_LAGE_FELDER,
+  WIRKUNG_KLARTEXT,
+  bausteineImArrangement,
+  erstelleRegeln,
+  grundlageKlartext,
+  passungImArrangement,
+  passungNeuPruefen,
+  regelmeldungenNeuPruefen,
+  regelLageAus,
+  regelName,
+  regelmeldungenFuerEntwurf
+} from './regeln.js';
 export * from './teilgruppen.js';
 export { waehlePlanungsprofil } from './planungsprofil.js';
 export { ENTWURF_LEITPLANKEN, LEISTUNGSKONTROLLE_SCHRITT, OHNE_BILDUNGSSTUFE, baueEntwurf, entwurfMarkdown, istPruefschritt, profilBegriffe } from './entwurf.js';
-export type { Entwurf, EntwurfEingabe, EntwurfKernfeld, EntwurfPhase, ProfilBegriffe } from './entwurf.js';
+export type { Entwurf, EntwurfEingabe, EntwurfKernfeld, EntwurfPhase, EntwurfRegelmeldung, ProfilBegriffe } from './entwurf.js';
 export { istHilfe, istMethode, nurMethoden } from './eintragsart.js';
 export {
   GLEICHWERTIG_GEPRUEFT,
@@ -39,4 +54,4 @@ export {
   pruefeAlternativen
 } from './alternativen.js';
 export type { AlternativenKontext, AlternativenPruefung, GepruefteAlternative, KandidatAusschluss, TeilgruppenAlternative } from './alternativen.js';
-export { KI_OPTIONALE_ANGABEN, KI_PFLICHTANGABEN, MCP_HINWEISE } from './kiHinweise.js';
+export { KI_OPTIONALE_ANGABEN, KI_PFLICHTANGABEN, MCP_HINWEISE, PFLICHTANGABEN_NAMEN } from './kiHinweise.js';

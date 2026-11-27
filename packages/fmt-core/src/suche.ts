@@ -5,6 +5,7 @@ import type {
   EvidenceGrade,
   FmtData,
   ReplacementCandidate,
+  ReplacementCheck,
   MatchRequest,
   SearchCriteria
 } from './types.js';
@@ -12,6 +13,7 @@ import { raumFehlt, schriftFehlt } from './bedarf.js';
 import { ausschlussInSituation, kettenSchritt } from './alternativen.js';
 import { baueSituation } from './situation.js';
 import { erstelleRegeln } from './regeln.js';
+import { einordnungInKetten, type KettenEinordnung } from './zielart.js';
 import type { FmtValidator } from './validate.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -66,6 +68,8 @@ export interface FmtSearch {
    * the chain step, and with `situation` (raum, raumBietet, ohneSchrift, termine …) its needs are covered there.
    */
   ersatz(arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>, situation?: MatchRequest): ReplacementCandidate[];
+  /** As ersatz, plus the methods left out by ausschlussInSituation with their reason (helps are never listed). */
+  ersatzPruefung(arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>, situation?: MatchRequest): ReplacementCheck;
 }
 
 /**
@@ -90,6 +94,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   const stateScheme = data.schemes.find((s) => s.id === 'lernzustand')!;
   const implies = new Map((stateScheme.werte || []).map((w) => [w.id, w.impliziert || []]));
   const regeln = erstelleRegeln(data.regeln || []);
+  /** Chain steps each method can fill (helps fill none), for the filters zieltyp and kettenschritt. */
+  const einordnung = new Map<string, KettenEinordnung[]>(data.bausteine.map((b) => [b.kennung, einordnungInKetten(b, data.ketten || [])]));
   const closure = (states: string[]): Set<string> => {
     const set = new Set<string>();
     const stack = [...states];
@@ -137,6 +143,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     const ohneSchriftRoh = k.ohneSchrift === false ? [] : k.ohneSchrift === true ? ['true'] : list(k.ohneSchrift);
     const ohneSchrift = ohneSchriftRoh.some((x) => x === 'true' || x === '1') ? ['lesen', 'schreiben'] : ohneSchriftRoh;
     const termine = given(k.termine) && Number.isFinite(Number(k.termine)) ? Number(k.termine) : undefined;
+    const zieltyp = given(k.zieltyp) ? String(k.zieltyp) : '';
+    const kettenschritt = zieltyp && given(k.kettenschritt) ? String(k.kettenschritt) : '';
     const hits = data.bausteine.filter((b) => {
       if (words.length) {
         const hay = haystackById.get(b.kennung) || '';
@@ -158,6 +166,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
       if (given(k.eintragsart) && (b.eintragsart || 'methode') !== k.eintragsart) return false;
+      // Chain (zieltyp) and optionally its step: the method can fill a step of the chain (einordnungInKetten).
+      if (zieltyp && !(einordnung.get(b.kennung) || []).some((e) => e.kette === zieltyp && (!kettenschritt || e.schritt === kettenschritt))) return false;
       const wantedArea = list(k.fachbereich);
       if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
       // Fits a subject area: at home there or without subject binding, and not marked as unsuitable for it.
@@ -224,12 +234,12 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     );
   }
 
-  function ersatz(
+  function ersatzPruefung(
     arrangement: Arrangement,
     pfad: string,
     registry?: Map<string, Arrangement>,
     situation?: MatchRequest
-  ): ReplacementCandidate[] {
+  ): ReplacementCheck {
     if (!validator) throw new Error('ersatz() braucht einen Validator: createSearch(data, validator)');
     const original = locate(arrangement, pfad);
     const node = original.holder[original.key] as {
@@ -244,12 +254,17 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     if (!node || !node.baustein) throw new Error('Kein Einsatz an ' + pfad);
 
     const out: ReplacementCandidate[] = [];
+    const ausgeschlossen: ReplacementCheck['ausgeschlossen'] = [];
     // A help is never a phase; the chain step binds its knowledge type; the situation's needs must be covered.
     const schritt = kettenSchritt(data, arrangement.zieltyp, node.kettenschritt);
     const lage = situation ? baueSituation(situation, data) : undefined;
     data.bausteine
       .filter((b) => b.kennung !== node.baustein && istMethode(b))
-      .filter((b) => !ausschlussInSituation(b, { anfrage: situation, situation: lage, schritt, data }))
+      .filter((b) => {
+        const aus = ausschlussInSituation(b, { anfrage: situation, situation: lage, schritt, data });
+        if (aus) ausgeschlossen.push({ baustein: b.kennung, merkmal: aus.merkmal, grund: `${b.name} ${aus.grund}` });
+        return !aus;
+      })
       .forEach((b) => {
         const copy = JSON.parse(JSON.stringify(arrangement)) as Arrangement;
         const at = locate(copy, pfad);
@@ -267,13 +282,22 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
             baustein: b.kennung,
             name: b.name,
             dauerMin,
-            warnungen: r.meldungen.map((m) => `${m.regel}: ${m.meldung}`)
+            warnungen: r.meldungen.map((m) => `${m.regel}: ${m.meldung}`),
+            raumbedarf: b.raumbedarf || [],
+            schriftbedarf: b.schriftbedarf || [],
+            ...(b.termineMin != null ? { termineMin: b.termineMin } : {})
           });
         }
       });
 
-    return out.sort((x, y) => x.warnungen.length - y.warnungen.length || x.name.localeCompare(y.name, 'de'));
+    return {
+      kandidaten: out.sort((x, y) => x.warnungen.length - y.warnungen.length || x.name.localeCompare(y.name, 'de')),
+      ausgeschlossen
+    };
   }
 
-  return { suche, bestGrade, ersatz };
+  const ersatz = (arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>, situation?: MatchRequest): ReplacementCandidate[] =>
+    ersatzPruefung(arrangement, pfad, registry, situation).kandidaten;
+
+  return { suche, bestGrade, ersatz, ersatzPruefung };
 }

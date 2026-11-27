@@ -21,7 +21,7 @@ import type {
   VocabValue
 } from './types.js';
 import type { FmtValidator } from './validate.js';
-import { erstelleRegeln, regelLageAus } from './regeln.js';
+import { begleitzielRegelmeldung, erstelleRegeln, lageRegelmeldungen, nachweisRegelmeldung, regelLageAus, sicherheitsRegelmeldung } from './regeln.js';
 import { createSemanticClassifier } from './semantic.js';
 import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 import { createMentionDetector } from './mentions.js';
@@ -29,7 +29,7 @@ import { createSubjectDetector, type DetectedSubject } from './fach.js';
 import { pickOrder, rankingGrade, softScore } from './ranking.js';
 import { KennungIndex } from './kennung.js';
 import { raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
-import { baueSituation, type Annahme, type Situation } from './situation.js';
+import { baueSituation, raumKlasse, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
 import { liesBegleitziele } from './begleitziel.js';
 import { waehlePlanungsprofil } from './planungsprofil.js';
@@ -49,6 +49,47 @@ const RECURRENCE = { anzahl: 3, abstand: 'P2D' };
 const SINGLE_SESSION_MAX_MIN = 180;
 /** Upper bound for a time budget (about a school year of one subject); keeps the allocation loops bounded. */
 const MAX_BUDGET_MIN = 20000;
+
+/** Bounds of a whole number in a request. */
+export interface ZahlGrenze {
+  min: number;
+  max?: number;
+}
+
+/**
+ * Bounds of the integer request fields as the matcher accepts them: every field from 0, zeitMin up to the budget
+ * limit. REST checks and the MCP tool schemas read them, so both sides accept the same numbers as the core.
+ */
+export const ZAHL_GRENZEN = {
+  zeitMin: { min: 0, max: MAX_BUDGET_MIN },
+  gruppe: { min: 0 },
+  variante: { min: 0 },
+  maxVorbereitung: { min: 0 },
+  termine: { min: 0 },
+  lehrende: { min: 0 }
+} as const satisfies Record<string, ZahlGrenze>;
+
+/** German message for a code outside the allowed values, as every input check words it. */
+export function unbekannterWert(feld: string, wert: string, erlaubt: readonly string[]): string {
+  return `Feld „${feld}“: unbekannter Wert „${wert}“. Erlaubt: ${erlaubt.join(', ')}.`;
+}
+
+/** German message for a value that is no whole number within the bounds, or null when it fits. */
+export function zahlFehler(feld: string, wert: unknown, grenze: ZahlGrenze = { min: 0 }): string | null {
+  if (wert == null || wert === '') return null;
+  const n = Number(wert);
+  if (!Number.isInteger(n) || n < grenze.min) return `Feld „${feld}“: erwartet wird eine ganze Zahl ab ${grenze.min}.`;
+  if (grenze.max != null && n > grenze.max) {
+    return feld === 'zeitMin' ? `Feld „zeitMin“: höchstens ${grenze.max} Minuten.` : `Feld „${feld}“: höchstens ${grenze.max}.`;
+  }
+  return null;
+}
+
+/** An input error the caller can fix: the message and, for codes, the allowed values. */
+export interface FeldFehler {
+  fehler: string;
+  erlaubt?: string[];
+}
 
 const list = (x: unknown): string[] =>
   x == null || x === '' ? [] : Array.isArray(x) ? x.map(String) : [String(x)];
@@ -73,9 +114,6 @@ export const LEISTUNGSKONTROLLE =
  */
 export const NEGATED_PHRASE =
   /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen|in|im|auf|am)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
-/** Rooms and subject areas where practical work gets the rule sicherheitshinweis; safety is no coded attribute. */
-const PRACTICAL_ROOMS = new Set(['fachraum', 'bewegungsraum', 'draussen']);
-const PRACTICAL_AREAS = new Set(['nawi-technik', 'beruf-praxis', 'sport']);
 
 export const withoutNegated = (folded: string) => folded.replace(NEGATED_PHRASE, ' ');
 
@@ -150,6 +188,11 @@ export interface FmtMatcher {
   };
   felder(): MatchFieldDef[];
   schema(): Record<string, unknown>;
+  /**
+   * Checks one request field as zuordnen does (codes, whole numbers and their bounds; lernort as raum). Null when the
+   * value fits or the field is no request field, so callers can check the request fields of a larger body.
+   */
+  pruefeFeld(feld: string, wert: unknown): FeldFehler | null;
 }
 
 /** A request the caller can fix: unknown field or value outside the vocabulary. */
@@ -405,6 +448,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   ];
 
   const felder = () => FIELDS.map((f) => ({ ...f }));
+  const grenzeVon = (feld: string): ZahlGrenze => (ZAHL_GRENZEN as Record<string, ZahlGrenze>)[feld] ?? { min: 0 };
 
   function schema() {
     const prop = (f: MatchFieldDef) => {
@@ -415,7 +459,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : f.typ === 'code'
             ? { enum: codes }
             : f.typ === 'integer'
-              ? { type: 'integer', minimum: 0 }
+              ? (({ min, max }) => ({ type: 'integer', minimum: min, ...(max != null ? { maximum: max } : {}) }))(grenzeVon(f.feld))
               : { type: f.typ };
       return Object.assign({ description: f.bedeutung }, base);
     };
@@ -429,24 +473,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
   }
 
+  function pruefeFeld(key: string, wert: unknown): FeldFehler | null {
+    const f = FIELDS.find((x) => x.feld === (key === 'lernort' ? 'raum' : key));
+    if (!f) return null;
+    if (f.typ === 'integer') {
+      const fehler = zahlFehler(key, wert, grenzeVon(f.feld));
+      return fehler ? { fehler } : null;
+    }
+    if (!f.werte) return null;
+    const erlaubt = f.werte.map((w) => w.code);
+    const falsch = list(wert).find((v) => !erlaubt.includes(v));
+    return falsch === undefined ? null : { fehler: unbekannterWert(key, falsch, erlaubt), erlaubt };
+  }
+
   /** Validates a request and returns it with old zielart codes normalised; the former field lernort is checked as raum. */
   function check(a: MatchRequest): MatchRequest {
     Object.keys(a).forEach((key) => {
       const f = FIELDS.find((x) => x.feld === (key === 'lernort' ? 'raum' : key));
       if (!f) throw new FmtRequestError(`Unbekanntes Feld „${key}“. Erlaubt: ${FIELDS.map((x) => x.feld).join(', ')}.`);
-      if (f.typ === 'integer' && given(a[key]) && !(Number.isInteger(Number(a[key])) && Number(a[key]) >= 0)) {
-        throw new FmtRequestError(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
-      }
-      if (key === 'zeitMin' && given(a[key]) && Number(a[key]) > MAX_BUDGET_MIN) {
-        throw new FmtRequestError(`Feld „zeitMin“: höchstens ${MAX_BUDGET_MIN} Minuten.`);
-      }
-      if (!f.werte) return;
-      const allowed = f.werte.map((w) => w.code);
-      list(a[key]).forEach((v) => {
-        if (!allowed.includes(v)) {
-          throw new FmtRequestError(`Feld „${key}“: unbekannter Wert „${v}“. Erlaubt: ${allowed.join(', ')}.`);
-        }
-      });
+      const fehler = pruefeFeld(key, a[key]);
+      if (fehler) throw new FmtRequestError(fehler.fehler);
     });
     return given(a.zielart) ? { ...a, zielart: normZielart(String(a.zielart)) } : a;
   }
@@ -499,19 +545,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe', 'komplexitaet', 'sprachniveau', 'lehrende', 'einheit', 'bewertet']);
   /** Goal kinds of a movement lesson (the old knowledge-type code psychomotorik). */
   const BEWEGUNG_ZIELARTEN = new Set(['bewegung', 'kondition']);
-  /**
-   * Room class the planning paths still work with: the special rooms of FMT 2.0 count as fachraum, a place outside
-   * school as draussen; a computer room or an online room is planned like a classroom without a stated room ('').
-   */
-  const RAUM_KLASSE: Record<string, string> = {
-    'fachraum-nawi': 'fachraum',
-    musikraum: 'fachraum',
-    werkraum: 'fachraum',
-    lehrkueche: 'fachraum',
-    computerraum: '',
-    ausserschulisch: 'draussen',
-    digital: ''
-  };
   /** Knowledge types (D1) of a goal kind, from the zielart scheme; an old knowledge-type code stands for itself. */
   const wissensartenDerZielart = (code: string): string[] => {
     const w = values(scheme('zielart')).find((x) => x.id === code) as (VocabValue & { wissensart?: string[] }) | undefined;
@@ -539,7 +572,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
     return null;
   }
-  const raumKlasse = (raum: unknown) => (given(raum) ? (RAUM_KLASSE[String(raum)] ?? String(raum)) : '');
   const ZAHLWORT: Record<string, number> = {
     zwei: 2, drei: 3, vier: 4, funf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwolf: 12
   };
@@ -1897,7 +1929,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const chosen = [...new Set(chosenBlocks(r))].map((id) => blocks.get(id)).filter((b): b is Baustein => Boolean(b));
     const genannt: Regelmeldung[] = [];
     const warnungen: Regelmeldung[] = [];
-    const praktisch: Baustein[] = [];
     const wo = r.modus === 'phase' ? 'unter den Vorschlägen' : 'im Ablauf';
     const wunsch = regeln.regel('genannter-wunsch-bleibt');
     for (const b of chosen) {
@@ -1907,46 +1938,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       if (wunsch && lage.mentions.has(b.kennung) && (w.length || raumAngenommen)) {
         genannt.push(regeln.meldung(wunsch.id, b, wunsch.text.replace(/\{methode\}/g, b.name).replace('im Ablauf', wo))!);
       }
-      if ((PRACTICAL_ROOMS.has(lage.raum) || PRACTICAL_AREAS.has(lage.area)) && (b.repraesentation || []).includes('enaktiv')) {
-        praktisch.push(b);
-      }
     }
-    const sicherheit: Regelmeldung[] = [];
-    const sicherheitsRegel = regeln.regel('sicherheitshinweis');
-    if (sicherheitsRegel && praktisch.length) {
-      const namen = praktisch.slice(0, 3).map((b) => b.name);
-      const aufzaehlung = namen.length > 1 ? `${namen.slice(0, -1).join(', ')} und ${namen[namen.length - 1]}` : namen[0];
-      const text = sicherheitsRegel.text.replace(/\{methode\}/g, aufzaehlung).replace(/^Im Ablauf/, r.modus === 'phase' ? 'Unter den Vorschlägen' : 'Im Ablauf');
-      // All hands-on methods go along, so a view of the plan can keep the note while any of them stays.
-      sicherheit.push({ ...regeln.meldung(sicherheitsRegel.id, praktisch[0], text)!, bausteine: praktisch.map((b) => b.kennung) });
-    }
-    // One check per method; the ids of every firing rule are collected once (not one full run per rule).
-    const lageJetzt = regelLage(a);
-    const feuernd = new Set<string>();
-    for (const b of methoden) for (const m of regeln.pruefe(b, lageJetzt)) feuernd.add(m.regel);
-    const lageMeldungen: Regelmeldung[] = regeln
-      .alle()
-      .filter((x) => x.art === 'deklarativ' && !x.keinTausch && Object.keys(x.wenn?.situation || {}).length > 0 && feuernd.has(x.id))
-      .map((x) => ({
-        regel: x.id,
-        wirkung: x.wirkung,
-        grundlage: x.grundlage,
-        ...(x.quelle ? { quelle: x.quelle } : {}),
-        // A method the teacher named keeps its place at its step; the sentence says so to stay true.
-        text: `${x.name}: Methoden, für die das gilt, tragen eine Warnung und stehen weiter hinten – nicht aber eine Methode, die du selbst genannt hast.`
-      }));
-    const nachweisMeldung: Regelmeldung[] = [];
-    const nachweisRegel = regeln.regel('nachweis-passt-zum-ziel');
-    if (r.modus === 'ablauf' && r.nachweis?.formen.length && r.arrangement && nachweisRegel) {
-      const pruefung = pruefBaustein.get(r.arrangement);
-      const b = pruefung ? blocks.get(pruefung) : undefined;
-      if (b && !nachweisformen(b).some((f) => r.nachweis!.formen.includes(f))) {
-        const formen = r.nachweis.formen.map((f) => label('nachweisform', f)).join(' oder ');
-        nachweisMeldung.push(
-          regeln.meldung(nachweisRegel.id, b, `Keine Prüfmethode der Form ${formen} passt in diese Stunde; gewählt wurde ${b.name}.`)!
-        );
-      }
-    }
+    // The builders are shared with regelmeldungenNeuPruefen (regeln.ts), which checks an answer again after a change.
+    const sicherheit = sicherheitsRegelmeldung(regeln, chosen, lage.raum, lage.area, r.modus);
+    const lageMeldungen = lageRegelmeldungen(regeln, methoden, regelLage(a));
+    const pruefung = r.modus === 'ablauf' && r.arrangement ? pruefBaustein.get(r.arrangement) : undefined;
+    const nachweisMeldung =
+      r.modus === 'ablauf' ? nachweisRegelmeldung(regeln, pruefung ? blocks.get(pruefung) : undefined, r.nachweis?.formen || [], label) : [];
     const meldungen = [...genannt, ...lageMeldungen, ...warnungen, ...nachweisMeldung, ...sicherheit];
     if (!meldungen.length) return r;
     r.regelmeldungen = meldungen;
@@ -1965,7 +1963,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   /** Name of an accompanying goal inside a sentence ("soziales Lernen"). */
   const begleitzielImSatz = (code: string) => values(scheme('begleitziel')).find((w) => w.id === code)?.imSatz || label('begleitziel', code);
-  const undListe = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} und ${xs[xs.length - 1]}` : xs[0] || '');
   const BEGLEITSTRANG_FOKUS: Record<string, string> = {
     selbstregulation: 'mit einer Frage nach dem eigenen Vorgehen beim Lernen',
     sozial: 'mit Blick auf die Zusammenarbeit in der Gruppe'
@@ -2036,9 +2033,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       add(`Begleitziel ${label('begleitziel', 'sprache')}: Hilfen für die Sprache (etwa Wortspeicher oder Satzanfänge) ordnest du in Schritt 3 den Phasen zu.`);
     }
     const termine = given(a.termine) ? Number(a.termine) : situation.termine;
-    const regel = regeln.regel('begleitziel-braucht-termine');
-    if (regel && (termine == null || termine <= 1)) {
-      const m = regeln.meldung(regel.id, undefined, regel.text.replace(/\{Begleitziel\}/g, undListe(ziele.map(begleitzielImSatz))))!;
+    for (const m of begleitzielRegelmeldung(regeln, ziele, termine, begleitzielImSatz)) {
       r.regelmeldungen = [...(r.regelmeldungen || []), m];
       add(alsText(m));
     }
@@ -2454,5 +2449,5 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
   }
 
-  return { zuordnen, lesen, felder, schema };
+  return { zuordnen, lesen, felder, schema, pruefeFeld };
 }

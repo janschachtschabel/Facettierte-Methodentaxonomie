@@ -52,7 +52,9 @@ export const PIKTOGRAMME: readonly PiktogrammId[] = [
 export type EvidenceGrade = 'A' | 'B' | 'C';
 export type InferenceLevel = 'niedrig' | 'mittel' | 'hoch';
 export type RuleBasis = 'formal' | 'E' | 'S' | 'A';
-export type BlockStatus = 'kuratiert' | 'entwurf';
+/** Status values of a catalogue entry (one list for type and input checks). */
+export const BLOCK_STATUS = ['kuratiert', 'entwurf'] as const;
+export type BlockStatus = (typeof BLOCK_STATUS)[number];
 
 export interface VocabValue {
   id: string;
@@ -589,6 +591,10 @@ export interface SearchCriteria {
   ohneSchrift?: boolean | string | string[];
   /** Number of dates available: methods that need more (termineMin) are left out. */
   termine?: number | string;
+  /** Chain (Funktionskette id): only methods that can fill a step of it (einordnungInKetten); helps fill none. */
+  zieltyp?: string;
+  /** Step id inside the chain zieltyp; read only together with zieltyp. */
+  kettenschritt?: string;
   [facet: string]: unknown;
 }
 
@@ -597,6 +603,17 @@ export interface ReplacementCandidate {
   name: string;
   dauerMin: number;
   warnungen: string[];
+  /** Needs of the candidate (scheme raumbedarf, schriftbedarf; dates), so a caller sees what it asks of the room. */
+  raumbedarf: string[];
+  schriftbedarf: string[];
+  termineMin?: number;
+}
+
+/** Replacements at a path and the methods left out with the reason of ausschlussInSituation. */
+export interface ReplacementCheck {
+  kandidaten: ReplacementCandidate[];
+  /** Methods that cannot fill the step in this situation (binding of the chain step or a need not covered). */
+  ausgeschlossen: Array<{ baustein: string; merkmal: string; grund: string }>;
 }
 
 export interface MatchFieldDef {

@@ -382,7 +382,8 @@ export function ScenarioStudioPanel({
         einheit: entwurfMeta.einheit,
         nachweis: entwurfMeta.nachweis,
         bewertet: entwurfMeta.bewertet,
-        hinweiseListe: entwurfMeta.regelhinweise?.length ? entwurfMeta.regelhinweise : undefined,
+        // Rule messages in the plan's form; the server lists them with rule, effect and basis (as the local draft does).
+        regelmeldungen: entwurfMeta.regelmeldungen?.length ? entwurfMeta.regelmeldungen : undefined,
         // Accompanying goals and the proposed strand (labels; the server reads labels as well), for the field Ziele.
         begleitziel: entwurfMeta.begleitziele?.length ? entwurfMeta.begleitziele : undefined,
         begleitstrang: entwurfMeta.begleitstrang?.length

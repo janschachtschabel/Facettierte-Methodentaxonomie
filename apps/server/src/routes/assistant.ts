@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type Entwurf, type MatchRequest, type ValidationResult } from '@fmt/core';
+import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type Entwurf, type MatchRequest, type Regelmeldung, type ValidationResult } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { LruTtlCache } from '../llm/cache.js';
@@ -25,6 +25,7 @@ import {
 } from '../llm/briefings.js';
 import { profilRahmen } from '../llm/entwurf.js';
 import { InvalidRequestError, isMaterialGroupList } from './validation.js';
+import { ARRANGEMENT_FEHLER, MATERIAL_TYPEN, entwurfFelderFehler } from '../eingaben.js';
 
 export interface ThematicTableRow {
   key: string;
@@ -102,6 +103,11 @@ export interface ElaboratePayload {
   /** Whether the lesson or its result is graded; named in the core fields Rahmendaten and Lernerfolg. */
   bewertet?: boolean;
   hinweiseListe?: string[];
+  /**
+   * Rule messages of the plan (answer field regelmeldungen of /plan, build_scenario_plan): listed under Reflexion with
+   * rule, effect and basis; a note in hinweiseListe with the same text is not listed again.
+   */
+  regelmeldungen?: Array<Pick<Regelmeldung, 'regel' | 'wirkung' | 'grundlage' | 'text'> & Partial<Pick<Regelmeldung, 'quelle' | 'baustein' | 'bausteine'>>>;
   /** Request text (company words choose the profile betrieb). */
   text?: string;
   /** Accompanying goals (codes of the scheme begleitziel or labels), for the core field Ziele (D3). */
@@ -403,6 +409,7 @@ export async function elaborateScenarioCore(
     body.nachweis || '',
     body.bewertet ?? null,
     body.hinweiseListe || null,
+    body.regelmeldungen || null,
     body.begleitziel || null,
     body.begleitstrang || null,
     body.text || '',
@@ -679,7 +686,7 @@ export async function generateMaterialCore(
     const cores = (block.kernkomponente || []).map((k) => k.name);
     const risks = block.qualitaetsrisiko || [];
 
-    const typeHeading: Record<string, string> = {
+    const typeHeading: Record<(typeof MATERIAL_TYPEN)[number], string> = {
       arbeitsblatt: 'Gestuftes Arbeitsblatt',
       infoblatt: 'Strukturiertes Infoblatt',
       quiz: 'Kurz-Quiz / Abruftest (ohne Notendruck)',
@@ -781,7 +788,7 @@ export async function generateMaterialCore(
     }
 
     const template = [
-      `# ${typeHeading[materialTyp] || materialTyp}: ${fachLabel} – ${themaLabel}`,
+      `# ${typeHeading[materialTyp as (typeof MATERIAL_TYPEN)[number]] || materialTyp}: ${fachLabel} – ${themaLabel}`,
       '',
       `**Methode:** ${block.name} · **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${dauer} min · **Zielgruppe:** ${stufe} · ${rahmen.begriffe.lernende}`,
       ...(body.hinweise ? ['', `> **Zusatzauftrag:** ${body.hinweise}`] : []),
@@ -1043,6 +1050,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         if (!p?.arrangement || p.arrangement.typ !== 'Arrangement') {
           return reply.code(400).send({ fehler: 'Bitte ein gültiges payload.arrangement übergeben.' });
         }
+        const badField = entwurfFelderFehler(store, payload);
+        if (badField) return reply.code(400).send(badField);
         const b = buildElaborateBriefing(store, p);
         return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
       }
@@ -1056,6 +1065,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       }
       if (task === 'material') {
         const p = payload as unknown as MaterialPayload;
+        const badField = entwurfFelderFehler(store, payload);
+        if (badField) return reply.code(400).send(badField);
         const mat = await generateMaterialCore(store, config, {}, { ...p, mode: 'template' });
         const b = buildMaterialBriefing(store, p);
         return reply.send({
@@ -1077,11 +1088,11 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
   app.post('/api/v1/assistant/elaborate', { config: rateLimitConfig }, async (req, reply) => {
     const body = req.body as (Partial<ElaboratePayload> & { mode?: 'ki' | 'briefing' }) | null;
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
-      return reply.code(400).send({ fehler: 'Bitte ein gültiges FMT-Arrangement übergeben.' });
+      return reply.code(400).send({ fehler: ARRANGEMENT_FEHLER });
     }
-    if (body.bewertet != null && typeof body.bewertet !== 'boolean') {
-      return reply.code(400).send({ fehler: 'Feld „bewertet“: erwartet wird wahr oder falsch.' });
-    }
+    // Codes (planungsprofil, bildungsstufe, begleitziel), anzahl and bewertet, as the MCP tool elaborate_scenario checks them.
+    const badField = entwurfFelderFehler(store, body as Record<string, unknown>);
+    if (badField) return reply.code(400).send(badField);
 
     if (body.mode === 'briefing') {
       const b = buildElaborateBriefing(store, body as ElaboratePayload);
@@ -1249,6 +1260,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     if (!store.blocksById.has(methodId)) {
       return reply.code(400).send({ fehler: 'Bitte einen gültigen FMT-Methodenbaustein auswählen.' });
     }
+    // materialTyp, planungsprofil and bildungsstufe, as the MCP tool generate_phase_material checks them.
+    const badField = entwurfFelderFehler(store, body as Record<string, unknown>);
+    if (badField) return reply.code(400).send(badField);
 
     const override = readByokHeaders(req, body as Record<string, unknown> | null);
     try {

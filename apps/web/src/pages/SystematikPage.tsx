@@ -12,7 +12,8 @@ const LESART_SPALTEN = [
   { id: 'wissen', titel: 'Wissen und Konzepte' },
   { id: 'bewegung', titel: 'Bewegung und Fertigkeit' },
   { id: 'urteilen', titel: 'Urteilen und Werten' },
-  { id: 'gestalten', titel: 'Gestalten und Produzieren' }
+  { id: 'gestalten', titel: 'Gestalten und Produzieren' },
+  { id: 'handlung', titel: 'Berufliche Handlung' }
 ] as const;
 
 /** Readable names of the subgroup rows in data/teilgruppen.json (FMT 2.0, table "Tausch oder Hilfe"). */
@@ -651,7 +652,8 @@ export function SystematikPage() {
           <h4 style={{ margin: '16px 0 6px' }}>Lesarten je Zielart</h4>
           <p className="muted" style={{ fontSize: 14.5, marginBottom: 8 }}>
             Die Stufen behalten ihre Kennungen. Je Zielart bekommen sie eine Lesart, damit Anzeige und Entwurf die Sprache des
-            Fachs sprechen; die Lesarten für Bewegung folgen den Phasen des motorischen Lernens (Meinel &amp; Schnabel 2007). Wo
+            Fachs sprechen; die Lesarten für Bewegung folgen den Phasen des motorischen Lernens (Meinel &amp; Schnabel 2007), die
+            für die berufliche Handlung dem Modell der vollständigen Handlung und der Vier-Stufen-Methode. Wo
             keine eigene Lesart steht, gilt die Bezeichnung des Lernstands. <em>Fehlvorstellungen sichtbar</em> liest sich in
             allen Zielarten als „Ausgangslage sichtbar“: Fehlvorstellung, Fehlerbild einer Bewegung oder Vorurteil.
           </p>

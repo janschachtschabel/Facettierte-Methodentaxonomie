@@ -1,7 +1,7 @@
-import { GESPERRTE_MATRIX_KATEGORIEN, regelLageAus, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung, type RegelSituation } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, REGEL_LAGE_FELDER, regelLageAus, type Arrangement, type Begleitstrang, type MatchRequest, type MatchResult, type Regelmeldung, type RegelSituation } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import type { AddedPhase } from './extraPhases.js';
-import type { MehrAngaben } from './mehrAngaben.js';
+import { MEHR_ANGABEN_CODEFELDER, type CodeFeld, type MehrAngaben } from './mehrAngaben.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
   GeneratedMaterialItem,
@@ -115,8 +115,9 @@ export interface EntwurfAngaben {
   /** Whether the lesson is graded, as the request stated it; absent when not stated. */
   bewertet?: boolean;
   /**
-   * Of einheit, bewertet and nachweis: those the request set as explicit field (not only read from the text). When such
-   * a choice is cleared, the draft must not keep the value from this answer.
+   * Of einheit, bewertet, nachweis and the fields of "Mehr Angaben" the fit rules read (bildungsstufe, vorwissen,
+   * sprachniveau, komplexitaet): those the request set as explicit field (not only read from the text). When such a
+   * choice is cleared, the draft and the rule check must not keep the value from this answer.
    */
   gewaehlt?: GewaehltesFeld[];
   /** Room the matcher assumed (code), when the request names none. */
@@ -136,8 +137,13 @@ export interface EntwurfAngaben {
   hinweise?: string[];
 }
 
-export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis';
-const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis'];
+type RegelMehrFeld = Extract<(typeof REGEL_LAGE_FELDER)[number], CodeFeld>;
+/** Fields of "Mehr Angaben" that the fit rules read: the core's REGEL_LAGE_FELDER among the code fields of the details. */
+export const REGEL_MEHR_FELDER: readonly RegelMehrFeld[] = REGEL_LAGE_FELDER.filter((f): f is RegelMehrFeld =>
+  (MEHR_ANGABEN_CODEFELDER as readonly string[]).includes(f)
+);
+export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis' | RegelMehrFeld;
+const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis', ...REGEL_MEHR_FELDER];
 
 /** The draft's parts of a matcher answer. */
 export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {
@@ -237,6 +243,44 @@ export function rahmenAusAltbestand(p: Record<string, unknown>): Pick<SavedScena
   if (ohneSchrift) out.ohneSchrift = ohneSchrift;
   if (termine) out.termine = termine;
   return out;
+}
+
+/**
+ * Frame of an API/MCP plan (maschinenlesbar, FmtScenarioPlan since schemaVersion 1.5): stated room, accompanying goals,
+ * planning profile and the assumptions. Version 1.4 carries none of them; then nothing is read. An assumed room or
+ * profile stays an assumption in the draft parts, it does not become the room chosen in step 1.
+ */
+export function rahmenAusPlan(m: Record<string, unknown>): {
+  raum?: string;
+  begleitziele?: string[];
+  entwurfAngaben?: EntwurfAngaben;
+} {
+  const str = (v: unknown) => (typeof v === 'string' && v !== '' ? v : undefined);
+  const raum = str(m.raum);
+  const begleitziele = Array.isArray(m.begleitziel) ? m.begleitziel.filter((x): x is string => typeof x === 'string') : undefined;
+  const planungsprofil = str(m.planungsprofil);
+  const pflicht = m.pflichtangaben && typeof m.pflichtangaben === 'object' ? (m.pflichtangaben as Record<string, unknown>) : undefined;
+  const angenommen = (Array.isArray(pflicht?.angenommen) ? pflicht.angenommen : []).filter(
+    (a): a is { feld: string; wert: unknown } => Boolean(a) && typeof a === 'object' && typeof (a as { feld?: unknown }).feld === 'string'
+  );
+  const angenommenWert = (feld: string) => str(angenommen.find((a) => a.feld === feld)?.wert);
+  const raumAngenommen = raum ? undefined : angenommenWert('raum');
+  const hatEntwurf = Boolean(planungsprofil || raumAngenommen || begleitziele?.length);
+  return {
+    ...(raum ? { raum } : {}),
+    ...(begleitziele?.length ? { begleitziele } : {}),
+    ...(hatEntwurf
+      ? {
+          entwurfAngaben: {
+            planungsprofil,
+            planungsprofilAngenommen: angenommen.some((a) => a.feld === 'planungsprofil'),
+            ...(raum ? { raum } : {}),
+            ...(raumAngenommen ? { raumAngenommen } : {}),
+            begleitziele: begleitziele || []
+          }
+        }
+      : {})
+  };
 }
 
 /**
@@ -466,6 +510,7 @@ export function importScenarioProjectJson(
     }
 
     const strOrUndef = (v: unknown) => (typeof v === 'string' ? v : undefined);
+    const ausPlan = maschinenlesbar ? rahmenAusPlan(maschinenlesbar) : {};
 
     return {
       ok: true,
@@ -486,8 +531,9 @@ export function importScenarioProjectJson(
         ohneInternet: typeof parsed.ohneInternet === 'boolean' ? parsed.ohneInternet : undefined,
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
+        ...(ausPlan.raum ? { raum: ausPlan.raum } : {}),
         ...rahmenAusAltbestand(parsed),
-        begleitziele: Array.isArray(parsed.begleitziele) ? parsed.begleitziele.filter((x): x is string => typeof x === 'string') : undefined,
+        begleitziele: Array.isArray(parsed.begleitziele) ? parsed.begleitziele.filter((x): x is string => typeof x === 'string') : ausPlan.begleitziele,
         mehrAngaben:
           parsed.mehrAngaben && typeof parsed.mehrAngaben === 'object' && !Array.isArray(parsed.mehrAngaben)
             ? (parsed.mehrAngaben as MehrAngaben)
@@ -511,7 +557,7 @@ export function importScenarioProjectJson(
           : undefined,
         thematicRows,
         elaboration: strOrUndef(parsed.elaboration) || strOrUndef(parsed.ausarbeitung) || null,
-        entwurfAngaben: entwurfAngabenLesen(parsed.entwurfAngaben),
+        entwurfAngaben: entwurfAngabenLesen(parsed.entwurfAngaben) ?? ausPlan.entwurfAngaben,
         begleitPhasen: begleitPhasenLesen(parsed.begleitPhasen),
         arrangement: checked.arrangement
       }

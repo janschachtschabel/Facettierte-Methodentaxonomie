@@ -386,3 +386,42 @@ describe('API-Seite und Fußzeile (App-Nachzug N5)', () => {
     expect(fuss).not.toContain('1.0.0');
   });
 });
+
+describe('API-Seite: gleiche Eingaben und Antworten (Task A3)', () => {
+  it('nennt fach als Objekt mit erkanntesFach/erkanntesThema, den Standard von umfang und die Anfragefelder in /meta', () => {
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    const li = (t: string) => screen.getAllByText(t, { selector: 'li > code' })[0].closest('li')!.textContent || '';
+    expect(li('match_scenario')).toMatch(/erkanntesFach/);
+    expect(li('match_scenario')).toMatch(/erkanntesThema/);
+    const match = screen.getByText('POST /api/v1/match', { exact: false, selector: 'td > code' }).closest('tr')!.textContent || '';
+    expect(match).toMatch(/erkanntesFach/);
+    expect(li('build_scenario_plan')).toMatch(/kompakt/);
+    const plan = screen.getByText('POST /api/v1/plan', { selector: 'td > code' }).closest('tr')!.textContent || '';
+    expect(plan).toMatch(/ohne Angabe.*voll/);
+    const meta = screen.getByText('GET /api/v1/meta').closest('tr')!.textContent || '';
+    expect(meta).toMatch(/anfrageFelder/);
+    expect(meta).toMatch(/differenzierungsPersonas/);
+    expect(li('elaborate_scenario')).toMatch(/regelmeldungen/);
+  });
+});
+
+describe('API-Seite: Blättern in /methods und Fehler der MCP-Schemaprüfung (Task A6, R18)', () => {
+  it('nennt limit und offset bei GET /api/v1/methods und dass Schemafehler als SDK-Text mit isError kommen', () => {
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    const methods = screen.getByText(/GET \/api\/v1\/methods\?/).closest('tr')!.textContent || '';
+    for (const k of ['limit', 'offset', 'angezeigt', 'zieltyp', 'kettenschritt']) expect(methods, k).toContain(k);
+    const fehler = screen.getByLabelText('Fehler der MCP-Tools').textContent || '';
+    expect(fehler).toMatch(/isError/);
+    expect(fehler).toMatch(/-32602/);
+    expect(fehler).toMatch(/erlaubten Werte/);
+    expect(fehler).toMatch(/fehler/);
+  });
+});

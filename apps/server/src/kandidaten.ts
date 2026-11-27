@@ -3,13 +3,12 @@ import {
   kettenSchritt,
   teilgruppenProfil,
   type AlternativenPruefung,
-  type Arrangement,
   type MatchRequest,
   type MatrixScoreResult,
-  type ReplacementCandidate,
   type TeilgruppenAlternative
 } from '@fmt/core';
 import type { CatalogStore } from './catalog-store.js';
+import type { EingabeFehler } from './eingaben.js';
 
 /**
  * Request fields that describe the situation a replacement or a parallel method must fit: room, literacy, dates,
@@ -44,17 +43,39 @@ export function situationAus(body: Record<string, unknown> | null | undefined): 
   return Object.keys(out).length ? out : undefined;
 }
 
-/** German message for a malformed situation field, or null. */
-export function situationFehler(s: MatchRequest | undefined): string | null {
+/**
+ * First malformed field of a situation or request (`anfrage`), or null: every request field of the core is checked as
+ * zuordnen checks it (codes with the allowed values, whole numbers and their bounds, lernort as raum); other keys are
+ * left to the caller. ohneSchrift also takes true/false (both abilities / none), as the search reads it.
+ */
+export function situationFehler(store: CatalogStore, s: MatchRequest | undefined): EingabeFehler | null {
   if (!s) return null;
-  const os = s.ohneSchrift;
-  if (os != null && typeof os !== 'boolean' && !(Array.isArray(os) ? os : [os]).every((x) => x === 'lesen' || x === 'schreiben')) {
-    return 'Feld „ohneSchrift“: erlaubt sind „lesen“ und „schreiben“.';
-  }
-  for (const f of ['termine', 'zeitMin', 'gruppe', 'maxVorbereitung'] as const) {
-    if (s[f] != null && !Number.isFinite(Number(s[f]))) return `Feld „${f}“: erwartet wird eine Zahl.`;
+  for (const [feld, wert] of Object.entries(s)) {
+    if (wert == null || wert === '' || (feld === 'ohneSchrift' && typeof wert === 'boolean')) continue;
+    const fehler = store.matcher.pruefeFeld(feld, wert);
+    if (fehler) return fehler;
   }
   return null;
+}
+
+/** Message for a situation of a check that is no object (REST /validate, MCP validate_arrangement). */
+export const PRUEF_SITUATION_FEHLER = 'Feld „situation“: erwartet wird ein Objekt mit Feldern der Anfrage (wie bei /match), z. B. vorwissen, bildungsstufe, komplexitaet, sprachniveau, fachbereich oder fach.';
+
+/**
+ * First fault of the situation of a check (REST /validate, MCP validate_arrangement), or null: an object with request
+ * fields of the core (lernort and fach as in /match), so the kriterien of a match answer can be passed on. Unknown
+ * fields are named as the matcher names them; codes and numbers are checked by situationFehler.
+ */
+export function pruefSituationFehler(store: CatalogStore, s: unknown): EingabeFehler | null {
+  if (s == null) return null;
+  if (typeof s !== 'object' || Array.isArray(s)) return { fehler: PRUEF_SITUATION_FEHLER };
+  // fach is read as in /match and named; lernort stays accepted as the former name of raum, without being named.
+  const felder = [...store.matcher.felder().map((f) => f.feld), 'fach'];
+  const unbekannt = Object.keys(s).find((k) => !felder.includes(k) && k !== 'lernort');
+  if (unbekannt) return { fehler: `Unbekanntes Feld „${unbekannt}“. Erlaubt: ${felder.join(', ')}.`, erlaubt: felder };
+  const { fach, ...rest } = s as Record<string, unknown>;
+  if (fach != null && typeof fach !== 'string') return { fehler: 'Feld „fach“: erwartet wird ein Text.' };
+  return situationFehler(store, rest as MatchRequest);
 }
 
 /** Note on replacement candidates, as REST /replacements and MCP suggest_replacements give it. */
@@ -81,11 +102,6 @@ export function anpassungsAnfrage(body: Record<string, unknown> | null | undefin
   const rahmen = RAHMEN_FELDER.some((f) => top && (top as Record<string, unknown>)[f] != null);
   if (!nested && !rahmen) return undefined;
   return { ...(nested || {}), ...(top || {}) };
-}
-
-/** Replacements at a path: formally valid, bound to the chain step's knowledge type, needs covered in the situation. */
-export function ersatzKandidaten(store: CatalogStore, arrangement: Arrangement, pfad: string, situation?: MatchRequest): ReplacementCandidate[] {
-  return store.search.ersatz(arrangement, pfad, store.exampleRegistry, situation);
 }
 
 export interface TeilgruppenAlternativenArgs {

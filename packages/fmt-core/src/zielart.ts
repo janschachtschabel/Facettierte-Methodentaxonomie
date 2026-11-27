@@ -13,14 +13,14 @@ export function normZielart(code: string | undefined): string | undefined {
 }
 
 /** Reading (Lesart) of the learning states per goal kind (FMT 2.0, table "Lesarten"); the vocab carries it as zielart[].lesart. */
-export const LESART_JE_ZIELART: Record<string, 'wissen' | 'bewegung' | 'urteilen' | 'gestalten'> = {
+export const LESART_JE_ZIELART: Record<string, 'wissen' | 'bewegung' | 'urteilen' | 'gestalten' | 'handlung'> = {
   fakten: 'wissen',
   konzepte: 'wissen',
   prozeduren: 'wissen',
   problemloesen: 'wissen',
   bewegung: 'bewegung',
   kondition: 'bewegung',
-  handlung: 'bewegung',
+  handlung: 'handlung',
   urteilen: 'urteilen',
   gestalten: 'gestalten'
 };

@@ -126,10 +126,10 @@ describe('Lesarten der Lernstände je Zielart (Paket D, D4)', () => {
     expect(lesart(D, 'prozedur-gelaeufig')).toBe('Prozedur geläufig');
     expect(lesart(D, 'prozedur-gelaeufig', '')).toBe('Prozedur geläufig');
   });
-  it('Zielarten werden auf vier Lesarten abgebildet; alte Codes über den Alias', () => {
+  it('Zielarten werden auf fünf Lesarten abgebildet; alte Codes über den Alias', () => {
     expect(LESART_JE_ZIELART).toEqual({
       fakten: 'wissen', konzepte: 'wissen', prozeduren: 'wissen', problemloesen: 'wissen',
-      bewegung: 'bewegung', kondition: 'bewegung', handlung: 'bewegung',
+      bewegung: 'bewegung', kondition: 'bewegung', handlung: 'handlung',
       urteilen: 'urteilen', gestalten: 'gestalten'
     });
     for (const z of D.schemes.find((s) => s.id === 'zielart')!.werte!) expect(z.lesart, z.id).toBe(LESART_JE_ZIELART[z.id]);
@@ -139,6 +139,18 @@ describe('Lesarten der Lernstände je Zielart (Paket D, D4)', () => {
     expect(lesart(D, 'loesungsversuche', 'gestalten')).toBe('Entwurf liegt vor');
     expect(lesart(D, 'konzept-gesichert', 'fakten')).toBe('Konzept verstanden und gesichert');
     expect(lesart(D, 'transfer-gezeigt', 'problemloesen')).toBe('auf Neues übertragen');
+  });
+  it('Berufliche Handlung hat eine eigene Lesart (Arbeitsauftrag statt Sport); Bewegung bleibt, wie sie war', () => {
+    expect(lesart(D, 'vorwissen-aktiviert', 'handlung')).toBe('Vorerfahrung zur Arbeitsaufgabe aktiviert');
+    expect(lesart(D, 'problem-erschlossen', 'handlung')).toBe('Arbeitsauftrag verstanden');
+    expect(lesart(D, 'konzept-gesichert', 'handlung')).toBe('Arbeitsablauf und Gründe der Schritte verstanden');
+    expect(lesart(D, 'wissen-konsolidiert', 'handlung')).toBe('Arbeitsablauf zur Routine geworden');
+    expect(lesart(D, 'transfer-gezeigt', 'handlung')).toBe('bei neuem Auftrag angewendet, real oder realitätsnah');
+    expect(lesart(D, 'lernen-reflektiert', 'handlung')).toBe('Ergebnis und eigenes Vorgehen ausgewertet');
+    // Dash in the gate: the label applies.
+    expect(lesart(D, 'leistung-trainiert', 'handlung')).toBe('Körperliche Leistungsfähigkeit trainiert');
+    expect(lesart(D, 'vorwissen-aktiviert', 'bewegung')).toBe('eingestimmt, Bewegungserfahrung aktiviert');
+    expect(lesart(D, 'wissen-konsolidiert', 'bewegung')).toBe('Bewegung automatisiert');
   });
   it('ein Strich in der Tabelle heißt: Label des Zustands', () => {
     expect(lesart(D, 'leistung-trainiert', 'konzepte')).toBe('Körperliche Leistungsfähigkeit trainiert');

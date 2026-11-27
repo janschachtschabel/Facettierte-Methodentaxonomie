@@ -39,6 +39,16 @@ describe('FMT Generated Artefacts (SKOS, JSON-LD, JSON Schema, Bundle)', () => {
     expect(text.toLowerCase()).not.toContain('lernort');
   });
 
+  it('Ontologie führt fmt:evidenzBezug, auf das der JSON-LD-Kontext zeigt (R27)', () => {
+    const text = read('ontologie.ttl');
+    const quads = new Parser().parse(text);
+    const von = (praed: string) => quads.find((q) => q.subject.value === NS + 'ns#evidenzBezug' && q.predicate.value === praed)?.object.value;
+    expect(von('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')).toBe('http://www.w3.org/1999/02/22-rdf-syntax-ns#Property');
+    expect(von('http://www.w3.org/2000/01/rdf-schema#domain')).toBe(NS + 'ns#Evidenzaussage');
+    expect(von('http://www.w3.org/2000/01/rdf-schema#comment')).toMatch(/methode, prinzip, programm/);
+    expect(readJson<{ '@context': Record<string, unknown> }>('context.jsonld')['@context'].evidenzBezug).toBe('fmt:evidenzBezug');
+  });
+
   it('parses all SKOS vocabularies and ontology as valid Turtle with creator & CC-BY 4.0 license', () => {
     const vocabFiles = fs.readdirSync(path.join(DIST, 'vocabs')).map((f) => 'vocabs/' + f);
     expect(vocabFiles.length).toBe(D.schemes.length + 1); // 23 schemes + funktionskette.ttl

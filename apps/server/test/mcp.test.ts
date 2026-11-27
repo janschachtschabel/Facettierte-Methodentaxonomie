@@ -263,7 +263,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const planVoll = JSON.parse((planVollRes.content as Array<{ text: string }>)[0].text);
     expect(planVoll.llmBriefing.systemPrompt).toContain('FMT');
     expect(planVoll.maschinenlesbar['@type']).toBe('FmtScenarioPlan');
-    expect(planVoll.maschinenlesbar.schemaVersion).toBe('1.4');
+    expect(planVoll.maschinenlesbar.schemaVersion).toBe('1.5');
     expect(planVoll.maschinenlesbar.thematicRows.length).toBeGreaterThan(0);
 
     // Regression test from live ChatGPT MCP session: Grundschule Mathematik Bruchteile 45 min analog

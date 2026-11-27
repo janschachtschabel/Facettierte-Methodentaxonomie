@@ -153,21 +153,28 @@ export function ApiMcpPage() {
           </p>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
             <li><code>classify_scenario_text</code> – Freitext ohne LLM einordnen (Regeln + BM25/Trigram + opt. Model2Vec): Filterskalen, Fach/Thema, Matrix-Merkmale und <code>pflichtangaben</code> (was fehlt, was angenommen würde)</li>
-            <li><code>search_methods</code> – Facettierte Suche über {totalLabel}, auch nach <code>eintragsart</code> (Methoden oder Hilfen), <code>raum</code>, <code>raumbedarf</code>, <code>schriftbedarf</code>, <code>fach</code> oder <code>fachbereich</code></li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel}, auch nach <code>eintragsart</code> (Methoden oder Hilfen), <code>raum</code>, <code>raumbedarf</code>, <code>schriftbedarf</code>, <code>fach</code>, <code>fachbereich</code> oder Kette (<code>zieltyp</code>, optional <code>kettenschritt</code>)</li>
             <li><code>get_method</code> – Vollständiges Profil mit Bedarf, Eignung (<code>eignungsgrund</code>), Eintragsart, Evidenz samt Bezug und der Einordnung in Funktionsketten (frühere Kennungen werden weitergeleitet)</li>
             <li><code>compare_methods</code> – Vergleich zweier Einträge nach Facetten, Bedarf, Eignung, Eintragsart und Evidenzbezug</li>
-            <li><code>match_scenario</code> – Deterministische Zuordnung in fünf Stufen (Kette nach Zielart, Bindung der Wissensart, Bedarf, Passungsregeln) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code> und <code>planungsprofil</code></li>
-            <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen (die Passungsregeln prüft die Zuordnung)</li>
+            <li><code>match_scenario</code> – Deterministische Zuordnung in fünf Stufen (Kette nach Zielart, Bindung der Wissensart, Bedarf, Passungsregeln) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code> und <code>planungsprofil</code>; <code>fach</code> ist das erkannte Fach als Objekt (früher Text), der gelesene Fachname steht in <code>erkanntesFach</code>, das Thema in <code>erkanntesThema</code></li>
+            <li><code>validate_arrangement</code> – Regelprüfung R-00 bis R-12 inkl. Grundlagen; mit <code>situation</code> auch die Passungsregeln für die Methoden des Ablaufs (<code>regelmeldungen</code>)</li>
             <li><code>suggest_replacements</code> – Ersatzkandidaten an einem Knotenpfad: nur Methoden, Bedarf in der Situation, Wissensart des Kettenschritts</li>
             <li><code>list_vocabularies</code> – Kontrollierte Codes, W-Felder, Arten, Merkmale, Funktionsketten mit Wissensart je Schritt, Passungsregeln, Raumtypen, Zielarten, Planungsprofile und Differenzierungs-Personas</li>
             <li><code>list_differentiation_options</code> – <strong>Eigenständiger Katalog</strong> der Lernvoraussetzungs-Merkmale, Schnellprofile, Personas &amp; Handlungsebenen, mit Tausch oder Hilfe je Merkmal und ohne gesperrte Merkmale (<code>GET /api/v1/differentiation/meta</code>)</li>
             <li><code>search_wlo_oer</code> – Live-OER-Suche auf WLO Prod (<code>redaktion.openeduhub.net</code>) inkl. <code>wwwurl</code>, gefiltert nach Fach oder Fachbereich</li>
             <li><code>score_differentiation_matrix</code> – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, <code>quickProfileId</code>, Ebenen-/Technikfilter) mit Tausch oder Hilfe je Merkmal</li>
             <li><code>adapt_scenario</code> – <strong>Eigenständige Szenario- &amp; Methoden-Anpassung</strong>: je Phase und Teilgruppe passt, Hilfe oder Tausch mit <code>beleg</code> und <code>abbau</code>, <code>gesperrt</code>, <code>regelmeldungen</code>, dazu UDL-Basis, Zielkonflikte, <code>teilgruppenMethoden</code> und <code>zusatzphasen</code> wie Schritt 3 des Baukastens (<code>POST /api/v1/adapt</code>)</li>
-            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan ohne LLM (&lt;5 ms) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, Begleitstrang, parallelen Methoden für Teilgruppen und opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich der <code>entwurf</code>, <code>llmBriefing</code> und JSON-LD</li>
-            <li><code>elaborate_scenario</code> – Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, Verlaufstabelle und <code>llmBriefing</code> für das Enduser-LLM</li>
+            <li><code>build_scenario_plan</code> – Kompletter Szenario-Plan ohne LLM (&lt;5 ms) mit <code>pflichtangaben</code>, <code>regelmeldungen</code>, Begleitstrang, parallelen Methoden für Teilgruppen und opt. WLO-OER; mit <code>umfang: "voll"</code> zusätzlich der <code>entwurf</code>, <code>llmBriefing</code> und JSON-LD; ohne Angabe antwortet das Tool <code>kompakt</code> (REST <code>/plan</code> dagegen <code>voll</code>)</li>
+            <li><code>elaborate_scenario</code> – Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, Verlaufstabelle und <code>llmBriefing</code> für das Enduser-LLM; <code>regelmeldungen</code> des Plans stehen mit Regel, Wirkung und Grundlage unter Reflexion</li>
             <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage + <code>llmBriefing</code></li>
           </ul>
+          <p style={{ fontSize: 14 }} className="muted" aria-label="Fehler der MCP-Tools">
+            <strong>Fehler:</strong> Eigene Fehler der Tools kommen mit <code>isError: true</code> und demselben deutschen Text
+            wie REST (HTTP 400 mit <code>{'{ fehler, erlaubt? }'}</code>). Fehler aus der Schemaprüfung des MCP-SDK, etwa ein
+            Wert außerhalb eines Enums (<code>match_scenario</code> mit <code>raum: "mondbasis"</code>), kommen als englischer
+            SDK-Text („MCP error -32602: Input validation error … expected one of …“), ebenfalls mit <code>isError: true</code>;
+            die erlaubten Werte stehen in diesem Text und als Enum im Tool-Schema.
+          </p>
           <p style={{ fontSize: 14 }} className="muted">
             <strong>Resources:</strong> <code>fmt://catalog/summary</code> · <code>fmt://differentiation/options</code> ·{' '}
             <code>fmt://method/{'{kennung}'}</code> · <code>fmt://vocab/{'{scheme}'}</code> ·{' '}
@@ -197,7 +204,8 @@ export function ApiMcpPage() {
                   Version, SHA-256 <code>versionHash</code>, Anzahl der Methoden und Hilfen, <code>wfelder</code>, <code>arten</code>,{' '}
                   <code>merkmale</code>, <code>regeln</code> (Passungsregeln), <code>raumtypen</code>, <code>zielarten</code>,{' '}
                   <code>ketten</code> mit Wissensart je Schritt, <code>teilgruppen</code> (Tausch oder Hilfe),{' '}
-                  <code>planungsprofile</code>, Klassifikations-Engine (
+                  <code>planungsprofile</code>, <code>differenzierungsPersonas</code>, <code>anfrageFelder</code> (wie{' '}
+                  <code>list_vocabularies</code>), Klassifikations-Engine (
                   <code>{meta?.embeddingsEngine || 'hybrid-bm25-trigram'}</code>), Server-LLM (
                   {meta?.llmConfigured ? `aktiv: ${meta.llmModel}` : 'Zero-LLM-Standard'})
                 </td>
@@ -208,7 +216,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/plan</code></td>
-                <td>Plan ohne LLM (&lt;5 ms) mit allen Anfragefeldern: Arrangement, <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code>, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code>; mit <code>umfang: "voll"</code> der <code>entwurf</code> und ein fertiges <code>llmBriefing</code></td>
+                <td>Plan ohne LLM (&lt;5 ms) mit allen Anfragefeldern: Arrangement, <code>pflichtangaben</code>, <code>regelmeldungen</code>, <code>begleitstrang</code>, <code>teilgruppenMethoden</code>, <code>zusatzphasen</code>; mit <code>umfang: "voll"</code> der <code>entwurf</code> und ein fertiges <code>llmBriefing</code>; ohne Angabe von <code>umfang</code> antwortet <code>/plan</code> voll (das MCP-Tool kompakt)</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/briefing</code></td>
@@ -224,8 +232,12 @@ export function ApiMcpPage() {
                   Facettierte Suche. <code>fach=Physik</code> oder <code>fuerFachbereich=…</code>: Methoden des Fachbereichs und
                   fachübergreifende, ohne ungeeignete; <code>fachbereich=a,b</code>: streng nur diese Fachbereiche. Dazu{' '}
                   <code>eintragsart</code> (methode, hilfe), <code>raum</code> (Raumtyp deckt den Bedarf), <code>raumbedarf</code>,{' '}
-                  <code>ohneRaumbedarf</code>, <code>schriftbedarf</code>, <code>ohneSchrift</code> (lesen, schreiben) und{' '}
-                  <code>termine</code>
+                  <code>ohneRaumbedarf</code>, <code>schriftbedarf</code>, <code>ohneSchrift</code> (lesen, schreiben),{' '}
+                  <code>termine</code> sowie <code>zieltyp</code> (Kette: nur Methoden, die einen ihrer Schritte füllen können)
+                  und <code>kettenschritt</code> (Schritt-ID dieser Kette, nur zusammen mit <code>zieltyp</code>). Blättern mit{' '}
+                  <code>limit</code> (ab 1) und <code>offset</code> (ab 0); ohne <code>limit</code> kommen alle Treffer.{' '}
+                  <code>anzahl</code> nennt alle Treffer, <code>angezeigt</code> die gelieferten. Ein unbekannter Parameter,
+                  ein unbekannter Code oder eine unlesbare Zahl ergibt HTTP 400 mit <code>fehler</code> und <code>erlaubt</code>
                 </td>
               </tr>
               <tr>
@@ -246,15 +258,21 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/match</code> (Alias: <code>POST /zuordnung</code>)</td>
-                <td>Zuordnung in fünf Stufen (Freitext oder strukturiertes Schema) mit <code>pflichtangaben</code>, <code>regelmeldungen</code> und <code>begleitstrang</code></td>
+                <td>Zuordnung in fünf Stufen (Freitext oder strukturiertes Schema) mit <code>pflichtangaben</code>, <code>regelmeldungen</code> und <code>begleitstrang</code>; <code>fach</code> ist das erkannte Fach als Objekt, der gelesene Fachname steht in <code>erkanntesFach</code>, das Thema in <code>erkanntesThema</code></td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/validate</code></td>
-                <td>Prüfung eines Arrangements gegen R-00..R-12</td>
+                <td>
+                  Prüfung eines Arrangements gegen R-00..R-12. Mit <code>{'{ arrangement, situation }'}</code> (Felder der Anfrage
+                  wie bei <code>/match</code>, z. B. dessen <code>kriterien</code>) zusätzlich <code>regelmeldungen</code> in derselben
+                  Form wie bei <code>/match</code> und <code>/plan</code>: die Passungsregeln für die Methoden dieses Ablaufs, auch
+                  nach einer Änderung von Hand, dazu die Meldungen der Lage (Passungsregeln der Situation, Sicherheitshinweis,
+                  Begleitziel ohne Termine); ein leeres Feld gilt als nicht angegeben. Das Ergebnis von R-00..R-12 bleibt gleich
+                </td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/replacements</code></td>
-                <td>Ersatzkandidaten für einen Knotenpfad: nur Methoden, Bedarf in der Situation (<code>raum</code>, <code>ohneSchrift</code>, <code>termine</code>), Wissensart des Kettenschritts</td>
+                <td>Ersatzkandidaten für einen Knotenpfad: nur Methoden, Bedarf in der Situation (<code>raum</code>, <code>ohneSchrift</code>, <code>termine</code>), Wissensart des Kettenschritts; <code>ausgeschlossen</code> nennt bis zu 20 übrige Methoden, <code>ausgeschlossenGesamt</code> ihre Zahl</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/translate</code></td>
@@ -262,7 +280,7 @@ export function ApiMcpPage() {
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/elaborate</code></td>
-                <td>Entwurf mit den sieben Kernfeldern (Begriffe des Planungsprofils), Verlaufstabelle und ausformulierter Entwurf unter 4 Leitplanken</td>
+                <td>Entwurf mit den sieben Kernfeldern (Begriffe des Planungsprofils), Verlaufstabelle und ausformulierter Entwurf unter 4 Leitplanken; <code>regelmeldungen</code> des Plans stehen mit Regel, Wirkung und Grundlage unter Reflexion</td>
               </tr>
               <tr>
                 <td><code>POST /api/v1/assistant/differentiate</code></td>

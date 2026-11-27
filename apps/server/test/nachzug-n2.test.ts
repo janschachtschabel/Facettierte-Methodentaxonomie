@@ -7,7 +7,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { buildApp } from '../src/app.js';
 import { anpassungsAnfrage } from '../src/kandidaten.js';
-import { MCP_HINWEISE } from '@fmt/core';
+import { MCP_HINWEISE, PFLICHTANGABEN_NAMEN } from '@fmt/core';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
@@ -112,7 +112,8 @@ describe('App-Nachzug N2: MCP auf FMT-2.0-Stand, Hinweise zum Erfragen', () => {
       expect(mcp.pflichtangaben).toEqual(r.json.pflichtangaben);
       expect(mcp.pflichtangaben.fehlt.length).toBeGreaterThan(0);
       expect(mcp.empfohlenerNaechsterSchritt).toMatch(/frag/i);
-      for (const f of mcp.pflichtangaben.fehlt) expect(mcp.empfohlenerNaechsterSchritt).toContain(f);
+      // Readable names of the core, not the codes (Task A2, R04).
+      for (const f of mcp.pflichtangaben.fehlt as Array<keyof typeof PFLICHTANGABEN_NAMEN>) expect(mcp.empfohlenerNaechsterSchritt).toContain(PFLICHTANGABEN_NAMEN[f]);
       const voll = await ok('classify_scenario_text', {
         text: 'Mathematik Klasse 7, 26 Schülerinnen und Schüler, Klassenraum, 45 Minuten, Bruchrechnen: Brüche addieren üben'
       });
