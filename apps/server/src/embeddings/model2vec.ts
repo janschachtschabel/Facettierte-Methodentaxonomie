@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   buildScalePrototypes,
+  nurMethoden,
   type FmtData,
   type ScaleHit,
   type ScaleName,
@@ -141,7 +142,8 @@ export function loadModel2VecClassifier(modelDir: string, data: FmtData): Model2
   }));
   const scales: ScaleName[] = ['ansatz', 'lernfunktion', 'anleitung', 'engagement', 'interaktion', 'reichweite'];
 
-  const methodVecs = data.bausteine.map((b) => ({
+  // Only methods: a help (eintragsart hilfe) is never a method suggestion (Task D7).
+  const methodVecs = nurMethoden(data.bausteine).map((b) => ({
     kennung: b.kennung,
     name: b.name,
     vec: encode(

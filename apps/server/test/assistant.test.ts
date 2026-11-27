@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import http from 'node:http';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
@@ -468,6 +469,20 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(cj.matrixMerkmale.selectedValues.sprachkompetenz).toBe('sprachkompetenz-gering');
     expect(cj.matrixMerkmale.selectedValues.strukturierung).toBe('strukturierung-stark');
     expect(cj.methodenVorschlaege.length).toBeGreaterThan(0);
+
+    // A help is never a method suggestion, also when the text names it (Task D7).
+    const bundle = JSON.parse(readFileSync(path.join(DIST_DATA, 'catalog.bundle.json'), 'utf8')) as { bausteine: Array<{ kennung: string; eintragsart?: string }> };
+    const hilfen = new Set(bundle.bausteine.filter((b) => b.eintragsart === 'hilfe').map((b) => b.kennung));
+    expect(hilfen.size).toBeGreaterThan(0);
+    const clsH = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/classify',
+      payload: { text: 'Sprachvergleich: Herkunftssprache und Deutsch vergleichen, Satzmuster und Redemittel, Scaffolding' }
+    });
+    expect(clsH.statusCode).toBe(200);
+    const vorschlaegeH = (clsH.json().methodenVorschlaege as Array<{ kennung: string }>).map((m) => m.kennung);
+    expect(vorschlaegeH.length).toBeGreaterThan(0);
+    expect(vorschlaegeH.filter((k) => hilfen.has(k))).toEqual([]);
 
     // Ultra-fast Zero-LLM scenario pre-filtering + caller-LLM briefing endpoint (/api/v1/plan)
     const planRes = await appNoKey.inject({

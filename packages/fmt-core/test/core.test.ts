@@ -1027,6 +1027,24 @@ describe('Eintragsart Hilfe: nie Schritt, Slot oder Phase (Task C4)', () => {
     }
   });
 
+  it('eine Hilfe verschiebt die Textrelevanz nicht: rankMethods nennt nur Methoden, der Plan bleibt mit und ohne Hilfe gleich (D7)', () => {
+    // Task D7: the help sprachvergleich took a slot of the BM25 text ranking and set its top score, so the methods'
+    // relevance shifted and the A2 plan changed. A help must not take part in choosing methods, not even through text.
+    const sem = createSemanticClassifier(DH);
+    const ohne = createSemanticClassifier(D);
+    const frage = 'Placemat: Gedanken jeder für sich in ein Feld schreiben, dann in der Mitte einigen';
+    expect(sem.rankMethods(frage, 35).map((h) => h.kennung)).not.toContain(FIXTURE_HILFE);
+    expect(sem.rankMethods(frage, 35)).toEqual(ohne.rankMethods(frage, 35));
+    const methodenOnly = { ...D, bausteine: nurMethoden(D.bausteine) };
+    const MO = createMatcher(methodenOnly, createValidator(methodenOnly));
+    const MD = createMatcher(D, createValidator(D));
+    for (const text of ['VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende', 'Deutsch Klasse 5, Märchen, 45 Minuten']) {
+      const ids = (m: typeof MD) => ((m.zuordnen({ text }) as AblaufMatchResult).schritte || []).map((s) => s.baustein);
+      expect(ids(MD), text).toEqual(ids(MO));
+      expect(ids(MH), text).toEqual(ids(MO));
+    }
+  });
+
   it('der Prüfer meldet eine Hilfe als Phase mit R-00', () => {
     const arr: Arrangement = {
       typ: 'Arrangement',
