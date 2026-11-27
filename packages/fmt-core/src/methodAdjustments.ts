@@ -145,21 +145,26 @@ export const matrixFuer = (g: MethodAdjustmentGroup, t: TeilgruppenRegelsatz, co
     limit
   });
 
+/** Fields of the plan's request the equivalence check takes: room, time and group size. */
+const ANFRAGE_FELDER = ['raum', 'lernort', 'raumBietet', 'fachausstattungArt', 'zeitMin', 'gruppe'] as const;
+
 /**
- * Request the equivalence check reads: the request of the plan (room, time, group size …) over the frame of the
- * constraints. Without a request no room is named, so an assumed room never excludes a replacement.
+ * Request the equivalence check reads: the live frame (devices, internet, AI, level, subject area) always wins; the
+ * request of step 1 only adds room, time and group size. Without a request no room is named, so an assumed room never
+ * excludes a replacement.
  */
-function anfrageAus(constraints: MethodAdjustmentConstraints): MatchRequest {
+export function anfrageAus(constraints: MethodAdjustmentConstraints): MatchRequest {
   const a: MatchRequest = {};
   if (constraints.maxTechnik) a.maxTechnik = constraints.maxTechnik;
   if (constraints.ohneInternet) a.ohneInternet = true;
   if (constraints.ohneKI) a.ohneKI = true;
   if (constraints.bildungsstufe) a.bildungsstufe = constraints.bildungsstufe;
   if (constraints.fachbereich) a.fachbereich = constraints.fachbereich;
-  if (!constraints.anfrage) return a;
-  // The text was read into the request already; the frame fills only what the request leaves open.
-  const { text: _text, ...anfrage } = constraints.anfrage;
-  return { ...a, ...Object.fromEntries(Object.entries(anfrage).filter(([, v]) => v != null && v !== '')) };
+  for (const feld of ANFRAGE_FELDER) {
+    const v = constraints.anfrage?.[feld];
+    if (v != null && v !== '') (a as Record<string, unknown>)[feld] = v;
+  }
+  return a;
 }
 
 /** Social form of a measure that contradicts the interaction of the method (e.g. solo work in a group method). */
@@ -453,13 +458,27 @@ export function hilfenFuer(
 }
 
 /**
- * Measures of special-needs support: a help only where a deciding value is a formal need (foerderbedarf-*), never for
- * e.g. second-language learners, whose language level alone scores them in the matrix.
+ * Measures of special-needs support: a help only where a deciding value is a marked special need (the stronger levels
+ * of foerderbedarf-*, see STARKER_FOERDERBEDARF), never for e.g. second-language learners, whose language level alone
+ * scores them in the matrix, nor for an occasional or slight need.
  */
 const NUR_BEI_FOERDERBEDARF: ReadonlySet<string> = new Set([
   'unterstuetzungsintensitaet-intensiv',
   'unterstuetzungsintensitaet-kontinuierlich',
   'lernwerkzeuge-assistiv'
+]);
+
+/** Stronger levels of the special-need categories (not occasional, slight, inconspicuous or none). */
+const STARKER_FOERDERBEDARF: ReadonlySet<string> = new Set([
+  'foerderbedarf-lernen-umfassend',
+  'foerderbedarf-sprache-erheblich',
+  'foerderbedarf-emotional-sozial-deutlich',
+  'foerderbedarf-geistig-deutlich',
+  'foerderbedarf-koerperlich-deutlich',
+  'foerderbedarf-hoeren-beeintraechtigung',
+  'foerderbedarf-hoeren-taub',
+  'foerderbedarf-sehen-deutlich',
+  'foerderbedarf-autismus-deutlich'
 ]);
 
 /** Bases whose row sentence names a help the teacher can use as it stands (not U, S or formal). */
@@ -495,7 +514,7 @@ export function hilfenDerEntscheidung(
     ohneKI: constraints.ohneKI,
     limit: 50
   });
-  const foerderbedarf = [...werte].some((w) => w.startsWith('foerderbedarf-'));
+  const foerderbedarf = [...werte].some((w) => STARKER_FOERDERBEDARF.has(w));
   return hilfenFuer(block, matrix, t, wohinVon(e, t), erste, foerderbedarf ? undefined : NUR_BEI_FOERDERBEDARF);
 }
 
@@ -539,7 +558,8 @@ export function proposeSupports(
     }));
 }
 
-const GERINGE_LEISTUNG = ['vorwissen-gering', 'leistungsniveau-gering'];
+/** Named values of low prior knowledge or performance; a special need in learning counts as well. */
+const GERINGE_LEISTUNG = ['vorwissen-gering', 'leistungsniveau-gering', 'foerderbedarf-lernen-leicht', 'foerderbedarf-lernen-umfassend'];
 
 /**
  * Hints on grouping (built-in rules): a subgroup that gets neither a swap nor a help (gruppierung-nur-mit-anpassung),

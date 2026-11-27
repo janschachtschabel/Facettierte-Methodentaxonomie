@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import {
   adaptScenario,
+  anfrageAus,
   createMatcher,
   createValidator,
   detectLearnerGroupsFromText,
@@ -221,5 +222,43 @@ describe('Fix wave C, Follow-up', () => {
     const texte = JSON.stringify(D.teilgruppen) + JSON.stringify(D.regeln);
     expect(texte).not.toMatch(/Anforderung|Bedingung/);
     expect(T.merkmale.find((m) => m.id === 'vorwissen-hoch')!.wohin).toBe('weniger Anleitung; Anspruch erhöhen');
+  });
+});
+
+describe('Fix wave C, Runde 2', () => {
+  const MAIN: MethodAdjustmentGroup = { id: 'regel', label: 'Regelgruppe', isMain: true, personaId: 'average' };
+  const puzzle = phasen('gruppenpuzzle');
+  const kooperativ = (g: MethodAdjustmentGroup) =>
+    teilgruppenHinweise(puzzle, [MAIN, g], [], [], R).some((m) => m.regel === 'leistungsschwache-nicht-unter-sich');
+
+  it('1: Förderbedarf Lernen in einer kooperativen Kleingruppenmethode bekommt leistungsschwache-nicht-unter-sich (Profil und Text)', () => {
+    expect(kooperativ(schnellprofilGruppe(preset('foerder-lernen')))).toBe(true);
+    const text = detectLearnerGroupsFromText('3 Kinder mit Förderbedarf Lernen').groups.find((x) => x.id === 'foerder-lernen')!;
+    expect(text.genannt).toEqual(['foerderbedarf-lernen-umfassend']);
+    expect(kooperativ(text as MethodAdjustmentGroup)).toBe(true);
+    expect(kooperativ({ id: 'l', label: 'L', selectedValues: { 'foerderbedarf-lernen': 'foerderbedarf-lernen-leicht' } })).toBe(true);
+    // Persona values still do not count.
+    expect(kooperativ({ id: 'p', label: 'P', personaId: 'foerderLernen' })).toBe(false);
+  });
+
+  it('2: ADHS (Förderbedarf nur gelegentlich) bekommt keine Assistiven Technologien; Sehen deutlich schon', () => {
+    const ablauf = phasen('kooperatives-skript', 'rosenshine-daily-review', 'gruppenpuzzle', 'exit-ticket');
+    const namen = (g: MethodAdjustmentGroup) =>
+      teilgruppenAntworten(D.bausteine, ablauf, [g], {}, R).flatMap((a) => [...a.hilfen, ...(a.sonstHilfen || [])].map((h) => h.name));
+    const adhs = namen(schnellprofilGruppe(preset('adhs')));
+    expect(adhs.length).toBeGreaterThan(0);
+    for (const n of adhs) expect(n).not.toMatch(/Assistive Technologien|sonderpädagogische/);
+    const sehen = namen({ id: 's', label: 'Sehen', selectedValues: { 'foerderbedarf-sehen': 'foerderbedarf-sehen-deutlich' } });
+    expect(sehen.some((n) => /Assistive Technologien/.test(n))).toBe(true);
+  });
+
+  it('3: der laufende Rahmen gewinnt für Technik, Internet, KI und Fach; die Anfrage bringt nur Raum, Zeit und Gruppengröße', () => {
+    const a = anfrageAus({
+      maxTechnik: 't-keine',
+      ohneKI: true,
+      fachbereich: 'mathe',
+      anfrage: { text: 'x', raum: 'klassenraum', raumBietet: ['stellflaeche'], zeitMin: 45, gruppe: 24, maxTechnik: 't-hoch', ohneInternet: true, fachbereich: 'uebergreifend', vorwissen: 'gering' }
+    });
+    expect(a).toEqual({ maxTechnik: 't-keine', ohneKI: true, fachbereich: 'mathe', raum: 'klassenraum', raumBietet: ['stellflaeche'], zeitMin: 45, gruppe: 24 });
   });
 });
