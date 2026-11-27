@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createSearch, createValidator, type Arrangement, type CatalogBundle, type FmtData } from '@fmt/core';
+import { createSearch, createValidator, lesart, type Arrangement, type CatalogBundle, type FmtData } from '@fmt/core';
 import { PartiturView } from '../src/components/PartiturView.js';
 import { TimelineBandSvg } from '../src/components/TimelineBandSvg.js';
 import { CatalogAnalytics } from '../src/components/CatalogAnalytics.js';
@@ -272,5 +272,39 @@ describe('Verlaufsplan nutzt die Begriffe des Planungsprofils (Paket D, D2)', ()
     expect(kopf).toContain('Tätigkeit der Kursleitung');
     expect(kopf).toContain('Tätigkeit der Teilnehmenden');
     expect(container.textContent).not.toMatch(/was die Lehrkraft tut/);
+  });
+});
+
+
+describe('Verlaufsplan zeigt Lernstände in der Lesart der Zielart (Paket D, D4)', () => {
+  it('Zielart Bewegung: der Lernstand nach der Phase steht in der Sprache des Bewegungslernens, ohne Zielart als Label', () => {
+    const preset = createChainPreset('fertigkeit-bewegung', BUNDLE);
+    const rows = buildScenarioRows(preset, BUNDLE, BLOCKS, labelOf, [], {}, {}, '', {});
+    const zeile = rows.find((r) => (r.block?.nachbedingung || []).some((z) => lesart(DATA, z, 'bewegung') !== labelOf('lernzustand', z)))!;
+    expect(zeile).toBeTruthy();
+    const zustand = zeile.block!.nachbedingung.find((z) => lesart(DATA, z, 'bewegung') !== labelOf('lernzustand', z))!;
+    const zeigen = (zielart?: string) =>
+      render(
+        <MemoryRouter>
+          <VerlaufsplanView
+            rows={[zeile]}
+            groups={[]}
+            allBlocks={BUNDLE.bausteine}
+            subgroupMethods={{}}
+            onSubgroupMethodChange={() => {}}
+            onEditDiffMeasure={() => {}}
+            onOpenResourcesForStep={() => {}}
+            schemes={BUNDLE.schemes}
+            zielart={zielart}
+          />
+        </MemoryRouter>
+      );
+    const { unmount } = zeigen('bewegung');
+    const liste = screen.getByLabelText(`Lernstand nach ${zeile.methodName}`);
+    expect(liste.textContent).toContain(lesart(DATA, zustand, 'bewegung'));
+    expect(liste.textContent).not.toContain(labelOf('lernzustand', zustand));
+    unmount();
+    zeigen();
+    expect(screen.getByLabelText(`Lernstand nach ${zeile.methodName}`).textContent).toContain(labelOf('lernzustand', zustand));
   });
 });

@@ -556,7 +556,7 @@ export function buildSchema(D: FmtData) {
             quelle: { type: 'string' },
             geltung: { type: 'string' },
             umstritten: { type: 'string' },
-            evidenzBezug: { enum: ['methode', 'prinzip'] }
+            evidenzBezug: { enum: ['methode', 'prinzip', 'programm'] }
           }
         }
       }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { EQUIVALENCE_TOLERANCE, SOFT_WEIGHTS, pickOrder, softScore, stableHash, type SoftScoreParts } from '../src/ranking.js';
+import { EQUIVALENCE_TOLERANCE, SOFT_WEIGHTS, pickOrder, rankingGrade, softScore, stableHash, type SoftScoreParts } from '../src/ranking.js';
 
 const base: SoftScoreParts = {
   ansatzMiss: false,
@@ -128,5 +128,16 @@ describe('softScore: phase filling and subject area', () => {
     const { softScore } = await import('../src/ranking.js');
     expect(softScore({ ...base, fachbereich: 'passt' })).toBeLessThan(softScore({ ...base, fachbereich: 'neutral' }));
     expect(softScore({ ...base, fachbereich: 'fremd' })).toBeGreaterThan(softScore({ ...base, fachbereich: 'neutral' }));
+  });
+});
+
+
+describe('rankingGrade mit Evidenzbezug programm (Paket D, D4)', () => {
+  it('Grad A mit Bezug programm zählt wie B, wie prinzip; B und C bleiben', () => {
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'programm' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'prinzip' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'programm' }, { grad: 'A', evidenzBezug: 'methode' }])).toBe('A');
+    expect(rankingGrade([{ grad: 'B', evidenzBezug: 'programm' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'C', evidenzBezug: 'programm' }])).toBe('C');
   });
 });

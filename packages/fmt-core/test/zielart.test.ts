@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen, traegtBegleitziel } from '../src/zielart.js';
+import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen, traegtBegleitziel, lesart, LESART_JE_ZIELART } from '../src/zielart.js';
 import type { Baustein } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -115,5 +115,59 @@ describe('traegtBegleitziel (Paket D, D3)', () => {
   });
   it('unbekanntes Begleitziel: nie', () => {
     expect(traegtBegleitziel(b({ interaktion: ['kleingruppe-kooperativ'] }), 'mut')).toBe(false);
+  });
+});
+
+
+describe('Lesarten der Lernstände je Zielart (Paket D, D4)', () => {
+  it('prozedur-gelaeufig liest sich bei Zielart Bewegung als „Feinform gelingt“, ohne Zielart als Label', () => {
+    expect(lesart(D, 'prozedur-gelaeufig', 'bewegung')).toBe('Feinform gelingt');
+    expect(lesart(D, 'prozedur-gelaeufig')).toBe('Prozedur geläufig');
+    expect(lesart(D, 'prozedur-gelaeufig', '')).toBe('Prozedur geläufig');
+  });
+  it('Zielarten werden auf vier Lesarten abgebildet; alte Codes über den Alias', () => {
+    expect(LESART_JE_ZIELART).toEqual({
+      fakten: 'wissen', konzepte: 'wissen', prozeduren: 'wissen', problemloesen: 'wissen',
+      bewegung: 'bewegung', kondition: 'bewegung', handlung: 'bewegung',
+      urteilen: 'urteilen', gestalten: 'gestalten'
+    });
+    for (const z of D.schemes.find((s) => s.id === 'zielart')!.werte!) expect(z.lesart, z.id).toBe(LESART_JE_ZIELART[z.id]);
+    expect(lesart(D, 'erstwissen-ungesichert', 'kondition')).toBe('Grobform gelingt');
+    expect(lesart(D, 'erstwissen-ungesichert', 'psychomotorik')).toBe('Grobform gelingt');
+    expect(lesart(D, 'transfer-gezeigt', 'einstellungen')).toBe('Urteil begründet');
+    expect(lesart(D, 'loesungsversuche', 'gestalten')).toBe('Entwurf liegt vor');
+    expect(lesart(D, 'konzept-gesichert', 'fakten')).toBe('Konzept verstanden und gesichert');
+    expect(lesart(D, 'transfer-gezeigt', 'problemloesen')).toBe('auf Neues übertragen');
+  });
+  it('ein Strich in der Tabelle heißt: Label des Zustands', () => {
+    expect(lesart(D, 'leistung-trainiert', 'konzepte')).toBe('Körperliche Leistungsfähigkeit trainiert');
+    expect(lesart(D, 'prozedur-gelaeufig', 'urteilen')).toBe('Prozedur geläufig');
+    expect(lesart(D, 'wissen-konsolidiert', 'gestalten')).toBe('Wissen konsolidiert');
+    expect(lesart(D, 'leistung-trainiert', 'kondition')).toBe('Leistungsfähigkeit trainiert');
+  });
+  it('fehlvorstellungen-sichtbar liest sich in jeder Lesart als „Ausgangslage sichtbar“, ohne Zielart als Label', () => {
+    for (const z of Object.keys(LESART_JE_ZIELART)) expect(lesart(D, 'fehlvorstellungen-sichtbar', z)).toBe('Ausgangslage sichtbar');
+    expect(lesart(D, 'fehlvorstellungen-sichtbar')).toBe('Fehlvorstellungen sichtbar');
+  });
+  it('unbekannte Zielart oder unbekannter Zustand fallen auf Label bzw. Code zurück', () => {
+    expect(lesart(D, 'prozedur-gelaeufig', 'unbekannt')).toBe('Prozedur geläufig');
+    expect(lesart(D, 'gibt-es-nicht', 'bewegung')).toBe('gibt-es-nicht');
+  });
+  it('die zwölf Lernstände und ihre Labels bleiben unverändert', () => {
+    const werte = D.schemes.find((s) => s.id === 'lernzustand')!.werte!;
+    expect(werte.map((w) => [w.id, w.label])).toEqual([
+      ['vorwissen-aktiviert', 'Vorwissen aktiviert'],
+      ['fehlvorstellungen-sichtbar', 'Fehlvorstellungen sichtbar'],
+      ['problem-erschlossen', 'Problem erschlossen'],
+      ['loesungsversuche', 'Eigene Lösungsversuche liegen vor'],
+      ['erstwissen-ungesichert', 'Erstwissen erworben, ungesichert'],
+      ['konzept-gesichert', 'Konzept verstanden und gesichert'],
+      ['prozedur-gelaeufig', 'Prozedur geläufig'],
+      ['leistung-trainiert', 'Körperliche Leistungsfähigkeit trainiert'],
+      ['wissen-konsolidiert', 'Wissen konsolidiert'],
+      ['transfer-gezeigt', 'Transfer gezeigt / Produkt erstellt'],
+      ['lernstand-diagnostiziert', 'Lernstand diagnostiziert'],
+      ['lernen-reflektiert', 'Eigenes Lernen reflektiert']
+    ]);
   });
 });

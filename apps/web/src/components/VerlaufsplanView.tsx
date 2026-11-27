@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { nurMethoden, scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein, type Passungsregel, type Regelmeldung } from '@fmt/core';
+import { lesart, nurMethoden, scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein, type Passungsregel, type Regelmeldung, type Scheme } from '@fmt/core';
 import { regelZeile } from '../planner/regelmeldung.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
 import type { LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from '../planner/scenarioModel.js';
@@ -26,6 +26,10 @@ interface Props {
   regeln?: Passungsregel[];
   /** Column names for the activities in the terms of the planning profile ("Tätigkeit der Kursleitung"). */
   spalten?: { lehrende: string; lernende: string };
+  /** Vocabulary schemes; with them each row names the learning state the method yields (vocab lernzustand). */
+  schemes?: Scheme[];
+  /** Goal kind of the plan (match result): learning states are shown in its reading (Lesart); without it, the labels. */
+  zielart?: string;
 }
 
 const RANGE_READABLE: Record<string, string> = {
@@ -54,7 +58,9 @@ export function VerlaufsplanView({
   editLabel,
   regelmeldungen = [],
   regeln = [],
-  spalten
+  spalten,
+  schemes,
+  zielart
 }: Props) {
   const spalteLehrende = spalten?.lehrende || 'Tätigkeit der Lehrkraft';
   const spalteLernende = spalten?.lernende || 'Tätigkeit der Lernenden';
@@ -217,6 +223,11 @@ export function VerlaufsplanView({
                         {r.socialForm}
                       </span>
                     </div>
+                    {schemes && r.block?.nachbedingung?.length ? (
+                      <div aria-label={`Lernstand nach ${r.methodName}`} style={{ fontSize: 12, color: 'var(--ink-2)', marginTop: 4 }}>
+                        <strong>Danach:</strong> {r.block.nachbedingung.map((z) => lesart({ schemes }, z, zielart)).join(' · ')}
+                      </div>
+                    ) : null}
                     {(() => {
                       const eigene = regelmeldungen.filter((m) => m.baustein === r.methodId);
                       return eigene.length ? (

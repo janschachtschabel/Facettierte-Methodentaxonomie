@@ -158,7 +158,7 @@ describe('D2: Evidenzbezug', () => {
   it('jeder Evidenzeintrag mit Grad A oder B nennt seinen Bezug', () => {
     for (const b of D.bausteine) {
       for (const e of b.evidenz || []) {
-        if (e.grad === 'A' || e.grad === 'B') expect(['methode', 'prinzip'], b.kennung).toContain(e.evidenzBezug);
+        if (e.grad === 'A' || e.grad === 'B') expect(['methode', 'prinzip', 'programm'], b.kennung).toContain(e.evidenzBezug);
       }
     }
   });

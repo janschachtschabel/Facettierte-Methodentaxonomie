@@ -817,54 +817,98 @@
     {
       "id": "lernzustand",
       "titel": "Lernzustand",
-      "beschreibung": "Typen für Vor- und Nachbedingungen von Bausteinen. Ein Zustand kann schwächere Zustände implizieren.",
+      "beschreibung": "Typen für Vor- und Nachbedingungen von Bausteinen. Ein Zustand kann schwächere Zustände implizieren. Je Zielart hat ein Zustand eine Lesart (wissen, bewegung, urteilen, gestalten); fehlt sie, gilt das Label.",
       "werte": [
         {
           "id": "vorwissen-aktiviert",
-          "label": "Vorwissen aktiviert"
+          "label": "Vorwissen aktiviert",
+          "lesart": {
+            "wissen": "Vorwissen aktiviert",
+            "bewegung": "eingestimmt, Bewegungserfahrung aktiviert",
+            "urteilen": "Vorerfahrung und erste Position geäußert",
+            "gestalten": "Vorerfahrung aktiviert"
+          }
         },
         {
           "id": "fehlvorstellungen-sichtbar",
           "label": "Fehlvorstellungen sichtbar",
           "impliziert": [
             "vorwissen-aktiviert"
-          ]
+          ],
+          "lesart": {
+            "wissen": "Ausgangslage sichtbar",
+            "bewegung": "Ausgangslage sichtbar",
+            "urteilen": "Ausgangslage sichtbar",
+            "gestalten": "Ausgangslage sichtbar"
+          }
         },
         {
           "id": "problem-erschlossen",
-          "label": "Problem erschlossen"
+          "label": "Problem erschlossen",
+          "lesart": {
+            "wissen": "Problem erschlossen",
+            "bewegung": "Bewegungsaufgabe verstanden",
+            "urteilen": "Streitfrage erschlossen",
+            "gestalten": "Auftrag und Kriterien geklärt"
+          }
         },
         {
           "id": "loesungsversuche",
           "label": "Eigene Lösungsversuche liegen vor",
           "impliziert": [
             "vorwissen-aktiviert"
-          ]
+          ],
+          "lesart": {
+            "wissen": "eigene Lösungsversuche",
+            "bewegung": "eigene Bewegungsversuche",
+            "urteilen": "spontane Urteile",
+            "gestalten": "Entwurf liegt vor"
+          }
         },
         {
           "id": "erstwissen-ungesichert",
-          "label": "Erstwissen erworben, ungesichert"
+          "label": "Erstwissen erworben, ungesichert",
+          "lesart": {
+            "wissen": "Erstwissen, ungesichert",
+            "bewegung": "Grobform gelingt",
+            "urteilen": "Sachwissen und Argumente bekannt",
+            "gestalten": "Muster und Techniken bekannt"
+          }
         },
         {
           "id": "konzept-gesichert",
           "label": "Konzept verstanden und gesichert",
           "impliziert": [
             "erstwissen-ungesichert"
-          ]
+          ],
+          "lesart": {
+            "wissen": "Konzept verstanden und gesichert",
+            "bewegung": "Bewegungsvorstellung geklärt",
+            "urteilen": "Positionen verstanden",
+            "gestalten": "Gestaltungsprinzip verstanden"
+          }
         },
         {
           "id": "prozedur-gelaeufig",
           "label": "Prozedur geläufig",
           "impliziert": [
             "erstwissen-ungesichert"
-          ]
+          ],
+          "lesart": {
+            "wissen": "Verfahren geläufig",
+            "bewegung": "Feinform gelingt",
+            "gestalten": "Technik geläufig"
+          }
         },
         {
           "id": "leistung-trainiert",
           "label": "Körperliche Leistungsfähigkeit trainiert",
           "impliziert": [
             "erstwissen-ungesichert"
-          ]
+          ],
+          "lesart": {
+            "bewegung": "Leistungsfähigkeit trainiert"
+          }
         },
         {
           "id": "wissen-konsolidiert",
@@ -872,19 +916,41 @@
           "definition": "Durch Abruf oder Übung gefestigt; verteilte Wiederholung verlängert das Behalten",
           "impliziert": [
             "erstwissen-ungesichert"
-          ]
+          ],
+          "lesart": {
+            "wissen": "Wissen gefestigt",
+            "bewegung": "Bewegung automatisiert"
+          }
         },
         {
           "id": "transfer-gezeigt",
-          "label": "Transfer gezeigt / Produkt erstellt"
+          "label": "Transfer gezeigt / Produkt erstellt",
+          "lesart": {
+            "wissen": "auf Neues übertragen",
+            "bewegung": "variabel verfügbar, in Spiel oder Ernstform",
+            "urteilen": "Urteil begründet",
+            "gestalten": "Produkt erstellt und gezeigt"
+          }
         },
         {
           "id": "lernstand-diagnostiziert",
-          "label": "Lernstand diagnostiziert"
+          "label": "Lernstand diagnostiziert",
+          "lesart": {
+            "wissen": "Stand festgestellt",
+            "bewegung": "Stand festgestellt",
+            "urteilen": "Stand festgestellt",
+            "gestalten": "Stand festgestellt"
+          }
         },
         {
           "id": "lernen-reflektiert",
-          "label": "Eigenes Lernen reflektiert"
+          "label": "Eigenes Lernen reflektiert",
+          "lesart": {
+            "wissen": "Lernen reflektiert",
+            "bewegung": "Bewegungslernen ausgewertet",
+            "urteilen": "eigenes Urteil reflektiert",
+            "gestalten": "Rückmeldung verarbeitet"
+          }
         }
       ]
     },
@@ -1588,21 +1654,24 @@
           "label": "Faktenwissen",
           "wissensart": [
             "fakten"
-          ]
+          ],
+          "lesart": "wissen"
         },
         {
           "id": "konzepte",
           "label": "Konzepte verstehen",
           "wissensart": [
             "konzepte"
-          ]
+          ],
+          "lesart": "wissen"
         },
         {
           "id": "prozeduren",
           "label": "Verfahren beherrschen",
           "wissensart": [
             "prozeduren"
-          ]
+          ],
+          "lesart": "wissen"
         },
         {
           "id": "problemloesen",
@@ -1610,7 +1679,8 @@
           "wissensart": [
             "konzepte",
             "prozeduren"
-          ]
+          ],
+          "lesart": "wissen"
         },
         {
           "id": "bewegung",
@@ -1620,7 +1690,8 @@
           ],
           "nachweis": [
             "praktisch"
-          ]
+          ],
+          "lesart": "bewegung"
         },
         {
           "id": "kondition",
@@ -1630,7 +1701,8 @@
           ],
           "nachweis": [
             "praktisch"
-          ]
+          ],
+          "lesart": "bewegung"
         },
         {
           "id": "urteilen",
@@ -1638,7 +1710,8 @@
           "wissensart": [
             "einstellungen",
             "konzepte"
-          ]
+          ],
+          "lesart": "urteilen"
         },
         {
           "id": "gestalten",
@@ -1651,7 +1724,8 @@
           "nachweis": [
             "produkt",
             "praktisch"
-          ]
+          ],
+          "lesart": "gestalten"
         },
         {
           "id": "handlung",
@@ -1662,7 +1736,8 @@
           ],
           "nachweis": [
             "praktisch"
-          ]
+          ],
+          "lesart": "bewegung"
         }
       ]
     },

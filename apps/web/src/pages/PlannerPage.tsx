@@ -2623,6 +2623,8 @@ export function PlannerPage() {
               allBlocks={bundle.bausteine}
               regelmeldungen={regelmeldungen}
               regeln={bundle.regeln}
+              schemes={bundle.schemes}
+              zielart={zielCode}
               subgroupMethods={{}}
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}
@@ -2829,6 +2831,8 @@ export function PlannerPage() {
                       lehrkraefteInfo={lehrendeZeile}
                       spalten={verlaufSpalten}
                       allBlocks={bundle.bausteine}
+                      schemes={bundle.schemes}
+                      zielart={zielCode}
                       subgroupMethods={subgroupMethods}
                       onSubgroupMethodChange={handleSubgroupMethodChange}
                       onEditDiffMeasure={handleEditDiffMeasure}

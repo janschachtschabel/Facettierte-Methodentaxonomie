@@ -299,8 +299,11 @@ export interface Evidenzaussage {
   quelle: string;
   geltung: string;
   umstritten?: string;
-  /** methode: studies on this method itself; prinzip: derived from the underlying principle. */
-  evidenzBezug?: 'methode' | 'prinzip';
+  /**
+   * methode: studies on this method itself; prinzip: derived from the underlying principle;
+   * programm: studies on whole programmes over weeks, not on the single phase.
+   */
+  evidenzBezug?: 'methode' | 'prinzip' | 'programm';
 }
 
 export interface Steuerungsprofil {

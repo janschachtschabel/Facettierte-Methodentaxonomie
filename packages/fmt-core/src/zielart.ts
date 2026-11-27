@@ -1,4 +1,4 @@
-import type { Baustein, Funktionskette, KettenSchritt } from './types.js';
+import type { Baustein, FmtData, Funktionskette, KettenSchritt } from './types.js';
 
 /** Old knowledge-type codes accepted in the request field zielart. */
 export const ZIELART_ALIAS: Record<string, string> = { psychomotorik: 'bewegung', einstellungen: 'urteilen' };
@@ -9,6 +9,35 @@ const WISSENSARTEN = ['fakten', 'konzepte', 'prozeduren', 'einstellungen', 'psyc
 export function normZielart(code: string | undefined): string | undefined {
   if (code === undefined || code === null || code === '') return undefined;
   return ZIELART_ALIAS[code] ?? code;
+}
+
+/** Reading (Lesart) of the learning states per goal kind (FMT 2.0, table "Lesarten"); the vocab carries it as zielart[].lesart. */
+export const LESART_JE_ZIELART: Record<string, 'wissen' | 'bewegung' | 'urteilen' | 'gestalten'> = {
+  fakten: 'wissen',
+  konzepte: 'wissen',
+  prozeduren: 'wissen',
+  problemloesen: 'wissen',
+  bewegung: 'bewegung',
+  kondition: 'bewegung',
+  handlung: 'bewegung',
+  urteilen: 'urteilen',
+  gestalten: 'gestalten'
+};
+
+/**
+ * A learning state in the words of the goal kind (vocab lernzustand[].lesart). Without a goal kind, or where the
+ * table has a dash, the state's label applies; an unknown state stays its code. Old knowledge-type codes go via the alias.
+ */
+export function lesart(data: Pick<FmtData, 'schemes'>, zustand: string, zielart?: string): string {
+  const werte = data.schemes.find((s) => s.id === 'lernzustand')?.werte || [];
+  const w = werte.find((x) => x.id === zustand);
+  if (!w) return zustand;
+  const art = normZielart(zielart);
+  if (!art) return w.label;
+  const ziel = data.schemes.find((s) => s.id === 'zielart')?.werte?.find((x) => x.id === art);
+  const schluessel = (typeof ziel?.lesart === 'string' ? ziel.lesart : undefined) ?? LESART_JE_ZIELART[art];
+  const texte = typeof w.lesart === 'object' && w.lesart ? w.lesart : {};
+  return (schluessel && texte[schluessel]) || w.label;
 }
 
 export interface Kettenwahl {

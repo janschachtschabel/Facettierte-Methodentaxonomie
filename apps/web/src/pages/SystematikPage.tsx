@@ -6,6 +6,14 @@ import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
 import { raumEigenschaftLabel } from '../planner/rahmen.js';
 
+/** Columns of the table "Lesarten" (FMT 2.0): reading key of vocab lernzustand[].lesart and its heading. */
+const LESART_SPALTEN = [
+  { id: 'wissen', titel: 'Wissen und Konzepte' },
+  { id: 'bewegung', titel: 'Bewegung und Fertigkeit' },
+  { id: 'urteilen', titel: 'Urteilen und Werten' },
+  { id: 'gestalten', titel: 'Gestalten und Produzieren' }
+] as const;
+
 const DOMAINS = [
   { id: 'A', name: ['Lernprozess'], color: 'var(--dA)', soft: 'var(--dA-soft)' },
   { id: 'B', name: ['Steuerung', '& Adaptivität'], color: 'var(--dB)', soft: 'var(--dB-soft)' },
@@ -579,6 +587,46 @@ export function SystematikPage() {
               </li>
             ))}
           </ul>
+          <h4 style={{ margin: '16px 0 6px' }}>Lesarten je Zielart</h4>
+          <p className="muted" style={{ fontSize: 14.5, marginBottom: 8 }}>
+            Die Stufen behalten ihre Kennungen. Je Zielart bekommen sie eine Lesart, damit Anzeige und Entwurf die Sprache des
+            Fachs sprechen; die Lesarten für Bewegung folgen den Phasen des motorischen Lernens (Meinel &amp; Schnabel 2007). Wo
+            keine eigene Lesart steht, gilt die Bezeichnung des Lernstands. <em>Fehlvorstellungen sichtbar</em> liest sich in
+            allen Zielarten als „Ausgangslage sichtbar“: Fehlvorstellung, Fehlerbild einer Bewegung oder Vorurteil.
+          </p>
+          <div className="scroll">
+            <table aria-label="Lesarten der Lernstände" style={{ fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th>Lernstand (Kennung)</th>
+                  {LESART_SPALTEN.map((sp) => (
+                    <th key={sp.id}>{sp.titel}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {lernzustaende.map((z) => {
+                  const texte = typeof z.lesart === 'object' && z.lesart ? z.lesart : {};
+                  return (
+                    <tr key={z.id}>
+                      <th scope="row" style={{ fontWeight: 600 }}>
+                        {z.label} <code style={{ fontSize: 12 }}>{z.id}</code>
+                      </th>
+                      {LESART_SPALTEN.map((sp) =>
+                        texte[sp.id] ? (
+                          <td key={sp.id}>{texte[sp.id]}</td>
+                        ) : (
+                          <td key={sp.id} className="muted">
+                            {z.label}
+                          </td>
+                        )
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <div style={{ marginTop: 12 }}>
             <Link to="/planer" className="btn btn-primary btn-sm">
               Im Szenario-Baukasten ausprobieren →

@@ -192,3 +192,67 @@ describe('W-Raster in der Oberfläche', () => {
     expect(screen.getByText('Aufwärmen / Aufwärmspiel')).toBeTruthy();
     }, 60_000);
 });
+
+
+describe('Lesarten und Evidenzbezug in der Oberfläche (Paket D, D4)', () => {
+  const zeigeMethode = (kennung: string) =>
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+  it('Methodendetail nennt den Bezug jeder Evidenzaussage mit den drei Wendungen', () => {
+    const mit = (bezug: string) => BUNDLE.bausteine.find((b) => b.evidenz.some((e) => e.evidenzBezug === bezug))!;
+    zeigeMethode(mit('methode').kennung);
+    expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getAllByText(/gilt der Methode/).length).toBeGreaterThan(0);
+    cleanup();
+    zeigeMethode(mit('prinzip').kennung);
+    expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getAllByText(/gilt dem Wirkprinzip/).length).toBeGreaterThan(0);
+    cleanup();
+    // No method carries programm yet (Tor D3); the phrase is shown once a finding does.
+    const b = mit('methode');
+    const geaendert = { ...b, evidenz: b.evidenz.map((e) => ({ ...e, evidenzBezug: 'programm' as const })) };
+    const vorher = CATALOG.blocksById.get(b.kennung)!;
+    CATALOG.blocksById.set(b.kennung, geaendert);
+    const idx = BUNDLE.bausteine.indexOf(vorher);
+    BUNDLE.bausteine[idx] = geaendert;
+    try {
+      zeigeMethode(b.kennung);
+      expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getAllByText(/gilt ganzen Programmen, nicht der einzelnen Phase/).length).toBeGreaterThan(0);
+    } finally {
+      CATALOG.blocksById.set(b.kennung, vorher);
+      BUNDLE.bausteine[idx] = vorher;
+    }
+  });
+
+  it('Methoden des Fachbereichs Ästhetik werden mit dem Eigenwert begründet, ohne Transferversprechen', () => {
+    const satz = 'Begründet mit dem Eigenwert; ein Transfer auf andere Leistungen ist nicht belegt (Sala & Gobet 2020).';
+    const aesth = BUNDLE.bausteine.find((b) => (b.fachbereich || []).includes('aesthetik'))!;
+    zeigeMethode(aesth.kennung);
+    expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getByText(satz)).toBeTruthy();
+    cleanup();
+    const andere = BUNDLE.bausteine.find((b) => !(b.fachbereich || []).includes('aesthetik'))!;
+    zeigeMethode(andere.kennung);
+    expect(screen.queryByText(satz)).toBeNull();
+  });
+
+  it('Systematik zeigt die Tabelle der Lesarten: zwölf Lernstände, vier Lesarten, Strich als Label', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    const tabelle = screen.getByRole('table', { name: 'Lesarten der Lernstände' });
+    const zeilen = within(tabelle).getAllByRole('row').slice(1);
+    expect(zeilen.length).toBe(12);
+    for (const k of ['Wissen und Konzepte', 'Bewegung und Fertigkeit', 'Urteilen und Werten', 'Gestalten und Produzieren'])
+      expect(within(tabelle).getByRole('columnheader', { name: k })).toBeTruthy();
+    const zeile = within(tabelle).getByRole('rowheader', { name: /prozedur-gelaeufig/ }).closest('tr') as HTMLElement;
+    expect(zeile.textContent).toContain('Feinform gelingt');
+    expect(zeile.textContent).toContain('Technik geläufig');
+    expect(within(tabelle).getAllByText('Ausgangslage sichtbar').length).toBe(4);
+  });
+});

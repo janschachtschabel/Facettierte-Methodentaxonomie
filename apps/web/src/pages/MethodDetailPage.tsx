@@ -9,6 +9,16 @@ import { InterfaceFlow } from '../components/InterfaceFlow.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { bedarfNachWFeld } from '../planner/bedarfAnzeige.js';
 
+/** What a finding rests on, as a phrase after "Der Befund" (Evidenzaussage.evidenzBezug). */
+export const EVIDENZBEZUG_TEXT: Record<'methode' | 'prinzip' | 'programm', string> = {
+  methode: 'gilt der Methode',
+  prinzip: 'gilt dem Wirkprinzip',
+  programm: 'gilt ganzen Programmen, nicht der einzelnen Phase'
+};
+
+/** Aesthetic practice is justified by its own value; no transfer promise (FMT 2.0, Recherche C). */
+export const AESTHETIK_EIGENWERT = 'Begründet mit dem Eigenwert; ein Transfer auf andere Leistungen ist nicht belegt (Sala & Gobet 2020).';
+
 export function MethodDetailPage() {
   const { kennung } = useParams();
   const navigate = useNavigate();
@@ -325,8 +335,7 @@ export function MethodDetailPage() {
                 </div>
                 {e.evidenzBezug && (
                   <div className="muted" style={{ fontSize: 14, marginTop: 3 }}>
-                    <strong>Bezug:</strong>{' '}
-                    {e.evidenzBezug === 'methode' ? 'Studien zu dieser Methode' : 'abgeleitet vom zugrunde liegenden Wirkprinzip'}
+                    <strong>Bezug:</strong> Der Befund {EVIDENZBEZUG_TEXT[e.evidenzBezug]}.
                   </div>
                 )}
                 {e.umstritten && (
@@ -338,6 +347,11 @@ export function MethodDetailPage() {
             </div>
           ))}
         </div>
+        {(b.fachbereich || []).includes('aesthetik') && (
+          <p className="muted" style={{ fontSize: 14.5, marginTop: 10 }}>
+            {AESTHETIK_EIGENWERT}
+          </p>
+        )}
       </section>
 
       {/* Complete 13-Facet Table */}
