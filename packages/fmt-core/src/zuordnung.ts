@@ -1870,7 +1870,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         grundlage: x.grundlage,
         ...(x.quelle ? { quelle: x.quelle } : {}),
         // A method the teacher named keeps its place at its step; the sentence says so to stay true.
-        text: `${x.name}: Methoden, für die das gilt, tragen eine Warnung und stehen weiter hinten – außer eine Methode, die du selbst genannt hast.`
+        text: `${x.name}: Methoden, für die das gilt, tragen eine Warnung und stehen weiter hinten – nicht aber eine Methode, die du selbst genannt hast.`
       }));
     const meldungen = [...genannt, ...lageMeldungen, ...warnungen, ...sicherheit];
     if (!meldungen.length) return r;

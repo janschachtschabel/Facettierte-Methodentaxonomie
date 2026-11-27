@@ -55,13 +55,21 @@ export function verstandenAus(
     if (feld === 'raum' && typeof k.raum === 'string') verstanden.push(labelOf('raumtyp', k.raum));
     if (feld === 'zeit' && k.zeitMin) verstanden.push(`${k.zeitMin} Minuten`);
     if (feld === 'ziel') {
-      const ziel =
-        typeof k.zielart === 'string'
-          ? labelOf('zielart', k.zielart)
-          : r.modus === 'ablauf' && r.kette?.label
-            ? r.kette.label
-            : (Array.isArray(k.lernfunktion) ? (k.lernfunktion as string[]) : []).map((f) => labelOf('lernfunktion', f)).join(', ');
-      if (ziel) verstanden.push(`Ziel: ${ziel}`);
+      // A goal the text only suggests (semantic reading, beleg "semantisch: …") is shown as a guess.
+      const vermutet = (f: string) => /^semantisch/i.test(beleg(f) || '');
+      let ziel = '';
+      let geraten = false;
+      if (typeof k.zielart === 'string') {
+        ziel = labelOf('zielart', k.zielart);
+        geraten = vermutet('zielart');
+      } else if (r.modus === 'ablauf' && typeof k.zieltyp === 'string' && r.kette?.label) {
+        ziel = r.kette.label;
+        geraten = vermutet('zieltyp');
+      } else if (Array.isArray(k.lernfunktion)) {
+        ziel = (k.lernfunktion as string[]).map((f) => labelOf('lernfunktion', f)).join(', ');
+        geraten = vermutet('lernfunktion');
+      }
+      if (ziel) verstanden.push(geraten ? `Ziel (vermutet): ${ziel}` : `Ziel: ${ziel}`);
     }
   }
   return { verstanden, fehlt: out };

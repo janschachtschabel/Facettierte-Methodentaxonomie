@@ -225,6 +225,18 @@ const STARTER_PRESETS: StarterPreset[] = [
   }
 ];
 
+/** Context with one detail set, or removed when empty, so that an empty field is not sent. */
+function mitKontext<K extends keyof NonNullable<Arrangement['kontext']>>(
+  kontext: Arrangement['kontext'],
+  key: K,
+  wert: NonNullable<Arrangement['kontext']>[K] | undefined
+): Arrangement['kontext'] {
+  const next = { ...(kontext || {}) } as NonNullable<Arrangement['kontext']>;
+  if (wert === undefined || wert === '') delete next[key];
+  else next[key] = wert;
+  return next;
+}
+
 export function PlannerPage() {
   const {
     bundle,
@@ -285,6 +297,13 @@ export function PlannerPage() {
   const [stufeErg, setStufeErg] = useState('');
   const [zeitErg, setZeitErg] = useState('');
   const [themaErg, setThemaErg] = useState('');
+  /** Completions belong to the text they were made for: a new text, a loaded example or scenario starts without them. */
+  const clearErgaenzungen = () => {
+    setZielErg('');
+    setStufeErg('');
+    setZeitErg('');
+    setThemaErg('');
+  };
 
   const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
@@ -386,6 +405,7 @@ export function PlannerPage() {
           setFach(draft.fach || '');
           setThema(draft.thema || '');
           setScenarioText(draft.scenarioText || '');
+          clearErgaenzungen();
           setStep(3);
           setResourceTab('diff');
           setMatchNotice('Aktualisierte Teilgruppen & Rahmenbedingungen aus „Differenzierung“ in Schritt 3 übernommen.');
@@ -499,11 +519,13 @@ export function PlannerPage() {
    */
   const handleScenarioTextChange = (nextText: string) => {
     setScenarioText(nextText);
+    clearErgaenzungen();
     if (templateFlowRef.current && JSON.stringify(arrangement) === templateFlowRef.current) {
       // The untouched template flow belongs to the template text; an own description starts from an empty flow.
       templateFlowRef.current = null;
       setArrangement(createEmptyArrangement(bundle));
       setMatchResult(null);
+    clearErgaenzungen();
       resetFlowDerived();
       setMatchNotice('Der Ablauf des Beispiels wurde für deine eigene Eingabe geleert.');
     }
@@ -673,10 +695,12 @@ export function PlannerPage() {
     if (raum && raumBietet) req.raumBietet = raumBietet;
     if (ohneSchrift.length) req.ohneSchrift = SCHRIFT_ORDER.filter((x) => ohneSchrift.includes(x));
     if (Number(termine) > 0) req.termine = Number(termine);
-    if (zielErg) req.zielart = zielErg;
-    if (stufeErg) req.bildungsstufe = stufeErg;
-    if (Number(zeitErg) > 0) req.zeitMin = Number(zeitErg);
-    if (themaErg.trim()) req.thema = themaErg.trim();
+    // A completion only fills a gap: what the text itself states wins (explicit fields would beat the text).
+    const ausText = matcher ? matcher.lesen(scenarioText).kriterien : {};
+    if (zielErg && !ausText.zielart && !ausText.zieltyp) req.zielart = zielErg;
+    if (stufeErg && !ausText.bildungsstufe) req.bildungsstufe = stufeErg;
+    if (Number(zeitErg) > 0 && !ausText.zeitMin) req.zeitMin = Number(zeitErg);
+    if (themaErg.trim() && !extractSubjectAndTopic(scenarioText).thema) req.thema = themaErg.trim();
     // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
     const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
     if (fbFeld) req.fachbereich = fbFeld;
@@ -740,6 +764,7 @@ export function PlannerPage() {
     templateFlowRef.current = JSON.stringify(preset);
     setArrangement(preset);
     setMatchResult(null);
+    clearErgaenzungen();
     resetFlowDerived();
     setMatchNotice(`Beispiel „${p.label}“ geladen. Sieh dir den Ablauf in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`);
   };
@@ -1095,6 +1120,7 @@ export function PlannerPage() {
     if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
     if (p.elaboration !== undefined) setElaboration(p.elaboration);
     setMatchResult(null);
+    clearErgaenzungen();
     setActiveSavedId(savedId);
     setShowSavedDrawer(false);
     setShowJsonImport(false);
@@ -1149,7 +1175,7 @@ export function PlannerPage() {
         }))
       : [];
   // The line "Verstanden" and "Fehlt noch" read back from the last proposal (W13).
-  const verstanden = matchResult ? verstandenAus(matchResult, labelOf, themaErg.trim() || extractSubjectAndTopic(scenarioText).thema || undefined) : null;
+  const verstanden = matchResult ? verstandenAus(matchResult, labelOf, extractSubjectAndTopic(scenarioText).thema || undefined) : null;
   // Rule messages: method messages stand at their row in step 2, situation-level ones (no method) under the notes.
   const regelmeldungen = matchResult?.regelmeldungen || [];
   const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
@@ -1504,7 +1530,7 @@ export function PlannerPage() {
                                 value={themaErg}
                                 onChange={(e) => {
                                   setThemaErg(e.target.value);
-                                  if (e.target.value.trim()) setThema(e.target.value.trim());
+                                  setThema(e.target.value.trim());
                                 }}
                               />
                             )}
@@ -1791,6 +1817,7 @@ export function PlannerPage() {
                         setArrangement(JSON.parse(JSON.stringify(ex)) as Arrangement);
                         templateFlowRef.current = null;
                         setMatchResult(null);
+    clearErgaenzungen();
                         setMatchNotice(null);
                         resetFlowDerived();
                         setStep(2);
@@ -1853,12 +1880,13 @@ export function PlannerPage() {
                     Bildungsstufe
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.kontext?.bildungsstufe || 'sek1'}
+                      value={arrangement.kontext?.bildungsstufe || ''}
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, bildungsstufe: e.target.value } });
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'bildungsstufe', e.target.value || undefined) });
                       }}
                     >
+                      <option value="">nicht angegeben</option>
                       {valuesOf('bildungsstufe').map((w) => (
                         <option key={w.id} value={w.id}>
                           {w.label}
@@ -1870,12 +1898,13 @@ export function PlannerPage() {
                     Vorwissen
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.kontext?.vorwissen || 'gering'}
+                      value={arrangement.kontext?.vorwissen || ''}
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, vorwissen: e.target.value } });
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'vorwissen', e.target.value || undefined) });
                       }}
                     >
+                      <option value="">nicht angegeben</option>
                       {valuesOf('vorwissen').map((w) => (
                         <option key={w.id} value={w.id}>
                           {w.label}
@@ -1889,13 +1918,12 @@ export function PlannerPage() {
                       type="number"
                       style={{ width: '100%' }}
                       min={0}
-                      value={arrangement.kontext?.zeitbudgetMin ?? 90}
+                      placeholder="nicht angegeben"
+                      value={arrangement.kontext?.zeitbudgetMin ?? ''}
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setArrangement({
-                          ...arrangement,
-                          kontext: { ...arrangement.kontext, zeitbudgetMin: Math.max(0, Number(e.target.value) || 0) }
-                        });
+                        const min = Math.max(0, Number(e.target.value) || 0);
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'zeitbudgetMin', min > 0 ? min : undefined) });
                       }}
                     />
                   </label>
@@ -2208,13 +2236,20 @@ export function PlannerPage() {
               {matchNotice}
             </p>
           )}
-          {verstanden && verstanden.fehlt.length > 0 && (
-            <p className="planner-notice" style={{ marginTop: 10 }}>
-              Fehlt noch: {verstanden.fehlt.map((f) => f.label).join(', ')}.{' '}
-              <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
-                In Schritt 1 ergänzen
-              </button>
-            </p>
+          {verstanden && (
+            <section aria-label="Verstanden" className="planner-notice" style={{ marginTop: 10 }}>
+              <p style={{ margin: 0 }}>
+                Verstanden: {verstanden.verstanden.length ? verstanden.verstanden.join(' · ') : 'noch nichts'}
+              </p>
+              {verstanden.fehlt.length > 0 && (
+                <p style={{ margin: '2px 0 0' }}>
+                  Fehlt noch: {verstanden.fehlt.map((f) => f.label).join(', ')}.{' '}
+                  <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
+                    In Schritt 1 ergänzen
+                  </button>
+                </p>
+              )}
+            </section>
           )}
           {annahmenListe.length > 0 && (
             <section aria-label="Angenommen" className="card planner-annahmen" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>

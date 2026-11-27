@@ -55,7 +55,7 @@
     "wirkung": "warnt",
     "grundlage": "E",
     "quelle": "Tetzlaff et al. 2025; Alfieri et al. 2011",
-    "text": "{methode} lässt den Lernenden viel Freiheit. Bei geringem Vorwissen überfordert das oft. Geben Sie mehr Anleitung oder Hilfen."
+    "text": "{methode} lässt den Lernenden viel Freiheit. Bei geringem Vorwissen überfordert das oft. Gib mehr Anleitung oder Hilfen."
   },
   {
     "id": "viel-anleitung-hohes-vorwissen",
@@ -82,7 +82,7 @@
     "wirkung": "warnt",
     "grundlage": "E",
     "quelle": "Tetzlaff et al. 2025",
-    "text": "{methode} führt die Lernenden eng. Bei hohem Vorwissen bremst das oft. Lassen Sie mehr Freiheit zu."
+    "text": "{methode} führt die Lernenden eng. Bei hohem Vorwissen bremst das oft. Lass mehr Freiheit zu."
   },
   {
     "id": "entdecken-nur-mit-stuetze",
@@ -117,7 +117,7 @@
     "wirkung": "warnt",
     "grundlage": "E",
     "quelle": "Alfieri et al. 2011",
-    "text": "{methode} ist offen angelegt und hat weder Rückmeldung noch Anpassung an die Lernenden. Planen Sie Rückmeldung oder eine Hilfe ein."
+    "text": "{methode} ist offen angelegt und hat weder Rückmeldung noch Anpassung an die Lernenden. Plane Rückmeldung oder eine Hilfe ein."
   },
   {
     "id": "problemloesen-vor-instruktion-primar",
@@ -144,7 +144,7 @@
     "wirkung": "warnt",
     "grundlage": "E",
     "quelle": "Sinha & Kapur 2021",
-    "text": "{methode} lässt die Lernenden zuerst allein ein Problem lösen. In der Grundschule gelingt das seltener. Prüfen Sie, ob die Aufgabe klein genug ist."
+    "text": "{methode} lässt die Lernenden zuerst allein ein Problem lösen. In der Grundschule gelingt das seltener. Prüfe, ob die Aufgabe klein genug ist."
   },
   {
     "id": "wenig-anleitung-komplexer-inhalt",
@@ -175,7 +175,7 @@
     "wirkung": "warnt",
     "grundlage": "E",
     "quelle": "Chen, Kalyuga & Sweller 2015",
-    "text": "{methode} lässt viel Freiheit, der Inhalt ist aber schwer und das Vorwissen reicht nicht weit. Geben Sie Hilfen oder mehr Anleitung."
+    "text": "{methode} lässt viel Freiheit, der Inhalt ist aber schwer und das Vorwissen reicht nicht weit. Gib Hilfen oder mehr Anleitung."
   },
   {
     "id": "schrift-niedriges-sprachniveau",
@@ -205,7 +205,7 @@
     "keinTausch": true,
     "grundlage": "E",
     "quelle": "Höfler et al. 2024",
-    "text": "{methode} verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig. Nutzen Sie Hilfen für die Sprache. Die Methode wird nicht getauscht."
+    "text": "{methode} verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig. Nutze Hilfen für die Sprache. Die Methode wird nicht getauscht."
   },
   {
     "id": "nachweis-passt-zum-ziel",
@@ -231,7 +231,7 @@
     "wirkung": "weist-hin",
     "grundlage": "A",
     "quelle": "KMK 2023 (RiSU)",
-    "text": "{methode} arbeitet praktisch mit Geräten oder Stoffen. Klären Sie vorher die Sicherheit und die Aufsicht."
+    "text": "{methode} arbeitet praktisch mit Geräten oder Stoffen. Kläre vorher die Sicherheit und die Aufsicht."
   },
   {
     "id": "lehrkraft-nicht-doppelt",
@@ -269,7 +269,7 @@
     "wirkung": "weist-hin",
     "grundlage": "E",
     "quelle": "Lou et al. 1996; Deunk et al. 2018",
-    "text": "{methode} lässt in Gruppen arbeiten. Setzen Sie Lernende mit geringem Vorwissen nicht nur unter sich zusammen. Die Befunde dazu sind nicht eindeutig."
+    "text": "{methode} lässt in Gruppen arbeiten. Setze Lernende mit geringem Vorwissen nicht nur unter sich zusammen. Die Befunde dazu sind nicht eindeutig."
   },
   {
     "id": "genannter-wunsch-bleibt",
@@ -280,7 +280,7 @@
     "art": "eingebaut",
     "wirkung": "weist-hin",
     "grundlage": "A",
-    "text": "{methode} haben Sie genannt. Sie bleibt im Ablauf, auch wenn etwas dagegen spricht, und Sie bekommen einen Hinweis dazu. Ein angenommener Raum verdrängt eine genannte Methode nicht."
+    "text": "{methode} hast du genannt. Sie bleibt im Ablauf, auch wenn etwas dagegen spricht, und du bekommst einen Hinweis dazu. Ein angenommener Raum verdrängt eine genannte Methode nicht."
   },
   {
     "id": "begleitziel-braucht-termine",
@@ -305,6 +305,6 @@
     "art": "eingebaut",
     "wirkung": "warnt",
     "grundlage": "A",
-    "text": "Die Belege für {methode} stammen aus anderen Situationen als Ihrer. Prüfen Sie, ob sie für Ihre Lernenden gelten."
+    "text": "Die Belege für {methode} stammen aus anderen Situationen als deiner. Prüfe, ob sie für deine Lernenden gelten."
   }
 ]

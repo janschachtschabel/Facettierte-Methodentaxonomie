@@ -900,15 +900,19 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
     expect(r06.map((m) => m.meldung).join(' ')).toMatch(/Tetzlaff/);
   });
 
+  it('Regeltexte sprechen die Lehrkraft mit „du“ an wie der Baukasten (B4-Fix 3)', () => {
+    for (const r of D.regeln) expect(r.text, r.id).not.toMatch(/\b(?:Sie (?:bekommen|haben)|Ihre?r?\b|(?:Geben|Lassen|Planen|Prüfen|Nutzen|Klären|Setzen) Sie)/);
+    expect(D.regeln.find((r) => r.id === 'genannter-wunsch-bleibt')!.text).toMatch(/^\{methode\} hast du genannt\./);
+  });
+
   it('Regel ohne Methode (Lage): eigene Wirkung „warnt“, wahrer Satz zur genannten Methode, auch im Phasenmodus (B3-Review a, c)', () => {
-    const r = M.zuordnen({ text: 'Mathematik Klasse 7, Brüche, 45 Minuten, 25 Lernende, kein Vorwissen' }) as AblaufMatchResult;
+    const r = M.zuordnen({ text: 'Mathematik Klasse 7, Brüche, 45 Minuten, 25 Lernende', vorwissen: 'gering' }) as AblaufMatchResult;
+    expect(r.kriterien.vorwissen).toBe('gering');
     const lage = (r.regelmeldungen || []).filter((m) => m.regel === 'wenig-anleitung-geringes-vorwissen' && !m.baustein);
-    if (r.kriterien.vorwissen === 'gering') {
-      expect(lage).toHaveLength(1);
-      expect(lage[0].wirkung).toBe('warnt');
-      expect(lage[0].grundlage).toBe('E');
-      expect(lage[0].text).toMatch(/außer eine Methode, die du selbst genannt hast/);
-    }
+    expect(lage).toHaveLength(1);
+    expect(lage[0].wirkung).toBe('warnt');
+    expect(lage[0].grundlage).toBe('E');
+    expect(lage[0].text).toMatch(/stehen weiter hinten – nicht aber eine Methode, die du selbst genannt hast\.$/);
     const p = M.zuordnen({ modus: 'phase', lernfunktion: ['erwerb'], vorwissen: 'gering' }) as PhaseMatchResult;
     const pl = (p.regelmeldungen || []).find((m) => m.regel === 'wenig-anleitung-geringes-vorwissen' && !m.baustein)!;
     expect(pl).toBeDefined();

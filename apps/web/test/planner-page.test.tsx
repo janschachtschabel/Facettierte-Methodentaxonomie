@@ -270,7 +270,7 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
     // A single phase stays in step 1.
     const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
-    expect(zeile.textContent).toContain('Verstanden: Ethik · Klasse 10 · 30 Lernende · Hörsaal');
+    expect(zeile.textContent).toContain('Verstanden: Ethik · Klasse 10 · 30 Lernende · Hörsaal · Ziel (vermutet): Diagnose');
     expect(within(zeile).getByText(/Fehlt noch:/).parentElement!.textContent).toBe('Fehlt noch: Zeit');
     const zeit = within(zeile).getByLabelText('Zeit in Minuten ergänzen') as HTMLInputElement;
     expect(zeit.value).toBe('');
@@ -290,25 +290,25 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     propose('etwas über Pflanzen');
     fireEvent.click(stepButton(1));
     const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
-    const felder = ['Ziel ergänzen', 'Fach ergänzen', 'Thema ergänzen', 'Bildungsstufe ergänzen', 'Anzahl der Lernenden ergänzen', 'Raum ergänzen', 'Zeit in Minuten ergänzen'];
-    for (const f of felder) {
-      const el = within(zeile).queryByLabelText(f) as HTMLInputElement | HTMLSelectElement | null;
-      if (el) expect(el.value, f).toBe('');
-    }
+    const felder = ['Ziel ergänzen', 'Fach ergänzen', 'Bildungsstufe ergänzen', 'Anzahl der Lernenden ergänzen', 'Raum ergänzen', 'Zeit in Minuten ergänzen'];
+    // All six details are missing for this text (the topic "Pflanzen" is read, the subject is not): every control is there and empty.
+    expect(within(zeile).getByText(/Fehlt noch:/).parentElement!.textContent).toBe(
+      'Fehlt noch: Fach, Bildungsstufe, Anzahl der Lernenden, Raum, Zeit, Ziel'
+    );
+    for (const f of felder) expect((within(zeile).getByLabelText(f) as HTMLInputElement | HTMLSelectElement).value, f).toBe('');
     expect(within(zeile).getByLabelText('Bildungsstufe ergänzen')).toBeTruthy();
     expect(within(zeile).getByLabelText('Anzahl der Lernenden ergänzen')).toBeTruthy();
     expect(within(zeile).getByLabelText('Raum ergänzen')).toBeTruthy();
     fireEvent.change(within(zeile).getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'primar' } });
     fireEvent.change(within(zeile).getByLabelText('Anzahl der Lernenden ergänzen'), { target: { value: '22' } });
     fireEvent.change(within(zeile).getByLabelText('Raum ergänzen'), { target: { value: 'draussen' } });
-    const ziel = within(zeile).queryByLabelText('Ziel ergänzen');
-    if (ziel) fireEvent.change(ziel, { target: { value: 'konzepte' } });
+    fireEvent.change(within(zeile).getByLabelText('Ziel ergänzen'), { target: { value: 'konzepte' } });
     propose('etwas über Pflanzen');
     const req = spy.mock.calls.at(-1)![0]!;
     expect(req.bildungsstufe).toBe('primar');
     expect(req.gruppe).toBe(22);
     expect(req.raum).toBe('draussen');
-    if (ziel) expect(req.zielart).toBe('konzepte');
+    expect(req.zielart).toBe('konzepte');
     spy.mockRestore();
   });
 
@@ -348,5 +348,58 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(regelZeile({ regel: 'eignung-fach', wirkung: 'warnt', grundlage: 'S', quelle: 'Redaktion 2026', text: 'x' }, regeln)).toBe(
       'Regel: Eignung für den Fachbereich · Grundlage: gefolgert (Redaktion 2026)'
     );
+  });
+
+  it('Ergänztes gilt nicht gegen den Text: neue Zeit im Text gewinnt, Laden leert die Ergänzungen (B4-Fix 1)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    fireEvent.change(screen.getByLabelText('Zeit in Minuten ergänzen'), { target: { value: '45' } });
+    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal, Doppelstunde, 90 Minuten');
+    expect(spy.mock.calls.at(-1)![0]!.zeitMin).toBeUndefined();
+    expect((spy.mock.results.at(-1)!.value as { kriterien: { zeitMin?: number } }).kriterien.zeitMin).toBe(90);
+
+    // A completion from before a loaded example is gone.
+    fireEvent.click(stepButton(1));
+    propose('etwas über Pflanzen');
+    fireEvent.click(stepButton(1));
+    fireEvent.change(screen.getByLabelText('Bildungsstufe ergänzen'), { target: { value: 'primar' } });
+    fireEvent.click(screen.getAllByRole('button', { name: /Bruchrechnen/ })[0]);
+    fireEvent.click(stepButton(1));
+    propose('etwas über Tiere');
+    expect(spy.mock.calls.at(-1)![0]!.bildungsstufe).toBeUndefined();
+    spy.mockRestore();
+  });
+
+  it('Schritt 2 zeigt „Verstanden“ auch, wenn nichts fehlt (B4-Fix 2)', () => {
+    renderPlanner();
+    fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'klassenraum' } });
+    propose('Mathematik Klasse 6, Brüche addieren, 90 Minuten, 26 Lernende');
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    const hinweis = screen.getByRole('region', { name: 'Verstanden' });
+    expect(hinweis.textContent).toMatch(/^Verstanden: Mathematik · Klasse 6 · 26 Lernende · Klassen- oder Seminarraum · 90 Minuten · Ziel: /);
+    expect(hinweis.textContent).not.toMatch(/Fehlt noch|vermutet/);
+  });
+
+  it('„Mehr Angaben“ ist ohne Vorauswahl; Leeres wird nicht gesendet (B4-Fix 4)', () => {
+    renderPlanner();
+    const mehr = screen.getByText(/^Mehr Angaben \(freiwillig\)/).closest('details')!;
+    for (const name of ['Bildungsstufe', 'Vorwissen']) expect((within(mehr).getByLabelText(name) as HTMLSelectElement).value, name).toBe('');
+    expect((within(mehr).getByLabelText('Zeitbudget (Min.)') as HTMLInputElement).value).toBe('');
+    // Every select there starts empty except the structural plan size (Granularität), which every plan has.
+    const selects = within(mehr).queryAllByRole('combobox') as HTMLSelectElement[];
+    for (const sel of selects.filter((x) => !/Granularität/.test(x.closest('label')?.textContent || ''))) expect(sel.value, sel.closest('label')?.textContent?.slice(0, 30)).toBe('');
+  });
+
+  it('Thema leeren leert das Thema (B4-Fix 8)', () => {
+    renderPlanner();
+    propose('Biologie Klasse 7');
+    fireEvent.click(stepButton(1));
+    const feld = screen.getByLabelText('Thema ergänzen');
+    const thema = screen.getByLabelText('Thema') as HTMLInputElement;
+    fireEvent.change(feld, { target: { value: 'Fotosynthese' } });
+    expect(thema.value).toBe('Fotosynthese');
+    fireEvent.change(feld, { target: { value: '' } });
+    expect(thema.value).toBe('');
   });
 });
