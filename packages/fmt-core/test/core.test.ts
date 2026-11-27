@@ -30,13 +30,12 @@ describe('FMT Core: Validator, Search, Matcher', () => {
   const reg = new Map(D.beispiele.map((a) => [a['@id']!, a]));
   const byId = (suffix: string) => D.beispiele.find((a) => a['@id']?.endsWith(suffix))!;
 
-  it('validates example R3 „dichte-reihe“ without errors; only the fit rule „Entdecken nur mit Stütze“ warns (R-06)', () => {
+  it('validates example R3 „dichte-reihe“ without errors or warnings', () => {
     const res = V.validate(byId('dichte-reihe'), reg);
     expect(res.gueltig).toBe(true);
-    // Since Task B3, R-06 reads every fit rule. The invention task is open, without feedback and uniform (data, Tor D2).
-    expect(res.meldungen).toEqual([
-      expect.objectContaining({ regel: 'R-06', schwere: 'Warnung', meldung: expect.stringMatching(/^Erfindungsaufgabe .*offen angelegt.*\(Alfieri et al\. 2011\)$/) })
-    ]);
+    // Since Task B3, R-06 reads every fit rule. The invention task is open, without feedback and uniform, but it solves
+    // the problem before the instruction: Tor D2 exempts that sequence from „Entdecken nur mit Stütze“.
+    expect(res.meldungen).toEqual([]);
   });
 
   it('validates R4 „modul-stoffe“ embedding R3 by reference and inheriting states', () => {

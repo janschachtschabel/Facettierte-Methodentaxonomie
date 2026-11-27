@@ -67,6 +67,13 @@ describe('Regelmaschine', () => {
     expect(echt('concept-cartoon')).not.toContain('problemloesen-vor-instruktion-primar');
     expect(echt('entdeckendes-lernen')).toContain('problemloesen-vor-instruktion-primar');
   });
+  it('Entdecken nur mit Stütze: Problemlösen vor Instruktion ist ausgenommen (Tor D2, T1)', () => {
+    const offen = { ...b, anleitung: ['offen'], feedback: ['verzoegert'] };
+    expect(ids(R.pruefe(offen, {}))).toEqual(['entdecken-nur-mit-stuetze']);
+    expect(ids(R.pruefe({ ...offen, sequenz: ['problem-vor-instruktion'] }, {}))).toEqual([]);
+    // Since the exception the rule hits no method of the catalogue (erfindungsaufgabe was the only one).
+    expect(D.bausteine.filter((x) => ids(R.pruefe(x, {})).includes('entdecken-nur-mit-stuetze')).map((x) => x.kennung)).toEqual([]);
+  });
   it('Text ersetzt {methode}', () => {
     const m = R.pruefe({ ...b, anleitung: ['offen'], feedback: [] }, {});
     expect(m[0].text).toContain('Testmethode');

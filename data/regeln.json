@@ -111,6 +111,11 @@
           "nur": [
             "uniform"
           ]
+        },
+        "sequenz": {
+          "ohne": [
+            "problem-vor-instruktion"
+          ]
         }
       }
     },
