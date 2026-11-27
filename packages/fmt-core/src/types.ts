@@ -536,6 +536,18 @@ export interface MatchRequest {
   vorhanden?: string | string[];
   vorwissen?: string;
   bildungsstufe?: string;
+  /** Complexity of the content (scheme komplexitaet). */
+  komplexitaet?: string;
+  /** Language level of the whole group (scheme sprachniveau, A1 to C2). */
+  sprachniveau?: string;
+  /** Number of teachers or adults leading the lesson. */
+  lehrende?: number;
+  /** Topic of the lesson in free text. */
+  thema?: string;
+  /** Name of the unit the lesson belongs to (Lernfeld, Unterrichtsreihe, Modul). */
+  einheit?: string;
+  /** Whether the lesson is graded. */
+  bewertet?: boolean;
   [key: string]: unknown;
 }
 

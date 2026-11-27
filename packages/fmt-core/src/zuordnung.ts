@@ -118,6 +118,25 @@ export function negatedMethods(folded: string): Set<string> {
   return out;
 }
 
+/** Slice of the original text for a range given in the folded text (folding can change the length: ß becomes ss). */
+function sliceOfFolded(original: string, start: number, length: number): string {
+  let pos = 0;
+  let from = -1;
+  let to = original.length;
+  const chars = Array.from(original);
+  let idx = 0;
+  for (const ch of chars) {
+    if (from < 0 && pos >= start) from = idx;
+    if (pos >= start + length) {
+      to = idx;
+      break;
+    }
+    pos += fold(ch).length;
+    idx += ch.length;
+  }
+  return from < 0 ? '' : original.slice(from, to).trim();
+}
+
 export interface FmtMatcher {
   zuordnen(anfrage?: MatchRequest): MatchResult;
   /** `stufe`: bildungsstufe the caller already knows; decides whether university subjects are read. */
@@ -332,6 +351,24 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('vorwissen')))
     },
     {
+      feld: 'komplexitaet',
+      typ: 'code',
+      stufe: 4,
+      bedeutung: 'Komplexität des Inhalts für die Lerngruppe (gering, mittel, hoch); Methoden mit hoher Eigenverantwortung warnen bei hoher Komplexität',
+      werte: opts(values(scheme('komplexitaet')))
+    },
+    {
+      feld: 'sprachniveau',
+      typ: 'code',
+      stufe: 4,
+      bedeutung: 'Sprachniveau der ganzen Lerngruppe (A1 bis C2); nicht für eine Teilgruppe angeben',
+      werte: opts(values(scheme('sprachniveau')))
+    },
+    { feld: 'lehrende', typ: 'integer', stufe: 4, bedeutung: 'Anzahl der Lehrenden oder Begleitpersonen im Raum (Teamteaching: 2)' },
+    { feld: 'thema', typ: 'string', bedeutung: 'Thema der Stunde in freiem Text; ergänzt oder ersetzt das aus dem Text gelesene Thema' },
+    { feld: 'einheit', typ: 'string', bedeutung: 'Einheit, zu der die Stunde gehört (z. B. Lernfeld 3, Unterrichtsreihe zu Ökologie, Modul Datenanalyse)' },
+    { feld: 'bewertet', typ: 'boolean', bedeutung: 'Die Stunde oder ihr Ergebnis wird benotet oder bewertet' },
+    {
       feld: 'bildungsstufe',
       typ: 'code',
       stufe: 4,
@@ -427,7 +464,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** Lesson length assumed for a plan when the request names no time. */
   const STANDARD_STUNDE_MIN = 45;
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
-  const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe']);
+  const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe', 'komplexitaet', 'sprachniveau', 'lehrende', 'einheit', 'bewertet']);
   /** Goal kinds of a movement lesson (the old knowledge-type code psychomotorik). */
   const BEWEGUNG_ZIELARTEN = new Set(['bewegung', 'kondition']);
   /**
@@ -518,9 +555,41 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // "3 Schüler mit Förderbedarf" or "davon 4 mit DaZ" names a subgroup, not the size of the group.
     [
       'gruppe',
-      /(?<![\d])(?<!\b(?:davon|darunter)\s)(\d{1,3})\s*(?:schuler(?:innen|in|n)?\b|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus|azubis?|auszubildende\w*|lehrkrafte|mitarbeitende\w*|students|pupils)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*|unterstutzung|hilfe\w*|forderung))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
+      /(?<![\d])(?<!\b(?:davon|darunter)\s)(?!2\s*lehrkrafte)(\d{1,3})\s*(?:schuler(?:innen|in|n)?\b|lernende\w*|personen|teilnehme\w*|studierende\w*|kinder|sus|azubis?|auszubildende\w*|lehrkrafte|mitarbeitende\w*|students|pupils)\b(?!\s+(?:mit|haben|brauchen|benotigen|sind)\s+(?:\w+\s+)?(?:forder\w*|sonderpad\w*|daz|lrs|adhs|ads|autis\w*|asthma|behinder\w*|beeintracht\w*|einschrank\w*|lernschwier\w*|sprachforder\w*|migrations\w*|fluchterfahrung|inklusion\w*|forderschwerpunkt\w*|unterstutzung|hilfe\w*|forderung))(?!\s+(?:hochbegabt|leistungsstark|leistungsschwach|langsam|schnell)\w*)/,
       (m) => Number(m[1])
     ],
+    // Complexity of the content; "kein komplexer Inhalt" or "nicht anspruchsvoll" says the opposite.
+    [
+      'komplexitaet',
+      /(?<!\b(?:kein|keine|keinen|nicht|wenig|nie|nicht\s+so)\s)(?<!\bohne\s)\b(?:komplex\w*|anspruchsvoll\w*)\s+(?:inhalt\w*|thema|themen|stoff\w*|sachverhalt\w*|materie|gegenstand\w*|unterrichtsgegenstand\w*)\b|\b(?:viele[nr]?|komplexe[nr]?)\s+zusammenhang(?:e|en)?\b/,
+      () => 'hoch'
+    ],
+    // Language level of the whole group. A level stated after a subgroup ("davon 3 DaZ", "4 Lernende DaZ", "Teilgruppe") or for
+    // a number of learners ("… für 4 Lernende") says nothing about the group; a comma ends the subgroup.
+    [
+      'sprachniveau',
+      new RegExp(
+        String.raw`(?<!(?:\bdavon\b|\bdarunter\b|\bteilgruppe\w*|\b(?:\d+|ein|eine|einer|zwei|drei|vier|funf|sechs|sieben|acht|neun|zehn|einige|manche|mehrere|einzelne|wenige)\s+(?:[\w-]+\s+){0,2}?(?:schuler\w*|lernende\w*|kinder|sus|personen|teilnehme\w*|studierende\w*|azubis?|auszubildende\w*|jugendliche\w*))[^.;!?,]*)` +
+          String.raw`(?:\b(?:niveau|sprachniveau|sprachstand|daz|deutsch)\s+(?:auf\s+)?(?:niveau\s+)?(?:von\s+)?(a1|a2|b1|b2|c1|c2)\b|\b(a1|a2|b1|b2|c1|c2)(?:-|\s)?niveau\b)` +
+          String.raw`(?!\s*(?:fur|bei)\s+(?:\w+\s+)?(?:\d+|ein|einige|manche|zwei|drei|vier)\s+(?:\w+\s+)?(?:schuler|lernende|kinder|sus|personen|teilnehme|studierende|jugendliche))`
+      ),
+      (m) => m[1] || m[2]
+    ],
+    // A second adult in the room: two teachers, team teaching, an accompanying person ("ohne Begleitperson" is none).
+    [
+      'lehrende',
+      /(?<!\d)\b(zwei|drei|vier|2|3|4)\s+(?:lehrkrafte|lehrer\w*|lehrpersonen|lehrende\w*)\b(?!\s+(?:nehmen|besuchen|lernen))|(?<!\b(?:ohne|kein|keine|keinen|nicht)\s)\b(?:team-?teaching|co-?teaching|doppelbesetzung|(?:mit|durch)\s+(?:einer\s+|einem\s+)?(?:begleitperson|zweitkraft|zweiten?\s+lehrkraft|schulbegleit\w*|integrationshilfe|assistenzkraft))\b/,
+      (m) => (m[1] ? (ZAHLWORT[m[1]] ?? Number(m[1])) : 2)
+    ],
+    // Unit the lesson belongs to; the value is the phrase as written ("Lernfeld 3", "Unterrichtsreihe zu Ökologie", "Modul Datenanalyse").
+    [
+      'einheit',
+      /\blernfeld\s+\d{1,2}[a-z]?\b|\bunterrichtsreihe\s+(?:zu|zum|zur)\s+(?!\d)[^,.;:()]+?(?=\s*(?:[,.;:()]|$)|\s+(?:mit|ohne|fur|bei|in|im|am|an|\d+\s*(?:min|stunde|woche|termin|doppelstunde|schuler|lernende|studierende))\b)|\b(?:im|in\s+dem|in\s+der)\s+modul\s+(?!\d)[^,.;:()]+?(?=\s*(?:[,.;:()]|$)|\s+(?:mit|ohne|fur|bei|in|im|am|an|\d+\s*(?:min|stunde|woche|termin|doppelstunde|schuler|lernende|studierende))\b)/,
+      (m) => m[0].replace(/^(?:im|in\s+dem|in\s+der)\s+/, '')
+    ],
+    // Graded: "benotet", "bewertet"; "nicht benotet", "unbenotet" or "ohne Note" say the opposite.
+    ['bewertet', /\bunbenotet\w*|\bunbewertet\w*|\b(?:nicht|kein\w*)\s+(?:benotet|bewertet)\w*|\bohne\s+note\b/, () => false],
+    ['bewertet', /\b(?:benotet|bewertet)\w*|\bmit\s+note\b/, () => true],
     ['vorwissen', /(?:kein|keine|wenig|kaum|gering\w*)\s+(?:vorwissen|vorkenntnis\w*)|ohne\s+(?:vorwissen|vorkenntnis\w*)|(?<!lese)anfanger/, () => 'gering'],
     ['vorwissen', /(?:viel|gut\w*|hoh\w*|solide\w*)\s+(?:vorwissen|vorkenntnis\w*)|fortgeschritten/, () => 'hoch'],
     ['vorwissen', /(?:etwas|mittler\w*)\s+(?:vorwissen|vorkenntnis\w*)|grundkenntnis/, () => 'mittel'],
@@ -724,6 +793,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const m = re.exec(NEGATION_AWARE.has(feld) ? t : tPos);
       if (m) take(feld, fn(m), m[0].trim());
     });
+    // The unit keeps the case and umlauts of the text: cut the phrase from the original at the position the folded text matched.
+    const eh = erkannt.find((e) => e.feld === 'einheit');
+    if (eh) {
+      const at = t.indexOf(eh.beleg);
+      const orig = at >= 0 ? sliceOfFolded(text, at, eh.beleg.length).replace(/^(?:im|in\s+dem|in\s+der)\s+/i, '') : '';
+      if (orig) {
+        eh.wert = orig;
+        kriterien.einheit = orig;
+      }
+    }
     // "ohne Geräte" in a movement lesson means sports equipment, not digital devices.
     const mt = erkannt.findIndex((e) => e.feld === 'maxTechnik');
     if (
@@ -1862,6 +1941,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       }
       currentArea = given(a.fachbereich) ? String(a.fachbereich) : '';
       const themaUndFach = given(anfrage.text) ? extractSubjectAndTopic(String(anfrage.text)) : { fach: null, thema: null };
+      if (given(anfrage.thema)) themaUndFach.thema = String(anfrage.thema);
       currentSituationKontext = {
         ...(themaUndFach.thema ? { thema: themaUndFach.thema } : {}),
         fachErkannt: Boolean(gelesen.fach || themaUndFach.fach),

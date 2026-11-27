@@ -154,6 +154,30 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Sport Klasse 10 Bodenturnen mit praktischer Prüfung, 90 Minuten', erwartet: { nachweis: 'praktisch' } },
   { text: 'Kunst Klasse 8, Collage, am Ende das Produkt abgeben, 90 Minuten', erwartet: { nachweis: 'produkt' } },
   { text: 'Mathematik Klasse 9, Funktionen, ohne Klausur, 45 Minuten', erwartet: {}, nicht: { nachweis: 'schriftlich' } },
+  // FMT 2.0 situation fields for the rules: complexity, language level, teachers, unit, graded.
+  { text: 'Physik Klasse 10: komplexer Inhalt, Wechselwirkungen, 45 Minuten', erwartet: { komplexitaet: 'hoch' } },
+  { text: 'Geschichte Klasse 9: ein anspruchsvolles Thema, 90 Minuten', erwartet: { komplexitaet: 'hoch' } },
+  { text: 'Biologie Klasse 8: Ökosystem mit vielen Zusammenhängen, 45 Minuten', erwartet: { komplexitaet: 'hoch' } },
+  { text: 'Biologie Klasse 8: kein komplexer Inhalt, nur Grundlagen, 45 Minuten', erwartet: {}, nicht: { komplexitaet: 'hoch' } },
+  { text: 'Deutsch Klasse 7, Niveau A2, Wortschatz Schule, 45 Minuten', erwartet: { sprachniveau: 'a2' } },
+  { text: 'DaZ A1: Begrüßung und Vorstellen, 45 Minuten', erwartet: { sprachniveau: 'a1' } },
+  { text: 'Integrationskurs, Sprachniveau B1, Arztbesuch, 90 Minuten', erwartet: { sprachniveau: 'b1' } },
+  // Counter cases: a level that holds for a subgroup says nothing about the whole group.
+  { text: 'Deutsch Klasse 7, 4 Lernende DaZ Niveau A2, 45 Minuten', erwartet: {}, nicht: { sprachniveau: 'a2' } },
+  { text: 'Mathe Klasse 6 mit 24 Schülern, davon 3 DaZ Niveau A1, 45 Minuten', erwartet: { gruppe: 24 }, nicht: { sprachniveau: 'a1' } },
+  { text: 'Mathe Klasse 6, Teilgruppe mit Sprachniveau A2, 45 Minuten', erwartet: {}, nicht: { sprachniveau: 'a2' } },
+  { text: 'Physik Klasse 8, zwei Lehrkräfte im Raum, 45 Minuten', erwartet: { lehrende: 2 } },
+  { text: 'Deutsch Klasse 5 im Teamteaching, 90 Minuten', erwartet: { lehrende: 2 } },
+  { text: 'Sachunterricht Klasse 3 mit Begleitperson, 45 Minuten', erwartet: { lehrende: 2 } },
+  { text: 'Deutsch Klasse 5 ohne Begleitperson, 45 Minuten', erwartet: {}, nicht: { lehrende: 2 } },
+  { text: 'Fortbildung für 12 Lehrkräfte, 90 Minuten', erwartet: { gruppe: 12 }, nicht: { lehrende: 2 } },
+  { text: 'Berufsschule Lernfeld 3: Kundengespräch führen, 90 Minuten', erwartet: { einheit: 'Lernfeld 3' } },
+  { text: 'Biologie Klasse 8, Unterrichtsreihe zu Ökologie, 45 Minuten', erwartet: { einheit: 'Unterrichtsreihe zu Ökologie' } },
+  { text: 'Statistik im Modul Datenanalyse, 90 Minuten, 25 Studierende', erwartet: { einheit: 'Modul Datenanalyse' } },
+  { text: 'Deutsch Klasse 6, Klassenarbeit wird benotet, 45 Minuten', erwartet: { bewertet: true } },
+  { text: 'Mathe Klasse 7: die Aufgaben werden bewertet, 45 Minuten', erwartet: { bewertet: true } },
+  { text: 'Mathe Klasse 7: Übungsphase, unbenotet, 45 Minuten', erwartet: {}, nicht: { bewertet: true } },
+  { text: 'Mathe Klasse 7: Übungsphase, nicht benotet, 45 Minuten', erwartet: {}, nicht: { bewertet: true } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

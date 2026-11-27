@@ -949,6 +949,71 @@
       ]
     },
     {
+      "id": "komplexitaet",
+      "titel": "Komplexität des Inhalts",
+      "beschreibung": "Eignung (EG2): Komplexität des Inhalts für die Lerngruppe (Anzahl und Verknüpfung der Elemente). Angabe der Lehrperson oder aus dem Text gelesen.",
+      "werte": [
+        {
+          "id": "gering",
+          "label": "gering",
+          "rang": 0
+        },
+        {
+          "id": "mittel",
+          "label": "mittel",
+          "rang": 1
+        },
+        {
+          "id": "hoch",
+          "label": "hoch",
+          "rang": 2
+        }
+      ]
+    },
+    {
+      "id": "sprachniveau",
+      "titel": "Sprachniveau",
+      "beschreibung": "Eignung (EG2): Sprachniveau der ganzen Lerngruppe in der Unterrichtssprache nach dem Gemeinsamen Europäischen Referenzrahmen (A1 bis C2). Gilt nur für die ganze Gruppe, nicht für eine Teilgruppe.",
+      "werte": [
+        {
+          "id": "a1",
+          "label": "A1",
+          "definition": "Anfänger",
+          "rang": 0
+        },
+        {
+          "id": "a2",
+          "label": "A2",
+          "definition": "Grundlegende Kenntnisse",
+          "rang": 1
+        },
+        {
+          "id": "b1",
+          "label": "B1",
+          "definition": "Fortgeschrittene Sprachverwendung",
+          "rang": 2
+        },
+        {
+          "id": "b2",
+          "label": "B2",
+          "definition": "Selbstständige Sprachverwendung",
+          "rang": 3
+        },
+        {
+          "id": "c1",
+          "label": "C1",
+          "definition": "Fachkundige Sprachkenntnisse",
+          "rang": 4
+        },
+        {
+          "id": "c2",
+          "label": "C2",
+          "definition": "Annähernd muttersprachliche Kenntnisse",
+          "rang": 5
+        }
+      ]
+    },
+    {
       "id": "evidenzgrad",
       "titel": "Evidenzgrad",
       "beschreibung": "Güte der Evidenz für eine Aussage. Der Grad gilt für die genannte Geltung, nicht für jede Bildungsstufe.",
