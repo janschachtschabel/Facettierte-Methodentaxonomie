@@ -1213,7 +1213,9 @@ export function SystematikPage() {
                       // An example in parentheses ("(z. B. {methode})") names no method here: left out.
                       .replace(/\s*\(z\.\s*B\.\s*\{methode\}\)/g, '')
                       .replace(/^\{methode\}/, 'Die Methode')
-                      .replace(/\{methode\}/g, 'die Methode')}
+                      .replace(/\{methode\}/g, 'die Methode')
+                      // The goal is filled in when the rule fires; in the table it stays general.
+                      .replace(/\{Begleitziel\}/g, 'ein Begleitziel')}
                     {r.keinTausch && (
                       <div className="muted" style={{ fontSize: 12.5 }}>
                         Warnt und zeigt Hilfe, die Methode bleibt im Ablauf.

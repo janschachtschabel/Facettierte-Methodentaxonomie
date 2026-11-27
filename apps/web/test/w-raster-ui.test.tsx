@@ -102,6 +102,9 @@ describe('W-Raster in der Oberfläche', () => {
     // An example placeholder in parentheses is left out; no "(z. B. die Methode)".
     expect(within(tabelle).getByText('Im Ablauf wird praktisch gearbeitet. Kläre vorher Sicherheit und Aufsicht.')).toBeTruthy();
     expect(tabelle.textContent).not.toMatch(/z\. B\. die Methode/);
+    // No raw placeholder in any row (Fix-Welle D, Punkt 3).
+    expect(tabelle.textContent).not.toMatch(/[{}]/);
+    expect(tabelle.textContent).toContain('Wirkungen auf ein Begleitziel sind für Programme');
     const wirkung = within(sec).getByRole('table', { name: 'Welche Wirkung hat welche Art' });
     for (const w of ['schließt aus', 'warnt', 'ordnet', 'weist hin']) expect(within(wirkung).getByRole('rowheader', { name: w })).toBeTruthy();
     expect(within(wirkung).getByText('Eignung')).toBeTruthy();
