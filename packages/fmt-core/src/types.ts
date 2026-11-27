@@ -94,6 +94,31 @@ export interface Scheme {
 export type Wirkung = 'schliesst-aus' | 'warnt' | 'ordnet' | 'weist-hin';
 /** Basis of a statement: formal (readable), law, or E (evidence), S (inferred), A (set). */
 export type Grundlage = 'formal' | 'Recht' | 'E' | 'S' | 'A' | 'U';
+/** Direction of a swap (Tausch) for a subgroup characteristic. */
+export type Richtung = 'mehr-anleitung' | 'weniger-anleitung' | 'explizit-mit-strategie' | 'ohne-lesen' | 'ohne-schreiben' | 'ohne-bewegung';
+/** One row of the table "Tausch oder Hilfe". */
+export interface MerkmalAntwort {
+  /** Id from the papers, e.g. 'vorwissen-gering'. */
+  id: string;
+  /** Matrix value ids (Ausprägungen) this row covers. */
+  auspraegungen: string[];
+  antwort: 'tausch' | 'hilfe';
+  richtung?: Richtung;
+  wohin: string;
+  grundlage: Grundlage;
+  quelle?: string;
+}
+export interface TeilgruppenRegelsatz {
+  merkmale: MerkmalAntwort[];
+  /** Answer for matrix values no row names. */
+  sonst: { antwort: 'hilfe'; grundlage: 'U'; wohin: string };
+  /** Matrix category ids that never trigger anything. */
+  gesperrt: string[];
+  gesperrtText: string;
+  /** When a support is withdrawn, by measure area id of the matrix plus 'sonst'. */
+  abbau: Record<string, string>;
+}
+
 /** One of the nine W-fields (what, who, where, ...). */
 export interface WFeld {
   id: string;
@@ -431,6 +456,8 @@ export interface FmtData {
   ketten: Funktionskette[];
   /** Fit rules (Passungsregeln). */
   regeln: Passungsregel[];
+  /** Table "Tausch oder Hilfe" for subgroups. */
+  teilgruppen: TeilgruppenRegelsatz;
   bausteine: Baustein[];
   beispiele: Arrangement[];
   /** OEH school and university subjects mapped to FMT subject areas (recognition layer, optional). */
@@ -678,6 +705,7 @@ export interface CatalogBundle {
   merkmale: Merkmal[];
   ketten: Funktionskette[];
   regeln: Passungsregel[];
+  teilgruppen: TeilgruppenRegelsatz;
   bausteine: Baustein[];
   beispiele: Arrangement[];
   oeh: Record<string, string>;

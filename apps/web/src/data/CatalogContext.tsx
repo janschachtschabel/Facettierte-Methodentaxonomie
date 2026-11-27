@@ -191,6 +191,8 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         merkmale: bundle.merkmale ?? [],
         ketten: bundle.ketten,
         regeln: bundle.regeln ?? [],
+        // A bundle cached before the subgroup table has none; empty means no row triggers.
+        teilgruppen: bundle.teilgruppen ?? { merkmale: [], sonst: { antwort: 'hilfe', grundlage: 'U', wohin: '' }, gesperrt: [], gesperrtText: '', abbau: {} },
         bausteine: bundle.bausteine,
         beispiele: bundle.beispiele,
         faecher: bundle.faecher,

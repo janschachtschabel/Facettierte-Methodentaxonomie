@@ -19,6 +19,7 @@ const DATA: FmtData = {
   merkmale: BUNDLE.merkmale,
   ketten: BUNDLE.ketten,
   regeln: BUNDLE.regeln,
+  teilgruppen: BUNDLE.teilgruppen,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele
 };
