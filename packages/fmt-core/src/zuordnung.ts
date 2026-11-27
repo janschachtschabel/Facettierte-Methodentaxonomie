@@ -50,6 +50,47 @@ const SINGLE_SESSION_MAX_MIN = 180;
 /** Upper bound for a time budget (about a school year of one subject); keeps the allocation loops bounded. */
 const MAX_BUDGET_MIN = 20000;
 
+/** Bounds of a whole number in a request. */
+export interface ZahlGrenze {
+  min: number;
+  max?: number;
+}
+
+/**
+ * Bounds of the integer request fields as the matcher accepts them: every field from 0, zeitMin up to the budget
+ * limit. REST checks and the MCP tool schemas read them, so both sides accept the same numbers as the core.
+ */
+export const ZAHL_GRENZEN = {
+  zeitMin: { min: 0, max: MAX_BUDGET_MIN },
+  gruppe: { min: 0 },
+  variante: { min: 0 },
+  maxVorbereitung: { min: 0 },
+  termine: { min: 0 },
+  lehrende: { min: 0 }
+} as const satisfies Record<string, ZahlGrenze>;
+
+/** German message for a code outside the allowed values, as every input check words it. */
+export function unbekannterWert(feld: string, wert: string, erlaubt: readonly string[]): string {
+  return `Feld „${feld}“: unbekannter Wert „${wert}“. Erlaubt: ${erlaubt.join(', ')}.`;
+}
+
+/** German message for a value that is no whole number within the bounds, or null when it fits. */
+export function zahlFehler(feld: string, wert: unknown, grenze: ZahlGrenze = { min: 0 }): string | null {
+  if (wert == null || wert === '') return null;
+  const n = Number(wert);
+  if (!Number.isInteger(n) || n < grenze.min) return `Feld „${feld}“: erwartet wird eine ganze Zahl ab ${grenze.min}.`;
+  if (grenze.max != null && n > grenze.max) {
+    return feld === 'zeitMin' ? `Feld „zeitMin“: höchstens ${grenze.max} Minuten.` : `Feld „${feld}“: höchstens ${grenze.max}.`;
+  }
+  return null;
+}
+
+/** An input error the caller can fix: the message and, for codes, the allowed values. */
+export interface FeldFehler {
+  fehler: string;
+  erlaubt?: string[];
+}
+
 const list = (x: unknown): string[] =>
   x == null || x === '' ? [] : Array.isArray(x) ? x.map(String) : [String(x)];
 const given = (v: unknown) => v != null && v !== '';
@@ -150,6 +191,11 @@ export interface FmtMatcher {
   };
   felder(): MatchFieldDef[];
   schema(): Record<string, unknown>;
+  /**
+   * Checks one request field as zuordnen does (codes, whole numbers and their bounds; lernort as raum). Null when the
+   * value fits or the field is no request field, so callers can check the request fields of a larger body.
+   */
+  pruefeFeld(feld: string, wert: unknown): FeldFehler | null;
 }
 
 /** A request the caller can fix: unknown field or value outside the vocabulary. */
@@ -405,6 +451,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   ];
 
   const felder = () => FIELDS.map((f) => ({ ...f }));
+  const grenzeVon = (feld: string): ZahlGrenze => (ZAHL_GRENZEN as Record<string, ZahlGrenze>)[feld] ?? { min: 0 };
 
   function schema() {
     const prop = (f: MatchFieldDef) => {
@@ -415,7 +462,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           : f.typ === 'code'
             ? { enum: codes }
             : f.typ === 'integer'
-              ? { type: 'integer', minimum: 0 }
+              ? (({ min, max }) => ({ type: 'integer', minimum: min, ...(max != null ? { maximum: max } : {}) }))(grenzeVon(f.feld))
               : { type: f.typ };
       return Object.assign({ description: f.bedeutung }, base);
     };
@@ -429,24 +476,26 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     };
   }
 
+  function pruefeFeld(key: string, wert: unknown): FeldFehler | null {
+    const f = FIELDS.find((x) => x.feld === (key === 'lernort' ? 'raum' : key));
+    if (!f) return null;
+    if (f.typ === 'integer') {
+      const fehler = zahlFehler(key, wert, grenzeVon(f.feld));
+      return fehler ? { fehler } : null;
+    }
+    if (!f.werte) return null;
+    const erlaubt = f.werte.map((w) => w.code);
+    const falsch = list(wert).find((v) => !erlaubt.includes(v));
+    return falsch === undefined ? null : { fehler: unbekannterWert(key, falsch, erlaubt), erlaubt };
+  }
+
   /** Validates a request and returns it with old zielart codes normalised; the former field lernort is checked as raum. */
   function check(a: MatchRequest): MatchRequest {
     Object.keys(a).forEach((key) => {
       const f = FIELDS.find((x) => x.feld === (key === 'lernort' ? 'raum' : key));
       if (!f) throw new FmtRequestError(`Unbekanntes Feld „${key}“. Erlaubt: ${FIELDS.map((x) => x.feld).join(', ')}.`);
-      if (f.typ === 'integer' && given(a[key]) && !(Number.isInteger(Number(a[key])) && Number(a[key]) >= 0)) {
-        throw new FmtRequestError(`Feld „${key}“: erwartet wird eine ganze Zahl ab 0.`);
-      }
-      if (key === 'zeitMin' && given(a[key]) && Number(a[key]) > MAX_BUDGET_MIN) {
-        throw new FmtRequestError(`Feld „zeitMin“: höchstens ${MAX_BUDGET_MIN} Minuten.`);
-      }
-      if (!f.werte) return;
-      const allowed = f.werte.map((w) => w.code);
-      list(a[key]).forEach((v) => {
-        if (!allowed.includes(v)) {
-          throw new FmtRequestError(`Feld „${key}“: unbekannter Wert „${v}“. Erlaubt: ${allowed.join(', ')}.`);
-        }
-      });
+      const fehler = pruefeFeld(key, a[key]);
+      if (fehler) throw new FmtRequestError(fehler.fehler);
     });
     return given(a.zielart) ? { ...a, zielart: normZielart(String(a.zielart)) } : a;
   }
@@ -2454,5 +2503,5 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
   }
 
-  return { zuordnen, lesen, felder, schema };
+  return { zuordnen, lesen, felder, schema, pruefeFeld };
 }

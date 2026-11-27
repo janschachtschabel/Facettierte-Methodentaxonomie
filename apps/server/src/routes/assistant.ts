@@ -25,6 +25,7 @@ import {
 } from '../llm/briefings.js';
 import { profilRahmen } from '../llm/entwurf.js';
 import { InvalidRequestError, isMaterialGroupList } from './validation.js';
+import { MATERIAL_TYPEN, entwurfFelderFehler } from '../eingaben.js';
 
 export interface ThematicTableRow {
   key: string;
@@ -679,7 +680,7 @@ export async function generateMaterialCore(
     const cores = (block.kernkomponente || []).map((k) => k.name);
     const risks = block.qualitaetsrisiko || [];
 
-    const typeHeading: Record<string, string> = {
+    const typeHeading: Record<(typeof MATERIAL_TYPEN)[number], string> = {
       arbeitsblatt: 'Gestuftes Arbeitsblatt',
       infoblatt: 'Strukturiertes Infoblatt',
       quiz: 'Kurz-Quiz / Abruftest (ohne Notendruck)',
@@ -781,7 +782,7 @@ export async function generateMaterialCore(
     }
 
     const template = [
-      `# ${typeHeading[materialTyp] || materialTyp}: ${fachLabel} – ${themaLabel}`,
+      `# ${typeHeading[materialTyp as (typeof MATERIAL_TYPEN)[number]] || materialTyp}: ${fachLabel} – ${themaLabel}`,
       '',
       `**Methode:** ${block.name} · **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${dauer} min · **Zielgruppe:** ${stufe} · ${rahmen.begriffe.lernende}`,
       ...(body.hinweise ? ['', `> **Zusatzauftrag:** ${body.hinweise}`] : []),
@@ -1043,6 +1044,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         if (!p?.arrangement || p.arrangement.typ !== 'Arrangement') {
           return reply.code(400).send({ fehler: 'Bitte ein gültiges payload.arrangement übergeben.' });
         }
+        const badField = entwurfFelderFehler(store, payload);
+        if (badField) return reply.code(400).send(badField);
         const b = buildElaborateBriefing(store, p);
         return reply.send({ task, dauerMs: ms(), ...b, leitplanken: FMT_GUARDRAILS });
       }
@@ -1056,6 +1059,8 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
       }
       if (task === 'material') {
         const p = payload as unknown as MaterialPayload;
+        const badField = entwurfFelderFehler(store, payload);
+        if (badField) return reply.code(400).send(badField);
         const mat = await generateMaterialCore(store, config, {}, { ...p, mode: 'template' });
         const b = buildMaterialBriefing(store, p);
         return reply.send({
@@ -1079,9 +1084,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     if (!body?.arrangement || body.arrangement.typ !== 'Arrangement') {
       return reply.code(400).send({ fehler: 'Bitte ein gültiges FMT-Arrangement übergeben.' });
     }
-    if (body.bewertet != null && typeof body.bewertet !== 'boolean') {
-      return reply.code(400).send({ fehler: 'Feld „bewertet“: erwartet wird wahr oder falsch.' });
-    }
+    // Codes (planungsprofil, bildungsstufe, begleitziel), anzahl and bewertet, as the MCP tool elaborate_scenario checks them.
+    const badField = entwurfFelderFehler(store, body as Record<string, unknown>);
+    if (badField) return reply.code(400).send(badField);
 
     if (body.mode === 'briefing') {
       const b = buildElaborateBriefing(store, body as ElaboratePayload);
@@ -1249,6 +1254,9 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
     if (!store.blocksById.has(methodId)) {
       return reply.code(400).send({ fehler: 'Bitte einen gültigen FMT-Methodenbaustein auswählen.' });
     }
+    // materialTyp, planungsprofil and bildungsstufe, as the MCP tool generate_phase_material checks them.
+    const badField = entwurfFelderFehler(store, body as Record<string, unknown>);
+    if (badField) return reply.code(400).send(badField);
 
     const override = readByokHeaders(req, body as Record<string, unknown> | null);
     try {

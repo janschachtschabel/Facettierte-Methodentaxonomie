@@ -13,11 +13,13 @@ import {
   getDifferentiationMetaSummary,
   istHilfe,
   scoreDifferentiationMatrix,
+  ZAHL_GRENZEN,
   type Arrangement,
   type Baustein,
   type MatchRequest,
   type MeasureLevel,
-  type SearchCriteria
+  type SearchCriteria,
+  type ZahlGrenze
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
 import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
@@ -31,6 +33,7 @@ import {
   situationFehler,
   teilgruppenAlternativen
 } from '../kandidaten.js';
+import { anpassungLeerFehler, bausteinFehler, MATERIAL_TYPEN } from '../eingaben.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import {
@@ -90,6 +93,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   const code = (feld: string) => z.enum(fieldCodes(feld));
   const codes = (feld: string) => z.union([code(feld), z.array(code(feld))]);
   const bedeutung = (feld: string) => store.matcher.felder().find((f) => f.feld === feld)?.bedeutung || feld;
+  /** Whole number of a request field with the bounds the core accepts (ZAHL_GRENZEN), as REST checks them. */
+  const zahl = (feld: string) => {
+    const g: ZahlGrenze = (ZAHL_GRENZEN as Record<string, ZahlGrenze>)[feld] ?? { min: 0 };
+    const s = z.number().int().min(g.min);
+    return g.max != null ? s.max(g.max) : s;
+  };
 
   /**
    * Schema entries for the core request fields (matcher.felder()): type, codes and meaning come from the core, so a
@@ -105,7 +114,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           : f.typ === 'codes'
             ? codes(f.feld)
             : f.typ === 'integer'
-              ? z.number().int().min(0)
+              ? zahl(f.feld)
               : f.typ === 'boolean'
                 ? z.boolean()
                 : z.string().max(MAX_TEXT_CHARS);
@@ -163,7 +172,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       aufgabe: facettenCode('aufgabe'),
       sequenz: facettenCode('sequenz'),
       maxDauer: z.number().int().min(0).optional(),
-      gruppe: z.number().int().min(1).optional(),
+      gruppe: zahl('gruppe').optional(),
       maxTechnik: code('maxTechnik').optional(),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
@@ -177,7 +186,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Nur Methoden, die Lesen (liest) oder Schreiben (schreibt) brauchen; lesen/schreiben werden auch angenommen'),
       ohneSchrift: codes('ohneSchrift').optional().describe(bedeutung('ohneSchrift')),
-      termine: z.number().int().min(1).optional().describe('Anzahl der Termine: Methoden, die mehr brauchen (termineMin), scheiden aus'),
+      termine: zahl('termine').optional().describe('Anzahl der Termine: Methoden, die mehr brauchen (termineMin), scheiden aus'),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
       eintragsart: z
         .enum(['methode', 'hilfe'])
@@ -342,12 +351,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       interaktion: codes('interaktion').optional(),
       reichweite: codes('reichweite').optional(),
       liefert: codes('liefert').optional(),
-      zeitMin: z.number().int().min(0).optional(),
-      gruppe: z.number().int().min(1).optional(),
+      zeitMin: zahl('zeitMin').optional(),
+      gruppe: zahl('gruppe').optional(),
       maxTechnik: code('maxTechnik').optional(),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
-      maxVorbereitung: z.number().int().min(0).optional(),
+      maxVorbereitung: zahl('maxVorbereitung').optional(),
       raumzeit: codes('raumzeit').optional(),
       raum: code('raum')
         .optional()
@@ -358,7 +367,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .optional()
         .describe('Raumeigenschaften, die der Raum zusätzlich zum Raumtyp bietet (z. B. Bewegungsfläche, Wandfläche)'),
       fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
-      termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
+      termine: zahl('termine').optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
       nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
       begleitziel: codes('begleitziel')
         .optional()
@@ -371,12 +380,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       // Stage-4 fields (FMT 2.0): same names, codes and meaning as REST /match (matcher.felder()).
       komplexitaet: code('komplexitaet').optional().describe(bedeutung('komplexitaet')),
       sprachniveau: code('sprachniveau').optional().describe(bedeutung('sprachniveau')),
-      lehrende: z.number().int().min(1).optional().describe(bedeutung('lehrende')),
+      lehrende: zahl('lehrende').optional().describe(bedeutung('lehrende')),
       thema: z.string().max(MAX_TEXT_CHARS).optional().describe(bedeutung('thema')),
       einheit: z.string().max(MAX_TEXT_CHARS).optional().describe(bedeutung('einheit')),
       bewertet: z.boolean().optional().describe(bedeutung('bewertet')),
       planungsprofil: code('planungsprofil').optional().describe(bedeutung('planungsprofil')),
-      variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
+      variante: zahl('variante').optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       bildungsstufe: code('bildungsstufe').optional(),
       fachbereich: code('fachbereich')
         .optional()
@@ -442,8 +451,8 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     },
     async ({ arrangement, pfad, ...rest }) => {
       const situation = situationAus(rest as Record<string, unknown>);
-      const bad = situationFehler(situation);
-      if (bad) return errorResult(bad);
+      const bad = situationFehler(store, situation);
+      if (bad) return errorResult(bad.fehler);
       try {
         const kandidaten = ersatzKandidaten(store, arrangement as unknown as Arrangement, pfad, situation);
         return textResult({ pfad, hinweis: ersatzHinweis(situation), ...(situation ? { situation } : {}), kandidaten });
@@ -541,7 +550,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .describe('Individuelle Anpassungsvariablen (z. B. {"vorwissen":"vorwissen-gering","sprachkompetenz":"sprachkompetenz-gering"}); Liste per list_differentiation_options abrufbar'),
       minScore: z.number().int().optional(),
       limit: z.number().int().min(1).max(40).optional().default(12),
-      maxTechnik: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
+      maxTechnik: code('maxTechnik').optional().describe('Optional: Technikeinschränkung (z. B. "t-keine" filtert digitale Maßnahmen heraus)'),
       ohneInternet: z.boolean().optional().describe('Optional: true filtert online-abhängige Maßnahmen heraus'),
       ohneKI: z.boolean().optional().describe('Optional: true schließt KI-abhängige Maßnahmen aus'),
       includeSystemMeasures: z
@@ -550,12 +559,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .default(false)
         .describe('Standard false (blendet Schul-/Systemmaßnahmen wie Förderstunden/Noten aus); true zeigt alle 3 Ebenen'),
       maxAufwand: z.enum(['sofort', 'kurz', 'mittel']).optional().describe('Optional: maximaler Vorbereitungsaufwand'),
-      bildungsstufe: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Bildungsstufe (z. B. "primar", "sek1") zur Filterung von Alternativmethoden'),
+      bildungsstufe: code('bildungsstufe').optional().describe('Optional: Bildungsstufe (z. B. "primar", "sek1") zur Filterung von Alternativmethoden'),
       baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: FMT-Methodenkennung, um alternative Methoden für diese Teilgruppe zu empfehlen'),
       ebenen: ebenenSchema,
       ohneSchrift: z.array(z.enum(['lesen', 'schreiben'])).optional().describe('Was die Teilgruppe nicht kann; Alternativen mit diesem Schriftbedarf scheiden aus'),
       ohneBewegung: z.boolean().optional().describe('true: die Teilgruppe kann sich nicht frei bewegen'),
-      lehrende: z.number().int().min(1).optional().describe(bedeutung('lehrende')),
+      lehrende: zahl('lehrende').optional().describe(bedeutung('lehrende')),
       zieltyp: code('zieltyp').optional().describe('Kette der Phase: Bindung und Lernzustand, die die Alternative erreichen muss (mit kettenschritt)'),
       kettenschritt: z.string().max(MAX_TEXT_CHARS).optional().describe('Schritt-ID der Kette, den die Phase füllt (Ketten über list_vocabularies)'),
       dauerMin: z.number().int().min(1).optional().describe('Minuten der Phase'),
@@ -564,10 +573,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     },
     async (args) => {
       const { quickProfileId, personaId, selectedValues, minScore, limit, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures, maxAufwand, baustein, ebenen } = args;
-      // Same situation check as REST /differentiation/score.
+      // Same situation and catalogue check as REST /differentiation/score.
       const situation = situationAus(args as Record<string, unknown>) || {};
-      const bad = situationFehler(situation);
-      if (bad) return errorResult(bad);
+      const bad = situationFehler(store, situation) || bausteinFehler(store, baustein);
+      if (bad) return errorResult(bad.fehler);
       const quickProfile = quickProfileId
         ? QUICK_LEARNER_GROUP_PROFILES.find((p) => p.id === quickProfileId)
         : undefined;
@@ -635,16 +644,16 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       engagement: codes('engagement').optional(),
       interaktion: codes('interaktion').optional(),
       reichweite: codes('reichweite').optional(),
-      zeitMin: z.number().int().min(10).optional(),
-      gruppe: z.number().int().min(1).optional(),
+      zeitMin: zahl('zeitMin').optional(),
+      gruppe: zahl('gruppe').optional(),
       bildungsstufe: code('bildungsstufe').optional(),
       planungsprofil: code('planungsprofil')
         .optional()
         .describe('Planungsprofil des Entwurfs (Begriffe, Module); sonst aus Bildungsstufe und Text, ohne beides angenommen'),
       vorwissen: code('vorwissen').optional(),
       maxTechnik: code('maxTechnik').optional(),
-      maxVorbereitung: z.number().int().min(0).optional(),
-      variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
+      maxVorbereitung: zahl('maxVorbereitung').optional(),
+      variante: zahl('variante').optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
       zielart: code('zielart').optional().describe('Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung'),
@@ -656,7 +665,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       raumBietet: codes('raumBietet').optional().describe('Raumeigenschaften, die der Raum zusätzlich zum Raumtyp bietet'),
       fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
       ohneSchrift: codes('ohneSchrift').optional().describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
-      termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
+      termine: zahl('termine').optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
       nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
       begleitziel: codes('begleitziel')
         .optional()
@@ -794,6 +803,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .describe('Standard false (<2 ms, Zero-LLM + llmBriefing für das Enduser-LLM). Nur true setzen, wenn explizit der Server-LLM genutzt werden soll.')
     },
     async (args) => {
+      // Same check as REST /assistant/elaborate, before either branch.
+      if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
+        return errorResult('Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.');
+      }
       try {
         const t0 = process.hrtime.bigint();
         const payload = {
@@ -824,9 +837,6 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           materialien: args.materialien
         };
         if (args.useServerLlm && effectiveConfig.llmApiKey) {
-          if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
-            return errorResult('Bitte ein gültiges FMT-Arrangement (typ: "Arrangement") übergeben.');
-          }
           if (!serverLlmBudget(effectiveConfig).tryTake()) return errorResult(LLM_BUDGET_EXCEEDED);
           const res = await elaborateScenarioCore(store, effectiveConfig, {}, payload);
           return textResult({ ...res, leitplanken: FMT_GUARDRAILS });
@@ -857,11 +867,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       baustein: z.string().max(MAX_TEXT_CHARS).describe('FMT-Methodenkennung, z. B. "loesungsbeispiele" oder "abrufquiz"'),
       fach: z.string().max(MAX_TEXT_CHARS).optional(),
       thema: z.string().max(MAX_TEXT_CHARS).optional(),
-      bildungsstufe: z.string().max(MAX_TEXT_CHARS).optional(),
+      bildungsstufe: code('bildungsstufe').optional(),
       phaseLabel: z.string().max(MAX_TEXT_CHARS).optional(),
       dauerMin: z.number().int().min(1).optional(),
       materialTyp: z
-        .enum(['arbeitsblatt', 'infoblatt', 'quiz', 'checkliste', 'versuchsanleitung', 'diskussionskarten', 'glossar'])
+        .enum(MATERIAL_TYPEN)
         .optional()
         .default('arbeitsblatt'),
       hinweise: z.string().max(MAX_TEXT_CHARS).optional(),
@@ -915,7 +925,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     {
       text: z.string().max(MAX_TEXT_CHARS).describe('Freitext-Beschreibung der Unterrichtsidee inkl. Rahmen, Lernziel und Lerngruppenhinweisen')
     },
-    async ({ text }) => {
+    async ({ text: roh }) => {
+      // Same check as REST /classify.
+      const text = roh.trim();
+      if (!text) return errorResult('Bitte ein Feld "text" zur Klassifikation übergeben.');
       const extracted = extractSubjectAndTopicFromText(text);
       const cls = store.classifyText(text);
       // Required details the text leaves open (ask back) and the ones assumed (state them), as the matcher reads them.
@@ -944,6 +957,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`. Je Gruppe und Phase nennt `teilgruppenImpulse` die Antwort (`antwort`: passt, hilfe = die geplante Methode bleibt und die Gruppe bekommt eine Hilfe, oder tausch gegen eine gleichwertige Methode) mit `beleg` (Merkmal, Grundlage, Quelle), `hilfen` (je mit `abbau`, wann sie entfallen) und `alternativeMethoden` (nur beim Tausch). Steht `ohneMethode: true` (freier Text ohne geplante FMT-Methode), wurde keine Passung geprüft: `antwort: hilfe` nennt dann nur die Hilfen der Matrix für die Gruppe, keine Entscheidung über eine Methode; `teilgruppenHilfen`, `gesperrt` (Merkmale ohne Beleg, z. B. Lerntypen; kein Fehler) und `regelmeldungen` stehen auf oberster Ebene. Die Situation der Stunde (`anfrage` oder raum, ohneSchrift, termine … auf oberster Ebene) und `lehrende` prüfen, ob eine parallele Methode ihren Bedarf im selben Rahmen deckt; dieselbe Prüfung wie REST /adapt. Erfrage beim Nutzer: Teilgruppen mit Anzahl und Merkmalen (z. B. DaZ, liest noch nicht, kann sich nicht frei bewegen), Raum und Zahl der Lehrenden; beschreibe Gruppen, keine einzelnen Lernenden.',
     {
       scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
+      text: z.string().max(MAX_TEXT_CHARS).optional().describe('Gleichbedeutend mit scenarioText (wie REST /adapt)'),
       baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
       lerngruppenText: z
         .string()
@@ -983,7 +997,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       fachbereich: code('fachbereich').optional().describe('FMT-Fachbereich; Methoden, die dafür als ungeeignet markiert sind, werden nie vorgeschlagen'),
       thema: z.string().max(MAX_TEXT_CHARS).optional(),
       bildungsstufe: code('bildungsstufe').optional(),
-      zeitMin: z.number().int().min(5).optional(),
+      zeitMin: zahl('zeitMin').optional(),
       maxTechnik: code('maxTechnik').optional().describe('Höchster Technikbedarf: "t-keine" (nur analog), "t-projektion", "t-geteilt" (Geräte je Gruppe), "t-einzeln"'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
@@ -994,25 +1008,32 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .default(false)
         .describe('Standard false (nur sofort umsetzbare Unterrichts- & Materialmaßnahmen)'),
       ebenen: ebenenSchema,
-      lehrende: z.number().int().min(1).optional().describe(bedeutung('lehrende') + '; mit zwei darf auch eine parallele Methode eine Lehrkraft binden'),
+      lehrende: zahl('lehrende').optional().describe(bedeutung('lehrende') + '; mit zwei darf auch eine parallele Methode eine Lehrkraft binden'),
+      // The request fields of the core (as match_scenario); lernort is the former name of raum.
       anfrage: z
-        .record(z.string().max(MAX_TEXT_CHARS), z.unknown())
+        .object({ ...felderSchema(), lernort: code('raum').optional() })
+        .partial()
         .optional()
         .describe('Anfrage des Plans (Felder wie match_scenario, z. B. erkannteKriterien aus build_scenario_plan); eine parallele Methode muss ihren Bedarf im selben Rahmen decken'),
       // Situation of the whole class at the top level (raum, ohneSchrift, termine …); they win over `anfrage`.
       ...felderSchema([], ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'gruppe', 'maxVorbereitung'])
     },
     async (args) => {
+      // Same checks as REST /adapt.
       const anfrage = anpassungsAnfrage(args as Record<string, unknown>);
-      const bad = situationFehler(anfrage);
-      if (bad) return errorResult(bad);
-      const res = buildAdaptScenarioZeroLlm(store, {
-        ...args,
-        arrangement: args.arrangement as unknown as Arrangement | undefined,
-        ebenen: args.ebenen as MeasureLevel[] | undefined,
-        ...(anfrage ? { anfrage } : {})
-      });
-      return textResult(res);
+      const bad = anpassungLeerFehler(args as Record<string, unknown>) || situationFehler(store, anfrage) || bausteinFehler(store, args.baustein);
+      if (bad) return errorResult(bad.fehler);
+      try {
+        const res = buildAdaptScenarioZeroLlm(store, {
+          ...args,
+          arrangement: args.arrangement as unknown as Arrangement | undefined,
+          ebenen: args.ebenen as MeasureLevel[] | undefined,
+          ...(anfrage ? { anfrage } : {})
+        });
+        return textResult(res);
+      } catch (e) {
+        return errorResult(e instanceof Error ? e.message : 'Anpassung fehlgeschlagen.');
+      }
     }
   );
 

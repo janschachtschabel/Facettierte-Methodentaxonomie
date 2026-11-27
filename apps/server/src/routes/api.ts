@@ -11,7 +11,9 @@ import {
   type MatchRequest,
   type MeasureEffort,
   type MeasureLevel,
-  type SearchCriteria
+  type SearchCriteria,
+  type ZahlGrenze,
+  ZAHL_GRENZEN
 } from '@fmt/core';
 import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
@@ -19,6 +21,7 @@ import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
 import { anpassungsAnfrage, ersatzHinweis, ersatzKandidaten, mitFachAufgeloest, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { anpassungLeerFehler, bausteinFehler, codeFehler, zahlenFehler, type EingabeFehler } from '../eingaben.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
@@ -35,8 +38,74 @@ export function applySubjectFilter(store: CatalogStore, criteria: SearchCriteria
   return erkannt;
 }
 
+/** Query parameters of GET /api/v1/methods that take a comma-separated list. */
+const SUCHE_LISTEN = new Set([
+  'reichweite',
+  'lernfunktion',
+  'engagement',
+  'weltbezug',
+  'anleitung',
+  'adaptivitaet',
+  'feedback',
+  'interaktion',
+  'repraesentation',
+  'raumzeit',
+  'rolle',
+  'aufgabe',
+  'sequenz',
+  'vorhanden',
+  'liefert',
+  'ansatz',
+  'status',
+  'fachbereich',
+  'raumbedarf',
+  'schriftbedarf',
+  'ohneRaumbedarf',
+  'ohneSchrift'
+]);
+/** Single codes of the search; lernort is the former name of raum. */
+const SUCHE_EINZELCODES = ['vorwissen', 'bildungsstufe', 'maxTechnik', 'raum', 'lernort', 'eintragsart', 'minEvidenz', 'fuerFachbereich'];
+/** Every parameter whose values are codes (checked against the core lists). */
+const SUCHE_CODES = [...SUCHE_LISTEN, ...SUCHE_EINZELCODES];
+const SUCHE_SCHALTER = new Set(['ohneInternet', 'ohneKI']);
+/** Numbers of the search with their bounds; request fields take the core bounds. limit and offset page the hits. */
+const SUCHE_ZAHLEN: Record<string, ZahlGrenze> = {
+  maxDauer: { min: 0 },
+  gruppe: ZAHL_GRENZEN.gruppe,
+  maxVorbereitung: ZAHL_GRENZEN.maxVorbereitung,
+  termine: ZAHL_GRENZEN.termine,
+  limit: { min: 1 },
+  offset: { min: 0 }
+};
+/** All parameters GET /api/v1/methods reads; any other one is answered with 400. */
+const SUCHE_PARAMETER = new Set(['text', 'fach', 'kategorie', ...SUCHE_CODES, ...SUCHE_SCHALTER, ...Object.keys(SUCHE_ZAHLEN)]);
+
+/** Wrong types in a body of /differentiation/score (the MCP tool checks them in its schema), or null. */
+function differenzierungsTypFehler(body: Record<string, unknown>): EingabeFehler | null {
+  const sv = body.selectedValues;
+  if (sv != null && (typeof sv !== 'object' || Array.isArray(sv) || !Object.values(sv).every((v) => typeof v === 'string'))) {
+    return { fehler: 'Feld „selectedValues“: erwartet wird ein Objekt mit Text-Werten (Merkmal: Ausprägung).' };
+  }
+  if (body.ebenen != null && !Array.isArray(body.ebenen)) return { fehler: 'Feld „ebenen“: erwartet wird eine Liste.' };
+  if (body.minScore != null && (typeof body.minScore !== 'number' || !Number.isFinite(body.minScore))) {
+    return { fehler: 'Feld „minScore“: erwartet wird eine Zahl.' };
+  }
+  const bool = ['includeSystemMeasures', 'ohneBewegung'].find((k) => body[k] != null && typeof body[k] !== 'boolean');
+  if (bool) return { fehler: `Feld „${bool}“: erwartet wird wahr oder falsch.` };
+  return zahlenFehler(body, { limit: { min: 1 }, lehrende: ZAHL_GRENZEN.lehrende });
+}
+
 export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, config: ServerConfig) {
   const fieldsMap = new Map(store.matcher.felder().map((f) => [f.feld, f]));
+  const schemaCodes = (id: string) => schemeValues(store.bundle, id).map((w) => w.id);
+  /** Search codes that differ from the request fields: the search takes "uebergreifend" and the ohneSchrift aliases. */
+  const suchCodes: Record<string, string[]> = {
+    fachbereich: schemaCodes('fachbereich'),
+    fuerFachbereich: schemaCodes('fachbereich'),
+    raumbedarf: schemaCodes('raumbedarf'),
+    ohneRaumbedarf: schemaCodes('raumbedarf'),
+    schriftbedarf: [...schemaCodes('schriftbedarf'), 'lesen', 'schreiben']
+  };
 
   const parseQueryToMatchRequest = (query: Record<string, unknown>): MatchRequest => {
     const req: MatchRequest = {};
@@ -133,43 +202,42 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     return reply.type('application/json; charset=utf-8').send(store.bundleJson);
   });
 
-  app.get('/api/v1/methods', async (req: FastifyRequest<{ Querystring: Record<string, string | string[]> }>) => {
+  app.get('/api/v1/methods', async (req: FastifyRequest<{ Querystring: Record<string, string | string[]> }>, reply) => {
     const q = req.query || {};
+    const unbekannt = Object.keys(q).filter((k) => !SUCHE_PARAMETER.has(k));
+    if (unbekannt.length) {
+      return reply.code(400).send({
+        fehler: `Unbekannte Parameter: ${unbekannt.map((k) => `„${k}“`).join(', ')}. Erlaubt: ${[...SUCHE_PARAMETER].join(', ')}.`,
+        erlaubt: [...SUCHE_PARAMETER]
+      });
+    }
     const criteria: SearchCriteria = {};
-    const multiFields = new Set([
-      'reichweite',
-      'lernfunktion',
-      'engagement',
-      'weltbezug',
-      'anleitung',
-      'adaptivitaet',
-      'feedback',
-      'interaktion',
-      'repraesentation',
-      'raumzeit',
-      'rolle',
-      'aufgabe',
-      'sequenz',
-      'vorhanden',
-      'liefert',
-      'ansatz',
-      'status',
-      'fachbereich',
-      'raumbedarf',
-      'schriftbedarf',
-      'ohneRaumbedarf',
-      'ohneSchrift'
-    ]);
     for (const [k, raw] of Object.entries(q)) {
       if (raw == null || raw === '') continue;
-      if (k === 'ohneInternet' || k === 'ohneKI') {
+      if (SUCHE_SCHALTER.has(k)) {
         criteria[k] = raw === 'true' || raw === '1';
-      } else if (multiFields.has(k)) {
+      } else if (SUCHE_LISTEN.has(k)) {
         criteria[k] = Array.isArray(raw) ? raw : String(raw).split(',').filter(Boolean);
       } else {
         criteria[k] = Array.isArray(raw) ? raw[0] : raw;
       }
     }
+    // ohneSchrift=true (or 1) means both abilities, false none, as the search reads the flag.
+    const os = criteria.ohneSchrift;
+    if (Array.isArray(os) && os.length === 1 && ['true', '1', 'false', '0'].includes(os[0])) criteria.ohneSchrift = os[0] === 'true' || os[0] === '1';
+    const bad =
+      zahlenFehler(criteria, SUCHE_ZAHLEN) ||
+      codeFehler(store, typeof criteria.ohneSchrift === 'boolean' ? { ...criteria, ohneSchrift: undefined } : criteria, SUCHE_CODES, { eigene: suchCodes });
+    if (bad) return reply.code(400).send(bad);
+    // Former name of raum, as the matcher reads it.
+    if (criteria.lernort != null) {
+      if (criteria.raum == null) criteria.raum = String(criteria.lernort);
+      delete criteria.lernort;
+    }
+    const limit = criteria.limit != null ? Number(criteria.limit) : undefined;
+    const offset = criteria.offset != null ? Number(criteria.offset) : 0;
+    delete criteria.limit;
+    delete criteria.offset;
     const t0 = process.hrtime.bigint();
     const fachErkannt = applySubjectFilter(store, criteria);
     const hits = store.search.suche(criteria);
@@ -181,6 +249,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     const dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
     const hilfenGesamt = store.bundle.bausteine.filter(istHilfe).length;
     const hilfenTreffer = hits.filter(istHilfe).length;
+    const shown = hits.slice(offset, limit != null ? offset + limit : undefined);
     return {
       gesamt: store.bundle.bausteine.length,
       gesamtMethoden: store.bundle.bausteine.length - hilfenGesamt,
@@ -188,9 +257,10 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       anzahl: hits.length,
       anzahlMethoden: hits.length - hilfenTreffer,
       anzahlHilfen: hilfenTreffer,
+      angezeigt: shown.length,
       dauerMs,
       ...(fachErkannt !== undefined ? { fachErkannt } : {}),
-      treffer: hits,
+      treffer: shown,
       ...(semanticInfo
         ? {
             semantischeVorschlaege: semanticInfo.methodenVorschlaege.slice(0, 6),
@@ -240,8 +310,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     }
     // Situation of the lesson (raum, ohneSchrift, termine …), as object `situation` or as top-level fields.
     const situation = situationAus(body);
-    const badSituation = situationFehler(situation);
-    if (badSituation) return reply.code(400).send({ fehler: badSituation });
+    const badSituation = situationFehler(store, situation);
+    if (badSituation) return reply.code(400).send(badSituation);
     try {
       const kandidaten = ersatzKandidaten(store, body.arrangement, body.pfad, situation);
       return {
@@ -315,16 +385,13 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       (k) => (body as Record<string, unknown>)[k] != null && typeof (body as Record<string, unknown>)[k] !== 'string'
     );
     if (notText) return reply.code(400).send({ fehler: `Feld „${notText}“: erwartet wird Text.` });
-    // Same codes as the MCP tool adapt_scenario accepts.
-    const badCode = (['maxTechnik', 'bildungsstufe', 'fachbereich'] as const).find((k) => {
-      const v = (body as Record<string, unknown>)[k];
-      const allowed = fieldsMap.get(k)?.werte?.map((w) => w.code);
-      return typeof v === 'string' && v !== '' && allowed && !allowed.includes(v);
-    });
-    if (badCode) {
-      const allowed = fieldsMap.get(badCode)!.werte!.map((w) => w.code).join(', ');
-      return reply.code(400).send({ fehler: `Feld „${badCode}“: unbekannter Wert. Erlaubt: ${allowed}.` });
-    }
+    // Same codes as the MCP tool adapt_scenario accepts: the situation fields at the top level (raum, maxTechnik,
+    // bildungsstufe …) and the codes of the matrix.
+    const badCode =
+      situationFehler(store, situationAus({ ...body, situation: undefined })) ||
+      codeFehler(store, body as Record<string, unknown>, ['maxAufwand', 'ebenen']) ||
+      zahlenFehler(body as Record<string, unknown>, { lehrende: ZAHL_GRENZEN.lehrende });
+    if (badCode) return reply.code(400).send(badCode);
     if (body.gruppen != null && !isGroupList(body.gruppen)) {
       return reply.code(400).send({ fehler: 'Feld „gruppen“: erwartet wird eine Liste von Objekten mit id und label.' });
     }
@@ -333,23 +400,12 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (body.phasen != null && !isPhaseList(body.phasen)) {
       return reply.code(400).send({ fehler: 'Feld „phasen“: erwartet wird eine Liste von Objekten mit phaseLabel.' });
     }
-    const hasScenario =
-      (typeof body.scenarioText === 'string' && body.scenarioText.trim().length > 0) ||
-      (typeof body.text === 'string' && body.text.trim().length > 0) ||
-      (typeof body.baustein === 'string' && body.baustein.trim().length > 0) ||
-      Boolean(body.arrangement) ||
-      (Array.isArray(body.phasen) && body.phasen.length > 0) ||
-      (typeof body.lerngruppenText === 'string' && body.lerngruppenText.trim().length > 0) ||
-      (Array.isArray(body.gruppen) && body.gruppen.length > 0);
-    if (!hasScenario) {
-      return reply
-        .code(400)
-        .send({ fehler: 'Bitte mindestens scenarioText/text, baustein, arrangement, phasen, lerngruppenText oder gruppen übergeben.' });
-    }
+    const leer = anpassungLeerFehler(body as Record<string, unknown>);
+    if (leer) return reply.code(400).send(leer);
     // Situation of the plan for the subgroup decisions: object `anfrage` plus raum, ohneSchrift, termine … at the top level.
     const anfrage = anpassungsAnfrage(body as Record<string, unknown>);
-    const badSituation = situationFehler(anfrage);
-    if (badSituation) return reply.code(400).send({ fehler: badSituation });
+    const badSituation = situationFehler(store, anfrage) || bausteinFehler(store, body.baustein);
+    if (badSituation) return reply.code(400).send(badSituation);
     return buildAdaptScenarioZeroLlm(store, { ...body, ...(anfrage ? { anfrage } : {}) });
   });
 
@@ -377,6 +433,14 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       kettenschritt?: string;
       dauerMin?: number;
     } & Record<string, unknown>;
+    // Same codes as the MCP tool score_differentiation_matrix accepts; the situation is checked as in /adapt.
+    const situation = situationAus(body) || {};
+    const bad =
+      codeFehler(store, body, ['quickProfileId', 'personaId', 'maxAufwand', 'ebenen', 'zieltyp']) ||
+      situationFehler(store, situation) ||
+      differenzierungsTypFehler(body) ||
+      bausteinFehler(store, body.baustein);
+    if (bad) return reply.code(400).send(bad);
     const quickProfile = body.quickProfileId
       ? QUICK_LEARNER_GROUP_PROFILES.find((p) => p.id === body.quickProfileId)
       : undefined;
@@ -398,9 +462,6 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       maxAufwand: body.maxAufwand
     });
     // Parallel methods: methods only, needs covered in the situation, equivalent to the planned method (core).
-    const situation = situationAus(body) || {};
-    const badSituation = situationFehler(situation);
-    if (badSituation) return reply.code(400).send({ fehler: badSituation });
     const pruefung = teilgruppenAlternativen(store, {
       matrix: scoreResult,
       baustein: body.baustein,

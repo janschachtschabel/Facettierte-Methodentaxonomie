@@ -10,6 +10,7 @@ import {
   type TeilgruppenAlternative
 } from '@fmt/core';
 import type { CatalogStore } from './catalog-store.js';
+import type { EingabeFehler } from './eingaben.js';
 
 /**
  * Request fields that describe the situation a replacement or a parallel method must fit: room, literacy, dates,
@@ -44,15 +45,17 @@ export function situationAus(body: Record<string, unknown> | null | undefined): 
   return Object.keys(out).length ? out : undefined;
 }
 
-/** German message for a malformed situation field, or null. */
-export function situationFehler(s: MatchRequest | undefined): string | null {
+/**
+ * First malformed field of a situation or request (`anfrage`), or null: every request field of the core is checked as
+ * zuordnen checks it (codes with the allowed values, whole numbers and their bounds, lernort as raum); other keys are
+ * left to the caller. ohneSchrift also takes true/false (both abilities / none), as the search reads it.
+ */
+export function situationFehler(store: CatalogStore, s: MatchRequest | undefined): EingabeFehler | null {
   if (!s) return null;
-  const os = s.ohneSchrift;
-  if (os != null && typeof os !== 'boolean' && !(Array.isArray(os) ? os : [os]).every((x) => x === 'lesen' || x === 'schreiben')) {
-    return 'Feld „ohneSchrift“: erlaubt sind „lesen“ und „schreiben“.';
-  }
-  for (const f of ['termine', 'zeitMin', 'gruppe', 'maxVorbereitung'] as const) {
-    if (s[f] != null && !Number.isFinite(Number(s[f]))) return `Feld „${f}“: erwartet wird eine Zahl.`;
+  for (const [feld, wert] of Object.entries(s)) {
+    if (wert == null || wert === '' || (feld === 'ohneSchrift' && typeof wert === 'boolean')) continue;
+    const fehler = store.matcher.pruefeFeld(feld, wert);
+    if (fehler) return fehler;
   }
   return null;
 }
