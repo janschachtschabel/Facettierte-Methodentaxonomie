@@ -5,9 +5,11 @@ import type {
   EvidenceGrade,
   FmtData,
   ReplacementCandidate,
+  MatchRequest,
   SearchCriteria
 } from './types.js';
-import { raumFehlt } from './bedarf.js';
+import { raumFehlt, schriftFehlt } from './bedarf.js';
+import { ausschlussInSituation, kettenSchritt } from './alternativen.js';
 import { baueSituation } from './situation.js';
 import { erstelleRegeln } from './regeln.js';
 import type { FmtValidator } from './validate.js';
@@ -59,7 +61,11 @@ export function locate(arr: Arrangement, pfad: string): { holder: Record<string,
 export interface FmtSearch {
   suche(k?: SearchCriteria): Baustein[];
   bestGrade(b: Baustein): EvidenceGrade | null;
-  ersatz(arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>): ReplacementCandidate[];
+  /**
+   * Methods that may replace the one at `pfad`: the arrangement stays valid, the method carries the knowledge type of
+   * the chain step, and with `situation` (raum, raumBietet, ohneSchrift, termine …) its needs are covered there.
+   */
+  ersatz(arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>, situation?: MatchRequest): ReplacementCandidate[];
 }
 
 /**
@@ -127,6 +133,10 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     const wantedStatus = list(k.status);
 
     const given = (v: unknown) => v != null && v !== '';
+    // Same reading as the request field ohneSchrift: a flag means both, otherwise the named abilities.
+    const ohneSchriftRoh = k.ohneSchrift === false ? [] : k.ohneSchrift === true ? ['true'] : list(k.ohneSchrift);
+    const ohneSchrift = ohneSchriftRoh.some((x) => x === 'true' || x === '1') ? ['lesen', 'schreiben'] : ohneSchriftRoh;
+    const termine = given(k.termine) && Number.isFinite(Number(k.termine)) ? Number(k.termine) : undefined;
     const hits = data.bausteine.filter((b) => {
       if (words.length) {
         const hay = haystackById.get(b.kennung) || '';
@@ -141,6 +151,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
         const wanted = f === 'schriftbedarf' ? list(k[f]).map((v) => SCHRIFT_ALIAS[v] ?? v) : list(k[f]);
         if (wanted.length && !wanted.some((v) => (b[f] || []).includes(v))) return false;
       }
+      if (ohneSchrift.length && schriftFehlt(b, ohneSchrift).length) return false;
+      if (termine != null && b.termineMin != null && b.termineMin > termine) return false;
       const without = list(k.ohneRaumbedarf);
       if (without.length && (b.raumbedarf || []).some((v) => without.includes(v))) return false;
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
@@ -215,7 +227,8 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   function ersatz(
     arrangement: Arrangement,
     pfad: string,
-    registry?: Map<string, Arrangement>
+    registry?: Map<string, Arrangement>,
+    situation?: MatchRequest
   ): ReplacementCandidate[] {
     if (!validator) throw new Error('ersatz() braucht einen Validator: createSearch(data, validator)');
     const original = locate(arrangement, pfad);
@@ -231,9 +244,12 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     if (!node || !node.baustein) throw new Error('Kein Einsatz an ' + pfad);
 
     const out: ReplacementCandidate[] = [];
-    // A help is never a phase: it is no replacement for one.
+    // A help is never a phase; the chain step binds its knowledge type; the situation's needs must be covered.
+    const schritt = kettenSchritt(data, arrangement.zieltyp, node.kettenschritt);
+    const lage = situation ? baueSituation(situation, data) : undefined;
     data.bausteine
       .filter((b) => b.kennung !== node.baustein && istMethode(b))
+      .filter((b) => !ausschlussInSituation(b, { anfrage: situation, situation: lage, schritt, data }))
       .forEach((b) => {
         const copy = JSON.parse(JSON.stringify(arrangement)) as Arrangement;
         const at = locate(copy, pfad);

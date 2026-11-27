@@ -30,3 +30,12 @@ export { waehlePlanungsprofil } from './planungsprofil.js';
 export { ENTWURF_LEITPLANKEN, LEISTUNGSKONTROLLE_SCHRITT, OHNE_BILDUNGSSTUFE, baueEntwurf, entwurfMarkdown, istPruefschritt, profilBegriffe } from './entwurf.js';
 export type { Entwurf, EntwurfEingabe, EntwurfKernfeld, EntwurfPhase, ProfilBegriffe } from './entwurf.js';
 export { istHilfe, istMethode, nurMethoden } from './eintragsart.js';
+export {
+  GLEICHWERTIG_GEPRUEFT,
+  OHNE_GLEICHWERTIGKEITSPRUEFUNG,
+  alternativenFuerTeilgruppe,
+  ausschlussInSituation,
+  kettenSchritt,
+  pruefeAlternativen
+} from './alternativen.js';
+export type { AlternativenKontext, AlternativenPruefung, GepruefteAlternative, KandidatAusschluss, TeilgruppenAlternative } from './alternativen.js';
