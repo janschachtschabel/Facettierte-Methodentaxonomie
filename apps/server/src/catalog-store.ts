@@ -65,6 +65,13 @@ export interface CatalogStore {
   beispieleJsonld: Map<string, string>;
 }
 
+/** Codes and labels of one vocabulary (flat or grouped), as /api/v1/meta and the MCP tool list_vocabularies give them. */
+export function schemeValues(bundle: CatalogBundle, id: string): { id: string; label: string }[] {
+  const s = bundle.schemes.find((x) => x.id === id);
+  const werte = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
+  return werte.map((w) => ({ id: w.id, label: w.label }));
+}
+
 export function loadCatalogStore(distDataDir: string): CatalogStore {
   const read = (rel: string) => fs.readFileSync(path.join(distDataDir, rel), 'utf8');
   const bundleJson = read('catalog.bundle.json');

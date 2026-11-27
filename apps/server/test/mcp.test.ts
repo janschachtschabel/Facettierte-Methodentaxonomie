@@ -197,6 +197,11 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(alle.regeln[0]).toEqual(expect.objectContaining({ id: expect.any(String), name: expect.any(String), wirkung: expect.any(String), grundlage: expect.any(String) }));
     expect(alle.raumtypen.map((r: { id: string }) => r.id)).toEqual(expect.arrayContaining(['klassenraum', 'fachraum']));
     expect(alle.zielarten).toHaveLength(9);
+    // Rules carry text and W fields like /api/v1/meta; the description names the new lists.
+    expect(alle.regeln[0]).toEqual(expect.objectContaining({ text: expect.any(String), wfelder: expect.any(Array) }));
+    const { tools: alleTools } = await client.listTools();
+    const beschreibung = alleTools.find((t) => t.name === 'list_vocabularies')!.description!;
+    for (const w of ['Passungsregeln', 'Raumtypen', 'Zielarten']) expect(beschreibung).toContain(w);
 
     // New v1.5 MCP tools: score_differentiation_matrix, build_scenario_plan, elaborate_scenario, generate_phase_material
     const diffRes = await client.callTool({

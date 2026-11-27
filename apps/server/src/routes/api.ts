@@ -14,7 +14,7 @@ import {
   type MeasureLevel,
   type SearchCriteria
 } from '@fmt/core';
-import type { CatalogStore } from '../catalog-store.js';
+import { schemeValues, type CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
@@ -77,12 +77,6 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     bausteine: store.bundle.bausteine.length
   }));
 
-  const schemeValues = (id: string) => {
-    const s = store.bundle.schemes.find((x) => x.id === id);
-    const werte = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
-    return werte.map((w) => ({ id: w.id, label: w.label }));
-  };
-
   app.get('/api/v1/meta', async (_req, reply) => {
     reply.header('Cache-Control', 'no-cache');
     return {
@@ -100,8 +94,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       wfelder: store.bundle.wfelder,
       arten: store.bundle.arten,
       merkmale: store.bundle.merkmale,
-      raumtypen: schemeValues('raumtyp'),
-      zielarten: schemeValues('zielart'),
+      raumtypen: schemeValues(store.bundle, 'raumtyp'),
+      zielarten: schemeValues(store.bundle, 'zielart'),
       // Fit rules (data/regeln.json): what each rule checks, its effect and its basis.
       regeln: store.bundle.regeln,
       llmConfigured: Boolean(config.llmApiKey),

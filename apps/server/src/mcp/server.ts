@@ -14,7 +14,7 @@ import {
   type SearchCriteria
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
-import type { CatalogStore } from '../catalog-store.js';
+import { schemeValues, type CatalogStore } from '../catalog-store.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import {
@@ -320,13 +320,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   );
 
   // 7. list_vocabularies
-  const schemeWerte = (id: string) => {
-    const s = store.bundle.schemes.find((x) => x.id === id);
-    return (s?.werte || (s?.gruppen || []).flatMap((g) => g.werte)).map((w) => ({ id: w.id, label: w.label }));
-  };
   server.tool(
     'list_vocabularies',
-    'Listet alle FMT-Vokabulare, Funktionsketten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
+    'Listet alle FMT-Vokabulare, Funktionsketten, Passungsregeln (mit Text, W-Feldern, Wirkung und Grundlage), Raumtypen, Zielarten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
     {
       scheme: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Schema-ID wie "lernfunktion", "ansatz", "lernzustand", "bildungsstufe"')
     },
@@ -349,17 +345,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       return textResult({
         schemes: store.bundle.schemes.map((s) => ({ id: s.id, titel: s.titel })),
         ketten: store.bundle.ketten.map((k) => ({ id: k.id, label: k.label, zielart: k.zielart })),
-        regeln: store.bundle.regeln.map((r) => ({
-          id: r.id,
-          name: r.name,
-          art: r.art,
-          wirkung: r.wirkung,
-          grundlage: r.grundlage,
-          ...(r.quelle ? { quelle: r.quelle } : {}),
-          ...(r.keinTausch ? { keinTausch: true } : {})
-        })),
-        raumtypen: schemeWerte('raumtyp'),
-        zielarten: schemeWerte('zielart'),
+        // Same entries as /api/v1/meta: what each rule checks, its text, W fields, effect and basis.
+        regeln: store.bundle.regeln,
+        raumtypen: schemeValues(store.bundle, 'raumtyp'),
+        zielarten: schemeValues(store.bundle, 'zielart'),
         differenzierungsPersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
         anfrageFelder: store.matcher.felder()
       });
