@@ -4,7 +4,7 @@
 // Every condition is decidable from the answer, the request and the catalogue; the reading of each is written next to
 // its function. Result texts are German (they go into the reports).
 import type { Baustein, FmtData, Funktionskette } from '../../packages/fmt-core/src/types.js';
-import type { Soll } from './soll.mts';
+import type { Soll, SollTeilgruppe } from './soll.mts';
 
 export type Bedingung = 'B1' | 'B2' | 'B3' | 'B4' | 'B5' | 'B6' | 'B7' | 'B8' | 'B9' | 'B10' | 'B11' | 'B12' | 'B13' | 'B14';
 export type Pruefstatus = 'erfuellt' | 'verletzt' | 'entfaellt';
@@ -33,6 +33,8 @@ export interface Katalog {
   /** Ids of chain steps (k1, p2, …; B10). */
   schrittIds: string[];
   raumLabel: Map<string, string>;
+  /** Subject names (labels, alternative names, terms) of data/crosswalk/oeh-faecher.json, lower case (B10). */
+  fachNamen: string[];
 }
 export type Pruefer = (eintrag: Eintrag, soll: Soll, katalog: Katalog) => Pruefergebnis;
 
@@ -46,7 +48,7 @@ export const PAKET: Record<1 | 2 | 3 | 4, Bedingung[]> = {
 };
 export const KEINE_METHODE_SATZ = 'Für diesen Schritt steht keine passende Methode im Katalog.';
 
-export function katalogAus(data: Pick<FmtData, 'bausteine' | 'ketten' | 'schemes'>): Katalog {
+export function katalogAus(data: Pick<FmtData, 'bausteine' | 'ketten' | 'schemes'> & Partial<Pick<FmtData, 'faecher'>>): Katalog {
   const ids: string[] = [];
   const raumLabel = new Map<string, string>();
   const sammle = (knoten: any, schema: string) => {
@@ -68,7 +70,15 @@ export function katalogAus(data: Pick<FmtData, 'bausteine' | 'ketten' | 'schemes
     ketten: new Map(data.ketten.map((k) => [k.id, k])),
     vokabelIdsMitBindestrich: [...new Set(ids)],
     schrittIds: [...new Set(data.ketten.flatMap((k) => k.schritte.map((s) => s.id)))],
-    raumLabel
+    raumLabel,
+    fachNamen: [
+      ...new Set(
+        [...(data.faecher?.schulfaecher ?? []), ...(data.faecher?.hochschulfaecher ?? [])]
+          .flatMap((f: any) => [f.label, ...(f.alt ?? []), ...(f.begriffe ?? [])])
+          .filter((x): x is string => typeof x === 'string' && x.length > 0)
+          .map((x) => x.toLocaleLowerCase('de'))
+      )
+    ]
   };
 }
 
@@ -83,49 +93,76 @@ export const modusVon = (p: Json | null | undefined): string | undefined => p?.e
 
 interface Zeile {
   row: Json;
-  /** Arrangement node of the row (rows follow the flattened Einsatz/Wiederkehr/Freiphase nodes in order). */
+  /** Arrangement node of the row (see tabellenKnoten). */
   knoten?: Json;
   methodId: string | null;
   /** Wiederkehr in later lessons, outside the stated time. */
   ausserhalb: boolean;
 }
-const flach = (n: any, aus: Json[] = []): Json[] => {
+/**
+ * Nodes that become table rows, walked exactly as extractScheduledPhases (apps/server/src/routes/assistant.ts) builds
+ * the table: Sequenz and Schleife → teile, Parallel → haupt, Wahl → first option, Einsatz and Wiederkehr with a
+ * baustein → one row each, plus the planned Freiphase node (P1.2). Other nodes give no row.
+ */
+export function tabellenKnoten(n: any, aus: Json[] = []): Json[] {
   if (!n || typeof n !== 'object') return aus;
-  if (n.typ === 'Sequenz' || n.typ === 'Parallel' || Array.isArray(n.teile)) {
-    for (const t of n.teile ?? []) flach(t, aus);
+  if ((n.typ === 'Sequenz' || n.typ === 'Schleife') && Array.isArray(n.teile)) n.teile.forEach((t: any) => tabellenKnoten(t, aus));
+  else if (n.typ === 'Parallel') tabellenKnoten(n.haupt, aus);
+  else if (n.typ === 'Wahl' && Array.isArray(n.optionen) && n.optionen.length) tabellenKnoten(n.optionen[0], aus);
+  else if ((n.typ === 'Einsatz' || n.typ === 'Wiederkehr') && typeof n.baustein === 'string') aus.push(n);
+  // Forward-compatible: the free phase node of P1.2 (ruling 1) becomes a row without method.
+  else if (n.typ === 'Freiphase') aus.push(n);
+  return aus;
+}
+/** Every node of the arrangement, including the begleitend branch of a Parallel and all options of a Wahl. */
+function alleKnoten(n: any, aus: Json[] = []): Json[] {
+  if (!n || typeof n !== 'object') return aus;
+  if (Array.isArray(n)) {
+    n.forEach((x) => alleKnoten(x, aus));
     return aus;
   }
-  aus.push(n);
+  if (typeof n.typ === 'string') aus.push(n);
+  alleKnoten(n.teile, aus);
+  alleKnoten(n.haupt, aus);
+  alleKnoten(n.begleitend, aus);
+  alleKnoten(n.optionen, aus);
+  for (const b of n.belegung ?? []) alleKnoten(b.inhalt, aus);
   return aus;
-};
+}
 const arrangementVon = (p: Json): Json | undefined => p?.maschinenlesbar?.arrangement;
-function zeilenVon(p: Json): Zeile[] {
+interface Tabelle {
+  zeilen: Zeile[];
+  /** Set when rows and nodes do not pair up; checks that need the node of a row fail with this reason. */
+  fehlpassung?: string;
+}
+function tabelleVon(p: Json): Tabelle {
   const rows: Json[] = Array.isArray(p?.thematischeTabelle) ? p.thematischeTabelle : [];
   const arr = arrangementVon(p);
-  const knoten = arr ? flach(arr.ablauf ?? arr) : [];
-  const passt = knoten.length === rows.length;
-  return rows.map((row, i) => ({
-    row,
-    knoten: passt ? knoten[i] : undefined,
-    methodId: typeof row.methodId === 'string' && row.methodId ? row.methodId : null,
-    ausserhalb: Boolean(row.wiederkehr) && Number(row.dauerAusserhalbMin) > 0
-  }));
-}
-/** Methods placed in slots of the plan's nodes (belegung). */
-function slotMethoden(p: Json): string[] {
-  const aus: string[] = [];
-  const geh = (n: any) => {
-    if (!n || typeof n !== 'object') return;
-    if (Array.isArray(n)) return n.forEach(geh);
-    for (const b of n.belegung ?? []) {
-      for (const k of flach(b.inhalt)) if (typeof k.baustein === 'string') aus.push(k.baustein);
-      geh(b.inhalt);
-    }
-    geh(n.teile);
+  const knoten = arr ? tabellenKnoten(arr.ablauf ?? arr) : [];
+  let fehlpassung: string | undefined;
+  if (knoten.length !== rows.length) fehlpassung = `Zeilen und Knoten passen nicht zusammen (${rows.length} Zeilen, ${knoten.length} Knoten im Arrangement)`;
+  else {
+    const i = rows.findIndex((row, j) => (row.methodId ?? null) !== (knoten[j].baustein ?? null));
+    if (i >= 0) fehlpassung = `Zeilen und Knoten passen nicht zusammen (Zeile ${i + 1}: ${rows[i].methodId ?? '–'}, Knoten: ${knoten[i].baustein ?? '–'})`;
+  }
+  return {
+    fehlpassung,
+    zeilen: rows.map((row, i) => ({
+      row,
+      knoten: fehlpassung ? undefined : knoten[i],
+      methodId: typeof row.methodId === 'string' && row.methodId ? row.methodId : null,
+      ausserhalb: Boolean(row.wiederkehr) && Number(row.dauerAusserhalbMin) > 0
+    }))
   };
+}
+const zeilenVon = (p: Json): Zeile[] => tabelleVon(p).zeilen;
+/** Methods of the plan without a row of their own: slots (belegung) and the begleitend branch of a Parallel. */
+function slotMethoden(p: Json): string[] {
   const arr = arrangementVon(p);
-  geh(arr?.ablauf ?? arr);
-  return aus;
+  const alle = alleKnoten(arr?.ablauf ?? arr);
+  const inZeilen = new Set(tabellenKnoten(arr?.ablauf ?? arr));
+  const optionen = new Set(alle.filter((n) => n.typ === 'Wahl').flatMap((n) => alleKnoten((n.optionen ?? []).slice(1))));
+  return alle.filter((n) => typeof n.baustein === 'string' && !inZeilen.has(n) && !optionen.has(n)).map((n) => n.baustein);
 }
 /** Values of the keys baustein / kennung / methodId anywhere in a structure. */
 function idsIn(x: any, aus: string[] = []): string[] {
@@ -179,6 +216,69 @@ function sichtbareTexte(p: Json): Array<{ wo: string; text: string }> {
   for (const m of p.entwurf?.module ?? []) nimm('Entwurf', [m.name, m.inhalt]);
   return aus;
 }
+const escape = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Parts of a request that name nothing but a stage or class, a group size, a room, a phase or a time (B10 ruling). */
+const RAHMENTEIL = [
+  'klasse \\d+',
+  'kl\\. ?\\d+',
+  'jahrgangsstufe \\d+',
+  '\\d+\\. (?:lehrjahr|semester|klasse)',
+  'oberstufe',
+  'mittelstufe',
+  'unterstufe',
+  'q[12]',
+  'sek(?:undarstufe)? ?(?:i{1,2}|1|2)',
+  'grundschule',
+  'berufsschule',
+  '\\d+ ?(?:minuten|min\\.?|stunden?)',
+  'doppelstunde',
+  'einzelstunde',
+  '\\d+ (?:kinder|schüler(?:innen)?|schülerinnen und schüler|studierende|azubis|auszubildende|teilnehmende|teilnehmer(?:innen)?|personen|lernende)',
+  '[\\p{L}-]*raum',
+  '[\\p{L}-]*halle',
+  'sportplatz',
+  'schulhof',
+  'draußen',
+  'labor',
+  'lehrküche',
+  'werkstatt',
+  'skills lab',
+  'einstieg',
+  'erarbeitung',
+  'sicherung',
+  'abschluss'
+];
+/** Whether a whole part of the request text names only subject, stage/class, group size, room, phase or time. */
+function nurRahmen(teil: string, k: Katalog): boolean {
+  const muster = [...RAHMENTEIL, ...k.fachNamen.map(escape)].sort((a, b) => b.length - a.length);
+  const re = new RegExp(`^(?:${muster.join('|')})(?=\\s|$)\\s*`, 'u');
+  let rest = norm(teil).replace(/[.!?]+$/, '');
+  if (!rest) return false;
+  while (rest) {
+    const m = rest.match(re);
+    if (!m || !m[0]) return false;
+    rest = rest.slice(m[0].length).trim();
+  }
+  return true;
+}
+const teileVon = (x: string) => x.split(/[,:]/).map((t) => norm(t)).filter(Boolean);
+/**
+ * B10 ruling: the topic is literal if it is one contiguous part of the request text, or if it is the request's
+ * comma/colon parts in order with only whole parts missing that name nothing but subject, stage/class, group size,
+ * room, phase or time. Cutting words inside a part fails.
+ */
+export function themaWoertlich(text: string, thema: string, k: Katalog): boolean {
+  if (!thema.trim()) return false;
+  if (norm(text).includes(norm(thema))) return true;
+  const t = teileVon(text);
+  const th = teileVon(thema);
+  let j = 0;
+  for (const teil of t) {
+    if (j < th.length && teil === th[j]) j++;
+    else if (!nurRahmen(teil, k)) return false;
+  }
+  return j === th.length;
+}
 const ganzesWort = (id: string) => new RegExp(`(?<![\\p{L}\\p{N}_-])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_-])`, 'u');
 
 // ---------- B1–B14 ----------
@@ -193,13 +293,8 @@ export const pruefeB1: Pruefer = (e, soll) => {
   if (ziel === undefined) {
     const ang = (p.pflichtangaben?.angenommen ?? []).find((x: Json) => x.feld === 'zeitMin' || x.feld === 'zeit');
     ziel = typeof ang?.wert === 'number' ? ang.wert : undefined;
-    if (ziel === undefined) {
-      const satz = [...(p.annahmen ?? []), ...(p.pflichtangaben?.angenommen ?? []).map((x: Json) => x.grund)].find((t: any) => typeof t === 'string' && /\d+\s*Min/.test(t) && /Zeit|Dauer|Minuten/i.test(t));
-      const m = typeof satz === 'string' ? satz.match(/(\d+)\s*Min/) : null;
-      ziel = m ? Number(m[1]) : undefined;
-    }
     quelle = 'angenommen';
-    if (ziel === undefined) return nein('Keine Zeit genannt und keine angenommene Zeit unter den Annahmen');
+    if (ziel === undefined) return nein('Keine Zeit genannt und keine angenommene Zeit unter pflichtangaben.angenommen (Feld zeit)');
   }
   const zeilen = zeilenVon(p);
   const summe = zeilen.reduce((s, z) => s + (Number(z.row.durationMin) || 0), 0);
@@ -234,7 +329,8 @@ export const pruefeB3: Pruefer = (e, soll, k) => {
   const p = planJson(e);
   if (!p) return nein(`/plan antwortet mit Status ${e.plan?.status}`);
   if (modusVon(p) !== 'ablauf') return nein(`Kernhandlung „${kh.wortlaut}“ genannt, aber kein Ablauf (Modus ${modusVon(p) ?? '–'})`);
-  const zeilen = zeilenVon(p);
+  const { zeilen, fehlpassung } = tabelleVon(p);
+  if (fehlpassung) return nein(fehlpassung);
   const schritt = hauptschritt(p, k);
   const haupt = hauptzeilen(zeilen, schritt);
   if (!haupt.length) return nein(`Hauptschritt ${schritt ?? '–'} nicht in der Tabelle`);
@@ -264,7 +360,9 @@ export const pruefeB4: Pruefer = (e, _soll, k) => {
   const treffer: string[] = [];
   for (const [wo, ids] of quellen)
     for (const id of new Set(ids)) {
-      const r = k.bausteine.get(id)?.reichweite;
+      const b = k.bausteine.get(id);
+      if (!b) treffer.push(`${wo}: unbekannte Methode „${id}“`);
+      const r = b?.reichweite;
       if (r === 'r3' || r === 'r4') treffer.push(`${wo}: ${bausteinName(k, id)} (${r})`);
     }
   return treffer.length ? nein(treffer.join('; ')) : ok();
@@ -276,10 +374,15 @@ export const pruefeB5: Pruefer = (e, _soll, k) => {
   if (!p) return nein(`/plan antwortet mit Status ${e.plan?.status}`);
   const fehler: string[] = [];
   let geprueft = 0;
-  for (const z of zeilenVon(p)) {
+  const { zeilen, fehlpassung } = tabelleVon(p);
+  if (fehlpassung) return nein(fehlpassung);
+  for (const z of zeilen) {
     if (!z.methodId) continue;
     const b = k.bausteine.get(z.methodId);
-    if (!b) continue;
+    if (!b) {
+      fehler.push(`unbekannte Methode „${z.methodId}“`);
+      continue;
+    }
     const min = z.row.wiederkehr ? Number(z.knoten?.dauerMin) : Number(z.row.durationMin);
     if (!z.row.wiederkehr && !(min > 0)) continue;
     if (!Number.isFinite(min)) {
@@ -358,7 +461,8 @@ export const pruefeB8: Pruefer = (e, soll, k) => {
   if (!notes.length) return nein('Raum mit Gefahr, aber kein Sicherheitshinweis');
   const raeume = soll.raumtyp ? [soll.raumtyp.wert, ...(soll.raumtyp.auch ?? [])] : [];
   const raumWoerter = raeume.flatMap((r) => [k.raumLabel.get(r) ?? r, ...(k.raumLabel.get(r) ?? '').split(/,\s*/)]).filter(Boolean).map(norm);
-  const zeilen = zeilenVon(p);
+  const { zeilen, fehlpassung } = tabelleVon(p);
+  if (fehlpassung) return nein(fehlpassung);
   const haupt = hauptzeilen(zeilen, hauptschritt(p, k));
   const kernNamen = haupt.map((z) => String(z.row.methodName ?? z.row.phaseLabel ?? '')).filter(Boolean);
   const andere = [...new Set(zeilen.filter((z) => z.methodId && !haupt.includes(z)).map((z) => String(z.row.methodName ?? '')))].filter((n) => n && !kernNamen.includes(n));
@@ -391,9 +495,10 @@ function genannt(feld: string, wert: unknown, e: Eintrag, soll: Soll): boolean {
     const s = modell(soll);
     return Boolean(s && s.status === 'genannt' && (gleich(s.wert, wert) || (s.auch ?? []).some((x) => gleich(x, wert))));
   }
-  if (e.anfrage && feld in e.anfrage) return true;
+  // The value must be the one the request states: an engine that replaces a stated value does not get „genannt“.
+  if (e.anfrage && feld in e.anfrage) return gleich(e.anfrage[feld], wert);
   const erkannt: Json[] = e.match?.json?.erkannt ?? [];
-  return erkannt.some((x) => x.feld === feld && typeof x.beleg === 'string' && !/^(semantisch|Thema):/i.test(x.beleg));
+  return erkannt.some((x) => x.feld === feld && typeof x.beleg === 'string' && !/^(semantisch|Thema):/i.test(x.beleg) && (x.wert === undefined || gleich(x.wert, wert)));
 }
 /** B9: every derived or assumed value stands with its reason under pflichtangaben.angenommen; nothing unstated counts as stated. */
 export const pruefeB9: Pruefer = (e, soll) => {
@@ -415,7 +520,7 @@ export const pruefeB9: Pruefer = (e, soll) => {
     }
   }
   for (const [feld, wert] of Object.entries(p.erkannteKriterien ?? {})) {
-    if (feld === 'modus' || wert === undefined || wert === null) continue;
+    if (feld === 'modus' || wert === undefined || wert === null || (Array.isArray(wert) && wert.length === 0)) continue;
     if (genannt(feld, wert, e, soll)) continue;
     if (!unterAnnahmen(feld)) fehler.push(`${feld} = ${JSON.stringify(wert)} nicht genannt und nicht unter den Annahmen`);
   }
@@ -440,7 +545,7 @@ export const pruefeB10: Pruefer = (e, _soll, k) => {
   const thema = typeof p.thema === 'string' ? p.thema : '';
   if (istStrukturiert(e.anfrage)) {
     if (thema.trim() !== text.trim()) fehler.push(`Thema „${thema}“ ≠ Text der Anfrage „${text}“`);
-  } else if (!thema || !norm(text).includes(norm(thema))) fehler.push(`Thema „${thema}“ ist kein zusammenhängender Teil der Anfrage`);
+  } else if (!themaWoertlich(text, thema, k)) fehler.push(`Thema „${thema}“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit)`);
   return fehler.length ? nein(fehler.join('; ')) : ok();
 };
 
@@ -480,6 +585,17 @@ export const pruefeB12: Pruefer = (e, soll, k) => {
   return fehler.length ? nein(fehler.join('; ')) : ok();
 };
 
+/**
+ * Words by which a help text in a row's groupAdaptations addresses the group's named trait (controller ruling, fix
+ * round 1). A matrix measure that does not touch the trait (e.g. „ruhige Ecken“ for DaZ) is no help for it.
+ */
+const HILFE_FUER: Record<SollTeilgruppe['art'], RegExp | null> = {
+  sprache: /sprach|wortschatz|wortspeicher|satzanf|satzstarter|satzmuster|fachbegriff|glossar|daz|zweitsprache|mehrsprach/i,
+  lesen: /lese|vorles|screenreader|vorlesefunktion|vorgelesen|audio|hörfassung|text(?:entlast|reduz)|einfache sprache|leichte sprache|bildgestützt|piktogramm/i,
+  foerderLernen: /anleitung|strategie|schritt-für-schritt|schrittweise|lösungsbeispiel|musterlösung|strukturhilfe|modellier|kleinschritt/i,
+  leistungsstark: /vertief|anspruch|herausforder|zusatzaufgabe|expert|offener|weniger anleitung|knobel|transfer/i,
+  keins: null
+};
 /** B13: each named group a rule applies to gets „hilfe“ or „tausch“ in /adapt and, where the plan carries groups, in teilgruppenMethoden or teilgruppenHilfen of the plan. */
 export const pruefeB13: Pruefer = (e, soll) => {
   const gruppen = soll.teilgruppen.filter((t) => t.regelGreift);
@@ -493,8 +609,14 @@ export const pruefeB13: Pruefer = (e, soll) => {
   const hilfen: Json[] = Array.isArray(p?.teilgruppenHilfen) ? p.teilgruppenHilfen : [];
   for (const g of gruppen) {
     if (e.adapt?.status === 200 && !impulse.some((i) => i.groupId === g.id && (i.antwort === 'hilfe' || i.antwort === 'tausch'))) fehler.push(`/adapt: „${g.id}“ (${g.merkmal}) bekommt nur „passt“`);
-    const imPlan = tm.some((t) => t.groupId === g.id && (t.antwort === 'hilfe' || t.antwort === 'tausch')) || hilfen.some((h) => h.groupId === g.id);
-    if (traegtGruppen && !imPlan) fehler.push(`Plan: „${g.id}“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen)`);
+    const wort = HILFE_FUER[g.art];
+    const zeilenHilfe = (p?.thematischeTabelle ?? []).some((row: Json) => {
+      const t = row?.groupAdaptations?.[g.id];
+      // The text starts with the topic („Zu „…“: …“); only the measures after it count.
+      return typeof t === 'string' && Boolean(wort) && wort!.test(t.replace(/^Zu „[^“]*“:\s*/, ''));
+    });
+    const imPlan = tm.some((t) => t.groupId === g.id && (t.antwort === 'hilfe' || t.antwort === 'tausch')) || hilfen.some((h) => h.groupId === g.id) || zeilenHilfe;
+    if (traegtGruppen && !imPlan) fehler.push(`Plan: „${g.id}“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen, Hilfetext zum Merkmal in groupAdaptations)`);
   }
   return fehler.length ? nein(fehler.join('; ')) : ok();
 };
@@ -507,7 +629,11 @@ export const pruefeB14: Pruefer = (e, soll, k) => {
   const hinweise = (p.hinweise ?? []).filter((h: any) => typeof h === 'string').map(norm);
   for (const r of (p.rueckfall ?? []) as Json[]) {
     const schritt = String(r.schritt ?? r.label ?? r.schrittLabel ?? '');
-    const was = String(r.name ?? r.titel ?? r.baustein ?? '');
+    const was = String(r.name ?? r.titel ?? (typeof r.baustein === 'string' ? bausteinName(k, r.baustein) : ''));
+    if (!schritt && !was) {
+      fehler.push(`Rückfall ohne Schritt und ohne Namen: ${JSON.stringify(r).slice(0, 120)}`);
+      continue;
+    }
     if (!hinweise.some((h: string) => (!schritt || h.includes(norm(schritt))) && (!was || h.includes(norm(was))))) fehler.push(`Rückfall „${was}“ im Schritt „${schritt}“ nicht unter den Hinweisen`);
   }
   const zeilen = zeilenVon(p);

@@ -23,6 +23,9 @@ const P2_3 = 'wartet auf P2.3';
 const P1_6_P2_3 = 'wartet auf P1.6 (Lage-Regel) und P2.3 (Sicherheitshinweis)';
 /** Old Q6: one mode decision for /plan and /match. */
 const P1_3_P1_4 = 'wartet auf P1.3/P1.4';
+/** Old QD2 where the plan names the fixing task: Reichweite filter (P1.1 acceptance), Kernhandlung (P3.3). */
+const P1_1 = 'wartet auf P1.1';
+const P3_3 = 'wartet auf P3.3';
 /** Old QD2: gated data. */
 const P4_D2 = 'wartet auf P4.D2';
 
@@ -116,7 +119,7 @@ export const REIHE5: Qualitaetsfall[] = [
     text: 'Verbrennung von Metallen: Schülerversuch mit Eisenwolle',
     anfrage: { fachbereich: 'nawi-technik', bildungsstufe: 'sek1', zeitMin: 45, gruppe: 24, raum: 'fachraum-nawi', zielart: 'konzepte' },
     erwartet: { kriterien: { ansatz: ['forschend'] }, enthaelt: 'experiment' },
-    bekannt: { enthaelt: P4_D2 }
+    bekannt: { enthaelt: P3_3 }
   },
   {
     id: 's1-physik-stromkreis-problem',
@@ -324,7 +327,7 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 'hs-labor-titration',
     text: 'Laborpraktikum Chemie im 1. Semester: Säure-Base-Titration, 180 Minuten, 16 Studierende, Labor',
     erwartet: { regeln: ['sicherheitshinweis'], hinweisNicht: ['Positionslinie', 'Klassenspaziergang'], nicht: ['jenaplan-kreis'], thema: '1. Semester' },
-    bekannt: { hinweis: P2_3, nicht: P4_D2 }
+    bekannt: { hinweis: P2_3, nicht: P1_1 }
   },
   // Erwachsenenbildung
   {

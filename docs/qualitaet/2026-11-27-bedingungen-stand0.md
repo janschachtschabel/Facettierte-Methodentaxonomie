@@ -2,7 +2,7 @@
 
 Stand: 27.11.2026 · Engine-Stand Commit af7aa28 (Q2 eingespielt, FMT 2.1 noch nicht umgesetzt) · 56 Szenarien aus `scripts/szenariotest/szenarien.mts` · Lauf ohne Server-LLM, Variante 0 · Prüfer `scripts/szenariotest/bedingungen.mts` (Task P0.1).
 
-**Der Maßstab `scripts/szenariotest/soll.mts` ist ungeprüft.** Nach Entscheidung 17 des Plans gibt ihn der unabhängige Torprüfer einmal frei. Bis dahin sind alle Zahlen vorläufig, vor allem B3 (Kernhandlung), B8 (Raum mit Gefahr), B9 (genannt oder abgeleitet) und B14 (Fach der Stunde): Diese Bedingungen hängen am Maßstab.
+**Der Maßstab `scripts/szenariotest/soll.mts` ist geprüft.** Der unabhängige Torprüfer hat ihn nach Entscheidung 17 einmal geprüft (Protokoll `/mnt/project-files/fmt2/pruefung/soll-szenariotest.md`: 41 Einträge ok, 15 geändert). Alle 15 Änderungen sind eingetragen (Fixrunde 1 zu P0.1). Spätere Änderungen am Maßstab nur mit Grund am Eintrag.
 
 Nachrechnen: `npm run build:data && npm run szenariotest:bedingungen -- <Ordner>` (Lauf im Prozess, schreibt `rohergebnisse.json`, `bedingungen.json`, `bedingungen.md`); mit `--aus <rohergebnisse.json>` ohne neuen Lauf; mit `--paket N` Exit-Code 1, sobald eine Bedingung der Pakete 1 bis N in einem Szenario verletzt ist.
 
@@ -19,13 +19,15 @@ Nachrechnen: `npm run build:data && npm run szenariotest:bedingungen -- <Ordner>
 | B7 Keine Gruppe ohne Nennung | 1 | 5 | 51 | 0 | 49 Pläne |
 | B8 Sicherheitshinweis am Raum | 2 | 0 | 19 | 37 | Nr. 38, 41, 42 |
 | B9 Annahmen mit Grund | 3 | 24 | 32 | 0 | Nr. 53 |
-| B10 Keine „Phase N“, keine Codes, Thema wörtlich | 1 | 44 | 12 | 0 | Nr. 26, 36, 45 |
+| B10 Keine „Phase N“, keine Codes, Thema wörtlich | 1 | 46 | 10 | 0 | Nr. 26, 36, 45 |
 | B11 /plan und /match gleicher Modus | 1 | 51 | 5 | 0 | 5 Fälle |
 | B12 Keine Methode doppelt, Gruppengröße | 2 | 54 | 0 | 2 | Nr. 49 |
 | B13 Teilgruppe erhält Hilfe oder Tausch | 4 | 0 | 3 | 53 | Nr. 9, 11, 27 |
 | B14 Rückfall gemeldet, nichts Fachfremdes | 2 | 56 | 0 | 0 | Nr. 19, 41 |
 
-Paket 1 ist heute nicht erfüllt: B4 (2), B7 (51), B10 (12) und B11 (5) sind verletzt.
+Paket 1 ist heute nicht erfüllt: B4 (2), B7 (51), B10 (10) und B11 (5) sind verletzt.
+
+Gegenüber der ersten Messung (Commit 9a663b7, Maßstab ungeprüft) änderte sich nur B10 (44/12 → 46/10): Nr. 10 und 44 lassen nur ganze Satzteile mit Stufe, Zeit, Gruppengröße und Raum weg und gelten nach der Entscheidung des Steuernden als wörtlich. B3 bleibt bei 11 Verletzungen: Nr. 6 kommt hinzu (Kernhandlung Bodypercussion), Nr. 46 entfällt (Titration ist Handgriff, keine Kernhandlung).
 
 ## Was sich gegenüber dem Bericht geändert hat
 
@@ -39,15 +41,17 @@ Die Spalte „Spec E12 nennt“ beschreibt den Lauf vom 27.11.2026 auf Commit 63
 ## Lesart des Prüfers
 
 Wo die Bedingung Spielraum lässt, liest der Prüfer so (Grundlage: Aufgabe P0.1 des Plans):
-- Zeilen und Knoten: Die Zeilen der Tabelle folgen in Reihenfolge den Knoten `Einsatz` und `Wiederkehr` des Arrangements; daraus kommen Kettenschritt (B3, B8) und Minuten je Wiederholung (B5).
+- Zeilen und Knoten: Der Prüfer geht die Knoten so durch wie `extractScheduledPhases` (apps/server/src/routes/assistant.ts): Sequenz und Schleife über ihre Teile, Parallel über `haupt`, Wahl über die erste Option, je `Einsatz` und `Wiederkehr` eine Zeile; dazu der Knoten `Freiphase` aus P1.2. Daraus kommen Kettenschritt (B3, B8) und Minuten je Wiederholung (B5). Passen Zahl oder Methoden von Zeilen und Knoten nicht zusammen, sind B3, B5 und B8 mit dem Grund „Zeilen und Knoten passen nicht zusammen“ verletzt. Methoden in Slots und im Zweig `begleitend` gehören zum Plan (B2, B4, B12, B14), haben aber keine eigene Zeile.
 - B3 und B8, Hauptschritt: Vor Paket 3 ist es der Schritt mit Rolle `haupt` und dem größten Zeitanteil der Kette.
 - B6: Eine Prüfmeldung gilt als „in Worten“ genannt, wenn ihr Text in einem Hinweis oder einer Regelmeldung steht oder wenn ein Hinweis alle in „…“ zitierten Begriffe der Meldung nennt.
 - B7: Mit genannten Teilgruppen zählt der Prüfer die Gruppe „regel“ (Rest der Klasse) mit, weil die Anfrage sie übergibt.
-- B9: Für Zeit, Gruppengröße, Raum, Stufe, Fachbereich und „ohne Schrift“ entscheidet `soll.mts`, ob ein Wert genannt ist. Für alle anderen Felder gilt ein Wert als genannt, wenn er als Feld in der Anfrage steht oder `/match` einen Beleg aus dem Text nennt; Belege „semantisch: …“ und „Thema: …“ sind Vermutungen, keine Nennung. Unter den Annahmen heißen Zeit „zeit“, Gruppengröße „anzahl“ und Fachbereich „fach“.
-- B10: Thema bei strukturierter Anfrage gleich dem Text; bei freiem Text ein zusammenhängender Teil des Texts. Das Herauslösen einzelner Wörter mitten im Satz (Nr. 15, 19, 22, 26, 29, 33, 40) und das Weglassen ganzer Satzteile (Nr. 10, 43, 44) gelten beide als Verletzung (E3: „Erkannte Wörter werden nicht herausgestrichen“). Codes: Vokabular-Ids mit Bindestrich, Ids von Kettenschritten, Regelcodes `R-00` bis `R-99`.
+- B1: Ohne genannte Zeit gilt nur die angenommene Zeit unter `pflichtangaben.angenommen` (Feld `zeit`), kein anderer Satz mit Minuten.
+- B4 und B5: Eine Methoden-Id, die der Katalog nicht kennt, ist eine Verletzung.
+- B9: Für Zeit, Gruppengröße, Raum, Stufe, Fachbereich und „ohne Schrift“ entscheidet `soll.mts`, ob ein Wert genannt ist. Für alle anderen Felder gilt ein Wert als genannt, wenn er als Feld in der Anfrage steht oder `/match` einen Beleg aus dem Text nennt; Belege „semantisch: …“ und „Thema: …“ sind Vermutungen, keine Nennung. Ersetzt die Engine einen genannten Wert durch einen anderen, gilt er nicht als genannt; leere Listen zählen nicht. Unter den Annahmen heißen Zeit „zeit“, Gruppengröße „anzahl“ und Fachbereich „fach“.
+- B10 (Entscheidung des Steuernden): Thema bei strukturierter Anfrage gleich dem Text. Bei freiem Text gilt es als wörtlich, wenn es ein zusammenhängender Teil des Texts ist oder wenn nur ganze, durch Komma oder Doppelpunkt getrennte Teile fehlen, die nichts nennen als Fach, Stufe oder Klasse, Gruppengröße, Raum, Phase oder Zeit. Fächer nach `data/crosswalk/oeh-faecher.json` (Name, Alternativnamen, Begriffe). Wörter innerhalb eines Teils herauszulösen bleibt eine Verletzung (Nr. 15, 19, 22, 26, 29, 33, 40, 43, 56; Nr. 21 ist strukturiert). Codes: Vokabular-Ids mit Bindestrich, Ids von Kettenschritten, Regelcodes `R-00` bis `R-99`.
 - B11: Fragt `/match` nur mit weniger Feldern erfolgreich (erster Versuch 400), entfällt B11. Heute kommt das nicht vor.
-- B13: Auf der Planseite zählen Einträge mit „hilfe“ oder „tausch“ in `teilgruppenMethoden` oder Einträge in `teilgruppenHilfen`. Der Plan führt die Hilfen heute nur in `/adapt`, nicht im Plan selbst.
-- B14: Ohne genanntes Fach (Nr. 52, 53) prüft der Prüfer die Fachpassung nicht. Das Kennzeichen „Grundform“ liest er als Feld `grundform: true` am Baustein (kommt mit Paket 2).
+- B13 (Entscheidung des Steuernden): Auf der Planseite zählen Einträge mit „hilfe“ oder „tausch“ in `teilgruppenMethoden`, Einträge in `teilgruppenHilfen` und ein Hilfetext in `groupAdaptations` einer Zeile, der das genannte Merkmal der Gruppe anspricht (Sprache: etwa Satzstarter, Wortspeicher, Fachbegriffe; Lesen: Vorlesen, Screenreader, Textentlastung; Förderbedarf Lernen: Anleitung, Strategie, Lösungsbeispiel; leistungsstark: Vertiefung, Anspruch). Der vorangestellte Themensatz „Zu „…“:“ zählt nicht. Die Art des Merkmals steht am Maßstab (Feld `art`).
+- B14: Ohne genanntes Fach (Nr. 52, 53) prüft der Prüfer die Fachpassung nicht. Das Kennzeichen „Grundform“ liest er als Feld `grundform: true` am Baustein (kommt mit Paket 2). Ein Eintrag in `rueckfall` ohne Schritt und ohne Namen ist eine Verletzung; nennt er die Methode per Id, sucht der Prüfer ihren Namen in den Hinweisen.
 
 ## Ergebnis des Prüfers
 
@@ -66,7 +70,7 @@ Zeichen: ✓ erfüllt, ✗ verletzt, – entfällt (die Bedingung trifft auf das
 | B7 | 1 | 5 | 51 | 0 |
 | B8 | 2 | 0 | 19 | 37 |
 | B9 | 3 | 24 | 32 | 0 |
-| B10 | 1 | 44 | 12 | 0 |
+| B10 | 1 | 46 | 10 | 0 |
 | B11 | 1 | 51 | 5 | 0 |
 | B12 | 2 | 54 | 0 | 2 |
 | B13 | 4 | 0 | 3 | 53 |
@@ -81,11 +85,11 @@ Zeichen: ✓ erfüllt, ✗ verletzt, – entfällt (die Bedingung trifft auf das
 | 3 | gs3-sachunterricht-draussen | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | – | ✓ | 2 |
 | 4 | gs4-englisch-wortschatz-10 | – | – | – | ✓ | – | – | ✓ | – | ✗ | ✓ | ✓ | – | – | ✓ | 1 |
 | 5 | gs2-sport-werfen | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | – | ✓ | 3 |
-| 6 | gs4-musik-bodypercussion | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | – | ✓ | 3 |
+| 6 | gs4-musik-bodypercussion | ✓ | – | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | – | ✓ | 4 |
 | 7 | gs3-kunst-drucken-90 | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | – | ✓ | 3 |
 | 8 | gs2-religion-samariter | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | 3 |
 | 9 | gs4-mathe-teilgruppen | ✓ | – | – | ✓ | ✓ | ✓ | ✓ | – | ✗ | ✓ | ✓ | ✓ | ✗ | ✓ | 2 |
-| 10 | s1-mathe-linfkt-einstieg | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | – | ✗ | ✗ | ✗ | ✓ | – | ✓ | 4 |
+| 10 | s1-mathe-linfkt-einstieg | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | – | ✗ | ✓ | ✗ | ✓ | – | ✓ | 3 |
 | 11 | s1-deutsch-sachtext-gruppen | ✓ | – | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | 1 |
 | 12 | s1-englisch-rollenspiel | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | 1 |
 | 13 | s1-bio-mikroskop-90 | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | – | ✓ | 2 |
@@ -119,9 +123,9 @@ Zeichen: ✓ erfüllt, ✗ verletzt, – entfällt (die Bedingung trifft auf das
 | 41 | betrieb-kasse-unterweisung | ✓ | – | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | – | ✓ | 5 |
 | 42 | bs-wirtschaft-pruefungsvorb | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | 1 |
 | 43 | hs-vorlesung-statistik-250 | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | – | ✗ | ✗ | ✓ | ✓ | – | ✓ | 3 |
-| 44 | hs-seminar-soziologie-12 | ✓ | – | ✗ | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✗ | ✓ | ✓ | – | ✓ | 3 |
+| 44 | hs-seminar-soziologie-12 | ✓ | – | ✗ | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | 2 |
 | 45 | hs-bwl-fallstudie-online | ✓ | – | ✗ | ✓ | ✓ | ✓ | ✗ | – | ✗ | ✓ | ✓ | ✓ | – | ✓ | 3 |
-| 46 | hs-labor-titration | ✓ | – | ✗ | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | – | ✓ | 4 |
+| 46 | hs-labor-titration | ✓ | – | – | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | – | ✓ | 3 |
 | 47 | vhs-alpha-einkaufen | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | 1 |
 | 48 | vhs-spanisch-a1 | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | – | ✗ | ✓ | ✓ | ✓ | – | ✓ | 2 |
 | 49 | vhs-excel-4 | ✓ | – | – | ✓ | ✓ | ✓ | ✗ | – | ✓ | ✓ | ✓ | ✓ | – | ✓ | 1 |
@@ -150,6 +154,7 @@ Keine.
 
 | Nr. | Szenario | Befund |
 |---|---|---|
+| 6 | gs4-musik-bodypercussion | Hauptschritt „Üben mit Rückmeldung“ hält Bewegungsdemonstration & Angeleitetes Nachmachen, nicht „Bodypercussion“ |
 | 8 | gs2-religion-samariter | Hauptschritt „Konzept generieren oder darbieten und sichern“ hält Wirbelgruppe, nicht „Erzählkreis“ |
 | 14 | s1-chemie-verbrennung | Hauptschritt „Explore: eigenständig erkunden“ hält Kopfstandmethode (Umkehrtechnik), nicht „Schülerversuch“ |
 | 15 | s1-physik-stromkreis-problem | Hauptschritt „Lösungsversuche“ hält Provokationstechnik (PO), nicht „Fehlersuche“ |
@@ -160,7 +165,6 @@ Keine.
 | 41 | betrieb-kasse-unterweisung | Hauptschritt „Kooperative Erarbeitung (Team/Experten)“ hält Bewegungsdemonstration & Angeleitetes Nachmachen, nicht „Unterweisung“ |
 | 44 | hs-seminar-soziologie-12 | Hauptschritt „Kontrovers diskutieren und abwägen“ hält Rollenspiel, nicht „Textdiskussion“ |
 | 45 | hs-bwl-fallstudie-online | Hauptschritt q2 nicht in der Tabelle |
-| 46 | hs-labor-titration | „Jenaplan-Rhythmisierung (Gespräch, Spiel, Arbeit, Feier)“ (90 min) ist länger als die Kernhandlung (30 min) |
 
 #### B4 (2 verletzt)
 
@@ -253,7 +257,7 @@ Keine.
 | 39 | bs-gastro-saucen | Hinweis nennt den Raum nicht (Lehrküche); Hinweis nennt andere Methode: Positionslinie (Meinungsbarometer), Geleitetes Experiment in Kleingruppen |
 | 40 | bs-it-netzwerk-ohneinternet | Sicherheitshinweis ohne Raum mit Gefahr: „Im Ablauf wird praktisch gearbeitet (z. B. Geleitet-entdeckendes Lernen und Geleitetes Experiment in Kleingruppen). Kläre vorher Sicherheit und Aufsicht.“ |
 | 41 | betrieb-kasse-unterweisung | Sicherheitshinweis ohne Raum mit Gefahr: „Im Ablauf wird praktisch gearbeitet (z. B. Bewegungsdemonstration & Angeleitetes Nachmachen). Kläre vorher Sicherheit und Aufsicht.“ |
-| 46 | hs-labor-titration | Hinweis nennt den Raum nicht (Fachraum Naturwissenschaften); Hinweis nennt andere Methode: Klassenspaziergang, Demonstrationsexperiment |
+| 46 | hs-labor-titration | Hinweis nennt den Raum nicht (Fachraum Naturwissenschaften / Fachraum oder Werkstatt); Hinweis nennt andere Methode: Klassenspaziergang, Demonstrationsexperiment |
 | 50 | verein-rueckenfit-60 | Hinweis nennt den Raum nicht (Sporthalle, Sportplatz); Hinweis nennt andere Methode: Aufwärmen / Aufwärmspiel, Spielform / Zielspiel (Anwenden im Spiel) |
 | 56 | luecke-sport-ohne-raum | Hinweis nennt den Raum nicht (Sporthalle, Sportplatz); Hinweis nennt andere Methode: Aufwärmen / Aufwärmspiel, Bewegungsdemonstration & Angeleitetes Nachmachen |
 
@@ -294,22 +298,20 @@ Keine.
 | 53 | vage-klimawandel | lernfunktion = ["orientierung"] nicht genannt und nicht unter den Annahmen |
 | 56 | luecke-sport-ohne-raum | ansatz = ["kooperativ"] nicht genannt und nicht unter den Annahmen |
 
-#### B10 (12 verletzt)
+#### B10 (10 verletzt)
 
 | Nr. | Szenario | Befund |
 |---|---|---|
-| 10 | s1-mathe-linfkt-einstieg | Thema „Einstieg in lineare Funktionen, nur Tafel vorhanden“ ist kein zusammenhängender Teil der Anfrage |
-| 15 | s1-physik-stromkreis-problem | Thema „Physik Stromkreise: Warum leuchtet die Lampe nicht? Fehlersuche als Problemlöseaufgabe“ ist kein zusammenhängender Teil der Anfrage |
-| 19 | s1-kunst-linolschnitt | Thema „Kunst Linolschnitt: eigenes Motiv schneiden und drucken“ ist kein zusammenhängender Teil der Anfrage |
+| 15 | s1-physik-stromkreis-problem | Thema „Physik Stromkreise: Warum leuchtet die Lampe nicht? Fehlersuche als Problemlöseaufgabe“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 19 | s1-kunst-linolschnitt | Thema „Kunst Linolschnitt: eigenes Motiv schneiden und drucken“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
 | 21 | s1-sport-ausdauer-draussen | Thema „Ausdauerlauf: durchlaufen lernen“ ≠ Text der Anfrage „Ausdauerlauf: 20 Minuten durchlaufen lernen“ |
-| 22 | s1-sport-bodenturnen-90 | Thema „Sport Bodenturnen: Rolle vorwärts und Handstand“ ist kein zusammenhängender Teil der Anfrage |
-| 26 | s1-mathe-bruch-test | Phasenname „Phase 5“; Thema „Mathe Bruchrechnen, schriftlicher Test mit Note“ ist kein zusammenhängender Teil der Anfrage |
-| 29 | s1-erdkunde-distanz | Thema „Erdkunde Plattentektonik im Distanzunterricht per Videokonferenz“ ist kein zusammenhängender Teil der Anfrage |
-| 33 | s2-geschichte-projekttag | Thema „Projekttag Geschichte: Alltag in der DDR, Zeitzeugeninterviews vorbereiten und auswerten“ ist kein zusammenhängender Teil der Anfrage |
-| 40 | bs-it-netzwerk-ohneinternet | Phasenname „Phase 3“; Thema „Fachinformatiker: Netzwerk-Fehlersuche und Subnetting, Computerraum ohne Internet“ ist kein zusammenhängender Teil der Anfrage |
-| 43 | hs-vorlesung-statistik-250 | Phasenname „Phase 2“; Code „R-08“ in hinweise; Thema „Vorlesung Statistik I, Hypothesentests“ ist kein zusammenhängender Teil der Anfrage |
-| 44 | hs-seminar-soziologie-12 | Thema „Seminar Soziologie im Master, Textdiskussion zu Bourdieus Habitusbegriff“ ist kein zusammenhängender Teil der Anfrage |
-| 56 | luecke-sport-ohne-raum | Thema „Sport Basketball Korbleger lernen“ ist kein zusammenhängender Teil der Anfrage |
+| 22 | s1-sport-bodenturnen-90 | Thema „Sport Bodenturnen: Rolle vorwärts und Handstand“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 26 | s1-mathe-bruch-test | Phasenname „Phase 5“; Thema „Mathe Bruchrechnen, schriftlicher Test mit Note“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 29 | s1-erdkunde-distanz | Thema „Erdkunde Plattentektonik im Distanzunterricht per Videokonferenz“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 33 | s2-geschichte-projekttag | Thema „Projekttag Geschichte: Alltag in der DDR, Zeitzeugeninterviews vorbereiten und auswerten“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 40 | bs-it-netzwerk-ohneinternet | Phasenname „Phase 3“; Thema „Fachinformatiker: Netzwerk-Fehlersuche und Subnetting, Computerraum ohne Internet“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 43 | hs-vorlesung-statistik-250 | Phasenname „Phase 2“; Code „R-08“ in hinweise; Thema „Vorlesung Statistik I, Hypothesentests“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
+| 56 | luecke-sport-ohne-raum | Thema „Sport Basketball Korbleger lernen“ ist kein zusammenhängender Teil der Anfrage (Wörter innerhalb eines Satzteils fehlen, oder ein fehlender Teil nennt mehr als Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit) |
 
 #### B11 (5 verletzt)
 
@@ -329,9 +331,9 @@ Keine.
 
 | Nr. | Szenario | Befund |
 |---|---|---|
-| 9 | gs4-mathe-teilgruppen | Plan: „daz“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen); /adapt: „foerder“ (Förderbedarf Lernen (Persona)) bekommt nur „passt“; Plan: „foerder“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen) |
-| 11 | s1-deutsch-sachtext-gruppen | Plan: „lesen“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen); Plan: „daz“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen) |
-| 27 | s1-mathe-pythagoras-gruppen | /adapt: „stark“ (leistungsstark (Persona)) bekommt nur „passt“; Plan: „stark“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen); /adapt: „foerder“ (Förderbedarf Lernen (Persona)) bekommt nur „passt“; Plan: „foerder“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen) |
+| 9 | gs4-mathe-teilgruppen | Plan: „daz“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen, Hilfetext zum Merkmal in groupAdaptations); /adapt: „foerder“ (Förderbedarf Lernen (Persona)) bekommt nur „passt“; Plan: „foerder“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen, Hilfetext zum Merkmal in groupAdaptations) |
+| 11 | s1-deutsch-sachtext-gruppen | Plan: „daz“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen, Hilfetext zum Merkmal in groupAdaptations) |
+| 27 | s1-mathe-pythagoras-gruppen | /adapt: „stark“ (leistungsstark (Persona)) bekommt nur „passt“; /adapt: „foerder“ (Förderbedarf Lernen (Persona)) bekommt nur „passt“; Plan: „foerder“ ohne Hilfe oder Tausch (teilgruppenMethoden, teilgruppenHilfen, Hilfetext zum Merkmal in groupAdaptations) |
 
 #### B14 (0 verletzt)
 

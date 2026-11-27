@@ -5,7 +5,7 @@ import type { FastifyInstance } from 'fastify';
 import { loadFmtData } from '../../../packages/fmt-core/src/load-data.js';
 import { buildApp } from '../src/app.js';
 import { SZ } from '../../../scripts/szenariotest/szenarien.mts';
-import { SOLL, SOLL_PRUEFSTAND, sollFuer, type Soll } from '../../../scripts/szenariotest/soll.mts';
+import { SOLL, SOLL_PROTOKOLL, SOLL_PRUEFSTAND, sollFuer, type Soll } from '../../../scripts/szenariotest/soll.mts';
 import {
   BEDINGUNGEN,
   KEINE_METHODE_SATZ,
@@ -58,7 +58,8 @@ const KATALOG: Katalog = katalogAus({
   schemes: [
     { id: 'raumtyp', werte: [{ id: 'fachraum-nawi', label: 'Fachraum Naturwissenschaften' }, { id: 'klassenraum', label: 'Klassen- oder Seminarraum' }] },
     { id: 'lernzustand', werte: [{ id: 'konzept-gesichert', label: 'Konzept gesichert' }] }
-  ] as any
+  ] as any,
+  faecher: { schulfaecher: [{ label: 'Chemie', alt: [], begriffe: ['Chemie'] }, { label: 'Mathematik', alt: [], begriffe: ['Mathe'] }], hochschulfaecher: [] } as any
 });
 
 const zeile = (i: number, phaseLabel: string, durationMin: number, methodId: string | null, extra: Json = {}) => ({
@@ -147,6 +148,10 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     plan(angenommen).pflichtangaben.angenommen.push({ feld: 'zeit', wert: 45, grund: 'Keine Zeitangabe: eine Stunde von 45 Minuten angenommen.' });
     erfuellt('B1', angenommen, { zeitMin: null });
     expect(pruefe('B1', basis(), { zeitMin: null }).status).toBe('verletzt');
+    // The assumed time comes from the structured assumption only, never from any note with minutes.
+    const notiz = basis();
+    plan(notiz).annahmen = ['Mehr als 20 Minuten am Stück im passiven Modus.', 'Keine Zeitangabe: eine Stunde von 45 Minuten angenommen.'];
+    verletzt('B1', notiz, { zeitMin: null });
   });
 
   it('B2: ohne Schrift keine Methode mit Schriftbedarf', () => {
@@ -169,6 +174,7 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     verletzt('B3', kurz);
     const frei = basis();
     rows(frei)[1] = zeile(1, 'Schülerversuch: Eisenwolle verbrennen', 25, null);
+    teile(frei)[1] = { typ: 'Freiphase', titel: 'Schülerversuch: Eisenwolle verbrennen', dauerMin: 25, kettenschritt: 's2', grund: 'kernhandlung' };
     erfuellt('B3', frei, { kernhandlung: { wortlaut: 'Schülerversuch', methoden: 'frei', status: 'genannt' } });
   });
 
@@ -177,6 +183,9 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     const e = basis();
     plan(e).zusatzphasen = [{ kennung: 'rahmen-methode', name: 'Jenaplan' }];
     verletzt('B4', e);
+    const unbekannt = basis();
+    plan(unbekannt).zusatzphasen = [{ kennung: 'gibt-es-nicht' }];
+    expect(pruefe('B4', unbekannt).detail).toContain('unbekannte Methode „gibt-es-nicht“');
   });
 
   it('B5: jede Phase zwischen Mindest- und Höchstdauer, Wiederkehr je Wiederholung', () => {
@@ -188,6 +197,11 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     rows(w).push(zeile(3, 'Wiederkehr in Folgestunden (3× à 2 min)', 0, 'quiz', { wiederkehr: true, dauerAusserhalbMin: 6 }));
     teile(w).push({ typ: 'Wiederkehr', baustein: 'quiz', dauerMin: 2, anzahl: 3, ausserhalbBudget: true });
     verletzt('B5', w);
+    const unbekannt = basis();
+    rows(unbekannt)[0].methodId = 'gibt-es-nicht';
+    teile(unbekannt)[0].baustein = 'gibt-es-nicht';
+    expect(pruefe('B5', unbekannt).status).toBe('verletzt');
+    expect(pruefe('B5', unbekannt).detail).toContain('unbekannte Methode');
   });
 
   it('B6: ungültiger Plan nennt die Lücke unter den Hinweisen, jede Prüfmeldung steht in Worten da', () => {
@@ -207,7 +221,7 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     const e = basis();
     plan(e).lerngruppenUndMatrix = [{ id: 'basis', label: 'Basisunterstützung & Sprachsensibel' }];
     verletzt('B7', e);
-    const benannt = { teilgruppen: [{ id: 'daz', merkmal: 'DaZ', regelGreift: true }] };
+    const benannt = { teilgruppen: [{ id: 'daz', merkmal: 'DaZ', art: 'sprache' as const, regelGreift: true }] };
     verletzt('B7', basis(), benannt);
     const g = basis();
     plan(g).lerngruppenUndMatrix = [{ id: 'daz', label: 'DaZ' }];
@@ -235,6 +249,16 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     erfuellt('B9', e);
     const abgeleitet = basis();
     verletzt('B9', abgeleitet, { raumtyp: { wert: 'fachraum-nawi', status: 'abgeleitet' } });
+    // A request field the engine answers with another value is not „genannt“.
+    const geaendert = basis();
+    geaendert.anfrage.maxTechnik = 't-keine';
+    plan(geaendert).erkannteKriterien.maxTechnik = 't-projektion';
+    verletzt('B9', geaendert);
+    plan(geaendert).erkannteKriterien.maxTechnik = 't-keine';
+    erfuellt('B9', geaendert);
+    const leer = basis();
+    plan(leer).erkannteKriterien.ansatz = [];
+    erfuellt('B9', leer);
   });
 
   it('B10: keine „Phase N“, keine Codes, Thema wörtlich', () => {
@@ -254,6 +278,57 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     const thema = basis();
     plan(thema).thema = 'Verbrennung';
     verletzt('B10', thema);
+  });
+
+  it('B10, Entscheidung: fehlen nur ganze Satzteile mit Fach, Stufe, Gruppengröße, Raum, Phase oder Zeit, bleibt das Thema wörtlich', () => {
+    const frei = (text: string, thema: string) => {
+      const e = basis();
+      e.anfrage = { text };
+      plan(e).thema = thema;
+      return pruefe('B10', e).status;
+    };
+    // contiguous part
+    expect(frei('Englisch Klasse 4, Wortschatz Tiere wiederholen, 10 Minuten, 26 Kinder', 'Wortschatz Tiere wiederholen')).toBe('erfuellt');
+    // whole parts with class, time, group size, room missing
+    expect(frei('Einstieg in lineare Funktionen, Klasse 8, 45 Minuten, 28 Schüler, Klassenraum, nur Tafel vorhanden', 'Einstieg in lineare Funktionen, nur Tafel vorhanden')).toBe('erfuellt');
+    expect(frei('Chemie Oberstufe: Säuren und Basen, 90 Minuten, Labor', 'Säuren und Basen')).toBe('erfuellt');
+    // words cut inside a part
+    expect(frei('Physik Klasse 7 Stromkreise: Warum leuchtet die Lampe nicht?, 45 Minuten', 'Physik Stromkreise: Warum leuchtet die Lampe nicht?')).toBe('verletzt');
+    expect(frei('Vorlesung Statistik I, Hörsaal, 250 Studierende, 90 Minuten, Hypothesentests einführen', 'Vorlesung Statistik I, Hypothesentests')).toBe('verletzt');
+    // a missing whole part that names more than the frame
+    expect(frei('Wirtschaft Klasse 9: Taschengeld, im Rollenspiel, Budgetplanung, 45 Minuten', 'Taschengeld, Budgetplanung')).toBe('verletzt');
+  });
+
+  it('Zeilen und Knoten: Parallel liefert haupt, Wahl die erste Option; passen sie nicht zusammen, nennt der Prüfer das als Grund', () => {
+    const parallel = basis();
+    teile(parallel)[1] = {
+      typ: 'Parallel',
+      haupt: { typ: 'Einsatz', baustein: 'versuch', dauerMin: 25, kettenschritt: 's2' },
+      begleitend: { typ: 'Einsatz', baustein: 'rahmen-methode', dauerMin: 25 }
+    };
+    erfuellt('B3', parallel);
+    // the begleitend branch has no row but is part of the plan
+    verletzt('B4', parallel);
+    const wahl = basis();
+    teile(wahl)[1] = {
+      typ: 'Wahl',
+      optionen: [
+        { typ: 'Einsatz', baustein: 'versuch', dauerMin: 25, kettenschritt: 's2' },
+        { typ: 'Einsatz', baustein: 'rahmen-methode', dauerMin: 25, kettenschritt: 's2' }
+      ]
+    };
+    erfuellt('B3', wahl);
+    erfuellt('B4', wahl);
+    erfuellt('B5', wahl);
+    const fehlt = basis();
+    teile(fehlt).pop();
+    for (const b of ['B3', 'B5', 'B8'] as Bedingung[]) {
+      expect(pruefe(b, fehlt).status, b).toBe('verletzt');
+      expect(pruefe(b, fehlt).detail, b).toContain('Zeilen und Knoten passen nicht zusammen (3 Zeilen, 2 Knoten');
+    }
+    const vertauscht = basis();
+    [teile(vertauscht)[0], teile(vertauscht)[2]] = [teile(vertauscht)[2], teile(vertauscht)[0]];
+    expect(pruefe('B5', vertauscht).detail).toContain('Zeilen und Knoten passen nicht zusammen (Zeile 1');
   });
 
   it('B11: /match antwortet im selben Modus mit denselben Methoden', () => {
@@ -280,7 +355,7 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
   });
 
   it('B13: genannte Teilgruppe mit greifender Regel bekommt Hilfe oder Tausch', () => {
-    const tg = { teilgruppen: [{ id: 'daz', merkmal: 'DaZ', regelGreift: true }] };
+    const tg = { teilgruppen: [{ id: 'daz', merkmal: 'DaZ', art: 'sprache' as const, regelGreift: true }] };
     const e = basis();
     e.adapt = { status: 200, json: { phasenAnpassungen: [{ teilgruppenImpulse: [{ groupId: 'daz', antwort: 'passt' }] }] } };
     verletzt('B13', e, tg);
@@ -290,6 +365,16 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     verletzt('B13', e, tg);
     plan(e).teilgruppenMethoden = [{ groupId: 'daz', antwort: 'hilfe' }];
     erfuellt('B13', e, tg);
+    // Ruling: a help text in a row's groupAdaptations counts when it addresses the named trait.
+    const zeilenhilfe = basis();
+    zeilenhilfe.adapt = { status: 200, json: { phasenAnpassungen: [{ teilgruppenImpulse: [{ groupId: 'daz', antwort: 'hilfe' }] }] } };
+    plan(zeilenhilfe).lerngruppenUndMatrix = [{ id: 'daz' }];
+    rows(zeilenhilfe)[1].groupAdaptations = { daz: 'Zu „Verbrennung“: Akustische und visuelle Rahmenbedingungen (ruhige Ecken) (+4).' };
+    verletzt('B13', zeilenhilfe, tg);
+    rows(zeilenhilfe)[1].groupAdaptations = { daz: 'Zu „Sprachbad“: Akustische Rahmenbedingungen (+4).' };
+    verletzt('B13', zeilenhilfe, tg);
+    rows(zeilenhilfe)[1].groupAdaptations = { daz: 'Zu „Verbrennung“: Satzstarter und Wortspeicher mit den Fachbegriffen am Arbeitsauftrag.' };
+    erfuellt('B13', zeilenhilfe, tg);
   });
 
   it('B14: Lücke mit Satz, Rückfall unter den Hinweisen, keine fachfremde Methode', () => {
@@ -310,6 +395,13 @@ describe('Bedingungsprüfer B1–B14 an Hand gebauter Antworten', () => {
     verletzt('B14', rueck);
     plan(rueck).hinweise = ['Für „Erarbeitung“ passt keine Methode; die Grundform „Aufgaben bearbeiten“ springt ein.'];
     erfuellt('B14', rueck);
+    const leer = basis();
+    plan(leer).rueckfall = [{}];
+    verletzt('B14', leer);
+    const perId = basis();
+    plan(perId).rueckfall = [{ schritt: 'Sicherung', baustein: 'impuls' }];
+    plan(perId).hinweise = ['Für „Sicherung“ springt „Stummer Impuls“ ein.'];
+    erfuellt('B14', perId);
   });
 });
 
@@ -341,7 +433,8 @@ describe('Bedingungen B1–B14 über die 56 Szenarien', () => {
       return { status: r.statusCode, json: r.json() as Json };
     };
     const ohne = (o: Json, keys: string[]) => Object.fromEntries(Object.entries(o).filter(([k]) => !keys.includes(k)));
-    // Same requests as scripts/szenariotest/run.mts.
+    // Same requests as scripts/szenariotest/run.mts (loop „for (const s of SZ)“: /plan with umfang voll, /match without
+    // gruppen and umfang, retry on 400 without the listed fields, /adapt for gruppen). Keep both in step.
     const eintraege: Eintrag[] = [];
     for (const s of SZ) {
       const p = s.p as Json;
@@ -365,10 +458,11 @@ describe('Bedingungen B1–B14 über die 56 Szenarien', () => {
     await app.close();
   });
 
-  it('der Maßstab soll.mts deckt die 56 Szenarien in derselben Reihenfolge ab und ist als ungeprüft markiert, bis der Torprüfer ihn freigibt', () => {
+  it('der Maßstab soll.mts deckt die 56 Szenarien in derselben Reihenfolge ab und ist vom Torprüfer geprüft (Protokoll soll-szenariotest.md)', () => {
     expect(SOLL.map((s) => s.id)).toEqual(SZ.map((s) => s.id));
     expect(SOLL.map((s) => s.nr)).toEqual(SZ.map((_, i) => i + 1));
-    expect(SOLL_PRUEFSTAND).toBe('ungeprüft');
+    expect(SOLL_PRUEFSTAND).toBe('geprüft');
+    expect(SOLL_PROTOKOLL).toBe('/mnt/project-files/fmt2/pruefung/soll-szenariotest.md');
   });
 
   it('jede Bedingung liefert für jedes Szenario ein Ergebnis mit Befund', () => {
