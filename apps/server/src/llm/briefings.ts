@@ -27,6 +27,7 @@ import {
   type ThematicTableRow
 } from '../routes/assistant.js';
 import { searchWloOer } from '../routes/oer.js';
+import { fachbereichAusFach } from '../kandidaten.js';
 import { entwurfAusTabelle, profilRahmen } from './entwurf.js';
 
 export interface PromptPair {
@@ -683,9 +684,6 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   const stufe = args.bildungsstufe || (classification.kriterien.bildungsstufe as string | undefined);
   const fachFeld = args.fach?.trim() ? store.subjects.erkenne(args.fach, stufe) : null;
 
-  // Subject words the vocabulary does not hold (e.g. "Naturwissenschaften") still reach the text rules.
-  const fachbereichAusFeld = args.fach?.trim() ? (store.matcher.lesen(args.fach).kriterien.fachbereich as string | undefined) : undefined;
-
   // Every request field of the core (matcher.felder()) is passed as given; text and modus are set by the plan.
   const matchReq: MatchRequest = { text: args.text, modus: 'ablauf' };
   const argsRecord = args as unknown as Record<string, unknown>;
@@ -696,8 +694,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   }
   const raum = args.raum || args.lernort;
   if (raum) matchReq.raum = raum;
-  const fachbereich =
-    args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld);
+  // Subject words the vocabulary does not hold (e.g. "Naturwissenschaften") still reach the text rules.
+  const fachbereich = args.fachbereich || fachbereichAusFach(store, args.fach, stufe);
   if (fachbereich) matchReq.fachbereich = fachbereich;
   let matched = store.matcher.zuordnen(matchReq);
   let angenommenerZieltyp: string | null = null;

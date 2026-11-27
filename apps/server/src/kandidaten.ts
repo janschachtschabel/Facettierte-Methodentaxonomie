@@ -144,3 +144,28 @@ export function teilgruppenAlternativen(store: CatalogStore, a: TeilgruppenAlter
     }
   });
 }
+
+/**
+ * Subject area for a subject name given as its own field (`fach`, e.g. "Mathematik"), as /plan reads it: the
+ * vocabulary's subject first, otherwise the matcher's reading of the word ("Naturwissenschaften"). Undefined when
+ * neither knows it or the subject spans all areas.
+ */
+export function fachbereichAusFach(store: CatalogStore, fach: string | undefined, stufe?: string): string | undefined {
+  const name = typeof fach === 'string' ? fach.trim() : '';
+  if (!name) return undefined;
+  const erkannt = store.subjects.erkenne(name, stufe);
+  if (erkannt && erkannt.fachbereich !== 'uebergreifend') return erkannt.fachbereich;
+  return store.matcher.lesen(name).kriterien.fachbereich as string | undefined;
+}
+
+/**
+ * A match request with `fach` (not a core field) resolved to `fachbereich`, so the required detail "fach-und-thema"
+ * clears for /match and match_scenario as it does for /plan. An explicit fachbereich wins.
+ */
+export function mitFachAufgeloest(store: CatalogStore, anfrage: MatchRequest & { fach?: unknown }): MatchRequest {
+  const { fach, ...rest } = anfrage;
+  if (typeof fach !== 'string' || !fach.trim() || rest.fachbereich) return rest;
+  const stufe = typeof rest.bildungsstufe === 'string' ? rest.bildungsstufe : undefined;
+  const fachbereich = fachbereichAusFach(store, fach, stufe);
+  return fachbereich ? { ...rest, fachbereich } : rest;
+}

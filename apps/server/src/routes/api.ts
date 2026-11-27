@@ -18,7 +18,7 @@ import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
-import { anpassungsAnfrage, ersatzHinweis, ersatzKandidaten, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { anpassungsAnfrage, ersatzHinweis, ersatzKandidaten, mitFachAufgeloest, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
@@ -61,9 +61,12 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     if (typeof anfrage.text === 'string' && anfrage.text.length > MAX_TEXT_CHARS) {
       return reply.code(400).send({ fehler: tooLongMessage('text') });
     }
+    if (anfrage.fach != null && typeof anfrage.fach !== 'string') {
+      return reply.code(400).send({ fehler: 'Feld „fach“: erwartet wird ein Text.' });
+    }
     const t0 = process.hrtime.bigint();
     try {
-      const r = store.matcher.zuordnen(anfrage);
+      const r = store.matcher.zuordnen(mitFachAufgeloest(store, anfrage));
       r.dauerMs = Math.round(Number(process.hrtime.bigint() - t0) / 1e4) / 100;
       return reply.send(r);
     } catch (e) {

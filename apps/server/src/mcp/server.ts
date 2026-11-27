@@ -26,6 +26,7 @@ import {
   anpassungsAnfrage,
   ersatzHinweis,
   ersatzKandidaten,
+  mitFachAufgeloest,
   situationAus,
   situationFehler,
   teilgruppenAlternativen
@@ -50,6 +51,10 @@ import { applySubjectFilter } from '../routes/api.js';
 /** Required and optional details (shared with the web page "API & MCP" via the core). */
 const PFLICHT = KI_PFLICHTANGABEN;
 const OPTIONAL = KI_OPTIONALE_ANGABEN;
+/** Optional details without subgroups, for tools that take no subgroups. */
+const OPTIONAL_OHNE_TEILGRUPPEN = KI_OPTIONALE_ANGABEN.split(', ')
+  .filter((x) => !x.startsWith('Teilgruppen'))
+  .join(', ');
 /** One line for tools whose answer carries pflichtangaben. */
 const RUECKFRAGE = 'Lies pflichtangaben.fehlt und frage nach (eine kurze Frage, kein Formular); nenne pflichtangaben.angenommen als Annahmen.';
 
@@ -317,11 +322,16 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 4. match_scenario
   server.tool(
     'match_scenario',
-    `Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf (Funktionskette nach Zielart, Zieltyp oder Ansatz), ohne Halluzinationen, <1 ms. Die Antwort nennt pflichtangaben (fehlt: Angaben, nach denen du fragst; angenommen: Annahmen mit Feld, Wert und Grund), regelmeldungen (Passungsregeln mit Wirkung, Grundlage und Quelle), begleitstrang (kurze Methode zum Begleitziel, ein Vorschlag) und planungsprofil (Begriffe des Entwurfs). Ausdrücklich gesetzte Felder haben Vorrang vor dem Text. Erfrage beim Nutzer: ${PFLICHT}; wenn bekannt ${OPTIONAL}. ${RUECKFRAGE}`,
+    `Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf (Funktionskette nach Zielart, Zieltyp oder Ansatz), ohne Halluzinationen, <1 ms. Die Antwort nennt pflichtangaben (fehlt: Angaben, nach denen du fragst; angenommen: Annahmen mit Feld, Wert und Grund), regelmeldungen (Passungsregeln mit Wirkung, Grundlage und Quelle), begleitstrang (kurze Methode zum Begleitziel, ein Vorschlag) und planungsprofil (Begriffe des Entwurfs). Ausdrücklich gesetzte Felder haben Vorrang vor dem Text; fach (Fachname) wird zum Fachbereich wie bei build_scenario_plan. Teilgruppen nimmt dieses Tool nicht an: dafür build_scenario_plan (gruppen) oder adapt_scenario. Erfrage beim Nutzer: ${PFLICHT}; wenn bekannt ${OPTIONAL_OHNE_TEILGRUPPEN}. ${RUECKFRAGE}`,
     {
       // Every core request field with its codes and meaning; the entries below refine the descriptions.
       ...felderSchema(),
       text: z.string().max(MAX_TEXT_CHARS).optional(),
+      fach: z
+        .string()
+        .max(MAX_TEXT_CHARS)
+        .optional()
+        .describe('Fachname (z. B. "Mathematik"); daraus wird der Fachbereich gelesen, wenn er fehlt. Mit thema deckt es die Pflichtangabe fach-und-thema.'),
       modus: z.enum(['phase', 'ablauf']).optional(),
       zieltyp: code('zieltyp').optional(),
       zielart: code('zielart').optional().describe('Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung'),
@@ -383,7 +393,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     async ({ limit, ...args }) => {
       try {
         const t0 = process.hrtime.bigint();
-        const full = store.matcher.zuordnen(args as MatchRequest);
+        const full = store.matcher.zuordnen(mitFachAufgeloest(store, args as MatchRequest));
         const res =
           full.modus === 'phase'
             ? { ...full, vorschlaege: full.vorschlaege.slice(0, limit), vorschlaegeGesamt: full.vorschlaege.length }
@@ -686,9 +696,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 11. elaborate_scenario (Zero-LLM by default: <2 ms deterministic table + ready-to-use llmBriefing for the caller's LLM!)
   server.tool(
     'elaborate_scenario',
-    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle und den Entwurf mit sieben Kernfeldern (Rahmendaten, Lernvoraussetzungen, Ziele, Einordnung, Verlaufsplan, Sicherung des Lernerfolgs, Reflexion) in den Begriffen des Planungsprofils, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann. Raum, Anzahl, Einheit, Nachweis, bewertet und hinweiseListe (aus build_scenario_plan: Raum, Gruppengröße, hinweise) erscheinen in den Rahmendaten und der Sicherung des Lernerfolgs. Erfrage beim Nutzer: Raum, Gruppengröße, übergeordnete Einheit, Nachweis und ob bewertet wird, wenn sie noch nicht bekannt sind.',
+    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle und den Entwurf mit sieben Kernfeldern (Rahmendaten, Lernvoraussetzungen, Ziele, Einordnung, Verlaufsplan, Sicherung des Lernerfolgs, Reflexion) in den Begriffen des Planungsprofils, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann. Raum, Anzahl, Einheit, Nachweis, bewertet und hinweiseListe (aus build_scenario_plan: Raum, Gruppengröße, hinweise) erscheinen in den Rahmendaten und der Sicherung des Lernerfolgs; text, entwurfTeilgruppen, differenzierung, phasen und materialien wie REST /assistant/elaborate. Erfrage beim Nutzer: Raum, Gruppengröße, übergeordnete Einheit, Nachweis und ob bewertet wird, wenn sie noch nicht bekannt sind.',
     {
       arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement JSON-LD'),
+      text: z.string().max(MAX_TEXT_CHARS).optional().describe('Text der Anfrage; Wörter wie Betrieb oder Ausbildung wählen das Planungsprofil'),
       fach: z.string().max(MAX_TEXT_CHARS).optional(),
       thema: z.string().max(MAX_TEXT_CHARS).optional(),
       didaktischerAnsatz: z.string().max(MAX_TEXT_CHARS).optional(),
@@ -719,6 +730,63 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       oerRessourcen: z
         .array(z.object({ stepKey: z.string().max(MAX_TEXT_CHARS).optional(), titel: z.string().max(MAX_TEXT_CHARS), wwwurl: z.string().max(MAX_TEXT_CHARS) }))
         .optional(),
+      // Same fields as REST /assistant/elaborate (ElaboratePayload).
+      entwurfTeilgruppen: z
+        .array(
+          z.object({
+            id: z.string().max(MAX_TEXT_CHARS).optional(),
+            gruppe: z.string().max(MAX_TEXT_CHARS),
+            profil: z.string().max(MAX_TEXT_CHARS).optional(),
+            anzahl: z.number().int().min(1).optional()
+          })
+        )
+        .max(50)
+        .optional()
+        .describe('Teilgruppen, die der Entwurf unter Lernvoraussetzungen nennt (Gruppen mit Anzahl, keine Einzelnen); ohne Angabe gilt differenzierung'),
+      differenzierung: z
+        .array(
+          z.object({
+            id: z.string().max(MAX_TEXT_CHARS).optional(),
+            gruppe: z.string().max(MAX_TEXT_CHARS),
+            profil: z.string().max(MAX_TEXT_CHARS).optional(),
+            anzahl: z.number().int().min(1).optional(),
+            matrixMassnahmen: z.array(z.string().max(MAX_TEXT_CHARS)).max(50).optional()
+          })
+        )
+        .max(50)
+        .optional()
+        .describe('Teilgruppen mit Maßnahmen der Matrix (z. B. aus adapt_scenario); erscheinen je Phase in der Verlaufstabelle'),
+      phasen: z
+        .array(
+          z.object({
+            key: z.string().max(MAX_TEXT_CHARS),
+            orderLabel: z.string().max(MAX_TEXT_CHARS),
+            phaseLabel: z.string().max(MAX_TEXT_CHARS),
+            durationMin: z.number().int().min(0),
+            methodId: z.string().max(MAX_TEXT_CHARS),
+            methodName: z.string().max(MAX_TEXT_CHARS),
+            subgroupMethods: z
+              .record(z.string().max(MAX_TEXT_CHARS), z.object({ methodId: z.string().max(MAX_TEXT_CHARS), methodName: z.string().max(MAX_TEXT_CHARS) }))
+              .optional(),
+            kettenschritt: z.string().max(MAX_TEXT_CHARS).optional(),
+            wiederkehr: z.boolean().optional()
+          })
+        )
+        .max(100)
+        .optional()
+        .describe('Optional: Phasen mit Methoden je Teilgruppe (subgroupMethods); sonst aus dem Arrangement gelesen'),
+      materialien: z
+        .array(
+          z.object({
+            stepKey: z.string().max(MAX_TEXT_CHARS).optional(),
+            titel: z.string().max(MAX_TEXT_CHARS),
+            typ: z.string().max(MAX_TEXT_CHARS).optional(),
+            kurzinhalt: z.string().max(MAX_TEXT_CHARS).optional()
+          })
+        )
+        .max(100)
+        .optional()
+        .describe('Eigene Materialien (Titel, Typ, Kurzinhalt), je Phase über stepKey oder für alle'),
       useServerLlm: z
         .boolean()
         .optional()
@@ -748,7 +816,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           einheit: args.einheit,
           nachweis: args.nachweis ? labelOf('nachweisform', args.nachweis) : undefined,
           bewertet: args.bewertet,
-          hinweiseListe: args.hinweiseListe
+          hinweiseListe: args.hinweiseListe,
+          text: args.text,
+          entwurfTeilgruppen: args.entwurfTeilgruppen,
+          differenzierung: args.differenzierung,
+          phasen: args.phasen,
+          materialien: args.materialien
         };
         if (args.useServerLlm && effectiveConfig.llmApiKey) {
           if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
@@ -868,7 +941,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 14. adapt_scenario (Standalone & FMT-integrated Zero-LLM differentiation + UDL + conflict resolution)
   server.tool(
     'adapt_scenario',
-    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`. Je Gruppe und Phase nennt `teilgruppenImpulse` die Antwort (`antwort`: passt, Hilfe in derselben Methode oder Tausch gegen eine gleichwertige Methode) mit `beleg` (Merkmal, Grundlage, Quelle), `hilfen` (je mit `abbau`, wann sie entfallen) und `alternativeMethoden` (nur beim Tausch); `teilgruppenHilfen`, `gesperrt` (Merkmale ohne Beleg, z. B. Lerntypen; kein Fehler) und `regelmeldungen` stehen auf oberster Ebene. Die Situation der Stunde (`anfrage` oder raum, ohneSchrift, termine … auf oberster Ebene) und `lehrende` prüfen, ob eine parallele Methode ihren Bedarf im selben Rahmen deckt; dieselbe Prüfung wie REST /adapt. Erfrage beim Nutzer: Teilgruppen mit Anzahl und Merkmalen (z. B. DaZ, liest noch nicht, kann sich nicht frei bewegen), Raum und Zahl der Lehrenden; beschreibe Gruppen, keine einzelnen Lernenden.',
+    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`. Je Gruppe und Phase nennt `teilgruppenImpulse` die Antwort (`antwort`: passt, hilfe = die geplante Methode bleibt und die Gruppe bekommt eine Hilfe, oder tausch gegen eine gleichwertige Methode) mit `beleg` (Merkmal, Grundlage, Quelle), `hilfen` (je mit `abbau`, wann sie entfallen) und `alternativeMethoden` (nur beim Tausch). Steht `ohneMethode: true` (freier Text ohne geplante FMT-Methode), wurde keine Passung geprüft: `antwort: hilfe` nennt dann nur die Hilfen der Matrix für die Gruppe, keine Entscheidung über eine Methode; `teilgruppenHilfen`, `gesperrt` (Merkmale ohne Beleg, z. B. Lerntypen; kein Fehler) und `regelmeldungen` stehen auf oberster Ebene. Die Situation der Stunde (`anfrage` oder raum, ohneSchrift, termine … auf oberster Ebene) und `lehrende` prüfen, ob eine parallele Methode ihren Bedarf im selben Rahmen deckt; dieselbe Prüfung wie REST /adapt. Erfrage beim Nutzer: Teilgruppen mit Anzahl und Merkmalen (z. B. DaZ, liest noch nicht, kann sich nicht frei bewegen), Raum und Zahl der Lehrenden; beschreibe Gruppen, keine einzelnen Lernenden.',
     {
       scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
       baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
