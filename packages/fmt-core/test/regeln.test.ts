@@ -55,8 +55,17 @@ describe('Regelmaschine', () => {
     expect(ids(R.pruefe({ ...b, anleitung: ['offen'], feedback: [] }, {}))).toEqual(['entdecken-nur-mit-stuetze']);
     expect(ids(R.pruefe({ ...b, anleitung: ['offen'] }, {}))).toEqual([]);
     expect(ids(R.pruefe({ ...b, schriftbedarf: ['liest'] }, { sprachniveau: 'a2' }))).toEqual(['schrift-niedriges-sprachniveau']);
-    expect(ids(R.pruefe({ ...b, sequenz: ['problem-vor-instruktion'] }, { bildungsstufe: 'primar' }))).toEqual(['problemloesen-vor-instruktion-primar']);
+    expect(ids(R.pruefe({ ...b, sequenz: ['problem-vor-instruktion'], lernfunktion: ['problemloesen'] }, { bildungsstufe: 'primar' }))).toEqual(['problemloesen-vor-instruktion-primar']);
     expect(ids(R.pruefe({ ...b, anleitung: ['explizit'] }, { vorwissen: 'hoch' }))).toEqual(['viel-anleitung-hohes-vorwissen']);
+  });
+  it('Problemlösen vor Instruktion in der Grundschule gilt nur für Methoden mit Lernfunktion problemloesen (Tor D2, T1)', () => {
+    const pvi = { ...b, sequenz: ['problem-vor-instruktion'] };
+    expect(ids(R.pruefe({ ...pvi, lernfunktion: ['orientierung'] }, { bildungsstufe: 'primar' }))).toEqual([]);
+    expect(R.regel('problemloesen-vor-instruktion-primar')?.keinTausch).toBeFalsy();
+    const echt = (k: string) => ids(R.pruefe(D.bausteine.find((x) => x.kennung === k)!, { bildungsstufe: 'primar' }));
+    expect(echt('stummer-impuls')).not.toContain('problemloesen-vor-instruktion-primar');
+    expect(echt('concept-cartoon')).not.toContain('problemloesen-vor-instruktion-primar');
+    expect(echt('entdeckendes-lernen')).toContain('problemloesen-vor-instruktion-primar');
   });
   it('Text ersetzt {methode}', () => {
     const m = R.pruefe({ ...b, anleitung: ['offen'], feedback: [] }, {});

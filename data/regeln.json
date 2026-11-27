@@ -133,6 +133,11 @@
           "enthaelt": [
             "problem-vor-instruktion"
           ]
+        },
+        "lernfunktion": {
+          "enthaelt": [
+            "problemloesen"
+          ]
         }
       },
       "situation": {
