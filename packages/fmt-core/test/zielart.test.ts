@@ -59,12 +59,9 @@ describe('Bindung der Wissensart', () => {
     expect(wissensartenVon({ aufgabe: ['afb2', 'prozeduren', 'fall', 'konzepte'] } as unknown as Baustein).sort()).toEqual(['konzepte', 'prozeduren']);
   });
   it('jede Hauptschritt und Sicherungsschritt trägt eine Wissensart, Randschritte keine', () => {
-    // Taken verbatim from the FMT 2.0 rule set without a knowledge type (Paket D, D5): checking one's own work binds no
-    // knowledge type, every diagnosing method carries the step.
-    const ohneBindung = ['vollstaendige-handlung/h4'];
     for (const k of D.ketten)
       for (const s of k.schritte) {
-        if (s.rolle === 'rand' || ohneBindung.includes(`${k.id}/${s.id}`)) expect(s.wissensart, `${k.id}/${s.id}`).toBeUndefined();
+        if (s.rolle === 'rand') expect(s.wissensart, `${k.id}/${s.id}`).toBeUndefined();
         else expect(s.wissensart?.length, `${k.id}/${s.id}`).toBeGreaterThan(0);
       }
   });
@@ -178,7 +175,7 @@ describe('Lesarten der Lernstände je Zielart (Paket D, D4)', () => {
 
 describe('Kette „vollständige Handlung“ (Paket D, D5)', () => {
   const M = createMatcher(D, createValidator(D));
-  it('steht wörtlich aus dem Regelsatz in den Daten, gebunden an die Zielart handlung, Grundlage ungeklärt', () => {
+  it('steht aus dem Regelsatz in den Daten (h4 bindet wie h3), gebunden an die Zielart handlung, Grundlage ungeklärt', () => {
     const k = kette('vollstaendige-handlung');
     expect(k.label).toBe('Berufliche Handlung (vollständige Handlung)');
     expect(k.zielart).toEqual(['handlung']);
@@ -188,7 +185,8 @@ describe('Kette „vollständige Handlung“ (Paket D, D5)', () => {
       ['h1', 'Auftrag analysieren, informieren', ['orientierung'], 'problem-erschlossen', 'rand', 10, undefined],
       ['h2', 'Planen und entscheiden', ['problemloesen', 'verstehen'], 'loesungsversuche', 'haupt', 20, ['prozeduren', 'konzepte']],
       ['h3', 'Ausführen', ['anwendung', 'konsolidierung'], 'prozedur-gelaeufig', 'haupt', 45, ['prozeduren', 'psychomotorik']],
-      ['h4', 'Kontrollieren', ['diagnose'], 'lernstand-diagnostiziert', 'sicherung', 13, undefined],
+      // h4 binds like h3; the rule set lacked the entry (controller ruling, D5).
+      ['h4', 'Kontrollieren', ['diagnose'], 'lernstand-diagnostiziert', 'sicherung', 13, ['prozeduren', 'psychomotorik']],
       ['h5', 'Bewerten und reflektieren', ['metakognition'], 'lernen-reflektiert', 'rand', 12, undefined]
     ]);
   });

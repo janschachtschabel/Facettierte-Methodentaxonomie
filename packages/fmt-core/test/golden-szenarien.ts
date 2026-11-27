@@ -197,6 +197,8 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Ausbildung Elektroniker, Kundenauftrag Beleuchtung planen, 135 Minuten', erwartet: { zielart: 'handlung' } },
   { text: 'Auszubildende Tischler, Arbeitsauftrag Regal bauen, 180 Minuten', erwartet: { zielart: 'handlung' } },
   { text: 'Berufsschule, vollstaendige Handlung: Wartung einer Pumpe, 90 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Berufskolleg, vollständige Handlung: Wartung einer Pumpe, 90 Minuten', erwartet: { bildungsstufe: 'berufsbildung', zielart: 'handlung' } },
+  { text: 'Berufskolleg Wirtschaft: Lernfeld 4, 90 Minuten', erwartet: { bildungsstufe: 'berufsbildung', fachbereich: 'beruf-praxis' } },
   { text: 'Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten', erwartet: { zielart: 'bewegung' } },
   { text: 'Deutsch Klasse 8: Lernsituation Kundenauftrag, 45 Minuten', erwartet: {}, nicht: { zielart: 'handlung' } },
   // A goal kind with higher priority read from the text wins over the keyword.

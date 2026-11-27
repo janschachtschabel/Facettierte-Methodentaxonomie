@@ -915,7 +915,11 @@
         ],
         "ziel": "lernstand-diagnostiziert",
         "rolle": "sicherung",
-        "zeitanteil": 13
+        "zeitanteil": 13,
+        "wissensart": [
+          "prozeduren",
+          "psychomotorik"
+        ]
       },
       {
         "id": "h5",

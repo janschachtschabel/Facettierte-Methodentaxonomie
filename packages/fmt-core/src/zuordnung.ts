@@ -565,7 +565,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'bildungsstufe',
-      /berufsschul|berufsbildung|auszubildende|azubi|\blehrjahr\b|\w+ausbildung\b|\bausbildung\b|\blernfeld\b|fachinformatiker|kaufleute|kaufmann|kauffrau|mechatroniker|elektroniker|\w+fachleute\b|uberbetrieblich\w*/,
+      /berufsschul|\bberufskolleg\w*|berufsbildung|auszubildende|azubi|\blehrjahr\b|\w+ausbildung\b|\bausbildung\b|\blernfeld\b|fachinformatiker|kaufleute|kaufmann|kauffrau|mechatroniker|elektroniker|\w+fachleute\b|uberbetrieblich\w*/,
       () => 'berufsbildung'
     ],
     ['bildungsstufe', /\w*studium\b|\buni\b|\btutorium\b|studiengang|\bsemester\b/, () => 'hochschule'],
