@@ -10,13 +10,14 @@ import { QUALITAETSFAELLE } from './faelle.js';
 import { REIHE2 } from './faelle-reihe2.js';
 import { REIHE3 } from './faelle-reihe3.js';
 import { REIHE4 } from './faelle-reihe4.js';
+import { REIHE5 } from './faelle-reihe5.js';
 import { pruefeFall, variabilitaet } from './pruefen.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
 const M = createMatcher(D, createValidator(D));
-// `npm run qualitaet -- reihe2` (`reihe3`, `reihe4`) reports the second (third, fourth) test series.
-const faelle = process.argv.includes('reihe4') ? REIHE4 : process.argv.includes('reihe3') ? REIHE3 : process.argv.includes('reihe2') ? REIHE2 : QUALITAETSFAELLE;
+// `npm run qualitaet -- reihe2` (`reihe3`, `reihe4`, `reihe5`) reports the second (third, fourth, fifth) test series.
+const faelle = process.argv.includes('reihe5') ? REIHE5 : process.argv.includes('reihe4') ? REIHE4 : process.argv.includes('reihe3') ? REIHE3 : process.argv.includes('reihe2') ? REIHE2 : QUALITAETSFAELLE;
 const ergebnisse = faelle.map((f) => pruefeFall(f, M, D));
 
 const zeilen = ['| Fall | Kette | Ablauf | Befund |', '|---|---|---|---|'];

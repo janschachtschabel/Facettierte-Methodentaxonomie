@@ -5,9 +5,17 @@
  * `bekannt` marks a weakness that depends on catalogue data (missing methods or chains). Such a check is reported
  * by the quality report but does not fail the test; the reason says which data proposal would fix it.
  */
+/** Pattern on the notes: a plain string is a substring, a RegExp is matched; `anzahl` asks for exactly that many matching notes, `erster` for the first note. */
+export type Hinweismuster = string | RegExp | { muster: string | RegExp; anzahl?: number; erster?: boolean };
+
 export interface Qualitaetsfall {
   id: string;
   text: string;
+  /**
+   * Structured request fields besides the text (REIHE5: the fields of the scenario in szenarien.mts). The scenario's
+   * `fach` is given as `fachbereich`, because the core has no field `fach`. pruefeFall passes `{ text, ...anfrage }`.
+   */
+  anfrage?: Record<string, unknown>;
   erwartet: {
     /** Expected mode; default 'ablauf'. */
     modus?: 'ablauf' | 'phase';
@@ -49,6 +57,24 @@ export interface Qualitaetsfall {
     begleitstrang?: string;
     /** Subgroup expectations, evaluated through adaptScenario. */
     teilgruppe?: { antwort: 'passt' | 'hilfe' | 'tausch'; gesperrt?: boolean; abbau?: boolean };
+    /** Rule ids that must not appear in regelmeldungen. */
+    regelnNicht?: string[];
+    /** Patterns that must match the notes (`hinweise`). */
+    hinweis?: Hinweismuster[];
+    /** Patterns no note may match. */
+    hinweisNicht?: Array<string | RegExp>;
+    /** Chain id the plan must not use. */
+    ketteNicht?: string;
+    /** Chain step ids that must be reported as weakly filled (answer field schwachBesetzt, Task Q3). */
+    schwach?: string[];
+    /** Topic read by extractSubjectAndTopic: a string must be contained, a RegExp must match. */
+    thema?: string | RegExp;
+    /** Words the topic must not contain. */
+    themaNicht?: string[];
+    /** Mandatory details the answer must not report as missing. */
+    pflichtNichtFehlt?: string[];
+    /** Assumed values (field -> value) the answer must list under pflichtangaben.angenommen. */
+    angenommenWert?: Record<string, unknown>;
   };
   bekannt?: Partial<Record<Pruefung, string>>;
 }
@@ -73,7 +99,12 @@ export type Pruefung =
   | 'nachweis'
   | 'profil'
   | 'begleitziel'
-  | 'teilgruppe';
+  | 'teilgruppe'
+  | 'regelNicht'
+  | 'hinweis'
+  | 'ketteNicht'
+  | 'schwach'
+  | 'thema';
 
 /** Data gap found by this test (see docs/qualitaet/2026-11-26-qualitaetsbericht.md, proposal S1). */
 const LUECKE_ANWENDUNG =

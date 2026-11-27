@@ -1,6 +1,7 @@
 import type { Baustein, FmtData, MatchResult, ArrangementNode, EinsatzNode } from '../../src/types.js';
 import type { FmtMatcher } from '../../src/zuordnung.js';
 import { adaptScenario } from '../../src/adaptScenario.js';
+import { extractSubjectAndTopic } from '../../src/thema.js';
 import type { Pruefung, Qualitaetsfall } from './faelle.js';
 
 export interface Befund {
@@ -50,7 +51,7 @@ export function alleBausteine(r: MatchResult): string[] {
 
 export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fallergebnis {
   const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
-  const r = M.zuordnen({ text: fall.text });
+  const r = M.zuordnen({ text: fall.text, ...fall.anfrage });
   const k = r.kriterien as Record<string, unknown>;
   const e = fall.erwartet;
   const befunde: Befund[] = [];
@@ -69,6 +70,12 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
 
     add('gueltig', Boolean(r.pruefung?.gueltig) && (r.offen || []).length === 0, JSON.stringify(r.pruefung?.meldungen || r.offen));
     if (e.kette) add('kette', r.kette?.id === e.kette, `erwartet ${e.kette}, erhalten ${r.kette?.id}`);
+    if (e.ketteNicht) add('ketteNicht', r.kette?.id !== e.ketteNicht, `Kette ${r.kette?.id}`);
+    if (e.schwach) {
+      const gemeldet = new Set(((r as unknown as { schwachBesetzt?: Array<{ schritt: string }> }).schwachBesetzt || []).map((x) => x.schritt));
+      const fehlend = e.schwach.filter((x) => !gemeldet.has(x));
+      add('schwach', fehlend.length === 0, `nicht als schwach besetzt gemeldet: ${fehlend.join(', ')}`);
+    }
 
     const budget = typeof k.zeitMin === 'number' ? k.zeitMin : null;
     if (budget != null) {
@@ -185,9 +192,9 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
   const antwort = r as unknown as Record<string, unknown>;
   const text = (x: unknown) => JSON.stringify(x ?? null);
   const fehlt = (feld: string) => antwort[feld] === undefined;
-  if (e.pflichtFehlt || e.angenommen) {
+  if (e.pflichtFehlt || e.angenommen || e.pflichtNichtFehlt || e.angenommenWert) {
     const p = antwort.pflichtangaben as
-      | { fehlt?: string[]; angenommen?: Array<string | { feld: string }> | Record<string, unknown> }
+      | { fehlt?: string[]; angenommen?: Array<string | { feld: string; wert?: unknown }> | Record<string, unknown> }
       | undefined;
     const fehltListe = p?.fehlt || [];
     // The answer lists each assumption as { feld, wert, grund } (spec 5.4); a plain list of field names is read as well.
@@ -196,14 +203,46 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
       : Object.keys(p?.angenommen || {});
     const luecken = [
       ...(e.pflichtFehlt || []).filter((x) => !fehltListe.includes(x)).map((x) => `${x} nicht als fehlend gemeldet`),
-      ...(e.angenommen || []).filter((x) => !angListe.includes(x)).map((x) => `${x} nicht als angenommen ausgewiesen`)
+      ...(e.angenommen || []).filter((x) => !angListe.includes(x)).map((x) => `${x} nicht als angenommen ausgewiesen`),
+      ...(e.pflichtNichtFehlt || []).filter((x) => fehltListe.includes(x)).map((x) => `${x} fälschlich als fehlend gemeldet`)
     ];
+    const angWerte = Array.isArray(p?.angenommen) ? p!.angenommen.filter((x): x is { feld: string; wert?: unknown } => typeof x !== 'string') : [];
+    for (const [feld, wert] of Object.entries(e.angenommenWert || {})) {
+      const da = angWerte.filter((x) => x.feld === feld);
+      if (!da.some((x) => JSON.stringify(x.wert) === JSON.stringify(wert)))
+        luecken.push(`${feld}=${JSON.stringify(wert)} nicht als angenommen ausgewiesen (${da.map((x) => JSON.stringify(x.wert)).join(', ') || 'keine Annahme'})`);
+    }
     add('pflichtangaben', p !== undefined && luecken.length === 0, p === undefined ? 'Antwortfeld pflichtangaben fehlt' : luecken.join('; '));
   }
   if (e.regeln) {
     const gemeldet = new Set(((antwort.regelmeldungen as Array<{ regel: string }> | undefined) || []).map((m) => m.regel));
     const fehlend = e.regeln.filter((id) => !gemeldet.has(id));
     add('regel', !fehlt('regelmeldungen') && fehlend.length === 0, fehlt('regelmeldungen') ? 'Antwortfeld regelmeldungen fehlt' : `Regel nicht gemeldet: ${fehlend.join(', ')}`);
+  }
+  if (e.regelnNicht) {
+    const gemeldet = ((antwort.regelmeldungen as Array<{ regel: string }> | undefined) || []).map((m) => m.regel);
+    const drin = e.regelnNicht.filter((id) => gemeldet.includes(id));
+    add('regelNicht', drin.length === 0, `Regel gemeldet: ${drin.join(', ')}`);
+  }
+  if (e.hinweis || e.hinweisNicht) {
+    const hinweise = r.hinweise || [];
+    const trifft = (m: string | RegExp, h: string) => (typeof m === 'string' ? h.includes(m) : m.test(h));
+    const fehler: string[] = [];
+    for (const m of e.hinweis || []) {
+      const { muster, anzahl, erster } = typeof m === 'object' && !(m instanceof RegExp) ? m : { muster: m as string | RegExp, anzahl: undefined, erster: undefined };
+      const n = hinweise.filter((h) => trifft(muster, h)).length;
+      if (erster ? !hinweise.length || !trifft(muster, hinweise[0]) : anzahl != null ? n !== anzahl : n === 0)
+        fehler.push(`${erster ? 'erster Hinweis' : anzahl != null ? `${anzahl}× Hinweis` : 'Hinweis'} ${String(muster)} fehlt (${n}×)`);
+    }
+    for (const m of e.hinweisNicht || []) if (hinweise.some((h) => trifft(m, h))) fehler.push(`Hinweis ${String(m)} vorhanden`);
+    add('hinweis', fehler.length === 0, fehler.join('; ') || `${hinweise.length} Hinweise`);
+  }
+  if (e.thema || e.themaNicht) {
+    const thema = extractSubjectAndTopic(fall.text).thema || '';
+    const fehler: string[] = [];
+    if (e.thema && !(typeof e.thema === 'string' ? thema.includes(e.thema) : e.thema.test(thema))) fehler.push(`erwartet ${String(e.thema)}`);
+    for (const w of e.themaNicht || []) if (thema.includes(w)) fehler.push(`enthält „${w}“`);
+    add('thema', fehler.length === 0, `${fehler.join('; ')}${fehler.length ? ', ' : ''}gelesen „${thema}“`);
   }
   if (e.nachweisform) {
     const form = text(antwort.nachweis);

@@ -6,6 +6,8 @@ import { createMatcher, createValidator, extractSubjectAndTopic } from '../src/i
 import { QUALITAETSFAELLE } from './qualitaet/faelle.js';
 import { REIHE2 } from './qualitaet/faelle-reihe2.js';
 import { REIHE4 } from './qualitaet/faelle-reihe4.js';
+import { REIHE5 } from './qualitaet/faelle-reihe5.js';
+import { SZ } from '../../../scripts/szenariotest/szenarien.mts';
 import { pruefeFall, variabilitaet } from './qualitaet/pruefen.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -62,6 +64,35 @@ describe('Testreihe 4 (FMT 2.0, n01 bis n20)', () => {
   it('bekannt steht nur an einer Prüfung, die nicht besteht (nach Paket D, D7)', () => {
     // A marker on a check that passes would hide a later regression; after Paket D only real reasons remain.
     const veraltet = reihe4.flatMap((e) =>
+      Object.keys(e.fall.bekannt || {})
+        .filter((p) => !e.befunde.some((b) => b.pruefung === p && !b.ok))
+        .map((p) => `${e.fall.id}: ${p}`)
+    );
+    expect(veraltet).toEqual([]);
+  });
+});
+
+describe('Testreihe 5 (Szenariotest 2026-11-27, 56 Szenarien)', () => {
+  const reihe5 = REIHE5.map((f) => pruefeFall(f, M, D));
+  it('enthält die 56 Szenarien von szenarien.mts: Kennung, Text und Felder wörtlich (fach als fachbereich)', () => {
+    expect(REIHE5.map((f) => f.id)).toEqual(SZ.map((s) => s.id));
+    for (const s of SZ) {
+      const f = REIHE5.find((x) => x.id === s.id)!;
+      const { text, fach, gruppen: _gruppen, ...felder } = s.p as Record<string, unknown>;
+      expect(f.text, s.id).toBe(text);
+      // Only the request fields of the scenario; modus is the one addition a task asks for (Q3: plan, not phase).
+      const { modus: _modus, fachbereich, ...anfrage } = f.anfrage || {};
+      expect(anfrage, s.id).toEqual(felder);
+      expect(fachbereich !== undefined, s.id).toBe(fach !== undefined);
+    }
+  });
+  it.each(reihe5.map((e) => [e.fall.id, e] as const))('%s: jede offene Prüfung ist als bekannt markiert', (_id, e) => {
+    const offen = e.befunde.filter((b) => !b.ok && !b.bekannt).map((b) => `${b.pruefung}: ${b.detail}`);
+    expect(offen, `${e.fall.text}\n→ ${e.ablauf.join(' > ')}`).toEqual([]);
+  });
+  it('bekannt steht nur an einer Prüfung, die nicht besteht', () => {
+    // Each later task removes its own marker ("wartet auf Q…"); a marker on a passing check would hide a later regression.
+    const veraltet = reihe5.flatMap((e) =>
       Object.keys(e.fall.bekannt || {})
         .filter((p) => !e.befunde.some((b) => b.pruefung === p && !b.ok))
         .map((p) => `${e.fall.id}: ${p}`)
