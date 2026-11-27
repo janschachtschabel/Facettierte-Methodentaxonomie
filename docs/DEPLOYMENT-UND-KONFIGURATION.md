@@ -153,7 +153,7 @@ sudo systemctl status fmt-methodendatenbank
 
 ### Modus A: Zero-LLM-Modus (Standard, 0 €)
 - Aktiv, solange `LLM_API_KEY` leer ist.
-- Alle Kernfunktionen laufen deterministisch in **< 5 ms**: Suche, 5-Stufen-Zuordnung, 13-Regeln-Validator, Binnendifferenzierungsmatrix, Freitext-Klassifikation (`POST /api/v1/classify`), Szenario-Vorfilterung (`POST /api/v1/plan`), 7 druckfertige Material-Vorlagen und alle 13 MCP-Tools.
+- Alle Kernfunktionen laufen deterministisch in **< 5 ms**: Suche, 5-Stufen-Zuordnung, 13-Regeln-Validator, Binnendifferenzierungsmatrix, Freitext-Klassifikation (`POST /api/v1/classify`), Szenario-Vorfilterung (`POST /api/v1/plan`), 7 druckfertige Material-Vorlagen und alle 15 MCP-Tools.
 - Komplexe Endpunkte (`POST /api/v1/plan`, `POST /api/v1/assistant/briefing`, MCP `build_scenario_plan` / `elaborate_scenario` / `generate_phase_material`) liefern ein fertiges **`llmBriefing`** (`systemPrompt`, `userPrompt`, Katalogfakten, Leitplanken) mit, das der Endnutzer direkt in seinem eigenen LLM weiterverarbeitet.
 
 ### Modus B: Eigene OpenAI-kompatible KI in den App-Einstellungen (`⚙ KI-Einstellungen`)
@@ -280,19 +280,22 @@ curl -s -X POST http://localhost:8080/api/v1/assistant/briefing \
   }'
 ```
 
-### Übersicht aller 14 MCP-Tools (`/mcp` & `stdio`)
+### Übersicht aller 15 MCP-Tools (`/mcp` & `stdio`)
 
-1. `classify_scenario_text` – Hybride Freitext-Klassifikation (6 Skalen, Fach/Thema, Methoden, Matrix-Merkmale)
-2. `search_methods` – Facettierte Suche über alle 303 Methoden inkl. semantischer Vorschläge
-3. `get_method` – Vollständiges 13-Facetten-Profil inkl. Durchführung, Risiken, Evidenz & Quellen
-4. `compare_methods` – Facette-für-Facette-Vergleich zweier Bausteine
-5. `match_scenario` – Deterministische 5-Stufen-Zuordnung inkl. Matrix-Signalen
-6. `validate_arrangement` – Regelprüfung `R-00` bis `R-12` inkl. Grundlagen (`formal`, `[E]`, `[S]`, `[A]`)
-7. `suggest_replacements` – Formal gültige Ersatzkandidaten an einem Knotenpfad
-8. `list_vocabularies` – Alle 25 SKOS-Vokabulare, Funktionsketten & Differenzierungs-Personas
-9. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline Prod (`redaktion.openeduhub.net`) inkl. `wwwurl`, gefiltert nach `fach` oder, ohne erkanntes Einzelfach, nach allen OEH-Fächern des `fachbereich`
-10. `score_differentiation_matrix` – Normalisierte Binnendifferenzierungsmatrix (−100..+100 %, Ebenen-/Technikfilter) & alternative Methoden für Teilgruppen
-11. `adapt_scenario` – Szenario-Anpassung & Binnendifferenzierung für freie Chat-Entwürfe & FMT-Arrangements (UDL-Basis, Zielkonflikte + Auflösungen, Phasen-Impulse, FMT-Methoden & `llmBriefing`, auch als `POST /api/v1/adapt`)
-12. `build_scenario_plan` – Kompletter Zero-LLM-Szenario-Plan (`< 5 ms`) inkl. UDL/Konflikten, `llmBriefing` & JSON-LD
-13. `elaborate_scenario` – Deterministische Verlaufstabelle + `llmBriefing` fürs Enduser-LLM
-14. `generate_phase_material` – Druckfertige Strukturvorlage (7 Typen) + `llmBriefing`
+1. `search_methods` – Facettierte Suche im Katalog (310 Methoden und 4 Hilfen): Freitext, 13 Facetten, Fach bzw. Fachbereich, Zeit, Gruppengröße, Technik, Evidenzgrad, Bedarf, Eintragsart sowie Kette (`zieltyp`) und Kettenschritt (`kettenschritt`); Treffer mit Bedarf, Eignung, Evidenzbezug und `einordnung`
+2. `get_method` – Vollständiger Eintrag einer Methode oder Hilfe: 13-Facetten-Profil, Durchführung, Schnittstellen, Kernkomponenten, Risiken, Bedarf, Eignung, Evidenz mit Geltung und Evidenzbezug, Quellen und `einordnung` (Kettenschritte)
+3. `compare_methods` – Vergleicht zwei Einträge Facette für Facette, dazu Eintragsart, Bedarf, Eignung und Evidenzbezug (`unterschiede`, `verglichen`)
+4. `match_scenario` – Deterministische 5-Stufen-Zuordnung für eine Phase oder einen geprüften Ablauf mit `pflichtangaben`, `regelmeldungen`, `begleitstrang` und `planungsprofil`
+5. `validate_arrangement` – Prüft ein Arrangement gegen `R-00` bis `R-12` mit Grundlage (`formal`, `[E]`, `[S]`, `[A]`); mit `situation` zusätzlich die Passungsregeln dieses (auch von Hand geänderten) Ablaufs als `regelmeldungen`
+6. `suggest_replacements` – Ersatzkandidaten an einem Knotenpfad, live gegen `R-00` bis `R-12` geprüft; mit der Situation nur Kandidaten, deren Bedarf gedeckt ist, dazu `ausgeschlossen` mit Grund
+7. `list_vocabularies` – Alle Vokabulare, W-Felder, Arten und Merkmale, Funktionsketten mit Schritten, Passungsregeln, Planungsprofile, Teilgruppen-Tabelle, Raumtypen, Zielarten, Personas, Anfragefelder und die Zahl der Methoden und Hilfen (wie REST `/meta`)
+8. `search_wlo_oer` – Live-OER-Suche auf WirLernenOnline (`redaktion.openeduhub.net`) mit offiziellen Fach-, Bildungsstufen- und Medientyp-URIs; jeder Treffer mit `wwwurl`
+9. `score_differentiation_matrix` – Binnendifferenzierungsmatrix (115 Ausprägungen × 172 Maßnahmen, −100..+100 %) nach Schnellprofil, Persona oder eigenen Werten; mit Baustein geprüfte alternative Methoden für die Teilgruppe (`alternativenPruefung`)
+10. `build_scenario_plan` – Vollständiges, `R-00`..`R-12`-geprüftes Szenario ohne Server-LLM (Ablauf, `methodenDetails`, Matrix, `thematischeTabelle`, `teilgruppenMethoden`, `zusatzphasen`); `umfang: "voll"` ergänzt `llmBriefing` und `maschinenlesbar`
+11. `elaborate_scenario` – Verlaufstabelle und Entwurf mit sieben Kernfeldern in den Begriffen des Planungsprofils, dazu ein gefiltertes `llmBriefing`; `regelmeldungen` aus dem Plan stehen unter Reflexion
+12. `generate_phase_material` – Druckfertige Material-Strukturvorlage (7 Typen) zu einer Methode, Hilfe oder Methode des Begleitstrangs, mit gestuften Hilfen je Lerngruppe und `llmBriefing`
+13. `classify_scenario_text` – Freitext-Klassifikation ohne LLM (Regeln, BM25/Trigram, optional Model2Vec) auf Filterskalen, Fach/Thema, Methoden und Matrix-Merkmale; `pflichtangaben` nennt, was fehlt und was angenommen würde
+14. `adapt_scenario` – Anpassung eines freien Szenarios, einer Methode (`baustein`) oder eines Arrangements an Lernvoraussetzungen: UDL-Basis, Zielkonflikte, Maßnahmen, `teilgruppenImpulse`, `teilgruppenMethoden`, `zusatzphasen`, `gesperrt` und `regelmeldungen` (auch als `POST /api/v1/adapt`)
+15. `list_differentiation_options` – Alle Lernvoraussetzungs-Merkmale (36 Variablen mit 115 Ausprägungen), 8 Schnellprofile, Personas und Handlungsebenen; je Ausprägung, ob die Tabelle Tausch oder Hilfe vorsieht; gesperrte Kategorien unter `gesperrteKategorien`
+
+**Fehler:** Eigene Fehler der Tools kommen mit `isError: true` und demselben deutschen Text wie REST (HTTP 400 `{ fehler, erlaubt? }`). Fehler aus der Schemaprüfung des MCP-SDK (z. B. ein Wert außerhalb eines Enums: `match_scenario { raum: "mondbasis" }`) kommen dagegen als englischer SDK-Text („MCP error -32602: Input validation error … Invalid option: expected one of …“), ebenfalls mit `isError: true`; die erlaubten Werte stehen in diesem Text und als Enum im Tool-Schema.

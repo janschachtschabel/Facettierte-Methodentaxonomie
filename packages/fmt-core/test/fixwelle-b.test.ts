@@ -29,7 +29,9 @@ describe('Fix wave Paket B', () => {
     const phase = M.zuordnen({ text: 'Einstieg Chemie Klasse 8 Säuren' });
     const p = (phase.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis');
     expect(p.length).toBe(1);
-    expect(p[0].bausteine).toEqual(expect.arrayContaining(['stummer-impuls', 'soziometrie-aufstellung']));
+    expect(p[0].bausteine).toEqual(expect.arrayContaining(['soziometrie-aufstellung']));
+    // Gate V2: the silent impulse is shown, not handled, so it is no hands-on method.
+    expect(p[0].bausteine).not.toContain('stummer-impuls');
   });
 
   it('9: keine Kennungen BD/EG mehr in den Beschreibungen des Vokabulars (W2)', () => {

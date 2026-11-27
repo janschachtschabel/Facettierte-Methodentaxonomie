@@ -168,6 +168,13 @@ export function ApiMcpPage() {
             <li><code>elaborate_scenario</code> – Entwurf mit den sieben Kernfeldern in den Begriffen des Planungsprofils, Verlaufstabelle und <code>llmBriefing</code> für das Enduser-LLM; <code>regelmeldungen</code> des Plans stehen mit Regel, Wirkung und Grundlage unter Reflexion</li>
             <li><code>generate_phase_material</code> – Druckfertige Material-Strukturvorlage + <code>llmBriefing</code></li>
           </ul>
+          <p style={{ fontSize: 14 }} className="muted" aria-label="Fehler der MCP-Tools">
+            <strong>Fehler:</strong> Eigene Fehler der Tools kommen mit <code>isError: true</code> und demselben deutschen Text
+            wie REST (HTTP 400 mit <code>{'{ fehler, erlaubt? }'}</code>). Fehler aus der Schemaprüfung des MCP-SDK, etwa ein
+            Wert außerhalb eines Enums (<code>match_scenario</code> mit <code>raum: "mondbasis"</code>), kommen als englischer
+            SDK-Text („MCP error -32602: Input validation error … expected one of …“), ebenfalls mit <code>isError: true</code>;
+            die erlaubten Werte stehen in diesem Text und als Enum im Tool-Schema.
+          </p>
           <p style={{ fontSize: 14 }} className="muted">
             <strong>Resources:</strong> <code>fmt://catalog/summary</code> · <code>fmt://differentiation/options</code> ·{' '}
             <code>fmt://method/{'{kennung}'}</code> · <code>fmt://vocab/{'{scheme}'}</code> ·{' '}
@@ -227,7 +234,10 @@ export function ApiMcpPage() {
                   <code>eintragsart</code> (methode, hilfe), <code>raum</code> (Raumtyp deckt den Bedarf), <code>raumbedarf</code>,{' '}
                   <code>ohneRaumbedarf</code>, <code>schriftbedarf</code>, <code>ohneSchrift</code> (lesen, schreiben),{' '}
                   <code>termine</code> sowie <code>zieltyp</code> (Kette: nur Methoden, die einen ihrer Schritte füllen können)
-                  und <code>kettenschritt</code> (Schritt-ID dieser Kette, nur zusammen mit <code>zieltyp</code>)
+                  und <code>kettenschritt</code> (Schritt-ID dieser Kette, nur zusammen mit <code>zieltyp</code>). Blättern mit{' '}
+                  <code>limit</code> (ab 1) und <code>offset</code> (ab 0); ohne <code>limit</code> kommen alle Treffer.{' '}
+                  <code>anzahl</code> nennt alle Treffer, <code>angezeigt</code> die gelieferten. Ein unbekannter Parameter,
+                  ein unbekannter Code oder eine unlesbare Zahl ergibt HTTP 400 mit <code>fehler</code> und <code>erlaubt</code>
                 </td>
               </tr>
               <tr>

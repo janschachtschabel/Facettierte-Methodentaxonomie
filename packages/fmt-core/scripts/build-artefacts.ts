@@ -257,6 +257,7 @@ export function ontologyTtl(D: FmtData): string {
   });
   out += `fmt:status a rdf:Property ;\n  rdfs:domain fmt:Baustein ;\n  rdfs:range xsd:string .\n\n`;
   out += `fmt:quelltyp a rdf:Property ;\n  rdfs:domain fmt:Quelle ;\n  rdfs:range xsd:string .\n\n`;
+  out += `fmt:evidenzBezug a rdf:Property ;\n  rdfs:label ${lit('Evidenzbezug')}@de ;\n  rdfs:domain fmt:Evidenzaussage ;\n  rdfs:range xsd:string ;\n  rdfs:comment ${lit('Worauf sich der Befund bezieht: methode, prinzip, programm')}@de .\n\n`;
   return out;
 }
 

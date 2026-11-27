@@ -408,3 +408,20 @@ describe('API-Seite: gleiche Eingaben und Antworten (Task A3)', () => {
     expect(li('elaborate_scenario')).toMatch(/regelmeldungen/);
   });
 });
+
+describe('API-Seite: Blättern in /methods und Fehler der MCP-Schemaprüfung (Task A6, R18)', () => {
+  it('nennt limit und offset bei GET /api/v1/methods und dass Schemafehler als SDK-Text mit isError kommen', () => {
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    const methods = screen.getByText(/GET \/api\/v1\/methods\?/).closest('tr')!.textContent || '';
+    for (const k of ['limit', 'offset', 'angezeigt', 'zieltyp', 'kettenschritt']) expect(methods, k).toContain(k);
+    const fehler = screen.getByLabelText('Fehler der MCP-Tools').textContent || '';
+    expect(fehler).toMatch(/isError/);
+    expect(fehler).toMatch(/-32602/);
+    expect(fehler).toMatch(/erlaubten Werte/);
+    expect(fehler).toMatch(/fehler/);
+  });
+});

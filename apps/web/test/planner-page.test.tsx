@@ -437,7 +437,7 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
 
   it('Schritt 2 zeigt nur Meldungen zu Methoden im Ablauf (Fix-Welle B, Punkt 3)', () => {
     renderPlanner();
-    // A single phase: the safety note stands at a proposal (Stummer Impuls) the teacher may not take.
+    // A single phase: the safety note stands at a hands-on proposal (Soziometrische Aufstellung) the teacher may not take.
     propose('Einstieg Chemie Klasse 8 Säuren');
     const vorschlag = (name: RegExp) => screen.getAllByRole('button').find((b) => /^\+ /.test(b.textContent || '') && name.test(b.textContent || ''))!;
     fireEvent.click(vorschlag(/Daily Review|Rosenshine/));
@@ -445,20 +445,20 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
     // Taken into the flow, the method shows its message at its row; removed again, the message is gone.
     fireEvent.click(stepButton(1));
-    fireEvent.click(vorschlag(/Stummer Impuls/));
-    expect(screen.getByRole('list', { name: /Hinweise zu Stummer Impuls/ }).textContent).toMatch(/praktisch gearbeitet/);
+    fireEvent.click(vorschlag(/Soziometrische Aufstellung/));
+    expect(screen.getByRole('list', { name: /Hinweise zu Soziometrische Aufstellung/ }).textContent).toMatch(/praktisch gearbeitet/);
     fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
     const entfernen = screen.getAllByRole('button', { name: 'Schritt entfernen' });
     fireEvent.click(entfernen[entfernen.length - 1]);
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
     fireEvent.click(screen.getByRole('button', { name: /Übersicht/ }));
-    expect(screen.queryByRole('list', { name: /Hinweise zu Stummer Impuls/ })).toBeNull();
+    expect(screen.queryByRole('list', { name: /Hinweise zu Soziometrische Aufstellung/ })).toBeNull();
     expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
   });
 
   it('Der Sicherheitshinweis bleibt, solange eine praktische Methode im Ablauf steht, und nennt nur diese (Runde 2, Punkt 1)', () => {
     renderPlanner();
-    // Single phase: the note stands at Stummer Impuls and names Soziometrische Aufstellung; taking the latter keeps it.
+    // Single phase: the note names Soziometrische Aufstellung (Stummer Impuls is no hands-on method since gate V2); taking it keeps the note.
     propose('Einstieg Chemie Klasse 8 Säuren');
     const vorschlag = (name: RegExp) => screen.getAllByRole('button').find((b) => /^\+ /.test(b.textContent || '') && name.test(b.textContent || ''))!;
     fireEvent.click(vorschlag(/Soziometrische Aufstellung/));

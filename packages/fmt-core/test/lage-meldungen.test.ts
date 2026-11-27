@@ -125,4 +125,14 @@ describe('Regelmeldungen der Antwort für die aktuelle Anfrage neu prüfen (R02)
     expect(ids(passungImArrangement(arr, { begleitziel: ['sozial'], termine: 3 }, D))).not.toContain('begleitziel-braucht-termine');
     expect(passungImArrangement(arr, {}, D)).toEqual([]);
   });
+
+  it('stummer Impuls ist nicht praktisch (Tor V2): in beruf-praxis löst er allein keinen Sicherheitshinweis aus', () => {
+    expect(b('stummer-impuls').repraesentation).toEqual(['ikonisch', 'symbolisch']);
+    const nur = { ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: 'stummer-impuls' }] } } as never;
+    expect(ids(passungImArrangement(nur, { fachbereich: 'beruf-praxis' }, D))).not.toContain('sicherheitshinweis');
+    // A hands-on method in the same flow still gets the note, and it no longer names the silent impulse.
+    const mit = { ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: 'stummer-impuls' }, { typ: 'Einsatz', baustein: 'aufwaermen' }] } } as never;
+    const sicher = passungImArrangement(mit, { fachbereich: 'beruf-praxis' }, D).find((m) => m.regel === 'sicherheitshinweis');
+    expect(sicher?.bausteine).toEqual(['aufwaermen']);
+  });
 });

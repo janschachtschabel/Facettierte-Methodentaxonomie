@@ -275,7 +275,7 @@ describe('Lesarten und Evidenzbezug in der Oberfläche (Paket D, D4)', () => {
     expect(screen.queryByText(satz)).toBeNull();
   });
 
-  it('Systematik zeigt die Tabelle der Lesarten: zwölf Lernstände, vier Lesarten, Strich als Label', () => {
+  it('Systematik zeigt die Tabelle der Lesarten: zwölf Lernstände, fünf Lesarten, Strich als Label', () => {
     render(
       <MemoryRouter>
         <SystematikPage />
@@ -284,12 +284,13 @@ describe('Lesarten und Evidenzbezug in der Oberfläche (Paket D, D4)', () => {
     const tabelle = screen.getByRole('table', { name: 'Lesarten der Lernstände' });
     const zeilen = within(tabelle).getAllByRole('row').slice(1);
     expect(zeilen.length).toBe(12);
-    for (const k of ['Wissen und Konzepte', 'Bewegung und Fertigkeit', 'Urteilen und Werten', 'Gestalten und Produzieren'])
+    for (const k of ['Wissen und Konzepte', 'Bewegung und Fertigkeit', 'Urteilen und Werten', 'Gestalten und Produzieren', 'Berufliche Handlung'])
       expect(within(tabelle).getByRole('columnheader', { name: k })).toBeTruthy();
     const zeile = within(tabelle).getByRole('rowheader', { name: /prozedur-gelaeufig/ }).closest('tr') as HTMLElement;
     expect(zeile.textContent).toContain('Feinform gelingt');
     expect(zeile.textContent).toContain('Technik geläufig');
-    expect(within(tabelle).getAllByText('Ausgangslage sichtbar').length).toBe(4);
+    expect(zeile.textContent).toContain('Arbeitsschritte gelingen sicher und fachgerecht');
+    expect(within(tabelle).getAllByText('Ausgangslage sichtbar').length).toBe(5);
   });
 });
 

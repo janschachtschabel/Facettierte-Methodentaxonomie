@@ -817,7 +817,7 @@
     {
       "id": "lernzustand",
       "titel": "Lernzustand",
-      "beschreibung": "Typen für Vor- und Nachbedingungen von Bausteinen. Ein Zustand kann schwächere Zustände implizieren. Je Zielart hat ein Zustand eine Lesart (wissen, bewegung, urteilen, gestalten); fehlt sie, gilt das Label.",
+      "beschreibung": "Typen für Vor- und Nachbedingungen von Bausteinen. Ein Zustand kann schwächere Zustände implizieren. Je Zielart hat ein Zustand eine Lesart (wissen, bewegung, urteilen, gestalten, handlung); fehlt sie, gilt das Label.",
       "werte": [
         {
           "id": "vorwissen-aktiviert",
@@ -826,7 +826,8 @@
             "wissen": "Vorwissen aktiviert",
             "bewegung": "eingestimmt, Bewegungserfahrung aktiviert",
             "urteilen": "Vorerfahrung und erste Position geäußert",
-            "gestalten": "Vorerfahrung aktiviert"
+            "gestalten": "Vorerfahrung aktiviert",
+            "handlung": "Vorerfahrung zur Arbeitsaufgabe aktiviert"
           }
         },
         {
@@ -839,7 +840,8 @@
             "wissen": "Ausgangslage sichtbar",
             "bewegung": "Ausgangslage sichtbar",
             "urteilen": "Ausgangslage sichtbar",
-            "gestalten": "Ausgangslage sichtbar"
+            "gestalten": "Ausgangslage sichtbar",
+            "handlung": "Ausgangslage sichtbar"
           }
         },
         {
@@ -849,7 +851,8 @@
             "wissen": "Problem erschlossen",
             "bewegung": "Bewegungsaufgabe verstanden",
             "urteilen": "Streitfrage erschlossen",
-            "gestalten": "Auftrag und Kriterien geklärt"
+            "gestalten": "Auftrag und Kriterien geklärt",
+            "handlung": "Arbeitsauftrag verstanden"
           }
         },
         {
@@ -862,7 +865,8 @@
             "wissen": "eigene Lösungsversuche",
             "bewegung": "eigene Bewegungsversuche",
             "urteilen": "spontane Urteile",
-            "gestalten": "Entwurf liegt vor"
+            "gestalten": "Entwurf liegt vor",
+            "handlung": "eigenes Vorgehen geplant oder erprobt"
           }
         },
         {
@@ -872,7 +876,8 @@
             "wissen": "Erstwissen, ungesichert",
             "bewegung": "Grobform gelingt",
             "urteilen": "Sachwissen und Argumente bekannt",
-            "gestalten": "Muster und Techniken bekannt"
+            "gestalten": "Muster und Techniken bekannt",
+            "handlung": "Arbeitsschritte gelingen mit Hilfe"
           }
         },
         {
@@ -885,7 +890,8 @@
             "wissen": "Konzept verstanden und gesichert",
             "bewegung": "Bewegungsvorstellung geklärt",
             "urteilen": "Positionen verstanden",
-            "gestalten": "Gestaltungsprinzip verstanden"
+            "gestalten": "Gestaltungsprinzip verstanden",
+            "handlung": "Arbeitsablauf und Gründe der Schritte verstanden"
           }
         },
         {
@@ -897,7 +903,8 @@
           "lesart": {
             "wissen": "Verfahren geläufig",
             "bewegung": "Feinform gelingt",
-            "gestalten": "Technik geläufig"
+            "gestalten": "Technik geläufig",
+            "handlung": "Arbeitsschritte gelingen sicher und fachgerecht"
           }
         },
         {
@@ -919,7 +926,8 @@
           ],
           "lesart": {
             "wissen": "Wissen gefestigt",
-            "bewegung": "Bewegung automatisiert"
+            "bewegung": "Bewegung automatisiert",
+            "handlung": "Arbeitsablauf zur Routine geworden"
           }
         },
         {
@@ -929,7 +937,8 @@
             "wissen": "auf Neues übertragen",
             "bewegung": "variabel verfügbar, in Spiel oder Ernstform",
             "urteilen": "Urteil begründet",
-            "gestalten": "Produkt erstellt und gezeigt"
+            "gestalten": "Produkt erstellt und gezeigt",
+            "handlung": "bei neuem Auftrag angewendet, real oder realitätsnah"
           }
         },
         {
@@ -939,7 +948,8 @@
             "wissen": "Stand festgestellt",
             "bewegung": "Stand festgestellt",
             "urteilen": "Stand festgestellt",
-            "gestalten": "Stand festgestellt"
+            "gestalten": "Stand festgestellt",
+            "handlung": "Stand festgestellt"
           }
         },
         {
@@ -949,7 +959,8 @@
             "wissen": "Lernen reflektiert",
             "bewegung": "Bewegungslernen ausgewertet",
             "urteilen": "eigenes Urteil reflektiert",
-            "gestalten": "Rückmeldung verarbeitet"
+            "gestalten": "Rückmeldung verarbeitet",
+            "handlung": "Ergebnis und eigenes Vorgehen ausgewertet"
           }
         }
       ]
@@ -1737,7 +1748,7 @@
           "nachweis": [
             "praktisch"
           ],
-          "lesart": "bewegung"
+          "lesart": "handlung"
         }
       ]
     },
