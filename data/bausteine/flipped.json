@@ -86,7 +86,9 @@
     "instruktion-vor-problem"
   ],
   "vorbedingung": [],
-  "nachbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
   "kernkomponente": [
     {
       "kennung": "vorbereitung",

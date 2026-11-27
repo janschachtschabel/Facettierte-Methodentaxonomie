@@ -125,10 +125,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 360,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Interessen, Vorwissen und Lernwege einer Lerngruppe gehen so weit auseinander, dass Gleichschritt nicht trägt.",
   "durchfuehrung": [
     "Vorhaben kurz planen und dokumentieren",

@@ -17,6 +17,7 @@ import {
 import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
 import { nachweisformen } from '../src/zielart.js';
 import { erstelleRegeln } from '../src/regeln.js';
+import { mitEintraegen } from './fixtures/eignung.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -153,7 +154,8 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     });
     expect(projekt.meldungen.some((m) => m.regel === 'R-05')).toBe(true);
 
-    const primar = V.validate(
+    // Tor D2 gave every stage entry a reason; the fixture puts back the old entry of erfindungsaufgabe without one.
+    const primar = createValidator(mitEintraegen(D)).validate(
       {
         typ: 'Arrangement',
         name: 't',
@@ -181,7 +183,7 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     expect(ids({ text: 'jigsaw' })).toContain('partnerpuzzle');
     expect(ids({ text: 'Lernzirkel' })).toEqual(['stationenlernen']);
     expect(ids({ liefert: 'wissen-konsolidiert' })).toContain('abrufquiz');
-    expect(ids({ bildungsstufe: 'primar' })).not.toContain('productive-failure');
+    expect(ids({ bildungsstufe: 'primar' })).not.toContain('dual-praxismodul');
     expect(ids({ ansatz: 'kooperativ' })).toContain('gruppenpuzzle');
     expect(ids({ status: 'kuratiert' }).length).toBeGreaterThanOrEqual(22);
     expect(ids({ ohneKI: true })).not.toContain('ki-tutor');
@@ -726,12 +728,14 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
   });
 
   it('ungeeignet im Fach warnt in jedem Fachbereich (eignung-fach); ohne Begründung als Setzung der Redaktion', () => {
-    const r = M.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'sport' }) as PhaseMatchResult;
+    // Fixture: the entry of makerspace-tueftelwerkstatt as it stood before Tor D2 (without a reason).
+    const MX = createMatcher(mitEintraegen(D), createValidator(mitEintraegen(D)));
+    const r = MX.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'sport' }) as PhaseMatchResult;
     const v = r.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
     expect(v?.warnungen).toContain('Makerspace / Tüftelwerkstatt (FabLab) passt weniger zum Fachbereich „Sport und Bewegung“. (Setzung der Redaktion)');
     expect((v?.warnungen || []).some((w) => w.includes('Durchsicht'))).toBe(false);
     // The other subject areas warn as well since Task B3 (Abbau Zeile 7: no rank tier of their own).
-    const m = M.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
+    const m = MX.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
     const g = m.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
     expect(g?.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-fach', grundlage: 'A' }));
   });
@@ -785,6 +789,9 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
   const D = loadFmtData(DATA_DIR);
   const M = createMatcher(D, createValidator(D));
   const regelIds = new Set([...D.regeln.map((r) => r.id), 'eignung-stufe', 'eignung-vorwissen', 'eignung-fach']);
+  // Fixture: Eignung entries without a reason as they stood before Tor D2 (laufdiktat in Mathematik and others).
+  const DX = mitEintraegen(D);
+  const MX = createMatcher(DX, createValidator(DX));
   const alsText = (m: { text: string; quelle?: string }) => (m.quelle ? `${m.text} (${m.quelle})` : m.text);
 
   it('n17: Chemie Klasse 9 ohne Raum und Anzahl nennt beide Lücken und den angenommenen Raum', () => {
@@ -794,7 +801,7 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
   });
 
   it('jede Warnung im Ablauf steht als Regelmeldung mit Regel und Grundlage', () => {
-    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer, Klassenraum, 90 Minuten, mit Makerspace' }) as AblaufMatchResult;
+    const r = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' }) as AblaufMatchResult;
     expect(r.modus).toBe('ablauf');
     const meldungen = r.regelmeldungen || [];
     expect(meldungen.length).toBeGreaterThan(0);
@@ -804,7 +811,7 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
       expect(m.text.length).toBeGreaterThan(0);
     }
     expect(meldungen).toContainEqual(
-      expect.objectContaining({ regel: 'eignung-fach', wirkung: 'warnt', baustein: 'makerspace-tueftelwerkstatt', grundlage: 'A' })
+      expect.objectContaining({ regel: 'eignung-fach', wirkung: 'warnt', baustein: 'laufdiktat', grundlage: 'A' })
     );
     // The text lists are filled from the messages: text plus source in brackets.
     expect(r.hinweise).toEqual(meldungen.map(alsText));
@@ -814,7 +821,7 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
     const k = r.kriterien as Record<string, string | undefined>;
     const lage = { vorwissen: k.vorwissen, bildungsstufe: k.bildungsstufe, komplexitaet: k.komplexitaet, sprachniveau: k.sprachniveau, fachbereich: k.fachbereich };
     for (const id of gewaehlt) {
-      for (const w of R.pruefe(D.bausteine.find((b) => b.kennung === id)!, lage)) {
+      for (const w of R.pruefe(DX.bausteine.find((b) => b.kennung === id)!, lage)) {
         expect(meldungen.some((m) => m.regel === w.regel && m.baustein === id), `${id} ${w.regel}`).toBe(true);
       }
     }
@@ -828,7 +835,7 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
     const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
     expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
 
-    const mathe = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    const mathe = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
     const g = (mathe.regelmeldungen || []).find((m) => m.regel === 'genannter-wunsch-bleibt');
     expect(g).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', baustein: 'laufdiktat' });
     expect(g!.text).toMatch(/Laufdiktat/);
@@ -923,8 +930,8 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
   });
 
   it('R-06 trägt die Grundlage der Meldung selbst: Setzung der Redaktion (A) und evidenz-geltung (A) (B3-Review d)', () => {
-    const V = createValidator(D);
-    const b = D.bausteine.find((x) => (x.ungeeignetBeiStufe || []).includes('primar') && !x.eignungsgrund?.stufe && !(x.vorbedingung || []).length)!;
+    const V = createValidator(DX);
+    const b = DX.bausteine.find((x) => (x.ungeeignetBeiStufe || []).includes('primar') && !x.eignungsgrund?.stufe)!;
     const r = V.validate({
       typ: 'Arrangement',
       name: 't',

@@ -17,9 +17,6 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "aesthetik"
-  ],
   "raumbedarf": [
     "schreibplatz"
   ],
@@ -155,8 +152,5 @@
   "plot": {
     "x": 0.72,
     "y": 2.15
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

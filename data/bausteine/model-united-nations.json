@@ -10,11 +10,6 @@
   "fachbereich": [
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "aesthetik"
-  ],
   "raumbedarf": [
     "schreibplatz"
   ],
@@ -117,9 +112,6 @@
       "kennung": "resolution",
       "name": "Gemeinsame Verhandlung einer Resolution"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Klischeehafte Länderdarstellung bei zu knapper Recherchezeit"

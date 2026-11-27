@@ -17,10 +17,6 @@
   "fachbereich": [
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik"
-  ],
   "raumbedarf": [
     "schreibplatz",
     "wandflaeche"
@@ -164,8 +160,5 @@
   "plot": {
     "x": 0.78,
     "y": 2.8
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

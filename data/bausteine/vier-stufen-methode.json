@@ -10,11 +10,8 @@
   "fachbereich": [
     "beruf-praxis",
     "sport",
-    "aesthetik"
-  ],
-  "fachbereichUngeeignet": [
-    "gesellschaft",
-    "sprachen"
+    "aesthetik",
+    "nawi-technik"
   ],
   "raumbedarf": [
     "fachausstattung"

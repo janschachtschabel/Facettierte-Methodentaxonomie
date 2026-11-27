@@ -15,6 +15,12 @@
     "aesthetik",
     "mathe-informatik"
   ],
+  "eignungsgrund": {
+    "fachbereich": {
+      "text": "Gegenstand der Methode sind echte Naturobjekte und ein Bestimmungsschlüssel.",
+      "grundlage": "S"
+    }
+  },
   "schriftbedarf": [
     "schreibt"
   ],

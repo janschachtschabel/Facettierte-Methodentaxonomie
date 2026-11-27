@@ -94,11 +94,6 @@
   ],
   "dauerMin": 15,
   "dauerMax": 45,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Lange Selbstlernmodule oder Videos führen im digitalen Lernen schnell zu kognitiver Ermüdung und Abbrüchen.",
   "durchfuehrung": [
     "Lerninhalt in 3–4 prägnante Mikro-Einheiten (je 3–5 Min. Text/Video/Grafik) gliedern.",

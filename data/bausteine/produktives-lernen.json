@@ -65,7 +65,8 @@
     "bewertung": "geteilt"
   },
   "adaptivitaet": [
-    "uniform"
+    "makro",
+    "diff-inhalt"
   ],
   "feedback": [
     "fb-lehrkraft",
@@ -112,6 +113,12 @@
   "ungeeignetBeiStufe": [
     "primar"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Die Methode setzt selbst gesuchte Praxisplätze außerhalb der Schule voraus.",
+      "grundlage": "S"
+    }
+  },
   "qualitaetsrisiko": [
     "Auseinanderfallen von Praxistätigkeit und schulischen Fachzielen"
   ],

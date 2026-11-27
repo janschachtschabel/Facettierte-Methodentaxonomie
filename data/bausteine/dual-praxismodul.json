@@ -123,6 +123,12 @@
   "ungeeignetBeiStufe": [
     "primar"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Die Methode setzt eine längere Praxisphase an einem realen Arbeitsort mit Praktikumsbericht voraus.",
+      "grundlage": "S"
+    }
+  },
   "qualitaetsrisiko": [
     "Unreflektiertes Mitlaufen ohne Lernauftrag"
   ],

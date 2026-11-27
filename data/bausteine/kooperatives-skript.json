@@ -96,11 +96,6 @@
   ],
   "dauerMin": 20,
   "dauerMax": 45,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Unstrukturierte Partnerarbeit an Fachtexten bleibt oft oberflächlich oder verteilt sich ungleich.",
   "durchfuehrung": [
     "Fachtext in 2–4 überschaubare Abschnitte teilen; beide Partner lesen Abschnitt 1 still.",
@@ -148,8 +143,5 @@
   "plot": {
     "x": 0.34,
     "y": 2.72
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

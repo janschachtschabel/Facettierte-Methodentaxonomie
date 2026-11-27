@@ -120,10 +120,14 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n19',
     text: 'Mathematik Klasse 5, Laufdiktat zu Bruchrechnen',
-    erwartet: { enthaelt: 'laufdiktat', regeln: ['genannter-wunsch-bleibt', 'eignung-fach'] },
-    // Intended: the named method stays although the subject marks it unsuitable (genannter-wunsch-bleibt), so the
-    // general subject check finds a method of another subject. Not a weakness to fix.
-    bekannt: { fachpassung: 'gewollt: genannter Wunsch bleibt (Laufdiktat ist eine Methode der Sprachen)' }
+    erwartet: { enthaelt: 'laufdiktat', regeln: ['genannter-wunsch-bleibt'] },
+    // Intended: the named method stays (genannter-wunsch-bleibt), so the general subject check finds a method of another
+    // subject. Not a weakness to fix. Tor D2 dropped the subject entry of laufdiktat (no reason beyond its subject
+    // matter): nothing speaks against it in Mathematik any more, so there is no warning and no message about the wish.
+    bekannt: {
+      fachpassung: 'gewollt: genannter Wunsch bleibt (Laufdiktat ist eine Methode der Sprachen)',
+      regel: 'Tor D2: Laufdiktat ist in Mathematik nicht mehr als ungeeignet markiert, daher kein Hinweis zum Wunsch'
+    }
   },
   {
     id: 'n20',

@@ -94,10 +94,6 @@
   ],
   "dauerMin": 35,
   "dauerMax": 90,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Lernende kennen Regeln theoretisch, können sie aber in mehrdeutigen Praxissituationen nicht abwägend anwenden.",
   "durchfuehrung": [
     "Authentischen Kurzfall mit Daten, Perspektiven und Entscheidungsdilemma ausgeben.",

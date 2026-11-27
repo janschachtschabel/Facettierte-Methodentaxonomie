@@ -97,11 +97,6 @@
   ],
   "dauerMin": 60,
   "dauerMax": 135,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "In großen heterogenen Klassen fehlt bei reinem Plenumsunterricht Zeit für gezielte Kleingruppenförderung.",
   "durchfuehrung": [
     "Klasse in drei leistungshomogene oder gemischte Rotationsteams einteilen.",

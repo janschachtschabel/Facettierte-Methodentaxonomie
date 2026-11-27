@@ -10,11 +10,6 @@
   "fachbereich": [
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "aesthetik"
-  ],
   "kurzbeschreibung": "Lernende durchlaufen als Fraktionen, Ausschüsse und Präsidium ein reales Gesetzgebungsverfahren vom Antrag bis zur Schlussabstimmung.",
   "alternativname": [
     "Gesetzgebungssimulation",
@@ -112,9 +107,6 @@
       "kennung": "debriefing",
       "name": "Gründliches Debriefing und Vergleich mit der Realität"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Rollenkonflikte bleiben ohne sauber moderierten Ausstieg hängen"

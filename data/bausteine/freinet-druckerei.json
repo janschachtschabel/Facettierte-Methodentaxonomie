@@ -10,10 +10,6 @@
   "fachbereich": [
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik"
-  ],
   "raumbedarf": [
     "schreibplatz"
   ],
@@ -77,7 +73,8 @@
     "bewertung": "geteilt"
   },
   "adaptivitaet": [
-    "uniform"
+    "udl",
+    "diff-inhalt"
   ],
   "feedback": [
     "fb-lehrkraft",

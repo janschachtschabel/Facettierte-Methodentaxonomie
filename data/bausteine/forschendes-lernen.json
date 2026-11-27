@@ -132,12 +132,16 @@
   ],
   "dauerMin": 180,
   "dauerMax": 900,
-  "geeignetBeiVorwissen": [
-    "hoch"
+  "ungeeignetBeiVorwissen": [
+    "gering"
   ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
+  "eignungsgrund": {
+    "vorwissen": {
+      "text": "Ungeleitetes Entdecken schneidet im Mittel schlechter ab als explizite Instruktion; das Risiko ist bei geringem Vorwissen besonders hoch.",
+      "grundlage": "E",
+      "quelle": "Alfieri et al. 2011; Lazonder & Harmsen 2016"
+    }
+  },
   "problem": "Fortgeschrittene Lernende sollen den vollständigen wissenschaftlichen Erkenntnisprozess selbstverantwortlich durchlaufen.",
   "durchfuehrung": [
     "Phänomen erkunden und eigene Forschungsfrage eingrenzen",

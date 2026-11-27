@@ -101,10 +101,6 @@
   ],
   "dauerMin": 120,
   "dauerMax": 270,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Abstrakte Theorien bleiben träges Wissen, wenn sie ohne authentischen Problemkontext vermittelt werden.",
   "durchfuehrung": [
     "Schritte 1–2: Unklare Begriffe im Falltext klären und das Kernproblem definieren.",

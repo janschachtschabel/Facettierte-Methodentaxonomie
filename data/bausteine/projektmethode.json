@@ -151,10 +151,6 @@
   ],
   "dauerMin": 180,
   "dauerMax": 1800,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Wissen soll in einem selbst gewählten, größeren Vorhaben angewendet werden.",
   "durchfuehrung": [
     "Projektinitiative aufgreifen und Ziel vereinbaren",

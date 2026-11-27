@@ -10,10 +10,6 @@
   "fachbereich": [
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik"
-  ],
   "kurzbeschreibung": "Ruhige, haptische Erzählung mit einfachen Bodenbild-Figuren, gefolgt von offenen „Ich frage mich…“-Impulsen und freier kreativer Antwortphase.",
   "alternativname": [
     "Bodenbild-Methode",
@@ -68,7 +64,8 @@
     "bewertung": "lehrkraft"
   },
   "adaptivitaet": [
-    "uniform"
+    "udl",
+    "diff-produkt"
   ],
   "feedback": [
     "fb-lehrkraft",

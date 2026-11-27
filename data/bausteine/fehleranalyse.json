@@ -114,10 +114,16 @@
   ],
   "dauerMin": 15,
   "dauerMax": 30,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
+  "ungeeignetBeiVorwissen": [
+    "gering"
   ],
+  "eignungsgrund": {
+    "vorwissen": {
+      "text": "Aus fehlerhaften Lösungsbeispielen lernen vor allem Lernende mit Grundwissen; Novizen brauchen zuvor korrekte Beispiele.",
+      "grundlage": "E",
+      "quelle": "Große & Renkl 2007; Barbieri et al. 2023"
+    }
+  },
   "problem": "Hartnäckige typische Fehler kehren trotz richtiger Beispiele immer wieder.",
   "durchfuehrung": [
     "Anonymisierte oder vorbereitete fehlerhafte Lösung präsentieren",

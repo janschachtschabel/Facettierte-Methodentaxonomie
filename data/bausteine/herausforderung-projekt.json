@@ -109,6 +109,12 @@
   "ungeeignetBeiStufe": [
     "primar"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Lernende planen Route, Budget und Sicherheit eines mehrtägigen Vorhabens außerhalb der Schule selbst.",
+      "grundlage": "S"
+    }
+  },
   "qualitaetsrisiko": [
     "Überforderung ohne gründliche Vorbereitungs- und Begleitstruktur"
   ],

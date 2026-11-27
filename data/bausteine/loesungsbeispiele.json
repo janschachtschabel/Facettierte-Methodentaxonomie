@@ -18,9 +18,6 @@
     "nawi-technik",
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "aesthetik"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lernen aus Lösungsbeispielen",
@@ -115,10 +112,16 @@
   ],
   "dauerMin": 20,
   "dauerMax": 45,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel"
+  "ungeeignetBeiVorwissen": [
+    "hoch"
   ],
+  "eignungsgrund": {
+    "vorwissen": {
+      "text": "Der Vorteil ausgearbeiteter Lösungsbeispiele kehrt sich mit wachsendem Vorwissen um (Expertise-Reversal).",
+      "grundlage": "E",
+      "quelle": "Kalyuga et al. 2003; Tetzlaff et al. 2025"
+    }
+  },
   "problem": "Problemlösen überfordert Anfänger, weil die Suche nach dem Lösungsweg die Aufmerksamkeit bindet.",
   "durchfuehrung": [
     "Vollständig gelöstes Beispiel durcharbeiten",

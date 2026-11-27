@@ -51,7 +51,8 @@ describe('Genannter Wunsch bleibt (Regel genannter-wunsch-bleibt)', () => {
     expect(r.modus).toBe('phase');
     // Wunsch genannt comes before the warnings in the ranking (spec 6, Reihenfolge der Wirkung).
     expect(r.vorschlaege[0].baustein).toBe('peer-instruction');
-    expect(r.vorschlaege[0].regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-stufe', wirkung: 'warnt' }));
+    // Tor D2 dropped the stage entry of peer-instruction: the built-in rule evidenz-geltung warns instead.
+    expect(r.vorschlaege[0].regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'evidenz-geltung', wirkung: 'warnt' }));
     const g = (r.regelmeldungen || []).find((m) => m.regel === 'genannter-wunsch-bleibt');
     expect(g).toMatchObject({ baustein: 'peer-instruction', wirkung: 'weist-hin', grundlage: 'A' });
     expect(g!.text).toMatch(/unter den Vorschlägen/);

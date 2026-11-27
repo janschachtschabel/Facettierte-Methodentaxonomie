@@ -7,6 +7,7 @@ import { negatedMethods } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
 import { alleBausteine } from './qualitaet/pruefen.js';
+import { mitEintraegen } from './fixtures/eignung.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -322,8 +323,12 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     for (const id of blocksOf(r)) expect(sportOnly, id).not.toContain(id);
   });
 
+  // Tor D2 dropped the subject entries of laufdiktat and sportmotorischer-test; the fixture puts them back to keep the
+  // mechanism tested.
+  const MX = createMatcher(mitEintraegen(D), createValidator(mitEintraegen(D)));
+
   it('genannte Methode mit Hauptnamen bleibt trotz „ungeeignet im Fach“ im Ablauf, mit Hinweis', () => {
-    const r = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    const r = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
     expect((r.verankert || []).some((v) => v.baustein === 'laufdiktat')).toBe(true);
     expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*passt weniger zum Fachbereich „Mathematik/);
     expect((r.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'laufdiktat')).toBe(true);
@@ -348,8 +353,9 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
   });
 
   it('Synonym mit Alltagsbedeutung im unpassenden Fach: keine Methode, aber mit Grund unter nichtVerankert', () => {
-    const r = M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
+    const r = MX.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
     expect(blocksOf(r)).not.toContain('sportmotorischer-test');
+    expect(blocksOf(M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' }))).not.toContain('sportmotorischer-test');
     expect(r.nichtVerankert).toContainEqual({ baustein: 'sportmotorischer-test', grund: 'im Fachbereich Mathematik und Informatik als ungeeignet markiert' });
   });
 
@@ -432,9 +438,10 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
     expect(blocksOf(r)).toContain('vorfuehrung-rueckmeldung');
   });
 
+  // Tor D2 (T8) added sport to the subject areas of vorfuehrung-rueckmeldung: in a technique lesson such as volleyball
+  // it is now a sport method. Swimming strokes and running at a steady pace still do without it.
   it.each([
     'Sport Klasse 7, Schwimmen Kraulbeine, 45 Minuten',
-    'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten',
     'Sport Klasse 10: Distanz laufen und Tempo halten, 45 Minuten'
   ])('%s: keine Vorführung aus den ästhetischen Fächern', (text) => {
     expect(blocksOf(M.zuordnen({ text }))).not.toContain('vorfuehrung-rueckmeldung');
@@ -454,10 +461,13 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
 
 describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil Stufe 1)', () => {
   it('Stufenwarnung nennt keine Evidenz, wo keine hinterlegt ist', () => {
-    const r = M.zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    // Fixture: a stage entry without a reason as before Tor D2 (erfindungsaufgabe); since the gate every entry has one.
+    const r = createMatcher(mitEintraegen(D), createValidator(D)).zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
     const texte = r.modus === 'phase' ? r.vorschlaege.flatMap((v) => v.warnungen || []) : [];
     expect(texte.join(' ')).toMatch(/Setzung der Redaktion/);
     expect(texte.join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
+    const echt = M.zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    expect((echt.modus === 'phase' ? echt.vorschlaege.flatMap((v) => v.warnungen || []) : []).join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
   });
 
   it('praktische Arbeit im Fachraum bekommt den Sicherheitshinweis, eine Deutschstunde nicht', () => {

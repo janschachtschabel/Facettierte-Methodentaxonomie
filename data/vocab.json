@@ -2130,6 +2130,14 @@
       "grundlage": "A"
     },
     {
+      "feld": "eintragsart",
+      "wfeld": "methode",
+      "art": "einordnung",
+      "situation": [],
+      "wirkung": "ordnet",
+      "grundlage": "A"
+    },
+    {
       "feld": "betreuungshinweis",
       "wfeld": "lernbegleitung",
       "art": "bedarf",

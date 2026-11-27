@@ -104,10 +104,6 @@
   ],
   "dauerMin": 180,
   "dauerMax": 540,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Längere Projektarbeiten verzetteln sich häufig ohne transparente Zwischenziele und Team-Koordination.",
   "durchfuehrung": [
     "Lehrkraft (Product Owner) klärt Projektziel, Qualitätskriterien (Definition of Done) und Zeitrahmen.",

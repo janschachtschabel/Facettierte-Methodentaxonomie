@@ -119,6 +119,13 @@
   "ungeeignetBeiStufe": [
     "primar"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Die Methode setzt eine berufliche Handlungssituation voraus; Lernfelder gliedern den Unterricht der Berufsschule.",
+      "grundlage": "S",
+      "quelle": "KMK 2021"
+    }
+  },
   "qualitaetsrisiko": [
     "Verlust fachlicher Systematik ohne explizite Zwischensicherungen"
   ],

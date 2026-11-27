@@ -20,11 +20,10 @@
     "aesthetik",
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen",
-    "gesellschaft",
-    "sport"
+  "raumbedarf": [
+    "fachausstattung"
   ],
+  "fachausstattungArt": "werkstatt",
   "quellen": [
     {
       "titel": "Wikipedia: FabLab",

@@ -28,6 +28,7 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['nachbedingung', 'lernzustand', true],
   ['vorhanden', 'lernzustand', true],
   ['geeignetBeiVorwissen', 'vorwissen', true],
+  ['ungeeignetBeiVorwissen', 'vorwissen', true],
   ['vorwissen', 'vorwissen', false],
   ['ungeeignetBeiStufe', 'bildungsstufe', true],
   ['bildungsstufe', 'bildungsstufe', false],
@@ -39,7 +40,8 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['fachbereichUngeeignet', 'fachbereich', true],
   ['raumbedarf', 'raumbedarf', true],
   ['fachausstattungArt', 'fachausstattungart', false],
-  ['schriftbedarf', 'schriftbedarf', true]
+  ['schriftbedarf', 'schriftbedarf', true],
+  ['eintragsart', 'eintragsart', false]
 ];
 
 const STEUERUNG_DIMS = ['organisation', 'lernweg', 'inhalt', 'sozial', 'bewertung'];
@@ -172,6 +174,7 @@ export function ontologyTtl(D: FmtData): string {
     ['Evidenzaussage', 'Befund mit Evidenzgrad und Quelle'],
     ['Quelle', 'Quellenangabe eines Bausteins (freie Quelle oder Fachliteratur)'],
     ['Steuerungsprofil', 'Steuerungsträger je Steuerungsdimension'],
+    ['Eignungsgrund', 'Begründung einer Eignungsaussage je Merkmal (Bildungsstufe, Vorwissen, Fachbereich) mit Grundlage und Quelle'],
     ['Arrangement', 'Komposition von Bausteinen für ein Lehr-Lern-Setting'],
     ['Kontext', 'Rahmenbedingungen eines Arrangements'],
     ['Knoten', 'Element im Ablaufbaum eines Arrangements'],
@@ -238,6 +241,7 @@ export function ontologyTtl(D: FmtData): string {
     ['kernkomponente', 'Baustein', 'Kernkomponente'],
     ['evidenz', 'Baustein', 'Evidenzaussage'],
     ['steuerung', 'Baustein', 'Steuerungsprofil'],
+    ['eignungsgrund', 'Baustein', 'Eignungsgrund'],
     ['kontext', 'Arrangement', 'Kontext'],
     ['ablauf', 'Arrangement', 'Knoten'],
     ['baustein', 'Knoten', 'Baustein'],
@@ -328,6 +332,16 @@ export function buildContext(D: FmtData) {
     belegung: { '@id': 'fmt:belegung', '@container': '@set' },
     arrangement: { '@id': 'fmt:arrangement', '@type': '@id' },
     baustein: { '@id': 'fmt:baustein', '@type': '@vocab', '@context': { '@vocab': NS + 'baustein/' } },
+    // Reasons of the Eignung statements: the inner keys name the statement, not the vocabulary of the same name.
+    eignungsgrund: {
+      '@id': 'fmt:eignungsgrund',
+      '@context': Object.fromEntries(
+        ['stufe', 'vorwissen', 'fachbereich'].map((art) => [
+          art,
+          { '@id': `fmt:eignungsgrund_${art}`, '@context': { text: 'fmt:grundText', grundlage: 'fmt:grundlage', quelle: 'fmt:quelle' } }
+        ])
+      )
+    },
     steuerung: {
       '@id': 'fmt:steuerung',
       '@context': Object.fromEntries(
@@ -459,6 +473,23 @@ export function buildSchema(D: FmtData) {
       gruppeMax: { type: 'integer', minimum: 1 },
       vorbereitungMin: { type: 'integer', minimum: 0 },
       ungeeignetBeiStufe: vocabProp.ungeeignetBeiStufe,
+      ungeeignetBeiVorwissen: vocabProp.ungeeignetBeiVorwissen,
+      eintragsart: vocabProp.eintragsart,
+      eignungsgrund: {
+        type: 'object',
+        additionalProperties: false,
+        properties: Object.fromEntries(
+          ['stufe', 'vorwissen', 'fachbereich'].map((art) => [
+            art,
+            {
+              type: 'object',
+              additionalProperties: false,
+              required: ['text', 'grundlage'],
+              properties: { text: { type: 'string', minLength: 10 }, grundlage: { enum: ['E', 'S', 'A'] }, quelle: { type: 'string' } }
+            }
+          ])
+        )
+      },
       beschreibungsstufe: vocabProp.beschreibungsstufe,
       reichweite: vocabProp.reichweite,
       lernfunktion: Object.assign({ minItems: 1 }, vocabProp.lernfunktion),

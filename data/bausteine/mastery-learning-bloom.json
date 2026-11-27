@@ -99,11 +99,6 @@
   ],
   "dauerMin": 270,
   "dauerMax": 900,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Bei einheitlichem Unterrichtstempo kumulieren frühe Verständnislücken über ganze Kurseinheiten hinweg.",
   "durchfuehrung": [
     "Lernstoff in überschaubare Moduleinheiten mit transparenten Zielkriterien gliedern.",

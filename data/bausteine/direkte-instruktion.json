@@ -154,10 +154,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 540,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel"
-  ],
   "problem": "Novizen sollen ein hierarchisch aufgebautes Verfahren sicher erlernen.",
   "durchfuehrung": [
     "Kurz wiederholen",

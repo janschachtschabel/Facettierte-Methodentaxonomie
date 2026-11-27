@@ -137,13 +137,6 @@
   ],
   "dauerMin": 180,
   "dauerMax": 600,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Träges Fachwissen lässt sich nicht auf komplexe reale Berufssituationen oder Probleme übertragen.",
   "durchfuehrung": [
     "Begriffe klären und Problem definieren",

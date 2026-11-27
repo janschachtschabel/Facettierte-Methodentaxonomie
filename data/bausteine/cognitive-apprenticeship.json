@@ -100,11 +100,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 240,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Bei komplexen Denk- und Problemlöseaufgaben bleiben die entscheidenden Zwischenschritte von Experten für Lernende unsichtbar.",
   "durchfuehrung": [
     "Modeling: Lehrkraft demonstriert eine authentische Aufgabe und verbalisiert Entscheidungen und Irrwege.",

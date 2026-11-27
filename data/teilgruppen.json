@@ -34,8 +34,7 @@
         "sprachkompetenz-mittel",
         "ausdrucksfaehigkeit-eingeschraenkt",
         "foerderbedarf-sprache-gelegentlich",
-        "foerderbedarf-sprache-erheblich",
-        "kultureller-hintergrund-neu"
+        "foerderbedarf-sprache-erheblich"
       ],
       "antwort": "hilfe",
       "wohin": "sprachliches Gerüst, dieselbe Methode",
@@ -52,7 +51,7 @@
       ],
       "antwort": "hilfe",
       "wohin": "Medienanpassung, Nachteilsausgleich, gleiches Ziel",
-      "grundlage": "E",
+      "grundlage": "Recht",
       "quelle": "KMK 2011"
     },
     {
@@ -76,7 +75,7 @@
       "antwort": "hilfe",
       "wohin": "zwei bis vier Wahlmöglichkeiten in derselben Methode",
       "grundlage": "E",
-      "quelle": "Patall et al. 2008"
+      "quelle": "Patall et al. 2008 (Wirkung auf die Leistung ungeklärt)"
     },
     {
       "id": "emotional-sozial",

@@ -95,11 +95,6 @@
   ],
   "dauerMin": 5,
   "dauerMax": 10,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Neues Wissen wird schlecht verankert, wenn Voraussetzungen der Vorstunden nicht im Arbeitsgedächtnis aktiviert sind.",
   "durchfuehrung": [
     "3–5 kurze Kernfragen aus der letzten Stunde und der Vorwoche sichtbar stellen.",

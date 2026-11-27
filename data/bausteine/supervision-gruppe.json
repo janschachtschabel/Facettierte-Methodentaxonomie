@@ -99,9 +99,14 @@
     }
   ],
   "ungeeignetBeiStufe": [
-    "primar",
-    "sek1"
+    "primar"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Die Methode reflektiert berufliche Praxisphasen.",
+      "grundlage": "S"
+    }
+  },
   "qualitaetsrisiko": [
     "Vermischung von Leistungsbenotung und offener Reflexion"
   ],

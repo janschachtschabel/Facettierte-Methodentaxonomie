@@ -96,9 +96,6 @@
   ],
   "dauerMin": 30,
   "dauerMax": 50,
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Eine fertig präsentierte Formel wird angewendet, ohne dass klar ist, welches Problem sie löst.",
   "durchfuehrung": [
     "Kontrastierende Fälle vorlegen",

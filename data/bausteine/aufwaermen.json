@@ -10,12 +10,6 @@
   "fachbereich": [
     "sport"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "sprachen",
-    "gesellschaft",
-    "nawi-technik"
-  ],
   "raumbedarf": [
     "bewegungsflaeche"
   ],

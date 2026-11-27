@@ -88,11 +88,6 @@
   ],
   "dauerMin": 8,
   "dauerMax": 20,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "In klassischer Gruppenarbeit übernehmen wenige Leistungsstarke das Reden, während andere passiv bleiben.",
   "durchfuehrung": [
     "Viererteams durchnummerieren (1–4) und eine klare Frage oder Aufgabe stellen.",

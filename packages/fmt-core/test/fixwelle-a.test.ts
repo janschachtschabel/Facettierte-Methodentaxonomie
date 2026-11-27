@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
+import { mitEintraegen } from './fixtures/eignung.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -33,14 +34,20 @@ describe('Fix wave Paket A', () => {
   });
 
   it('3: Passungswarnungen gewählter Methoden erscheinen im Ablauf als Hinweis', () => {
-    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer, Klassenraum, 90 Minuten, mit Makerspace' });
+    // Fixture: the subject entry of laufdiktat as before Tor D2 (the gate dropped it, and makerspace-tueftelwerkstatt
+    // now needs a workshop, which the classroom of the former example does not offer).
+    const MX = createMatcher(mitEintraegen(D), createValidator(mitEintraegen(D)));
+    const r = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
     expect(r.modus).toBe('ablauf');
-    expect(JSON.stringify(r.modus === 'ablauf' && r.arrangement?.ablauf)).toContain('makerspace-tueftelwerkstatt');
-    expect(r.hinweise || []).toContain('Makerspace / Tüftelwerkstatt (FabLab) passt weniger zum Fachbereich „Sport und Bewegung“. (Setzung der Redaktion)');
+    expect(JSON.stringify(r.modus === 'ablauf' && r.arrangement?.ablauf)).toContain('laufdiktat');
+    expect(r.hinweise || []).toContain('Laufdiktat (Schleichdiktat) passt weniger zum Fachbereich „Mathematik und Informatik“. (Setzung der Redaktion)');
   });
 
   it('6: der Satz zur praktischen Methode des Fachbereichs spricht ohne Fachjargon', () => {
-    const r = M.zuordnen({ text: 'Biologie Klasse 6 Mikroskopieren lernen: Zwiebelhaut, 90 Minuten' });
+    // Fixture: the subject areas of vier-stufen-methode as before Tor D2 (without nawi-technik), so that no method of the
+    // subject carries the bound step and the stand-in sentence appears.
+    const vorher = mitEintraegen(D, { 'vier-stufen-methode': { fachbereich: ['beruf-praxis', 'sport', 'aesthetik'] } });
+    const r = createMatcher(vorher, createValidator(vorher)).zuordnen({ text: 'Biologie Klasse 6 Mikroskopieren lernen: Zwiebelhaut, 90 Minuten' });
     const satz = ((r.modus === 'ablauf' && r.annahmen) || []).find((x) => x.includes('praktische Methode des Fachbereichs'));
     expect(satz).toBeDefined();
     expect(satz).not.toMatch(/Wissensart|trägt/);

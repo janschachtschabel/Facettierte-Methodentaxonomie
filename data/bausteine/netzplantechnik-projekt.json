@@ -11,9 +11,6 @@
     "beruf-praxis",
     "mathe-informatik"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen"
-  ],
   "kurzbeschreibung": "Arbeitspakete eines Projekts werden mit Dauern, Abhängigkeiten und kritischem Pfad als grafischer Ablaufplan strukturiert.",
   "alternativname": [
     "Projekt-Netzplan",
@@ -107,9 +104,6 @@
       "kennung": "kritischer-pfad",
       "name": "Identifikation zeitkritischer Schritte"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Übertriebener Formalismus bei kleinen Schulprojekten"

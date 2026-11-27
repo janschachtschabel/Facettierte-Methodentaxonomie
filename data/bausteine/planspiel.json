@@ -133,13 +133,6 @@
   ],
   "dauerMin": 180,
   "dauerMax": 600,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Systemische Wechselwirkungen und politische/ökonomische Aushandlungsprozesse bleiben im Text oft abstrakt.",
   "durchfuehrung": [
     "Briefing: Szenario, Rollenprofile und Spielregeln einführen",
