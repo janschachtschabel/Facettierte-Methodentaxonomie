@@ -185,7 +185,7 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     expect(ids({ bildungsstufe: 'primar' })).not.toContain('dual-praxismodul');
     // Tor D2 moved most stage and prior-knowledge entries into rules; the search honours those rules (Fix round 1).
     expect(ids({ bildungsstufe: 'primar' })).not.toContain('productive-failure');
-    expect(ids({ bildungsstufe: 'primar' })).not.toContain('blended-learning');
+    expect(ids({ bildungsstufe: 'primar' })).not.toContain('forschendes-lernen');
     expect(ids({ bildungsstufe: 'sek1' })).toContain('productive-failure');
     expect(ids({ vorwissen: 'gering' })).not.toContain('freiarbeit');
     expect(ids({ vorwissen: 'mittel' })).toContain('freiarbeit');

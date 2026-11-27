@@ -200,7 +200,7 @@ describe('FMT 2.0: Daten nach Durchsicht 2 (Tor D2)', () => {
   it('die Suche schließt aus, wo eine Regel in Tor D2 einen Listeneintrag ersetzt hat, und nur dort', async () => {
     const { createSearch, SUCHE_AUSSCHLUSS_REGELN } = await import('../src/suche.js');
     expect(SUCHE_AUSSCHLUSS_REGELN).toEqual({
-      bildungsstufe: ['eignung-stufe', 'evidenz-geltung', 'problemloesen-vor-instruktion-primar'],
+      bildungsstufe: ['eignung-stufe', 'problemloesen-vor-instruktion-primar'],
       vorwissen: ['eignung-vorwissen', 'wenig-anleitung-geringes-vorwissen']
     });
     const S = createSearch(D);
@@ -219,7 +219,9 @@ describe('FMT 2.0: Daten nach Durchsicht 2 (Tor D2)', () => {
     expect(hoch).not.toContain('loesungsbeispiele');
     // The entries the rules replaced are excluded again (Tor D2, parts 2 and 3).
     const primar = S.suche({ bildungsstufe: 'primar' }).map((b) => b.kennung);
-    for (const k of ['productive-failure', 'blended-learning', 'peer-instruction']) expect(primar).not.toContain(k);
+    for (const k of ['productive-failure', 'erfindungsaufgabe', 'problemorientiertes-lernen', 'dual-praxismodul']) expect(primar).not.toContain(k);
+    // evidenz-geltung (basis A) warns but does not hide a method from the search.
+    expect(primar).toEqual(expect.arrayContaining(['blended-learning', 'peer-instruction']));
     const gering = S.suche({ vorwissen: 'gering' }).map((b) => b.kennung);
     for (const k of ['freiarbeit', 'projektmethode']) expect(gering).not.toContain(k);
   });

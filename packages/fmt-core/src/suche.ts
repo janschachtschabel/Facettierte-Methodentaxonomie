@@ -62,12 +62,15 @@ export interface FmtSearch {
 }
 
 /**
- * Rules that exclude a method from the search for a stage or prior-knowledge level. Only the rules that replaced former
- * list entries in Tor D2 ("… deckt" in parts 2 and 3 of durchsicht-2-eignung-geprueft.csv), plus the remaining lists
- * (eignung-stufe, eignung-vorwissen). Other rules (e.g. viel-anleitung-hohes-vorwissen) only warn in the planner.
+ * Rules that exclude a method from the search for a stage or prior-knowledge level: the remaining lists (eignung-stufe,
+ * eignung-vorwissen) and the evidence-based (E) rules that replaced former list entries in Tor D2 ("… deckt" in parts 2
+ * and 3 of durchsicht-2-eignung-geprueft.csv). evidenz-geltung also replaced entries but is left out: its basis is A
+ * ("the evidence comes only from secondary school or later") – missing evidence, not shown unsuitability – so it warns
+ * in the planner but hides no method (cautious reading, design §12). Other rules (e.g. viel-anleitung-hohes-vorwissen)
+ * only warn as well.
  */
 export const SUCHE_AUSSCHLUSS_REGELN: Record<'bildungsstufe' | 'vorwissen', readonly string[]> = {
-  bildungsstufe: ['eignung-stufe', 'evidenz-geltung', 'problemloesen-vor-instruktion-primar'],
+  bildungsstufe: ['eignung-stufe', 'problemloesen-vor-instruktion-primar'],
   vorwissen: ['eignung-vorwissen', 'wenig-anleitung-geringes-vorwissen']
 };
 
