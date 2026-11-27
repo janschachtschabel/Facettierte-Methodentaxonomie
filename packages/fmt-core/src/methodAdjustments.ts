@@ -1,5 +1,6 @@
 import type { Baustein } from './types.js';
 import { TECH_RANK } from './technik.js';
+import { mehrTechnikAls, setztKiEin } from './bedarf.js';
 import { scoreDifferentiationMatrix, scoreMethodForGroup, suggestAlternativeMethodsForGroup } from './differentiationMatrix.js';
 
 export interface MethodAdjustmentPhase {
@@ -51,9 +52,6 @@ const WEAK_FIT = 4;
 /** The alternative has to be clearly better, otherwise the plan stays as it is. */
 const MIN_GAIN = 3;
 
-const AI_ROLES = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
-const usesAi = (b: Baustein) => Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
-
 /**
  * A parallel method must not ask for more than the method it replaces: no extra devices, internet or AI,
  * no method the subject area rules out, and no fully open method for a group that needs support.
@@ -64,10 +62,7 @@ function staysWithinFrame(
   needsScaffolding: boolean,
   constraints: MethodAdjustmentConstraints
 ): boolean {
-  // Relative to the replaced method, also when a general technology limit is set (that limit applies on top).
-  if ((TECH_RANK[candidate.technik] ?? 0) > Math.max(TECH_RANK[current.technik] ?? 0, 1)) return false;
-  if (candidate.internet && !current.internet) return false;
-  if (usesAi(candidate) && !usesAi(current)) return false;
+  if (mehrTechnikAls(candidate, current)) return false;
   if (constraints.fachbereich && (candidate.fachbereichUngeeignet || []).includes(constraints.fachbereich)) return false;
   if (needsScaffolding && !candidate.anleitung.some((a) => a === 'explizit' || a === 'geleitet')) return false;
   return true;
@@ -210,7 +205,7 @@ export function proposeAdditionalPhases(
     b.anleitung.includes('explizit') &&
     (TECH_RANK[b.technik] ?? 0) <= maxTech &&
     !b.internet &&
-    !usesAi(b) &&
+    !setztKiEin(b) &&
     !b.komposit &&
     !(b.slot || []).length &&
     !(constraints.fachbereich && (b.fachbereichUngeeignet || []).includes(constraints.fachbereich)) &&

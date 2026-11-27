@@ -1,5 +1,6 @@
 import type { Baustein, FmtData, MatchRequest, VocabValue } from './types.js';
 import type { Situation } from './situation.js';
+import { TECH_RANK } from './technik.js';
 
 const valuesOf = (data: Pick<FmtData, 'schemes'>, scheme: string): VocabValue[] => {
   const s = data.schemes.find((x) => x.id === scheme);
@@ -25,6 +26,18 @@ const AI_ROLES = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrb
 /** Whether the method uses AI: flagged as such, or one of its roles is played by an AI. */
 export function setztKiEin(b: Pick<Baustein, 'ki' | 'rolle'>): boolean {
   return Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
+}
+
+/**
+ * What a replacement asks for beyond the method it replaces: more devices, internet or AI; null when it stays
+ * within that frame. Relative to the replaced method, also when a general technology limit is set (that limit
+ * applies on top); a projection is always within the frame.
+ */
+export function mehrTechnikAls(kandidat: Pick<Baustein, 'technik' | 'internet' | 'ki' | 'rolle'>, geplant: Pick<Baustein, 'technik' | 'internet' | 'ki' | 'rolle'>): 'technik' | 'internet' | 'ki' | null {
+  if ((TECH_RANK[kandidat.technik] ?? 0) > Math.max(TECH_RANK[geplant.technik] ?? 0, 1)) return 'technik';
+  if (kandidat.internet && !geplant.internet) return 'internet';
+  if (setztKiEin(kandidat) && !setztKiEin(geplant)) return 'ki';
+  return null;
 }
 
 /** Whether the method needs one of the properties that set this room apart from a classroom. */
