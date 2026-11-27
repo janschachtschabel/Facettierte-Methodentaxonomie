@@ -138,8 +138,8 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     propose('Sport Klasse 5, Ausdauer verbessern, 90 Minuten');
     const box = screen.getByRole('region', { name: 'Offene Schritte' });
     // Since Tor D2 the makerspace needs a workshop, so the transfer step stays open in the classroom as well.
-    expect(within(box).getAllByText(/Keine Methode im Katalog liefert/).length).toBeGreaterThan(0);
-    expect(within(box).getAllByText(/braucht: Bewegungsfläche/).length).toBeGreaterThan(0);
+    expect(within(box).getAllByText(/Keine Methode im Katalog liefert/)).toHaveLength(2);
+    expect(within(box).getAllByText(/braucht: Bewegungsfläche/)).toHaveLength(2);
   });
 
   it('lädt ein gespeichertes Szenario mit dem alten Feld „lernort“', () => {

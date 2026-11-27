@@ -462,7 +462,8 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
 describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil Stufe 1)', () => {
   it('Stufenwarnung nennt keine Evidenz, wo keine hinterlegt ist', () => {
     // Fixture: a stage entry without a reason as before Tor D2 (erfindungsaufgabe); since the gate every entry has one.
-    const r = createMatcher(mitEintraegen(D), createValidator(D)).zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    const DX = mitEintraegen(D);
+    const r = createMatcher(DX, createValidator(DX)).zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
     const texte = r.modus === 'phase' ? r.vorschlaege.flatMap((v) => v.warnungen || []) : [];
     expect(texte.join(' ')).toMatch(/Setzung der Redaktion/);
     expect(texte.join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
