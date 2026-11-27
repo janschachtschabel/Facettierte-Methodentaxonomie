@@ -9,7 +9,8 @@ import type { Qualitaetsfall } from './faelle.js';
  * A check that a later task fixes carries `bekannt` naming that task ("wartet auf Q3", "wartet auf QD2"); the task
  * removes it. Not part of the baseline file (ausgang.json).
  */
-const Q2 = 'wartet auf Q2';
+/** Data gap: no written check of 20 to 40 minutes (multiple-choice-test carries no schriftbedarf; klassenarbeit-summativ starts at 45 min). */
+const QD2_PRUEFUNG = 'wartet auf QD2: keine schriftliche Prüfmethode von 20 bis 40 Minuten im Katalog';
 const Q3 = 'wartet auf Q3';
 const Q4 = 'wartet auf Q4';
 const Q6 = 'wartet auf Q6';
@@ -23,7 +24,7 @@ export const REIHE5: Qualitaetsfall[] = [
     // Q3 asks for the plan (modus ablauf); that /match plans on its own is Q6 (server test).
     anfrage: { modus: 'ablauf' },
     erwartet: { ketteNicht: 'kooperatives-lernen', angenommen: ['zielart'], themaNicht: ['Klassenraum'] },
-    bekannt: { ketteNicht: Q3, pflichtangaben: Q3, thema: Q2 }
+    bekannt: { ketteNicht: Q3, pflichtangaben: Q3 }
   },
   {
     id: 'gs1-deutsch-anlaute-ohneschrift',
@@ -34,8 +35,7 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 'gs3-sachunterricht-draussen',
     text: 'Sachunterricht Klasse 3, Bäume auf dem Schulhof an Blättern bestimmen, draußen, 45 Minuten, 25 Kinder',
-    erwartet: { kriterien: { raum: 'draussen', zielart: 'prozeduren' } },
-    bekannt: { kriterien: Q2 }
+    erwartet: { kriterien: { raum: 'draussen', zielart: 'prozeduren' } }
   },
   {
     id: 'gs4-englisch-wortschatz-10',
@@ -70,8 +70,7 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 'gs2-religion-samariter',
     text: 'Religion Klasse 2, die Geschichte vom barmherzigen Samariter im Erzählkreis, 45 Minuten, 21 Kinder',
-    erwartet: { kriterien: { fachbereich: 'gesellschaft' }, thema: 'Geschichte vom barmherzigen Samariter' },
-    bekannt: { thema: Q2 }
+    erwartet: { kriterien: { fachbereich: 'gesellschaft' }, thema: 'Geschichte vom barmherzigen Samariter' }
   },
   {
     id: 'gs4-mathe-teilgruppen',
@@ -100,15 +99,14 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 's1-bio-mikroskop-90',
     text: 'Biologie Klasse 6, Mikroskopieren von Zwiebelzellen, Biologie-Fachraum, 90 Minuten, 28 Schüler',
-    erwartet: { kriterien: { raum: 'fachraum-nawi' }, pflichtNichtFehlt: ['raum'], regeln: ['sicherheitshinweis'] },
-    bekannt: { kriterien: Q2, pflichtangaben: Q2 }
+    erwartet: { kriterien: { raum: 'fachraum-nawi' }, pflichtNichtFehlt: ['raum'], regeln: ['sicherheitshinweis'] }
   },
   {
     id: 's1-chemie-verbrennung',
     text: 'Verbrennung von Metallen: Schülerversuch mit Eisenwolle',
     anfrage: { fachbereich: 'nawi-technik', bildungsstufe: 'sek1', zeitMin: 45, gruppe: 24, raum: 'fachraum-nawi', zielart: 'konzepte' },
     erwartet: { kriterien: { ansatz: ['forschend'] }, enthaelt: 'experiment' },
-    bekannt: { kriterien: Q2, enthaelt: QD2 }
+    bekannt: { enthaelt: QD2 }
   },
   {
     id: 's1-physik-stromkreis-problem',
@@ -148,9 +146,8 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 's1-musik-songwriting-tablets',
     text: 'Musik Klasse 9, Songwriting mit Tablets (GarageBand), 90 Minuten, 24 Schüler',
-    // Q2 reads „Songwriting“ as goal kind gestalten, which leads to produktion and away from the guessed chain (Q3).
-    erwartet: { kette: 'produktion', ketteNicht: 'kooperatives-lernen' },
-    bekannt: { kette: Q2, ketteNicht: Q2 }
+    // „Songwriting“ is read as goal kind gestalten, which leads to produktion and away from the guessed chain (Q3).
+    erwartet: { kette: 'produktion', ketteNicht: 'kooperatives-lernen' }
   },
   {
     id: 's1-sport-ausdauer-draussen',
@@ -184,9 +181,9 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 's1-mathe-bruch-test',
     text: 'Mathe Klasse 6 Bruchrechnen, schriftlicher Test mit Note, 45 Minuten, 27 Schüler',
-    // Q2 also wants the check step to hold at least half of the time with a written check.
-    erwartet: { kriterien: { nachweis: 'schriftlich', bewertet: true }, leistungskontrolle: true },
-    bekannt: { kriterien: Q2 }
+    // The graded test is the lesson: the check step gets the main share of the time (Q2) and must use a written check.
+    erwartet: { kriterien: { nachweis: 'schriftlich', bewertet: true }, leistungskontrolle: true, pruefschritt: { anteil: 0.5, nachweis: 'schriftlich' } },
+    bekannt: { pruefschritt: QD2_PRUEFUNG }
   },
   {
     id: 's1-mathe-pythagoras-gruppen',
@@ -214,8 +211,7 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 's2-mathe-kurvendiskussion',
     text: 'Kurvendiskussion ganzrationaler Funktionen üben',
     anfrage: { fachbereich: 'mathe-informatik', bildungsstufe: 'sek2', zeitMin: 90, gruppe: 18, raum: 'klassenraum', zielart: 'prozeduren', vorwissen: 'mittel' },
-    erwartet: { kette: 'prozedur', nichtKriterien: { ansatz: ['diskurs'] } },
-    bekannt: { kriterien: Q2 }
+    erwartet: { kette: 'prozedur', nichtKriterien: { ansatz: ['diskurs'] } }
   },
   {
     id: 's2-bio-genetik-digital',
@@ -227,34 +223,31 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 's2-geschichte-projekttag',
     text: 'Projekttag Geschichte Oberstufe: Alltag in der DDR, Zeitzeugeninterviews vorbereiten und auswerten, 20 Schüler',
     erwartet: { pflichtFehlt: ['zeit'], angenommenWert: { zeit: 270 } },
-    bekannt: { pflichtangaben: Q2 }
+    // The project owner dropped the ruling „Projekttag = 270 min“ (2026-11-27): the time stays the assumed lesson.
+    bekannt: { pflichtangaben: 'wartet auf FMT 2.1 Paket 3' }
   },
   {
     id: 's2-philo-kant-urteil',
     text: 'Kants kategorischer Imperativ an einem Dilemma prüfen',
     anfrage: { fachbereich: 'gesellschaft', bildungsstufe: 'sek2', zeitMin: 45, gruppe: 16, raum: 'klassenraum', zielart: 'urteilen' },
     // No learning function may be read from „prüfen“ (undefined: the field stays empty).
-    erwartet: { kette: 'urteilsbildung', kriterien: { lernfunktion: undefined } },
-    bekannt: { kriterien: Q2 }
+    erwartet: { kette: 'urteilsbildung', kriterien: { lernfunktion: undefined } }
   },
   {
     id: 's2-chemie-fakten-20',
     text: 'Chemie Oberstufe: funktionelle Gruppen der organischen Chemie auswendig können, 20 Minuten Wiederholung, 19 Schüler',
-    erwartet: { thema: /^funktionelle Gruppen der organischen Chemie auswendig können$/ },
-    bekannt: { thema: Q2 }
+    erwartet: { thema: /^funktionelle Gruppen der organischen Chemie auswendig können$/ }
   },
   // Berufsschule und Betrieb
   {
     id: 'bs-pflege-transfer',
     text: 'Pflegeausbildung 2. Lehrjahr, Lernfeld Mobilisation: Transfer vom Bett in den Rollstuhl üben, Skills Lab, 90 Minuten, 16 Auszubildende',
-    erwartet: { kette: 'vollstaendige-handlung', thema: '2. Lehrjahr' },
-    bekannt: { thema: Q2 }
+    erwartet: { kette: 'vollstaendige-handlung', thema: '2. Lehrjahr' }
   },
   {
     id: 'bs-kfz-bremsen',
     text: 'Berufsschule Kfz-Mechatroniker: Bremsbeläge an der Scheibenbremse wechseln, Werkstatt, 90 Minuten, 12 Azubis',
-    erwartet: { kette: 'vollstaendige-handlung', angenommen: ['zielart'], regeln: ['sicherheitshinweis'] },
-    bekannt: { kette: Q2, pflichtangaben: Q2 }
+    erwartet: { kette: 'vollstaendige-handlung', angenommen: ['zielart'], regeln: ['sicherheitshinweis'] }
   },
   {
     id: 'bs-einzelhandel-reklamation',
@@ -273,7 +266,7 @@ export const REIHE5: Qualitaetsfall[] = [
       hinweisNicht: ['Positionslinie', 'Klassenspaziergang'],
       thema: '1. Lehrjahr'
     },
-    bekannt: { hinweis: Q4, thema: Q2 }
+    bekannt: { hinweis: Q4 }
   },
   {
     id: 'bs-it-netzwerk-ohneinternet',
@@ -287,26 +280,24 @@ export const REIHE5: Qualitaetsfall[] = [
     // Q3 asks for the plan (modus ablauf); that /match plans on its own is Q6 (server test).
     anfrage: { modus: 'ablauf' },
     erwartet: { planungsprofil: 'betrieb', nicht: ['gebundene-musik-rhythmus'], pflichtFehlt: ['ziel'], enthaelt: 'vier-stufen-methode' },
-    bekannt: { fachpassung: Q3, nicht: Q3, pflichtangaben: Q2, enthaelt: QD2 }
+    bekannt: { fachpassung: Q3, nicht: Q3, enthaelt: QD2 }
   },
   {
     id: 'bs-wirtschaft-pruefungsvorb',
     text: 'Berufsschule Industriekaufleute: Deckungsbeitragsrechnung, Prüfungsvorbereitung für die Abschlussprüfung, 90 Minuten, 22 Azubis',
-    erwartet: { kette: 'prozedur', regelnNicht: ['sicherheitshinweis'] },
-    bekannt: { kette: Q2, regelNicht: Q4 }
+    // Read as an exam preparation in the classroom, no safety note is given (Q4 still checks the rule itself).
+    erwartet: { kette: 'prozedur', regelnNicht: ['sicherheitshinweis'] }
   },
   // Hochschule
   {
     id: 'hs-vorlesung-statistik-250',
     text: 'Vorlesung Statistik I, Hörsaal, 250 Studierende, 90 Minuten, Hypothesentests einführen',
-    erwartet: { kriterien: { raum: 'hoersaal' }, hinweis: [/Mehr als 20 Minuten am Stück im passiven Modus.*Phase/], themaNicht: ['Hörsaal'] },
-    bekannt: { thema: Q2 }
+    erwartet: { kriterien: { raum: 'hoersaal' }, hinweis: [/Mehr als 20 Minuten am Stück im passiven Modus.*Phase/], themaNicht: ['Hörsaal'] }
   },
   {
     id: 'hs-seminar-soziologie-12',
     text: 'Seminar Soziologie im Master, 12 Studierende, Textdiskussion zu Bourdieus Habitusbegriff, 90 Minuten',
-    erwartet: { pflichtNichtFehlt: ['fach-und-thema'] },
-    bekannt: { pflichtangaben: Q2 }
+    erwartet: { pflichtNichtFehlt: ['fach-und-thema'], kriterien: { fachbereich: 'gesellschaft' } }
   },
   {
     id: 'hs-bwl-fallstudie-online',
@@ -323,14 +314,15 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 'hs-labor-titration',
     text: 'Laborpraktikum Chemie im 1. Semester: Säure-Base-Titration, 180 Minuten, 16 Studierende, Labor',
     erwartet: { regeln: ['sicherheitshinweis'], hinweisNicht: ['Positionslinie', 'Klassenspaziergang'], nicht: ['jenaplan-kreis'], thema: '1. Semester' },
-    bekannt: { hinweis: Q4, nicht: QD2, thema: Q2 }
+    bekannt: { hinweis: Q4, nicht: QD2 }
   },
   // Erwachsenenbildung
   {
     id: 'vhs-alpha-einkaufen',
     text: 'Alphabetisierungskurs: Einkaufen, Preise verstehen und vergleichen',
     anfrage: { bildungsstufe: 'erwachsenenbildung', zeitMin: 90, gruppe: 8, raum: 'klassenraum', ohneSchrift: ['lesen', 'schreiben'] },
-    erwartet: { ohneSchriftbedarf: ['liest', 'schreibt'], pflichtFehlt: ['fach-und-thema'] }
+    // No subject recognised: the gap stays and the answer says how it planned (feld fach).
+    erwartet: { ohneSchriftbedarf: ['liest', 'schreibt'], pflichtFehlt: ['fach-und-thema'], angenommen: ['fach'] }
   },
   {
     id: 'vhs-spanisch-a1',
@@ -340,14 +332,14 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 'vhs-excel-4',
     text: 'VHS-Kurs Excel Grundlagen: Formeln und Funktionen, Computerraum, 4 Teilnehmer, 90 Minuten',
+    // With the subject read, the opener of another subject (gebundene-musik-rhythmus) shows; Q3 names or avoids it.
     erwartet: { kriterien: { fachbereich: 'mathe-informatik' }, kette: 'prozedur' },
-    bekannt: { kette: Q2, kriterien: Q2 }
+    bekannt: { fachpassung: Q3 }
   },
   {
     id: 'verein-rueckenfit-60',
     text: 'Rückenfit-Kurs für Erwachsene im Sportverein, Kräftigung der Rumpfmuskulatur, 60 Minuten, Turnhalle, 15 Teilnehmende',
-    erwartet: { kriterien: { fachbereich: 'sport' }, kette: 'kondition-training' },
-    bekannt: { kette: Q2, kriterien: Q2 }
+    erwartet: { kriterien: { fachbereich: 'sport' }, kette: 'kondition-training' }
   },
   {
     id: 'integrationskurs-a2-arzt',
@@ -362,15 +354,13 @@ export const REIHE5: Qualitaetsfall[] = [
     text: 'Ich brauche was für morgen',
     // The core offers one phase without any frame (/plan still plans and says so, Q6). No learning function may be read
     // from the sentence (undefined: the field stays empty).
-    erwartet: { modus: 'phase', kriterien: { lernfunktion: undefined }, pflichtFehlt: ['ziel', 'fach-und-thema', 'bildungsstufe', 'anzahl', 'raum', 'zeit'] },
-    bekannt: { kriterien: Q2, pflichtangaben: Q2 }
+    erwartet: { modus: 'phase', kriterien: { lernfunktion: undefined }, pflichtFehlt: ['ziel', 'fach-und-thema', 'bildungsstufe', 'anzahl', 'raum', 'zeit'] }
   },
   {
     id: 'vage-klimawandel',
     text: 'Irgendwas Aktivierendes zum Thema Klimawandel',
     // The core offers one phase without any frame (/plan still plans and says so, Q6).
-    erwartet: { modus: 'phase', pflichtFehlt: ['ziel'], angenommen: ['fach'] },
-    bekannt: { pflichtangaben: Q2 }
+    erwartet: { modus: 'phase', pflichtFehlt: ['ziel'], angenommen: ['fach'], angenommenWert: { fach: 'Geografie' } }
   },
   {
     id: 'luecke-mathe-45',

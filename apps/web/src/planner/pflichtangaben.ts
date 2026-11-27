@@ -31,8 +31,39 @@ export function verstandenAus(
   const verstanden: string[] = [];
   const out: Verstanden['fehlt'] = [];
   let zielVermutet = false;
+  /** The goal line: a goal kind the plan assumed, else the stated or read goal (a semantic reading counts as guessed). */
+  const zielZeile = (): { text: string; geraten: boolean } | null => {
+    // A goal the text only suggests (semantic reading, beleg "semantisch: …") is shown as a guess.
+    const vermutet = (f: string) => /^semantisch/i.test(beleg(f) || '');
+    // A goal kind the plan assumed (e.g. Ethik → Urteilen) is the plan's goal; it beats a guessed function.
+    const angenommeneZielart = p.angenommen.find((x) => x.feld === 'zielart' && typeof x.wert === 'string');
+    if (typeof k.zielart !== 'string' && angenommeneZielart) {
+      return { text: `Ziel (angenommen): ${labelOf('zielart', angenommeneZielart.wert as string)}`, geraten: true };
+    }
+    let ziel = '';
+    let geraten = false;
+    if (typeof k.zielart === 'string') {
+      ziel = labelOf('zielart', k.zielart);
+      geraten = vermutet('zielart');
+    } else if (r.modus === 'ablauf' && typeof k.zieltyp === 'string' && r.kette?.label) {
+      ziel = r.kette.label;
+      geraten = vermutet('zieltyp');
+    } else if (Array.isArray(k.lernfunktion)) {
+      ziel = (k.lernfunktion as string[]).map((f) => labelOf('lernfunktion', f)).join(', ');
+      geraten = vermutet('lernfunktion');
+    }
+    return ziel ? { text: geraten ? `Ziel (vermutet): ${ziel}` : `Ziel: ${ziel}`, geraten } : null;
+  };
   const fachName = r.fach?.label || (typeof k.fachbereich === 'string' ? labelOf('fachbereich', k.fachbereich) : '');
   for (const feld of PFLICHT_ORDNUNG) {
+    // A guessed or assumed goal leaves the gap "ziel" open; the line still names the guess, so it can be corrected.
+    if (feld === 'ziel' && fehlt.has(feld)) {
+      const z = zielZeile();
+      if (z?.geraten) {
+        verstanden.push(z.text);
+        zielVermutet = true;
+      }
+    }
     if (fehlt.has(feld)) {
       if (feld === 'fach-und-thema') {
         const teil = fachName && !thema ? 'thema' : !fachName && thema ? 'fach' : 'beide';
@@ -49,29 +80,9 @@ export function verstandenAus(
     if (feld === 'raum' && typeof k.raum === 'string') verstanden.push(labelOf('raumtyp', k.raum));
     if (feld === 'zeit' && k.zeitMin) verstanden.push(`${k.zeitMin} Minuten`);
     if (feld === 'ziel') {
-      // A goal the text only suggests (semantic reading, beleg "semantisch: …") is shown as a guess.
-      const vermutet = (f: string) => /^semantisch/i.test(beleg(f) || '');
-      let ziel = '';
-      let geraten = false;
-      // A goal kind the plan assumed (e.g. Ethik → Urteilen) is the plan's goal; it beats a guessed function.
-      const angenommeneZielart = p.angenommen.find((x) => x.feld === 'zielart' && typeof x.wert === 'string');
-      if (typeof k.zielart !== 'string' && angenommeneZielart) {
-        verstanden.push(`Ziel (angenommen): ${labelOf('zielart', angenommeneZielart.wert as string)}`);
-        zielVermutet = true;
-        continue;
-      }
-      if (typeof k.zielart === 'string') {
-        ziel = labelOf('zielart', k.zielart);
-        geraten = vermutet('zielart');
-      } else if (r.modus === 'ablauf' && typeof k.zieltyp === 'string' && r.kette?.label) {
-        ziel = r.kette.label;
-        geraten = vermutet('zieltyp');
-      } else if (Array.isArray(k.lernfunktion)) {
-        ziel = (k.lernfunktion as string[]).map((f) => labelOf('lernfunktion', f)).join(', ');
-        geraten = vermutet('lernfunktion');
-      }
-      if (ziel) verstanden.push(geraten ? `Ziel (vermutet): ${ziel}` : `Ziel: ${ziel}`);
-      zielVermutet = Boolean(ziel) && geraten;
+      const z = zielZeile();
+      if (z) verstanden.push(z.text);
+      zielVermutet = Boolean(z?.geraten);
     }
   }
   return { verstanden, fehlt: out, zielVermutet };

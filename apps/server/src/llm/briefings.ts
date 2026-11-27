@@ -733,9 +733,12 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       return {
         modus: 'phase' as const,
         hinweis: `${budget} Minuten reichen nicht für einen vollständigen Ablauf (kürzester Vorschlag ${matched.pruefung?.dauerMin} min). Vorschläge für eine einzelne Phase; für einen Ablauf mehr Zeit angeben.`,
-        fach: args.fach?.trim() || extracted.fach || undefined,
+        // The core's detector first, the topic guess of thema.ts last (an assumed subject stands in pflichtangaben).
+        fach: args.fach?.trim() || phase.fach?.label || extracted.fach || undefined,
         thema,
         erkannteKriterien: phase.kriterien,
+        // Like /match: what is missing and what was assumed, also for a single phase.
+        ...(phase.pflichtangaben ? { pflichtangaben: phase.pflichtangaben } : {}),
         vorschlaege: phase.vorschlaege.slice(0, 10),
         vorschlaegeGesamt: phase.vorschlaege.length,
         hinweise: phase.hinweise || [],
@@ -756,7 +759,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
   // Subject with OEH URI: from the own field if given, otherwise as named in the text.
   // A subject field the vocabulary does not know is not replaced by a guess from the text.
   const fachErkannt = args.fach?.trim() ? fachFeld : matched.fach || null;
-  const fach = args.fach?.trim() || extracted.fach || fachErkannt?.label || undefined;
+  // The core's detector first, the topic guess of thema.ts last (a subject only guessed from a topic word is listed under
+  // pflichtangaben.angenommen by the core).
+  const fach = args.fach?.trim() || fachErkannt?.label || extracted.fach || undefined;
 
   const detectedTraits = classification.matrixMerkmale;
   const defaultGroups: PlanGroup[] = [

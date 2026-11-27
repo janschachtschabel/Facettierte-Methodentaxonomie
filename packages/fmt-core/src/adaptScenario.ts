@@ -4,6 +4,7 @@ import {
   DIFF_MATRIX_MEASURES,
   MEASURE_EFFORT_ORDER,
   MEASURE_LEVEL_ORDER,
+  ROLLSTUHL_LERNENDE,
   detectMatrixTraitsFromText,
   scoreDifferentiationMatrix,
   scoreMethodAgainstFmtBridges,
@@ -506,7 +507,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
   {
     id: 'motorik',
     label: 'Körperlich-motorische Unterstützung',
-    re: /\b(?:motorisch\w*|feinmotorik|k[oö]rperlich\w*\s+(?:beeintr[aä]cht\w*|einschr[aä]nk\w*|f[oö]rderbedarf)|rollstuhl|schreibmotorik)/i,
+    re: new RegExp(String.raw`\b(?:motorisch\w*|feinmotorik|k[oö]rperlich\w*\s+(?:beeintr[aä]cht\w*|einschr[aä]nk\w*|f[oö]rderbedarf)|schreibmotorik)|${ROLLSTUHL_LERNENDE}`, 'i'),
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:motorisch\w*|k[oö]rperlich\w*)/i,
     selectedValues: {
       'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-deutlich',

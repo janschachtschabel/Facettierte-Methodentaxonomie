@@ -32,9 +32,10 @@ import { KennungIndex } from './kennung.js';
 import { raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
 import { baueSituation, raumKlasse, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
+import { RAUM_REGELN } from './raumwoerter.js';
 import { liesBegleitziele } from './begleitziel.js';
 import { waehlePlanungsprofil } from './planungsprofil.js';
-import { phaseBudgets, stretch } from './zeitverteilung.js';
+import { FUNCTION_SHARE, phaseBudgets, stretch } from './zeitverteilung.js';
 import { bewegungsKette, nachweisformen, normZielart, traegtBegleitziel, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
 import { LEISTUNGSKONTROLLE_SCHRITT } from './entwurf.js';
 import { wiederkehrZeile } from './wiederkehr.js';
@@ -530,7 +531,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     [/\b(?:ausprobier|erkund|untersuch|experimentier)\w*|\b(?:pflanzen|baume|tiere|vogel|gesteine|stoffe)\w*\s+(?:\w+\s+){0,3}bestimmen\b/, { zielart: 'konzepte', ansatz: ['forschend'] }]
   ];
   /** Activity verbs that describe a whole lesson as well as a phase. */
-  const ACTIVITY_WORD = /^(?:uben|ubt|wiederhol|festig|trainier|automatisier)/;
+  const ACTIVITY_WORD = /^(?:uben|ubt|wiederhol|festig|trainier|automatisier|(?:abschluss)?(?:prufungs|klausur)vorbereit)/;
   /** Course stages that end in "-phase" but name no phase of a lesson. */
   const STAGE_PHASE = /\be-?phase\b|einfuhrungsphase|qualifikationsphase/g;
   /**
@@ -541,7 +542,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     /\b(?:eine|einzelne|nur\s+eine)\s+(?:methode|phase|aktivitat)\b|\b(?:methoden?|ideen?|aktivitaten)\s+(?:fur|zu[mr]?)\b|\bein\s+spiel\s+(?:fur|zu[mr]?)\b|\bauflockerung\w*|\bstundenanfang\w*/;
   /** Words that ask for one phase of a lesson. */
   const PHASE_WORD =
-    /\b(?:einstieg\w*|eroffnung|sicherung\w*|abschluss\w*|ausstieg|warm-?up|aufwarm\w*|stundenbeginn|stundenende|\w*phase|zum\s+(?:beginn|ende|schluss)|am\s+(?:anfang|ende|schluss)|zu\s+beginn)\b/;
+    /\b(?:einstieg\w*|eroffnung|sicherung\w*|abschluss(?!prufung)\w*|ausstieg|warm-?up|aufwarm\w*|stundenbeginn|stundenende|\w*phase|zum\s+(?:beginn|ende|schluss)|am\s+(?:anfang|ende|schluss)|zu\s+beginn)\b/;
 
   const semantic = createSemanticClassifier(data);
   /** School subjects (OEH discipline ids) whose lessons without a stated goal assume judging (zielart urteilen). */
@@ -552,6 +553,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   ]);
   /** Lesson length assumed for a plan when the request names no time. */
   const STANDARD_STUNDE_MIN = 45;
+  /** Practical rooms of vocational education. */
+  const PRAXISRAEUME = new Set(['werkraum', 'lehrkueche', 'fachraum']);
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
   const NEGATION_AWARE = new Set(['ohneSchrift', 'maxTechnik', 'ohneInternet', 'ohneKI', 'vorwissen', 'maxVorbereitung', 'anleitung', 'zeitMin', 'gruppe', 'komplexitaet', 'sprachniveau', 'lehrende', 'einheit', 'bewertet']);
   /** Goal kinds of a movement lesson (the old knowledge-type code psychomotorik). */
@@ -682,12 +685,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // Subject area from the subject named in the text. Order matters: the first rule that matches wins.
     // Subject nouns only: adjectives ("französische Revolution") and everyday words ("Pflege von …") are no subject.
     ['fachbereich', /\bberufsschul\w*|\b(?:lehr|schul)kuche\b|\bberufskolleg\b|\bausbildung\b|\bauszubildende\w*|\bazubis?\b|\blernfeld\w*|\bpflege(?:schule|ausbildung|fachkr\w*|kurs)\b|\bpraxisanleit\w*|\bunterweisung\b|\blehrjahr\b|\w+ausbildung\b|kaufleute|kaufmann|kauffrau|restaurantfach\w*|fachinformatiker|mechatroniker|elektroniker|friseur\w*|\berste[-\s]hilfe\w*|uberbetrieblich\w*/, () => 'beruf-praxis'],
-    ['fachbereich', /\bsport(?:unterricht|stunde)?\b|\bschwimmunterricht\b|\byoga\b|\bpilates\b|\bfitnesskurs\b/, () => 'sport'],
+    ['fachbereich', /\bsport(?:unterricht|stunde|verein)?\b|\bschwimmunterricht\b|\byoga\b|\bpilates\b|\bfitnesskurs\b|\bruckenfit\w*|\bruckenschule\w*|\bfunktionsgymnastik\w*/, () => 'sport'],
     ['fachbereich', /\bkunst(?:unterricht)?\b|\bmusik(?:unterricht)?\b|\bdarstellendes\s+spiel\b|\btheater(?:unterricht|-ag)\b|\bwerkunterricht\b|\btextiles\s+gestalten\b/, () => 'aesthetik'],
     ['fachbereich', /\b(?:deutsch|englisch|franzosisch|spanisch|latein|italienisch|russisch)(?:unterricht|stunde)?\b(?!-)|(?<!\b(?:mit|haben|hat|und|oder|viele|einige|mehrere|wenige|\d+)\s)(?<!,\s)\bda[zf]\b(?!-?\s?(?:kind|schuler|lernend|sus\b|anteil|hintergrund))(?!\s+(?:und|oder)\s)|\bfremdsprach\w*/, () => 'sprachen'],
-    ['fachbereich', /\bmathe(?:matik)?(?:unterricht|stunde)?\b|\binformatik(?:unterricht)?\b|\bgeometrie\b|\balgebra\b|\beinmaleins\b|\banalysis\b|\blineare\s+algebra\b|\bstatistik\b|\bmaths?\b/, () => 'mathe-informatik'],
+    ['fachbereich', /\bmathe(?:matik)?(?:unterricht|stunde)?\b|\binformatik(?:unterricht)?\b|\bgeometrie\b|\balgebra\b|\beinmaleins\b|\banalysis\b|\blineare\s+algebra\b|\bstatistik\b|\bmaths?\b|\bexcel\b|\btabellenkalkulation\w*/, () => 'mathe-informatik'],
     ['fachbereich', /\b(?:physik|chemie|biologie|bio)(?:unterricht|stunde)?\b|\bnaturwissenschaft\w*|\bnawi\b|\bsachunterricht\b|\bastronomie\b|\btechnik\s+klasse\b|\btechnikunterricht\b|\bmedizin(?!ethik)\w*|\btechnische\s+mechanik\b|\bingenieur\w*|\b(?:biology|chemistry|physics|science)\b/, () => 'nawi-technik'],
-    ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen))|\bgeschichtsunterricht\b|\bpolitik(?:unterricht)?\b|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft(?:slehre|skunde)?\b|\bethik(?:unterricht)?\b|\breligion(?:sunterricht|slehre)?\b|\bphilosophie(?:unterricht)?\b|\bsowi\b|\bjura\b|\brechtswissenschaft\w*|\bbwl\b|\bvwl\b|\bhistory\b/, () => 'gesellschaft'],
+    ['fachbereich', /\bgeschichte\b(?!\s+(?:schreiben|erzahlen|lesen|vom|von|uber|zu[mr]?)\b)|\bgeschichtsunterricht\b|\bpolitik(?:unterricht)?\b|\bsozialkunde\b|\bgemeinschaftskunde\b|\bgesellschaftslehre\b|\berdkunde\b|\bgeogra(?:f|ph)ie\b|\bwirtschaft(?:slehre|skunde)?\b|\bethik(?:unterricht)?\b|\breligion(?:sunterricht|slehre)?\b|\bphilosophie(?:unterricht)?\b|\bsowi\b|\bjura\b|\brechtswissenschaft\w*|\bbwl\b|\bvwl\b|\bhistory\b|\bsoziologie\b|\bpsychologie\b|\bpadagogik\b/, () => 'gesellschaft'],
     ['maxVorbereitung', /ohne\s+vorbereitung|sofort\s+einsetzbar|spontan/, () => 5],
     ['maxVorbereitung', /wenig\s+vorbereitung|kurz\w*\s+vorbereitung/, () => 15],
     ['raumzeit', /asynchron|selbstlernphase/, () => ['asynchron']],
@@ -698,52 +701,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       new RegExp(`\\b(?:uber\\s+)?(\\d{1,2}|${Object.keys(ZAHLWORT).join('|')})\\s+(?:termine|sitzungen|doppelstunden)\\b`),
       (m) => ZAHLWORT[m[1]] ?? Number(m[1])
     ],
-    // The room must be named as a place ("im Labor", "auf dem Schulhof"); "Wortschatz in der Küche" or "Tiere im Wald" is a topic.
-    // "im Klassenraum", "in einem Seminarraum" or a bare list item ("…, Klassenraum, 45 Minuten"); "Klassenraumgestaltung" is a topic.
-    [
-      'raum',
-      /\b(?:im|in\s+einem|in\s+dem)\s+(?:klassen(?:raum|zimmer)|seminarraum)\b(?!-)|(?:^|[,;:]\s*)(?:klassen(?:raum|zimmer)|seminarraum)\s*(?:[,;.]|$)|\bsporttheorie\b|\btheoriestunde\b/,
-      () => 'klassenraum'
-    ],
-    ['raum', /\bhorsaal\w*|(?<!\bzur\s)\bvorlesung\b(?!\s+(?:vor|nach)\w*)/, () => 'hoersaal'],
-    ['raum', /\b(?:turn|sport|gymnastik)halle\b|\bin\s+der\s+halle\b|\bsportplatz\b|\bgymnastikraum\b/, () => 'bewegungsraum'],
-    // Named special rooms first; a bare room word counts only as its own list item ("…, Werkstatt, 180 Minuten").
-    [
-      'raum',
-      /\b(?:im|ins)\s+(?:chemie|physik|bio(?:logie)?|schul|fach)?labor\b|\blaborpraktikum\b|\bschulerlabor\b|\b(?:chemie|physik|bio(?:logie)?|nawi)(?:raum|saal|fachraum)\b|(?:^|[,;:]\s*)labor\s*(?:[,;.]|$)/,
-      () => 'fachraum-nawi'
-    ],
-    ['raum', /\bmusik(?:raum|saal)\b/, () => 'musikraum'],
-    [
-      'raum',
-      /\b(?:werk|kunst|technik)raum\b|\bin\s+der\s+(?:lehr|schul|ubungs)?werkstatt\b|\b(?:lehr|ubungs)werkstatt\b|(?:^|[,;:]\s*)werkstatt\s*(?:[,;.]|$)/,
-      () => 'werkraum'
-    ],
-    ['raum', /\b(?:lehr|schul)kuche\b/, () => 'lehrkueche'],
-    ['raum', /\b(?:computer|pc|rechner|edv)-?raum\b/, () => 'computerraum'],
-    [
-      'raum',
-      /\bim\s+(?:fachraum|ubungsraum|praxisraum|makerspace)\b|\bskills?\s*-?lab\b|\ban\s+ubungskopf\w*|\ban\s+der\s+puppe\b/,
-      () => 'fachraum'
-    ],
-    [
-      'raum',
-      /\bdraussen\b(?!\s+und\s+drinnen)|\bauf\s+dem\s+schulhof\b|\bim\s+freien\b|\bim\s+schulgarten\b|\bunterrichtsgang\b|\b(?:auf|bei)\s+(?:der|einer)\s+exkursion\b/,
-      () => 'draussen'
-    ],
-    [
-      'raum',
-      /\b(?:am|an\s+einem|im)\s+ausserschulisch\w*\s+lernort\w*|\bausserschulisch\w*\s+lernort\w*|\bim\s+(?:ausbildungs)?betrieb\b|\bam\s+arbeitsplatz\b|\bim\s+museum\b/,
-      () => 'ausserschulisch'
-    ],
-    // Only when no other room is named (the first raum rule that matches wins); a theatre's seating is a topic.
-    ['raum', /\bfester?\s+bestuhlung\b(?!\s+(?:im|in\s+der|des|der)\s+(?:theater|oper|kino|kirche|konzert)\w*)/, () => 'hoersaal'],
-    ['raum', /\bonline\b|\bvideokonferenz\w*/, () => 'digital'],
+    // Room words (raumwoerter.ts, shared with the topic).
+    ...RAUM_REGELN.map(([code, re]): [string, RegExp, () => unknown] => ['raum', re, () => code]),
     // Form of proof: "Prüfungsform Klausur", "mündliche Prüfung", "praktische Prüfung", "Produkt abgeben".
     // Preparing for a Klausur ("Klausurvorbereitung", "Wiederholung vor der Klausur") is no proof in this lesson.
     [
       'nachweis',
-      /(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})\bklausur(?!vorbereit|nachbesprech|besprech|ruckgabe|berichtigung|korrektur|training|tipps|angst)\w*(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))|\bschriftlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/,
+      /(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})\bklausur(?!vorbereit|nachbesprech|besprech|ruckgabe|berichtigung|korrektur|training|tipps|angst)\w*(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))|(?<!\b(?:vorbereitung|vorbereiten|nachbesprechung|besprechung|ruckgabe|berichtigung|korrektur|wiederholung|nach|vor)\s+(?:(?:auf|fur|der|des|die|den|das|dem|einer|eine|zur|zum)\s+){0,2})(?:\bschriftlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung|test|arbeit)\w*|\bklassenarbeit\s+schreiben\b)(?!\s+(?:(?:vor|nach)bereit\w*|(?:nach)?besprechen|uben))/,
       () => 'schriftlich'
     ],
     ['nachweis', /\bmundlich\w*\s+(?:prufung|abfrage|lernkontrolle|leistungskontrolle|uberprufung)/, () => 'muendlich'],
@@ -784,13 +748,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // Endurance, strength or fitness training follows the training chain, not "demonstrate – practise – apply".
     [
       'zielart',
-      /\b(?:ausdauer|kondition|kraft|fitness|intervall|zirkel)\w*training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkondition(?:straining|sschulung)?\b|\bcooper-?test\b|\bfitnesskurs\b/,
+      /\b(?:ausdauer|kondition|kraft|fitness|intervall|zirkel)\w*training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkondition(?:straining|sschulung)?\b|\bcooper-?test\b|\bfitnesskurs\b|\bruckenfit\w*|\bruckenschule\w*|\bkraftigung\w*|\bfunktionsgymnastik\w*/,
       () => 'kondition'
     ],
     // A product must be named: "schreiben", "zeichnen" or "gestalten" alone are everyday verbs.
     [
       'zielart',
-      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\blinol(?:schnitt|druck)\w*|\b(?:sieb|hoch|tief)druck(?:verfahren|technik|en)?\b|\bradierung\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponieren\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
+      /\b(?:erorterung|aufsatz|aufsatze|essay|kurzgeschichte|gedicht|bericht|brief|text|sachtext|geschichte|zusammenfassung|inhaltsangabe|rezension|kommentar|reportage|leserbrief|bewerbung)\w*\s+(?:schreiben|verfassen)\b|programmier\w*|\blinol(?:schnitt|druck)\w*|\b(?:sieb|hoch|tief)druck(?:verfahren|technik|en)?\b|\bradierung\w*|\b(?:perspektive|portrat|stillleben|bild|comic|skizze|landschaft)\w*\s+(?:zeichnen|malen)\b|\bkomponier\w*|\bsongwriting\b|\bsongs?\s+schreiben\b|\b(?:plakat|poster|podcast|film|video|collage|website|erklarvideo|flyer|logo|buhnenbild)\w*\s+(?:erstellen|produzieren|drehen|bauen|gestalten|entwerfen)\b|\b(?:collage|erzahlung|fantasiegeschichte|bildergeschichte|portrat|skulptur|plastik|modell|werkstuck|vogelhaus|comment|essay|kommentar)\w*(?:\s+[\w-]+){0,4}?\s+(?:schreiben|verfassen|gestalten|bauen|basteln|formen|malen|zeichnen|entwerfen)\b/,
       () => 'gestalten'
     ],
     [
@@ -798,9 +762,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       /\bbewegungs(?:fertigkeit|lernen|aufgabe|schulung)\w*|\b(?:volleyball|basketball|handball|fussball|badminton|tischtennis|turnen|schwimmen|leichtathletik|weitsprung|hochsprung|kugelstossen|sprint|zuspiel|aufschlag|wurftechnik|bewegungsablauf|bewegungsfolge|tanz(?:en|choreografie)?)\b|\b(?:ausdauer|kondition|kraft|fitness|zirkel|lauf|intervall|koordinations|zirkel)training\b|\bausdauer(?:lauf|leistung|fahigkeit)?\b|\bdauerlauf\w*|\bkoordination\w*|\baufwarm\w*|\bkleine\s+spiele\b|\bstaffel(?:lauf|spiele?)?\b|\bzirkeltraining\b|\b(?:klatsch|trommel|musizier)\w*|\bbodypercussion\b|\bsingen\b|\b(?:instrument|gitarre|klavier|flote|blockflote|keyboard)\w*\s+spielen\b|\bhandgriff\w*|\b(?:in\s+der\s+werkstatt|praktisch)\s+uben\b|\bmontier\w*|\bvier-?stufen-?methode\b|\bpflegehandlung\w*|\bblutdruck\s+messen\b|\berste[-\s]hilfe\w*|\breanimation\b|\bhaare\s+schneiden\b|\b(?:zubereiten|backen|loten|feilen|bohren|mikroskopier\w*|servieren|eindecken|einstudieren)\b|\b(?:holz|metall|brett|leiste)\w*\s+(?:\w+\s+)?sagen\b|\bnahmaschine\w*|\b(?:gericht|suppe|rezept|menu)\w*\s+(?:\w+\s+)?kochen\b|\bkoch(?:praxis|kurs|unterricht)\b|\b(?:seitenlage|herzdruckmassage|handedesinfektion|ballgewohnung|yoga|pilates)\b|\b(?:an\s+ubungskopfen|am\s+modell\s+uben|an\s+der\s+puppe)\b|\blied\w*\s+singen\b|\bimprovisation(?:s(?:theater|ubung\w*|spiel\w*))?\b|\bimprotheater\b|\bszenenarbeit\b|\bszenisch\w*\s+(?:spiel|darstell|arbeit|gestalt)\w*|\bschauspiel(?:en|erisch\w*|unterricht|ubung\w*|training)\b|\btheater\s+spielen\b|\b(?:bunsen)?brenner\w*\s+(?:\w+\s+)?(?:anzunden|bedienen|handhaben)\b|\bpipettier\w*|\b\w+perspektive\s+zeichnen\b|\bzeichentechnik\w*|\bschraffier\w*|\btitrier\w*|\btitration\b|\breifen\w*wechsel\w*|\breifen\s+(?:\w+\s+)?wechseln\b|\b(?:smartphone|handy|tablet)s?\b(?:\s+[\w-]+){0,2}?\s+(?:bedienen|bedienung|einrichten)\b|\b(?:smartphone|handy|tablet)s?-?\s*grundlagen\s*(?:,|\.|$|fur|kurs)/,
       () => 'bewegung'
     ],
-    ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib|\b(?:addier|subtrahier|multiplizier|dividier|vereinfach|umform)en\b|\b(?:bruch\w*|terme?)\s+(?:\w+\s+)?kurzen\b|schaltplan\w*\s+lesen|\b(?:arten|baum|baume|pflanzen|tiere|vogel|gesteine|blumen|insekten|pilze)\w*\s+bestimmen\b|\bbestimmungsschlussel\w*/, () => 'prozeduren'],
+    ['zielart', /verfahren|rechnen|fertigkeit|prozedur|algorithmus|schrittfolge|kommasetzung|rechtschreib|\b(?:addier|subtrahier|multiplizier|dividier|vereinfach|umform)en\b|\b(?:bruch\w*|terme?)\s+(?:\w+\s+)?kurzen\b|schaltplan\w*\s+lesen|\b(?:arten|baum|baume|pflanzen|tiere|vogel|gesteine|blumen|insekten|pilze)\w*(?:\s+[\w-]+){0,6}?\s+bestimmen\b|\bbestimmungsschlussel\w*|\bexcel\b|\btabellenkalkulation\w*/, () => 'prozeduren'],
     ['zielart', /fakten|vokabel|auswendig|merkwissen|einpragen|jahreszahlen|einmaleins|automatisier/, () => 'fakten'],
     ['zielart', /konzept|begriff\w*\s+verstehen|verstandnis|verstehen|zusammenhang/, () => 'konzepte'],
+    // Preparing for an exam is practice of what was learned (leads to the practice chain), not a check in this lesson.
+    ['lernfunktion', /\b(?:abschluss)?(?:prufungs|klausur)vorbereitung\w*/, () => ['konsolidierung']],
     [
       'modus',
       /\b(?:unterrichts)?reihe\b|\b(?:unterrichts|lern)?einheit\b|\bsequenz\b|\bwochen\b|unterrichtsvorhaben|mehrere\s+stunden|doppelstunde|einzelstunde|unterrichtsstunde|schulstunde|\b(?:lern)?modul\b|\b(?:stunden|unterrichts)?ablauf\b|seminar\b|vorlesung\b|workshop\b|online-?kurs\b|sitzung\b/,
@@ -812,7 +778,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const ANSATZ_RULES: Array<[string, RegExp]> = [
     [
       'forschend',
-      /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|\bhypothesen?\b|situationsorientiert\w*|kompetenzorientiert\w*|konstruktivistisch\w*|handlungsorientiert\w*/
+      /problemorientiert\w*|problembasiert\w*|forschend\w*|entdeckend\w*|experiment\w*|schulerversuch\w*|versuchsreihe\w*|versuchsprotokoll\w*|\bhypothesen?\b|situationsorientiert\w*|kompetenzorientiert\w*|konstruktivistisch\w*|handlungsorientiert\w*/
     ],
     [
       'kooperativ',
@@ -824,13 +790,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'offen',
-      /offene\w*\s+unterricht|freiarbeit|stationen|(?<!\bin\s+der\s+)(?<!lehr|schul|ubungs)werkstatt|wochenplan|projektbasiert\w*|projektorientiert\w*|projektarbeit|selbstgesteuert\w*|individualisiert\w*|lernen\s+durch\s+lehren|\bldl\b/
+      /offene\w*\s+unterricht|freiarbeit|stationen|(?<!\bin\s+der\s+)(?<!lehr|schul|ubungs)werkstatt(?!(?<=(?:^|[,;:])\s*werkstatt)\s*(?:[,;.]|$))|wochenplan|projektbasiert\w*|projektorientiert\w*|projektarbeit|selbstgesteuert\w*|individualisiert\w*|lernen\s+durch\s+lehren|\bldl\b/
     ],
     [
       'spiel-simulation',
       /spielerisch\w*|simulationsbasiert\w*|erfahrungsbasiert\w*|handlungsorientiert\w*|situationsorientiert\w*|gamification|planspiel|rollenspiel|simulation|\b(?:lern)?spiele?\b|quizspiel/
     ],
-    ['diskurs', /debatt\w*|diskurs\w*|dialogisch\w*|diskussion|pro-?contra|streitgesprach|argumentier\w*/],
+    ['diskurs', /debatt\w*|diskurs\w*|dialogisch\w*|(?<!kurven)diskussion|pro-?contra|streitgesprach|argumentier\w*/],
     ['kreativ', /kreativ\w*|brainstorming|ideen\s+sammeln|erfinden|design\s+thinking|geschichten\s+schreiben/],
     ['visualisierung', /visualisier\w*|mindmap|mind-?map|concept-?map|plakat|sketchnote\w*|schaubild|diagramm|strukturlegen/],
     ['uebung', /intensiv\w*\s+uben|trainier\w*|automatisier\w*|abrufubung|rechenverfahren\s+uben|festigen/],
@@ -854,6 +820,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const HANDLUNG_WORTE = /\blernfeld\w*|\blernsituation\w*|\bvollst(?:a|ae)ndige\w*\s+handlung\b|\bkundenauftrag\w*|\barbeitsauftrag\w*/;
 
   const subjects = createSubjectDetector(data.faecher);
+  /** Verbs with an everyday meaning ("etwas prüfen", "was brauchen"); a guessed learning function must not rest on them alone. */
+  const ALLTAGSVERB = /\b(?:prufe|prufen|pruft|brauche|brauchen|braucht|mache|machen|macht)\b/g;
+  /** Words of a request that name no topic ("Ich brauche was für morgen"). */
+  const FUELLWORT = new Set('etwas irgendwas irgendetwas morgen heute ubermorgen nachste nachsten woche stunde bitte schnell'.split(' '));
+  /** Whether the topic of the text has a content word (four letters or more) that is no filler word. */
+  const hatThemenwort = (text: string) =>
+    (extractSubjectAndTopic(text).thema || '')
+      .split(/[^\p{L}]+/u)
+      .some((w) => w.length >= 4 && !FUELLWORT.has(fold(w)));
 
   function lesen(volltext: string, stufe?: string) {
     // Accompanying goals first: their phrases leave the text, so nothing else is read from them (Paket D, D3).
@@ -935,6 +910,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     }
 
     // Zero-LLM semantic scale fallback (BM25 + German trigrams) for casual phrasings missed by exact regexes
+    let semLernfunktion: { code: string; label: string; score: number } | undefined;
     if (t.length >= 12) {
       const sem = semantic.classifyScales(tPos);
       const topAnsatz = sem.scales.ansatz[0];
@@ -951,16 +927,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       ) {
         take('ansatz', [topAnsatz.code], `semantisch: ${topAnsatz.label}`);
       }
-      if (
-        !('lernfunktion' in kriterien) &&
-        !('zieltyp' in kriterien) &&
-        !('zielart' in kriterien) &&
-        !('modus' in kriterien) &&
-        sem.scales.lernfunktion[0] &&
-        sem.scales.lernfunktion[0].score >= 0.65
-      ) {
-        take('lernfunktion', [sem.scales.lernfunktion[0].code], `semantisch: ${sem.scales.lernfunktion[0].label}`);
-      }
+      semLernfunktion = sem.scales.lernfunktion[0];
       if (!('anleitung' in kriterien) && sem.scales.anleitung[0] && sem.scales.anleitung[0].score >= 0.72) {
         take('anleitung', [sem.scales.anleitung[0].code], `semantisch: ${sem.scales.anleitung[0].label}`);
       }
@@ -992,6 +959,25 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     if (!('fachbereich' in kriterien)) {
       const hit = THEMEN_FACHBEREICH.map(([re, fb]) => [re.exec(tPos), fb] as const).find(([m]) => m);
       if (hit) take('fachbereich', hit[1], `Thema: ${hit[0]![0].trim()}`);
+    }
+
+    // A learning function guessed from the wording only counts where the text frames a lesson (subject, stage or topic
+    // words; not "Ich brauche was für morgen") and where the guess does not rest on an everyday verb alone ("… an einem
+    // Dilemma prüfen"): without that verb the guess must stay the same.
+    if (
+      semLernfunktion &&
+      semLernfunktion.score >= 0.65 &&
+      !('lernfunktion' in kriterien) &&
+      !('zieltyp' in kriterien) &&
+      !('zielart' in kriterien) &&
+      !('modus' in kriterien) &&
+      ('fachbereich' in kriterien || 'bildungsstufe' in kriterien || hatThemenwort(text))
+    ) {
+      const ohneAlltagsverb = tPos.replace(ALLTAGSVERB, ' ');
+      const ohne = ohneAlltagsverb === tPos ? semLernfunktion : semantic.classifyScales(ohneAlltagsverb).scales.lernfunktion[0];
+      if (ohne && ohne.code === semLernfunktion.code && ohne.score >= 0.65) {
+        take('lernfunktion', [semLernfunktion.code], `semantisch: ${semLernfunktion.label}`);
+      }
     }
 
     const offen = FIELDS.filter((f) => f.stufe && !(f.feld in kriterien))
@@ -1068,6 +1054,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentStepRole: 'haupt' | 'rand' | 'sicherung' | 'pruefung' | '' = '';
   /** The chain step being filled binds the knowledge type (main or securing step with a knowledge type). */
   let currentStepGebunden = false;
+  /** Minutes a check method should fill in the current step (graded test as the lesson); 0 otherwise. */
+  let currentPruefMindestMin = 0;
   const mentionDetector = createMentionDetector(data);
   type Ranked = { b: Baustein; hard: number[]; soft: number; vorn?: boolean };
   const order = (items: Ranked[], tolerance?: number): Baustein[] =>
@@ -1331,7 +1319,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     schritt?: Pick<KettenSchritt, 'rolle' | 'wissensart'>
   ): Baustein[] {
     const opening = currentStepRole === 'rand' && currentStepIndex === 0;
-    const ranked = methoden
+    const rankedAll = methoden
         .filter(
           (b) =>
             (rang.get(b.reichweite) ?? 0) <= maxRang &&
@@ -1351,6 +1339,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             hardCapMin
           );
         });
+    // A graded test as the lesson: checks that can fill the step's main share come first.
+    const ranked =
+      currentStepRole === 'pruefung' && currentPruefMindestMin > 0
+        ? rankedAll.map((x) => ({ ...x, hard: [x.b.dauerMax >= currentPruefMindestMin ? 0 : 1, ...x.hard] }))
+        : rankedAll;
     // Openings are interchangeable within a wider margin: the topic decides among those that fit the opening's time,
     // so the same few do not open every lesson and a long opener does not take time from the main phases.
     // A check that opens the lesson is no exit ticket.
@@ -1369,7 +1362,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     );
   }
 
-  type PlanStep = Funktionskette['schritte'][number] & { pruefung?: boolean; zusatz?: boolean };
+  type PlanStep = Funktionskette['schritte'][number] & { pruefung?: boolean; zusatz?: boolean; hauptanteil?: boolean };
 
   /** Binding of the knowledge type: in main and securing steps only methods that carry the step's knowledge type. */
   const traegt = (b: Baustein, schritt: Pick<KettenSchritt, 'rolle' | 'wissensart'>) => traegtWissensart(b, schritt);
@@ -1395,6 +1388,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const thenRest = /^\s*,?\s*(?:und\s+)?(?:danach|anschliessend|im\s+anschluss|dann)\b/;
     return opener.test(before) || thenRest.test(after);
   };
+
+  /** Verbs of learning something in the lesson; a graded test without them is the lesson itself. */
+  const LERNVERB = /\b(?:ub(?:en|t|ung\w*)|einuben|einfuhr\w*|erarbeit\w*|wiederhol\w*|lernen|erklar\w*|entdeck\w*|vertief\w*|festig\w*)\b/;
 
   /** A check that opens a movement lesson still comes after the warm-up. */
   const firstAfterWarmUp = (kette: Funktionskette, steps: PlanStep[]) =>
@@ -1427,6 +1423,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // "Vokabeltest und danach neue Lektion" or "zu Beginn ein Test": the check opens the lesson.
         const at = checkFirst(currentRawText) ? firstAfterWarmUp(kette, steps) : atEnd;
         steps.splice(at, 0, check);
+      }
+      // A graded test is the lesson ("schriftlicher Test mit Note"): the check step holds the main share of the time.
+      if (a.bewertet === true && !LERNVERB.test(withoutNegated(currentRawText))) {
+        const pruefSchritt = steps.find((st) => st.pruefung)!;
+        const gewicht = (st: PlanStep) => (st.zeitanteil && st.zeitanteil > 0 ? st.zeitanteil : (FUNCTION_SHARE[st.funktion[0]] ?? 15));
+        pruefSchritt.zeitanteil = steps.filter((st) => st !== pruefSchritt).reduce((sum, st) => sum + gewicht(st), 0);
+        pruefSchritt.hauptanteil = true;
       }
     }
     return steps;
@@ -1593,11 +1596,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             formPasst(b)
         )
         .map((b) => rankOf(b, a, steps[checkAt].funktion));
-      const first = order(passend, 0)[0];
+      // A graded test as the lesson: the step holds at least half of the time, with a check that can fill it.
+      const mindest = steps[checkAt].hauptanteil ? Math.ceil(totalBudget / 2) : 0;
+      const fuellt = passend.filter((x) => x.b.dauerMax >= mindest);
+      const first = order(fuellt.length ? fuellt : passend, 0)[0];
       currentStepRole = vorher.role;
       currentStepIndex = vorher.index;
       currentStepGebunden = vorher.gebunden;
-      const need = first ? first.dauerMin : 0;
+      const need = first ? Math.max(first.dauerMin, fuellt.length ? mindest : 0) : 0;
       const others = steps.reduce((x, _st, i) => x + (i === checkAt ? 0 : Math.max(minStep, floors[i] ?? 0)), 0);
       if (need && need + others <= totalBudget - reserveRec) floors[checkAt] = need;
     }
@@ -1608,6 +1614,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentStepIndex = idx;
       currentStepRole = step.id === checkStepId ? 'pruefung' : step.rolle || '';
       currentStepGebunden = gebunden(step);
+      currentPruefMindestMin = step.hauptanteil && budgets ? Math.min(budgets[idx], Math.ceil((totalBudget ?? 0) / 2)) : 0;
       // Share of this step plus whatever earlier steps left unused.
       const plannedBefore = budgets ? budgets.slice(0, idx).reduce((x, y) => x + y, 0) : 0;
       const stepCap = budgets ? Math.max(minStep, budgets[idx] + Math.max(0, plannedBefore - usedDurationSoFar())) : undefined;
@@ -1754,6 +1761,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     currentStepIndex = -1;
     currentStepRole = '';
     currentStepGebunden = false;
+    currentPruefMindestMin = 0;
     if (wantsRecurrence) {
       const recCands = candidates(['konsolidierung'], 1, a, null, 'wissen-konsolidiert');
       const rec =
@@ -2216,6 +2224,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         /\b(?:digital\w*|online|ki|internet|app|apps)\b/.test(currentRawText);
       const fromText = (feld: string) => (given(anfrage[feld]) ? undefined : gelesen.erkannt.find((e) => e.feld === feld));
       const guessedFn = Boolean(fromText('lernfunktion')?.beleg.startsWith('semantisch'));
+      // The topic names the subject only by a topic word: no subject in the request, none from the core's detector, no
+      // subject word read by the rules.
+      const fachText = fromText('fachbereich');
+      const fachAusThema =
+        Boolean(themaUndFach.fachAusThema) &&
+        !gelesen.fach &&
+        !given(anfrage.fachbereich) &&
+        !given(anfrage.fach) &&
+        !(fachText && !fachText.beleg.startsWith('Thema:'));
       currentGuessedAnsatz = Boolean(fromText('ansatz')?.beleg.startsWith('semantisch'));
       // "… mit anschließender Leistungskontrolle, 45 Minuten" plans a lesson that ends with a check, not the check alone.
       const checkInLesson = Boolean(fromText('liefert')) && given(a.zeitMin) && Number(a.zeitMin) >= 30;
@@ -2275,8 +2292,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const pflichtangaben = (psychomotor: boolean, extra: Annahme[] = []): Situation['pflichtangaben'] => {
         const p = baueSituation(anfrageSituation, data, { ...currentSituationKontext, psychomotorisch: psychomotor }).pflichtangaben;
         // An assumed subject area still counts as missing (like an assumed room); the room follows from it (gym).
-        const fehlt = fachAnnahmen.length && !currentSituationKontext.fachErkannt && !p.fehlt.includes('fach-und-thema') ? ['fach-und-thema' as const, ...p.fehlt] : p.fehlt;
-        // A goal only guessed from the text (semantic reading) fills the gap "ziel" but is named, so it can be corrected (W13).
+        let fehlt = fachAnnahmen.length && !currentSituationKontext.fachErkannt && !p.fehlt.includes('fach-und-thema') ? ['fach-und-thema' as const, ...p.fehlt] : p.fehlt;
+        // A goal only guessed from the text (semantic reading) does not fill the gap "ziel"; it is named below (W13).
+        const zielGeraten = guessedFn && !given(a.zielart) && !given(a.zieltyp) && !list(a.liefert).length;
+        if (zielGeraten && !fehlt.includes('ziel')) fehlt = ['ziel', ...fehlt];
+        // The subject: guessed from a topic word only ("Klimawandel" → Geografie), or not recognised at all.
+        const fachAnnahme: Annahme[] = fachAusThema
+          ? [{ feld: 'fach', wert: themaUndFach.fach, grund: `Kein Fach genannt: ${themaUndFach.fach} angenommen aus dem Thema.` }]
+          : fehlt.includes('fach-und-thema') && currentSituationKontext.thema && !given(a.fachbereich) && !currentSituationKontext.fachErkannt
+            ? [{ feld: 'fach', wert: null, grund: 'Fach nicht erkannt: ohne Fachbezug geplant.' }]
+            : [];
+        // The guessed goal is named, so it can be corrected (W13).
         const zielVermutet: Annahme[] =
           // An assumed goal kind (listed in extra) is the goal of the plan: the guessed function is not listed as well.
           guessedFn && !given(a.zielart) && !given(a.zieltyp) && !list(a.liefert).length && list(a.lernfunktion).length && !extra.some((x) => x.feld === 'zielart')
@@ -2288,7 +2314,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                 }
               ]
             : [];
-        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...zielVermutet, ...extra, ...profilAnnahme] };
+        return { fehlt, angenommen: [...fachAnnahmen, ...fachAnnahme, ...p.angenommen, ...zielVermutet, ...extra, ...profilAnnahme] };
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));
@@ -2344,6 +2370,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // Not in primary school: Religion or Ethik lessons there mostly build concepts.
         if (!wahl && urteilsFach && a.bildungsstufe !== 'primar' && !given(a.zielart) && !zielAusText && !urteilenVerneint && (!ansatzList.length || currentGuessedAnsatz)) {
           wahl = nimmAn('urteilen', `Ziel Urteilsbildung angenommen, weil das Fach ${urteilsFach} ist.`);
+        }
+        // Vocational education in a practical room (workshop, teaching kitchen, specialist room) without another goal works on a
+        // complete action (FMT 2.0, Paket D, D5); assumed and named.
+        if (!wahl && a.bildungsstufe === 'berufsbildung' && PRAXISRAEUME.has(String(a.raum ?? '')) && !zielAusText) {
+          wahl = nimmAn(
+            'handlung',
+            `Keine Zielart angegeben: ${label('zielart', 'handlung')} angenommen, weil die Ausbildung im Praxisraum stattfindet.`
+          );
         }
         if (!wahl && ansatzList.length) wahl = waehleKette(data.ketten, { ansatz: ansatzList });
         if (!wahl) {
@@ -2490,6 +2524,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentSituationKontext = {};
       currentStepRole = '';
       currentStepGebunden = false;
+      currentPruefMindestMin = 0;
     }
   }
 

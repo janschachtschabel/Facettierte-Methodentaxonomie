@@ -222,6 +222,14 @@ export function getPersonaValues(personaId: string): Record<string, string> {
  * Matrix categories that are never evaluated (Lerntypen/Lernstile, Pashler et al. 2008). Mirrors `gesperrt` in
  * data/teilgruppen.json (a test keeps both in step); callers with the data pass its list as `gesperrt`.
  */
+/**
+ * A learner who uses a wheelchair ("im Rollstuhl", "Rollstuhlfahrer", "Kind mit Rollstuhl"); the wheelchair as an object
+ * ("Transfer in den Rollstuhl") names no learner. Source string of a case-insensitive pattern, shared by the matrix traits and
+ * the learner groups of adaptScenario.
+ */
+export const ROLLSTUHL_LERNENDE =
+  String.raw`\brollstuhl(?:fahr|nutz)\w*|\bim\s+rollstuhl\b|\b(?:kind\w*|sch[uü]ler\w*|lernende\w*|person\w*|teilnehm\w*|jugendliche\w*|studierende\w*|auszubildende\w*|azubis?)\s+mit\s+(?:einem\s+)?rollstuhl\b`;
+
 export const GESPERRTE_MATRIX_KATEGORIEN: readonly string[] = ['sensorische'];
 
 export interface ScoreMatrixInput {
@@ -612,7 +620,7 @@ const MATRIX_TRAIT_RULES: Array<{
     ]
   },
   {
-    re: /\b(?:k[oö]rperlich\w*\s+beeintr|rollstuhl|motorisch\w*\s+einschr)/i,
+    re: new RegExp(String.raw`\b(?:k[oö]rperlich\w*\s+beeintr|motorisch\w*\s+einschr)|${ROLLSTUHL_LERNENDE}`, 'i'),
     traits: [
       { categoryId: 'foerderbedarf-koerperlich', valueId: 'foerderbedarf-koerperlich-deutlich', label: 'Barrierefreie Bewegungs- & Raumgestaltung' }
     ]

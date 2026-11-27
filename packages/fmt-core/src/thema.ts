@@ -4,31 +4,37 @@
  * (grade, time, group size, learner groups, technology, approach) is removed.
  */
 import { liesBegleitziele } from './begleitziel.js';
+import { nurRaumangabe } from './raumwoerter.js';
 
-const SUBJECT_PATTERNS: Array<[RegExp, string]> = [
-  [/\bmathematik\b|\bmathe\b|\bbruchrechn|\bgleichung|\bgeometrie|\balgebra/i, 'Mathematik'],
-  [/\bphysik\b|\bdichte\b|\belektrizit|\bmechanik|\boptik/i, 'Physik'],
-  [/\bbiologie\b|\bbio\b|\bökosystem|\boekosystem|\bfotosynthese|\bzelle\b|\bgenetik/i, 'Biologie'],
-  [/\bchemie\b|\bsäure|\blauge|\batom|\bmolekül|\breaktion/i, 'Chemie'],
-  [/\bdeutsch\b(?!\s+als\s+zweitsprache)|\bargumentier|\bgedicht|\brechtschreib|\baufsatz|\blerntext/i, 'Deutsch'],
-  [/\benglisch\b|\benglish\b/i, 'Englisch'],
-  [/\bfranzösisch\b|\bfranzoesisch\b/i, 'Französisch'],
-  [/\bspanisch\b/i, 'Spanisch'],
-  [/\bgeschichte\b|\bweimar|\bantike|\bmittelalter|\bindustrialisierung/i, 'Geschichte'],
-  [/\bpolitik\b|\bgemeinschaftskunde\b|\bsozialkunde\b|\bdemokratie|\bgewaltenteilung/i, 'Politik'],
-  [/\bgeografie\b|\bgeographie\b|\berdkunde\b|\bklimawandel/i, 'Geografie'],
-  [/\binformatik\b|\bprogrammieren|\balgorithm/i, 'Informatik'],
-  [/\bwirtschaft\b|\bökonomie\b/i, 'Wirtschaft'],
-  [/\bethik\b|\bphilosophie\b/i, 'Ethik / Philosophie'],
-  [/\breligion\b/i, 'Religion'],
-  [/\bkunst(?:unterricht|stunde)?\b/i, 'Kunst'],
-  [/\bmusik(?:unterricht|stunde)?\b/i, 'Musik'],
-  [/\bsport(?:unterricht|stunde)?\b/i, 'Sport'],
-  [/\bhauswirtschaft\b|\bernährung\b|\blebensmittel|\bverbraucherbildung/i, 'Ernährung & Verbraucherbildung'],
-  [/\bnachhaltigkeit\b|\bbne\b/i, 'Nachhaltigkeit (BNE)'],
-  [/\bsachunterricht\b/i, 'Sachunterricht'],
+/**
+ * Subject label from a subject name in the text, or else from a topic word that belongs to one subject ("Klimawandel" →
+ * Geografie). Entries: [subject name, topic words or null, label]; names are checked for all subjects before topic words.
+ */
+const SUBJECT_PATTERNS: Array<[RegExp, RegExp | null, string]> = [
+  [/\bmathematik\b|\bmathe\b/i, /\bbruchrechn|\bgleichung|\bgeometrie|\balgebra/i, 'Mathematik'],
+  [/\bphysik\b/i, /\bdichte\b|\belektrizit|\bmechanik|\boptik/i, 'Physik'],
+  [/\bbiologie\b|\bbio\b/i, /\bökosystem|\boekosystem|\bfotosynthese|\bzelle\b|\bgenetik/i, 'Biologie'],
+  [/\bchemie\b/i, /\bsäure|\blauge|\batom|\bmolekül|\breaktion/i, 'Chemie'],
+  [/\bdeutsch\b(?!\s+als\s+zweitsprache)/i, /\bargumentier|\bgedicht|\brechtschreib|\baufsatz|\blerntext/i, 'Deutsch'],
+  [/\benglisch\b|\benglish\b/i, null, 'Englisch'],
+  [/\bfranzösisch\b|\bfranzoesisch\b/i, null, 'Französisch'],
+  [/\bspanisch\b/i, null, 'Spanisch'],
+  // "die Geschichte vom barmherzigen Samariter" is a story, not the subject.
+  [/\bgeschichte\b(?!\s+(?:vom|von|über|zu[mr]?)\b)/i, /\bweimar|\bantike|\bmittelalter|\bindustrialisierung/i, 'Geschichte'],
+  [/\bpolitik\b|\bgemeinschaftskunde\b|\bsozialkunde\b/i, /\bdemokratie|\bgewaltenteilung/i, 'Politik'],
+  [/\bgeografie\b|\bgeographie\b|\berdkunde\b/i, /\bklimawandel/i, 'Geografie'],
+  [/\binformatik\b/i, /\bprogrammieren|\balgorithm/i, 'Informatik'],
+  [/\bwirtschaft\b|\bökonomie\b/i, null, 'Wirtschaft'],
+  [/\bethik\b|\bphilosophie\b/i, null, 'Ethik / Philosophie'],
+  [/\breligion\b/i, null, 'Religion'],
+  [/\bkunst(?:unterricht|stunde)?\b/i, null, 'Kunst'],
+  [/\bmusik(?:unterricht|stunde)?\b/i, null, 'Musik'],
+  [/\bsport(?:unterricht|stunde)?\b/i, null, 'Sport'],
+  [/\bhauswirtschaft\b|\bernährung\b/i, /\blebensmittel|\bverbraucherbildung/i, 'Ernährung & Verbraucherbildung'],
+  [/\bbne\b/i, /\bnachhaltigkeit\b/i, 'Nachhaltigkeit (BNE)'],
+  [/\bsachunterricht\b/i, null, 'Sachunterricht'],
   // Last, so that DaZ as a learner trait in another subject's lesson does not win
-  [/\bdeutsch als zweitsprache\b|\bdaz\b/i, 'Deutsch als Zweitsprache']
+  [/\bdeutsch als zweitsprache\b|\bdaz\b/i, null, 'Deutsch als Zweitsprache']
 ];
 
 const PEOPLE =
@@ -58,10 +64,17 @@ const INLINE_FRAME: RegExp[] = [
   /\b(?:für\s+(?:die\s+)?|in\s+der\s+)?(?:sekundarstufe\s*(?:i{1,2}|1|2)|grundschule|oberstufe|mittelstufe|berufsschule)\b/gi,
   /\b(?:sehr\s+)?(?:geringes?|wenig|kaum|kein|mittleres?|hohes?|viel)\s+vorwissen\b/gi,
   /\bdeutsch als zweitsprache\b(?=\s*:)/gi,
-  // A subject name is frame information unless it is part of the topic ("Geschichte des Internets", "Religion und Staat")
-  new RegExp(`\\b${SUBJECT_WORDS}(?:unterricht)?\\b(?!\\s+(?:des|der|und|als|im|in\\s+der)\\b)(?!-)`, 'gi'),
   /^\s*(?:das\s+)?thema\b:?/gi
 ];
+
+// The subject read as the subject: at the start of the text or as its own comma part. Elsewhere a subject word belongs to the
+// topic ("funktionelle Gruppen der organischen Chemie"); so does one followed by its object ("Geschichte des Internets",
+// "Religion und Staat", "die Geschichte vom barmherzigen Samariter").
+const SUBJECT_NAME = `${SUBJECT_WORDS}(?:unterricht)?\\b(?!\\s+(?:des|der|und|als|im|in\\s+der|vom|von|über|zu[mr]?)\\b)(?!-)`;
+const SUBJECT_AT_START = new RegExp(`^[\\s.:;,–-]*(?:(?:in|im)\\s+)?${SUBJECT_NAME}`, 'i');
+const SUBJECT_PART = new RegExp(`^${SUBJECT_NAME}$`, 'i');
+// A comma part that only names a phase of the lesson ("20 Minuten Wiederholung") says what the lesson does, not its topic.
+const PHASE_PART = /^(?:wiederholung|einstieg|sicherung|übung|übungsstunde|erarbeitung|abschluss)$/i;
 
 // Frame information that also occurs as a topic ("Leben ohne Strom", "Die 3 Kinder aus …").
 // It is only dropped when it fills a whole comma-separated part.
@@ -79,26 +92,30 @@ const LEADING = /^(?:(?:in|im|für|mit|und|oder|davon|sowie|bei)\b\s*)+/i;
 const LEADING_ABOUT = /^(?:eine[rn]?\s+)?(?:zu[mr]?|über)\s+/i;
 const TRAILING = /(?:\s*\b(?:in|im|für|mit|und|oder|zu|zur|zum|bei|davon|sowie|an|am|der|die|das|den|dem))+\s*$/i;
 
-export function extractSubjectAndTopic(raw: string): { fach: string | null; thema: string | null } {
+export interface SubjectAndTopic {
+  fach: string | null;
+  thema: string | null;
+  /** true: the text names no subject; the subject is guessed from a topic word ("Klimawandel" → Geografie). */
+  fachAusThema?: boolean;
+}
+
+export function extractSubjectAndTopic(raw: string): SubjectAndTopic {
   // An accompanying goal ("soziales Lernen stärken") is no topic (D3).
   const firstLine = liesBegleitziele((raw || '').split(/\n\s*Zusatzangaben:/i)[0]).rest.trim();
   if (!firstLine) return { fach: null, thema: null };
 
-  let fach: string | null = null;
-  for (const [re, label] of SUBJECT_PATTERNS) {
-    if (re.test(firstLine)) {
-      fach = label;
-      break;
-    }
-  }
+  const named = SUBJECT_PATTERNS.find(([name]) => name.test(firstLine));
+  const guessed = named ? undefined : SUBJECT_PATTERNS.find(([, topic]) => topic?.test(firstLine));
+  const fach = named?.[2] ?? guessed?.[2] ?? null;
 
   let text = firstLine;
   for (const re of INLINE_FRAME) text = text.replace(re, ' ');
+  text = text.replace(SUBJECT_AT_START, ' ');
 
   const trim = (p: string) => p.replace(/\s{2,}/g, ' ').replace(/\s+([:?!])/g, '$1').replace(/^[\s.:;–-]+|[\s.:;–-]+$/g, '').trim();
   const cleanPart = (p: string) => {
     let out = trim(p);
-    if (WHOLE_PART_FRAME.some((re) => re.test(out))) return '';
+    if (WHOLE_PART_FRAME.some((re) => re.test(out)) || SUBJECT_PART.test(out) || PHASE_PART.test(out) || nurRaumangabe(out)) return '';
     out = trim(out.replace(TRAILING_FRAME, ''));
     if (WHOLE_PART_FRAME.some((re) => re.test(out))) return '';
     // "Leben ohne Strom" keeps its preposition; only a part that starts with one loses it.
@@ -106,10 +123,11 @@ export function extractSubjectAndTopic(raw: string): { fach: string | null; them
   };
 
   const parts = text
-    .split(/[,;]|\.\s|\s[-–]\s/)
+    // "2. Lehrjahr", "1. Semester": a full stop after an ordinal number ends no sentence.
+    .split(/[,;]|(?<!(?:^|\s)\d{1,2})\.\s|\s[-–]\s/)
     .map(cleanPart)
     .filter((p) => p.length >= 2 && !DANGLING.test(p) && /[a-zäöüß]{2}/i.test(p));
 
   const thema = parts.join(', ').slice(0, 110).trim();
-  return { fach, thema: thema.length >= 3 ? thema : null };
+  return { fach, thema: thema.length >= 3 ? thema : null, ...(guessed ? { fachAusThema: true } : {}) };
 }

@@ -163,8 +163,38 @@ describe('Szenariotest 2026-11-27 (Server)', () => {
 
   // Server acceptance of the later tasks (plan docs/superpowers/plans/2026-11-27-szenariotest-befunde.md); each task
   // turns its entries into tests.
-  it.todo('Q2: gs2-religion-samariter: fach Religion; bs-pflege-transfer: keine Gruppe motorik, keine Zusatzphase dafür');
-  it.todo('Q2: gs4-englisch-wortschatz-10, s1-franz-vokabeln-10: pflichtangaben auch in der Einzelphase (REST und MCP)');
+  describe('Q2: Freitext lesen, Thema und Pflichtangaben', () => {
+    it('gs2-religion-samariter: das Fach ist Religion (Detektor vor Themenwort), das Thema nennt die Geschichte', () => {
+      const p = plan('gs2-religion-samariter');
+      expect(p.fach).toBe('Religion');
+      expect(p.maschinenlesbar.fach).toBe('Religion');
+      expect(p.thema).toContain('Geschichte vom barmherzigen Samariter');
+    });
+
+    it('bs-pflege-transfer: „in den Rollstuhl“ ist keine Teilgruppe (keine Gruppe motorik, keine Zusatzphase dafür); das Thema behält „2. Lehrjahr“', () => {
+      const p = plan('bs-pflege-transfer');
+      const text = JSON.stringify(p.lerngruppenUndMatrix);
+      expect(text).not.toMatch(/motorik|Körperlich-motorisch/);
+      expect(JSON.stringify(p.zusatzphasen || [])).not.toMatch(/motorik|Körperlich-motorisch|Rollstuhl/);
+      expect(p.thema).toContain('2. Lehrjahr');
+    });
+
+    it.each(['gs4-englisch-wortschatz-10', 's1-franz-vokabeln-10'])('%s: pflichtangaben auch in der Einzelphase, REST wie MCP', async (id) => {
+      const p = plan(id);
+      expect(p.modus).toBe('phase');
+      expect(p.pflichtangaben).toEqual(expect.objectContaining({ fehlt: expect.any(Array), angenommen: expect.any(Array) }));
+      expect(p.pflichtangaben.fehlt).toContain('raum');
+      const res = await call('build_scenario_plan', planAnfrage(szenario(id)));
+      expect(res.json.pflichtangaben).toEqual(p.pflichtangaben);
+    });
+
+    it('vage-klimawandel: das nur aus dem Thema geratene Fach steht unter angenommen; das Ziel fehlt', () => {
+      const p = plan('vage-klimawandel');
+      expect(p.fach).toBe('Geografie');
+      expect(p.pflichtangaben.angenommen).toContainEqual(expect.objectContaining({ feld: 'fach', wert: 'Geografie' }));
+      expect(p.pflichtangaben.fehlt).toContain('ziel');
+    });
+  });
   it.todo('Q4: s1-ethik-luegen-diskussion, gs2-sport-werfen, hs-seminar-soziologie-12: zusatzphasen leer; gs4-mathe-teilgruppen behält sie');
   it.todo('Q5: gs4-mathe-teilgruppen, s1-mathe-pythagoras-gruppen: Förderbedarf Lernen bekommt hilfe oder tausch (adapt, REST = MCP)');
   it.todo('Q5: s1-deutsch-sachtext-gruppen: Lesegruppe bekommt in jeder Phase hilfe „kann nicht lesen“');

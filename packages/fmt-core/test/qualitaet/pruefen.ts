@@ -2,6 +2,7 @@ import type { Baustein, FmtData, MatchResult, ArrangementNode, EinsatzNode } fro
 import type { FmtMatcher } from '../../src/zuordnung.js';
 import { adaptScenario } from '../../src/adaptScenario.js';
 import { extractSubjectAndTopic } from '../../src/thema.js';
+import { nachweisformen } from '../../src/zielart.js';
 import type { Pruefung, Qualitaetsfall } from './faelle.js';
 
 export interface Befund {
@@ -128,6 +129,21 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
       const rand = [...haupt.slice(0, 2), ...haupt.slice(-2)];
       const prueft = rand.some((n) => istPruefschritt(n) && istPruefmethode(byId.get(n.baustein)!));
       add('leistungskontrolle', prueft, `erste und letzte Phasen: ${rand.map((n) => n.baustein).join(', ')}`);
+    }
+    if (e.pruefschritt) {
+      const kette = D.ketten.find((x) => x.id === r.kette?.id);
+      const imPruefschritt = haupt.filter(
+        (n) => !n.kettenschritt || kette?.schritte.find((st) => st.id === n.kettenschritt)?.ziel === 'lernstand-diagnostiziert'
+      );
+      const gesamt = haupt.reduce((x, n) => x + (n.dauerMin ?? 0), 0);
+      const anteil = imPruefschritt.reduce((x, n) => x + (n.dauerMin ?? 0), 0) / Math.max(1, gesamt);
+      const form = e.pruefschritt.nachweis;
+      const formOk = !form || imPruefschritt.some((n) => istPruefmethode(byId.get(n.baustein)!) && nachweisformen(byId.get(n.baustein)!).includes(form as never));
+      add(
+        'pruefschritt',
+        anteil >= e.pruefschritt.anteil && formOk,
+        `Prüfschritt ${imPruefschritt.map((n) => `${n.baustein} ${n.dauerMin} min`).join(', ') || '–'}: ${Math.round(anteil * 100)} % von ${gesamt} min${form && !formOk ? `, kein Nachweis ${form}` : ''}`
+      );
     }
     if (e.enthaelt) add('enthaelt', alle.some((n) => n.baustein === e.enthaelt), `${e.enthaelt} fehlt`);
     if (e.nicht) {

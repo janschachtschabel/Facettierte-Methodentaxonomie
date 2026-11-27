@@ -23,6 +23,9 @@ export interface Qualitaetsfall {
     kette?: string;
     /** Plan must end with a performance or learning check (lernstand-diagnostiziert in the last two phases). */
     leistungskontrolle?: boolean;
+    /** The check step (chain step with lernstand-diagnostiziert or the added one) holds at least this share of the planned
+     * minutes, with a check method that yields the given form of proof. */
+    pruefschritt?: { anteil: number; nachweis?: string };
     /** Main phases must be movement or practice methods (sport, practical subjects). */
     praxis?: boolean;
     /** Named method that must be in the plan. */
@@ -104,7 +107,8 @@ export type Pruefung =
   | 'hinweis'
   | 'ketteNicht'
   | 'schwach'
-  | 'thema';
+  | 'thema'
+  | 'pruefschritt';
 
 /** Data gap found by this test (see docs/qualitaet/2026-11-26-qualitaetsbericht.md, proposal S1). */
 const LUECKE_ANWENDUNG =
