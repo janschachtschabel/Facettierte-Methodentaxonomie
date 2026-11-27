@@ -75,6 +75,7 @@
         "groessereEinheit": "Unterrichtsreihe",
         "inGroessereEinheit": "in die Unterrichtsreihe",
         "derLehrenden": "der Lehrkraft",
+        "fuerLehrende": "für die Lehrkraft",
         "derLernenden": "der Schülerinnen und Schüler"
       },
       "module": [
@@ -113,6 +114,7 @@
         "groessereEinheit": "Lernfeld",
         "inGroessereEinheit": "in das Lernfeld",
         "derLehrenden": "der Lehrkraft",
+        "fuerLehrende": "für die Lehrkraft",
         "derLernenden": "der Auszubildenden"
       },
       "module": [
@@ -143,6 +145,7 @@
         "groessereEinheit": "betrieblicher Ausbildungsplan",
         "inGroessereEinheit": "in den betrieblichen Ausbildungsplan",
         "derLehrenden": "der Ausbilderin oder des Ausbilders",
+        "fuerLehrende": "für die Ausbilderin oder den Ausbilder",
         "derLernenden": "der Auszubildenden"
       },
       "module": [
@@ -177,6 +180,7 @@
         "groessereEinheit": "Modul",
         "inGroessereEinheit": "in das Modul",
         "derLehrenden": "der Lehrenden",
+        "fuerLehrende": "für die Lehrenden",
         "derLernenden": "der Studierenden"
       },
       "module": [
@@ -211,6 +215,7 @@
         "groessereEinheit": "Kurs",
         "inGroessereEinheit": "in den Kurs",
         "derLehrenden": "der Kursleitung",
+        "fuerLehrende": "für die Kursleitung",
         "derLernenden": "der Teilnehmenden"
       },
       "module": [

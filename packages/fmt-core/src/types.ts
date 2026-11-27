@@ -143,6 +143,8 @@ export interface PlanungsprofilFormen {
   inGroessereEinheit: string;
   /** Genitive of the teaching person(s) with article ("der Kursleitung"). */
   derLehrenden: string;
+  /** Accusative with "für" ("für die Ausbilderin oder den Ausbilder"), for headings like "Hinweise für …". */
+  fuerLehrende: string;
   /** Genitive of the learners with article ("der Teilnehmenden"). */
   derLernenden: string;
 }

@@ -614,12 +614,31 @@ interface LessonTextMeta extends EntwurfMeta {
 
 /** Column names for the activities in the lesson plan, in the terms of the planning profile ("Tätigkeit der Kursleitung"). */
 export function entwurfSpalten(meta: EntwurfMeta, bildungsstufe?: string): { lehrende: string; lernende: string } | undefined {
+  return entwurfBegriffe(meta, bildungsstufe)?.spalten;
+}
+
+/** Terms of the planning profile for the exports: persons and activity columns. */
+export function entwurfBegriffe(
+  meta: EntwurfMeta,
+  bildungsstufe?: string
+): { lehrende: string; lernende: string; spalten: { lehrende: string; lernende: string } } | undefined {
   const profile = meta.planungsprofile?.profile || [];
   if (!profile.length) return undefined;
   const profil =
     (meta.planungsprofil && profile.find((p) => p.id === meta.planungsprofil)) || waehlePlanungsprofil(profile, { bildungsstufe }).profil;
   const b = profilBegriffe(profil);
-  return { lehrende: b.taetigkeitLehrende, lernende: b.taetigkeitLernende };
+  return { lehrende: b.lehrende, lernende: b.lernende, spalten: { lehrende: b.taetigkeitLehrende, lernende: b.taetigkeitLernende } };
+}
+
+/** Default staffing text of step 1; only the school profile keeps it, other profiles show their own term instead. */
+const STANDARD_LEHRKRAEFTE = '1 Lehrkraft';
+
+/** Staffing line for headings and exports: the untouched default "1 Lehrkraft" is dropped outside the school terms. */
+export function lehrendeInfo(lehrkraefteInfo: string | undefined, meta: EntwurfMeta, bildungsstufe?: string): string | undefined {
+  const t = lehrkraefteInfo?.trim();
+  if (!t) return undefined;
+  const b = entwurfBegriffe(meta, bildungsstufe);
+  return t === STANDARD_LEHRKRAEFTE && b && b.lehrende !== 'Lehrkraft' ? undefined : t;
 }
 
 /** Adaptations per subgroup already decided in the plan: own method, differentiation measures, helps taken over in step 3. */

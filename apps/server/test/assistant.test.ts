@@ -584,4 +584,31 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(userPrompt).toContain('Bildungsstufe nicht angegeben');
     expect(userPrompt).not.toContain('Sekundarstufe I');
   });
+  it('Fix D2: Betrieb im Material richtig gebeugt, Leitplanken im Feld leitplanken, angenommenes Profil bleibt angenommen', async () => {
+    const mat = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/material',
+        payload: { baustein: 'abrufquiz', thema: 'Arbeitssicherheit', materialTyp: 'quiz', planungsprofil: 'betrieb', mode: 'template' }
+      })
+    ).json();
+    expect(mat.material).toContain('Hinweise für die Ausbilderin oder den Ausbilder');
+    expect(mat.material).not.toContain('oder des Ausbilders (FMT');
+    const schule = (
+      await appNoKey.inject({ method: 'POST', url: '/api/v1/assistant/material', payload: { baustein: 'abrufquiz', thema: 'Brüche', materialTyp: 'quiz', mode: 'template' } })
+    ).json();
+    expect(schule.material).toContain('Hinweise für die Lehrkraft');
+
+    const dichte = (await appNoKey.inject({ method: 'GET', url: '/beispiele/dichte-reihe.jsonld' })).json();
+    const b = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/briefing',
+        payload: { task: 'elaborate', payload: { arrangement: dichte, thema: 'Dichte', planungsprofil: 'schule', planungsprofilAngenommen: true } }
+      })
+    ).json();
+    for (const satz of LEITPLANKEN) expect(b.llmBriefing.leitplanken, satz).toContain(satz);
+    expect(b.entwurf.planungsprofil.angenommen).toBe(true);
+    expect(b.llmBriefing.systemPrompt).toContain('Planungsprofil: Schule (angenommen)');
+  });
 });

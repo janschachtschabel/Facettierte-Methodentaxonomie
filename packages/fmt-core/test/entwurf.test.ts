@@ -47,6 +47,11 @@ describe('Begriffe des Planungsprofils', () => {
     expect(profilBegriffe(profil('erwachsenenbildung')).taetigkeitLernende).toBe('Tätigkeit der Teilnehmenden');
     expect(profilBegriffe(profil('hochschule'))).toMatchObject({ einheit: 'Sitzung', groessereEinheit: 'Modul', lernende: 'Studierende' });
   });
+  it('Akkusativ nach „für“ ist gespeichert, nicht umgebaut (Betrieb)', () => {
+    expect(profilBegriffe(profil('schule')).fuerLehrende).toBe('für die Lehrkraft');
+    expect(profilBegriffe(profil('betrieb')).fuerLehrende).toBe('für die Ausbilderin oder den Ausbilder');
+    expect(profilBegriffe(profil('erwachsenenbildung')).fuerLehrende).toBe('für die Kursleitung');
+  });
   it('jedes Profil hat alle Formen', () => {
     for (const p of D.planungsprofile.profile) {
       const b = profilBegriffe(p);

@@ -358,7 +358,8 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
       userPrompt: narrativeUserPrompt,
       jsonMode: false,
       maxTokens: 3200,
-      leitplanken: FMT_GUARDRAILS
+      // The draft guardrails travel in the structured field too, not only inside the system prompt.
+      leitplanken: [...FMT_GUARDRAILS, ...ENTWURF_LEITPLANKEN]
     }
   };
 }

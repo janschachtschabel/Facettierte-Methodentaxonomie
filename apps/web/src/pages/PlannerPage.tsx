@@ -64,7 +64,8 @@ import {
   type SubgroupMethodMap,
   type ThematicPhaseRow,
   type EntwurfMeta,
-  entwurfSpalten
+  entwurfBegriffe,
+  lehrendeInfo
 } from '../planner/scenarioModel.js';
 import {
   deleteSavedScenario,
@@ -1075,7 +1076,7 @@ export function PlannerPage() {
             fach,
             thema,
             didaktischerAnsatz: didaktischerAnsatzLabel,
-            lehrkraefteInfo,
+            lehrkraefteInfo: lehrendeZeile,
             lernziele,
             problemstellung,
             hinweise,
@@ -1087,7 +1088,7 @@ export function PlannerPage() {
       fach,
       thema,
       didaktischerAnsatz: didaktischerAnsatzLabel,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
       lernziele,
       problemstellung,
       hinweise,
@@ -1102,7 +1103,8 @@ export function PlannerPage() {
       fach,
       thema,
       didaktischerAnsatz: didaktischerAnsatzLabel,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
+      profil: exportProfil,
       lernziele,
       problemstellung,
       kiAusarbeitung: effNarrative,
@@ -1122,7 +1124,8 @@ export function PlannerPage() {
       fach,
       thema,
       didaktischerAnsatz: didaktischerAnsatzLabel,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
+      profil: exportProfil,
       lernziele,
       timelineSvg: resolveTimelineSvgString(),
       groups,
@@ -1298,7 +1301,10 @@ export function PlannerPage() {
     hauptziel: zielCode ? labelOf('zielart', zielCode) : bundle?.ketten.find((k) => k.id === arrangement.zieltyp)?.label,
     regelhinweise: regelmeldungen.map((m) => regelZeile(m, bundle?.regeln))
   };
-  const verlaufSpalten = entwurfSpalten(entwurfMeta, arrangement.kontext?.bildungsstufe);
+  const exportProfil = entwurfBegriffe(entwurfMeta, arrangement.kontext?.bildungsstufe);
+  const verlaufSpalten = exportProfil?.spalten;
+  // The untouched default "1 Lehrkraft" is not shown outside the school terms.
+  const lehrendeZeile = lehrendeInfo(lehrkraefteInfo, entwurfMeta, arrangement.kontext?.bildungsstufe);
   const step2Groups = mainGroupOnly(groups, classSize);
   const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
   // In step 2 another proposal is only offered while it cannot discard own work:
@@ -2505,7 +2511,7 @@ export function PlannerPage() {
             <VerlaufsplanView
               rows={scenarioRows}
               groups={step2Groups}
-              lehrkraefteInfo={lehrkraefteInfo}
+              lehrkraefteInfo={lehrendeZeile}
               spalten={verlaufSpalten}
               allBlocks={bundle.bausteine}
               regelmeldungen={regelmeldungen}
@@ -2713,7 +2719,7 @@ export function PlannerPage() {
                     <VerlaufsplanView
                       rows={scenarioRows}
                       groups={groups}
-                      lehrkraefteInfo={lehrkraefteInfo}
+                      lehrkraefteInfo={lehrendeZeile}
                       spalten={verlaufSpalten}
                       allBlocks={bundle.bausteine}
                       subgroupMethods={subgroupMethods}

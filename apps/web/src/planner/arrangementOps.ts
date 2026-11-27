@@ -686,7 +686,16 @@ export function importArrangementJson(
   }
 }
 
+/** Terms of the planning profile for export headings (Paket D): persons and the activity columns. */
+export interface ExportProfil {
+  lehrende: string;
+  lernende: string;
+  spalten: { lehrende: string; lernende: string };
+}
+
 export interface ExportOptions {
+  /** Terms of the planning profile; without them the school terms stay (old callers). */
+  profil?: ExportProfil;
   fach?: string;
   thema?: string;
   didaktischerAnsatz?: string;
@@ -782,7 +791,7 @@ export function exportArrangementMarkdown(
     ...(options.fach ? [`- **Fach:** ${options.fach}`] : []),
     ...(options.thema ? [`- **Thema:** ${options.thema}`] : []),
     ...(options.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${options.didaktischerAnsatz}`] : []),
-    ...(options.lehrkraefteInfo ? [`- **Lehrkraft / Begleitung:** ${options.lehrkraefteInfo}`] : []),
+    ...(options.lehrkraefteInfo ? [`- **${options.profil?.lehrende || 'Lehrkraft'} / Begleitung:** ${options.lehrkraefteInfo}`] : []),
     ...(options.groups?.filter((g) => g.active).length
       ? [
         `- **Lerngruppen:** ${options.groups
@@ -854,8 +863,8 @@ export function exportArrangementMarkdown(
       'Phase & FMT-Methode',
       'Zeit',
       'Methodisches Vorgehen (am Thema)',
-      'Lehrkraft',
-      'Lernende',
+      options.profil?.spalten.lehrende || 'Lehrkraft',
+      options.profil?.spalten.lernende || 'Lernende',
       ...(activeGroups.length ? ['Binnendifferenzierung / Teilgruppen'] : []),
       'Materialien & WLO-OER (inkl. wwwurl)'
     ];
@@ -898,7 +907,9 @@ export function exportArrangementMarkdown(
     }
   } else if (options.scenarioRows && options.scenarioRows.length) {
     lines.push('', '### Verlaufsplan (IMS-LD Akteur- & Differenzierungstabelle)', '');
-    lines.push('| # | Phase | Zeit | FMT-Methode (Datenbank) | Rolle Lehrkraft | Rolle Lernende | Binnendifferenzierung & OER (wwwurl) |');
+    lines.push(
+      `| # | Phase | Zeit | FMT-Methode (Datenbank) | ${options.profil?.spalten.lehrende || 'Rolle Lehrkraft'} | ${options.profil?.spalten.lernende || 'Rolle Lernende'} | Binnendifferenzierung & OER (wwwurl) |`
+    );
     lines.push('|---|---|---:|---|---|---|---|');
     const cleanCell = (s: string) => s.replace(/\|/g, '/').replace(/\n/g, ' ');
     for (const r of options.scenarioRows) {
@@ -1323,8 +1334,8 @@ export function exportArrangementOnePageSheet(
     `⏱ ${validation.dauerMin} min`,
     `${n} Phasen`,
     options.didaktischerAnsatz || '',
-    options.lehrkraefteInfo || '1 Lehrkraft',
-    totalLearners ? `${totalLearners} Lernende` : ''
+    options.lehrkraefteInfo || options.profil?.lehrende || '1 Lehrkraft',
+    totalLearners ? `${totalLearners} ${options.profil?.lernende || 'Lernende'}` : ''
   ]
     .filter(Boolean)
     .join(' · ');
@@ -1580,7 +1591,7 @@ export function exportArrangementOnePageSheet(
         <tr>
           <th class="col-num"># / Zeit</th>
           <th class="col-method">Phase &amp; FMT-Methode</th>
-          <th class="col-flow">Methodisches Vorgehen · Lehrkraft &amp; Lernende</th>
+          <th class="col-flow">Methodisches Vorgehen · ${escHtml(options.profil?.spalten.lehrende || 'Lehrkraft')} &amp; ${escHtml(options.profil?.spalten.lernende || 'Lernende')}</th>
           <th class="col-diff">Binnendifferenzierung &amp; Material</th>
         </tr>
       </thead>

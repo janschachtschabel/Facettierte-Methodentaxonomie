@@ -26,7 +26,8 @@ import {
   type SubgroupMethodMap,
   type ThematicPhaseRow,
   type EntwurfMeta,
-  entwurfSpalten
+  entwurfBegriffe,
+  lehrendeInfo
 } from '../planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../planner/lmsExport.js';
 import { printHtmlDocument } from '../planner/scenarioStorage.js';
@@ -149,7 +150,10 @@ export function ScenarioStudioPanel({
   ohneKI,
   entwurfMeta = {}
 }: Props) {
-  const spalten = entwurfSpalten(entwurfMeta, arrangement.kontext?.bildungsstufe);
+  const exportProfil = entwurfBegriffe(entwurfMeta, arrangement.kontext?.bildungsstufe);
+  const spalten = exportProfil?.spalten;
+  // The untouched default "1 Lehrkraft" is not shown outside the school terms.
+  const lehrendeZeile = lehrendeInfo(lehrkraefteInfo, entwurfMeta, arrangement.kontext?.bildungsstufe);
   // Full AI elaboration state
   const [busyElab, setBusyElab] = useState(false);
   const [elabError, setElabError] = useState<string | null>(null);
@@ -209,7 +213,7 @@ export function ScenarioStudioPanel({
         fach,
         thema,
         didaktischerAnsatz,
-        lehrkraefteInfo,
+        lehrkraefteInfo: lehrendeZeile,
         lernziele,
         problemstellung,
         hinweise,
@@ -225,7 +229,7 @@ export function ScenarioStudioPanel({
       fach,
       thema,
       didaktischerAnsatz,
-      lehrkraefteInfo,
+      lehrendeZeile,
       lernziele,
       problemstellung,
       hinweise,
@@ -263,7 +267,7 @@ export function ScenarioStudioPanel({
       fach,
       thema,
       didaktischerAnsatz,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
       lernziele,
       problemstellung,
       hinweise,
@@ -283,7 +287,7 @@ export function ScenarioStudioPanel({
       fach,
       thema,
       didaktischerAnsatz,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
       lernziele,
       problemstellung,
       kiAusarbeitung: effectiveNarrativeText,
@@ -293,7 +297,8 @@ export function ScenarioStudioPanel({
       generatedMaterials,
       scenarioRows,
       machineReadableJson: machineJson,
-      includeMachineReadableInMd
+      includeMachineReadableInMd,
+      profil: exportProfil
     };
   };
 
@@ -344,7 +349,7 @@ export function ScenarioStudioPanel({
       }));
 
       const akteureSummary = [
-        lehrkraefteInfo || '1 Lehrkraft',
+        lehrendeZeile || exportProfil?.lehrende || '1 Lehrkraft',
         totalLearners ? `${totalLearners} Lernende gesamt` : '',
         activeGroups.map((g) => `${g.label}${g.count ? ` (${g.count})` : ''}`).join(', ')
       ]
@@ -365,7 +370,14 @@ export function ScenarioStudioPanel({
         materialien: matPayload,
         phasen: phasenPayload,
         bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
-        planungsprofil: entwurfMeta.planungsprofil
+        // An assumed profile stays marked as assumed; the plan details fill the core fields as in the structured text.
+        planungsprofil: entwurfMeta.planungsprofil,
+        planungsprofilAngenommen: entwurfMeta.planungsprofilAngenommen || undefined,
+        raum: entwurfMeta.raum,
+        anzahl: entwurfMeta.anzahl,
+        einheit: entwurfMeta.einheit,
+        nachweis: entwurfMeta.nachweis,
+        hinweiseListe: entwurfMeta.regelhinweise?.length ? entwurfMeta.regelhinweise : undefined
       };
 
       let json: {
@@ -1111,7 +1123,7 @@ export function ScenarioStudioPanel({
                   🧭 Methodisches Vorgehen (am Thema)
                 </th>
                 <th style={{ width: '15%', background: 'color-mix(in srgb, var(--dA-soft) 55%, var(--surface))' }}>
-                  👩‍🏫 {spalten?.lehrende || lehrkraefteInfo || 'Lehrkraft'}
+                  👩‍🏫 {spalten?.lehrende || lehrendeZeile || 'Lehrkraft'}
                 </th>
                 <th style={{ width: '15%' }}>👥 {spalten?.lernende || 'Lernende'}</th>
                 {activeGroups.length > 0 && (

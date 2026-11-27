@@ -21,6 +21,8 @@ export interface ProfilBegriffe {
   lernende: string;
   taetigkeitLehrende: string;
   taetigkeitLernende: string;
+  /** "für die Kursleitung": stored form, for headings like "Hinweise für …". */
+  fuerLehrende: string;
 }
 
 /** Terms of the profile in the forms headings and column names need ("Tätigkeit der Kursleitung"). */
@@ -35,7 +37,8 @@ export function profilBegriffe(p: Planungsprofil): ProfilBegriffe {
     lehrende: p.lehrende,
     lernende: p.lernende,
     taetigkeitLehrende: `Tätigkeit ${f.derLehrenden}`,
-    taetigkeitLernende: `Tätigkeit ${f.derLernenden}`
+    taetigkeitLernende: `Tätigkeit ${f.derLernenden}`,
+    fuerLehrende: f.fuerLehrende
   };
 }
 

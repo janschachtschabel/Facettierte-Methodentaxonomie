@@ -381,6 +381,12 @@ export async function elaborateScenarioCore(
     body.bildungsstufe || '',
     body.planungsprofil || '',
     body.planungsprofilAngenommen || false,
+    body.raum || '',
+    body.anzahl ?? null,
+    body.einheit || '',
+    body.nachweis || '',
+    body.hinweiseListe || null,
+    body.text || '',
     body.thema || '',
     body.fach || '',
     body.didaktischerAnsatz || '',
@@ -773,7 +779,7 @@ export async function generateMaterialCore(
             ''
           ]
         : []),
-      `## Hinweise für ${rahmen.profil.formen.derLehrenden.replace(/^der /, 'die ')} (FMT-Katalog)`,
+      `## Hinweise ${rahmen.begriffe.fuerLehrende} (FMT-Katalog)`,
       ...cores.map((c) => `- **Kernkomponente:** ${c}`),
       ...risks.map((r) => `- **Qualitätsrisiko im Blick behalten:** ${r}`),
       '',

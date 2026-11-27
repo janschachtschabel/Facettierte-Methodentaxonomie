@@ -31,6 +31,8 @@ import {
   buildNeutralLearningScenario,
   buildScenarioRows,
   DEFAULT_LEARNER_GROUPS,
+  entwurfBegriffe,
+  lehrendeInfo,
   detectMaterialTypeForBlock,
   extractSubjectAndTopic
 } from '../src/planner/scenarioModel.js';
@@ -755,5 +757,36 @@ describe('Entwurf mit sieben Kernfeldern und Begriffen des Planungsprofils (Pake
     const { sc } = entwurfFuer('Biologie Klasse 7, Fotosynthese, 45 Minuten');
     expect(sc.planungsprofil?.spalten.lehrende).toBe('Tätigkeit der Lehrkraft');
     expect(sc.generated_content.narrative_lesson_plan_markdown).toContain('Tätigkeit der Schülerinnen und Schüler');
+  });
+  it('Markdown, Word, HTML-Handout und Einseiter folgen den Begriffen (Erwachsenenbildung)', () => {
+    const { sc, rows, r } = entwurfFuer('Volkshochschule, Kochkurs Grundtechniken, 3 Stunden, 12 Teilnehmende');
+    const arr = r.modus === 'ablauf' ? r.arrangement! : (undefined as never);
+    const val = VALIDATOR.validate(arr);
+    const meta = { planungsprofile: BUNDLE.planungsprofile, planungsprofil: r.planungsprofil };
+    const profil = entwurfBegriffe(meta, arr.kontext?.bildungsstufe)!;
+    expect(profil).toMatchObject({ lehrende: 'Kursleitung', lernende: 'Teilnehmende' });
+    const opts = {
+      fach: 'Kochen',
+      thema: 'Grundtechniken',
+      lehrkraefteInfo: lehrendeInfo('1 Lehrkraft', meta, arr.kontext?.bildungsstufe),
+      groups: DEFAULT_LEARNER_GROUPS,
+      scenarioRows: rows,
+      thematicRows: sc.generated_content.thematic_table,
+      profil
+    };
+    expect(opts.lehrkraefteInfo).toBeUndefined();
+    const md = exportArrangementMarkdown(arr, BLOCKS, val, opts);
+    expect(md).toContain('Tätigkeit der Kursleitung');
+    expect(md).toContain('Tätigkeit der Teilnehmenden');
+    const mdOhneThema = exportArrangementMarkdown(arr, BLOCKS, val, { ...opts, thematicRows: undefined });
+    expect(mdOhneThema).toContain('| Tätigkeit der Kursleitung | Tätigkeit der Teilnehmenden |');
+    const word = exportArrangementWordDoc(arr, BLOCKS, val, opts);
+    const html = exportArrangementHtmlHandout(arr, BLOCKS, val, opts);
+    const one = exportArrangementOnePageSheet(arr, BLOCKS, val, opts);
+    for (const [name, out] of [['md', md], ['md2', mdOhneThema], ['word', word], ['html', html], ['one', one]] as const) {
+      expect(out, name).not.toMatch(/Lehrkraft/);
+    }
+    expect(one).toContain('Tätigkeit der Kursleitung &amp; Tätigkeit der Teilnehmenden');
+    expect(lehrendeInfo('1 Lehrkraft + Schulbegleitung', meta)).toBe('1 Lehrkraft + Schulbegleitung');
   });
 });
