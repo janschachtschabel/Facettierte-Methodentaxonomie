@@ -130,6 +130,8 @@ export interface Passungsregel {
   art: 'deklarativ' | 'eingebaut';
   wenn?: { methode?: Record<string, ListenVergleich>; situation?: Record<string, string[]> };
   wirkung: Wirkung;
+  /** The rule warns and points to help, but does not move the method back in the ranking ("kein Tausch"). */
+  keinTausch?: boolean;
   grundlage: Grundlage;
   quelle?: string;
   /** Plain German sentence shown to the teacher; {methode} is replaced by the method name. */
@@ -378,6 +380,12 @@ export interface ArrangementKontext {
   bildungsstufe?: string;
   fach?: string;
   vorwissen?: string;
+  /** Complexity of the content (scheme komplexitaet); read by the fit rules (R-06). */
+  komplexitaet?: string;
+  /** Language level of the whole group (scheme sprachniveau); read by the fit rules (R-06). */
+  sprachniveau?: string;
+  /** Subject area (scheme fachbereich); read by the suitability entries (R-06). */
+  fachbereich?: string;
   zeitbudgetMin?: number;
   /** Learning states the group brings from earlier lessons (e.g. a test on last week's content at the start). */
   vorhanden?: string[];
@@ -560,7 +568,10 @@ export interface PhaseProposal {
   setztVoraus: string[];
   liefert: string[];
   evidenzgrad: EvidenceGrade | null;
+  /** Warnings of the method as text (rule message plus source in brackets), filled from regelmeldungen. */
   warnungen: string[];
+  /** Fit rules and suitability entries that warn for this method in this situation. */
+  regelmeldungen?: Regelmeldung[];
   gruende: string[];
   /** The request names this method. */
   genannt?: boolean;
@@ -583,8 +594,13 @@ export interface MatchHead {
   dauerMs?: number;
   /** Subject named in the request text, with its OEH URI. */
   fach?: DetectedSubject;
-  /** Notes for the teacher, e.g. a named method that is unusual in the subject. */
+  /** Notes for the teacher as text (rule message plus source in brackets), filled from regelmeldungen. */
   hinweise?: string[];
+  /**
+   * Rule messages of the answer: warnings of the chosen methods, the safety note, named wishes that stay.
+   * Each names rule, effect, basis, source and text, and the method when it concerns one.
+   */
+  regelmeldungen?: Regelmeldung[];
   /** Which of the six required details the request leaves open, and what was assumed instead (field, value, reason). */
   pflichtangaben?: Situation['pflichtangaben'];
   /** Form of proof the check is ordered by (rule nachweis-passt-zum-ziel): stated in the request or carried by the goal kind. */

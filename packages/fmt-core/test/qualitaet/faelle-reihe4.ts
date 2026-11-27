@@ -117,12 +117,17 @@ export const REIHE4: Qualitaetsfall[] = [
     text: 'Sport Klasse 8, Ausdauer mit Leistungskontrolle, Sportplatz, 45 Minuten',
     erwartet: { leistungskontrolle: true, nachweisform: 'praktisch' }
   },
-  { id: 'n19', text: 'Mathematik Klasse 5, Laufdiktat zu Bruchrechnen', erwartet: { enthaelt: 'laufdiktat' },
-    bekannt: { fachpassung: 'Paket B' } },
+  {
+    id: 'n19',
+    text: 'Mathematik Klasse 5, Laufdiktat zu Bruchrechnen',
+    erwartet: { enthaelt: 'laufdiktat', regeln: ['genannter-wunsch-bleibt', 'eignung-fach'] },
+    // Intended: the named method stays although the subject marks it unsuitable (genannter-wunsch-bleibt), so the
+    // general subject check finds a method of another subject. Not a weakness to fix.
+    bekannt: { fachpassung: 'gewollt: genannter Wunsch bleibt (Laufdiktat ist eine Methode der Sprachen)' }
+  },
   {
     id: 'n20',
     text: 'Informatik Klasse 10, Sortieralgorithmen, 90 Minuten, komplexer Inhalt, geringes Vorwissen',
-    erwartet: { regeln: ['wenig-anleitung-komplexer-inhalt'] },
-    bekannt: { regel: 'Paket B' }
+    erwartet: { regeln: ['wenig-anleitung-komplexer-inhalt'] }
   }
 ];

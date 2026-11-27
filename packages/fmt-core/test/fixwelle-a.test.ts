@@ -36,7 +36,7 @@ describe('Fix wave Paket A', () => {
     const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer, Klassenraum, 90 Minuten, mit Makerspace' });
     expect(r.modus).toBe('ablauf');
     expect(JSON.stringify(r.modus === 'ablauf' && r.arrangement?.ablauf)).toContain('makerspace-tueftelwerkstatt');
-    expect(r.hinweise || []).toContain('„Makerspace / Tüftelwerkstatt (FabLab)“: Im Fachbereich Sport nicht vorgesehen.');
+    expect(r.hinweise || []).toContain('Makerspace / Tüftelwerkstatt (FabLab) passt weniger zum Fachbereich „Sport und Bewegung“. (Setzung der Redaktion)');
   });
 
   it('6: der Satz zur praktischen Methode des Fachbereichs spricht ohne Fachjargon', () => {

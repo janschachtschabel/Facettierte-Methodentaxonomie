@@ -72,7 +72,10 @@ describe('Modular Scenario Planner Tree Operations', () => {
       const arr = createChainPreset(k.id, BUNDLE);
       const res = VALIDATOR.validate(arr, REGISTRY);
       expect(res.gueltig, `${k.id}: ${JSON.stringify(res.meldungen)}`).toBe(true);
-      expect(res.meldungen, `${k.id} warnings`).toEqual([]);
+      // Since Task B3, R-06 reads every fit rule: the invention task (open, no feedback, uniform) triggers
+      // „Entdecken nur mit Stütze“ wherever it stands. That one warning is expected; any other is a finding.
+      const andere = res.meldungen.filter((m) => !(m.regel === 'R-06' && m.meldung.startsWith('Erfindungsaufgabe ') && m.meldung.includes('offen angelegt')));
+      expect(andere, `${k.id} warnings`).toEqual([]);
     }
   });
 

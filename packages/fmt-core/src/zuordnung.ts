@@ -14,10 +14,13 @@ import type {
   MatchResult,
   PhaseMatchResult,
   PhaseProposal,
+  Regelmeldung,
+  RegelSituation,
   Scheme,
   VocabValue
 } from './types.js';
 import type { FmtValidator } from './validate.js';
+import { erstelleRegeln } from './regeln.js';
 import { createSemanticClassifier } from './semantic.js';
 import { detectMatrixTraitsFromText } from './differentiationMatrix.js';
 import { createMentionDetector } from './mentions.js';
@@ -66,9 +69,7 @@ export const LEISTUNGSKONTROLLE =
  */
 export const NEGATED_PHRASE =
   /\b(?:ohne|kein|keine|keinen|keiner|keinem|keines|nicht|statt|anstatt|anstelle\s+von)\s+(?:(?:so|zu|der|die|das|den|dem|ein|eine|einen|viel|viele|grosse|grossen|lange|langen|offene|offenen|klassische|klassischen|in|im|auf|am)\s+)*[a-z][\w-]*(?:\s+oder\s+(?!kein|ohne|nicht)[a-z][\w-]*)?(?:\s+im\s+plenum)?/g;
-/** Shown when practical work meets a lab, gym, outdoors or a practical subject; safety is no coded attribute. */
-export const SICHERHEITSHINWEIS =
-  'Praktische Arbeit: Sicherheitsregeln und Aufsicht nach den Vorgaben des Landes und der Schule beachten (zum Beispiel RiSU in Naturwissenschaften und Technik).';
+/** Rooms and subject areas where practical work gets the rule sicherheitshinweis; safety is no coded attribute. */
 const PRACTICAL_ROOMS = new Set(['fachraum', 'bewegungsraum', 'draussen']);
 const PRACTICAL_AREAS = new Set(['nawi-technik', 'beruf-praxis', 'sport']);
 
@@ -168,6 +169,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const w = values(scheme(id)).find((x) => x.id === code);
     return w ? w.label : code;
   };
+  const regeln = erstelleRegeln(data.regeln, label);
   const rang = new Map((scheme('reichweite').werte || []).map((w) => [w.id, w.rang ?? 0]));
   const techRank = new Map((scheme('technikbedarf').werte || []).map((w) => [w.id, w.rang ?? 0]));
   const implies = new Map((scheme('lernzustand').werte || []).map((w) => [w.id, w.impliziert || []]));
@@ -364,7 +366,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       bedeutung: 'Sprachniveau der ganzen Lerngruppe (A1 bis C2); nicht für eine Teilgruppe angeben',
       werte: opts(values(scheme('sprachniveau')))
     },
-    { feld: 'lehrende', typ: 'integer', stufe: 4, bedeutung: 'Anzahl der Lehrenden oder Begleitpersonen im Raum (Teamteaching: 2)' },
+    // No stufe: nothing in the matcher reads it yet (lehrkraft-nicht-doppelt is about parallel methods, Paket C), so it
+    // is no open question; komplexitaet and sprachniveau stay open questions because their rules warn (Task B3).
+    { feld: 'lehrende', typ: 'integer', bedeutung: 'Anzahl der Lehrenden oder Begleitpersonen im Raum (Teamteaching: 2)' },
     { feld: 'thema', typ: 'string', bedeutung: 'Thema der Stunde in freiem Text; ergänzt oder ersetzt das aus dem Text gelesene Thema' },
     { feld: 'einheit', typ: 'string', bedeutung: 'Einheit, zu der die Stunde gehört (z. B. Lernfeld 3, Unterrichtsreihe zu Ökologie, Modul Datenanalyse)' },
     { feld: 'bewertet', typ: 'boolean', bedeutung: 'Die Stunde oder ihr Ergebnis wird benotet oder bewertet' },
@@ -911,32 +915,21 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** Reason text of the first uncovered need, or null. */
   const rahmen = (b: Baustein, a: MatchRequest): string | null => rahmenLuecke(b, a)?.grund ?? null;
 
-  const hasSekHochschuleOnlyEvidence = (b: Baustein): boolean => {
-    const scopes = (b.evidenz || []).map((e) => fold(e.geltung || '')).filter(Boolean);
-    if (!scopes.length) return false;
-    return scopes.every(
-      (s) =>
-        /(?:sekundarstufe|oberstufe|hochschule|universitat|berufsbildung|erwachsenenbildung|ab\s+sek)/.test(s) &&
-        !/(?:\bschule\b|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s)
-    );
+  /** Situation the fit rules read: prior knowledge, stage, complexity, language level and subject area of the request. */
+  const regelLage = (a: MatchRequest): RegelSituation => {
+    const lage: RegelSituation = {};
+    for (const feld of ['vorwissen', 'bildungsstufe', 'komplexitaet', 'sprachniveau', 'fachbereich'] as const) {
+      if (given(a[feld])) lage[feld] = String(a[feld]);
+    }
+    return lage;
   };
 
-  function passung(b: Baustein, a: MatchRequest): string[] {
-    const w: string[] = [];
-    if (a.vorwissen && b.geeignetBeiVorwissen && !b.geeignetBeiVorwissen.includes(a.vorwissen)) {
-      w.push(`Für Vorwissen „${label('vorwissen', a.vorwissen)}“ nicht vorgesehen (Expertise-Reversal).`);
-    }
-    // Reviewed in Durchsicht 1: an entry for sport warns and stands with the other warnings (W9); the other subject
-    // areas keep their own rank tier until their review (Paket B).
-    if (a.fachbereich === 'sport' && (b.fachbereichUngeeignet || []).includes('sport')) {
-      w.push('Im Fachbereich Sport nicht vorgesehen.');
-    }
-    if (a.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(a.bildungsstufe)) {
-      w.push(`Für die Bildungsstufe „${label('bildungsstufe', a.bildungsstufe)}“ nicht vorgesehen (Setzung der Redaktion).`);
-    } else if (a.bildungsstufe === 'primar' && hasSekHochschuleOnlyEvidence(b)) {
-      w.push('Evidenz-Geltungsbereich beschränkt sich auf Sekundarstufe/Hochschule (für Primarstufe prüfen).');
-    }
-    return w;
+  /**
+   * Warnings for the method in this situation (rule machine, regeln.ts): declarative fit rules, suitability entries
+   * (stage, prior knowledge, subject area) and the built-in rule evidenz-geltung. They share one rank tier (W9).
+   */
+  function passung(b: Baustein, a: MatchRequest): Regelmeldung[] {
+    return regeln.warnungen(b, regelLage(a));
   }
 
   // Fully generic, metadata-driven domain inference (derived from each method's own catalog text – zero hardcoded ID lists)
@@ -966,8 +959,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentMentions = new Set<string>();
   /** Named methods dropped because the subject marks them unsuitable, with the reason (for nichtVerankert). */
   let currentDroppedMentions: Array<{ baustein: string; grund: string }> = [];
-  /** Methods named by their own name although the subject marks them unsuitable. */
-  let currentUnusualMentions: string[] = [];
   let currentAnchorStep = new Map<string, number>();
   let currentStepIndex = -1;
   let currentSeed = '';
@@ -1082,6 +1073,9 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       misses(list(a.interaktion), b.interaktion) +
       misses(list(a.engagement), b.engagement) +
       (wantedRange.length === 0 || wantedRange.includes(b.reichweite) ? 0 : 1);
+    // A named method counts as a wish at the step reserved for it (or anywhere when no step is reserved).
+    const genanntHier =
+      currentMentions.has(b.kennung) && (!currentAnchorStep.has(b.kennung) || currentAnchorStep.get(b.kennung) === currentStepIndex);
     return {
       b,
       // Hard tiers: reaching the step target / reuse, fit warnings, negative evidence, domain mismatch.
@@ -1093,11 +1087,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         currentNegatedMethods.has(b.kennung)
           ? 1
           : 0,
-        passung(b, a).length ? 1 : 0,
+        // Warnings of fit rules and suitability, one tier for all (W9, also "ungeeignet im Fach"). A method the teacher
+        // named comes before warnings (genannter-wunsch-bleibt): it keeps its warning but is not moved back by it.
+        // A rule marked keinTausch warns only (schrift-niedriges-sprachniveau: help for the language, no other method).
+        !genanntHier && passung(b, a).some((m) => !regeln.regel(m.regel)?.keinTausch) ? 1 : 0,
         hasNegativeEvidence(b) ? 1 : 0,
-        // A method the teacher named is a wish: neither its domain nor a subject that marks it unsuitable demotes it.
+        // A method the teacher named is a wish: its domain does not demote it.
         (currentMentions.has(b.kennung) ? 0 : domainPenalty(b)) ||
-          (currentArea && currentArea !== 'sport' && (b.fachbereichUngeeignet || []).includes(currentArea) && !currentMentions.has(b.kennung) ? 1 : 0) ||
           // A room need the room does not offer: excludes when the room is stated (rahmen), orders when it is assumed.
           // An assumed room never takes a named method away (genannter-wunsch-bleibt). Main name and synonym count alike
           // ("Schülerexperimente" names experiment): synonyms that may be everyday words are dropped by the mention filter.
@@ -1134,12 +1130,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // A single phase (no chain step) counts like a main step.
         ohnePraxisImHauptschritt: (currentStepRole === 'haupt' || currentStepIndex < 0) && raumBesonders().length > 0 && !praxisMethode(b),
         // A named method gets its bonus at the step reserved for it, not at an earlier step it could also serve.
-        mentioned:
-          currentMentions.has(b.kennung) &&
-          (!currentAnchorStep.has(b.kennung) || currentAnchorStep.get(b.kennung) === currentStepIndex)
+        mentioned: genanntHier
       })
     };
   }
+
+  /** Text of a rule message for the text lists: the message plus its source in brackets. */
+  const alsText = (m: Regelmeldung) => (m.quelle ? `${m.text} (${m.quelle})` : m.text);
+  /** Warnings of a proposal: as text (warnungen) and as rule messages (regelmeldungen, only when there are any). */
+  const mitMeldungen = (meldungen: Regelmeldung[]) => ({
+    warnungen: meldungen.map(alsText),
+    ...(meldungen.length ? { regelmeldungen: meldungen } : {})
+  });
 
   const describe = (b: Baustein, a: MatchRequest, wanted: string[]): PhaseProposal => {
     const g = bestGrade(b);
@@ -1158,7 +1160,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       setztVoraus: states(b.vorbedingung),
       liefert: states(b.nachbedingung),
       evidenzgrad: g,
-      warnungen: passung(b, a),
+      ...mitMeldungen(passung(b, a)),
       gruende: reasons,
       ...(currentMentions.has(b.kennung) ? { genannt: true } : {})
     };
@@ -1366,8 +1368,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   function ablauf(a: MatchRequest, kette: Funktionskette): Omit<AblaufMatchResult, 'kriterien' | 'erkannt' | 'offen'> & { offen: string[] } {
     const kontext: Arrangement['kontext'] = {};
-    if (a.bildungsstufe) kontext.bildungsstufe = a.bildungsstufe;
-    if (a.vorwissen) kontext.vorwissen = a.vorwissen;
+    // The validator checks R-06 with the same rule machine and the same situation as the ranking.
+    for (const [feld, wert] of Object.entries(regelLage(a))) kontext[feld as keyof RegelSituation] = wert;
     // A check at the start tests what earlier lessons taught: the group brings first knowledge with it.
     const vorhanden = new Set(list(a.vorhanden));
     if (list(a.liefert).includes('lernstand-diagnostiziert') && checkFirst(currentRawText)) vorhanden.add('erstwissen-ungesichert');
@@ -1827,58 +1829,71 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     return out;
   }
 
-  /** Adds the safety note when a practical method meets a practical room or subject. */
-  function withSafetyNote(r: MatchResult, room: string, area: string): MatchResult {
-    if (!PRACTICAL_ROOMS.has(room) && !PRACTICAL_AREAS.has(area)) return r;
-    const practical = chosenBlocks(r).some((id) => (blocks.get(id)?.repraesentation || []).includes('enaktiv'));
-    if (!practical) return r;
-    const hinweise = r.hinweise || [];
-    if (!hinweise.includes(SICHERHEITSHINWEIS)) r.hinweise = [...hinweise, SICHERHEITSHINWEIS];
-    return r;
-  }
-
-  /** Notes a named method that is unusual in the subject, when it is part of the result. */
-  function withUnusualNote(r: MatchResult, unusual: string[], area: string): MatchResult {
-    if (!unusual.length || !area) return r;
-    const chosen = new Set(chosenBlocks(r));
-    const where = r.modus === 'phase' ? 'unter den Vorschlägen' : 'im Ablauf';
-    const notes = unusual
-      .filter((id) => chosen.has(id))
-      .map((id) => `„${blocks.get(id)!.name}“ ist im Fachbereich ${label('fachbereich', area)} unüblich und steht auf deinen Wunsch ${where}.`);
-    if (notes.length) r.hinweise = [...notes, ...(r.hinweise || [])];
-    return r;
-  }
-
   /**
-   * A sequence step shows no warnings of its own (yet): the fit warnings of the chosen methods (passung) are given as
-   * notes, so they are not lost in ablauf mode. A method already noted as unusual in the subject keeps that note only.
+   * Rule messages of the answer, and the text list of notes filled from them ("Text (Quelle)"):
+   * - genannter-wunsch-bleibt for a named method in the result that a warning or an assumed room speaks against;
+   * - each fit rule whose situation part holds and that sets back methods of the catalogue (not keinTausch), without a
+   *   method: it says why the plan prefers other methods, also when no chosen method carries the warning (n20);
+   * - the warnings of the chosen methods (in a single phase they stand at each proposal, so the notes leave them out);
+   * - sicherheitshinweis for each practical method in a practical room or subject.
    */
-  function withPassungNote(r: MatchResult, unusual: string[]): MatchResult {
-    if (r.modus !== 'ablauf') return r;
+  function mitRegelmeldungen(r: MatchResult, lage: { raum: string; area: string; mentions: Set<string>; situation: Situation }): MatchResult {
     const a = r.kriterien as MatchRequest;
-    const notes: string[] = [];
-    for (const id of new Set(chosenBlocks(r))) {
-      const b = blocks.get(id);
-      if (!b) continue;
-      for (const w of passung(b, a)) {
-        if (unusual.includes(id) && w.startsWith('Im Fachbereich')) continue;
-        const note = `„${b.name}“: ${w}`;
-        if (!notes.includes(note)) notes.push(note);
+    const chosen = [...new Set(chosenBlocks(r))].map((id) => blocks.get(id)).filter((b): b is Baustein => Boolean(b));
+    const genannt: Regelmeldung[] = [];
+    const warnungen: Regelmeldung[] = [];
+    const sicherheit: Regelmeldung[] = [];
+    const wo = r.modus === 'phase' ? 'unter den Vorschlägen' : 'im Ablauf';
+    const wunsch = regeln.regel('genannter-wunsch-bleibt');
+    for (const b of chosen) {
+      const w = passung(b, a);
+      warnungen.push(...w);
+      const raumAngenommen = !lage.situation.raumGenannt && raumFehlt(b, lage.situation).length > 0;
+      if (wunsch && lage.mentions.has(b.kennung) && (w.length || raumAngenommen)) {
+        genannt.push(regeln.meldung(wunsch.id, b, wunsch.text.replace(/\{methode\}/g, b.name).replace('im Ablauf', wo))!);
+      }
+      if ((PRACTICAL_ROOMS.has(lage.raum) || PRACTICAL_AREAS.has(lage.area)) && (b.repraesentation || []).includes('enaktiv')) {
+        const m = regeln.meldung('sicherheitshinweis', b);
+        if (m) sicherheit.push(m);
       }
     }
-    if (notes.length) r.hinweise = [...(r.hinweise || []), ...notes];
+    const lageJetzt = regelLage(a);
+    const ordnet: Regelmeldung[] = regeln
+      .alle()
+      .filter(
+        (x) =>
+          x.art === 'deklarativ' &&
+          !x.keinTausch &&
+          Object.keys(x.wenn?.situation || {}).length > 0 &&
+          data.bausteine.some((b) => regeln.pruefe(b, lageJetzt).some((m) => m.regel === x.id))
+      )
+      .map((x) => ({
+        regel: x.id,
+        wirkung: 'ordnet' as const,
+        grundlage: x.grundlage,
+        ...(x.quelle ? { quelle: x.quelle } : {}),
+        text: `${x.name}: Methoden, für die das gilt, stehen weiter hinten und tragen eine Warnung.`
+      }));
+    const meldungen = [...genannt, ...ordnet, ...warnungen, ...sicherheit];
+    if (!meldungen.length) return r;
+    r.regelmeldungen = meldungen;
+    const hinweise = (r.modus === 'phase' ? meldungen.filter((m) => m.wirkung !== 'warnt') : meldungen).map(alsText);
+    const neu = [...(r.hinweise || [])];
+    for (const h of hinweise) if (!neu.includes(h)) neu.push(h);
+    if (neu.length) r.hinweise = neu;
     return r;
   }
 
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     const r = planen(anfrage);
-    return withSafetyNote(withPassungNote(withUnusualNote(r, lastUnusual, lastArea), lastUnusual), lastRoom, lastArea);
+    return mitRegelmeldungen(r, { raum: lastRoom, area: lastArea, mentions: lastMentions, situation: lastSituation });
   }
 
-  /** Room, subject area and unusual named methods of the last planning run, kept past their reset for the notes. */
+  /** Room, subject area, named methods and situation of the last planning run, kept past their reset for the notes. */
   let lastRoom = '';
   let lastArea = '';
-  let lastUnusual: string[] = [];
+  let lastMentions = new Set<string>();
+  let lastSituation: Situation = keineSituation();
 
   const mitNachweis = (n: MatchResult['nachweis'] | null) => (n ? { nachweis: n } : {});
 
@@ -1957,14 +1972,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         [...currentMentions].filter((id) => {
           const b = blocks.get(id);
           if (!b) return false;
-          let unusual = false;
-          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea)) {
-            // The method's own name is a wish: it stays (subject to the checks below). A synonym may be an everyday word.
-            if (!mainMentions.has(id)) {
-              currentDroppedMentions.push({ baustein: id, grund: `im Fachbereich ${label('fachbereich', currentArea)} als ungeeignet markiert` });
-              return false;
-            }
-            unusual = true;
+          // The method's own name is a wish: it stays (subject to the checks below), keeps its warning and gets the rule
+          // genannter-wunsch-bleibt. A synonym may be an everyday word.
+          if (currentArea && (b.fachbereichUngeeignet || []).includes(currentArea) && !mainMentions.has(id)) {
+            currentDroppedMentions.push({ baustein: id, grund: `im Fachbereich ${label('fachbereich', currentArea)} als ungeeignet markiert` });
+            return false;
           }
           // "Vorbereitung auf die Klassenarbeit" names a test without asking for one.
           if (b.lernfunktion[0] === 'diagnose' && !list(a.liefert).includes('lernstand-diagnostiziert')) return false;
@@ -1972,8 +1984,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           const roomOnly = nurSonderraum(b);
           const roomNamed = given(a.raum) && raumKlasse(a.raum) !== '';
           if (roomOnly && !(roomNamed || currentArea === 'sport' || BEWEGUNG_ZIELARTEN.has(String(a.zielart)))) return false;
-          // The note is given only once the method is really part of the result (see withUnusualNote).
-          if (unusual) currentUnusualMentions.push(id);
           return true;
         })
       );
@@ -2187,12 +2197,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     } finally {
       lastRoom = raumKlasse(currentSituation.raum);
       lastArea = currentArea;
-      lastUnusual = currentUnusualMentions;
+      lastMentions = currentMentions;
+      lastSituation = currentSituation;
       currentRawText = '';
       currentSemanticScores = new Map();
       currentMentions = new Set();
       currentDroppedMentions = [];
-      currentUnusualMentions = [];
       currentAnchorStep = new Map();
       currentStepIndex = -1;
       currentSeed = '';

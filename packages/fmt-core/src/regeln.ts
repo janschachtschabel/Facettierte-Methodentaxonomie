@@ -12,6 +12,24 @@ function vergleiche(werte: string[], v: Listenvergleich): boolean {
   return true;
 }
 
+const fold = (s: string) =>
+  String(s)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ß/g, 'ss');
+
+/** Every stated scope of the method's evidence names secondary school, university or adult learning only. */
+export function nurSekundarEvidenz(b: Baustein): boolean {
+  const scopes = (b.evidenz || []).map((e) => fold(e.geltung || '')).filter(Boolean);
+  if (!scopes.length) return false;
+  return scopes.every(
+    (s) =>
+      /(?:sekundarstufe|oberstufe|hochschule|universitat|berufsbildung|erwachsenenbildung|ab\s+sek)/.test(s) &&
+      !/(?:\bschule\b|primar|grundschul|alle\s+stufen|facherubergreifend|klasse\s*[1-4])/.test(s)
+  );
+}
+
 function listenwert(b: Baustein, feld: string): string[] {
   const w = (b as unknown as Record<string, unknown>)[feld];
   return Array.isArray(w) ? (w as string[]) : [];
@@ -22,9 +40,18 @@ function listenwert(b: Baustein, feld: string): string[] {
  * situation field matches; a situation field that is not given never fires the rule.
  * Built-in rules are applied by the matcher; here they only carry their text and basis.
  */
-export function erstelleRegeln(regeln: Passungsregel[]) {
+export function erstelleRegeln(regeln: Passungsregel[], label?: (schema: string, code: string) => string) {
   const nachId = new Map(regeln.map((r) => [r.id, r]));
   const fuelle = (text: string, b: Baustein) => text.replace(/\{methode\}/g, b.name);
+  /** Message of a rule for a method; built-in rules take their text from the data as well. */
+  const meldung = (r: Passungsregel, b?: Baustein, text?: string): Regelmeldung => ({
+    regel: r.id,
+    wirkung: r.wirkung,
+    grundlage: r.grundlage,
+    ...(r.quelle ? { quelle: r.quelle } : {}),
+    text: text ?? (b ? fuelle(r.text, b) : r.text),
+    ...(b ? { baustein: b.kennung } : {})
+  });
 
   function eignung(b: Baustein, s: RegelSituation): Regelmeldung[] {
     const aus: Regelmeldung[] = [];
@@ -41,9 +68,12 @@ export function erstelleRegeln(regeln: Passungsregel[]) {
       const text = g ? `${standard} ${g.text}` : `${standard} (Setzung der Redaktion)`;
       aus.push({ regel, wirkung: 'warnt', grundlage, ...(g?.quelle ? { quelle: g.quelle } : {}), text, baustein: b.kennung });
     };
-    eintrag('eignung-stufe', 'stufe', b.ungeeignetBeiStufe, s.bildungsstufe, `${b.name} passt weniger zu dieser Bildungsstufe.`);
-    eintrag('eignung-vorwissen', 'vorwissen', b.ungeeignetBeiVorwissen, s.vorwissen, `${b.name} passt weniger zu diesem Vorwissen.`);
-    eintrag('eignung-fach', 'fachbereich', b.fachbereichUngeeignet, s.fachbereich, `${b.name} passt weniger zu diesem Fachbereich.`);
+    // With labels the sentence names the value ("passt weniger zum Fachbereich „Sport und Bewegung“").
+    const wert = (schema: string, code: string | undefined, mit: string, ohne: string) =>
+      label && code ? `${mit} „${label(schema, code)}“` : ohne;
+    eintrag('eignung-stufe', 'stufe', b.ungeeignetBeiStufe, s.bildungsstufe, `${b.name} passt weniger ${wert('bildungsstufe', s.bildungsstufe, 'zur Bildungsstufe', 'zu dieser Bildungsstufe')}.`);
+    eintrag('eignung-vorwissen', 'vorwissen', b.ungeeignetBeiVorwissen, s.vorwissen, `${b.name} passt weniger ${wert('vorwissen', s.vorwissen, 'zum Vorwissen', 'zu diesem Vorwissen')}.`);
+    eintrag('eignung-fach', 'fachbereich', b.fachbereichUngeeignet, s.fachbereich, `${b.name} passt weniger ${wert('fachbereich', s.fachbereich, 'zum Fachbereich', 'zu diesem Fachbereich')}.`);
     return aus;
   }
 
@@ -57,22 +87,31 @@ export function erstelleRegeln(regeln: Passungsregel[]) {
     return true;
   }
 
+  function pruefe(b: Baustein, s: RegelSituation): Regelmeldung[] {
+    const aus: Regelmeldung[] = [];
+    for (const r of regeln) if (feuert(r, b, s)) aus.push(meldung(r, b));
+    return aus.concat(eignung(b, s));
+  }
+
   return {
     /** Declarative rules and suitability entries of the method that fire in this situation. */
-    pruefe(b: Baustein, s: RegelSituation): Regelmeldung[] {
-      const aus: Regelmeldung[] = [];
-      for (const r of regeln) {
-        if (!feuert(r, b, s)) continue;
-        aus.push({
-          regel: r.id,
-          wirkung: r.wirkung,
-          grundlage: r.grundlage,
-          ...(r.quelle ? { quelle: r.quelle } : {}),
-          text: fuelle(r.text, b),
-          baustein: b.kennung
-        });
+    pruefe,
+    /**
+     * Every warning for the method in this situation: the declarative rules and suitability entries, plus the built-in
+     * rule evidenz-geltung (primary school, evidence only from secondary school or later; not next to a stage entry).
+     */
+    warnungen(b: Baustein, s: RegelSituation): Regelmeldung[] {
+      const aus = pruefe(b, s).filter((m) => m.wirkung === 'warnt');
+      const geltung = nachId.get('evidenz-geltung');
+      if (geltung && s.bildungsstufe === 'primar' && !aus.some((m) => m.regel === 'eignung-stufe') && nurSekundarEvidenz(b)) {
+        aus.push(meldung(geltung, b));
       }
-      return aus.concat(eignung(b, s));
+      return aus;
+    },
+    /** Message of a built-in rule (text from the data unless given), or null when the rule is not in the data. */
+    meldung(id: string, b?: Baustein, text?: string): Regelmeldung | null {
+      const r = nachId.get(id);
+      return r ? meldung(r, b, text) : null;
     },
     regel(id: string): Passungsregel | undefined {
       return nachId.get(id);

@@ -200,8 +200,8 @@ export function pruefeFall(fall: Qualitaetsfall, M: FmtMatcher, D: FmtData): Fal
     add('pflichtangaben', p !== undefined && luecken.length === 0, p === undefined ? 'Antwortfeld pflichtangaben fehlt' : luecken.join('; '));
   }
   if (e.regeln) {
-    const meldungen = text(antwort.regelmeldungen);
-    const fehlend = e.regeln.filter((id) => !meldungen.includes(`"${id}"`));
+    const gemeldet = new Set(((antwort.regelmeldungen as Array<{ regel: string }> | undefined) || []).map((m) => m.regel));
+    const fehlend = e.regeln.filter((id) => !gemeldet.has(id));
     add('regel', !fehlt('regelmeldungen') && fehlend.length === 0, fehlt('regelmeldungen') ? 'Antwortfeld regelmeldungen fehlt' : `Regel nicht gemeldet: ${fehlend.join(', ')}`);
   }
   if (e.nachweisform) {

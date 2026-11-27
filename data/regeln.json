@@ -202,6 +202,7 @@
       }
     },
     "wirkung": "warnt",
+    "keinTausch": true,
     "grundlage": "E",
     "quelle": "Höfler et al. 2024",
     "text": "{methode} verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig. Nutzen Sie Hilfen für die Sprache. Die Methode wird nicht getauscht."

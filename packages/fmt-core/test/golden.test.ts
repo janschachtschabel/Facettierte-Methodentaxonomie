@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
-import { negatedMethods, SICHERHEITSHINWEIS } from '../src/zuordnung.js';
+import { negatedMethods } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
 import { alleBausteine } from './qualitaet/pruefen.js';
@@ -325,15 +325,18 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
   it('genannte Methode mit Hauptnamen bleibt trotz „ungeeignet im Fach“ im Ablauf, mit Hinweis', () => {
     const r = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
     expect((r.verankert || []).some((v) => v.baustein === 'laufdiktat')).toBe(true);
-    expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik.*unüblich/);
+    expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*passt weniger zum Fachbereich „Mathematik/);
+    expect((r.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'laufdiktat')).toBe(true);
   });
 
   it('Hinweis „unüblich“ nur, wenn die genannte Methode wirklich im Ablauf steht', () => {
     const r = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Bruchrechnung Klasse 8, 45 Minuten' });
     const placed = (r.modus === 'ablauf' ? r.verankert || [] : []).some((v) => v.baustein === 'differenzielles-lernen');
-    expect(placed || !(r.hinweise || []).some((h) => /auf deinen Wunsch im Ablauf/.test(h))).toBe(true);
+    const wunsch = (x: typeof r) => (x.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'differenzielles-lernen');
+    expect(placed || !wunsch(r)).toBe(true);
     const p = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Einstieg' });
     expect((p.hinweise || []).some((h) => /im Ablauf/.test(h))).toBe(false);
+    if (p.modus === 'phase' && !p.vorschlaege.slice(0, 6).some((v) => v.baustein === 'differenzielles-lernen')) expect(wunsch(p)).toBe(false);
   });
 
   it('genannter Hauptname im unpassenden Fach umgeht weder Raum- noch Diagnoseregel', () => {
@@ -459,9 +462,13 @@ describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil S
 
   it('praktische Arbeit im Fachraum bekommt den Sicherheitshinweis, eine Deutschstunde nicht', () => {
     const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
-    expect(chemie.hinweise || []).toContain(SICHERHEITSHINWEIS);
+    const s = (chemie.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis');
+    expect(s.length).toBeGreaterThan(0);
+    expect(chemie.hinweise || []).toContain(`${s[0].text} (${s[0].quelle})`);
+    expect(s[0].text).toMatch(/Sicherheit und die Aufsicht/);
     const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
-    expect(deutsch.hinweise || []).not.toContain(SICHERHEITSHINWEIS);
+    expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
+    expect((deutsch.hinweise || []).some((h) => /Sicherheit/.test(h))).toBe(false);
   });
 });
 

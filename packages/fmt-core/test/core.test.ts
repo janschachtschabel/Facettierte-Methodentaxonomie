@@ -16,6 +16,7 @@ import {
 } from '../src/index.js';
 import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
 import { nachweisformen } from '../src/zielart.js';
+import { erstelleRegeln } from '../src/regeln.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -28,10 +29,13 @@ describe('FMT Core: Validator, Search, Matcher', () => {
   const reg = new Map(D.beispiele.map((a) => [a['@id']!, a]));
   const byId = (suffix: string) => D.beispiele.find((a) => a['@id']?.endsWith(suffix))!;
 
-  it('validates example R3 „dichte-reihe“ without errors or warnings', () => {
+  it('validates example R3 „dichte-reihe“ without errors; only the fit rule „Entdecken nur mit Stütze“ warns (R-06)', () => {
     const res = V.validate(byId('dichte-reihe'), reg);
     expect(res.gueltig).toBe(true);
-    expect(res.meldungen).toEqual([]);
+    // Since Task B3, R-06 reads every fit rule. The invention task is open, without feedback and uniform (data, Tor D2).
+    expect(res.meldungen).toEqual([
+      expect.objectContaining({ regel: 'R-06', schwere: 'Warnung', meldung: expect.stringMatching(/^Erfindungsaufgabe .*offen angelegt.*\(Alfieri et al\. 2011\)$/) })
+    ]);
   });
 
   it('validates R4 „modul-stoffe“ embedding R3 by reference and inheriting states', () => {
@@ -167,7 +171,7 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     );
     expect(primar.meldungen.some((m) => m.regel === 'R-06')).toBe(true);
     const r06 = primar.meldungen.filter((m) => m.regel === 'R-06' && /Bildungsstufe/.test(m.meldung)).map((m) => m.meldung).join(' ');
-    expect(r06).toMatch(/nicht vorgesehen \(Setzung der Redaktion\)/);
+    expect(r06).toMatch(/passt weniger zur Bildungsstufe „Primarstufe“\. \(Setzung der Redaktion\)/);
     expect(r06).not.toMatch(/Evidenz/);
   });
 
@@ -721,13 +725,15 @@ describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () 
     expect(nachweisformen(D.bausteine.find((b) => b.kennung === letzte!.baustein)!), letzte!.baustein).toContain('muendlich');
   });
 
-  it('ungeeignet im Fach Sport (Durchsicht 1) warnt; andere Fachbereiche bleiben in ihrer Rangstufe bis Paket B', () => {
+  it('ungeeignet im Fach warnt in jedem Fachbereich (eignung-fach); ohne Begründung als Setzung der Redaktion', () => {
     const r = M.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'sport' }) as PhaseMatchResult;
     const v = r.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
-    expect(v?.warnungen).toContain('Im Fachbereich Sport nicht vorgesehen.');
+    expect(v?.warnungen).toContain('Makerspace / Tüftelwerkstatt (FabLab) passt weniger zum Fachbereich „Sport und Bewegung“. (Setzung der Redaktion)');
     expect((v?.warnungen || []).some((w) => w.includes('Durchsicht'))).toBe(false);
+    // The other subject areas warn as well since Task B3 (Abbau Zeile 7: no rank tier of their own).
     const m = M.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
-    expect(m.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt')?.warnungen || []).toEqual([]);
+    const g = m.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
+    expect(g?.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-fach', grundlage: 'A' }));
   });
 
   it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {
@@ -772,5 +778,125 @@ describe('Piktogramme', () => {
     expect(missing).toEqual([]);
     const svg = readFileSync(path.join(ROOT, 'apps/web/src/components/MethodPictogram.tsx'), 'utf8');
     expect(PIKTOGRAMME.filter((p) => !svg.includes(`type === '${p}'`))).toEqual([]);
+  });
+});
+
+describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  const regelIds = new Set([...D.regeln.map((r) => r.id), 'eignung-stufe', 'eignung-vorwissen', 'eignung-fach']);
+  const alsText = (m: { text: string; quelle?: string }) => (m.quelle ? `${m.text} (${m.quelle})` : m.text);
+
+  it('n17: Chemie Klasse 9 ohne Raum und Anzahl nennt beide Lücken und den angenommenen Raum', () => {
+    const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
+    expect(r.pflichtangaben!.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));
+    expect(r.pflichtangaben!.angenommen.map((x) => x.feld)).toContain('raum');
+  });
+
+  it('jede Warnung im Ablauf steht als Regelmeldung mit Regel und Grundlage', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer, Klassenraum, 90 Minuten, mit Makerspace' }) as AblaufMatchResult;
+    expect(r.modus).toBe('ablauf');
+    const meldungen = r.regelmeldungen || [];
+    expect(meldungen.length).toBeGreaterThan(0);
+    for (const m of meldungen) {
+      expect(regelIds.has(m.regel), m.regel).toBe(true);
+      expect(['E', 'S', 'A', 'formal']).toContain(m.grundlage);
+      expect(m.text.length).toBeGreaterThan(0);
+    }
+    expect(meldungen).toContainEqual(
+      expect.objectContaining({ regel: 'eignung-fach', wirkung: 'warnt', baustein: 'makerspace-tueftelwerkstatt', grundlage: 'A' })
+    );
+    // The text lists are filled from the messages: text plus source in brackets.
+    expect(r.hinweise).toEqual(meldungen.map(alsText));
+    // Every warning of a chosen method is a message (same rule machine as the ranking).
+    const gewaehlt = new Set(JSON.stringify(r.arrangement).match(/"baustein":"[^"]+"/g)!.map((x) => x.slice(12, -1)));
+    const R = erstelleRegeln(D.regeln);
+    const k = r.kriterien as Record<string, string | undefined>;
+    const lage = { vorwissen: k.vorwissen, bildungsstufe: k.bildungsstufe, komplexitaet: k.komplexitaet, sprachniveau: k.sprachniveau, fachbereich: k.fachbereich };
+    for (const id of gewaehlt) {
+      for (const w of R.pruefe(D.bausteine.find((b) => b.kennung === id)!, lage)) {
+        expect(meldungen.some((m) => m.regel === w.regel && m.baustein === id), `${id} ${w.regel}`).toBe(true);
+      }
+    }
+  });
+
+  it('Sicherheitshinweis und Hinweis „unüblich“ stehen als Regelmeldungen sicherheitshinweis und genannter-wunsch-bleibt', () => {
+    const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
+    const s = (chemie.regelmeldungen || []).find((m) => m.regel === 'sicherheitshinweis');
+    expect(s).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', quelle: expect.stringContaining('RiSU') });
+    expect(chemie.hinweise || []).toContain(alsText(s!));
+    const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
+    expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
+
+    const mathe = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    const g = (mathe.regelmeldungen || []).find((m) => m.regel === 'genannter-wunsch-bleibt');
+    expect(g).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', baustein: 'laufdiktat' });
+    expect(g!.text).toMatch(/Laufdiktat/);
+    expect((mathe.regelmeldungen || []).some((m) => m.regel === 'eignung-fach' && m.baustein === 'laufdiktat')).toBe(true);
+    expect((mathe.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik/);
+  });
+
+  it('n20: offene Methoden tragen bei komplexem Inhalt und geringem Vorwissen die Warnung, angeleitete stehen vorn', () => {
+    const text = 'Informatik Klasse 10, Sortieralgorithmen, 90 Minuten, komplexer Inhalt, geringes Vorwissen';
+    const p = M.zuordnen({ text, modus: 'phase', lernfunktion: 'problemloesen' }) as PhaseMatchResult;
+    expect(p.kriterien).toMatchObject({ komplexitaet: 'hoch', vorwissen: 'gering' });
+    const offen = p.vorschlaege.filter((v) => D.bausteine.find((b) => b.kennung === v.baustein)!.anleitung.every((x) => x === 'offen'));
+    expect(offen.length).toBeGreaterThan(0);
+    for (const v of offen) {
+      const m = (v.regelmeldungen || []).find((x) => x.regel === 'wenig-anleitung-komplexer-inhalt');
+      expect(m, v.baustein).toMatchObject({ wirkung: 'warnt', grundlage: 'E', quelle: expect.stringContaining('Chen') });
+      expect(v.warnungen).toContain(alsText(m!));
+    }
+    // Guided methods (without a warning) stand before every warned method.
+    const ersterGewarnt = p.vorschlaege.findIndex((v) => v.warnungen.length > 0);
+    expect(ersterGewarnt).toBeGreaterThan(0);
+    expect(p.vorschlaege.slice(ersterGewarnt).every((v) => v.warnungen.length > 0)).toBe(true);
+    const a = M.zuordnen({ text });
+    expect((a.regelmeldungen || []).some((m) => m.regel === 'wenig-anleitung-komplexer-inhalt')).toBe(true);
+  });
+
+  it('ein begründeter Eintrag „ungeeignet im Fach“ warnt und steht in der Rangstufe der Warnungen', () => {
+    const begruendet = {
+      ...D,
+      bausteine: D.bausteine.map((b) =>
+        b.kennung === 'makerspace-tueftelwerkstatt'
+          ? { ...b, fachbereichUngeeignet: ['gesellschaft'], eignungsgrund: { fachbereich: { text: 'Braucht eine Werkstatt.', grundlage: 'S' as const, quelle: 'Redaktion 2026' } } }
+          : b
+      )
+    };
+    const M2 = createMatcher(begruendet, createValidator(begruendet));
+    const r = M2.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
+    const i = r.vorschlaege.findIndex((x) => x.baustein === 'makerspace-tueftelwerkstatt');
+    expect(i).toBeGreaterThanOrEqual(0);
+    const v = r.vorschlaege[i];
+    expect(v.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-fach', grundlage: 'S', quelle: 'Redaktion 2026' }));
+    expect(v.warnungen.join(' ')).toMatch(/Braucht eine Werkstatt\..*\(Redaktion 2026\)/);
+    // Same tier as the other warnings: no method without a warning follows, and a method with another warning
+    // but a better soft score may follow it (no tier of its own below the warnings).
+    expect(r.vorschlaege.slice(i).every((x) => x.warnungen.length > 0)).toBe(true);
+  });
+
+  it('Schrift bei niedrigem Sprachniveau warnt ohne Tausch: die Lesemethode bleibt und trägt die Warnung', () => {
+    const r = M.zuordnen({ text: 'VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende' }) as AblaufMatchResult;
+    expect(r.kriterien.sprachniveau).toBe('a2');
+    expect((r.schritte || []).map((x) => x.baustein)).toContain('sq3r-lesemethode');
+    expect(r.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'schrift-niedriges-sprachniveau', baustein: 'sq3r-lesemethode', wirkung: 'warnt' }));
+    // No note that such methods stand further back: the rule does not move them (keinTausch).
+    expect((r.regelmeldungen || []).some((m) => m.regel === 'schrift-niedriges-sprachniveau' && m.wirkung === 'ordnet')).toBe(false);
+  });
+
+  it('R-06 prüft mit derselben Regelmaschine: Eignung und Passung', () => {
+    expect(FMT_RULES.find((r) => r.id === 'R-06')!.prueft).toBe('Eignung und Passung: Methode passt zu Vorwissen, Bildungsstufe und Inhalt');
+    const V = createValidator(D);
+    const offen = D.bausteine.find((b) => b.anleitung.length && b.anleitung.every((x) => x === 'offen') && !(b.sequenz || []).includes('problem-vor-instruktion') && !(b.vorbedingung || []).length)!;
+    const r = V.validate({
+      typ: 'Arrangement',
+      name: 't',
+      reichweite: 'r3',
+      kontext: { vorwissen: 'gering' },
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: offen.kennung, dauerMin: offen.dauerMin }] }
+    });
+    const r06 = r.meldungen.filter((m) => m.regel === 'R-06');
+    expect(r06.map((m) => m.meldung).join(' ')).toMatch(/Tetzlaff/);
   });
 });

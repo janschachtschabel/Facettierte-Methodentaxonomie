@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { createMentionDetector } from '../src/index.js';
+import { createMatcher, createMentionDetector, createValidator } from '../src/index.js';
+import type { PhaseMatchResult } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const detector = createMentionDetector(loadFmtData(path.join(ROOT, 'data')));
@@ -38,5 +39,27 @@ describe('Methodennennungen im Freitext', () => {
     const m = detector.detect('Laufdiktat und danach eine Erkundung');
     expect(m.find((x) => x.kennung === 'laufdiktat')?.main).toBe(true);
     expect(m.find((x) => x.kennung === 'exkursion')?.main).toBe(false);
+  });
+});
+
+describe('Genannter Wunsch bleibt (Regel genannter-wunsch-bleibt)', () => {
+  const D = loadFmtData(path.join(ROOT, 'data'));
+  const M = createMatcher(D, createValidator(D));
+
+  it('eine genannte Methode mit Warnung steht vorn, behält die Warnung und bekommt die Regelmeldung', () => {
+    const r = M.zuordnen({ text: 'Grundschule Klasse 3, Einstieg mit Peer Instruction' }) as PhaseMatchResult;
+    expect(r.modus).toBe('phase');
+    // Wunsch genannt comes before the warnings in the ranking (spec 6, Reihenfolge der Wirkung).
+    expect(r.vorschlaege[0].baustein).toBe('peer-instruction');
+    expect(r.vorschlaege[0].regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-stufe', wirkung: 'warnt' }));
+    const g = (r.regelmeldungen || []).find((m) => m.regel === 'genannter-wunsch-bleibt');
+    expect(g).toMatchObject({ baustein: 'peer-instruction', wirkung: 'weist-hin', grundlage: 'A' });
+    expect(g!.text).toMatch(/unter den Vorschlägen/);
+  });
+
+  it('ohne Warnung und ohne Raumlücke gibt es keine Meldung zum Wunsch', () => {
+    const r = M.zuordnen({ text: 'Sterbehilfe als Fishbowl diskutieren, Klasse 10, 45 Minuten' });
+    expect(r.modus === 'ablauf' && (r.verankert || []).some((v) => v.baustein === 'fishbowl')).toBe(true);
+    expect((r.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'fishbowl')).toBe(false);
   });
 });
