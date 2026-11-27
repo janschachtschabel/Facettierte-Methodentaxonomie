@@ -1,0 +1,151 @@
+{
+  "kennung": "schreiben-mit-schreibrahmen",
+  "name": "Schreiben mit Schreibrahmen",
+  "kurzbeschreibung": "Lernende verfassen einen Fachtext einer bestimmten Textsorte mit einem Rahmen aus Gliederung, Satzanfängen und Verbindungswörtern, der mit wachsender Sicherheit dünner wird und wegfällt.",
+  "alternativname": [
+    "Schreibgerüst",
+    "Textgerüst",
+    "Writing Frame"
+  ],
+  "status": "entwurf",
+  "piktogramm": "sprache",
+  "ansatz": [
+    "visualisierung",
+    "uebung"
+  ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
+  ],
+  "quellen": [
+    {
+      "titel": "Leisen (2013): Handbuch Sprachförderung im Fach",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Höfler, Woerfel et al. (2024): Wirkung sprachsensibler Unterrichtsansätze. Zeitschrift für Erziehungswissenschaft",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "lernende",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-prozess"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "erstwissen-ungesichert"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "rahmen",
+      "name": "Rahmen aus Gliederung, Satzanfängen und Verbindungswörtern der Textsorte"
+    },
+    {
+      "kennung": "abbau",
+      "name": "Der Rahmen wird mit wachsender Sicherheit dünner und fällt weg"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Lernende kennen den Inhalt, scheitern aber an Aufbau und Sprache der verlangten Textsorte, etwa Versuchsprotokoll, Beschreibung oder Erörterung.",
+  "durchfuehrung": [
+    "Textsorte und Zweck klären; ein kurzer Mustertext zeigt den Aufbau",
+    "Schreibrahmen mit Gliederung, Satzanfängen und Verbindungswörtern ausgeben, je nach Sicherheit unterschiedlich dicht",
+    "Lernende schreiben ihren Text in den Rahmen und ergänzen eigene Sätze",
+    "Partner prüfen den Text an zwei Merkmalen der Textsorte",
+    "Beim nächsten Text einen dünneren Rahmen geben, bis er wegfällt"
+  ],
+  "material": [
+    "Mustertext der Textsorte",
+    "Schreibrahmen in zwei oder drei Stufen"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Schreibrahmen mit Wortspeicher",
+    "Gemeinsames Schreiben im Tandem"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Trägt das Begleitziel Fach- und Bildungssprache. Der Regelsatz nennt Einzelbefunde zum Schreibrahmen ohne Quelle; eine methodenspezifische Quelle ist offen.",
+  "qualitaetsrisiko": [
+    "Der Rahmen wird nie abgebaut und ersetzt das eigene Formulieren"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Sprachsensible Unterrichtsansätze schneiden nicht schlechter ab als Kontrollunterricht; die Evidenz ist methodisch dünn, eine Meta-Analyse war nicht möglich.",
+      "quelle": "Höfler et al. 2024",
+      "geltung": "Systematisches Review mit 55 Studien; Effektstärken fehlen"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2
+  }
+}

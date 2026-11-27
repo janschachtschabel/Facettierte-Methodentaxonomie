@@ -1,0 +1,152 @@
+{
+  "kennung": "aesthetische-forschung",
+  "name": "Ästhetische Forschung (nach Kämpf-Jansen)",
+  "kurzbeschreibung": "Lernende verfolgen über mehrere Wochen eine eigene Frage zu einem Gegenstand mit künstlerischen, alltäglichen und wissenschaftlichen Mitteln, sammeln in einem Forschungsbuch und zeigen am Ende Weg und Ergebnis.",
+  "alternativname": [
+    "Ästhetisches Forschen"
+  ],
+  "status": "entwurf",
+  "piktogramm": "forschen",
+  "ansatz": [
+    "forschend",
+    "kreativ"
+  ],
+  "fachbereich": [
+    "aesthetik"
+  ],
+  "termineMin": 2,
+  "quellen": [
+    {
+      "titel": "Kämpf-Jansen (2001): Ästhetische Forschung",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "problemloesen",
+    "anwendung",
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet",
+    "offen"
+  ],
+  "steuerung": {
+    "organisation": "geteilt",
+    "lernweg": "lernende",
+    "inhalt": "lernende",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-inhalt",
+    "diff-produkt",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "verzoegert",
+    "prozessebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel",
+    "plenum-lernendengeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "transfer-gezeigt",
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "frage",
+      "name": "Eigene Frage oder eigener Gegenstand der Lernenden"
+    },
+    {
+      "kennung": "forschungsbuch",
+      "name": "Forschungsbuch, in dem gesammelt, gezeichnet und notiert wird"
+    },
+    {
+      "kennung": "verfahren",
+      "name": "Verknüpfung künstlerischer, alltäglicher und wissenschaftlicher Verfahren"
+    },
+    {
+      "kennung": "praesentation",
+      "name": "Präsentation von Weg und Ergebnis"
+    }
+  ],
+  "dauerMin": 180,
+  "dauerMax": 900,
+  "problem": "Kunstunterricht, der nur Techniken übt, lässt wenig Raum für eigene Fragen; Lernende erleben Gestalten nicht als Weg, etwas herauszufinden.",
+  "durchfuehrung": [
+    "Ausgangspunkt wählen: ein Gegenstand, ein Ort oder eine Frage, an die Lernende anknüpfen",
+    "Lernende legen ein Forschungsbuch an und sammeln über mehrere Wochen Fundstücke, Skizzen, Fotos und Notizen",
+    "In regelmäßigen Terminen erproben sie künstlerische Verfahren und ziehen Wissen aus Büchern oder Gesprächen hinzu",
+    "Zwischenstände in kurzen Gesprächen mit der Lehrkraft oder in der Gruppe besprechen",
+    "Weg und Ergebnis ausstellen und gemeinsam auswerten"
+  ],
+  "material": [
+    "Forschungsbuch (Heft oder Skizzenbuch)",
+    "Gestaltungsmaterial nach Wahl"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "In der Gruppe zu einer gemeinsamen Frage"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Konzept der Kunstpädagogik; begründet mit dem Eigenwert, ohne Transferversprechen. Die Dauer gilt für alle Termine zusammen.",
+  "qualitaetsrisiko": [
+    "Ohne Zwischengespräche bleibt die Arbeit beim Sammeln stehen"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "methode",
+      "befund": "Konzept der Kunstpädagogik; Wirkungsstudien liegen nicht vor.",
+      "quelle": "keine methodenspezifische Quelle; FMT 2.0, Regelsatz",
+      "geltung": "Kunstunterricht; Angabe „keine Wirkungsstudien“ aus dem Regelsatz der FMT 2.0; Kämpf-Jansen 2001 ist nur die Konzeptquelle"
+    }
+  ],
+  "plot": {
+    "x": 0.33,
+    "y": 2
+  }
+}

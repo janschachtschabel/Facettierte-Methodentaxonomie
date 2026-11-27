@@ -127,10 +127,10 @@
   ],
   "evidenz": [
     {
-      "grad": "A",
+      "grad": "B",
       "evidenzBezug": "methode",
-      "befund": "Mastery Learning erzielt konsistent mittlere bis hohe Leistungsgewinne (d ≈ 0,58) und verringert Leistungsstreuung.",
-      "quelle": "Kulik, Kulik & Bangert-Drowns (1990); Hattie (2009)",
+      "befund": "Mastery Learning erzielt konsistent mittlere bis hohe Leistungsgewinne und verringert Leistungsstreuung.",
+      "quelle": "Kulik, Kulik & Bangert-Drowns (1990)",
       "geltung": "Schule und Hochschule in klar strukturierbaren Inhaltsbereichen; erfordert Zeitflexibilität."
     }
   ],

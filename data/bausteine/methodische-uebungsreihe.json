@@ -1,0 +1,146 @@
+{
+  "kennung": "methodische-uebungsreihe",
+  "name": "Methodische Übungsreihe",
+  "kurzbeschreibung": "Eine Zielbewegung wird über eine Folge aufeinander aufbauender Vorübungen erlernt, die vom Leichten zum Schweren und vom Einfachen zum Komplexen führen.",
+  "alternativname": [
+    "Übungsreihe",
+    "Methodische Reihe"
+  ],
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "instruktion"
+  ],
+  "fachbereich": [
+    "sport"
+  ],
+  "raumbedarf": [
+    "bewegungsflaeche"
+  ],
+  "quellen": [
+    {
+      "titel": "Größing, S. (2007): Einführung in die Sportdidaktik. Limpert",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "afb1",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zielbewegung",
+      "name": "Benannte Zielbewegung am Ende der Reihe"
+    },
+    {
+      "kennung": "aufbau",
+      "name": "Drei bis sechs Vorübungen, die vom Leichten zum Schweren aufeinander aufbauen"
+    },
+    {
+      "kennung": "kriterium",
+      "name": "Weiter zur nächsten Stufe erst, wenn die vorige gelingt"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Komplexe Bewegungen wie eine Rolle, ein Sprung oder ein Wurf misslingen im Ganzen und verunsichern, wenn Teilfähigkeiten fehlen.",
+  "durchfuehrung": [
+    "Zielbewegung zeigen und die Teilfähigkeiten benennen, die sie verlangt",
+    "Vorübungen vom Leichten zum Schweren aufbauen, als Abfolge oder an Stationen",
+    "Jede Stufe vormachen, üben und an einem Kriterium prüfen",
+    "Lernende gehen zur nächsten Stufe, wenn die vorige gelingt",
+    "Zum Schluss die Zielbewegung im Ganzen ausführen"
+  ],
+  "material": [
+    "Geräte und Hilfsmittel für die Vorübungen",
+    "Stufenkarte mit Kriterien"
+  ],
+  "raumhinweis": "Sporthalle, Sportplatz oder Gelände je nach Zielbewegung",
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Als Stationsbetrieb mit gestuften Stationen"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Verwandt mit dem abschnittsweisen Üben (teil-ganz-ueben), das einen Ablauf in Abschnitte zerlegt statt ihn über vorbereitende Übungen aufzubauen. Hilfe- und Sicherheitsstellung je nach Zielbewegung.",
+  "qualitaetsrisiko": [
+    "Die Reihe wird zu lang, die Zielbewegung kommt in der Stunde nicht mehr vor"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "methode",
+      "befund": "Fachdidaktische Tradition des Sportunterrichts; methodenspezifische Wirkungsstudien sind nicht benannt.",
+      "quelle": "Größing 2007",
+      "geltung": "Sportunterricht; Angabe „fachdidaktische Tradition“ aus dem Regelsatz der FMT 2.0"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.1
+  }
+}

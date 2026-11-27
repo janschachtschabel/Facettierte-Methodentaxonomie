@@ -112,12 +112,12 @@
   "hinweis": "Vorläufige Ersterfassung im 200er-Katalog; Kodierung fachspezifisch prüfen.",
   "evidenz": [
     {
-      "grad": "B",
+      "grad": "C",
       "evidenzBezug": "methode",
-      "befund": "Microteaching zählt zu den gut belegten Trainingsformaten in der Lehrer- und Präsentationsbildung.",
+      "befund": "Microteaching wird in Hatties Synthese als wirksames Trainingsformat geführt.",
       "quelle": "Hattie 2009; Allen & Ryan 1969",
       "geltung": "Hochschule, Lehramts- und Berufsbildung",
-      "umstritten": "Transfer in komplexe Alltagsklassen erfordert weitere Begleitung"
+      "umstritten": "Transfer in komplexe Alltagsklassen erfordert weitere Begleitung. Der Befund stützt sich auf Effektstärken nach Hattie; diese sind methodisch umstritten und dienen nicht als Rangfolge (Wecker et al. 2016)"
     }
   ],
   "quellen": [

@@ -140,6 +140,7 @@
   "evidenz": [
     {
       "grad": "C",
+      "evidenzBezug": "programm",
       "befund": "Evaluationsbefunde zu Jugend debattiert zeigen Zuwächse bei Argumentationsfähigkeit und politischem Interesse",
       "quelle": "Hertie-Stiftung / Jugend debattiert Evaluationen",
       "geltung": "Sekundarstufe I/II, Deutschland"

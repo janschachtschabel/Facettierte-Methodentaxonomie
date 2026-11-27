@@ -1,0 +1,149 @@
+{
+  "kennung": "satzmuster-redemittel",
+  "name": "Satzmuster und Redemittel",
+  "eintragsart": "hilfe",
+  "kurzbeschreibung": "Eine Karte oder ein Tafelanschrieb gibt Satzanfänge und Wendungen für die Sprachhandlung der Phase vor, etwa beschreiben, begründen oder vergleichen; Lernende nutzen sie beim Sprechen und Schreiben.",
+  "alternativname": [
+    "Satzanfänge",
+    "Satzbausteine",
+    "Redemittelkarte"
+  ],
+  "status": "entwurf",
+  "piktogramm": "sprache",
+  "ansatz": [
+    "instruktion"
+  ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "schriftbedarf": [
+    "liest"
+  ],
+  "quellen": [
+    {
+      "titel": "Leisen (2013): Handbuch Sprachförderung im Fach",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Prediger & Wessel (2018)",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Wikipedia: Scaffolding",
+      "url": "https://de.wikipedia.org/wiki/Scaffolding",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "verstehen",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "udl"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "formativ"
+  ],
+  "interaktion": [
+    "einzel",
+    "partner",
+    "kleingruppe-kooperativ",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "prozeduren",
+    "afb1",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [],
+  "kernkomponente": [
+    {
+      "kennung": "sprachhandlung",
+      "name": "Redemittel passend zur Sprachhandlung der Aufgabe"
+    },
+    {
+      "kennung": "abbau",
+      "name": "Abbau, sobald Lernende frei formulieren"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 45,
+  "problem": "Lernende wissen, was sie sagen wollen, finden aber die sprachlichen Mittel zum Beschreiben, Begründen oder Vergleichen im Fach nicht.",
+  "durchfuehrung": [
+    "Sprachhandlung der Aufgabe bestimmen, etwa begründen oder vergleichen",
+    "Drei bis sechs passende Satzanfänge und Wendungen auf Karte oder Tafel geben",
+    "Beim Sprechen und Schreiben auf die Redemittel verweisen",
+    "Redemittel schrittweise wegnehmen, sobald Lernende frei formulieren"
+  ],
+  "material": [
+    "Redemittelkarte oder Tafelanschrieb"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 15,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Redemittel in zwei Stufen für unterschiedliche Sprachstände"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Hilfe: stützt Lernende innerhalb einer Methode und liefert keinen Lernstand. Trägt das Begleitziel Fach- und Bildungssprache.",
+  "qualitaetsrisiko": [
+    "Satzmuster werden abgeschrieben, ohne den Inhalt zu durchdenken"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "methode",
+      "befund": "In einer quasi-experimentellen Studie in Mathematik brachten zusätzliche Satzmuster und Redemittel keinen Zusatznutzen gegenüber einer diskursiven Förderung ohne sie.",
+      "quelle": "Prediger & Wessel 2018",
+      "geltung": "Mathematik; Einzelstudie; Angabe aus dem Regelsatz der FMT 2.0, Original nicht geöffnet"
+    },
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Satzmuster und Wortspeicher sind als einzelne Werkzeuge nicht untersucht, nur als Teil einer Sequenz sprachsensiblen Unterrichts.",
+      "quelle": "Höfler et al. 2024",
+      "geltung": "Systematisches Review mit 55 Studien; Effektstärken fehlen"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 1.1
+  }
+}

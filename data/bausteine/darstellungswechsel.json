@@ -1,0 +1,150 @@
+{
+  "kennung": "darstellungswechsel",
+  "name": "Darstellungswechsel (Darstellungen vernetzen)",
+  "kurzbeschreibung": "Lernende übertragen einen Sachverhalt zwischen gegenständlicher, bildlicher, symbolischer und sprachlicher Darstellung und erklären, welcher Teil der einen Darstellung welchem Teil der anderen entspricht.",
+  "alternativname": [
+    "Darstellungsvernetzung",
+    "Wechsel der Darstellungsform"
+  ],
+  "status": "entwurf",
+  "piktogramm": "visualisierung",
+  "ansatz": [
+    "visualisierung"
+  ],
+  "fachbereich": [
+    "mathe-informatik",
+    "nawi-technik"
+  ],
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
+  ],
+  "quellen": [
+    {
+      "titel": "Leisen (2013): Handbuch Sprachförderung im Fach",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Prediger & Wessel (2018)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2",
+    "wohlstrukturiert"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "zwei-darstellungen",
+      "name": "Mindestens zwei Darstellungen desselben Sachverhalts"
+    },
+    {
+      "kennung": "vernetzen",
+      "name": "Lernende erklären in Worten, was in den Darstellungen einander entspricht"
+    }
+  ],
+  "dauerMin": 15,
+  "dauerMax": 30,
+  "problem": "Lernende rechnen oder benennen richtig, verstehen aber nicht, was Rechnung oder Fachwort bedeuten; die Bedeutung zeigt sich erst im Wechsel zwischen den Darstellungen.",
+  "durchfuehrung": [
+    "Sachverhalt in einer Darstellung vorgeben, etwa als Bild, Tabelle, Handlung oder Term",
+    "Paare übertragen ihn in eine zweite Darstellung, etwa vom Bild in eine Rechnung oder in einen Satz",
+    "Paare schreiben auf, welcher Teil der einen Darstellung welchem Teil der anderen entspricht",
+    "Im Plenum zwei Lösungen vergleichen und die Erklärung in Fachsprache festhalten"
+  ],
+  "material": [
+    "Aufgabenkarte mit der Ausgangsdarstellung",
+    "Leere Vorlage für die zweite Darstellung"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Darstellungskette über drei oder mehr Darstellungen",
+    "Mit Satzmustern und Redemitteln als Hilfe"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Trägt das Begleitziel Fach- und Bildungssprache.",
+  "qualitaetsrisiko": [
+    "Lernende übertragen mechanisch, ohne die Entsprechungen zu erklären"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "methode",
+      "befund": "Quasi-experimentelle Studie in Mathematik; der Regelsatz der FMT 2.0 nennt keine Richtung des Befunds.",
+      "quelle": "Prediger & Wessel 2018",
+      "geltung": "Mathematik; Einzelstudie; Wortlaut aus dem Regelsatz der FMT 2.0 („quasi-experimentell, Mathematik“), Original nicht geöffnet"
+    },
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Sprachsensible Unterrichtsansätze schneiden nicht schlechter ab als Kontrollunterricht; die Evidenz ist methodisch dünn, eine Meta-Analyse war nicht möglich.",
+      "quelle": "Höfler et al. 2024",
+      "geltung": "Systematisches Review mit 55 Studien; Effektstärken fehlen"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.38
+  }
+}
