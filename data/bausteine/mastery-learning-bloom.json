@@ -17,10 +17,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
   "reichweite": "r4",
   "lernfunktion": [
     "erwerb",
@@ -103,11 +99,6 @@
   ],
   "dauerMin": 270,
   "dauerMax": 900,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Bei einheitlichem Unterrichtstempo kumulieren frühe Verständnislücken über ganze Kurseinheiten hinweg.",
   "durchfuehrung": [
     "Lernstoff in überschaubare Moduleinheiten mit transparenten Zielkriterien gliedern.",
@@ -120,7 +111,7 @@
     "Formative Diagnose-Checks A/B",
     "Korrektiv- & Vertiefungsmaterial"
   ],
-  "raum": "Klassenraum oder Lernplattform",
+  "raumhinweis": "Klassenraum oder Lernplattform",
   "gruppeMin": 1,
   "gruppeMax": 60,
   "vorbereitungMin": 60,

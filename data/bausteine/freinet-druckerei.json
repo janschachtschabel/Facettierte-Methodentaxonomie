@@ -10,13 +10,12 @@
   "fachbereich": [
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende verfassen authentische Texte zu eigenen Themen, überarbeiten sie in der Textkonferenz und veröffentlichen sie für echte Leser:innen.",
   "alternativname": [
@@ -38,7 +37,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -74,7 +73,8 @@
     "bewertung": "geteilt"
   },
   "adaptivitaet": [
-    "uniform"
+    "udl",
+    "diff-inhalt"
   ],
   "feedback": [
     "fb-lehrkraft",

@@ -18,10 +18,6 @@
     "beruf-praxis",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Planspiel",
@@ -137,13 +133,6 @@
   ],
   "dauerMin": 180,
   "dauerMax": 600,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Systemische Wechselwirkungen und politische/ökonomische Aushandlungsprozesse bleiben im Text oft abstrakt.",
   "durchfuehrung": [
     "Briefing: Szenario, Rollenprofile und Spielregeln einführen",
@@ -154,7 +143,7 @@
   "material": [
     "Planspiel-Handbuch, Rollenprofile, Regelkarten"
   ],
-  "raum": "Mehrere Gruppenarbeitsbereiche plus Plenum",
+  "raumhinweis": "Mehrere Gruppenarbeitsbereiche plus Plenum",
   "gruppeMin": 12,
   "gruppeMax": 40,
   "teamMin": 3,

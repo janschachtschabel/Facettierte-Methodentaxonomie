@@ -11,16 +11,8 @@
     "sport",
     "aesthetik"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sprachen",
-    "gesellschaft"
-  ],
-  "lernort": [
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
+  "raumbedarf": [
+    "fachausstattung"
   ],
   "kurzbeschreibung": "Statt starrer Wiederholung derselben Idealbewegung variieren Lernende bewusst Parameter (Tempo, Rhythmus, Ausgangslage), um selbstorganisiert stabile Bewegungsmuster aufzubauen.",
   "alternativname": [
@@ -40,7 +32,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Sporthalle, Musikraum oder Werkstatt",
+  "raumhinweis": "Sporthalle, Musikraum oder Werkstatt",
   "gruppeMin": 2,
   "gruppeMax": 30,
   "technik": "t-keine",

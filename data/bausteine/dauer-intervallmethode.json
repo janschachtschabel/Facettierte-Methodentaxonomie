@@ -9,17 +9,8 @@
   "fachbereich": [
     "sport"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "sprachen",
-    "gesellschaft",
-    "nawi-technik",
-    "beruf-praxis",
-    "aesthetik"
-  ],
-  "lernort": [
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "bewegungsflaeche"
   ],
   "kurzbeschreibung": "Ausdauerbelastung nach Dauer- oder Intervallmethode mit individueller Belastungssteuerung (Puls, Sprechtest, Lauftempo) und Varianten wie Fahrtspiel oder Pendellauf.",
   "alternativname": [
@@ -43,7 +34,7 @@
     "Markierungen",
     "Ggf. Pulsuhren oder Pulsmessung per Hand"
   ],
-  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "raumhinweis": "Sporthalle, Sportplatz oder Außengelände",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

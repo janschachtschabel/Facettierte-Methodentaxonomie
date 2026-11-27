@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "reichweite": "r3",
   "lernfunktion": [
     "erwerb",
@@ -100,11 +97,6 @@
   ],
   "dauerMin": 60,
   "dauerMax": 135,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "In großen heterogenen Klassen fehlt bei reinem Plenumsunterricht Zeit für gezielte Kleingruppenförderung.",
   "durchfuehrung": [
     "Klasse in drei leistungshomogene oder gemischte Rotationsteams einteilen.",
@@ -117,7 +109,7 @@
     "OER-/Übungslinks",
     "Stationskarten"
   ],
-  "raum": "Klassenraum mit 3 Zonen",
+  "raumhinweis": "Klassenraum mit 3 Zonen",
   "gruppeMin": 9,
   "gruppeMax": 36,
   "teamMin": 3,

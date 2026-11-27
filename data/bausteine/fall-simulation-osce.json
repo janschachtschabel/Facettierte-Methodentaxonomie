@@ -10,16 +10,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen",
-    "gesellschaft",
-    "aesthetik"
-  ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum"
-  ],
   "kurzbeschreibung": "Standardisierte Kurzsimulation einer realen Berufs- oder Gesprächssituation (5–10 Min.) mit Beobachtungs-Checkliste und unmittelbarem Kriterienfeedback.",
   "alternativname": [
     "OSCE-Station",
@@ -39,7 +29,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 3,
   "gruppeMax": 24,
   "technik": "t-keine",
@@ -129,9 +119,6 @@
       "kennung": "debriefing",
       "name": "Strukturierte Rückmeldung unmittelbar nach der Station"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "hinweis": "Gezielte Lückenschließung im 225er-Katalog (Ersterfassung).",
   "evidenz": [

@@ -9,9 +9,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Ein vertrautes Problem wird über Natur-, Alltags- oder persönliche Analogien gezielt verfremdet, um unerwartete Lösungsprinzipien rückzuübertragen.",
   "alternativname": [
     "Synektische Methode",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -103,9 +100,6 @@
       "kennung": "force-fit",
       "name": "Gezielte Rückübertragung auf das Zielproblem"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Verharren in assoziativen Bildern ohne sachliche Rückbindung"

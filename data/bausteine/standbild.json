@@ -17,15 +17,8 @@
     "gesellschaft",
     "aesthetik"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -125,7 +118,7 @@
   "material": [
     "Textvorlage oder Situation"
   ],
-  "raum": "Freie Spielfläche",
+  "raumhinweis": "Freie Spielfläche",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 3,

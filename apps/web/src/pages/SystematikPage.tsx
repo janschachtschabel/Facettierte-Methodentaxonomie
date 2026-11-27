@@ -4,6 +4,7 @@ import { FMT_RULES, oehDisciplinesForFachbereich } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
+import { raumEigenschaftLabel } from '../planner/rahmen.js';
 
 const DOMAINS = [
   { id: 'A', name: ['Lernprozess'], color: 'var(--dA)', soft: 'var(--dA-soft)' },
@@ -22,8 +23,8 @@ const QMODS = [
   },
   {
     id: 'Q2',
-    name: 'Bedingungsraum',
-    text: 'Vorwissen, Bildungsstufe, Zeitbudget, Gruppe, Technik. Verhindert kontextblinde Wirkungsrankings (Regel R-06).',
+    name: 'Bedarf und Eignung',
+    text: 'Bedarf (Raum, Zeit, Termine, Gruppe, Ausstattung, Vorbereitung, Lesen und Schreiben) und Eignung (Bildungsstufe, Vorwissen, Fachbezug) im W-Raster. Verhindert kontextblinde Wirkungsrankings (Regel R-06).',
     basis: 'Expertise-Reversal (Kalyuga et al. 2003; Tetzlaff et al. 2025)',
     closes: 'Kontextblindheit (M3)'
   },
@@ -44,7 +45,7 @@ const QMODS = [
   {
     id: 'Q5',
     name: 'Komposition',
-    text: '11 Lernzustände als Schnittstellen, Slots für Schachtelung, 6 Operatoren, 13 Regeln, 5-Stufen-Zuordnung, SKOS & JSON-LD.',
+    text: '12 Lernzustände als Schnittstellen, Slots für Schachtelung, 6 Operatoren, 13 Regeln, 5-Stufen-Zuordnung, SKOS & JSON-LD.',
     basis: 'Oser & Baeriswyl (2001); Loibl et al. (2024); W3C SKOS/JSON-LD',
     closes: 'Fehlende Kompositionslogik & Maschinenlesbarkeit (N7, N8)'
   }
@@ -64,13 +65,37 @@ const INFER_TEXT: Record<string, string> = {
   hoch: 'hoch-inferent, fachdidaktische Einschätzung über die Absicht des Designs'
 };
 
+export const GRUNDLAGE_TEXT: Record<string, string> = {
+  formal: 'formal (ablesbar)',
+  E: 'belegt (E)',
+  S: 'gefolgert (S)',
+  A: 'gesetzt (A)',
+  U: 'ungeklärt (U)',
+  Recht: 'Recht'
+};
+
+const WIRKUNG_TEXT: Record<string, string> = {
+  'schliesst-aus': 'schließt aus',
+  warnt: 'warnt',
+  ordnet: 'ordnet',
+  'weist-hin': 'weist hin'
+};
+
+/** The four effects in the order they act on the rank of a method (spec 6, "Reihenfolge der Wirkung"). */
+const WIRKUNG_REIHE: Array<[string, string]> = [
+  ['schliesst-aus', 'Die Methode kommt nicht in Frage, weil etwas Ablesbares nicht passt.'],
+  ['warnt', 'Die Methode bleibt wählbar und trägt einen Hinweis mit Grundlage. Sie steht weiter hinten, außer die Regel sieht keinen Tausch vor oder die Lehrkraft hat sie selbst genannt.'],
+  ['ordnet', 'Die Methode rückt nach vorn oder hinten; nichts fällt weg.'],
+  ['weist-hin', 'Ein Hinweis für die Lehrkraft; die Rangfolge ändert sich nicht.']
+];
+
 const ROLE_LABEL: Record<string, string> = { rand: 'Rand', haupt: 'Haupt', sicherung: 'Sicherung' };
 
 const MATCH_STAGES = [
-  ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', 'Zieltyp, Lernfunktion, gewünschter Lernzustand', 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
-  ['2 Rahmen', 'Was ist praktisch möglich?', 'Zeit, Gruppengröße, Technik, Ort, Vorbereitung, ohne KI/Internet', 'schließt aus', 'formal'],
-  ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
-  ['4 Passung', 'Für wen passt es?', 'Vorwissen (Expertise-Reversal), Bildungsstufe', 'warnt', 'Tetzlaff et al. 2025; Sinha & Kapur 2021'],
+  ['1 Funktion', 'Was soll die Phase oder Reihe leisten?', 'Beitrag: Zielart, Lernfunktion, gewünschter Lernzustand; Wissensart je Kettenschritt', 'schließt aus', 'Klauer & Leutner 2012; Oser & Baeriswyl 2001'],
+  ['2 Rahmen', 'Was ist praktisch möglich?', 'Bedarf gegen Rahmenbedingungen: Zeit, Termine, Gruppengröße, Technik, Raum mit Eigenschaften, Lesen und Schreiben, Vorbereitung, ohne KI/Internet', 'schließt aus (ein angenommener Raum nur ordnend)', 'formal'],
+  ['3 Anschluss', 'Was bringen die Lernenden mit?', 'Bedarf: Vorbedingungen gegen vorhandene Lernzustände', 'schließt aus', 'Loibl et al. 2024'],
+  ['4 Passung', 'Für wen passt es?', 'Eignung: Vorwissen (Expertise-Reversal), Bildungsstufe, Fachbereich', 'warnt', 'Tetzlaff et al. 2025; Sinha & Kapur 2021'],
   ['5 Auswahl', 'Welcher der verbleibenden?', 'Punktzahl aus Fachbereich, Ansatz, Anleitung, Zeit, Technik, Textnähe und Evidenz (Studie zur Methode vor abgeleitetem Prinzip); im Text genannte Methoden haben Vorrang', 'ordnet (Lehrkraft entscheidet)', 'Setzung']
 ];
 
@@ -197,7 +222,7 @@ function OperatorGlyph({ id }: { id: string }) {
 }
 
 export function SystematikPage() {
-  const { bundle, valuesOf, labelOf } = useCatalog();
+  const { bundle, search, valuesOf, labelOf } = useCatalog();
   const [selectedId, setSelectedId] = useState('A2');
 
   if (!bundle) return <div className="page-section">Lade Systematik…</div>;
@@ -517,9 +542,9 @@ export function SystematikPage() {
         </div>
       </section>
 
-      {/* 4. Bausteine kombinieren: 6 Operatoren mit SVG-Symbolen + 11 Lernzustände */}
+      {/* 4. Bausteine kombinieren: 6 Operatoren mit SVG-Symbolen + Lernzustände */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Bausteine kombinieren: 6 Operatoren, Slots &amp; 11 Lernzustände</h2>
+        <h2>Bausteine kombinieren: 6 Operatoren, Slots &amp; {lernzustaende.length} Lernzustände</h2>
         <p style={{ maxWidth: '76ch' }}>
           Jede Methode ist ein Baustein mit Schnittstelle: <strong>Vorbedingungen</strong> nennen, welcher Lernzustand vorliegen muss;{' '}
           <strong>Nachbedingungen</strong>, welcher danach erreicht ist. Größere Bausteine (R2/R3) besitzen <strong>Slots</strong>, die
@@ -540,7 +565,7 @@ export function SystematikPage() {
         </div>
 
         <div className="card" style={{ padding: 16, marginTop: 18 }}>
-          <h3 style={{ marginBottom: 6 }}>Die 11 Lernzustände als Schnittstelle</h3>
+          <h3 style={{ marginBottom: 6 }}>Die {lernzustaende.length} Lernzustände als Schnittstelle</h3>
           <p className="muted" style={{ fontSize: 14.5, marginBottom: 10 }}>
             Die Zustände modellieren grobes Zwischenwissen zwischen Phasen (Loibl et al. 2024; Koedinger et al. 2012). Stärkere Zustände
             implizieren schwächere (z. B. impliziert <em>Konzept verstanden und gesichert</em> → <em>Erstwissen erworben</em>).{' '}
@@ -562,15 +587,241 @@ export function SystematikPage() {
         </div>
       </section>
 
-      {/* 4b. Supplementary attributes beside the 13 facets (live from the data) */}
+      {/* 4b. W-Raster: nine W-fields times five kinds of statement (live from the data) */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Ergänzende Merkmale neben den 13 Facetten</h2>
+        <h2>Das W-Raster: neun Fragen, fünf Arten von Aussagen</h2>
         <p style={{ maxWidth: '76ch' }}>
-          Die 13 Facetten beschreiben, wie eine Methode didaktisch gebaut ist. Für eine fachgerechte Auswahl kommen drei
-          Merkmale hinzu. Sie verändern die Facetten nicht, sondern schärfen Auswahl, Rangfolge und Zeitverteilung.
+          Unterricht planen heißt klären, wer was von wem, wann, mit wem, wo, wie, womit und wozu lernt (Jank &amp; Meyer
+          2002). Die FMT führt diese Fragen als neun W-Felder. Die 13 Facetten beantworten nur das Feld „Methode“, also das
+          Wie. In jedem anderen Feld nennt die Situation ihre Rahmenbedingungen, und die Methode sagt, was sie dort beiträgt,
+          braucht oder nicht verträgt. So stehen Methode und Lehr-Lern-Situation im selben Raster.
+        </p>
+        <p style={{ maxWidth: '76ch' }}>
+          Jede Angabe über eine Methode gehört zu einer von fünf Arten. Die Art hängt am Inhalt der Angabe, ihre Wirkung in
+          der Zuordnung steht daneben. Ausschließen darf nur, was an der Beschreibung ablesbar ist; ein Forschungsbefund zu
+          Vorwissen oder Bildungsstufe ist ein Mittelwert und führt zu einer Warnung mit Quelle.
+        </p>
+        <div className="scroll">
+          <table aria-label="Arten von Aussagen">
+            <thead>
+              <tr>
+                <th>Art</th>
+                <th>Sagt</th>
+                <th>Wirkung in der Zuordnung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(bundle.arten || []).map((a) => (
+                <tr key={a.id}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{a.name}</td>
+                  <td>{a.aussage}</td>
+                  <td>{a.wirkung}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style={{ marginTop: 22 }}>Welche Felder einer Methode wohin gehören</h3>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          Zeilen: die neun Fragen. Spalten: die fünf Arten. In den Zellen stehen die Felder der Methodenbeschreibung. Felder
+          mit „gegeben“ bringt die Lehrkraft als Rahmenbedingung mit; „Vorschlag“ heißt: Hier schlägt der Baukasten vor.
+        </p>
+        <div className="scroll">
+          <table aria-label="W-Raster">
+            <thead>
+              <tr>
+                <th>W-Feld</th>
+                {(bundle.arten || []).map((a) => (
+                  <th key={a.id}>{a.name}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(bundle.wfelder || []).map((w) => (
+                <tr key={w.id}>
+                  <td>
+                    <strong style={{ fontFamily: 'var(--display)' }}>{w.name}</strong>
+                    <div className="muted" style={{ fontSize: 13 }}>
+                      {w.frage}
+                    </div>
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {w.planung === 'vorschlag' ? 'Vorschlag' : 'gegeben'}
+                    </div>
+                  </td>
+                  {(bundle.arten || []).map((a) => {
+                    const felder = (bundle.merkmale || []).filter((m) => m.wfeld === w.id && m.art === a.id);
+                    return (
+                      <td key={a.id} style={{ fontSize: 13 }}>
+                        {felder.length
+                          ? felder.map((m, i) => (
+                              <span key={m.feld}>
+                                {i > 0 ? ', ' : ''}
+                                <code title={`${WIRKUNG_TEXT[m.wirkung] || m.wirkung}; Grundlage: ${GRUNDLAGE_TEXT[m.grundlage] || m.grundlage}`}>{m.feld}</code>
+                              </span>
+                            ))
+                          : '–'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <details style={{ marginTop: 10 }}>
+          <summary style={{ cursor: 'pointer', fontFamily: 'var(--display)', fontWeight: 600 }}>
+            Alle {(bundle.merkmale || []).length} Felder mit Wirkung und Grundlage
+          </summary>
+          <div className="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>W-Feld</th>
+                  <th>Feld</th>
+                  <th>Art der Aussage</th>
+                  <th>Wirkung</th>
+                  <th>Grundlage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(bundle.merkmale || []).map((m) => (
+                  <tr key={m.feld}>
+                    <td>{(bundle.wfelder || []).find((w) => w.id === m.wfeld)?.name || m.wfeld}</td>
+                    <td style={{ fontFamily: 'var(--mono)' }}>{m.feld}</td>
+                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                      {(bundle.arten || []).find((a) => a.id === m.art)?.name || m.art}
+                    </td>
+                    <td>{WIRKUNG_TEXT[m.wirkung] || m.wirkung}</td>
+                    <td>{GRUNDLAGE_TEXT[m.grundlage] || m.grundlage}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+
+        <h3 style={{ marginTop: 22 }}>Wo wird gelernt? Raumtypen und was sie bieten</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Eine Methode nennt keinen Raumnamen, sondern Eigenschaften, die sie braucht (Raumbedarf). Ein Raumtyp ist durch
+          das beschrieben, was er bietet: Dem Hörsaal fehlt die freie Fläche zum Stehen und Gehen, der Sporthalle der
+          Schreibplatz. Im Baukasten lassen sich die Eigenschaften des gewählten Raums abwählen. Nennt die Lehrkraft einen
+          Raum, scheiden Methoden aus, deren Bedarf er nicht deckt. Nennt sie keinen, nimmt der Baukasten einen an und sagt
+          es; ein angenommener Raum ordnet nur und schließt nichts aus.
+        </p>
+        <div className="scroll">
+          <table aria-label="Raumtypen">
+            <thead>
+              <tr>
+                <th>Raumtyp</th>
+                <th>Beschreibung</th>
+                <th>Bietet</th>
+                <th>Methoden, die dort gehen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {valuesOf('raumtyp').map((w) => (
+                <tr key={w.id}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{w.label}</td>
+                  <td style={{ fontSize: 13.5 }}>{w.definition}</td>
+                  <td style={{ fontSize: 13.5 }}>
+                    {(w.bietet || []).map((x) => raumEigenschaftLabel(x, labelOf)).join(', ')}
+                    {w.fachausstattungArt ? ` (${labelOf('fachausstattungart', w.fachausstattungArt)})` : ''}
+                  </td>
+                  <td>{search ? search.suche({ raum: w.id }).length : '–'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style={{ marginTop: 22 }}>Raumbedarf und Schriftbedarf</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Der Schriftbedarf sagt, ob die Lernenden in der Methode lesen oder schreiben. Können sie es noch nicht, scheiden
+          diese Methoden aus. Die Mindestzahl der Termine hält fest, dass manche Methoden Abstand zwischen den Terminen
+          brauchen (Cepeda et al. 2006); {bundle.bausteine.filter((b) => b.termineMin).length} Methoden nennen sie.
+        </p>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Wert</th>
+                <th>Bedeutung</th>
+                <th>Methoden</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(['raumbedarf', 'schriftbedarf'] as const).flatMap((feld) =>
+                valuesOf(feld).map((w) => (
+                  <tr key={`${feld}:${w.id}`}>
+                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                      {feld === 'raumbedarf' ? 'Raumbedarf' : 'Schriftbedarf'}: {w.label}
+                    </td>
+                    <td>{w.definition}</td>
+                    <td>{bundle.bausteine.filter((b) => (b[feld] || []).includes(w.id)).length}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style={{ marginTop: 22 }}>Wozu wird gelernt? Zielarten, Ketten und Wissensart je Schritt</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Die Zielart wählt die Funktionskette des Ablaufs. Jeder tragende Schritt einer Kette ist an eine Wissensart (D1)
+          gebunden: Eine Methode festigt dort nur, was sie auch trägt. Die Zielart legt außerdem fest, woran sich der
+          Lernerfolg zeigt (Nachweis). Die Bindung je Schritt ist eine Setzung und lässt sich in den Daten ändern.
+        </p>
+        <div className="scroll">
+          <table aria-label="Zielarten">
+            <thead>
+              <tr>
+                <th>Zielart</th>
+                <th>Wissensart</th>
+                <th>Nachweis</th>
+                <th>Ketten mit Wissensart je Schritt</th>
+              </tr>
+            </thead>
+            <tbody>
+              {valuesOf('zielart').map((z) => {
+                const ketten = bundle.ketten.filter((k) => (k.zielart || []).includes(z.id));
+                return (
+                  <tr key={z.id}>
+                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{z.label}</td>
+                    <td style={{ fontSize: 13.5 }}>{(z.wissensart || []).map((x) => labelOf('aufgabenstruktur', x)).join(', ')}</td>
+                    <td style={{ fontSize: 13.5 }}>{(z.nachweis || []).map((x) => labelOf('nachweisform', x)).join(', ') || 'offen'}</td>
+                    <td style={{ fontSize: 13.5 }}>
+                      {ketten.length === 0
+                        ? '–'
+                        : ketten.map((k) => (
+                            <div key={k.id} style={{ marginBottom: 6 }}>
+                              <strong>{k.label}</strong>
+                              <ol style={{ margin: '2px 0 0', paddingLeft: 18 }}>
+                                {k.schritte.map((st) => (
+                                  <li key={st.id}>
+                                    {st.label}
+                                    {st.wissensart?.length ? (
+                                      <span className="muted"> – {st.wissensart.map((x) => labelOf('aufgabenstruktur', x)).join(', ')}</span>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ol>
+                            </div>
+                          ))}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          Gesetzt und nicht empirisch geprüft sind: was ein Raumtyp bietet, die Bindung der Wissensart je Schritt und die
+          Form des Nachweises je Zielart. Sie stehen als Setzung in den Daten. Zwei unabhängige Kodierende und eine Prüfung
+          durch Fachlehrkräfte fehlen noch.
         </p>
 
-        <h3 style={{ marginTop: 22 }}>Fachbereich: Wo ist eine Methode zu Hause?</h3>
+        <h3 style={{ marginTop: 22 }}>Fachbezug: Wo ist eine Methode zu Hause?</h3>
         <p style={{ maxWidth: '76ch' }}>
           Jede Methode trägt einen oder mehrere von acht Fachbereichen. „Fachübergreifend“ heißt: ohne Fachbindung überall
           einsetzbar. Zusätzlich kann eine Methode Fachbereiche nennen, in denen sie nicht passt
@@ -612,7 +863,12 @@ export function SystematikPage() {
           <code>skos:narrowMatch</code> mit diesen Fächern verknüpft.
         </p>
 
-        <h3 style={{ marginTop: 22 }}>Evidenzbezug: Worauf stützt sich ein Befund?</h3>
+      </section>
+
+      {/* 4c. Quality layer: what a finding rests on */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Qualitätsschicht: Evidenzbezug</h2>
+        <h3 style={{ marginTop: 22 }}>Worauf stützt sich ein Befund?</h3>
         <p style={{ maxWidth: '76ch' }}>
           Jede Evidenzaussage nennt neben dem Grad A bis C auch ihren Bezug. So bleibt sichtbar, ob eine Methode selbst
           untersucht wurde oder ob der Befund von einem Wirkprinzip auf sie übertragen ist.
@@ -650,7 +906,12 @@ export function SystematikPage() {
           </table>
         </div>
 
-        <h3 style={{ marginTop: 22 }}>Kettenrollen und Zeitanteile: Wie viel Zeit bekommt welcher Schritt?</h3>
+      </section>
+
+      {/* 4d. Function chains: roles and time shares */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Funktionsketten: Rollen und Zeitanteile</h2>
+        <h3 style={{ marginTop: 22 }}>Wie viel Zeit bekommt welcher Schritt?</h3>
         <p style={{ maxWidth: '76ch' }}>
           Jeder Schritt einer Funktionskette hat eine Rolle: <strong>Rand</strong> (Einstieg oder Abschluss),{' '}
           <strong>Haupt</strong> (die eigentliche Arbeit) oder <strong>Sicherung</strong>. Dazu kommt ein Zeitanteil. Daraus
@@ -787,6 +1048,98 @@ export function SystematikPage() {
                   <td>
                     <span className="basis-tag">{r.grundlage === 'formal' ? 'formal' : `[${r.grundlage}]`}</span>
                     {r.begruendung}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 7b. Passungsregeln (data/regeln.json, live from the bundle) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Passungsregeln</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Die Kompositionsregeln prüfen einen fertigen Ablauf. Die Passungsregeln verbinden die Situation mit der Methode:
+          Sie lesen, was die Lehrkraft angibt (Vorwissen, Bildungsstufe, Inhalt, Sprachniveau, Fach, Raum), und sagen, was
+          das für eine Methode heißt. Jede Regel nennt ihre Wirkung und ihre Grundlage. Eine Regel mit Grundlage „belegt“
+          nennt die Studie, eine Setzung bleibt als Setzung sichtbar. Im Baukasten steht unter jedem Hinweis, welche Regel
+          ihn auslöst und worauf sie sich stützt.
+        </p>
+        <h3 style={{ marginTop: 22 }}>Welche Wirkung hat welche Art</h3>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          In dieser Reihenfolge wirken die Angaben in der Rangfolge einer Methode. Ein genannter Wunsch der Lehrkraft steht
+          vor den Warnungen.
+        </p>
+        <div className="scroll">
+          <table aria-label="Welche Wirkung hat welche Art">
+            <thead>
+              <tr>
+                <th>Wirkung</th>
+                <th>Was in der Zuordnung geschieht</th>
+                <th>Art der Aussage</th>
+                <th>Passungsregeln</th>
+              </tr>
+            </thead>
+            <tbody>
+              {WIRKUNG_REIHE.map(([w, tut]) => {
+                const text = WIRKUNG_TEXT[w];
+                const arten = (bundle.arten || []).filter((a) => a.wirkung.includes(text));
+                const regeln = (bundle.regeln || []).filter((r) => r.wirkung === w);
+                return (
+                  <tr key={w}>
+                    <th scope="row" style={{ fontFamily: 'var(--display)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      {text}
+                    </th>
+                    <td>{tut}</td>
+                    <td>{arten.length ? arten.map((a) => a.name).join(', ') : '–'}</td>
+                    <td>{regeln.length}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <h3 style={{ marginTop: 22 }}>Die {(bundle.regeln || []).length} Passungsregeln</h3>
+        <div className="scroll">
+          <table aria-label="Passungsregeln">
+            <thead>
+              <tr>
+                <th>Regel</th>
+                <th>Sagt</th>
+                <th>Wirkung</th>
+                <th>Grundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(bundle.regeln || []).map((r) => (
+                <tr key={r.id}>
+                  <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>
+                    {r.name}
+                    <div className="muted" style={{ fontFamily: 'var(--mono)', fontWeight: 400, fontSize: 11.5 }}>
+                      {r.id}
+                    </div>
+                  </td>
+                  <td>
+                    {r.text
+                      // An example in parentheses ("(z. B. {methode})") names no method here: left out.
+                      .replace(/\s*\(z\.\s*B\.\s*\{methode\}\)/g, '')
+                      .replace(/^\{methode\}/, 'Die Methode')
+                      .replace(/\{methode\}/g, 'die Methode')}
+                    {r.keinTausch && (
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        Warnt und zeigt Hilfe, die Methode bleibt im Ablauf.
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{WIRKUNG_TEXT[r.wirkung] || r.wirkung}</td>
+                  <td>
+                    {GRUNDLAGE_TEXT[r.grundlage] || r.grundlage}
+                    {r.quelle && (
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        {r.quelle}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,25 @@
-import type { Baustein } from './types.js';
+import { istMethode } from './eintragsart.js';
+import type { Baustein, Grundlage, MatchRequest, Passungsregel, Regelmeldung, Scheme, TeilgruppenRegelsatz } from './types.js';
 import { TECH_RANK } from './technik.js';
-import { scoreDifferentiationMatrix, scoreMethodForGroup, suggestAlternativeMethodsForGroup } from './differentiationMatrix.js';
+import { mehrTechnikAls, setztKiEin } from './bedarf.js';
+import {
+  getPersonaValues,
+  scoreDifferentiationMatrix,
+  scoreMethodForGroup,
+  suggestAlternativeMethodsForGroup,
+  type MatrixScoreResult
+} from './differentiationMatrix.js';
+import { erstelleRegeln } from './regeln.js';
+import { baueSituation } from './situation.js';
+import {
+  bereinigeProfil,
+  entscheideTeilgruppe,
+  erfuelltRichtung,
+  genannteWerte,
+  istGleichwertig,
+  type TeilgruppenEntscheidung,
+  type TeilgruppenProfil
+} from './teilgruppen.js';
 
 export interface MethodAdjustmentPhase {
   key: string;
@@ -18,6 +37,25 @@ export interface MethodAdjustmentGroup {
   isMain?: boolean;
   personaId?: string;
   selectedValues?: Record<string, string>;
+  /** The group cannot read or write (statement of the group, not a matrix trait). */
+  ohneSchrift?: Array<'lesen' | 'schreiben'>;
+  /** The group cannot move freely (statement of the group, not a matrix trait). */
+  ohneBewegung?: boolean;
+  /**
+   * Values of selectedValues the teacher named (core values of a preset, traits read from the text). Only these decide
+   * the table rows; the others only order the matrix. Undefined: every value of selectedValues counts.
+   */
+  genannt?: string[];
+}
+
+/** One help inside the method; the row's own help carries its basis and source. */
+export interface Hilfe {
+  id: string;
+  name: string;
+  /** When the help is no longer needed. */
+  abbau: string;
+  grundlage?: Grundlage;
+  quelle?: string;
 }
 
 export interface MethodAdjustmentConstraints {
@@ -27,6 +65,17 @@ export interface MethodAdjustmentConstraints {
   bildungsstufe?: string;
   /** Subject area of the plan; methods marked unsuitable for it are never proposed. */
   fachbereich?: string;
+  /** Request of the plan (room, time, devices …); a replacement has to cover its needs in the same frame. */
+  anfrage?: MatchRequest;
+  /** Number of teachers; with two, both methods may bind a teacher. */
+  lehrende?: number;
+}
+
+/** What the subgroup decision reads: the table "Tausch oder Hilfe", the fit rules and the vocabularies. */
+export interface TeilgruppenRegelwerk {
+  teilgruppen: TeilgruppenRegelsatz;
+  regeln: Passungsregel[];
+  schemes: Scheme[];
 }
 
 export interface MethodAdjustment {
@@ -39,20 +88,96 @@ export interface MethodAdjustment {
   zuKennung: string;
   zuName: string;
   grund: string;
+  /** Row of the table "Tausch oder Hilfe" that asks for the swap. */
+  merkmal: string;
+  grundlage?: Grundlage;
+  quelle?: string;
 }
 
-/** Subgroups can only be checked when a persona or matrix values describe their needs. */
-export function hasAdjustmentProfile(g: Pick<MethodAdjustmentGroup, 'personaId' | 'selectedValues'>): boolean {
-  return Boolean(g.personaId) || Object.keys(g.selectedValues || {}).length > 0;
+export interface SupportProposal {
+  stepKey: string;
+  groupId: string;
+  groupLabel: string;
+  antwort: 'hilfe';
+  grund: string;
+  grundlage?: Grundlage;
+  quelle?: string;
+  /** The row's own help (E, A, Recht) and measures of the matrix; each says when it is no longer needed. */
+  hilfen: Hilfe[];
 }
 
-/** A method counts as a weak fit for a group below this value; guidance alone already gives 4. */
-const WEAK_FIT = 4;
-/** The alternative has to be clearly better, otherwise the plan stays as it is. */
-const MIN_GAIN = 3;
+/** Subgroups can only be checked when a persona, matrix values or own statements describe their needs. */
+export function hasAdjustmentProfile(g: Pick<MethodAdjustmentGroup, 'personaId' | 'selectedValues' | 'ohneSchrift' | 'ohneBewegung'>): boolean {
+  return Boolean(g.personaId) || Object.keys(g.selectedValues || {}).length > 0 || Boolean(g.ohneSchrift?.length) || Boolean(g.ohneBewegung);
+}
 
-const AI_ROLES = new Set(['tutor', 'dialogpartner', 'simulationsrolle', 'belehrbarer-agent', 'antwortgeber']);
-const usesAi = (b: Baustein) => Boolean(b.ki) || (b.rolle || []).some((r) => AI_ROLES.has(r));
+/**
+ * Profile of a group for the subgroup decision: persona values below the group's own values. Blocked categories of
+ * the persona are dropped here (a persona is no statement of the teacher); blocked categories the group names itself
+ * stay and are reported by the decision. Only the group's named values decide (genannt): its own values, or the
+ * subset it names; persona values only order the matrix.
+ */
+export function teilgruppenProfil(g: MethodAdjustmentGroup, t: TeilgruppenRegelsatz): TeilgruppenProfil {
+  const persona = Object.fromEntries(
+    Object.entries(g.personaId ? getPersonaValues(g.personaId) : {}).filter(([k]) => !t.gesperrt.includes(k))
+  );
+  const eigene = Object.values(g.selectedValues || {});
+  const genannt = g.genannt ? eigene.filter((w) => g.genannt!.includes(w)) : eigene;
+  return {
+    id: g.id,
+    label: g.label,
+    selectedValues: { ...persona, ...(g.selectedValues || {}) },
+    genannt,
+    ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+    ...(g.ohneBewegung ? { ohneBewegung: true } : {})
+  };
+}
+
+/** Matrix result of a group, without the blocked categories of the table. */
+export const matrixFuer = (g: MethodAdjustmentGroup, t: TeilgruppenRegelsatz, constraints: MethodAdjustmentConstraints, limit = 10) =>
+  scoreDifferentiationMatrix({
+    personaId: g.personaId,
+    selectedValues: g.selectedValues,
+    gesperrt: t.gesperrt,
+    maxTechnik: constraints.maxTechnik,
+    ohneInternet: constraints.ohneInternet,
+    ohneKI: constraints.ohneKI,
+    limit
+  });
+
+/** Fields of the plan's request the equivalence check takes: room, time and group size. */
+const ANFRAGE_FELDER = ['raum', 'lernort', 'raumBietet', 'fachausstattungArt', 'zeitMin', 'gruppe'] as const;
+
+/**
+ * Request the equivalence check reads: the live frame (devices, internet, AI, level, subject area) always wins; the
+ * request of step 1 only adds room, time and group size. Without a request no room is named, so an assumed room never
+ * excludes a replacement.
+ */
+export function anfrageAus(constraints: MethodAdjustmentConstraints): MatchRequest {
+  const a: MatchRequest = {};
+  if (constraints.maxTechnik) a.maxTechnik = constraints.maxTechnik;
+  if (constraints.ohneInternet) a.ohneInternet = true;
+  if (constraints.ohneKI) a.ohneKI = true;
+  if (constraints.bildungsstufe) a.bildungsstufe = constraints.bildungsstufe;
+  if (constraints.fachbereich) a.fachbereich = constraints.fachbereich;
+  for (const feld of ANFRAGE_FELDER) {
+    const v = constraints.anfrage?.[feld];
+    if (v != null && v !== '') (a as Record<string, unknown>)[feld] = v;
+  }
+  return a;
+}
+
+/** Social form of a measure that contradicts the interaction of the method (e.g. solo work in a group method). */
+export function conflictsWithMethodInteraction(measureId: string, block?: Baustein): boolean {
+  if (!block) return false;
+  const inter = block.interaktion || [];
+  const isSocial = inter.includes('kleingruppe-kooperativ') || inter.includes('partner') || inter.includes('plenum-lehrergeleitet') || inter.includes('plenum-lernendengeleitet');
+  const isPureSolo = inter.includes('einzel') && !isSocial;
+  if (isSocial && measureId === 'sozialform-einzel') return true;
+  if (isPureSolo && (measureId === 'sozialform-gruppe' || measureId === 'sozialform-plenum')) return true;
+  if (inter.includes('plenum-lehrergeleitet') && measureId === 'methodik-lernprozess-fachspezifisch') return true;
+  return false;
+}
 
 /**
  * A parallel method must not ask for more than the method it replaces: no extra devices, internet or AI,
@@ -64,93 +189,418 @@ function staysWithinFrame(
   needsScaffolding: boolean,
   constraints: MethodAdjustmentConstraints
 ): boolean {
-  // Relative to the replaced method, also when a general technology limit is set (that limit applies on top).
-  if ((TECH_RANK[candidate.technik] ?? 0) > Math.max(TECH_RANK[current.technik] ?? 0, 1)) return false;
-  if (candidate.internet && !current.internet) return false;
-  if (usesAi(candidate) && !usesAi(current)) return false;
+  if (mehrTechnikAls(candidate, current)) return false;
   if (constraints.fachbereich && (candidate.fachbereichUngeeignet || []).includes(constraints.fachbereich)) return false;
   if (needsScaffolding && !candidate.anleitung.some((a) => a === 'explizit' || a === 'geleitet')) return false;
   return true;
 }
 
-const GUIDANCE_REASON: Record<string, string> = {
-  explizit: 'führt klar angeleitet Schritt für Schritt',
-  geleitet: 'leitet an und lässt Spielraum',
-  offen: 'lässt mehr Freiraum für eigene Wege'
-};
+export interface GleichwertigerKandidat {
+  kennung: string;
+  name: string;
+  reichweite: string;
+  dauerMin: number;
+  dauerMax: number;
+  grund: string;
+}
 
-/** Reason in plain words for teachers, without facet codes. */
-function plainReason(
-  b: Baustein,
-  profile: { preferredGuidance: string; needsScaffolding: boolean; benefitsFromEnrichment: boolean }
-): string {
-  const parts: string[] = [];
-  if (b.anleitung.includes(profile.preferredGuidance)) parts.push(GUIDANCE_REASON[profile.preferredGuidance]);
-  if (profile.needsScaffolding && (b.adaptivitaet.includes('diff-prozess') || b.adaptivitaet.includes('diff-tempo'))) {
-    parts.push('bietet Hilfestufen oder eigenes Tempo');
-  }
-  if (profile.benefitsFromEnrichment && (b.engagement.includes('konstruktiv') || b.engagement.includes('interaktiv'))) {
-    parts.push('ermöglicht Vertiefung und Transfer');
-  }
-  if (!parts.length) parts.push('passt besser zu den empfohlenen Maßnahmen für diese Gruppe');
-  return parts.join(', ');
+/** A candidate that fulfils the direction but is not equivalent, with the reasons from istGleichwertig. */
+interface Abgelehnt {
+  name: string;
+  gruende: string[];
+}
+
+function pruefeKandidaten(
+  allBlocks: Baustein[],
+  geplant: Baustein,
+  entscheidung: TeilgruppenEntscheidung,
+  profil: TeilgruppenProfil,
+  matrix: MatrixScoreResult,
+  regelsatz: TeilgruppenRegelwerk,
+  constraints: MethodAdjustmentConstraints,
+  dauerMin: number | undefined,
+  regeln: ReturnType<typeof erstelleRegeln>
+): { kandidaten: GleichwertigerKandidat[]; abgelehnt: Abgelehnt[] } {
+  if (entscheidung.antwort !== 'tausch' || !entscheidung.richtung) return { kandidaten: [], abgelehnt: [] };
+  const richtung = entscheidung.richtung;
+  const byKennung = new Map(allBlocks.map((b) => [b.kennung, b]));
+  const anfrage = anfrageAus(constraints);
+  const situation = baueSituation(anfrage, regelsatz);
+  const abgelehnt: Abgelehnt[] = [];
+  const kandidaten = suggestAlternativeMethodsForGroup(matrix, geplant, allBlocks, allBlocks.length, dauerMin, constraints)
+    .map((c) => ({ c, block: byKennung.get(c.kennung) }))
+    .filter((x): x is { c: GleichwertigerKandidat; block: Baustein } => Boolean(x.block))
+    .filter((x) => staysWithinFrame(x.block, geplant, matrix.didacticProfile.needsScaffolding, constraints))
+    .filter((x) => erfuelltRichtung(x.block, richtung))
+    .filter((x) => {
+      const g = istGleichwertig(x.block, geplant, {
+        anfrage,
+        situation,
+        dauerMin,
+        profil,
+        lehrende: constraints.lehrende,
+        data: regelsatz,
+        regeln,
+        t: regelsatz.teilgruppen
+      });
+      if (!g.ok) abgelehnt.push({ name: x.block.name, gruende: g.gruende });
+      return g.ok;
+    })
+    .map((x, i) => ({ ...x, i, fit: scoreMethodForGroup(x.block, matrix).fit }))
+    .sort((a, b) => b.fit - a.fit || a.i - b.i)
+    .map((x) => x.c);
+  return { kandidaten, abgelehnt };
 }
 
 /**
- * Proposes parallel methods for learner subgroups where the planned method fits the group's needs poorly
- * and the catalogue holds a clearly better method for the same learning function.
- * Deterministic; never changes the method of the main group.
+ * Parallel methods that may replace the planned one for a subgroup whose answer is the swap: candidates of
+ * suggestAlternativeMethodsForGroup that fulfil the direction of the swap row and are equivalent (istGleichwertig).
+ * The matrix fit only orders the equivalent candidates. Empty unless the decision is 'tausch'.
+ */
+export function gleichwertigeKandidaten(
+  allBlocks: Baustein[],
+  geplant: Baustein,
+  entscheidung: TeilgruppenEntscheidung,
+  profil: TeilgruppenProfil,
+  matrix: MatrixScoreResult,
+  regelsatz: TeilgruppenRegelwerk,
+  constraints: MethodAdjustmentConstraints = {},
+  dauerMin?: number,
+  regeln: ReturnType<typeof erstelleRegeln> = erstelleRegeln(regelsatz.regeln)
+): GleichwertigerKandidat[] {
+  return pruefeKandidaten(allBlocks, geplant, entscheidung, profil, matrix, regelsatz, constraints, dauerMin, regeln).kandidaten;
+}
+
+/** Answer of one subgroup for one phase, after the search for a replacement. */
+export interface PhasenAntwort {
+  stepKey: string;
+  groupId: string;
+  groupLabel: string;
+  /** 'tausch' only with an equivalent replacement (alternativen[0]); otherwise the help stands in for it. */
+  antwort: 'passt' | 'hilfe' | 'tausch';
+  grund: string;
+  merkmal?: string;
+  grundlage?: Grundlage;
+  quelle?: string;
+  hilfen: Hilfe[];
+  /** With 'tausch': the help the group gets if the teacher keeps the planned method. */
+  sonstHilfen?: Hilfe[];
+  /** Equivalent replacements not planned elsewhere and not yet given to the group; the first one is proposed. */
+  alternativen: GleichwertigerKandidat[];
+}
+
+/** Why no replacement was offered, in plain German and short: at most one rejected candidate with its first reason. */
+function keinErsatzGrund(abgelehnt: Abgelehnt[], vergeben: string[], locked: boolean): string {
+  if (locked) return 'Kein gleichwertiger Ersatz: Die Phase ist für alle festgelegt, die Methode bleibt.';
+  const erster = abgelehnt[0];
+  if (erster) {
+    // Reasons read "Bereich: Satz."; the sentence alone, without the trailing dot.
+    const grund = erster.gruende[0].replace(/^[^:]+:\s*/, '').replace(/\.$/, '');
+    return `Kein gleichwertiger Ersatz: ${erster.name} passt nicht, weil: ${grund}.`;
+  }
+  if (vergeben.length) return `Kein gleichwertiger Ersatz: ${vergeben[0]} steht schon im Ablauf oder ist für die Gruppe vergeben.`;
+  return 'Kein gleichwertiger Ersatz: Der Katalog hat keine Methode mit derselben Lernfunktion, die in diese Richtung geht.';
+}
+
+/**
+ * The one decision path for subgroups (used by the proposals and by adaptScenario): for every group with a profile
+ * (not the main group) and every phase with a method, the answer of entscheideTeilgruppe; a swap stands only with an
+ * equivalent replacement that is neither planned nor already given to the group. A swap without one, or in a locked
+ * phase, falls back to a help in the method (order passt, Hilfe, parallele Methode) and says why.
+ */
+export function teilgruppenAntworten(
+  allBlocks: Baustein[],
+  phases: MethodAdjustmentPhase[],
+  groups: MethodAdjustmentGroup[],
+  constraints: MethodAdjustmentConstraints,
+  regelsatz: TeilgruppenRegelwerk
+): PhasenAntwort[] {
+  const out: PhasenAntwort[] = [];
+  const t = regelsatz.teilgruppen;
+  const regeln = erstelleRegeln(regelsatz.regeln);
+  const planned = new Set(phases.map((p) => p.block?.kennung).filter(Boolean) as string[]);
+
+  for (const g of groups) {
+    if (g.isMain || !hasAdjustmentProfile(g)) continue;
+    const profil = teilgruppenProfil(g, t);
+    const matrix = matrixFuer(g, t, constraints);
+    const usedForGroup = new Set<string>();
+
+    for (const p of phases) {
+      if (!p.block) continue;
+      const e = entscheideTeilgruppe(p.block, profil, t);
+      const beleg = {
+        ...(e.merkmal ? { merkmal: e.merkmal } : {}),
+        ...(e.grundlage ? { grundlage: e.grundlage } : {}),
+        ...(e.quelle ? { quelle: e.quelle } : {})
+      };
+      const basis = { stepKey: p.key, groupId: g.id, groupLabel: g.label, ...beleg };
+      if (e.antwort === 'passt') {
+        out.push({ ...basis, antwort: 'passt', grund: e.grund, hilfen: [], alternativen: [] });
+        continue;
+      }
+      const hilfen = hilfenDerEntscheidung(p.block, e, profil, t, constraints);
+      if (e.antwort === 'tausch') {
+        const { kandidaten, abgelehnt } = p.locked
+          ? { kandidaten: [], abgelehnt: [] }
+          : pruefeKandidaten(allBlocks, p.block, e, profil, matrix, regelsatz, constraints, p.durationMin, regeln);
+        const frei = kandidaten.filter((c) => !planned.has(c.kennung) && !usedForGroup.has(c.kennung));
+        if (frei.length) {
+          usedForGroup.add(frei[0].kennung);
+          out.push({ ...basis, antwort: 'tausch', grund: e.grund, hilfen: [], sonstHilfen: hilfen, alternativen: frei.slice(0, 3) });
+          continue;
+        }
+        const vergeben = kandidaten.map((c) => c.name);
+        out.push({
+          ...basis,
+          antwort: 'hilfe',
+          grund: `${keinErsatzGrund(abgelehnt, vergeben, Boolean(p.locked))} Die Methode bleibt und bekommt eine Hilfe. ${e.grund}`,
+          hilfen,
+          alternativen: []
+        });
+        continue;
+      }
+      out.push({ ...basis, antwort: 'hilfe', grund: e.grund, hilfen, alternativen: [] });
+    }
+  }
+  return out;
+}
+
+/**
+ * Proposes parallel methods for learner subgroups where the subgroup decision asks for a swap (the trait's row in
+ * teilgruppen.json says swap and the planned method sets off its reason, or a formal need is not covered) and the
+ * catalogue holds an equivalent method that fulfils the direction. Deterministic; never changes the method of the
+ * main group.
  */
 export function proposeMethodAdjustments(
   allBlocks: Baustein[],
   phases: MethodAdjustmentPhase[],
   groups: MethodAdjustmentGroup[],
-  constraints: MethodAdjustmentConstraints = {}
+  constraints: MethodAdjustmentConstraints,
+  regelsatz: TeilgruppenRegelwerk,
+  antworten: PhasenAntwort[] = teilgruppenAntworten(allBlocks, phases, groups, constraints, regelsatz)
 ): MethodAdjustment[] {
+  const phaseByKey = new Map(phases.map((p) => [p.key, p]));
   const out: MethodAdjustment[] = [];
-  const byKennung = new Map(allBlocks.map((b) => [b.kennung, b]));
-  const planned = new Set(phases.map((p) => p.block?.kennung).filter(Boolean) as string[]);
-
-  for (const g of groups) {
-    if (g.isMain) continue;
-    if (!hasAdjustmentProfile(g)) continue;
-    const matrix = scoreDifferentiationMatrix({
-      personaId: g.personaId,
-      selectedValues: g.selectedValues,
-      maxTechnik: constraints.maxTechnik,
-      ohneInternet: constraints.ohneInternet,
-      ohneKI: constraints.ohneKI,
-      limit: 10
+  for (const a of antworten) {
+    const p = phaseByKey.get(a.stepKey);
+    const zu = a.alternativen[0];
+    if (a.antwort !== 'tausch' || !p?.block || !zu || !a.merkmal) continue;
+    out.push({
+      stepKey: a.stepKey,
+      phaseLabel: p.label || p.block.name,
+      groupId: a.groupId,
+      groupLabel: a.groupLabel,
+      vonKennung: p.block.kennung,
+      vonName: p.block.name,
+      zuKennung: zu.kennung,
+      zuName: zu.name,
+      grund: a.grund,
+      merkmal: a.merkmal,
+      ...(a.grundlage ? { grundlage: a.grundlage } : {}),
+      ...(a.quelle ? { quelle: a.quelle } : {})
     });
-    const usedForGroup = new Set<string>();
+  }
+  return out;
+}
 
-    for (const p of phases) {
-      if (!p.block || p.locked) continue;
-      const current = scoreMethodForGroup(p.block, matrix).fit;
-      if (current >= WEAK_FIT) continue;
-      // All suitable alternatives: the filters below may rule out the first ones.
-      const candidates = suggestAlternativeMethodsForGroup(matrix, p.block, allBlocks, allBlocks.length, p.durationMin, constraints);
-      const best = candidates
-        .map((c) => ({ c, block: byKennung.get(c.kennung) }))
-        .filter((x): x is { c: (typeof candidates)[number]; block: Baustein } => Boolean(x.block))
-        .filter((x) => !planned.has(x.c.kennung) && !usedForGroup.has(x.c.kennung))
-        .filter((x) => staysWithinFrame(x.block, p.block!, matrix.didacticProfile.needsScaffolding, constraints))
-        .map((x) => ({ ...x, group: scoreMethodForGroup(x.block, matrix) }))
-        .filter((x) => x.group.fit - current >= MIN_GAIN)
-        .sort((a, b) => b.group.fit - a.group.fit)[0];
-      if (!best) continue;
-      usedForGroup.add(best.c.kennung);
-      out.push({
-        stepKey: p.key,
-        phaseLabel: p.label || p.block.name,
-        groupId: g.id,
-        groupLabel: g.label,
-        vonKennung: p.block.kennung,
-        vonName: p.block.name,
-        zuKennung: best.c.kennung,
-        zuName: best.c.name,
-        grund: plainReason(best.block, matrix.didacticProfile)
-      });
+const MAX_HILFEN = 3;
+
+/** Words of the table rows that name no kind of help (the method itself, hedges). */
+const KEINE_HILFE = new Set(['method', 'dersel', 'diesel', 'vorsch', 'belegt', 'grenze', 'dafuer', 'gleich']);
+const stems = (text: string) =>
+  new Set(
+    text
+      .toLowerCase()
+      .split(/[^a-zäöüß]+/)
+      .filter((w) => w.length >= 6)
+      .map((w) => w.slice(0, 6))
+      .filter((w) => !KEINE_HILFE.has(w))
+  );
+
+/** Two helps are variants of each other when the word stems of one are all in the other. */
+function aehnlich(a: string, b: string): boolean {
+  const x = stems(a);
+  const y = stems(b);
+  if (!x.size || !y.size) return false;
+  return [...x].every((w) => y.has(w)) || [...y].every((w) => x.has(w));
+}
+
+/**
+ * Helps of the matrix for a group in one method: core measures that fit the interaction of the method, at most three
+ * (with `erste`, the row's own help, in front). Order: measures that name what the table row asks for (shared word
+ * stems with its `wohin`), then measures of the help areas (the areas teilgruppen.json gives a sentence on when the
+ * help ends), then the order of the matrix. A measure whose word stems are all in an already picked help, or the
+ * other way round, is left out.
+ */
+export function hilfenFuer(
+  block: Baustein | undefined,
+  matrix: MatrixScoreResult,
+  t: TeilgruppenRegelsatz,
+  wohin?: string,
+  erste?: Hilfe,
+  ohne: ReadonlySet<string> = new Set()
+): Hilfe[] {
+  const gesucht = stems(wohin || '');
+  const nennt = (name: string) => [...stems(name)].some((w) => gesucht.has(w));
+  const bereich = (id: string) => (id in t.abbau && id !== 'sonst' ? 0 : 1);
+  const out: Hilfe[] = erste ? [erste] : [];
+  const sortiert = matrix.topRecommendations
+    .map((m, i) => ({ m, i }))
+    .filter(({ m }) => m.relevanz === 'kern' && !ohne.has(m.id) && !conflictsWithMethodInteraction(m.id, block))
+    .sort((a, b) => Number(nennt(b.m.name)) - Number(nennt(a.m.name)) || bereich(a.m.oberKategorieId) - bereich(b.m.oberKategorieId) || a.i - b.i);
+  for (const { m } of sortiert) {
+    if (out.length >= MAX_HILFEN) break;
+    if (out.some((h) => aehnlich(h.name, m.name))) continue;
+    out.push({ id: m.id, name: m.name, abbau: t.abbau[m.oberKategorieId] ?? t.abbau.sonst });
+  }
+  return out;
+}
+
+/**
+ * Measures of special-needs support: a help only where a deciding value is a marked special need (the stronger levels
+ * of foerderbedarf-*, see STARKER_FOERDERBEDARF), never for e.g. second-language learners, whose language level alone
+ * scores them in the matrix, nor for an occasional or slight need.
+ */
+const NUR_BEI_FOERDERBEDARF: ReadonlySet<string> = new Set([
+  'unterstuetzungsintensitaet-intensiv',
+  'unterstuetzungsintensitaet-kontinuierlich',
+  'lernwerkzeuge-assistiv'
+]);
+
+/** Stronger levels of the special-need categories (not occasional, slight, inconspicuous or none). */
+const STARKER_FOERDERBEDARF: ReadonlySet<string> = new Set([
+  'foerderbedarf-lernen-umfassend',
+  'foerderbedarf-sprache-erheblich',
+  'foerderbedarf-emotional-sozial-deutlich',
+  'foerderbedarf-geistig-deutlich',
+  'foerderbedarf-koerperlich-deutlich',
+  'foerderbedarf-hoeren-beeintraechtigung',
+  'foerderbedarf-hoeren-taub',
+  'foerderbedarf-sehen-deutlich',
+  'foerderbedarf-autismus-deutlich'
+]);
+
+/** Bases whose row sentence names a help the teacher can use as it stands (not U, S or formal). */
+const BELEGTE_HILFE: ReadonlySet<Grundlage> = new Set<Grundlage>(['E', 'A', 'Recht']);
+
+/** The row's own help: its `wohin`, with basis and source, when the row rests on evidence, an analogy or law. */
+export function zeilenHilfe(e: Pick<TeilgruppenEntscheidung, 'merkmal'>, t: TeilgruppenRegelsatz): Hilfe | undefined {
+  const m = e.merkmal && e.merkmal !== 'sonst' ? t.merkmale.find((x) => x.id === e.merkmal) : undefined;
+  if (!m || !BELEGTE_HILFE.has(m.grundlage)) return undefined;
+  return { id: `teilgruppe:${m.id}`, name: m.wohin, abbau: t.abbau.sonst, grundlage: m.grundlage, ...(m.quelle ? { quelle: m.quelle } : {}) };
+}
+
+/**
+ * Helps for a decision: the row's own help first (E, A, Recht), then matrix measures scored only with the group's
+ * values in the deciding row (for sonst: that one value). Persona values and extras of a preset play no part here.
+ */
+export function hilfenDerEntscheidung(
+  block: Baustein | undefined,
+  e: Pick<TeilgruppenEntscheidung, 'merkmal' | 'werte'>,
+  profil: Pick<TeilgruppenProfil, 'selectedValues'>,
+  t: TeilgruppenRegelsatz,
+  constraints: MethodAdjustmentConstraints = {}
+): Hilfe[] {
+  const erste = zeilenHilfe(e, t);
+  const werte = new Set(e.werte || []);
+  const selectedValues = Object.fromEntries(Object.entries(profil.selectedValues || {}).filter(([, w]) => werte.has(w)));
+  if (!Object.keys(selectedValues).length) return erste ? [erste] : [];
+  const matrix = scoreDifferentiationMatrix({
+    selectedValues,
+    gesperrt: t.gesperrt,
+    maxTechnik: constraints.maxTechnik,
+    ohneInternet: constraints.ohneInternet,
+    ohneKI: constraints.ohneKI,
+    limit: 50
+  });
+  const foerderbedarf = [...werte].some((w) => STARKER_FOERDERBEDARF.has(w));
+  return hilfenFuer(block, matrix, t, wohinVon(e, t), erste, foerderbedarf ? undefined : NUR_BEI_FOERDERBEDARF);
+}
+
+/** The table row's `wohin` behind a decision (for the order of the helps). */
+export function wohinVon(e: Pick<TeilgruppenEntscheidung, 'merkmal'>, t: TeilgruppenRegelsatz): string | undefined {
+  return e.merkmal === 'sonst' ? t.sonst.wohin : t.merkmale.find((m) => m.id === e.merkmal)?.wohin;
+}
+
+/**
+ * Inputs proposeSupports needs for the full decision: the answers of teilgruppenAntworten, or the catalogue (and
+ * the frame) to compute them. Without the catalogue a swap could not find its replacement.
+ */
+export type SupportEingaben = { antworten: PhasenAntwort[] } | { allBlocks: Baustein[]; constraints?: MethodAdjustmentConstraints };
+
+/**
+ * Helps inside the planned method for subgroups whose answer is 'hilfe' (also where a swap found no equivalent
+ * replacement). The method stays; the help is laid on it and names when it is no longer needed. Locked phases get
+ * helps as well, since a help does not change the method.
+ */
+export function proposeSupports(
+  phases: MethodAdjustmentPhase[],
+  groups: MethodAdjustmentGroup[],
+  regelsatz: TeilgruppenRegelwerk,
+  eingaben: SupportEingaben
+): SupportProposal[] {
+  const liste =
+    'antworten' in eingaben
+      ? eingaben.antworten
+      : teilgruppenAntworten(eingaben.allBlocks, phases, groups, eingaben.constraints ?? {}, regelsatz);
+  return liste
+    .filter((a) => a.antwort === 'hilfe' && a.hilfen.length > 0)
+    .map((a) => ({
+      stepKey: a.stepKey,
+      groupId: a.groupId,
+      groupLabel: a.groupLabel,
+      antwort: 'hilfe' as const,
+      grund: a.grund,
+      ...(a.grundlage ? { grundlage: a.grundlage } : {}),
+      ...(a.quelle ? { quelle: a.quelle } : {}),
+      hilfen: a.hilfen
+    }));
+}
+
+/** Named values of low prior knowledge or performance; a special need in learning counts as well. */
+const GERINGE_LEISTUNG = ['vorwissen-gering', 'leistungsniveau-gering', 'foerderbedarf-lernen-leicht', 'foerderbedarf-lernen-umfassend'];
+
+/**
+ * Hints on grouping (built-in rules): a subgroup that gets neither a swap nor a help (gruppierung-nur-mit-anpassung),
+ * and a group with low prior knowledge or performance in a method that works in cooperative small groups
+ * (leistungsschwache-nicht-unter-sich, once per method). Groups that name nothing (only a persona, or only blocked
+ * categories, which the blocked note explains) are left out.
+ */
+export function teilgruppenHinweise(
+  phases: MethodAdjustmentPhase[],
+  groups: MethodAdjustmentGroup[],
+  adjustments: Pick<MethodAdjustment, 'groupId'>[],
+  supports: Pick<SupportProposal, 'groupId' | 'hilfen'>[],
+  regelsatz: TeilgruppenRegelwerk
+): Regelmeldung[] {
+  const t = regelsatz.teilgruppen;
+  const regeln = erstelleRegeln(regelsatz.regeln);
+  const out: Regelmeldung[] = [];
+  const kooperativGemeldet = new Set<string>();
+  for (const g of groups) {
+    if (g.isMain || !hasAdjustmentProfile(g)) continue;
+    const { profil } = bereinigeProfil(teilgruppenProfil(g, t), t);
+    // Without named values (only a persona, or only blocked traits) and without own statements there is nothing to
+    // adapt: no hint. The hint is for groups with named needs that end without swap and without help.
+    const nichtsGenannt = !genannteWerte(profil).length && !profil.ohneSchrift?.length && !profil.ohneBewegung;
+    if (nichtsGenannt) continue;
+    const bekommt = adjustments.some((a) => a.groupId === g.id) || supports.some((s) => s.groupId === g.id && s.hilfen.length > 0);
+    if (!bekommt) {
+      const r = regeln.regel('gruppierung-nur-mit-anpassung');
+      const m = r && regeln.meldung(r.id, undefined, `${g.label}: ${r.text}`);
+      if (m) out.push(m);
+    }
+    if (genannteWerte(profil).some((w) => GERINGE_LEISTUNG.includes(w))) {
+      for (const p of phases) {
+        if (!p.block || kooperativGemeldet.has(p.block.kennung)) continue;
+        if (!(p.block.interaktion || []).includes('kleingruppe-kooperativ')) continue;
+        const m = regeln.meldung('leistungsschwache-nicht-unter-sich', p.block);
+        if (m) {
+          kooperativGemeldet.add(p.block.kennung);
+          out.push(m);
+        }
+      }
     }
   }
   return out;
@@ -206,11 +656,12 @@ export function proposeAdditionalPhases(
   const maxTech = Math.min(1, constraints.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 1) : 1);
 
   const inFrame = (b: Baustein) =>
+    istMethode(b) &&
     b.dauerMin <= EXTRA_PHASE_MAX_MIN &&
     b.anleitung.includes('explizit') &&
     (TECH_RANK[b.technik] ?? 0) <= maxTech &&
     !b.internet &&
-    !usesAi(b) &&
+    !setztKiEin(b) &&
     !b.komposit &&
     !(b.slot || []).length &&
     !(constraints.fachbereich && (b.fachbereichUngeeignet || []).includes(constraints.fachbereich)) &&

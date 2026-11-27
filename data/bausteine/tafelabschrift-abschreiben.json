@@ -14,11 +14,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
   ],
   "quellen": [
     {
@@ -101,7 +98,7 @@
     "Tafel / Beamer",
     "Heft"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 10,

@@ -16,11 +16,12 @@
     "sprachen",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -160,8 +161,5 @@
   "plot": {
     "x": 0.58,
     "y": 2.25
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

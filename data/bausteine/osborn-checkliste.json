@@ -9,8 +9,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Fragenkatalog zur gezielten Verfremdung (Vergrößern, Verkleinern, Umkehren, Ersetzen, Kombinieren) als Motor für Lösungsalternativen.",
   "alternativname": [
@@ -29,7 +32,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

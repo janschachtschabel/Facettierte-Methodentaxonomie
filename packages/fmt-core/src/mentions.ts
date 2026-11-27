@@ -1,3 +1,4 @@
+import { istHilfe } from './eintragsart.js';
 import type { FmtData } from './types.js';
 import { foldDe } from './semantic.js';
 
@@ -7,6 +8,8 @@ export interface MethodMention {
   alias: string;
   /** The match is the method's own main name, not a synonym. */
   main: boolean;
+  /** The entry is a help (eintragsart 'hilfe'): it supports learners inside a method and is never a phase. */
+  hilfe?: true;
 }
 
 export interface FmtMentionDetector {
@@ -37,6 +40,7 @@ const tokens = (s: string) =>
 /** Detects catalogue methods a teacher names in free text, by main name or synonym. */
 export function createMentionDetector(data: FmtData): FmtMentionDetector {
   const byAlias = new Map<string, AliasEntry[]>();
+  const hilfen = new Set(data.bausteine.filter(istHilfe).map((b) => b.kennung));
   const add = (kennung: string, raw: string, main: boolean) => {
     const words = tokens(raw);
     if (!words.length) return;
@@ -90,7 +94,9 @@ export function createMentionDetector(data: FmtData): FmtMentionDetector {
           if (!hit) continue;
           for (let j = 0; j < n; j++) taken[i + j] = true;
           if (!found.some((f) => f.mention.kennung === entry.kennung)) {
-            found.push({ at: i, mention: { kennung: entry.kennung, alias: entry.words.join(' '), main: entry.main } });
+            const mention: MethodMention = { kennung: entry.kennung, alias: entry.words.join(' '), main: entry.main };
+            if (hilfen.has(entry.kennung)) mention.hilfe = true;
+            found.push({ at: i, mention });
           }
         }
       }

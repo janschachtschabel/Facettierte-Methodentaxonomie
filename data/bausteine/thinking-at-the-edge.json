@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Strukturierte Reflexionsschritte helfen Lernenden, noch unscharfe Intuitionen und implizites Verständnis in präzise Fachbegriffe und Thesen zu fassen.",
   "alternativname": [
     "TAE-Methode"
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -101,10 +98,6 @@
       "kennung": "begriffsschaerfung",
       "name": "Schrittweise Präzisierung von Intuition zu Fachsprache"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar",
-    "sek1"
   ],
   "qualitaetsrisiko": [
     "Abstrakt für jüngere Lerngruppen"

@@ -16,10 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Lernen an Stationen",
@@ -129,7 +125,7 @@
     "Stationsmaterial mit Lösungen",
     "Laufzettel"
   ],
-  "raum": "Platz für Stationstische",
+  "raumhinweis": "Platz für Stationstische",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "vorbereitungMin": 180,

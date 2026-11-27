@@ -16,8 +16,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r3",
   "lernfunktion": [
@@ -72,8 +72,8 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "schlecht-strukturiert",
     "konzepte",
+    "schlecht-strukturiert",
     "afb3"
   ],
   "sequenz": [
@@ -101,10 +101,6 @@
   ],
   "dauerMin": 120,
   "dauerMax": 270,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Abstrakte Theorien bleiben träges Wissen, wenn sie ohne authentischen Problemkontext vermittelt werden.",
   "durchfuehrung": [
     "Schritte 1–2: Unklare Begriffe im Falltext klären und das Kernproblem definieren.",
@@ -118,7 +114,7 @@
     "Whiteboard/Flipchart",
     "Fachquellen"
   ],
-  "raum": "Gruppenraum",
+  "raumhinweis": "Gruppenraum",
   "gruppeMin": 5,
   "gruppeMax": 32,
   "teamMin": 5,

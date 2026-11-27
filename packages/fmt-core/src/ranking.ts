@@ -28,8 +28,13 @@ export interface SoftScoreParts {
   fachbereich?: 'passt' | 'neutral' | 'fremd';
   /** The request names this method. */
   mentioned: boolean;
-  /** A classroom method in a movement or practice lesson: in a main phase or in a framing phase. */
-  praxisFremd?: 'haupt' | 'rand';
+  /**
+   * The room offers something a classroom does not (a gym's movement area, a lab's equipment, a place outside), and the
+   * method needs none of it: in a main step or in a framing step.
+   */
+  raumUngenutzt?: 'haupt' | 'rand';
+  /** A main step in such a room, and the method neither carries psychomotorik nor works enactively (kept rest of praxisFremd). */
+  ohnePraxisImHauptschritt?: boolean;
 }
 
 export const SOFT_WEIGHTS = {
@@ -49,8 +54,9 @@ export const SOFT_WEIGHTS = {
   fachbereichPasst: -0.5,
   fachbereichFremd: 3,
   mentioned: -10,
-  praxisFremdHaupt: 4,
-  praxisFremdRand: 1.5
+  raumUngenutztHaupt: 4,
+  raumUngenutztRand: 1.5,
+  ohnePraxisImHauptschritt: 1.5
 } as const;
 
 /**
@@ -84,7 +90,8 @@ export function softScore(p: SoftScoreParts): number {
     Math.min(60, Math.max(0, p.vorbereitungMin)) * w.vorbereitungPerMin +
     (p.fachbereich === 'passt' ? w.fachbereichPasst : p.fachbereich === 'fremd' ? w.fachbereichFremd : 0) +
     (p.mentioned ? w.mentioned : 0) +
-    (p.praxisFremd === 'haupt' ? w.praxisFremdHaupt : p.praxisFremd === 'rand' ? w.praxisFremdRand : 0)
+    (p.raumUngenutzt === 'haupt' ? w.raumUngenutztHaupt : p.raumUngenutzt === 'rand' ? w.raumUngenutztRand : 0) +
+    (p.ohnePraxisImHauptschritt ? w.ohnePraxisImHauptschritt : 0)
   );
 }
 

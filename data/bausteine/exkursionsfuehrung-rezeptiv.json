@@ -16,9 +16,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
+  "raumbedarf": [
+    "aussenort"
   ],
   "quellen": [
     {
@@ -109,7 +108,7 @@
   "material": [
     "Optional: Beobachtungsbogen / Klemmbrett"
   ],
-  "raum": "Außerschulischer Lernort (Museum, Betrieb, Natur)",
+  "raumhinweis": "Außerschulischer Lernort (Museum, Betrieb, Natur)",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 45,

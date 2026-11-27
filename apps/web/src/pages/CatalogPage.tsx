@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import type { EvidenceGrade, SearchCriteria } from '@fmt/core';
+import { istHilfe, type EvidenceGrade, type SearchCriteria } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
 import { MethodCardDiagram } from '../components/MethodCardDiagram.js';
@@ -34,7 +34,7 @@ export function CatalogPage() {
   const [showExpert, setShowExpert] = useState(false);
   const [filters, setFilters] = useState<SearchCriteria>(() => {
     const init: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich'] as const;
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich', 'eintragsart'] as const;
     for (const k of keys) {
       const v = searchParams.get(k);
       if (v) init[k] = k === 'maxDauer' ? Number(v) : v;
@@ -45,7 +45,7 @@ export function CatalogPage() {
   useEffect(() => {
     if (![...searchParams.keys()].length) return;
     const next: Record<string, unknown> = {};
-    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich'] as const;
+    const keys = ['text', 'ansatz', 'lernfunktion', 'reichweite', 'liefert', 'maxDauer', 'minEvidenz', 'status', 'bildungsstufe', 'fuerFachbereich', 'eintragsart'] as const;
     for (const k of keys) {
       const v = searchParams.get(k);
       if (v) next[k] = k === 'maxDauer' ? Number(v) : v;
@@ -62,16 +62,26 @@ export function CatalogPage() {
     });
   };
 
+  // Learners who cannot read or write yet: only methods without reading or writing (field schriftbedarf).
+  const [ohneSchrift, setOhneSchrift] = useState(false);
   const hits = useMemo(() => {
     if (!search) return [];
-    return search.suche(filters);
-  }, [search, filters]);
+    const found = search.suche(filters);
+    return ohneSchrift ? found.filter((b) => !(b.schriftbedarf || []).length) : found;
+  }, [search, filters, ohneSchrift]);
+  const resetFilters = () => {
+    setFilters({});
+    setOhneSchrift(false);
+  };
 
   if (loading) return <div className="page-section">Lade FMT-Methodenkatalog…</div>;
   if (error || !bundle || !search) return <div className="page-section">Fehler: {error}</div>;
 
   const ansatzValues = valuesOf('ansatz');
   const activeAnsatz = typeof filters.ansatz === 'string' ? filters.ansatz : '';
+  const activeArt = filters.eintragsart || '';
+  const hilfenAnzahl = bundle.bausteine.filter(istHilfe).length;
+  const HILFE_TITEL = 'Eine Hilfe stützt Lernende innerhalb einer Methode; du ordnest sie in Schritt 3 des Baukastens den Phasen zu.';
 
   const pickForCompare = (kennung: string) => {
     setComparePair([kennung, comparePair[0] === kennung ? comparePair[1] : comparePair[0]]);
@@ -103,8 +113,40 @@ export function CatalogPage() {
         </div>
       </div>
 
-      {/* Quick Ansatz Tabs */}
+      {/* Methods carry a phase, helps support learners inside a method */}
       <div style={{ marginTop: 18 }}>
+        <ul className="chips" role="group" aria-label="Methoden / Hilfen">
+          <li>
+            <button type="button" className="btn btn-sm" aria-pressed={!activeArt} onClick={() => setFilter('eintragsart', '')}>
+              Methoden und Hilfen ({bundle.bausteine.length})
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={activeArt === 'methode'}
+              onClick={() => setFilter('eintragsart', activeArt === 'methode' ? '' : 'methode')}
+            >
+              Methoden ({bundle.bausteine.length - hilfenAnzahl})
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-pressed={activeArt === 'hilfe'}
+              title={HILFE_TITEL}
+              onClick={() => setFilter('eintragsart', activeArt === 'hilfe' ? '' : 'hilfe')}
+            >
+              Hilfen ({hilfenAnzahl})
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      {/* Quick Ansatz Tabs */}
+      <div style={{ marginTop: 10 }}>
         <ul className="chips" role="group" aria-label="Filter nach didaktischem Ansatz">
           <li>
             <button
@@ -210,6 +252,25 @@ export function CatalogPage() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label title="Zeigt Methoden, deren Raumbedarf dieser Raum deckt">
+            Raum
+            <select aria-label="Raum" value={String(filters.raum || '')} onChange={(e) => setFilter('raum', e.target.value)}>
+              <option value="">beliebig</option>
+              {valuesOf('raumtyp').map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label style={{ justifyContent: 'flex-end' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
+              <input type="checkbox" checked={ohneSchrift} onChange={(e) => setOhneSchrift(e.target.checked)} />
+              ohne Lesen und Schreiben
+            </span>
           </label>
 
           <label>
@@ -349,15 +410,15 @@ export function CatalogPage() {
             flexWrap: 'wrap'
           }}
         >
-          <div style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>
+          <div data-testid="trefferzahl" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>
             {hits.length} von {bundle.bausteine.length} Methoden
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowExpert((s) => !s)}>
               {showExpert ? '▲ Expertenfilter ausblenden' : '▼ Alle Facetten & Rahmenbedingungen'}
             </button>
-            {Object.keys(filters).length > 0 && (
-              <button type="button" className="btn btn-sm" onClick={() => setFilters({})}>
+            {(Object.keys(filters).length > 0 || ohneSchrift) && (
+              <button type="button" className="btn btn-sm" onClick={resetFilters}>
                 Filter zurücksetzen
               </button>
             )}
@@ -403,7 +464,7 @@ export function CatalogPage() {
       {hits.length === 0 ? (
         <div className="card" style={{ padding: 24, textAlign: 'center' }}>
           <p>Keine Methode erfüllt alle gewählten Kriterien. Lockere einzelne Filter.</p>
-          <button type="button" className="btn" onClick={() => setFilters({})}>
+          <button type="button" className="btn" onClick={resetFilters}>
             Alle Filter zurücksetzen
           </button>
         </div>
@@ -421,6 +482,11 @@ export function CatalogPage() {
                         <span className="range-badge" title={`FMT-Granularitätsebene ${b.reichweite.toUpperCase()}`}>
                           {GRANULARITY_READABLE[b.reichweite] || b.reichweite.toUpperCase()}
                         </span>
+                        {istHilfe(b) && (
+                          <span className="status-badge" title={HILFE_TITEL}>
+                            Hilfe
+                          </span>
+                        )}
                         {b.komposit && <span className="status-badge">Container</span>}
                         {b.ki && <span className="status-badge">KI</span>}
                         <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
@@ -472,9 +538,11 @@ export function CatalogPage() {
                     <button type="button" className="btn btn-sm" onClick={() => pickForCompare(b.kennung)}>
                       Vergleich
                     </button>
-                    <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
-                      + Baukasten
-                    </button>
+                    {!istHilfe(b) && (
+                      <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
+                        + Baukasten
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>
@@ -518,9 +586,15 @@ export function CatalogPage() {
                     <EvidenceBadge grade={search.bestGrade(b)} />
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
-                    <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
-                      + Baukasten
-                    </button>
+                    {istHilfe(b) ? (
+                      <span className="muted" title={HILFE_TITEL}>
+                        Hilfe
+                      </span>
+                    ) : (
+                      <button type="button" className="btn btn-sm" onClick={() => addToPlanner(b.kennung)}>
+                        + Baukasten
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,3 +1,4 @@
+import { nurMethoden } from './eintragsart.js';
 import {
   DEFAULT_CLASSROOM_LEVELS,
   DIFF_MATRIX_MEASURES,
@@ -6,23 +7,33 @@ import {
   detectMatrixTraitsFromText,
   scoreDifferentiationMatrix,
   scoreMethodAgainstFmtBridges,
-  suggestAlternativeMethodsForGroup,
   type MatrixRecommendation,
   type MatrixScoreResult,
   type MeasureEffort,
   type MeasureLevel
 } from './differentiationMatrix.js';
-import type { Arrangement, Baustein, FmtData } from './types.js';
+import type { Arrangement, Baustein, FmtData, Grundlage, MatchRequest, Regelmeldung } from './types.js';
 import { KennungIndex } from './kennung.js';
 import { TECH_RANK, techLimitRank } from './technik.js';
 import {
+  conflictsWithMethodInteraction,
+  hasAdjustmentProfile,
+  hilfenFuer,
+  matrixFuer,
   proposeAdditionalPhases,
   proposeMethodAdjustments,
+  proposeSupports,
+  teilgruppenHinweise,
+  teilgruppenAntworten,
   type AdditionalPhaseProposal,
+  type Hilfe,
   type MethodAdjustment,
   type MethodAdjustmentGroup,
-  type MethodAdjustmentPhase
+  type MethodAdjustmentPhase,
+  type SupportProposal,
+  type TeilgruppenRegelwerk
 } from './methodAdjustments.js';
+import { bereinigeProfil, type TeilgruppenEntscheidung } from './teilgruppen.js';
 
 export interface AdaptGroupInput {
   id: string;
@@ -31,6 +42,15 @@ export interface AdaptGroupInput {
   personaId?: string;
   selectedValues?: Record<string, string>;
   text?: string;
+  /** The group cannot read or write (statement of the group, not a matrix trait). */
+  ohneSchrift?: Array<'lesen' | 'schreiben'>;
+  /** The group cannot move freely (statement of the group, not a matrix trait). */
+  ohneBewegung?: boolean;
+  /**
+   * Values of selectedValues the teacher named (core values of a preset or of a group read from the text); only these
+   * decide the table rows, the others only order the matrix. Undefined: every value of selectedValues counts.
+   */
+  genannt?: string[];
 }
 
 export interface AdaptPhaseInput {
@@ -64,6 +84,13 @@ export interface AdaptScenarioInput {
   maxAufwand?: MeasureEffort;
   ebenen?: MeasureLevel[];
   includeSystemMeasures?: boolean;
+  /** Number of teachers in the room; with two, a parallel method may bind a teacher as well. */
+  lehrende?: number;
+  /**
+   * Request of the plan (room, time, group size …, as the matcher read it); a parallel method has to cover its needs
+   * in the same frame. Without it no room counts as named.
+   */
+  anfrage?: MatchRequest;
 }
 
 export interface QuickLearnerGroupProfile {
@@ -76,6 +103,11 @@ export interface QuickLearnerGroupProfile {
   defaultCount: number;
   personaId?: string;
   selectedValues: Record<string, string>;
+  /**
+   * Core values of the preset: what the chip names. Only these decide the table rows of the subgroup decision; the
+   * other values (and the persona) only order the matrix measures.
+   */
+  kern: string[];
 }
 
 /**
@@ -94,10 +126,9 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
     defaultCount: 5,
     selectedValues: {
       sprachkompetenz: 'sprachkompetenz-gering',
-      'foerderbedarf-sprache': 'foerderbedarf-sprache-erheblich',
-      ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
-      sensorische: 'sensorische-visuell'
-    }
+      ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt'
+    },
+    kern: ['sprachkompetenz-gering', 'ausdrucksfaehigkeit-eingeschraenkt']
   },
   {
     id: 'adhs',
@@ -112,7 +143,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       'foerderbedarf-emotional-sozial': 'foerderbedarf-emotional-sozial-gelegentlich',
       engagement: 'engagement-gering',
       methoden: 'methoden-direkt'
-    }
+    },
+    kern: ['strukturierung-stark', 'foerderbedarf-emotional-sozial-gelegentlich']
   },
   {
     id: 'lrs',
@@ -125,9 +157,9 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
     selectedValues: {
       ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
       'foerderbedarf-sprache': 'foerderbedarf-sprache-gelegentlich',
-      sensorische: 'sensorische-multimodal',
       strukturierung: 'strukturierung-stark'
-    }
+    },
+    kern: ['ausdrucksfaehigkeit-eingeschraenkt', 'foerderbedarf-sprache-gelegentlich']
   },
   {
     id: 'foerder-lernen',
@@ -144,7 +176,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       leistungsniveau: 'leistungsniveau-gering',
       denkverarbeitung: 'denkverarbeitung-langsam',
       strukturierung: 'strukturierung-stark'
-    }
+    },
+    kern: ['foerderbedarf-lernen-umfassend']
   },
   {
     id: 'vorwissen-gering',
@@ -159,7 +192,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       leistungsniveau: 'leistungsniveau-gering',
       strukturierung: 'strukturierung-stark',
       lernstrategien: 'lernstrategien-kaum'
-    }
+    },
+    kern: ['vorwissen-gering', 'leistungsniveau-gering']
   },
   {
     id: 'vertiefung',
@@ -175,7 +209,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       denkverarbeitung: 'denkverarbeitung-schnell',
       strukturierung: 'strukturierung-offen',
       metakognitive: 'metakognitive-stark'
-    }
+    },
+    kern: ['vorwissen-hoch', 'leistungsniveau-hoch']
   },
   {
     id: 'schuechtern',
@@ -190,7 +225,8 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
       werte: 'werte-vermeidung',
       selbstwirksamkeit: 'selbstwirksamkeit-gering',
       arbeitsformen: 'arbeitsformen-partner'
-    }
+    },
+    kern: ['soziale-kompetenzen-eingeschraenkt', 'selbstwirksamkeit-gering']
   },
   {
     id: 'barriere',
@@ -203,11 +239,22 @@ export const QUICK_LEARNER_GROUP_PROFILES: QuickLearnerGroupProfile[] = [
     selectedValues: {
       'foerderbedarf-sehen': 'foerderbedarf-sehen-leicht',
       'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung',
-      'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-leicht',
-      sensorische: 'sensorische-multimodal'
-    }
+      'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-leicht'
+    },
+    kern: ['foerderbedarf-sehen-leicht', 'foerderbedarf-hoeren-beeintraechtigung', 'foerderbedarf-koerperlich-leicht']
   }
 ];
+
+/** A subgroup from a preset: its values, its persona, and only its core values as the named ones. */
+export function schnellprofilGruppe(p: QuickLearnerGroupProfile): AdaptGroupInput & { selectedValues: Record<string, string>; genannt: string[] } {
+  return {
+    id: p.id,
+    label: p.label,
+    ...(p.personaId ? { personaId: p.personaId } : {}),
+    selectedValues: { ...p.selectedValues },
+    genannt: [...p.kern]
+  };
+}
 
 export interface UdlMeasure {
   id: string;
@@ -266,7 +313,14 @@ export interface PhaseAdaptationResult {
     groupId: string;
     groupLabel: string;
     massnahmen: Array<{ id: string; name: string; normalizedScore: number; umsetzungsimpuls: string }>;
+    /** Parallel methods; only when the answer is 'tausch', and only equivalent ones that fulfil the direction. */
     alternativeMethoden: Array<{ kennung: string; name: string; reichweite: string; dauerMin: number; dauerMax: number; grund: string }>;
+    /** The method fits, gets a help inside it, or a parallel method replaces it (teilgruppen.json). */
+    antwort: TeilgruppenEntscheidung['antwort'];
+    /** Why: the row of the table, its basis and source. */
+    beleg: { grund: string; merkmal?: string; grundlage?: Grundlage; quelle?: string };
+    /** Helps inside the method (answer 'hilfe'), each with the sentence on when it is no longer needed. */
+    hilfen: Hilfe[];
   }>;
   passendeFmtMethoden: Array<{
     kennung: string;
@@ -307,8 +361,14 @@ export interface AdaptScenarioResult {
   phasenAnpassungen: PhaseAdaptationResult[];
   /** Parallel methods for subgroups where the planned method fits them poorly (the regular group keeps the plan). */
   teilgruppenMethoden: MethodAdjustment[];
+  /** Helps inside the planned method for subgroups whose answer is 'hilfe'. */
+  teilgruppenHilfen: SupportProposal[];
   /** Short extra phases for the whole class that the subgroups depend on (proposal, not applied). */
   zusatzphasen: AdditionalPhaseProposal[];
+  /** Blocked traits a group named (e.g. Lerntypen) with the reason they are not evaluated. */
+  gesperrt: Array<{ gruppe: string; text: string }>;
+  /** Hints on grouping (gruppierung-nur-mit-anpassung, leistungsschwache-nicht-unter-sich). */
+  regelmeldungen: Regelmeldung[];
   epistemischerHinweis: string;
 }
 
@@ -321,6 +381,8 @@ interface SubgroupPattern {
   re: RegExp;
   countRe: RegExp;
   selectedValues: Record<string, string>;
+  /** Values the text names with this pattern; only these decide the table rows (see QuickLearnerGroupProfile.kern). */
+  kern: string[];
   signalLabel: string;
 }
 
@@ -336,10 +398,9 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:daz|deutsch als zweitsprache|sprachf[oö]rder\w*)/i,
     selectedValues: {
       sprachkompetenz: 'sprachkompetenz-gering',
-      'foerderbedarf-sprache': 'foerderbedarf-sprache-erheblich',
-      ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
-      sensorische: 'sensorische-visuell'
+      ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt'
     },
+    kern: ['sprachkompetenz-gering', 'ausdrucksfaehigkeit-eingeschraenkt'],
     signalLabel: 'DaZ / Sprachförderbedarf'
   },
   {
@@ -350,9 +411,9 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     selectedValues: {
       ausdrucksfaehigkeit: 'ausdrucksfaehigkeit-eingeschraenkt',
       'foerderbedarf-sprache': 'foerderbedarf-sprache-gelegentlich',
-      sensorische: 'sensorische-multimodal',
       strukturierung: 'strukturierung-stark'
     },
+    kern: ['ausdrucksfaehigkeit-eingeschraenkt', 'foerderbedarf-sprache-gelegentlich'],
     signalLabel: 'LRS / Leseschwäche'
   },
   {
@@ -366,6 +427,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       engagement: 'engagement-gering',
       methoden: 'methoden-direkt'
     },
+    kern: ['strukturierung-stark', 'foerderbedarf-emotional-sozial-gelegentlich'],
     signalLabel: 'ADHS / Konzentrations- & Strukturbedarf'
   },
   {
@@ -378,6 +440,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       strukturierung: 'strukturierung-stark',
       arbeitsformen: 'arbeitsformen-einzel'
     },
+    kern: ['foerderbedarf-autismus-deutlich'],
     signalLabel: 'Autismus-Spektrum'
   },
   {
@@ -392,6 +455,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       denkverarbeitung: 'denkverarbeitung-langsam',
       strukturierung: 'strukturierung-stark'
     },
+    kern: ['foerderbedarf-lernen-umfassend'],
     signalLabel: 'Förderbedarf Lernen'
   },
   {
@@ -405,6 +469,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       strukturierung: 'strukturierung-stark',
       lernstrategien: 'lernstrategien-kaum'
     },
+    kern: ['vorwissen-gering', 'leistungsniveau-gering'],
     signalLabel: 'Geringes Vorwissen'
   },
   {
@@ -418,6 +483,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       selbstwirksamkeit: 'selbstwirksamkeit-gering',
       arbeitsformen: 'arbeitsformen-partner'
     },
+    kern: ['soziale-kompetenzen-eingeschraenkt', 'selbstwirksamkeit-gering'],
     signalLabel: 'Schüchtern / geringe Beteiligung'
   },
   {
@@ -431,6 +497,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       relevanz: 'relevanz-gering',
       methoden: 'methoden-spielerisch'
     },
+    kern: ['engagement-gering', 'interessen-desinteresse'],
     signalLabel: 'Geringe Motivation'
   },
   {
@@ -440,9 +507,9 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:motorisch\w*|k[oö]rperlich\w*)/i,
     selectedValues: {
       'foerderbedarf-koerperlich': 'foerderbedarf-koerperlich-deutlich',
-      'zeitliche-verfuegbarkeit': 'zeitliche-verfuegbarkeit-eingeschraenkt',
-      sensorische: 'sensorische-multimodal'
+      'zeitliche-verfuegbarkeit': 'zeitliche-verfuegbarkeit-eingeschraenkt'
     },
+    kern: ['foerderbedarf-koerperlich-deutlich'],
     signalLabel: 'Motorische / körperliche Unterstützung'
   },
   {
@@ -451,9 +518,9 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     re: /\b(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*|geh[oö]rlos\w*|h[oö]rsch[aä]dig\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:h[oö]rbeeintr[aä]cht\w*|schwerh[oö]rig\w*)/i,
     selectedValues: {
-      'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung',
-      sensorische: 'sensorische-visuell'
+      'foerderbedarf-hoeren': 'foerderbedarf-hoeren-beeintraechtigung'
     },
+    kern: ['foerderbedarf-hoeren-beeintraechtigung'],
     signalLabel: 'Hörbeeinträchtigung'
   },
   {
@@ -462,10 +529,20 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
     re: /\b(?:sehbeeintr[aä]cht\w*|sehbehindert\w*|blind\w*|sehschw[aä]ch\w*)/i,
     countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:mit\s+)?(?:sehbeeintr[aä]cht\w*|sehbehindert\w*)/i,
     selectedValues: {
-      'foerderbedarf-sehen': 'foerderbedarf-sehen-deutlich',
-      sensorische: 'sensorische-auditiv'
+      'foerderbedarf-sehen': 'foerderbedarf-sehen-deutlich'
     },
+    kern: ['foerderbedarf-sehen-deutlich'],
     signalLabel: 'Sehbeeinträchtigung'
+  },
+  {
+    // Learning styles are recognised only to say why they are not evaluated (blocked category, Pashler et al. 2008).
+    id: 'lerntypen',
+    label: 'Lerntypen',
+    re: /(?<!\b(?:kein\w*|ohne|nicht)\s+(?:nach\s+|in\s+)?(?:\w+\s+)?)\b(?:(?:visuell|auditiv|haptisch|kin[aä]sthetisch)\w*\s+(?:lerntyp|lernstil|lerner|lernende)\w*|lerntyp\w*|lernstil\w*)/i,
+    countRe: /(\d{1,2})\s*(?:kinder|sch[uü]ler\w*|lernende\w*|sus)?\s*(?:visuell\w*|auditiv\w*|haptisch\w*)\s+(?:lerntyp|lerner|lernende)/i,
+    selectedValues: { sensorische: 'sensorische-multimodal' },
+    kern: ['sensorische-multimodal'],
+    signalLabel: 'Lerntypen (nicht ausgewertet)'
   },
   {
     id: 'vertiefung',
@@ -479,6 +556,7 @@ const SUBGROUP_PATTERNS: SubgroupPattern[] = [
       strukturierung: 'strukturierung-offen',
       metakognitive: 'metakognitive-stark'
     },
+    kern: ['vorwissen-hoch', 'leistungsniveau-hoch'],
     signalLabel: 'Leistungsstark / Vertiefungsbedarf'
   }
 ];
@@ -500,7 +578,8 @@ export function detectLearnerGroupsFromText(text: string): {
         id: pat.id,
         label: pat.label,
         ...(count && count > 0 ? { count } : {}),
-        selectedValues: { ...pat.selectedValues }
+        selectedValues: { ...pat.selectedValues },
+        genannt: [...pat.kern]
       });
       signalsByGroupId[pat.id] = [pat.signalLabel];
     }
@@ -775,7 +854,8 @@ function recommendMethodsForPhase(
     return grades.includes('A') ? 'A' : grades.includes('B') ? 'B' : grades.includes('C') ? 'C' : null;
   };
 
-  const candidates = allBlocks
+  // A help supports learners inside a method; it is never recommended for a phase.
+  const candidates = nurMethoden(allBlocks)
     .filter((b) => {
       if (!b.lernfunktion.includes(lernfunktion)) return false;
       if ((TECH_RANK[b.technik] ?? 0) > maxTechRank) return false;
@@ -856,17 +936,6 @@ function buildPhaseMethodContext(
   };
 }
 
-function conflictsWithMethodInteraction(measureId: string, block?: Baustein): boolean {
-  if (!block) return false;
-  const inter = block.interaktion || [];
-  const isSocial = inter.includes('kleingruppe-kooperativ') || inter.includes('partner') || inter.includes('plenum-lehrergeleitet') || inter.includes('plenum-lernendengeleitet');
-  const isPureSolo = inter.includes('einzel') && !isSocial;
-  if (isSocial && measureId === 'sozialform-einzel') return true;
-  if (isPureSolo && (measureId === 'sozialform-gruppe' || measureId === 'sozialform-plenum')) return true;
-  if (inter.includes('plenum-lehrergeleitet') && measureId === 'methodik-lernprozess-fachspezifisch') return true;
-  return false;
-}
-
 function contextualizeMeasureForBlock(
   m: { id: string; name: string; umsetzungsimpuls: string },
   block?: Baustein
@@ -889,7 +958,10 @@ function contextualizeMeasureForBlock(
  * Works seamlessly for BOTH standalone free-text scenarios (chat / MCP / API / /differenzierung),
  * direct single-method adaptation (`baustein`), AND structured FMT arrangements from the Baukasten.
  */
-export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weiterleitungen'>, input: AdaptScenarioInput): AdaptScenarioResult {
+export function adaptScenario(
+  data: Pick<FmtData, 'bausteine' | 'ketten' | 'weiterleitungen' | 'teilgruppen' | 'regeln' | 'schemes'>,
+  input: AdaptScenarioInput
+): AdaptScenarioResult {
   const t0 = Date.now();
   // Former ids of merged or renamed methods answer with the current method.
   const blocksById: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
@@ -1009,6 +1081,78 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     meta: u.meta
   }));
 
+  // Subgroup decision (teilgruppen.json): profile per group from its values and the traits read from its text.
+  const regelsatz: TeilgruppenRegelwerk = { teilgruppen: data.teilgruppen, regeln: data.regeln, schemes: data.schemes };
+  const gesperrt: AdaptScenarioResult['gesperrt'] = [];
+  const adjustmentGroups: MethodAdjustmentGroup[] = resolvedGroups.map((g) => {
+    const det = g.text ? detectMatrixTraitsFromText(g.text, { gesperrt: data.teilgruppen.gesperrt }) : null;
+    const selectedValues = { ...(det?.selectedValues || {}), ...(g.selectedValues || {}) };
+    const isMain = isRegularGroupId(g.id);
+    const gesperrtGenannt = bereinigeProfil({ id: g.id, label: g.label, selectedValues }, data.teilgruppen).gesperrt;
+    if (!isMain && (gesperrtGenannt.length || det?.gesperrt.length)) gesperrt.push({ gruppe: g.label, text: data.teilgruppen.gesperrtText });
+    // Traits read from the group's text are named; with a core list, they join it.
+    const genannt = g.genannt ? [...g.genannt, ...Object.values(det?.selectedValues || {})] : undefined;
+    return {
+      id: g.id,
+      label: g.label,
+      isMain,
+      personaId: g.personaId,
+      ...(Object.keys(selectedValues).length ? { selectedValues } : {}),
+      ...(genannt ? { genannt } : {}),
+      ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+      ...(g.ohneBewegung ? { ohneBewegung: true } : {})
+    };
+  });
+  const adjustmentConstraints = {
+    maxTechnik,
+    ohneInternet,
+    ohneKI,
+    bildungsstufe: input.bildungsstufe || input.arrangement?.kontext?.bildungsstufe || undefined,
+    fachbereich: input.fachbereich,
+    ...(input.lehrende ? { lehrende: input.lehrende } : {}),
+    ...(input.anfrage ? { anfrage: input.anfrage } : {})
+  };
+  const groupById = new Map(adjustmentGroups.map((g) => [g.id, g]));
+  // Full list of measures per group for the helps (the ranked synthesis result keeps only twelve).
+  const hilfsMatrix = new Map(adjustmentGroups.map((g) => [g.id, matrixFuer(g, data.teilgruppen, adjustmentConstraints, 50)]));
+  const PASST_REGEL = 'Die Regelgruppe behält den Ablauf.';
+
+  /** Answer, evidence, helps and equivalent alternatives of one group for one phase. */
+  const adjustmentPhases: MethodAdjustmentPhase[] = rawPhases.map((p, idx) => ({
+    key: p.key || `phase-${idx + 1}`,
+    label: p.phaseLabel,
+    block: p.baustein ? blocksById.get(p.baustein) : undefined,
+    durationMin: p.durationMin,
+    locked: p.locked
+  }));
+  const withMethods = adjustmentPhases.some((p) => p.block);
+  // One decision path for the table, the proposals and the hints (teilgruppenAntworten).
+  const antworten = withMethods ? teilgruppenAntworten(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz) : [];
+  const antwortByKey = new Map(antworten.map((a) => [`${a.groupId}|${a.stepKey}`, a]));
+
+  /** Answer, evidence, helps and equivalent alternatives of one group for one phase. */
+  const entscheide = (groupId: string, stepKey: string, block: Baustein | undefined) => {
+    const g = groupById.get(groupId);
+    if (!g || g.isMain || !hasAdjustmentProfile(g)) {
+      return { antwort: 'passt' as const, beleg: { grund: g?.isMain ? PASST_REGEL : 'Für die Gruppe ist kein Bedarf angegeben.' }, hilfen: [], alternativeMethoden: [] };
+    }
+    const a = block ? antwortByKey.get(`${groupId}|${stepKey}`) : undefined;
+    if (!a) {
+      // No planned method: nothing to swap; the matrix helps for the group stand in for the method's help.
+      const hilfen = hilfenFuer(undefined, hilfsMatrix.get(groupId)!, data.teilgruppen);
+      return hilfen.length
+        ? { antwort: 'hilfe' as const, beleg: { grund: 'Ohne geplante Methode: Hilfen der Matrix für die Teilgruppe.' }, hilfen, alternativeMethoden: [] }
+        : { antwort: 'passt' as const, beleg: { grund: 'Ohne geplante Methode und ohne Bedarf, der eine Hilfe braucht.' }, hilfen: [], alternativeMethoden: [] };
+    }
+    const beleg = {
+      grund: a.grund,
+      ...(a.merkmal ? { merkmal: a.merkmal } : {}),
+      ...(a.grundlage ? { grundlage: a.grundlage } : {}),
+      ...(a.quelle ? { quelle: a.quelle } : {})
+    };
+    return { antwort: a.antwort, beleg, hilfen: a.hilfen, alternativeMethoden: a.alternativen };
+  };
+
   const phasenAnpassungen: PhaseAdaptationResult[] = rawPhases.map((p, idx) => {
     const block = p.baustein ? blocksById.get(p.baustein) : undefined;
     const fn = p.lernfunktion || block?.lernfunktion?.[0] || (idx === 0 ? 'orientierung' : idx === rawPhases.length - 1 ? 'konsolidierung' : 'verstehen');
@@ -1034,22 +1178,13 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     });
 
     const teilgruppenImpulse = synthesis.teilgruppen.map((tg) => {
-      const scored = synthesis.scoredByGroupId[tg.id];
       const phaseMeasures = tg.spezifischeMassnahmen.filter((m) => fitsPhase(m.meta.phasen));
       const pool = phaseMeasures.length ? phaseMeasures : tg.spezifischeMassnahmen;
       const ordered = [
         ...pool.filter((m) => !conflictsWithMethodInteraction(m.id, block)),
         ...pool.filter((m) => conflictsWithMethodInteraction(m.id, block))
       ].slice(0, 3);
-      const altMethods = block
-        ? suggestAlternativeMethodsForGroup(scored, block, data.bausteine, 3, p.durationMin, {
-            maxTechnik,
-            ohneInternet,
-            ohneKI,
-            bildungsstufe: input.bildungsstufe,
-            fachbereich: input.fachbereich
-          })
-        : [];
+      const antwort = entscheide(tg.id, p.key || `phase-${idx + 1}`, block);
       return {
         groupId: tg.id,
         groupLabel: tg.label,
@@ -1065,7 +1200,10 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
             umsetzungsimpuls: ctxM.umsetzungsimpuls
           };
         }),
-        alternativeMethoden: altMethods
+        alternativeMethoden: antwort.alternativeMethoden,
+        antwort: antwort.antwort,
+        beleg: antwort.beleg,
+        hilfen: antwort.hilfen
       };
     });
 
@@ -1095,30 +1233,12 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     };
   });
 
-  const adjustmentPhases: MethodAdjustmentPhase[] = rawPhases.map((p, idx) => ({
-    key: p.key || `phase-${idx + 1}`,
-    label: p.phaseLabel,
-    block: p.baustein ? blocksById.get(p.baustein) : undefined,
-    durationMin: p.durationMin,
-    locked: p.locked
-  }));
-  const adjustmentGroups: MethodAdjustmentGroup[] = resolvedGroups.map((g) => ({
-    id: g.id,
-    label: g.label,
-    isMain: isRegularGroupId(g.id),
-    personaId: g.personaId,
-    selectedValues: g.selectedValues
-  }));
-  const adjustmentConstraints = {
-    maxTechnik,
-    ohneInternet,
-    ohneKI,
-    bildungsstufe: input.bildungsstufe || input.arrangement?.kontext?.bildungsstufe || undefined,
-    fachbereich: input.fachbereich
-  };
-  const withMethods = adjustmentPhases.some((p) => p.block);
   const teilgruppenMethoden = withMethods
-    ? proposeMethodAdjustments(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints)
+    ? proposeMethodAdjustments(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz, antworten)
+    : [];
+  const teilgruppenHilfen = withMethods ? proposeSupports(adjustmentPhases, adjustmentGroups, regelsatz, { antworten }) : [];
+  const regelmeldungen = withMethods
+    ? teilgruppenHinweise(adjustmentPhases, adjustmentGroups, teilgruppenMethoden, teilgruppenHilfen, regelsatz)
     : [];
   const zusatzphasen = withMethods
     ? proposeAdditionalPhases(data.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints)
@@ -1144,7 +1264,10 @@ export function adaptScenario(data: Pick<FmtData, 'bausteine' | 'ketten' | 'weit
     teilgruppen: synthesis.teilgruppen,
     phasenAnpassungen,
     teilgruppenMethoden,
+    teilgruppenHilfen,
     zusatzphasen,
+    gesperrt,
+    regelmeldungen,
     epistemischerHinweis: EPISTEMIC_MATRIX_NOTE
   };
 }

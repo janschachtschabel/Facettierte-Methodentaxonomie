@@ -17,8 +17,11 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -138,7 +141,7 @@
   "material": [
     "Moderationswand, Karten, Plakate, Klebepunkte"
   ],
-  "raum": "Großer Raum mit Wandflächen",
+  "raumhinweis": "Großer Raum mit Wandflächen",
   "gruppeMin": 10,
   "gruppeMax": 40,
   "teamMin": 4,

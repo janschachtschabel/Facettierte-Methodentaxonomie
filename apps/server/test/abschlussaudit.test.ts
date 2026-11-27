@@ -124,7 +124,8 @@ describe('Plan-API und Baukasten schlagen für dieselben Teilgruppen dasselbe vo
   it('Teilgruppen aus dem Text werden wie im Baukasten nur mit ihren erkannten Merkmalen geprüft', async () => {
     const core = await import('@fmt/core');
     const app = await buildApp({ distDataDir: DIST_DATA, config: config() });
-    const text = 'Mathematik Klasse 7, Bruchrechnen, 45 Minuten, 26 Kinder, davon 5 DaZ-Kinder und 4 leistungsstarke';
+    // The class test (only explicit, uniform) sets off the swap for the high performers (teilgruppen.json).
+    const text = 'Mathematik Klasse 6, Brüche, Klassenarbeit, 90 Minuten, 26 Kinder, davon 5 DaZ-Kinder und 4 leistungsstarke';
     const plan = (await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text } })).json();
     // Wie apps/web PlannerPage: erkannte Gruppen mit selectedValues, ohne zusätzliche Persona, dazu die Regelgruppe.
     const groups = [
@@ -133,7 +134,8 @@ describe('Plan-API und Baukasten schlagen für dieselben Teilgruppen dasselbe vo
     ];
     const phases = core.phasesForAdjustment(app.fmtStore.bundle, plan.maschinenlesbar.arrangement);
     const constraints = { bildungsstufe: plan.erkannteKriterien.bildungsstufe, fachbereich: plan.erkannteKriterien.fachbereich };
-    const ui = core.proposeMethodAdjustments(app.fmtStore.bundle.bausteine, phases, groups, constraints);
+    const b = app.fmtStore.bundle;
+    const ui = core.proposeMethodAdjustments(b.bausteine, phases, groups, constraints, { teilgruppen: b.teilgruppen, regeln: b.regeln, schemes: b.schemes });
     expect(ui.length).toBeGreaterThan(0);
     const pick = (xs: Array<{ groupId: string; stepKey: string; zuKennung: string }>) =>
       xs.map((x) => `${x.groupId}|${x.stepKey}|${x.zuKennung}`).sort();

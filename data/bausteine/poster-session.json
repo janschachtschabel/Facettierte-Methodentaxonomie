@@ -10,8 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "kurzbeschreibung": "Ergebnisse einer Untersuchung werden prägnant als strukturiertes Poster (Fragestellung, Methode, Befund, Fazit) gestaltet und im Kurzvortrag verteidigt.",
   "alternativname": [
@@ -31,7 +31,7 @@
     "Posterpapier oder digitale Vorlage",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

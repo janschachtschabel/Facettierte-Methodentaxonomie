@@ -1,3 +1,4 @@
+import { istMethode } from './eintragsart.js';
 import type {
   Arrangement,
   Baustein,
@@ -6,6 +7,9 @@ import type {
   ReplacementCandidate,
   SearchCriteria
 } from './types.js';
+import { raumFehlt } from './bedarf.js';
+import { baueSituation } from './situation.js';
+import { erstelleRegeln } from './regeln.js';
 import type { FmtValidator } from './validate.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
@@ -58,6 +62,19 @@ export interface FmtSearch {
   ersatz(arrangement: Arrangement, pfad: string, registry?: Map<string, Arrangement>): ReplacementCandidate[];
 }
 
+/**
+ * Rules that exclude a method from the search for a stage or prior-knowledge level: the remaining lists (eignung-stufe,
+ * eignung-vorwissen) and the evidence-based (E) rules that replaced former list entries in Tor D2 ("… deckt" in parts 2
+ * and 3 of durchsicht-2-eignung-geprueft.csv). evidenz-geltung also replaced entries but is left out: its basis is A
+ * ("the evidence comes only from secondary school or later") – missing evidence, not shown unsuitability – so it warns
+ * in the planner but hides no method (cautious reading, design §12). Other rules (e.g. viel-anleitung-hohes-vorwissen)
+ * only warn as well.
+ */
+export const SUCHE_AUSSCHLUSS_REGELN: Record<'bildungsstufe' | 'vorwissen', readonly string[]> = {
+  bildungsstufe: ['eignung-stufe', 'problemloesen-vor-instruktion-primar'],
+  vorwissen: ['eignung-vorwissen', 'wenig-anleitung-geringes-vorwissen']
+};
+
 export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch {
   const facetFields = data.facetten.map((f) => f.feld).filter((f) => f !== 'steuerung');
   const techScheme = data.schemes.find((s) => s.id === 'technikbedarf')!;
@@ -66,7 +83,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
   const functionWords = new Map((fnScheme.werte || []).map((w) => [w.id, [w.label, ...(w.alt || [])].join(' ')]));
   const stateScheme = data.schemes.find((s) => s.id === 'lernzustand')!;
   const implies = new Map((stateScheme.werte || []).map((w) => [w.id, w.impliziert || []]));
-
+  const regeln = erstelleRegeln(data.regeln || []);
   const closure = (states: string[]): Set<string> => {
     const set = new Set<string>();
     const stack = [...states];
@@ -98,6 +115,9 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     ])
   );
 
+  /** The codes of ohneSchrift (lesen, schreiben) are accepted for the scheme schriftbedarf (liest, schreibt). */
+  const SCHRIFT_ALIAS: Record<string, string> = { lesen: 'liest', schreiben: 'schreibt' };
+
   function suche(k: SearchCriteria = {}): Baustein[] {
     const words = k.text ? fold(k.text).split(/\s+/).filter(Boolean) : [];
     const have = k.vorhanden !== undefined ? closure(list(k.vorhanden)) : null;
@@ -116,8 +136,16 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
         const wanted = list(k[f]);
         if (wanted.length && !wanted.some((v) => ((b[f] as string[] | undefined) || []).includes(v))) return false;
       }
+      // Bedarf of the method: any of the named values is needed; ohneRaumbedarf drops methods needing one of them.
+      for (const f of ['raumbedarf', 'schriftbedarf'] as const) {
+        const wanted = f === 'schriftbedarf' ? list(k[f]).map((v) => SCHRIFT_ALIAS[v] ?? v) : list(k[f]);
+        if (wanted.length && !wanted.some((v) => (b[f] || []).includes(v))) return false;
+      }
+      const without = list(k.ohneRaumbedarf);
+      if (without.length && (b.raumbedarf || []).some((v) => without.includes(v))) return false;
       if (wantedAnsatz.length && !wantedAnsatz.some((v) => (b.ansatz || []).includes(v))) return false;
       if (wantedStatus.length && !wantedStatus.includes(b.status)) return false;
+      if (given(k.eintragsart) && (b.eintragsart || 'methode') !== k.eintragsart) return false;
       const wantedArea = list(k.fachbereich);
       if (wantedArea.length && !wantedArea.some((v) => (b.fachbereich || []).includes(v))) return false;
       // Fits a subject area: at home there or without subject binding, and not marked as unsuitable for it.
@@ -140,9 +168,15 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
       if (given(k.maxVorbereitung) && b.vorbereitungMin > Number(k.maxVorbereitung)) return false;
       if (given(k.maxTechnik) && (techRank.get(b.technik) ?? 0) > (techRank.get(String(k.maxTechnik)) ?? 0)) return false;
       if (k.ohneInternet && b.internet) return false;
+      if (given(k.raum) && raumFehlt(b, baueSituation({ raum: String(k.raum) }, data)).length) return false;
       if (given(k.kategorie) && !(b.kategorie || []).includes(String(k.kategorie))) return false;
-      if (k.vorwissen && b.geeignetBeiVorwissen && !b.geeignetBeiVorwissen.includes(k.vorwissen)) return false;
+      if (k.vorwissen && (b.ungeeignetBeiVorwissen || []).includes(k.vorwissen)) return false;
       if (k.bildungsstufe && (b.ungeeignetBeiStufe || []).includes(k.bildungsstufe)) return false;
+      for (const feld of ['bildungsstufe', 'vorwissen'] as const) {
+        if (!k[feld]) continue;
+        const ids = SUCHE_AUSSCHLUSS_REGELN[feld];
+        if (regeln.warnungen(b, { [feld]: k[feld] }).some((m) => m.wirkung === 'warnt' && ids.includes(m.regel))) return false;
+      }
       if (minIdx >= 0) {
         const g = bestGrade(b);
         if (!g || GRADE_ORDER.indexOf(g) > minIdx) return false;
@@ -197,8 +231,9 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     if (!node || !node.baustein) throw new Error('Kein Einsatz an ' + pfad);
 
     const out: ReplacementCandidate[] = [];
+    // A help is never a phase: it is no replacement for one.
     data.bausteine
-      .filter((b) => b.kennung !== node.baustein)
+      .filter((b) => b.kennung !== node.baustein && istMethode(b))
       .forEach((b) => {
         const copy = JSON.parse(JSON.stringify(arrangement)) as Arrangement;
         const at = locate(copy, pfad);

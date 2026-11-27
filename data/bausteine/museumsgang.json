@@ -17,8 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -124,7 +127,7 @@
     "Ausgestellte Plakate/Produkte",
     "Klebezettel und Stifte"
   ],
-  "raum": "Raum mit freier Wand- oder Tischfläche",
+  "raumhinweis": "Raum mit freier Wand- oder Tischfläche",
   "gruppeMin": 8,
   "gruppeMax": 40,
   "teamMin": 2,

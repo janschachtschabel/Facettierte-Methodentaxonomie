@@ -10,10 +10,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "kurzbeschreibung": "Berufsbildendes Modul, das Fachinhalte entlang realer beruflicher Handlungsfelder und authentischer Lernsituationen integriert.",
   "alternativname": [
     "Lernfeld-Konzept",
@@ -33,7 +29,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -123,6 +119,13 @@
   "ungeeignetBeiStufe": [
     "primar"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Die Methode setzt eine berufliche Handlungssituation voraus; Lernfelder gliedern den Unterricht der Berufsschule.",
+      "grundlage": "S",
+      "quelle": "KMK 2021"
+    }
+  },
   "qualitaetsrisiko": [
     "Verlust fachlicher Systematik ohne explizite Zwischensicherungen"
   ],

@@ -798,7 +798,7 @@ export function ScenarioStudioPanel({
             {generatedMaterials.length > 0 && (
               <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 15 }}>
-                  ✓ An dieses Szenario angehängte KI-Materialien ({generatedMaterials.length}):
+                  ✓ An dieses Szenario angehängte Materialien ({generatedMaterials.length}):
                 </strong>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
                   {generatedMaterials.map((m) => {

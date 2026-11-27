@@ -17,8 +17,8 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -111,13 +111,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 270,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Zukunftsfragen mit hoher Unsicherheit lassen sich nicht eindimensional prognostizieren.",
   "durchfuehrung": [
     "Gegenstand und Zeithorizont festlegen",

@@ -16,14 +16,6 @@
     "sprachen",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Vorlesen",
@@ -106,7 +98,7 @@
   "material": [
     "Vorlesetext / Buch"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 5,

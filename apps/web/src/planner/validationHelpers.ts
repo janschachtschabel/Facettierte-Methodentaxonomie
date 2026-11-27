@@ -1,5 +1,6 @@
 import {
   FMT_RULES,
+  nurMethoden,
   type Arrangement,
   type ArrangementNode,
   type Baustein,
@@ -57,7 +58,9 @@ function bestProducerFor(
 ): Baustein | null {
   const gradeRank = (b: Baustein) =>
     b.evidenz.some((e) => e.grad === 'A') ? 0 : b.evidenz.some((e) => e.grad === 'B') ? 1 : 2;
-  const cands = bundle.bausteine
+  // Only methods fill a step; a help (eintragsart 'hilfe') is assigned to phases in step 3.
+  const methoden = nurMethoden(bundle.bausteine);
+  const cands = methoden
     .filter(
       (b) =>
         !b.komposit &&
@@ -66,7 +69,7 @@ function bestProducerFor(
         (b.vorbedingung || []).length === 0
     )
     .sort((a, b) => gradeRank(a) - gradeRank(b) || a.dauerMin - b.dauerMin || a.name.localeCompare(b.name, 'de'));
-  return cands[0] || bundle.bausteine.find((b) => !b.komposit && (b.nachbedingung || []).includes(stateId)) || null;
+  return cands[0] || methoden.find((b) => !b.komposit && (b.nachbedingung || []).includes(stateId)) || null;
 }
 
 export function explainValidationMessage(
@@ -112,7 +115,7 @@ export function explainValidationMessage(
     location = 'Zieltyp / Funktionskette';
   }
 
-  let howToFix = 'Prüfen Sie Baustein, Reihenfolge oder Kontext im Editor.';
+  let howToFix = 'Prüfe Baustein, Reihenfolge oder Kontext im Editor.';
   let quickFix: ExplainedValidationMessage['quickFix'] | undefined;
 
   switch (msg.regel) {
@@ -133,11 +136,11 @@ export function explainValidationMessage(
       break;
     }
     case 'R-02':
-      howToFix = 'Wählen Sie für diesen Slot einen Baustein mit passender Lernfunktion (wird in der Slot-Auswahl vorgefiltert).';
+      howToFix = 'Wähle für diesen Slot einen Baustein mit passender Lernfunktion (wird in der Slot-Auswahl vorgefiltert).';
       break;
     case 'R-03': {
       howToFix =
-        'Dieser Baustein erwartet einen Lernzustand aus einer vorherigen Phase. Fügen Sie davor einen passenden Einstiegs- oder Erarbeitungsbaustein ein.';
+        'Dieser Baustein erwartet einen Lernzustand aus einer vorherigen Phase. Füge davor einen passenden Einstiegs- oder Erarbeitungsbaustein ein.';
       const mState = msg.meldung.match(/\(([^)]+)\)/);
       const missingState = mState ? mState[1].split(',')[0].trim() : '';
       if (missingState && stepIndex !== null) {
@@ -154,7 +157,7 @@ export function explainValidationMessage(
     }
     case 'R-04': {
       howToFix =
-        'Die gewählte Funktionskette verlangt weitere Zielzustände. Ergänzen Sie einen Baustein, der den fehlenden Lernzustand liefert, oder wechseln Sie auf „Freier Ablauf“.';
+        'Die gewählte Funktionskette verlangt weitere Zielzustände. Ergänze einen Baustein, der den fehlenden Lernzustand liefert, oder wechsle auf „Freier Ablauf“.';
       const stateScheme = bundle.schemes.find((s) => s.id === 'lernzustand')?.werte || [];
       const missingMatch = stateScheme.find((z) => msg.meldung.includes(z.id) || msg.meldung.includes(z.label));
       if (missingMatch) {
@@ -193,10 +196,10 @@ export function explainValidationMessage(
     }
     case 'R-06':
       howToFix =
-        'Prüfen Sie, ob Bildungsstufe und Vorwissen zum Baustein passen (Expertise-Reversal) oder nutzen Sie „⇄ Ersatz“ für eine passendere Alternative.';
+        'Prüfe, ob die Methode zu Bildungsstufe, Vorwissen, Inhalt, Sprachniveau und Fach passt (der Hinweis nennt Regel und Grundlage), oder nutze „⇄ Ersatz“.';
       break;
     case 'R-07': {
-      howToFix = 'Ergänzen Sie im Bereich „Wiederkehr (verteilt)“ einen kurzen Abrufbaustein (z. B. 3× Abrufquiz im Abstand von 2 Tagen).';
+      howToFix = 'Ergänze im Bereich „Wiederkehr (verteilt)“ einen kurzen Abrufbaustein (z. B. 3× Abrufquiz im Abstand von 2 Tagen).';
       if (blocksById.has('abrufquiz')) {
         quickFix = {
           label: 'Verteilte Wiederkehr (3× Abrufquiz) aktivieren',
@@ -214,11 +217,11 @@ export function explainValidationMessage(
       break;
     }
     case 'R-08':
-      howToFix = 'Unterbrechen Sie lange passive Vortragsphasen (> 20 min) durch eine kurze aktive/konstruktive Interaktion (z. B. Think-Pair-Share oder Murmelgruppe).';
+      howToFix = 'Unterbrich lange passive Vortragsphasen (> 20 min) durch eine kurze aktive/konstruktive Interaktion (z. B. Think-Pair-Share oder Murmelgruppe).';
       break;
     case 'R-09': {
       howToFix =
-        'Zeitangaben im Katalog sind Orientierungswerte. Passen Sie Minuten direkt im Schritt bzw. Slot an oder erweitern Sie das Zeitbudget.';
+        'Zeitangaben im Katalog sind Orientierungswerte. Passe die Minuten direkt im Schritt bzw. Slot an oder erweitere das Zeitbudget.';
       if ((msg.pfad === '/kontext' || msg.pfad === '/kontext/zeitbudgetMin') && totalDauerMin > 0) {
         quickFix = {
           label: `Zeitbudget auf ${totalDauerMin} min anpassen`,
@@ -266,7 +269,7 @@ export function explainValidationMessage(
     }
     case 'R-11': {
       howToFix =
-        'Dieser Container-Baustein wirkt über seine eingebetteten Pflichtslots. Wählen Sie direkt in der eingerückten Slot-Tasche einen passenden Unterbaustein.';
+        'Dieser Container-Baustein wirkt über seine eingebetteten Pflichtslots. Wähle direkt in der eingerückten Slot-Tasche einen passenden Unterbaustein.';
       if (stepIndex !== null) {
         const node = seq.teile[stepIndex];
         if (node?.typ === 'Einsatz') {
@@ -277,7 +280,7 @@ export function explainValidationMessage(
           if (parent && emptySlot) {
             const pRang = rangMap.get(parent.reichweite) || 3;
             const sRang = rangMap.get(emptySlot.reichweite) || 2;
-            const cand = bundle.bausteine.find(
+            const cand = nurMethoden(bundle.bausteine).find(
               (c) =>
                 (rangMap.get(c.reichweite) || 0) < pRang &&
                 (rangMap.get(c.reichweite) || 0) <= sRang &&

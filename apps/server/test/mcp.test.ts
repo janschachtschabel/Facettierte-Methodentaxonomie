@@ -80,6 +80,46 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(resources.some((r) => r.uri === 'fmt://rules')).toBe(true);
   });
 
+  it('search_methods filtert nach ohneRaumbedarf und schriftbedarf (Codes des Schemas und Aliasse)', async () => {
+    const call = async (args: Record<string, unknown>) => {
+      const res = await client.callTool({ name: 'search_methods', arguments: { limit: 100, ...args } });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const liest = await call({ schriftbedarf: 'liest' });
+    expect(liest.anzahl).toBeGreaterThan(0);
+    const lesen = await call({ schriftbedarf: 'lesen' });
+    expect(lesen.anzahl).toBe(liest.anzahl);
+    const beides = await call({ schriftbedarf: ['liest', 'schreibt'], ohneRaumbedarf: ['bewegungsflaeche'] });
+    // Independent expectation from the method files.
+    const dir = path.join(ROOT, 'data', 'bausteine');
+    const erwartet = fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')) as { schriftbedarf?: string[]; raumbedarf?: string[] })
+      .filter((b) => (b.schriftbedarf || []).length && !(b.raumbedarf || []).includes('bewegungsflaeche')).length;
+    expect(erwartet).toBeGreaterThan(0);
+    expect(beides.anzahl).toBe(erwartet);
+  });
+
+  it('search_methods filtert nach eintragsart; build_scenario_plan nennt genannteHilfen', async () => {
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const hilfen = await call('search_methods', { eintragsart: 'hilfe', limit: 100 });
+    expect(hilfen.anzahl).toBeGreaterThan(0);
+    expect(hilfen.treffer.every((b: { eintragsart?: string }) => b.eintragsart === 'hilfe')).toBe(true);
+    const methoden = await call('search_methods', { eintragsart: 'methode', limit: 100 });
+    expect(methoden.treffer.some((b: { eintragsart?: string }) => b.eintragsart === 'hilfe')).toBe(false);
+    const hilfe = hilfen.treffer[0] as { kennung: string; name: string };
+    const name = hilfe.name.replace(/\s*\(.*\)\s*$/, '');
+    const plan = await call('build_scenario_plan', { text: `Deutsch Klasse 5, Märchen, 45 Minuten, mit ${name}`, umfang: 'kompakt' });
+    expect(plan.genannteHilfen).toEqual([hilfe.kennung]);
+    expect(plan.nichtVerankert.map((n: { baustein: string }) => n.baustein)).not.toContain(hilfe.kennung);
+  });
+
   it('executes search_methods, get_method, compare_methods, match_scenario, validate_arrangement, suggest_replacements and list_vocabularies', async () => {
     const searchRes = await client.callTool({
       name: 'search_methods',
@@ -108,6 +148,40 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(matchJson.modus).toBe('ablauf');
     expect(matchJson.pruefung.gueltig).toBe(true);
 
+    // raum is the room field; lernort is still read as its alias and gives the same result.
+    const text = 'Biologie Klasse 7 Pflanzen, 45 Minuten';
+    const viaRaum = await client.callTool({ name: 'match_scenario', arguments: { text, raum: 'draussen', ohneSchrift: ['schreiben'] } });
+    const viaAlias = await client.callTool({ name: 'match_scenario', arguments: { text, lernort: 'draussen', ohneSchrift: ['schreiben'] } });
+    expect(viaRaum.isError).toBeFalsy();
+    const raumJson = JSON.parse((viaRaum.content as Array<{ text: string }>)[0].text);
+    const aliasJson = JSON.parse((viaAlias.content as Array<{ text: string }>)[0].text);
+    expect(raumJson.kriterien.raum).toBe('draussen');
+    expect(raumJson.kriterien.ohneSchrift).toEqual(['schreiben']);
+    expect(aliasJson.schritte).toEqual(raumJson.schritte);
+
+    const kompakt = await client.callTool({ name: 'build_scenario_plan', arguments: { text, umfang: 'kompakt', raum: 'draussen', termine: 1 } });
+    expect(kompakt.isError).toBeFalsy();
+    const kompaktJson = JSON.parse((kompakt.content as Array<{ text: string }>)[0].text);
+    expect(kompaktJson.pflichtangaben).toBeDefined();
+    expect(kompaktJson.erkannteKriterien.raum).toBe('draussen');
+    const offen = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: { text: 'Sport Klasse 8, Ausdauerlauf, 45 Minuten', umfang: 'kompakt', raum: 'klassenraum', raumBietet: [], zielart: 'kondition', nachweis: 'praktisch' }
+    });
+    expect(offen.isError, JSON.stringify(offen.content)).toBeFalsy();
+    const offenJson = JSON.parse((offen.content as Array<{ text: string }>)[0].text);
+    expect(offenJson.offenGruende?.length).toBeGreaterThan(0);
+    expect(offenJson.nachweis?.formen).toContain('praktisch');
+    const vhs = await client.callTool({
+      name: 'build_scenario_plan',
+      arguments: { text: 'VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende', umfang: 'kompakt' }
+    });
+    const vhsJson = JSON.parse((vhs.content as Array<{ text: string }>)[0].text);
+    expect(vhsJson.pflichtangaben.fehlt).toEqual(expect.any(Array));
+    expect(vhsJson.regelmeldungen).toContainEqual(
+      expect.objectContaining({ regel: 'schrift-niedriges-sprachniveau', wirkung: 'warnt', grundlage: 'E', quelle: expect.any(String), text: expect.any(String) })
+    );
+
     const valRes = await client.callTool({
       name: 'validate_arrangement',
       arguments: { arrangement: matchJson.arrangement }
@@ -135,6 +209,17 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const vocabRes = await client.callTool({ name: 'list_vocabularies', arguments: { scheme: 'ansatz' } });
     const vocabJson = JSON.parse((vocabRes.content as Array<{ text: string }>)[0].text);
     expect(vocabJson.werte.length).toBe(12);
+    const alleRes = await client.callTool({ name: 'list_vocabularies', arguments: {} });
+    const alle = JSON.parse((alleRes.content as Array<{ text: string }>)[0].text);
+    expect(alle.regeln).toHaveLength(16);
+    expect(alle.regeln[0]).toEqual(expect.objectContaining({ id: expect.any(String), name: expect.any(String), wirkung: expect.any(String), grundlage: expect.any(String) }));
+    expect(alle.raumtypen.map((r: { id: string }) => r.id)).toEqual(expect.arrayContaining(['klassenraum', 'fachraum']));
+    expect(alle.zielarten).toHaveLength(9);
+    // Rules carry text and W fields like /api/v1/meta; the description names the new lists.
+    expect(alle.regeln[0]).toEqual(expect.objectContaining({ text: expect.any(String), wfelder: expect.any(Array) }));
+    const { tools: alleTools } = await client.listTools();
+    const beschreibung = alleTools.find((t) => t.name === 'list_vocabularies')!.description!;
+    for (const w of ['Passungsregeln', 'Raumtypen', 'Zielarten']) expect(beschreibung).toContain(w);
 
     // New v1.5 MCP tools: score_differentiation_matrix, build_scenario_plan, elaborate_scenario, generate_phase_material
     const diffRes = await client.callTool({
@@ -299,6 +384,47 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(optJson.anzahlMassnahmen).toBe(172);
     expect(optJson.schnellProfile.length).toBeGreaterThanOrEqual(8);
     expect(optJson.anpassungsvariablen.length).toBeGreaterThanOrEqual(8);
+    // C5: no blocked category, each value names Tausch or Hilfe with source
+    const kats = optJson.anpassungsvariablen.flatMap((v: { kategorien: unknown[] }) => v.kategorien) as Array<{
+      id: string;
+      auspraegungen: Array<{ id: string; teilgruppe?: { antwort: string; quelle?: string } }>;
+    }>;
+    expect(kats.find((k) => k.id === 'sensorische')).toBeUndefined();
+    expect(optJson.gesperrteKategorien[0].id).toBe('sensorische');
+    expect(kats.flatMap((k) => k.auspraegungen).find((a) => a.id === 'vorwissen-gering')?.teilgruppe).toMatchObject({ vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist' });
+    const filtered = JSON.parse(
+      ((await client.callTool({ name: 'list_differentiation_options', arguments: { oberkategorie: 'sensorische' } })).content as Array<{ text: string }>)[0].text
+    );
+    expect(filtered.anpassungsvariablen.flatMap((v: { kategorien: Array<{ id: string }> }) => v.kategorien).some((k: { id: string }) => k.id === 'sensorische')).toBe(false);
+
+    // adapt_scenario: groups with ohneSchrift/ohneBewegung; blocked value gives text, no error
+    const adaptGrp = JSON.parse(
+      ((await client.callTool({
+        name: 'adapt_scenario',
+        arguments: {
+          baustein: 'cornell-methode',
+          bildungsstufe: 'sek1',
+          gruppen: [
+            { id: 'regel', label: 'Klasse' },
+            { id: 'g1', label: 'Ohne Schreiben', ohneSchrift: ['schreiben'], ohneBewegung: true },
+            { id: 'g2', label: 'Lerntyp', selectedValues: { sensorische: 'sensorische-visuell' } }
+          ]
+        }
+      })).content as Array<{ text: string }>)[0].text
+    );
+    const imp = adaptGrp.phasenAnpassungen[0].teilgruppenImpulse as Array<{ groupId: string; antwort: string }>;
+    expect(['tausch', 'hilfe']).toContain(imp.find((i) => i.groupId === 'g1')!.antwort);
+    expect(adaptGrp.gesperrt).toEqual([expect.objectContaining({ gruppe: 'Lerntyp' })]);
+
+    const scoreC5 = JSON.parse(
+      ((await client.callTool({
+        name: 'score_differentiation_matrix',
+        arguments: { selectedValues: { vorwissen: 'vorwissen-gering', sensorische: 'sensorische-visuell' }, baustein: 'gruppenpuzzle', bildungsstufe: 'sek1' }
+      })).content as Array<{ text: string }>)[0].text
+    );
+    expect(scoreC5.merkmale[0]).toMatchObject({ wert: 'vorwissen-gering', vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist' });
+    expect(scoreC5.merkmale[0]).not.toHaveProperty('antwort');
+    expect(scoreC5.gesperrt[0].kategorie).toBe('sensorische');
 
     const singleMethodRes = await client.callTool({
       name: 'adapt_scenario',
@@ -320,7 +446,9 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
       arguments: { quickProfileId: 'daz', baustein: 'gruppenpuzzle', bildungsstufe: 'sek1', maxTechnik: 't-keine' }
     });
     const quickScore = JSON.parse((quickScoreRes.content as Array<{ text: string }>)[0].text);
-    expect(quickScore.selectedCount).toBe(4);
+    // The DaZ preset no longer carries the blocked category sensorische (Lerntypen, teilgruppen.json) nor a special
+    // need in language (DaZ is second-language acquisition, fix wave C): two values.
+    expect(quickScore.selectedCount).toBe(2);
     expect(quickScore.topRecommendations.length).toBeGreaterThan(0);
   });
 
@@ -381,6 +509,17 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(match.bildungsstufe.enum).toContain('sek1');
     expect(match.vorwissen.enum).toEqual(expect.arrayContaining(['gering', 'mittel', 'hoch']));
     expect(JSON.stringify(match.ansatz)).toContain('kooperativ');
+    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'nachweis', 'zielart']) {
+      expect(match[f], 'match_scenario ' + f).toBeDefined();
+      expect(props('build_scenario_plan')[f], 'build_scenario_plan ' + f).toBeDefined();
+    }
+    expect(match.zielart.enum).toEqual(expect.arrayContaining(['fakten', 'konzepte', 'prozeduren', 'problemloesen', 'bewegung', 'kondition', 'urteilen', 'gestalten', 'handlung']));
+    const toolList = tools.filter((t) => ['match_scenario', 'build_scenario_plan'].includes(t.name));
+    for (const t of toolList) {
+      expect(t.description!.toLowerCase()).not.toContain('lernort');
+      const descs = Object.values((t.inputSchema.properties || {}) as Record<string, { description?: string }>).map((p) => p.description || '');
+      expect(descs.join(' ').toLowerCase()).not.toContain('lernort');
+    }
     const plan = props('build_scenario_plan');
     expect(plan.maxTechnik.enum).toContain('t-keine');
     expect(plan.bildungsstufe.enum).toContain('primar');

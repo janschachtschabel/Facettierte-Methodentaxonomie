@@ -5,6 +5,7 @@ import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator, extractSubjectAndTopic } from '../src/index.js';
 import { QUALITAETSFAELLE } from './qualitaet/faelle.js';
 import { REIHE2 } from './qualitaet/faelle-reihe2.js';
+import { REIHE4 } from './qualitaet/faelle-reihe4.js';
 import { pruefeFall, variabilitaet } from './qualitaet/pruefen.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -46,5 +47,16 @@ describe('Qualitätstest: Thema aus der Anfrage', () => {
 describe('Testreihe 2 (nur Bericht)', () => {
   it('alle Anfragen laufen ohne Fehler durch', () => {
     for (const f of REIHE2) expect(() => pruefeFall(f, M, D), f.id).not.toThrow();
+  });
+});
+
+describe('Testreihe 4 (FMT 2.0, n01 bis n20)', () => {
+  const reihe4 = REIHE4.map((f) => pruefeFall(f, M, D));
+  it('enthält die 20 Fälle n01 bis n20', () => {
+    expect(REIHE4.map((f) => f.id)).toEqual(Array.from({ length: 20 }, (_, i) => `n${String(i + 1).padStart(2, '0')}`));
+  });
+  it.each(reihe4.map((e) => [e.fall.id, e] as const))('%s: jede offene Prüfung ist als bekannt markiert', (_id, e) => {
+    const offen = e.befunde.filter((b) => !b.ok && !b.bekannt).map((b) => `${b.pruefung}: ${b.detail}`);
+    expect(offen, `${e.fall.text}\n→ ${e.ablauf.join(' > ')}`).toEqual([]);
   });
 });

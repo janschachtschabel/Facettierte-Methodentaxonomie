@@ -10,8 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
   ],
   "kurzbeschreibung": "Offene Konferenzform mit gemeinsamer Sessionplanung am Beginn, kurzen Impuls- und Diskussionsrunden auf Augenhöhe und kollektiver Dokumentation.",
   "alternativname": [
@@ -32,7 +32,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 12,
   "gruppeMax": 120,
   "technik": "t-keine",
@@ -107,9 +107,6 @@
       "kennung": "dokumentation",
       "name": "Offene Ergebnisdokumentation"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Geringe fachliche Tiefe bei rein anekdotischen Sessions"

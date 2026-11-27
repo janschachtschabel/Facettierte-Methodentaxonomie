@@ -16,9 +16,7 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Lehrerfortbildung BW: Schülercoaching",

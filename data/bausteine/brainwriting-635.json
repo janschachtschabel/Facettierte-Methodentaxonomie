@@ -15,11 +15,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -74,6 +74,7 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "konzepte",
     "afb2",
     "afb3",
     "schlecht-strukturiert"

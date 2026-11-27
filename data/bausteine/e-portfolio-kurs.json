@@ -11,9 +11,13 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
+  "schriftbedarf": [
+    "schreibt"
+  ],
+  "termineMin": 2,
   "kurzbeschreibung": "Multimediale digitale Lernmappe über eine gesamte Reihe oder ein Halbjahr mit Arbeitsartefakten, Lernreflexionen und gegenseitigen Peer-Kommentaren.",
   "alternativname": [
     "E-Portfolio",
@@ -33,7 +37,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-einzeln",

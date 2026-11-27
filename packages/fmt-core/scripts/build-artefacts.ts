@@ -27,7 +27,7 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['vorbedingung', 'lernzustand', true],
   ['nachbedingung', 'lernzustand', true],
   ['vorhanden', 'lernzustand', true],
-  ['geeignetBeiVorwissen', 'vorwissen', true],
+  ['ungeeignetBeiVorwissen', 'vorwissen', true],
   ['vorwissen', 'vorwissen', false],
   ['ungeeignetBeiStufe', 'bildungsstufe', true],
   ['bildungsstufe', 'bildungsstufe', false],
@@ -37,7 +37,10 @@ export const VOCAB_PROPS: Array<[string, string, boolean]> = [
   ['ansatz', 'ansatz', true],
   ['fachbereich', 'fachbereich', true],
   ['fachbereichUngeeignet', 'fachbereich', true],
-  ['lernort', 'lernort', true]
+  ['raumbedarf', 'raumbedarf', true],
+  ['fachausstattungArt', 'fachausstattungart', false],
+  ['schriftbedarf', 'schriftbedarf', true],
+  ['eintragsart', 'eintragsart', false]
 ];
 
 const STEUERUNG_DIMS = ['organisation', 'lernweg', 'inhalt', 'sozial', 'bewertung'];
@@ -170,8 +173,9 @@ export function ontologyTtl(D: FmtData): string {
     ['Evidenzaussage', 'Befund mit Evidenzgrad und Quelle'],
     ['Quelle', 'Quellenangabe eines Bausteins (freie Quelle oder Fachliteratur)'],
     ['Steuerungsprofil', 'Steuerungsträger je Steuerungsdimension'],
+    ['Eignungsgrund', 'Begründung einer Eignungsaussage je Merkmal (Bildungsstufe, Vorwissen, Fachbereich) mit Grundlage und Quelle'],
     ['Arrangement', 'Komposition von Bausteinen für ein Lehr-Lern-Setting'],
-    ['Kontext', 'Bedingungsraum eines Arrangements'],
+    ['Kontext', 'Rahmenbedingungen eines Arrangements'],
     ['Knoten', 'Element im Ablaufbaum eines Arrangements'],
     ['Belegung', 'Füllung eines Slots mit einem Knoten']
   ];
@@ -200,8 +204,33 @@ export function ontologyTtl(D: FmtData): string {
   nodeTypes.forEach(([c, d]) => {
     out += `fmt:${c} a rdfs:Class ;\n  rdfs:subClassOf fmt:Knoten ;\n  rdfs:label ${lit(c)}@de ;\n  rdfs:comment ${lit(d)}@de .\n\n`;
   });
+  // W-field and kind of statement each property belongs to (data/vocab.json, merkmale).
+  const wfeld = (p: string) => {
+    const m = D.merkmale.find((x) => x.feld === p);
+    return m ? ` ;\n  fmt:wfeld ${lit(m.wfeld)} ;\n  fmt:aussageart ${lit(m.art)}` : '';
+  };
+  out += `fmt:wfeld a rdf:Property ;\n  rdfs:label ${lit('W-Feld')}@de ;\n  rdfs:range xsd:string ;\n  rdfs:comment ${lit('W-Feld der Methodenbeschreibung: ' + D.wfelder.map((w) => w.id).join(', '))}@de .\n\n`;
+  out += `fmt:aussageart a rdf:Property ;\n  rdfs:label ${lit('Aussageart')}@de ;\n  rdfs:range xsd:string ;\n  rdfs:comment ${lit('Art der Aussage über die Methode: ' + D.arten.map((a) => a.id).join(', '))}@de .\n\n`;
   VOCAB_PROPS.forEach(([p, s]) => {
-    out += `fmt:${p} a rdf:Property ;\n  rdfs:label ${lit(p)}@de ;\n  rdfs:range skos:Concept ;\n  rdfs:comment ${lit('Werte aus ' + NS + 'vocab/' + s + '/')}@de .\n\n`;
+    out += `fmt:${p} a rdf:Property ;\n  rdfs:label ${lit(p)}@de ;\n  rdfs:range skos:Concept ;\n  rdfs:comment ${lit('Werte aus ' + NS + 'vocab/' + s + '/')}@de${wfeld(p)} .\n\n`;
+  });
+  // Numbers, flags and notes of the Einsatzprofil and the description.
+  const literalProps: Array<[string, string]> = [
+    ['dauerMin', 'xsd:integer'],
+    ['dauerMax', 'xsd:integer'],
+    ['gruppeMin', 'xsd:integer'],
+    ['gruppeMax', 'xsd:integer'],
+    ['teamMin', 'xsd:integer'],
+    ['teamMax', 'xsd:integer'],
+    ['vorbereitungMin', 'xsd:integer'],
+    ['termineMin', 'xsd:integer'],
+    ['internet', 'xsd:boolean'],
+    ['ki', 'xsd:boolean'],
+    ['raumhinweis', 'xsd:string'],
+    ['betreuungshinweis', 'xsd:string']
+  ];
+  literalProps.forEach(([p, t]) => {
+    out += `fmt:${p} a rdf:Property ;\n  rdfs:domain fmt:Baustein ;\n  rdfs:range ${t}${wfeld(p)} .\n\n`;
   });
   STEUERUNG_DIMS.forEach((d) => {
     out += `fmt:steuerung_${d} a rdf:Property ;\n  rdfs:domain fmt:Steuerungsprofil ;\n  rdfs:range skos:Concept ;\n  rdfs:label ${lit('Steuerung ' + d)}@de .\n\n`;
@@ -211,6 +240,7 @@ export function ontologyTtl(D: FmtData): string {
     ['kernkomponente', 'Baustein', 'Kernkomponente'],
     ['evidenz', 'Baustein', 'Evidenzaussage'],
     ['steuerung', 'Baustein', 'Steuerungsprofil'],
+    ['eignungsgrund', 'Baustein', 'Eignungsgrund'],
     ['kontext', 'Arrangement', 'Kontext'],
     ['ablauf', 'Arrangement', 'Knoten'],
     ['baustein', 'Knoten', 'Baustein'],
@@ -257,7 +287,7 @@ export function buildContext(D: FmtData) {
     evidenzBezug: 'fmt:evidenzBezug',
     alternativname: { '@id': 'skos:altLabel', '@container': '@set' },
     problem: 'fmt:problem',
-    raum: 'fmt:raum',
+    raumhinweis: 'fmt:raumhinweis',
     durchfuehrung: { '@id': 'fmt:durchfuehrung', '@container': '@list' },
     material: { '@id': 'fmt:material', '@container': '@set' },
     variante: { '@id': 'fmt:variante', '@container': '@set' },
@@ -265,6 +295,7 @@ export function buildContext(D: FmtData) {
     gruppeMin: { '@id': 'fmt:gruppeMin', '@type': 'xsd:integer' },
     gruppeMax: { '@id': 'fmt:gruppeMax', '@type': 'xsd:integer' },
     vorbereitungMin: { '@id': 'fmt:vorbereitungMin', '@type': 'xsd:integer' },
+    termineMin: { '@id': 'fmt:termineMin', '@type': 'xsd:integer' },
     internet: { '@id': 'fmt:internet', '@type': 'xsd:boolean' },
     teamMin: { '@id': 'fmt:teamMin', '@type': 'xsd:integer' },
     teamMax: { '@id': 'fmt:teamMax', '@type': 'xsd:integer' },
@@ -300,6 +331,16 @@ export function buildContext(D: FmtData) {
     belegung: { '@id': 'fmt:belegung', '@container': '@set' },
     arrangement: { '@id': 'fmt:arrangement', '@type': '@id' },
     baustein: { '@id': 'fmt:baustein', '@type': '@vocab', '@context': { '@vocab': NS + 'baustein/' } },
+    // Reasons of the Eignung statements: the inner keys name the statement, not the vocabulary of the same name.
+    eignungsgrund: {
+      '@id': 'fmt:eignungsgrund',
+      '@context': Object.fromEntries(
+        ['stufe', 'vorwissen', 'fachbereich'].map((art) => [
+          art,
+          { '@id': `fmt:eignungsgrund_${art}`, '@context': { text: 'fmt:grundText', grundlage: 'fmt:grundlage', quelle: 'fmt:quelle' } }
+        ])
+      )
+    },
     steuerung: {
       '@id': 'fmt:steuerung',
       '@context': Object.fromEntries(
@@ -395,7 +436,10 @@ export function buildSchema(D: FmtData) {
       ansatz: Object.assign({ minItems: 1 }, vocabProp.ansatz),
       fachbereich: Object.assign({ minItems: 1 }, vocabProp.fachbereich),
       fachbereichUngeeignet: vocabProp.fachbereichUngeeignet,
-      lernort: vocabProp.lernort,
+      raumbedarf: Object.assign({ minItems: 1 }, vocabProp.raumbedarf),
+      fachausstattungArt: vocabProp.fachausstattungArt,
+      schriftbedarf: Object.assign({ minItems: 1 }, vocabProp.schriftbedarf),
+      termineMin: { type: 'integer', minimum: 2 },
       quellen: {
         type: 'array',
         minItems: 1,
@@ -415,7 +459,7 @@ export function buildSchema(D: FmtData) {
       alternativname: { type: 'array', items: { type: 'string' }, uniqueItems: true },
       komposit: { type: 'boolean' },
       problem: { type: 'string' },
-      raum: { type: 'string' },
+      raumhinweis: { type: 'string' },
       durchfuehrung: { type: 'array', items: { type: 'string' }, minItems: 2 },
       material: { type: 'array', items: { type: 'string' } },
       variante: { type: 'array', items: { type: 'string' } },
@@ -428,6 +472,23 @@ export function buildSchema(D: FmtData) {
       gruppeMax: { type: 'integer', minimum: 1 },
       vorbereitungMin: { type: 'integer', minimum: 0 },
       ungeeignetBeiStufe: vocabProp.ungeeignetBeiStufe,
+      ungeeignetBeiVorwissen: vocabProp.ungeeignetBeiVorwissen,
+      eintragsart: vocabProp.eintragsart,
+      eignungsgrund: {
+        type: 'object',
+        additionalProperties: false,
+        properties: Object.fromEntries(
+          ['stufe', 'vorwissen', 'fachbereich'].map((art) => [
+            art,
+            {
+              type: 'object',
+              additionalProperties: false,
+              required: ['text', 'grundlage'],
+              properties: { text: { type: 'string', minLength: 10 }, grundlage: { enum: ['E', 'S', 'A'] }, quelle: { type: 'string' } }
+            }
+          ])
+        )
+      },
       beschreibungsstufe: vocabProp.beschreibungsstufe,
       reichweite: vocabProp.reichweite,
       lernfunktion: Object.assign({ minItems: 1 }, vocabProp.lernfunktion),
@@ -452,7 +513,6 @@ export function buildSchema(D: FmtData) {
       sequenz: vocabProp.sequenz,
       vorbedingung: vocabProp.vorbedingung,
       nachbedingung: vocabProp.nachbedingung,
-      geeignetBeiVorwissen: vocabProp.geeignetBeiVorwissen,
       kernkomponente: {
         type: 'array',
         items: {
@@ -648,7 +708,12 @@ export function buildAllArtefacts(rootDir: string) {
     version: D.VERSION,
     schemes: D.schemes,
     facetten: D.facetten,
+    wfelder: D.wfelder,
+    arten: D.arten,
+    merkmale: D.merkmale,
     ketten: D.ketten,
+    regeln: D.regeln,
+    teilgruppen: D.teilgruppen,
     bausteine: D.bausteine,
     beispiele: D.beispiele,
     oeh,
@@ -668,7 +733,12 @@ export function buildAllArtefacts(rootDir: string) {
     repository: D.repository || 'https://github.com/janschachtschabel/Facettierte-Methodentaxonomie',
     schemes: D.schemes,
     facetten: D.facetten,
+    wfelder: D.wfelder,
+    arten: D.arten,
+    merkmale: D.merkmale,
     ketten: D.ketten,
+    regeln: D.regeln,
+    teilgruppen: D.teilgruppen,
     bausteine: D.bausteine,
     beispiele: D.beispiele,
     oeh,

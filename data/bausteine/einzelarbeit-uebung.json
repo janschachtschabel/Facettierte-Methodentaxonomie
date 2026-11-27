@@ -9,8 +9,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
   "kurzbeschreibung": "Ruhige, zeitlich begrenzte Einzelphase zur konzentrierten Verarbeitung, Textlektüre oder individuellen Übung mit Lösungskontrolle.",
   "alternativname": [
@@ -30,7 +30,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 40,
   "technik": "t-keine",
@@ -133,6 +133,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

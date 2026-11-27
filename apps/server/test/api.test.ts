@@ -59,6 +59,94 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(body.llmConfigured).toBe(false);
   });
 
+  it('/meta nennt W-Felder, Aussagearten und Merkmale', async () => {
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/meta' })).json();
+    expect(meta.ebenen).toBeUndefined();
+    expect(meta.wfelder).toHaveLength(9);
+    expect(meta.arten.map((a: { id: string }) => a.id)).toEqual(['bauweise', 'beitrag', 'bedarf', 'eignung', 'einordnung']);
+    expect(meta.merkmale.map((m: { feld: string }) => m.feld)).toContain('raumbedarf');
+    expect(meta.raumtypen.map((r: { id: string }) => r.id)).toEqual(expect.arrayContaining(['klassenraum', 'draussen', 'fachraum']));
+    expect(meta.zielarten).toHaveLength(9);
+  });
+
+  it('/meta führt die Passungsregeln; /plan nennt Regelmeldungen mit Regel, Wirkung, Grundlage, Quelle, Text (Task B4)', async () => {
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/meta' })).json();
+    expect(meta.regeln).toHaveLength(16);
+    const schrift = meta.regeln.find((r: { id: string }) => r.id === 'schrift-niedriges-sprachniveau');
+    expect(schrift).toEqual(expect.objectContaining({ wirkung: 'warnt', grundlage: 'E', quelle: expect.stringContaining('Höfler') }));
+    const plan = (
+      await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende' } })
+    ).json();
+    expect(plan.pflichtangaben).toBeDefined();
+    const m = plan.regelmeldungen.find((x: { regel: string }) => x.regel === 'schrift-niedriges-sprachniveau');
+    expect(m).toEqual(expect.objectContaining({ wirkung: 'warnt', grundlage: 'E', quelle: expect.any(String), text: expect.any(String) }));
+  });
+
+  it('/methods filtert nach Raumbedarf, Schriftbedarf und ohneRaumbedarf', async () => {
+    const get = async (q: string) => (await app.inject({ method: 'GET', url: '/api/v1/methods?' + q })).json();
+    const alle = await get('');
+    const mitRaum = await get('raumbedarf=bewegungsflaeche');
+    expect(mitRaum.anzahl).toBeGreaterThan(0);
+    expect(mitRaum.anzahl).toBeLessThan(alle.anzahl);
+    expect(mitRaum.treffer.every((b: { raumbedarf?: string[] }) => (b.raumbedarf || []).includes('bewegungsflaeche'))).toBe(true);
+    const ohne = await get('ohneRaumbedarf=bewegungsflaeche');
+    expect(ohne.treffer.some((b: { raumbedarf?: string[] }) => (b.raumbedarf || []).includes('bewegungsflaeche'))).toBe(false);
+    expect(ohne.anzahl + mitRaum.anzahl).toBe(alle.anzahl);
+    // Data holds liest/schreibt; lesen/schreiben (the codes of ohneSchrift) are accepted as aliases.
+    const schrift = await get('schriftbedarf=schreibt');
+    expect(schrift.anzahl).toBeGreaterThan(0);
+    expect(schrift.anzahl).toBeLessThan(alle.anzahl);
+    expect(schrift.treffer.every((b: { schriftbedarf?: string[] }) => (b.schriftbedarf || []).includes('schreibt'))).toBe(true);
+    const alias = await get('schriftbedarf=schreiben');
+    expect(alias.anzahl).toBe(schrift.anzahl);
+  });
+
+  it('POST /plan nennt offenGruende und nachweis, auch kompakt', async () => {
+    const payload = {
+      text: 'Sport Klasse 8, Ausdauerlauf, 45 Minuten',
+      fachbereich: 'sport',
+      raum: 'klassenraum',
+      raumBietet: [],
+      zielart: 'kondition',
+      nachweis: 'praktisch'
+    };
+    for (const umfang of ['voll', 'kompakt']) {
+      const r = (await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { ...payload, umfang } })).json();
+      expect(r.offenGruende?.length, umfang).toBeGreaterThan(0);
+      expect(r.offenGruende[0].grund).toContain('braucht: Bewegungsfläche');
+      expect(r.nachweis?.formen, umfang).toContain('praktisch');
+      expect(r.nachweis.quelle).toBe('anfrage');
+    }
+  });
+
+  it('GET /methods unterscheidet Methoden und Hilfen; POST /plan nennt eine genannte Hilfe unter genannteHilfen, auch kompakt', async () => {
+    const get = async (q: string) => (await app.inject({ method: 'GET', url: `/api/v1/methods?${q}` })).json();
+    const alle = await get('');
+    const hilfen = await get('eintragsart=hilfe');
+    const methoden = await get('eintragsart=methode');
+    expect(hilfen.anzahl).toBeGreaterThan(0);
+    expect(hilfen.anzahl + methoden.anzahl).toBe(alle.anzahl);
+    expect(hilfen.treffer.every((b: { eintragsart?: string }) => b.eintragsart === 'hilfe')).toBe(true);
+    // A help of the catalogue (whichever it is), named by its main name.
+    const hilfe = hilfen.treffer[0] as { kennung: string; name: string };
+    const name = hilfe.name.replace(/\s*\(.*\)\s*$/, '');
+    for (const umfang of ['voll', 'kompakt']) {
+      const r = (
+        await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: `Deutsch Klasse 5, Märchen, 45 Minuten, mit ${name}`, umfang, includeWloOer: false } })
+      ).json();
+      expect(r.genannteHilfen, umfang).toEqual([hilfe.kennung]);
+      expect(r.hinweise).toContain(`‚${hilfe.name}‘ ist eine Hilfe und wird in Schritt 3 den Phasen zugeordnet`);
+      expect(r.nichtVerankert.map((n: { baustein: string }) => n.baustein)).not.toContain(hilfe.kennung);
+      expect(r.methodenDetails.map((m: { kennung: string }) => m.kennung)).not.toContain(hilfe.kennung);
+    }
+  });
+
+  it('POST /match nimmt lernort weiter an', async () => {
+    const r = await app.inject({ method: 'POST', url: '/api/v1/match', payload: { text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' } });
+    expect(r.statusCode).toBe(200);
+    expect(r.json().kriterien.raum).toBe('draussen');
+  });
+
   it('supports ETag and 304 Not Modified on /api/v1/catalog', async () => {
     const r1 = await app.inject({ method: 'GET', url: '/api/v1/catalog' });
     expect(r1.statusCode).toBe(200);
@@ -194,6 +282,83 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(aj.phasenAnpassungen.length).toBe(3);
     expect(aj.verbindlicheUmsetzungsregeln.length).toBeGreaterThanOrEqual(4);
     expect(aj.udlBasis.every((u: { meta: { technik: string; ebene: string } }) => u.meta.technik === 'analog' && u.meta.ebene !== 'organisation-system')).toBe(true);
+  });
+
+  it('names Tausch or Hilfe per Merkmal with source, hides blocked categories and never offers helps as alternatives (C5)', async () => {
+    const hilfen = new Set(
+      (JSON.parse(fs.readFileSync(path.join(DIST_DATA, 'catalog.bundle.json'), 'utf8')).bausteine as Array<{ kennung: string; eintragsart?: string }>)
+        .filter((b) => b.eintragsart === 'hilfe')
+        .map((b) => b.kennung)
+    );
+    expect(hilfen.size).toBeGreaterThan(0);
+
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/differentiation/meta' })).json();
+    const kategorien = meta.variables.flatMap((v: { kategorien: unknown[] }) => v.kategorien) as Array<{
+      id: string;
+      auspraegungen: Array<{ id: string; teilgruppe?: { antwort: string; quelle?: string; grundlage: string } }>;
+    }>;
+    expect(kategorien.find((k) => k.id === 'sensorische')).toBeUndefined();
+    expect(meta.gesperrteKategorien).toEqual([expect.objectContaining({ id: 'sensorische' })]);
+    const aus = (id: string) => kategorien.flatMap((k) => k.auspraegungen).find((a) => a.id === id);
+    expect(aus('vorwissen-gering')?.teilgruppe).toMatchObject({ vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist', grundlage: 'E' });
+    expect(aus('vorwissen-gering')?.teilgruppe).not.toHaveProperty('antwort');
+    expect(aus('vorwissen-gering')?.teilgruppe?.quelle).toContain('Tetzlaff');
+    expect(aus('sprachkompetenz-gering')?.teilgruppe).toMatchObject({ vorgesehen: 'hilfe' });
+    expect(aus('sprachkompetenz-gering')?.teilgruppe).not.toHaveProperty('bedingung');
+
+    const score = (
+      await app.inject({
+        method: 'POST',
+        url: '/api/v1/differentiation/score',
+        payload: {
+          selectedValues: { vorwissen: 'vorwissen-gering', sprachkompetenz: 'sprachkompetenz-gering', sensorische: 'sensorische-visuell' },
+          baustein: 'gruppenpuzzle',
+          bildungsstufe: 'sek1'
+        }
+      })
+    ).json();
+    expect(score.alternativeMethoden.every((a: { kennung: string }) => !hilfen.has(a.kennung))).toBe(true);
+    const byMerkmal = Object.fromEntries(score.merkmale.map((m: { wert: string }) => [m.wert, m]));
+    expect(byMerkmal['vorwissen-gering']).toMatchObject({ vorgesehen: 'tausch', bedingung: 'nur wenn die Methode den Grund auslöst und nur uniform ist', merkmal: 'vorwissen-gering' });
+    expect(byMerkmal['vorwissen-gering'].quelle).toBeTruthy();
+    expect(byMerkmal['sprachkompetenz-gering']).toMatchObject({ vorgesehen: 'hilfe' });
+    expect(score.gesperrt).toEqual([expect.objectContaining({ kategorie: 'sensorische', text: expect.stringContaining('Lerntypen') })]);
+  });
+
+  it('adapt takes ohneSchrift/ohneBewegung per group and reports antwort, beleg, hilfen and gesperrt (C5)', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: {
+        baustein: 'cornell-methode',
+        bildungsstufe: 'sek1',
+        gruppen: [
+          { id: 'regel', label: 'Klasse' },
+          { id: 'g1', label: 'Kinder ohne Schrift', ohneSchrift: ['schreiben'] },
+          { id: 'g2', label: 'Lerntyp visuell', selectedValues: { sensorische: 'sensorische-visuell' } }
+        ]
+      }
+    });
+    expect(res.statusCode).toBe(200);
+    const j = res.json();
+    const impulse = j.phasenAnpassungen[0].teilgruppenImpulse as Array<{ groupId: string; antwort: string; beleg: { grund: string } }>;
+    const g1 = impulse.find((i) => i.groupId === 'g1')!;
+    expect(['tausch', 'hilfe']).toContain(g1.antwort);
+    expect(g1.beleg.grund).toContain('Schreiben');
+    expect(j.gesperrt).toEqual([expect.objectContaining({ gruppe: 'Lerntyp visuell' })]);
+
+    const bad = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: { baustein: 'cornell-methode', gruppen: [{ id: 'g', label: 'x', ohneSchrift: ['malen'] }] }
+    });
+    expect(bad.statusCode).toBe(400);
+    const bad2 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/adapt',
+      payload: { baustein: 'cornell-methode', gruppen: [{ id: 'g', label: 'x', ohneBewegung: 'ja' }] }
+    });
+    expect(bad2.statusCode).toBe(400);
   });
 
   it('serves SKOS Turtle, JSON-LD, canonical w3id.org content negotiation and SPA fallback cleanly (Review Focus #4)', async () => {

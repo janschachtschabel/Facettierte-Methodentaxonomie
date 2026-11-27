@@ -32,9 +32,12 @@ describe('Runde 5: Szenarioplan in REST und MCP', () => {
 
   it('Szenarioplan gibt die Hinweise der Zuordnung weiter (Sicherheitshinweis)', async () => {
     const p = await plan({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
-    expect((p.hinweise || []).join(' ')).toMatch(/Sicherheitsregeln und Aufsicht/);
+    expect((p.hinweise || []).join(' ')).toMatch(/Kläre vorher Sicherheit und Aufsicht/);
+    // The rule message names every hands-on method (bausteine), not only the one it is attached to.
+    const s = (p.regelmeldungen || []).find((x: { regel: string }) => x.regel === 'sicherheitshinweis');
+    expect(s.bausteine).toEqual(expect.arrayContaining([s.baustein]));
     const m = await tool('build_scenario_plan', { text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
-    expect((m.json.hinweise || []).join(' ')).toMatch(/Sicherheitsregeln und Aufsicht/);
+    expect((m.json.hinweise || []).join(' ')).toMatch(/Kläre vorher Sicherheit und Aufsicht/);
   });
 
   it('P2: ohne Zeitangabe plant der Szenarioplan eine Stunde von 45 Minuten', async () => {

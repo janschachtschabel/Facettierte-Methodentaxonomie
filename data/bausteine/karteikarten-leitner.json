@@ -16,13 +16,7 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Wikipedia: Lernkartei",

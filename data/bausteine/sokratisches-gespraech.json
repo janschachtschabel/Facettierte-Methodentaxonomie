@@ -17,8 +17,8 @@
     "sprachen",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -110,10 +110,6 @@
   ],
   "dauerMin": 40,
   "dauerMax": 90,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Zentrale Begriffe (z. B. Gerechtigkeit, Wahrheit, Kausalität) werden unreflektiert gebraucht, statt ihre Voraussetzungen zu prüfen.",
   "durchfuehrung": [
     "Grundfrage festlegen und konkretes Beispiel wählen",
@@ -125,7 +121,7 @@
     "Stuhlkreis",
     "Flipchart für Zwischenkonsense"
   ],
-  "raum": "Stuhlkreis ohne Tische",
+  "raumhinweis": "Stuhlkreis ohne Tische",
   "gruppeMin": 6,
   "gruppeMax": 24,
   "vorbereitungMin": 20,

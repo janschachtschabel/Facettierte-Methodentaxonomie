@@ -7,6 +7,8 @@ import {
   createValidator,
   detectMatrixTraitsFromText,
   type Arrangement,
+  DIFF_MATRIX_VARIABLES,
+  getPersonaValues,
   type Baustein,
   type CatalogBundle,
   type FmtData,
@@ -65,6 +67,90 @@ export interface CatalogStore {
   beispieleJsonld: Map<string, string>;
 }
 
+/** Codes and labels of one vocabulary (flat or grouped), as /api/v1/meta and the MCP tool list_vocabularies give them. */
+export function schemeValues(bundle: CatalogBundle, id: string): { id: string; label: string }[] {
+  const s = bundle.schemes.find((x) => x.id === id);
+  const werte = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
+  return werte.map((w) => ({ id: w.id, label: w.label }));
+}
+
+/**
+ * What the table "Tausch oder Hilfe" provides for one matrix value, with basis and source. This is no answer for a
+ * plan: a swap row swaps only when the planned method sets off the row's reason and adapts to nobody (`bedingung`).
+ */
+export interface MerkmalsAntwort {
+  vorgesehen: 'tausch' | 'hilfe' | 'passt';
+  /** When the provision applies (swap rows only). */
+  bedingung?: string;
+  merkmal?: string;
+  richtung?: string;
+  wohin?: string;
+  grundlage?: string;
+  quelle?: string;
+}
+
+/** Swap rows: a non-formal one swaps only for a method that sets off its reason and is only uniform (B3). */
+const BEDINGUNG_TAUSCH = 'nur wenn die Methode den Grund auslöst und nur uniform ist';
+const BEDINGUNG_FORMAL = 'nur wenn die Methode den Grund auslöst';
+const FORMALE_RICHTUNGEN = new Set(['ohne-lesen', 'ohne-schreiben', 'ohne-bewegung']);
+
+/** Row of teilgruppen.json that covers a matrix value; neutral values fit, unnamed ones get the default help. */
+export function merkmalsAntwort(bundle: CatalogBundle, wert: string): MerkmalsAntwort {
+  const t = bundle.teilgruppen;
+  if (t.neutral.includes(wert)) return { vorgesehen: 'passt' };
+  const m = t.merkmale.find((x) => x.auspraegungen.includes(wert));
+  if (!m) return { vorgesehen: t.sonst.antwort, wohin: t.sonst.wohin, grundlage: t.sonst.grundlage };
+  const bedingung = m.antwort !== 'tausch' ? undefined : m.richtung && FORMALE_RICHTUNGEN.has(m.richtung) ? BEDINGUNG_FORMAL : BEDINGUNG_TAUSCH;
+  return {
+    vorgesehen: m.antwort,
+    ...(bedingung ? { bedingung } : {}),
+    merkmal: m.id,
+    ...(m.richtung ? { richtung: m.richtung } : {}),
+    wohin: m.wohin,
+    grundlage: m.grundlage,
+    ...(m.quelle ? { quelle: m.quelle } : {})
+  };
+}
+
+/**
+ * Matrix variables without the blocked categories (teilgruppen.json); every value says whether the subgroup gets
+ * a swap or a help, with basis and source. The blocked categories are listed with the reason.
+ */
+export function differenzierungsMerkmale(bundle: CatalogBundle, oberkategorie?: string) {
+  const t = bundle.teilgruppen;
+  const needle = oberkategorie?.toLowerCase();
+  const variables = DIFF_MATRIX_VARIABLES.filter((v) => !needle || v.id === oberkategorie || v.name.toLowerCase().includes(needle))
+    .map((v) => ({
+      ...v,
+      kategorien: v.kategorien
+        .filter((k) => !t.gesperrt.includes(k.id))
+        .map((k) => ({ ...k, auspraegungen: k.auspraegungen.map((a) => ({ ...a, teilgruppe: merkmalsAntwort(bundle, a.id) })) }))
+    }))
+    .filter((v) => v.kategorien.length > 0);
+  const gesperrteKategorien = DIFF_MATRIX_VARIABLES.flatMap((v) => v.kategorien)
+    .filter((k) => t.gesperrt.includes(k.id))
+    .map((k) => ({ id: k.id, name: k.name, text: t.gesperrtText }));
+  return { variables, gesperrteKategorien };
+}
+
+/** Per selected value the answer of the table, and the blocked categories of the request (no error, only the text). */
+export function merkmalsEntscheidungen(bundle: CatalogBundle, selectedValues: Record<string, string>) {
+  const t = bundle.teilgruppen;
+  const merkmale = Object.entries(selectedValues)
+    .filter(([kategorie, wert]) => !t.gesperrt.includes(kategorie) && !t.neutral.includes(wert))
+    .map(([kategorie, wert]) => ({ kategorie, wert, ...merkmalsAntwort(bundle, wert) }));
+  const gesperrt = Object.keys(selectedValues)
+    .filter((kategorie) => t.gesperrt.includes(kategorie))
+    .map((kategorie) => ({ kategorie, text: t.gesperrtText }));
+  return { merkmale, gesperrt };
+}
+
+/** Decision per value of a score request: persona and values count, only the values named by the caller can be reported as blocked. */
+export function merkmalsEntscheidungenFuerAnfrage(bundle: CatalogBundle, personaId: string | undefined, selectedValues: Record<string, string>) {
+  const alle = merkmalsEntscheidungen(bundle, { ...(personaId ? getPersonaValues(personaId) : {}), ...selectedValues });
+  return { merkmale: alle.merkmale, gesperrt: alle.gesperrt.filter((g) => g.kategorie in selectedValues) };
+}
+
 export function loadCatalogStore(distDataDir: string): CatalogStore {
   const read = (rel: string) => fs.readFileSync(path.join(distDataDir, rel), 'utf8');
   const bundleJson = read('catalog.bundle.json');
@@ -80,7 +166,12 @@ export function loadCatalogStore(distDataDir: string): CatalogStore {
     repository: bundle.repository,
     schemes: bundle.schemes,
     facetten: bundle.facetten,
+    wfelder: bundle.wfelder,
+    arten: bundle.arten,
+    merkmale: bundle.merkmale,
     ketten: bundle.ketten,
+    regeln: bundle.regeln,
+    teilgruppen: bundle.teilgruppen,
     bausteine: bundle.bausteine,
     beispiele: bundle.beispiele,
     faecher: bundle.faecher,

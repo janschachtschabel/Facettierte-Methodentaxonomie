@@ -17,8 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r3",
   "lernfunktion": [
@@ -73,6 +76,8 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "prozeduren",
+    "metakognitiv",
     "schlecht-strukturiert",
     "afb3"
   ],
@@ -99,10 +104,6 @@
   ],
   "dauerMin": 180,
   "dauerMax": 540,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Längere Projektarbeiten verzetteln sich häufig ohne transparente Zwischenziele und Team-Koordination.",
   "durchfuehrung": [
     "Lehrkraft (Product Owner) klärt Projektziel, Qualitätskriterien (Definition of Done) und Zeitrahmen.",
@@ -114,7 +115,7 @@
     "Klebepunkte & Aufgabenkarten",
     "Kriterienraster"
   ],
-  "raum": "Klassen- oder Projektraum",
+  "raumhinweis": "Klassen- oder Projektraum",
   "gruppeMin": 8,
   "gruppeMax": 36,
   "teamMin": 3,

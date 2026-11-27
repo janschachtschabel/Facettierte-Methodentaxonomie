@@ -2,10 +2,10 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { z } from 'zod';
 import {
   DIFF_MATRIX_PERSONAS,
-  DIFF_MATRIX_VARIABLES,
   FMT_GUARDRAILS,
   FMT_RULES,
   QUICK_LEARNER_GROUP_PROFILES,
+  nurMethoden,
   getDifferentiationMetaSummary,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
@@ -14,7 +14,7 @@ import {
   type SearchCriteria
 } from '@fmt/core';
 import { oehDisciplinesForFachbereich, resolveKennung } from '@fmt/core';
-import type { CatalogStore } from '../catalog-store.js';
+import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
 import { loadConfig, type ServerConfig } from '../config.js';
 import { searchWloOer, setWloAreaLookup, setWloSubjectLookup } from '../routes/oer.js';
 import {
@@ -58,6 +58,13 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   const code = (feld: string) => z.enum(fieldCodes(feld));
   const codes = (feld: string) => z.union([code(feld), z.array(code(feld))]);
 
+  // Codes of the scheme schriftbedarf as the data holds them, plus the ohneSchrift codes as aliases (mapped in suche).
+  const schriftCode = z.enum([
+    ...((store.bundle.schemes.find((s) => s.id === 'schriftbedarf')?.werte || []).map((w) => w.id) as string[]),
+    'lesen',
+    'schreiben'
+  ] as unknown as [string, ...string[]]);
+
   // 1. search_methods
   server.tool(
     'search_methods',
@@ -81,7 +88,18 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneKI: z.boolean().optional(),
       bildungsstufe: code('bildungsstufe').optional(),
       vorwissen: code('vorwissen').optional(),
+      raum: code('raum').optional().describe('Raumtyp: nur Methoden, deren Raumbedarf er deckt'),
+      raumbedarf: codes('raumBietet').optional().describe('Nur Methoden, die mindestens eine dieser Raumeigenschaften brauchen'),
+      ohneRaumbedarf: codes('raumBietet').optional().describe('Nur Methoden, die keine dieser Raumeigenschaften brauchen'),
+      schriftbedarf: z
+        .union([schriftCode, z.array(schriftCode)])
+        .optional()
+        .describe('Nur Methoden, die Lesen (liest) oder Schreiben (schreibt) brauchen; lesen/schreiben werden auch angenommen'),
       minEvidenz: z.enum(['A', 'B', 'C']).optional(),
+      eintragsart: z
+        .enum(['methode', 'hilfe'])
+        .optional()
+        .describe('Nur Methoden (tragen eine Phase) oder nur Hilfen (stützen Lernende innerhalb einer Methode); ohne Angabe beide'),
       fachbereich: codes('fachbereich')
         .optional()
         .describe('Streng: nur Methoden, die diesem Fachbereich zugeordnet sind ("uebergreifend" = ohne Fachbindung)'),
@@ -114,6 +132,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           kurzbeschreibung: b.kurzbeschreibung,
           reichweite: b.reichweite,
           status: b.status,
+          eintragsart: b.eintragsart || 'methode',
           ansatz: b.ansatz,
           dauerMin: b.dauerMin,
           dauerMax: b.dauerMax,
@@ -198,7 +217,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       text: z.string().max(MAX_TEXT_CHARS).optional(),
       modus: z.enum(['phase', 'ablauf']).optional(),
       zieltyp: code('zieltyp').optional(),
-      zielart: code('zielart').optional(),
+      zielart: code('zielart').optional().describe('Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung'),
       ansatz: codes('ansatz').optional().describe('Didaktischer Ansatz, z. B. "forschend", "kooperativ", "instruktion"'),
       lernfunktion: codes('lernfunktion').optional(),
       anleitung: codes('anleitung').optional(),
@@ -213,9 +232,20 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneKI: z.boolean().optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
       raumzeit: codes('raumzeit').optional(),
-      lernort: code('lernort')
+      raum: code('raum')
         .optional()
-        .describe('Raum der Stunde; wird sonst aus dem Text gelesen (Sporthalle bei Sport)'),
+        .describe('Raum der Stunde; wird sonst aus dem Text gelesen. Methoden, deren Raumbedarf er nicht deckt, scheiden aus.'),
+      // Former name of raum: stays accepted for old clients, deliberately without a description.
+      lernort: code('raum').optional(),
+      raumBietet: codes('raumBietet')
+        .optional()
+        .describe('Raumeigenschaften, die der Raum zusätzlich zum Raumtyp bietet (z. B. Bewegungsfläche, Wandfläche)'),
+      fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
+      termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
+      nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
+      ohneSchrift: codes('ohneSchrift')
+        .optional()
+        .describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
       vorhanden: codes('vorhanden').optional(),
       vorwissen: code('vorwissen').optional(),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
@@ -297,7 +327,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 7. list_vocabularies
   server.tool(
     'list_vocabularies',
-    'Listet alle FMT-Vokabulare, Funktionsketten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
+    'Listet alle FMT-Vokabulare, Funktionsketten, Passungsregeln (mit Text, W-Feldern, Wirkung und Grundlage), Raumtypen, Zielarten, Binnendifferenzierungs-Personas und Anfragefelder auf.',
     {
       scheme: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: Schema-ID wie "lernfunktion", "ansatz", "lernzustand", "bildungsstufe"')
     },
@@ -320,6 +350,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       return textResult({
         schemes: store.bundle.schemes.map((s) => ({ id: s.id, titel: s.titel })),
         ketten: store.bundle.ketten.map((k) => ({ id: k.id, label: k.label, zielart: k.zielart })),
+        // Same entries as /api/v1/meta: what each rule checks, its text, W fields, effect and basis.
+        regeln: store.bundle.regeln,
+        raumtypen: schemeValues(store.bundle, 'raumtyp'),
+        zielarten: schemeValues(store.bundle, 'zielart'),
         differenzierungsPersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
         anfrageFelder: store.matcher.felder()
       });
@@ -356,7 +390,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 9. score_differentiation_matrix
   server.tool(
     'score_differentiation_matrix',
-    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins passende alternative Methoden für diese Teilgruppe vorgeschlagen.',
+    'Eigenständiges Binnendifferenzierungs-Tool (auch ohne FMT-Arrangement nutzbar): Berechnet deterministische Empfehlungen über die Punkte-Matrix (115 Lernvoraussetzungs-Ausprägungen × 172 Maßnahmen, normalisiert -100..+100 %) unter Berücksichtigung von maxTechnik/ohneInternet/ohneKI/maxAufwand. Akzeptiert quickProfileId (z. B. "daz", "adhs", "lrs", "vertiefung"), personaId oder individuelle selectedValues. Optional werden bei Angabe eines FMT-Bausteins passende alternative Methoden für diese Teilgruppe vorgeschlagen (nie Hilfen, nur Methoden). `merkmale` nennt je Ausprägung unter `vorgesehen`, ob die Tabelle einen Tausch oder eine Hilfe vorsieht (mit Grundlage und Quelle); ein Tausch gilt nur unter `bedingung` (die geplante Methode löst den Grund aus und passt sich niemandem an), die Antwort für einen Ablauf gibt adapt_scenario; gesperrte Kategorien (Lerntypen/Lernstile) werden nicht gewertet und stehen mit Begründung unter `gesperrt`, ohne Fehler.',
     {
       quickProfileId: z
         .enum(['daz', 'adhs', 'lrs', 'foerder-lernen', 'vorwissen-gering', 'vertiefung', 'schuechtern', 'barriere'])
@@ -395,6 +429,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       const scoreResult = scoreDifferentiationMatrix({
         personaId: personaId ?? quickProfile?.personaId,
         selectedValues: Object.keys(mergedSelected).length ? mergedSelected : undefined,
+        gesperrt: store.bundle.teilgruppen.gesperrt,
         minScore,
         limit,
         maxTechnik,
@@ -405,7 +440,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       });
       const currentBlock = baustein ? store.blocksById.get(baustein) : undefined;
       const alternativeMethoden = currentBlock
-        ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, store.bundle.bausteine, 5, undefined, {
+        ? suggestAlternativeMethodsForGroup(scoreResult, currentBlock, nurMethoden(store.bundle.bausteine), 5, undefined, {
             maxTechnik,
             ohneInternet,
             ohneKI,
@@ -414,6 +449,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         : [];
       return textResult({
         ...scoreResult,
+        ...merkmalsEntscheidungenFuerAnfrage(store.bundle, personaId ?? quickProfile?.personaId, mergedSelected),
         alternativeMethoden,
         verfuegbareSchnellProfile: QUICK_LEARNER_GROUP_PROFILES.map((p) => ({ id: p.id, label: p.label, profile: p.profile })),
         verfuegbarePersonas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description }))
@@ -446,12 +482,23 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       ohneInternet: z.boolean().optional(),
       ohneKI: z.boolean().optional(),
+      zielart: code('zielart').optional().describe('Art des Lernziels: fakten, konzepte, prozeduren, problemloesen, bewegung, kondition, urteilen, gestalten, handlung'),
+      raum: code('raum')
+        .optional()
+        .describe('Raum der Stunde; wird sonst aus dem Text gelesen. Methoden, deren Raumbedarf er nicht deckt, scheiden aus.'),
+      // Former name of raum: stays accepted for old clients, deliberately without a description.
+      lernort: code('raum').optional(),
+      raumBietet: codes('raumBietet').optional().describe('Raumeigenschaften, die der Raum zusätzlich zum Raumtyp bietet'),
+      fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
+      ohneSchrift: codes('ohneSchrift').optional().describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
+      termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
+      nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),
       umfang: z
         .enum(['kompakt', 'voll'])
         .optional()
         .default('kompakt')
-        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen. voll: zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
+        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen, Pflichtangaben (fehlt/angenommen) und Regelmeldungen (Regel, Wirkung, Grundlage, Quelle, Text). voll: zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
       gruppen: z
         .array(
           z.object({
@@ -609,7 +656,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 14. adapt_scenario (Standalone & FMT-integrated Zero-LLM differentiation + UDL + conflict resolution)
   server.tool(
     'adapt_scenario',
-    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`.',
+    'Eigenständiges Binnendifferenzierungs- & Anpassungs-Tool (vollständig unabhängig von build_scenario_plan nutzbar!): Nutze dieses Tool immer, wenn ein freies Unterrichtsszenario, eine einzelne FMT-Methode (`baustein`) oder ein FMT-Arrangement an konkrete Lernvoraussetzungen (z. B. DaZ, ADHS, LRS, Förderbedarf, geringes Vorwissen, schüchtern, Motorik, Leistungsstarke) angepasst werden soll. Liefert in <5 ms deterministisch: gemeinsame UDL-Basis, Zielkonflikte mit Auflösungsstrategien, teilgruppenspezifische Maßnahmen (-100..+100 %) mit Umsetzungsimpuls, methodentreuen Phasen-Kontext (`methodenKontext` inkl. Kernkomponente & Anpassungshinweis), passende/alternative FMT-Methoden, `teilgruppenMethoden` (parallele Methode für eine Teilgruppe, wo die geplante schlecht passt; die Regelgruppe mit id "regel" behält den Plan) und `zusatzphasen` (kurze Phasen für alle am Anfang oder Ende) wie Schritt 3 des Baukastens, sowie ein fertiges `llmBriefing`. Je Gruppe und Phase nennt `teilgruppenImpulse` die Antwort (`antwort`: passt, Hilfe in derselben Methode oder Tausch gegen eine gleichwertige Methode) mit `beleg` (Merkmal, Grundlage, Quelle), `hilfen` (je mit `abbau`, wann sie entfallen) und `alternativeMethoden` (nur beim Tausch); `teilgruppenHilfen`, `gesperrt` (Merkmale ohne Beleg, z. B. Lerntypen; kein Fehler) und `regelmeldungen` stehen auf oberster Ebene.',
     {
       scenarioText: z.string().max(MAX_TEXT_CHARS).optional().describe('Freitext-Beschreibung des vorhandenen Unterrichtsszenarios oder Entwurfs'),
       baustein: z.string().max(MAX_TEXT_CHARS).optional().describe('Optional: einzelne FMT-Methodenkennung (z. B. "gruppenpuzzle", "ampelspiel"), um genau diese Methode direkt anzupassen'),
@@ -640,11 +687,13 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
             count: z.number().int().min(1).optional(),
             personaId: z.string().max(MAX_TEXT_CHARS).optional(),
             selectedValues: z.record(z.string().max(MAX_TEXT_CHARS), z.string().max(MAX_TEXT_CHARS)).optional(),
-            text: z.string().max(MAX_TEXT_CHARS).optional()
+            text: z.string().max(MAX_TEXT_CHARS).optional(),
+            ohneSchrift: z.array(z.enum(['lesen', 'schreiben'])).optional().describe('Was die Gruppe nicht kann; Methoden mit diesem Schriftbedarf werden getauscht oder bekommen eine Hilfe'),
+            ohneBewegung: z.boolean().optional().describe('true: die Gruppe kann sich nicht frei bewegen (Methoden mit Stell- oder Bewegungsfläche scheiden aus)')
           })
         )
         .optional()
-        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen (IDs über list_differentiation_options abrufbar). Die Gruppe mit id "regel" ist die Regelgruppe.'),
+        .describe('Optional: explizite Teilgruppen mit Persona oder Matrix-Variablen (IDs über list_differentiation_options abrufbar), dazu eigene Aussagen `ohneSchrift` und `ohneBewegung`. Die Gruppe mit id "regel" ist die Regelgruppe.'),
       fach: z.string().max(MAX_TEXT_CHARS).optional().describe('Fachname; daraus wird der Fachbereich gelesen, wenn er fehlt'),
       fachbereich: code('fachbereich').optional().describe('FMT-Fachbereich; Methoden, die dafür als ungeeignet markiert sind, werden nie vorgeschlagen'),
       thema: z.string().max(MAX_TEXT_CHARS).optional(),
@@ -672,7 +721,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 15. list_differentiation_options (Standalone catalog of all 36 learner-trait variables, 8 quick profiles, 5 personas & 3 action levels)
   server.tool(
     'list_differentiation_options',
-    'Listet eigenständig alle verfügbaren Lernvoraussetzungs-Merkmale (36 Anpassungsvariablen mit 115 Ausprägungen), die 8 kuratierten Schnellprofile (DaZ, ADHS, LRS, Förderbedarf Lernen, Geringes Vorwissen, Leistungsstark, Schüchtern, Sehen/Hören/Motorik), Personas und Handlungsebenen der Binnendifferenzierungsmatrix auf – damit ein Client gezielt `adapt_scenario` oder `score_differentiation_matrix` parametrisieren kann.',
+    'Listet eigenständig alle verfügbaren Lernvoraussetzungs-Merkmale (36 Anpassungsvariablen mit 115 Ausprägungen), die 8 kuratierten Schnellprofile (DaZ, ADHS, LRS, Förderbedarf Lernen, Geringes Vorwissen, Leistungsstark, Schüchtern, Sehen/Hören/Motorik), Personas und Handlungsebenen der Binnendifferenzierungsmatrix auf. Gesperrte Kategorien (Lerntypen/Lernstile, nicht belegt) fehlen in der Liste und stehen unter `gesperrteKategorien`; jede Ausprägung nennt unter `teilgruppe.vorgesehen`, ob die Tabelle einen Tausch der Methode oder eine Hilfe in derselben Methode vorsieht (ein Tausch nur unter `teilgruppe.bedingung`), mit Grundlage und Quelle – damit ein Client gezielt `adapt_scenario` oder `score_differentiation_matrix` parametrisieren kann.',
     {
       oberkategorie: z
         .string()
@@ -682,13 +731,12 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     },
     async ({ oberkategorie }) => {
       const summary = getDifferentiationMetaSummary();
-      const vars = oberkategorie
-        ? DIFF_MATRIX_VARIABLES.filter((v) => v.id === oberkategorie || v.name.toLowerCase().includes(oberkategorie.toLowerCase()))
-        : DIFF_MATRIX_VARIABLES;
+      const { variables, gesperrteKategorien } = differenzierungsMerkmale(store.bundle, oberkategorie);
       return textResult({
         ...summary,
         personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
-        anpassungsvariablen: vars
+        anpassungsvariablen: variables,
+        gesperrteKategorien
       });
     }
   );
@@ -731,7 +779,10 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           {
             ...getDifferentiationMetaSummary(),
             personas: DIFF_MATRIX_PERSONAS.map((p) => ({ id: p.id, name: p.name, description: p.description })),
-            anpassungsvariablen: DIFF_MATRIX_VARIABLES
+            ...(() => {
+              const { variables, gesperrteKategorien } = differenzierungsMerkmale(store.bundle);
+              return { anpassungsvariablen: variables, gesperrteKategorien };
+            })()
           },
           null,
           2

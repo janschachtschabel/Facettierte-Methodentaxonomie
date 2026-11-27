@@ -14,7 +14,12 @@ const DATA: FmtData = {
   license: BUNDLE.license,
   schemes: BUNDLE.schemes,
   facetten: BUNDLE.facetten,
+  wfelder: BUNDLE.wfelder,
+  arten: BUNDLE.arten,
+  merkmale: BUNDLE.merkmale,
   ketten: BUNDLE.ketten,
+  regeln: BUNDLE.regeln,
+  teilgruppen: BUNDLE.teilgruppen,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele
 };

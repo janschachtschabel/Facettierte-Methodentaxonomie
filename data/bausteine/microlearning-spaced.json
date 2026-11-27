@@ -16,10 +16,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest"
   ],
+  "termineMin": 2,
   "reichweite": "r2",
   "lernfunktion": [
     "erwerb",
@@ -94,11 +94,6 @@
   ],
   "dauerMin": 15,
   "dauerMax": 45,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Lange Selbstlernmodule oder Videos führen im digitalen Lernen schnell zu kognitiver Ermüdung und Abbrüchen.",
   "durchfuehrung": [
     "Lerninhalt in 3–4 prägnante Mikro-Einheiten (je 3–5 Min. Text/Video/Grafik) gliedern.",
@@ -109,7 +104,7 @@
     "LMS / H5P / Lernkarten-App",
     "Kurze OER-Nuggets"
   ],
-  "raum": "Digital / Hybrid",
+  "raumhinweis": "Digital / Hybrid",
   "gruppeMin": 1,
   "gruppeMax": 500,
   "vorbereitungMin": 25,

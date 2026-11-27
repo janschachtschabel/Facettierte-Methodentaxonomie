@@ -11,16 +11,6 @@
     "sprachen",
     "aesthetik"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum"
-  ],
   "kurzbeschreibung": "Gemeinsames, rhythmisches Nachsprechen neuer Fachbegriffe, Formeln oder Fremdsprachen-Sätze im Klassenchor – hemmungsfrei und mit 100 % Sprechzeit.",
   "alternativname": [
     "Chorisches Sprechen",
@@ -39,7 +29,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 40,
   "technik": "t-keine",

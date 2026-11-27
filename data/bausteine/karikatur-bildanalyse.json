@@ -18,13 +18,8 @@
     "aesthetik",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "quellen": [
     {
@@ -88,8 +83,8 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "fall",
     "konzepte",
+    "fall",
     "afb1",
     "afb2",
     "afb3"

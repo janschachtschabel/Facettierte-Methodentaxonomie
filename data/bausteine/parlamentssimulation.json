@@ -10,15 +10,6 @@
   "fachbereich": [
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "aesthetik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lernende durchlaufen als Fraktionen, Ausschüsse und Präsidium ein reales Gesetzgebungsverfahren vom Antrag bis zur Schlussabstimmung.",
   "alternativname": [
     "Gesetzgebungssimulation",
@@ -38,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 16,
   "gruppeMax": 60,
   "technik": "t-keine",
@@ -117,9 +108,6 @@
       "name": "Gründliches Debriefing und Vergleich mit der Realität"
     }
   ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "qualitaetsrisiko": [
     "Rollenkonflikte bleiben ohne sauber moderierten Ausstieg hängen"
   ],
@@ -147,6 +135,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

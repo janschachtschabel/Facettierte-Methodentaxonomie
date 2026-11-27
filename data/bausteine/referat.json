@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lernende bereiten ein abgegrenztes Teilthema auf, präsentieren es kriteriengeleitet und aktivieren das Publikum durch Leitfragen.",
   "alternativname": [
     "Kurzreferat",
@@ -32,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

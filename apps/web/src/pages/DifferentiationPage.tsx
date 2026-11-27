@@ -284,11 +284,15 @@ export function DifferentiationPage() {
                 label: g.label,
                 count: g.count,
                 personaId: g.personaId,
-                selectedValues: g.matrixValues
+                selectedValues: g.matrixValues,
+                ...(g.genannt ? { genannt: g.genannt } : {}),
+                ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+                ...(g.ohneBewegung ? { ohneBewegung: true } : {})
               }))
           : undefined,
         fach: livePlannerDraft.fach,
         thema: livePlannerDraft.thema,
+        ...(livePlannerDraft.anfrage ? { anfrage: livePlannerDraft.anfrage } : {}),
         bildungsstufe: bildungsstufe || undefined,
         zeitMin: Number(zeitMin) || undefined,
         maxTechnik: maxTechnik || undefined,
@@ -311,7 +315,10 @@ export function DifferentiationPage() {
                 label: g.label,
                 count: g.count,
                 personaId: g.personaId,
-                selectedValues: g.matrixValues
+                selectedValues: g.matrixValues,
+                ...(g.genannt ? { genannt: g.genannt } : {}),
+                ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+                ...(g.ohneBewegung ? { ohneBewegung: true } : {})
               }))
           : undefined,
         fach: activeSaved.fach,
@@ -430,7 +437,10 @@ export function DifferentiationPage() {
                 label: g.label,
                 count: g.count,
                 personaId: g.personaId,
-                selectedValues: g.matrixValues || {}
+                selectedValues: g.matrixValues || {},
+                genannt: g.genannt,
+                ohneSchrift: g.ohneSchrift,
+                ohneBewegung: g.ohneBewegung
               }))
           }
         : detectLearnerGroupsFromText(scenarioText);
@@ -446,7 +456,11 @@ export function DifferentiationPage() {
         label: g.label,
         count: g.count,
         personaId: 'personaId' in g ? g.personaId : undefined,
-        matrixValues: g.selectedValues || {}
+        matrixValues: g.selectedValues || {},
+        ...(g.genannt ? { genannt: g.genannt } : {}),
+        // What the group cannot do yet is the teacher's statement in the planner; it goes back unchanged.
+        ...('ohneSchrift' in g && g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+        ...('ohneBewegung' in g && g.ohneBewegung ? { ohneBewegung: true } : {})
       }))
     };
     try {

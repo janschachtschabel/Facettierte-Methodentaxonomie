@@ -10,9 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Kurze digitale Vorbereitungsaufgaben vor der Stunde machen Fehlvorstellungen sichtbar, sodass die Präsenzstunde gezielt darauf aufbaut.",
   "alternativname": [
@@ -32,7 +31,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 200,
   "technik": "t-einzeln",

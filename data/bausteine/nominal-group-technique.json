@@ -10,8 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
   ],
   "kurzbeschreibung": "Strukturiertes Gruppenverfahren: Stille Einzelideen, reihum Sammeln ohne Diskussion, Klären und anschließendes gewichtetes Punktevoting.",
   "alternativname": [
@@ -32,7 +32,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 5,
   "gruppeMax": 25,
   "technik": "t-keine",

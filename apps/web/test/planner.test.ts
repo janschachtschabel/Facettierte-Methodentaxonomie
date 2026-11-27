@@ -53,7 +53,12 @@ const DATA: FmtData = {
   license: BUNDLE.license,
   schemes: BUNDLE.schemes,
   facetten: BUNDLE.facetten,
+  wfelder: BUNDLE.wfelder,
+  arten: BUNDLE.arten,
+  merkmale: BUNDLE.merkmale,
   ketten: BUNDLE.ketten,
+  regeln: BUNDLE.regeln,
+  teilgruppen: BUNDLE.teilgruppen,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele
 };
@@ -68,7 +73,10 @@ describe('Modular Scenario Planner Tree Operations', () => {
       const arr = createChainPreset(k.id, BUNDLE);
       const res = VALIDATOR.validate(arr, REGISTRY);
       expect(res.gueltig, `${k.id}: ${JSON.stringify(res.meldungen)}`).toBe(true);
-      expect(res.meldungen, `${k.id} warnings`).toEqual([]);
+      // Since Task B3, R-06 reads every fit rule: the invention task (open, no feedback, uniform) triggers
+      // „Entdecken nur mit Stütze“ wherever it stands. That one warning is expected; any other is a finding.
+      const andere = res.meldungen.filter((m) => !(m.regel === 'R-06' && m.meldung.startsWith('Erfindungsaufgabe ') && m.meldung.includes('offen angelegt')));
+      expect(andere, `${k.id} warnings`).toEqual([]);
     }
   });
 
@@ -206,6 +214,18 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(explained.quickFix).toBeDefined();
     const fixed = explained.quickFix!.apply(broken);
     expect(fixed.reichweite).toBe('r3');
+  });
+
+  it('Lösungshinweise der Regeln sprechen mit „du“ (Fix-Welle B, Punkt 4)', () => {
+    const arr = createChainPreset('konzeptaufbau', BUNDLE);
+    for (const regel of ['R-99', 'R-02', 'R-03', 'R-04', 'R-06', 'R-07', 'R-08', 'R-09', 'R-11']) {
+      const e = explainValidationMessage({ regel, schwere: 'Warnung', pfad: '/', meldung: '' } as never, arr, BLOCKS, BUNDLE, 45);
+      expect(e.howToFix, regel).not.toMatch(/\b(?:Sie|Ihr\w*)\b/);
+    }
+    const r06 = explainValidationMessage({ regel: 'R-06', schwere: 'Warnung', pfad: '/', meldung: '' } as never, arr, BLOCKS, BUNDLE, 45);
+    expect(r06.howToFix).toBe(
+      'Prüfe, ob die Methode zu Bildungsstufe, Vorwissen, Inhalt, Sprachniveau und Fach passt (der Hinweis nennt Regel und Grundlage), oder nutze „⇄ Ersatz“.'
+    );
   });
 
   it('supports flexible slot durations, R-09 auto-fit quick fixes, IMS-LD scenario model, and .imscc / Moodle XML exports', () => {
@@ -372,6 +392,12 @@ describe('Modular Scenario Planner Tree Operations', () => {
       expect(imported.project.elaboration).toBe('## Entwurf');
     }
     expect(importScenarioProjectJson('{broken').ok).toBe(false);
+    // Files and browser entries from before FMT 2.0 name the room "lernort" or "raumFilter" and carry a reading flag.
+    const alt = importScenarioProjectJson(JSON.stringify({ ...JSON.parse(projectJson), lernort: 'draussen', ohneLesen: true }));
+    expect(alt.ok && alt.project.raum).toBe('draussen');
+    expect(alt.ok && alt.project.ohneSchrift).toEqual(['lesen', 'schreiben']);
+    mem.set('fmt_saved_scenarios_v1', JSON.stringify([{ ...saved, raumFilter: 'hoersaal' }]));
+    expect(loadSavedScenarios(storage)[0].raum).toBe('hoersaal');
     expect(deleteSavedScenario(saved.id, storage).length).toBe(0);
   });
 
@@ -596,3 +622,64 @@ describe('Stufe 3: eigene Eingabe und anderer Vorschlag', () => {
   });
 });
 });
+
+describe('Schnellkorrekturen bieten keine Hilfe als Phase oder Slot an (Task C4)', () => {
+  const alsHilfe = (ids: Set<string>): CatalogBundle => ({
+    ...BUNDLE,
+    bausteine: BUNDLE.bausteine.map((b) => (ids.has(b.kennung) ? { ...b, eintragsart: 'hilfe' as const } : b))
+  });
+  const genannt = (label: string | undefined) => (label ? (label.match(/„([^“]+)“ (?:anfügen|belegen)/) || [])[1] : undefined);
+  const nameZuKennung = new Map(BUNDLE.bausteine.map((b) => [b.name, b.kennung]));
+
+  it('R-04: der fehlende Lernzustand wird nie durch eine Hilfe ergänzt', () => {
+    const arr = createChainPreset('konzeptaufbau', BUNDLE);
+    const zustaende = (BUNDLE.schemes.find((s) => s.id === 'lernzustand')?.werte || []).map((w) => w.id);
+    const vorschlag = (bundle: CatalogBundle, z: string) =>
+      genannt(
+        explainValidationMessage(
+          { regel: 'R-04', schwere: 'Fehler', pfad: '/ablauf', meldung: `Funktion fehlt (Zielzustand ${z}).` } as never,
+          arr,
+          new Map(bundle.bausteine.map((b) => [b.kennung, b])),
+          bundle,
+          45
+        ).quickFix?.label
+      );
+    const vorher = new Set(zustaende.map((z) => nameZuKennung.get(vorschlag(BUNDLE, z) || '')).filter((k): k is string => Boolean(k)));
+    expect(vorher.size).toBeGreaterThan(0);
+    const DX = alsHilfe(vorher);
+    for (const z of zustaende) {
+      const k = nameZuKennung.get(vorschlag(DX, z) || '');
+      expect(k && vorher.has(k), z).toBeFalsy();
+    }
+  });
+
+  it('R-11: ein leerer Pflichtslot wird nie mit einer Hilfe belegt', () => {
+    const container = BUNDLE.bausteine.find((b) => (b.slot || []).some((s) => s.pflicht))!;
+    const arr: Arrangement = {
+      typ: 'Arrangement',
+      name: 'slot',
+      reichweite: 'r4',
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: container.kennung, dauerMin: container.dauerMin }] }
+    };
+    const kandidat = (bundle: CatalogBundle) =>
+      nameZuKennung.get(
+        genannt(
+          explainValidationMessage(
+            { regel: 'R-11', schwere: 'Warnung', pfad: '/ablauf/teile/0', meldung: '' } as never,
+            arr,
+            new Map(bundle.bausteine.map((b) => [b.kennung, b])),
+            bundle,
+            container.dauerMin
+          ).quickFix?.label
+        ) || ''
+      );
+    const hilfen = new Set<string>();
+    for (let i = 0; i < 3; i++) {
+      const k = kandidat(alsHilfe(hilfen));
+      expect(k, `Runde ${i}`).toBeTruthy();
+      expect(hilfen.has(k!)).toBe(false);
+      hilfen.add(k!);
+    }
+  });
+});
+

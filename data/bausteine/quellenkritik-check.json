@@ -19,11 +19,12 @@
     "gesellschaft",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -85,8 +86,9 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "schlecht-strukturiert",
     "metakognitiv",
+    "prozeduren",
+    "schlecht-strukturiert",
     "afb2",
     "afb3"
   ],
@@ -125,7 +127,7 @@
     "Ausgewählte Prüfquellen (URLs oder Ausdrucke)",
     "Kriterien-Checkliste für Quellenprüfung"
   ],
-  "raum": "Klassenraum mit Endgeräten und Internetzugang",
+  "raumhinweis": "Klassenraum mit Endgeräten und Internetzugang",
   "gruppeMin": 2,
   "gruppeMax": 32,
   "teamMin": 2,

@@ -16,9 +16,8 @@
     "sprachen",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -124,7 +123,7 @@
     "Stuhlkreise",
     "Beobachtungskarten"
   ],
-  "raum": "Freie Fläche für zwei Stuhlkreise",
+  "raumhinweis": "Freie Fläche für zwei Stuhlkreise",
   "gruppeMin": 12,
   "gruppeMax": 45,
   "vorbereitungMin": 15,

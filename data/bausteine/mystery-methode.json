@@ -11,11 +11,8 @@
     "gesellschaft",
     "nawi-technik"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "kurzbeschreibung": "Kleingruppen lösen eine rätselhafte Leitfrage, indem sie ungeordnete Informationskärtchen sortieren, verknüpfen und ein Wirkungsnetz legen.",
   "alternativname": [
@@ -37,7 +34,7 @@
     "Plakatpapier",
     "Stifte"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 35,
   "teamMin": 3,

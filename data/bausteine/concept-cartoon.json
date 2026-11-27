@@ -12,9 +12,11 @@
     "gesellschaft",
     "mathe-informatik"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Ein Bild zeigt mehrere Figuren mit unterschiedlichen Aussagen zu einem Phänomen; Lernende wählen die Aussage, der sie zustimmen, und begründen kurz.",
   "alternativname": [
@@ -35,7 +37,7 @@
   "material": [
     "Concept Cartoon (Folie oder Ausdruck)"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 200,
   "technik": "t-projektion",
@@ -135,6 +137,6 @@
   ],
   "plot": {
     "x": 0.5,
-    "y": 2.0
+    "y": 2
   }
 }

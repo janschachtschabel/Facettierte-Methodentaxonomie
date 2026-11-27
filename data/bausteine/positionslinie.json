@@ -17,9 +17,8 @@
     "sprachen",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -119,7 +118,7 @@
   "material": [
     "Zwei Pol-Karten oder Kreppband"
   ],
-  "raum": "Freie Linie im Raum",
+  "raumhinweis": "Freie Linie im Raum",
   "gruppeMin": 6,
   "gruppeMax": 40,
   "vorbereitungMin": 5,

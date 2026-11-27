@@ -19,13 +19,6 @@
     "sprachen",
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Stop-Motion",
@@ -94,6 +87,7 @@
   ],
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "authentisch",
     "afb2",
     "afb3"

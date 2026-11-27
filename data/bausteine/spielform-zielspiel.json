@@ -10,17 +10,8 @@
   "fachbereich": [
     "sport"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "sprachen",
-    "gesellschaft",
-    "nawi-technik",
-    "beruf-praxis",
-    "aesthetik"
-  ],
-  "lernort": [
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "bewegungsflaeche"
   ],
   "kurzbeschreibung": "Kurze, vereinfachte Spielform, in der die geübte Technik oder Taktik unter Spielbedingungen angewendet wird (z. B. 3 gegen 3 auf kleinem Feld mit Zusatzregel).",
   "alternativname": [
@@ -43,7 +34,7 @@
     "Markierungshütchen",
     "Leibchen"
   ],
-  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "raumhinweis": "Sporthalle, Sportplatz oder Außengelände",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "technik": "t-keine",

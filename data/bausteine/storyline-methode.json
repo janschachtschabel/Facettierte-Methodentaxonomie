@@ -10,8 +10,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "liest"
   ],
   "kurzbeschreibung": "Fächerübergreifende Unterrichtsreihe entlang einer fortlaufenden Rahmenerzählung (Schauplatz, Figuren, Ereignisse), die durch Schlüsselfragen gesteuert wird.",
   "alternativname": [
@@ -33,7 +36,7 @@
     "Figurenmaterial",
     "Fachquellen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

@@ -11,13 +11,6 @@
     "beruf-praxis",
     "mathe-informatik"
   ],
-  "fachbereichUngeeignet": [
-    "sport",
-    "sprachen"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Arbeitspakete eines Projekts werden mit Dauern, Abhängigkeiten und kritischem Pfad als grafischer Ablaufplan strukturiert.",
   "alternativname": [
     "Projekt-Netzplan",
@@ -37,7 +30,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -112,9 +105,6 @@
       "name": "Identifikation zeitkritischer Schritte"
     }
   ],
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "qualitaetsrisiko": [
     "Übertriebener Formalismus bei kleinen Schulprojekten"
   ],
@@ -142,6 +132,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

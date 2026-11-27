@@ -17,9 +17,6 @@
     "nawi-technik",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Problemlösen",
@@ -125,9 +122,6 @@
   ],
   "dauerMin": 60,
   "dauerMax": 270,
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Ein Konzept soll tief verstanden werden; frühe Erklärung verdeckt, was daran schwierig ist.",
   "durchfuehrung": [
     "Problem vor jeder Instruktion bearbeiten lassen",

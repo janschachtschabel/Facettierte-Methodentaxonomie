@@ -10,15 +10,10 @@
   "fachbereich": [
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "aesthetik",
-    "sport"
+  "schriftbedarf": [
+    "liest"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
+  "termineMin": 2,
   "kurzbeschreibung": "Hochstrukturiertes gemeinsames Lautlesen (Tutor + Tutand oder im Chor) zur systematischen Steigerung von Leseflüssigkeit und Leseverständnis.",
   "alternativname": [
     "Tandemlesen",
@@ -38,7 +33,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

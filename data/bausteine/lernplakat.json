@@ -17,11 +17,8 @@
     "aesthetik",
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -118,7 +115,7 @@
     "Dicke Marker",
     "Bild-/Datenmaterial"
   ],
-  "raum": "Gruppentische",
+  "raumhinweis": "Gruppentische",
   "gruppeMin": 4,
   "gruppeMax": 36,
   "teamMin": 2,

@@ -14,9 +14,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Freiarbeit",
@@ -128,10 +125,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 360,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Interessen, Vorwissen und Lernwege einer Lerngruppe gehen so weit auseinander, dass Gleichschritt nicht trägt.",
   "durchfuehrung": [
     "Vorhaben kurz planen und dokumentieren",
@@ -143,7 +136,7 @@
     "Vorbereitete Materialien mit Fehlerkontrolle",
     "Arbeitsplan/Logbuch"
   ],
-  "raum": "Vorbereiteter Klassenraum mit Materialregalen",
+  "raumhinweis": "Vorbereiteter Klassenraum mit Materialregalen",
   "gruppeMin": 5,
   "gruppeMax": 30,
   "vorbereitungMin": 120,

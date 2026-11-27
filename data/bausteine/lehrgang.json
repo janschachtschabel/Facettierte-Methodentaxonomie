@@ -9,9 +9,6 @@
   "fachbereich": [
     "beruf-praxis"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Systematisch aufbauende Folge angeleiteter Lerneinheiten zum schrittweisen Aufbau eines Wissens- oder Kompetenzgebiets.",
   "alternativname": [
     "Kursunterricht",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -158,7 +155,9 @@
     "y": 1.45
   },
   "aufgabe": [
+    "fakten",
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

@@ -16,11 +16,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -117,7 +118,7 @@
     "Blanko-Bingo-Raster (3×3 oder 4×4)",
     "Aufgaben-/Definitionsliste"
   ],
-  "raum": "Regulärer Klassenraum",
+  "raumhinweis": "Regulärer Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 35,
   "vorbereitungMin": 10,

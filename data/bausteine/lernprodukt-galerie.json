@@ -17,8 +17,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "reichweite": "r2",
   "lernfunktion": [
@@ -97,11 +100,6 @@
   ],
   "dauerMin": 20,
   "dauerMax": 45,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Frontal präsentierte Gruppenplakate kosten viel Zeit und führen bei den Zuhörenden oft zu nachlassender Aufmerksamkeit.",
   "durchfuehrung": [
     "Lernprodukte (Plakate, Modelle, Skizzen) gut sichtbar im Raum aufhängen.",
@@ -113,7 +111,7 @@
     "Klebepunkte/Feedback-Karten",
     "Kriterienliste"
   ],
-  "raum": "Klassenraum mit Wandfläche",
+  "raumhinweis": "Klassenraum mit Wandfläche",
   "gruppeMin": 6,
   "gruppeMax": 40,
   "vorbereitungMin": 10,

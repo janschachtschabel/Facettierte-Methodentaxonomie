@@ -10,13 +10,10 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "schriftbedarf": [
+    "liest"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
+  "termineMin": 2,
   "kurzbeschreibung": "Algorithmisch getaktete digitale Karteikarten wiederholen Fakten, Vokabeln und Konzepte genau vor dem Vergessen – verschachtelt über Themen hinweg.",
   "alternativname": [
     "Spaced Repetition",
@@ -35,7 +32,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 100,
   "technik": "t-einzeln",

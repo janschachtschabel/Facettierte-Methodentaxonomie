@@ -12,13 +12,6 @@
     "sprachen",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Ruhig gesprochene, bildhafte Vorstellungsreise zur Einstimmung auf ein historisches, literarisches oder naturwissenschaftliches Thema.",
   "alternativname": [
     "Imaginationsübung",
@@ -38,7 +31,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

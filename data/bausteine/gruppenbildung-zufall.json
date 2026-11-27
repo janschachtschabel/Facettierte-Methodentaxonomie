@@ -9,9 +9,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Kurzes, transparentes Verfahren (Karten, Puzzleteile, Themenschwerpunkte), um leistungsheterogene oder themenbezogene Gruppen zügig zu bilden.",
   "alternativname": [
     "Gruppeneinteilung",
@@ -29,7 +26,7 @@
   "material": [
     "Symbol- oder Themenkarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 40,
   "technik": "t-keine",

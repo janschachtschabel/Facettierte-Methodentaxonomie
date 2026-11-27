@@ -2,6 +2,7 @@
   "status": "entwurf",
   "kennung": "scaffolding-hilfen",
   "name": "Gestufte Hilfen (Scaffolding-Karten)",
+  "eintragsart": "hilfe",
   "kurzbeschreibung": "Bei anspruchsvollen Aufgaben greifen Lernende bedarfsgerecht auf mehrstufige, verdeckte Impuls- und Lösungshilfen zurück.",
   "alternativname": [
     "Gestufte Lernhilfen",
@@ -16,9 +17,6 @@
   ],
   "fachbereich": [
     "uebergreifend"
-  ],
-  "lernort": [
-    "klassenraum"
   ],
   "quellen": [
     {
@@ -98,10 +96,7 @@
   "vorbedingung": [
     "vorwissen-aktiviert"
   ],
-  "nachbedingung": [
-    "konzept-gesichert",
-    "prozedur-gelaeufig"
-  ],
+  "nachbedingung": [],
   "kernkomponente": [
     {
       "kennung": "stufung",

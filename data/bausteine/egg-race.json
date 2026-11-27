@@ -10,16 +10,6 @@
   "fachbereich": [
     "nawi-technik"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen",
-    "gesellschaft",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Teams lösen ein naturwissenschaftlich-technisches Konstruktionsproblem mit begrenztem Material unter Zeitdruck und testen ihre Prototypen live.",
   "alternativname": [
     "Konstruktionsaufgabe",
@@ -39,7 +29,7 @@
     "Einheitliche Materialpakete",
     "Messgeräte/Stoppuhr"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 3,

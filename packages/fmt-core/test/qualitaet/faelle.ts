@@ -29,6 +29,26 @@ export interface Qualitaetsfall {
     kriterien?: Record<string, unknown>;
     /** Values the reader must not take from the text. */
     nichtKriterien?: Record<string, unknown>;
+    /** No method in the plan needs one of these room properties. */
+    ohneRaumbedarf?: string[];
+    /** No method in the plan needs learners to read or write ('liest' | 'schreibt'). */
+    ohneSchriftbedarf?: string[];
+    /** Every method in a main or securing step carries one of these knowledge types. */
+    wissensartHaupt?: string[];
+    /** Mandatory details the answer must report as missing. */
+    pflichtFehlt?: string[];
+    /** Fields the answer must report as assumed. */
+    angenommen?: string[];
+    /** Rule ids that must appear in regelmeldungen. */
+    regeln?: string[];
+    /** The check step uses a method of this form. */
+    nachweisform?: string;
+    /** Planning profile of the answer. */
+    planungsprofil?: string;
+    /** A companion strand for this companion goal is proposed. */
+    begleitstrang?: string;
+    /** Subgroup expectations, evaluated through adaptScenario. */
+    teilgruppe?: { antwort: 'passt' | 'hilfe' | 'tausch'; gesperrt?: boolean; abbau?: boolean };
   };
   bekannt?: Partial<Record<Pruefung, string>>;
 }
@@ -45,7 +65,15 @@ export type Pruefung =
   | 'enthaelt'
   | 'nicht'
   | 'verneinung'
-  | 'kriterien';
+  | 'kriterien'
+  | 'bedarf'
+  | 'bindung'
+  | 'pflichtangaben'
+  | 'regel'
+  | 'nachweis'
+  | 'profil'
+  | 'begleitziel'
+  | 'teilgruppe';
 
 /** Data gap found by this test (see docs/qualitaet/2026-11-26-qualitaetsbericht.md, proposal S1). */
 const LUECKE_ANWENDUNG =
@@ -56,7 +84,7 @@ export const QUALITAETSFAELLE: Qualitaetsfall[] = [
   {
     id: 'sport-ausdauer-lk-45',
     text: 'Ich will ein Szenario unterstellen für den Sportunterricht 45 minuten - ausdauertraining mit anschließender leistungskontrolle',
-    erwartet: { kette: 'kondition-training', leistungskontrolle: true, praxis: true, enthaelt: 'sportmotorischer-test', kriterien: { zielart: 'psychomotorik' } } },
+    erwartet: { kette: 'kondition-training', leistungskontrolle: true, praxis: true, enthaelt: 'sportmotorischer-test', kriterien: { zielart: 'kondition' } } },
   { id: 'sport-ausdauer-45', text: 'Sport Klasse 6, 45 Minuten Ausdauertraining', erwartet: { kette: 'kondition-training', praxis: true } },
   {
     id: 'sport-basketball-lk-45',

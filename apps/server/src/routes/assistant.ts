@@ -324,7 +324,7 @@ export async function elaborateScenarioCore(
           problem: b.problem,
           durchfuehrung: b.durchfuehrung,
           material: b.material,
-          raum: b.raum,
+          raumhinweis: b.raumhinweis,
           kernkomponente: b.kernkomponente.map((k) => k.name),
           qualitaetsrisiko: b.qualitaetsrisiko,
           evidenz: b.evidenz,

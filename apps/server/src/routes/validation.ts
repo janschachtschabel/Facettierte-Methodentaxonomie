@@ -20,6 +20,20 @@ export function isGroupList(v: unknown): boolean {
   return Array.isArray(v) && v.every((g) => isObject(g) && typeof g.id === 'string' && typeof g.label === 'string');
 }
 
+/** The group statements ohneSchrift (lesen, schreiben) and ohneBewegung (true/false); a German message, or null when fine. */
+export function groupFieldError(gruppen: unknown): string | null {
+  if (!Array.isArray(gruppen)) return null;
+  for (const g of gruppen) {
+    if (!isObject(g)) continue;
+    const s = g.ohneSchrift;
+    if (s != null && !(Array.isArray(s) && s.every((x) => x === 'lesen' || x === 'schreiben'))) {
+      return 'Feld „gruppen.ohneSchrift“: erlaubt sind „lesen“ und „schreiben“.';
+    }
+    if (g.ohneBewegung != null && typeof g.ohneBewegung !== 'boolean') return 'Feld „gruppen.ohneBewegung“: erwartet wird wahr oder falsch.';
+  }
+  return null;
+}
+
 /** Phases for adapt: objects with a string phaseLabel. */
 export function isPhaseList(v: unknown): boolean {
   return Array.isArray(v) && v.every((p) => isObject(p) && typeof p.phaseLabel === 'string');

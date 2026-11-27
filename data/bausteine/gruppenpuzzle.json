@@ -15,8 +15,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "stellflaeche"
   ],
   "quellen": [
     {
@@ -129,7 +129,7 @@
     "Gleichwertiges Material je Teilthema",
     "Gruppenplan"
   ],
-  "raum": "Platz für Gruppentische",
+  "raumhinweis": "Platz für Gruppentische",
   "gruppeMin": 9,
   "gruppeMax": 36,
   "vorbereitungMin": 90,

@@ -16,15 +16,14 @@
   "fachbereich": [
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "aesthetik",
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Wikipedia: Lesetagebuch",

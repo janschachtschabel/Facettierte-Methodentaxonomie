@@ -16,15 +16,11 @@
     "nawi-technik",
     "beruf-praxis"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen",
-    "gesellschaft",
-    "mathe-informatik"
+  "raumbedarf": [
+    "fachausstattung"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "draussen"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -142,7 +138,7 @@
     "Versuchsmaterial je Gruppe",
     "Protokollvorlage"
   ],
-  "raum": "Fachraum oder geeignete Arbeitsplätze",
+  "raumhinweis": "Fachraum oder geeignete Arbeitsplätze",
   "gruppeMin": 6,
   "gruppeMax": 32,
   "vorbereitungMin": 60,

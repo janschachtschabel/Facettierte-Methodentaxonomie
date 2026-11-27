@@ -11,11 +11,8 @@
     "aesthetik",
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "wandflaeche"
   ],
   "kurzbeschreibung": "Einzeln gezeichnete Lösungsskizzen werden aufgehängt, gemeinsam betrachtet und danach in einer zweiten Zeichenrunde unter Nutzung der Peer-Ideen verfeinert.",
   "alternativname": [
@@ -36,7 +33,7 @@
     "Zeichenblätter",
     "Klebeband/Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

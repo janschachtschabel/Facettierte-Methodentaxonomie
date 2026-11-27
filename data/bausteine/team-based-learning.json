@@ -17,9 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r3",
   "lernfunktion": [
@@ -102,10 +101,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 180,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "In großen Klassen oder Seminaren bleiben Gruppenarbeiten ohne individuelle Vorbereitungspflicht oft ineffizient.",
   "durchfuehrung": [
     "Vorbereitung: Fokussierte Basislektüre oder Erklärvideo vorab bearbeiten.",
@@ -118,7 +113,7 @@
     "iRAT/tRAT-Test",
     "4S-Entscheidungskarten"
   ],
-  "raum": "Klassen- oder Hörsaal",
+  "raumhinweis": "Klassen- oder Hörsaal",
   "gruppeMin": 12,
   "gruppeMax": 200,
   "teamMin": 4,

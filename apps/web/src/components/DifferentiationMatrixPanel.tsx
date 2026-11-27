@@ -5,8 +5,10 @@ import {
   detectLearnerGroupsFromText,
   DIFF_MATRIX_PERSONAS,
   DIFF_MATRIX_VARIABLES,
+  GESPERRTE_MATRIX_KATEGORIEN,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
+  nurMethoden,
   type Baustein,
   type MeasureEffort,
   type MeasureLevel
@@ -21,6 +23,7 @@ import {
   type StepDiffSuggestion,
   type SubgroupMethodMap
 } from '../planner/scenarioModel.js';
+import { gruppeAusVorlage, setzeGruppenwert } from '../planner/gruppen.js';
 
 interface Props {
   groups: LearnerGroup[];
@@ -64,6 +67,13 @@ const KEY_VARIABLE_IDS = new Set([
   'foerderbedarf-sprache',
   'foerderbedarf-emotional-sozial'
 ]);
+
+/** Categories the teacher can pick: blocked ones (Lerntypen, data/teilgruppen.json `gesperrt`) are not shown. */
+const WAEHLBARE_VARIABLEN = DIFF_MATRIX_VARIABLES.map((ok) => ({
+  ...ok,
+  kategorien: ok.kategorien.filter((k) => !GESPERRTE_MATRIX_KATEGORIEN.includes(k.id))
+}));
+const ANZAHL_VARIABLEN = WAEHLBARE_VARIABLEN.reduce((n, ok) => n + ok.kategorien.length, 0);
 
 function formatLevelLabel(level: MeasureLevel): string {
   switch (level) {
@@ -175,7 +185,8 @@ export function DifferentiationMatrixPanel({
   }, [activeGroups, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures]);
 
   const activeMatrix = selectedGroup ? matrixByGroup.get(selectedGroup.id) : null;
-  const sortedBlocks = useMemo(() => [...allBlocks].sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);
+  // Only methods are offered for a phase or a subgroup; a help (eintragsart 'hilfe') is never a parallel method.
+  const sortedBlocks = useMemo(() => nurMethoden(allBlocks).sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);
 
   const updateGroup = (id: string, patch: Partial<LearnerGroup>) => {
     onGroupsChange(groups.map((g) => (g.id === id ? { ...g, ...patch } : g)));
@@ -203,16 +214,7 @@ export function DifferentiationMatrixPanel({
       ? groups.map((g) => (g.id === 'regel' ? { ...g, label: 'Regelgruppe', active: true } : g))
       : [{ ...STANDARD_LEARNER_GROUPS[0], label: 'Regelgruppe', count: totalClassSize || 26 }];
 
-    const nextGroup: LearnerGroup = {
-      id: tpl.id,
-      label: tpl.label,
-      profile: tpl.profile,
-      focus: tpl.focus,
-      active: true,
-      count: tpl.defaultCount,
-      personaId: tpl.personaId,
-      matrixValues: { ...tpl.matrixValues }
-    };
+    const nextGroup: LearnerGroup = gruppeAusVorlage(tpl);
     onGroupsChange(rebalanceMainGroupCount([...baseList, nextGroup], totalClassSize));
     setSelectedGroupId(nextGroup.id);
   };
@@ -243,7 +245,8 @@ export function DifferentiationMatrixPanel({
       active: true,
       count: g.count ?? 4,
       personaId: g.personaId,
-      matrixValues: g.selectedValues || {}
+      matrixValues: g.selectedValues || {},
+      ...(g.genannt ? { genannt: g.genannt } : {})
     }));
     const hasRegel = mapped.some((g) => g.focus === 'regel');
     const next = hasRegel
@@ -259,6 +262,7 @@ export function DifferentiationMatrixPanel({
     updateGroup(id, {
       personaId: personaId || undefined,
       matrixValues: {},
+      genannt: undefined,
       ...(p ? { profile: p.description } : {})
     });
   };
@@ -266,10 +270,8 @@ export function DifferentiationMatrixPanel({
   const setGroupVariable = (id: string, varId: string, auspraegungId: string) => {
     const g = groups.find((x) => x.id === id);
     if (!g) return;
-    const nextVals = { ...(g.matrixValues || {}) };
-    if (!auspraegungId) delete nextVals[varId];
-    else nextVals[varId] = auspraegungId;
-    updateGroup(id, { matrixValues: nextVals });
+    const { matrixValues, genannt } = setzeGruppenwert(g, varId, auspraegungId);
+    updateGroup(id, { matrixValues, genannt });
   };
 
   const applyMatrixToAllPhases = () => {
@@ -758,7 +760,7 @@ export function DifferentiationMatrixPanel({
                       <div className="muted" style={{ fontSize: 13 }}>{activeMatrix.didacticProfile.summary}</div>
                     </div>
                     <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowAllVariables((s) => !s)}>
-                      {showAllVariables ? '▲ Weniger Variablen' : '▼ Alle 36 Variablen'}
+                      {showAllVariables ? '▲ Weniger Variablen' : `▼ Alle ${ANZAHL_VARIABLEN} Variablen`}
                     </button>
                   </div>
 
@@ -801,7 +803,7 @@ export function DifferentiationMatrixPanel({
                       Anpassungsvariablen für „{selectedGroup.label}“ feinjustieren
                     </summary>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8, marginTop: 10 }}>
-                      {DIFF_MATRIX_VARIABLES.flatMap((ok) =>
+                      {WAEHLBARE_VARIABLEN.flatMap((ok) =>
                         ok.kategorien
                           .filter((k) => showAllVariables || KEY_VARIABLE_IDS.has(k.id))
                           .map((kat) => {

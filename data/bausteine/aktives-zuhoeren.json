@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Gesprächsübung, bei der die zuhörende Person Kernaussagen in eigenen Worten wiedergibt und rückfragt, bevor sie selbst Stellung bezieht.",
   "alternativname": [
     "Paraphrasieren",
@@ -32,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "teamMin": 2,
@@ -133,6 +130,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

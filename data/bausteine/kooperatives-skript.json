@@ -17,8 +17,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "reichweite": "r2",
   "lernfunktion": [
@@ -96,11 +96,6 @@
   ],
   "dauerMin": 20,
   "dauerMax": 45,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Unstrukturierte Partnerarbeit an Fachtexten bleibt oft oberflächlich oder verteilt sich ungleich.",
   "durchfuehrung": [
     "Fachtext in 2–4 überschaubare Abschnitte teilen; beide Partner lesen Abschnitt 1 still.",
@@ -112,7 +107,7 @@
     "Abschnittsweise gegliederter Fachtext",
     "Rollenkarte Skript"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 50,
   "teamMin": 2,
@@ -148,8 +143,5 @@
   "plot": {
     "x": 0.34,
     "y": 2.72
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

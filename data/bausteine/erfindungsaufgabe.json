@@ -15,12 +15,6 @@
     "mathe-informatik",
     "nawi-technik"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "Schwartz et al. (2011): Practicing versus inventing with contrasting cases",
@@ -102,9 +96,6 @@
   ],
   "dauerMin": 30,
   "dauerMax": 50,
-  "ungeeignetBeiStufe": [
-    "primar"
-  ],
   "problem": "Eine fertig präsentierte Formel wird angewendet, ohne dass klar ist, welches Problem sie löst.",
   "durchfuehrung": [
     "Kontrastierende Fälle vorlegen",

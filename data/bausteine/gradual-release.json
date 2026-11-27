@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "reichweite": "r2",
   "lernfunktion": [
     "erwerb",
@@ -95,10 +92,6 @@
   ],
   "dauerMin": 25,
   "dauerMax": 60,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel"
-  ],
   "problem": "Lernende scheitern an selbstständigen Aufgaben, wenn der Sprung von der Erklärung zur Einzelarbeit zu groß ist.",
   "durchfuehrung": [
     "Ich-Phase (Focused Instruction): Lehrkraft modelliert das Verfahren laut denkend an einem Beispiel.",
@@ -110,7 +103,7 @@
     "Musterbeispiel",
     "Gestuftes Übungsblatt"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 40,
   "vorbereitungMin": 15,

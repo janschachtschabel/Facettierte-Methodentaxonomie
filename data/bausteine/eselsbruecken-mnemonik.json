@@ -10,12 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lernende konstruieren eigene Akronyme, Merkverse oder Bildassoziationen, um schwer merkbare Fakten und Ausnahmeregeln dauerhaft abrufbar zu machen.",
   "alternativname": [
     "Eselsbrücken",
@@ -34,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

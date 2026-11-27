@@ -1,4 +1,4 @@
-import type { AdditionalPhaseProposal, Arrangement, ArrangementNode, Baustein, EinsatzNode, MethodAdjustment } from '@fmt/core';
+import type { AdditionalPhaseProposal, Arrangement, ArrangementNode, Baustein, EinsatzNode } from '@fmt/core';
 import { getMainSequence, withMainSequence } from './arrangementOps.js';
 
 /** An additional phase the teacher took over from the proposals of step 3. */
@@ -98,7 +98,7 @@ export function shiftStepKeys<T>(map: Record<string, T>, fromIndex: number, delt
   return out;
 }
 
-export function shiftAdjustmentKeys(list: MethodAdjustment[], fromIndex: number, delta: 1 | -1): MethodAdjustment[] {
+export function shiftAdjustmentKeys<T extends { stepKey: string }>(list: T[], fromIndex: number, delta: 1 | -1): T[] {
   return list.flatMap((a) => {
     const moved = shiftStepKeys({ [a.stepKey]: true }, fromIndex, delta);
     const key = Object.keys(moved)[0];

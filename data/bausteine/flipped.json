@@ -15,10 +15,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Umgedrehter Unterricht",
@@ -82,12 +78,17 @@
     "coach",
     "werkzeug"
   ],
-  "aufgabe": [],
+  "aufgabe": [
+    "fakten",
+    "konzepte"
+  ],
   "sequenz": [
     "instruktion-vor-problem"
   ],
   "vorbedingung": [],
-  "nachbedingung": [],
+  "nachbedingung": [
+    "konzept-gesichert"
+  ],
   "kernkomponente": [
     {
       "kennung": "vorbereitung",

@@ -3,9 +3,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { createMatcher, createValidator } from '../src/index.js';
-import { negatedMethods, SICHERHEITSHINWEIS } from '../src/zuordnung.js';
+import { negatedMethods } from '../src/zuordnung.js';
 import type { MatchResult } from '../src/types.js';
 import { LESEFAELLE, NENNUNGEN, THEMEN, szenarioText } from './golden-szenarien.js';
+import { alleBausteine } from './qualitaet/pruefen.js';
+import { mitEintraegen } from './fixtures/eignung.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -201,9 +203,9 @@ describe('Lernort, Verneinung und Abwechslung', () => {
     return (b.aufgabe || []).includes('psychomotorik') || (b.repraesentation || []).includes('enaktiv') || (b.fachbereich || []).some((f) => f === 'sport' || f === 'beruf-praxis');
   };
 
-  it('Lernort aus dem Aufruf: draußen oder Labor bevorzugt Praxis- und Erkundungsmethoden', () => {
+  it('Raum aus dem Aufruf: draußen oder Labor bevorzugt Praxis- und Erkundungsmethoden', () => {
     const plain = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten' });
-    const out = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' });
+    const out = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', raum: 'draussen' });
     expect(out.modus).toBe('ablauf');
     if (out.modus === 'ablauf' && plain.modus === 'ablauf') {
       expect(out.pruefung?.gueltig).toBe(true);
@@ -212,7 +214,7 @@ describe('Lernort, Verneinung und Abwechslung', () => {
   });
 
   it('Hörsaal: keine Methode, für die alle aufstehen und umhergehen', () => {
-    const r = M.zuordnen({ text: 'Hochschule Statistik Hypothesentests, 90 Minuten, 120 Studierende', lernort: 'hoersaal' });
+    const r = M.zuordnen({ text: 'Hochschule Statistik Hypothesentests, 90 Minuten, 120 Studierende', raum: 'hoersaal' });
     expect(r.modus).toBe('ablauf');
     for (const id of blocksOf(r)) expect(byId.get(id)!.aufgabe || [], id).not.toContain('psychomotorik');
   });
@@ -321,18 +323,25 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     for (const id of blocksOf(r)) expect(sportOnly, id).not.toContain(id);
   });
 
+  // Tor D2 dropped the subject entries of laufdiktat and sportmotorischer-test; the fixture puts them back to keep the
+  // mechanism tested.
+  const MX = createMatcher(mitEintraegen(D), createValidator(mitEintraegen(D)));
+
   it('genannte Methode mit Hauptnamen bleibt trotz „ungeeignet im Fach“ im Ablauf, mit Hinweis', () => {
-    const r = M.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    const r = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
     expect((r.verankert || []).some((v) => v.baustein === 'laufdiktat')).toBe(true);
-    expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik.*unüblich/);
+    expect((r.hinweise || []).join(' ')).toMatch(/Laufdiktat.*passt weniger zum Fachbereich „Mathematik/);
+    expect((r.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'laufdiktat')).toBe(true);
   });
 
   it('Hinweis „unüblich“ nur, wenn die genannte Methode wirklich im Ablauf steht', () => {
     const r = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Bruchrechnung Klasse 8, 45 Minuten' });
     const placed = (r.modus === 'ablauf' ? r.verankert || [] : []).some((v) => v.baustein === 'differenzielles-lernen');
-    expect(placed || !(r.hinweise || []).some((h) => /auf deinen Wunsch im Ablauf/.test(h))).toBe(true);
+    const wunsch = (x: typeof r) => (x.regelmeldungen || []).some((m) => m.regel === 'genannter-wunsch-bleibt' && m.baustein === 'differenzielles-lernen');
+    expect(placed || !wunsch(r)).toBe(true);
     const p = M.zuordnen({ text: 'Differenzielles Lernen in Mathematik, Einstieg' });
     expect((p.hinweise || []).some((h) => /im Ablauf/.test(h))).toBe(false);
+    if (p.modus === 'phase' && !p.vorschlaege.slice(0, 6).some((v) => v.baustein === 'differenzielles-lernen')) expect(wunsch(p)).toBe(false);
   });
 
   it('genannter Hauptname im unpassenden Fach umgeht weder Raum- noch Diagnoseregel', () => {
@@ -344,8 +353,9 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
   });
 
   it('Synonym mit Alltagsbedeutung im unpassenden Fach: keine Methode, aber mit Grund unter nichtVerankert', () => {
-    const r = M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
+    const r = MX.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' });
     expect(blocksOf(r)).not.toContain('sportmotorischer-test');
+    expect(blocksOf(M.zuordnen({ text: 'Leistungsmessung in Mathe Klasse 8, 45 Minuten' }))).not.toContain('sportmotorischer-test');
     expect(r.nichtVerankert).toContainEqual({ baustein: 'sportmotorischer-test', grund: 'im Fachbereich Mathematik und Informatik als ungeeignet markiert' });
   });
 
@@ -363,6 +373,14 @@ describe('Sport- und Praxismethoden bleiben in ihrem Fach (S1–S9)', () => {
     const r = M.zuordnen({ zieltyp: 'kondition-training', bildungsstufe: 'sek1' });
     expect(r.kriterien.fachbereich).toBe('sport');
     expect(r.modus === 'ablauf' && r.pruefung?.gueltig).toBe(true);
+    // FMT 2.0: the assumed subject area is named; the room follows from it.
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'fachbereich', wert: 'sport' }));
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'bewegungsraum' }));
+    expect(r.pflichtangaben?.fehlt).toContain('fach-und-thema');
+    const z = M.zuordnen({ zielart: 'kondition', bildungsstufe: 'sek1' });
+    expect(z.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'fachbereich', wert: 'sport' }));
+    const genannt = M.zuordnen({ zielart: 'kondition', fachbereich: 'sport', bildungsstufe: 'sek1' });
+    expect(genannt.pflichtangaben?.angenommen.map((x) => x.feld)).not.toContain('fachbereich');
   });
 });
 
@@ -378,9 +396,9 @@ describe('Prüfung am Stundenanfang und Lesen praktischer Fächer', () => {
   });
 
   it.each([
-    ['Darstellendes Spiel Klasse 10: Improvisation und Szenenarbeit, 90 Minuten', 'psychomotorik'],
-    ['Chemie Anfangsunterricht Klasse 7: Sicherheitsregeln im Labor und Brenner anzünden, 45 Minuten', 'psychomotorik'],
-    ['Seniorenkurs: Smartphone Grundlagen, WhatsApp nutzen, 90 Minuten, 8 Teilnehmende', 'psychomotorik'],
+    ['Darstellendes Spiel Klasse 10: Improvisation und Szenenarbeit, 90 Minuten', 'bewegung'],
+    ['Chemie Anfangsunterricht Klasse 7: Sicherheitsregeln im Labor und Brenner anzünden, 45 Minuten', 'bewegung'],
+    ['Seniorenkurs: Smartphone Grundlagen, WhatsApp nutzen, 90 Minuten, 8 Teilnehmende', 'bewegung'],
     ['Biologie Klasse 5 Bäume bestimmen auf dem Schulhof, draußen, 45 Minuten', 'prozeduren']
   ])('%s → Zielart %s', (text, zielart) => {
     expect(M.lesen(text).kriterien.zielart).toBe(zielart);
@@ -405,7 +423,7 @@ describe('Keine Fehlgriffe durch Alltagswörter (Review)', () => {
     'Geschichte Klasse 9: Handy Grundlagen der Quellenkritik, 45 Minuten',
     'Englisch: Lehrkraft muss improvisieren, Vokabeln wiederholen, 45 Minuten'
   ])('%s: keine Bewegungs- oder Praxisstunde', (text) => {
-    expect(M.lesen(text).kriterien.zielart).not.toBe('psychomotorik');
+    expect(M.lesen(text).kriterien.zielart).not.toBe('bewegung');
   });
 
   it('ein mitgegebener Zustand „vorhanden“ erreicht den Kontext des Ablaufs', () => {
@@ -420,9 +438,10 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
     expect(blocksOf(r)).toContain('vorfuehrung-rueckmeldung');
   });
 
+  // Tor D2 (T8) added sport to the subject areas of vorfuehrung-rueckmeldung: in a technique lesson such as volleyball
+  // it is now a sport method. Swimming strokes and running at a steady pace still do without it.
   it.each([
     'Sport Klasse 7, Schwimmen Kraulbeine, 45 Minuten',
-    'Sport Klasse 9 Volleyball: oberes Zuspiel, 45 Minuten',
     'Sport Klasse 10: Distanz laufen und Tempo halten, 45 Minuten'
   ])('%s: keine Vorführung aus den ästhetischen Fächern', (text) => {
     expect(blocksOf(M.zuordnen({ text }))).not.toContain('vorfuehrung-rueckmeldung');
@@ -442,16 +461,47 @@ describe('Sport: Tanz, Training und Spiel an der richtigen Stelle (Runde 4)', ()
 
 describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil Stufe 1)', () => {
   it('Stufenwarnung nennt keine Evidenz, wo keine hinterlegt ist', () => {
-    const r = M.zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    // Fixture: a stage entry without a reason as before Tor D2 (erfindungsaufgabe); since the gate every entry has one.
+    const DX = mitEintraegen(D);
+    const r = createMatcher(DX, createValidator(DX)).zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
     const texte = r.modus === 'phase' ? r.vorschlaege.flatMap((v) => v.warnungen || []) : [];
     expect(texte.join(' ')).toMatch(/Setzung der Redaktion/);
     expect(texte.join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
+    const echt = M.zuordnen({ modus: 'phase', lernfunktion: 'verstehen', bildungsstufe: 'primar' });
+    expect((echt.modus === 'phase' ? echt.vorschlaege.flatMap((v) => v.warnungen || []) : []).join(' ')).not.toMatch(/spricht die Evidenz dagegen/);
   });
 
   it('praktische Arbeit im Fachraum bekommt den Sicherheitshinweis, eine Deutschstunde nicht', () => {
     const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
-    expect(chemie.hinweise || []).toContain(SICHERHEITSHINWEIS);
+    const s = (chemie.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis');
+    // One message per answer, at the first hands-on method.
+    expect(s.length).toBe(1);
+    expect(chemie.hinweise || []).toContain(`${s[0].text} (${s[0].quelle})`);
+    expect(s[0].text).toMatch(/^Im Ablauf wird praktisch gearbeitet \(z\. B\. .+\)\. Kläre vorher Sicherheit und Aufsicht\.$/);
     const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
-    expect(deutsch.hinweise || []).not.toContain(SICHERHEITSHINWEIS);
+    expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
+    expect((deutsch.hinweise || []).some((h) => /Sicherheit/.test(h))).toBe(false);
+  });
+});
+
+describe('Raumbedarf und Schriftbedarf (Einsatzprofil Stufe 2)', () => {
+  const byId = new Map(D.bausteine.map((b) => [b.kennung, b]));
+
+  it('ohne genannten Raum schließt der Raumbedarf nichts aus', () => {
+    const r = M.zuordnen({ modus: 'phase', lernfunktion: 'orientierung' });
+    expect(r.modus === 'phase' && r.zaehler.nachRahmen).toBe(r.modus === 'phase' && r.zaehler.nachFunktion);
+  });
+
+  it('lernort bleibt als Alias für raum gültig', () => {
+    const a = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', lernort: 'draussen' });
+    const b = M.zuordnen({ text: 'Biologie Klasse 7 Pflanzen, 45 Minuten', raum: 'draussen' });
+    expect(alleBausteine(a)).toEqual(alleBausteine(b));
+    expect(a.kriterien.raum).toBe('draussen');
+  });
+
+  it('Lernende, die nicht lesen können: keine Methode mit Schriftbedarf', () => {
+    const r = M.zuordnen({ text: 'Klasse 1, Kinder können noch nicht lesen, Thema Jahreszeiten, 45 Minuten' });
+    expect(r.kriterien.ohneSchrift).toEqual(['lesen', 'schreiben']);
+    for (const id of alleBausteine(r)) expect(byId.get(id)!.schriftbedarf || [], id).toEqual([]);
   });
 });

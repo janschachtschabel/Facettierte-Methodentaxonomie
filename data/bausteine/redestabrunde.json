@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Im Sitzkreis spricht ausschließlich die Person, die den Redestab hält; alle anderen hören ohne Unterbrechung und Bewertung zu.",
   "alternativname": [
     "Talking Stick",
@@ -31,7 +28,7 @@
   "material": [
     "Redestab oder Gegenstand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 5,
   "gruppeMax": 28,
   "technik": "t-keine",
@@ -131,6 +128,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

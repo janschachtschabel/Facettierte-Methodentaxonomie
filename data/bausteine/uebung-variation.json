@@ -10,11 +10,8 @@
     "mathe-informatik",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
   ],
   "kurzbeschreibung": "Aufgabenserien variieren gezielt einzelne Parameter („Was passiert, wenn…?“) statt bloßem Drill, um Flexibilität und Mustererkennung aufzubauen.",
   "alternativname": [
@@ -34,7 +31,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

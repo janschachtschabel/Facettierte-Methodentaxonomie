@@ -1,10 +1,13 @@
+import { istHilfe } from './eintragsart.js';
 import { ruleBasisOf } from './rules.js';
+import { erstelleRegeln } from './regeln.js';
 import type {
   Arrangement,
   ArrangementNode,
   Baustein,
   EinsatzNode,
   FmtData,
+  Grundlage,
   ValidationMessage,
   ValidationResult
 } from './types.js';
@@ -13,6 +16,9 @@ const CLEARING_FUNCTIONS = ['verstehen', 'konsolidierung'];
 const CLEARING_GUIDANCE = ['explizit', 'geleitet'];
 const PASSIVE_LIMIT_MIN = 20;
 const MIN_SPACED_REPETITIONS = 2;
+/** R-00 for a help (eintragsart 'hilfe') used as a phase: a help supports learners inside a method. */
+const hilfeAlsPhase = (b: Baustein) =>
+  `„${b.name}“ ist eine Hilfe und keine Phase: Sie stützt Lernende innerhalb einer Methode und wird einer Phase zugeordnet.`;
 import { KennungIndex } from './kennung.js';
 
 export interface FmtValidator {
@@ -41,6 +47,13 @@ export function createValidator(data: FmtData): FmtValidator {
       (implies.get(s) || []).forEach((x) => stack.push(x));
     }
   };
+  const labelOf = (schema: string, code: string) => {
+    const s = data.schemes.find((x) => x.id === schema);
+    const w = (s?.werte || (s?.gruppen || []).flatMap((g) => g.werte)).find((x) => x.id === code);
+    return w ? w.label : code;
+  };
+  /** Fit rules (regeln.ts): the same machine the matcher ranks with. */
+  const regeln = erstelleRegeln(data.regeln || [], labelOf);
   const midDuration = (b: Baustein) => Math.round((b.dauerMin + b.dauerMax) / 2);
 
   const MAX_DEPTH = 32;
@@ -106,10 +119,17 @@ export function createValidator(data: FmtData): FmtValidator {
     _stack: string[] = []
   ): ValidationResult {
     const meldungen: ValidationMessage[] = [];
-    const add = (regel: string, schwere: 'Fehler' | 'Warnung', pfad: string, meldung: string) =>
-      meldungen.push({ regel, schwere, grundlage: ruleBasisOf(regel), pfad, meldung });
+    const add = (regel: string, schwere: 'Fehler' | 'Warnung', pfad: string, meldung: string, grundlage?: Grundlage) =>
+      meldungen.push({ regel, schwere, grundlage: grundlage ?? ruleBasisOf(regel), pfad, meldung });
 
     const kontext = arr.kontext || {};
+    const lage = {
+      ...(kontext.vorwissen ? { vorwissen: kontext.vorwissen } : {}),
+      ...(kontext.bildungsstufe ? { bildungsstufe: kontext.bildungsstufe } : {}),
+      ...(kontext.komplexitaet ? { komplexitaet: kontext.komplexitaet } : {}),
+      ...(kontext.sprachniveau ? { sprachniveau: kontext.sprachniveau } : {}),
+      ...(kontext.fachbereich ? { fachbereich: kontext.fachbereich } : {})
+    };
     const arrRang = rang.get(arr.reichweite) || 0;
     const st: {
       zustand: Set<string>;
@@ -130,12 +150,8 @@ export function createValidator(data: FmtData): FmtValidator {
     function checkPre(b: Baustein, pfad: string) {
       const missing = (b.vorbedingung || []).filter((z) => !st.zustand.has(z));
       if (missing.length) add('R-03', 'Fehler', pfad, `„${b.name}“: Vorbedingung nicht erfüllt (${missing.join(', ')}).`);
-      if (b.geeignetBeiVorwissen && kontext.vorwissen && !b.geeignetBeiVorwissen.includes(kontext.vorwissen)) {
-        add('R-06', 'Warnung', pfad, `„${b.name}“ ist für Vorwissen „${kontext.vorwissen}“ nicht vorgesehen (Expertise-Reversal).`);
-      }
-      if (b.ungeeignetBeiStufe && kontext.bildungsstufe && b.ungeeignetBeiStufe.includes(kontext.bildungsstufe)) {
-        add('R-06', 'Warnung', pfad, `„${b.name}“: Für die Bildungsstufe „${kontext.bildungsstufe}“ nicht vorgesehen (Setzung der Redaktion).`);
-      }
+      // R-06 Eignung und Passung: every warning of the fit rules and suitability entries for this situation.
+      for (const m of regeln.warnungen(b, lage)) add('R-06', 'Warnung', pfad, m.quelle ? `${m.text} (${m.quelle})` : m.text, m.grundlage);
     }
 
     function leafEffects(b: Baustein, dauer: number, pfad: string) {
@@ -185,6 +201,7 @@ export function createValidator(data: FmtData): FmtValidator {
         add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
         return typeof node.dauerMin === 'number' ? node.dauerMin : 0;
       }
+      if (istHilfe(b)) add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
       const r = rang.get(b.reichweite) || 0;
       if (r > arrRang) {
         add('R-01', 'Fehler', pfad, `„${b.name}“ (${b.reichweite}) passt nicht in ein Arrangement der Reichweite ${arr.reichweite}.`);
@@ -299,6 +316,7 @@ export function createValidator(data: FmtData): FmtValidator {
             add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
             return 0;
           }
+          if (istHilfe(b)) add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
           if ((rang.get(b.reichweite) || 0) > arrRang) {
             add('R-01', 'Fehler', pfad, `„${b.name}“ hat größere Reichweite als das Arrangement.`);
           }

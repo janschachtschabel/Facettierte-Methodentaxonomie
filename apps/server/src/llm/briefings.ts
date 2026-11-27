@@ -121,7 +121,7 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
           problem: b.problem,
           durchfuehrung: b.durchfuehrung,
           material: b.material,
-          raum: b.raum,
+          raumhinweis: b.raumhinweis,
           kernkomponente: b.kernkomponente.map((k) => k.name),
           qualitaetsrisiko: b.qualitaetsrisiko,
           evidenz: b.evidenz,
@@ -419,6 +419,15 @@ export interface ScenarioPlanArgs {
   maxVorbereitung?: number;
   ohneInternet?: boolean;
   ohneKI?: boolean;
+  zielart?: string;
+  raum?: string;
+  /** Former name of raum. */
+  lernort?: string;
+  raumBietet?: string | string[];
+  fachausstattungArt?: string;
+  ohneSchrift?: string | string[];
+  termine?: number;
+  nachweis?: string;
   /** 0 = first proposal; higher values give the next equally suitable combination. */
   variante?: number;
   includeWloOer?: boolean;
@@ -431,6 +440,8 @@ export interface ScenarioPlanArgs {
     personaId?: string;
     profile?: string;
     selectedValues?: Record<string, string>;
+    /** Values the text named (core values of the pattern); only these decide the subgroup check. */
+    genannt?: string[];
   }>;
 }
 
@@ -465,7 +476,14 @@ export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[]
       ? []
       : [{ id: 'regel', label: 'Regelgruppe', personaId: 'average', ...(rest && rest > 0 ? { count: rest } : {}) }];
   return [
-    ...named.map((g) => ({ id: g.id, label: g.label, count: g.count, personaId: GROUP_PERSONA[g.id], selectedValues: g.selectedValues })),
+    ...named.map((g) => ({
+      id: g.id,
+      label: g.label,
+      count: g.count,
+      personaId: GROUP_PERSONA[g.id],
+      selectedValues: g.selectedValues,
+      ...(g.genannt ? { genannt: g.genannt } : {})
+    })),
     ...regel
   ];
 }
@@ -522,6 +540,13 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneInternet: args.ohneInternet,
     ohneKI: args.ohneKI,
     variante: args.variante,
+    zielart: args.zielart,
+    raum: args.raum || args.lernort,
+    raumBietet: args.raumBietet,
+    fachausstattungArt: args.fachausstattungArt,
+    ohneSchrift: args.ohneSchrift,
+    termine: args.termine,
+    nachweis: args.nachweis,
     fachbereich:
       args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld)
   };
@@ -664,16 +689,20 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     label: g.label,
     isMain: isRegularGroupId(g.id),
     personaId: fromText && g.selectedValues && Object.keys(g.selectedValues).length ? undefined : g.personaId,
-    selectedValues: g.selectedValues
+    selectedValues: g.selectedValues,
+    ...(g.genannt ? { genannt: g.genannt } : {})
   }));
   const adjustmentConstraints = {
     maxTechnik: effectiveMaxTechnik,
     ohneInternet: effectiveOhneInternet,
     ohneKI: effectiveOhneKI,
     bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
-    fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined
+    fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined,
+    // The request as the matcher read it (room, time …): a parallel method must cover its needs in that frame.
+    anfrage: matched.kriterien as MatchRequest
   };
-  const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints);
+  const regelsatz = { teilgruppen: store.bundle.teilgruppen, regeln: store.bundle.regeln, schemes: store.bundle.schemes };
+  const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz);
   const zusatzphasen = proposeAdditionalPhases(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints);
 
   let oerHits: Array<{ titel: string; wwwurl: string; wloRenderUrl: string | null; lizenz: string | null; medientyp: string | null }> = [];
@@ -757,8 +786,24 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     pruefung: matched.pruefung,
     verankert: matched.verankert || [],
     nichtVerankert: matched.nichtVerankert || [],
+    // Helps named in the text: never a phase, they go to the phases in step 3 (hinweise says so).
+    genannteHilfen: matched.genannteHilfen || [],
+    // Steps left open and why (uncovered need), and the form of proof the check is ordered by.
+    ...(matched.modus === 'ablauf' && matched.offenGruende?.length ? { offenGruende: matched.offenGruende } : {}),
+    ...(matched.nachweis ? { nachweis: matched.nachweis } : {}),
     annahmen: matched.annahmen || [],
     hinweise: matched.hinweise || [],
+    pflichtangaben: matched.pflichtangaben,
+    // Each rule message with rule, effect, basis, source and text (and the method it speaks about, if any).
+    regelmeldungen: (matched.regelmeldungen || []).map((m) => ({
+      regel: m.regel,
+      wirkung: m.wirkung,
+      grundlage: m.grundlage,
+      ...(m.quelle ? { quelle: m.quelle } : {}),
+      text: m.text,
+      ...(m.baustein ? { baustein: m.baustein } : {}),
+      ...(m.bausteine?.length ? { bausteine: m.bausteine } : {})
+    })),
     methodenDetails,
     udlBasis: multiGroupSynthesis.udlBasis.slice(0, 5),
     konflikte: multiGroupSynthesis.konflikte.slice(0, 4),

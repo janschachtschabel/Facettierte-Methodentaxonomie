@@ -10,12 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lerninhalte oder Reihenfolgen werden als bildhafte Vorstellungen an vertraute Stationen eines bekannten Weges oder Raumes geknüpft.",
   "alternativname": [
     "Gedächtnispalast",
@@ -34,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

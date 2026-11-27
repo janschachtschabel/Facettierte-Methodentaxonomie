@@ -10,8 +10,12 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "kurzbeschreibung": "Lernende formulieren präzise Fach-Prompts für ein Sprachmodell, prüfen dessen Ausgaben systematisch auf Fehler/Halluzinationen und überarbeiten selbstständig ohne KI.",
   "alternativname": [
@@ -32,7 +36,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-geteilt",
@@ -110,9 +114,6 @@
       "kennung": "eigenfassung",
       "name": "Eigenständige Endfassung ohne KI-Copy-Paste"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Kognitives Auslagern, wenn der eigene Prüf- und Schreibschritt entfällt (Bastani et al. 2025)"

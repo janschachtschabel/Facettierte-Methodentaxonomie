@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Votum-Ei",
@@ -112,7 +109,7 @@
     "Plakat oder Tafelzeichnung",
     "Klebepunkte oder Stifte"
   ],
-  "raum": "Regulärer Klassenraum (Plakat nahe Ausgang oder Tafel)",
+  "raumhinweis": "Regulärer Klassenraum (Plakat nahe Ausgang oder Tafel)",
   "gruppeMin": 4,
   "gruppeMax": 35,
   "vorbereitungMin": 3,

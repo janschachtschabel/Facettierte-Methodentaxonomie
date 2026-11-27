@@ -17,10 +17,6 @@
     "nawi-technik",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Peer Instruction",
@@ -167,8 +163,5 @@
   "plot": {
     "x": 0.68,
     "y": 2.85
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

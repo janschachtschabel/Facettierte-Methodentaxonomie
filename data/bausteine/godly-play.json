@@ -10,14 +10,6 @@
   "fachbereich": [
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Ruhige, haptische Erzählung mit einfachen Bodenbild-Figuren, gefolgt von offenen „Ich frage mich…“-Impulsen und freier kreativer Antwortphase.",
   "alternativname": [
     "Bodenbild-Methode",
@@ -37,7 +29,7 @@
     "Bodenbild-Materialien",
     "Kreativmaterial"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 6,
   "gruppeMax": 25,
   "technik": "t-keine",
@@ -72,7 +64,8 @@
     "bewertung": "lehrkraft"
   },
   "adaptivitaet": [
-    "uniform"
+    "udl",
+    "diff-produkt"
   ],
   "feedback": [
     "fb-lehrkraft",
@@ -137,6 +130,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "einstellungen",
     "afb2",
     "wohlstrukturiert",
     "fall"

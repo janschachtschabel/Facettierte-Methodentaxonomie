@@ -10,9 +10,8 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest"
   ],
   "kurzbeschreibung": "Fokussierte, 3–7-minütige digitale Lerneinheit zu genau einem Konzept oder einer Fertigkeit, unmittelbar gekoppelt mit einer kurzen Kontrollaufgabe.",
   "alternativname": [
@@ -32,7 +31,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 100,
   "technik": "t-einzeln",

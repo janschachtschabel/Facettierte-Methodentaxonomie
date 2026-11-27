@@ -24,7 +24,10 @@
         ],
         "ziel": "konzept-gesichert",
         "rolle": "haupt",
-        "zeitanteil": 35
+        "zeitanteil": 35,
+        "wissensart": [
+          "konzepte"
+        ]
       },
       {
         "id": "k3",
@@ -34,7 +37,10 @@
         ],
         "ziel": "wissen-konsolidiert",
         "rolle": "sicherung",
-        "zeitanteil": 15
+        "zeitanteil": 15,
+        "wissensart": [
+          "konzepte"
+        ]
       },
       {
         "id": "k4",
@@ -45,7 +51,10 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 28
+        "zeitanteil": 28,
+        "wissensart": [
+          "konzepte"
+        ]
       },
       {
         "id": "k5",
@@ -62,12 +71,15 @@
   {
     "id": "prozedur",
     "label": "Prozedur / Fertigkeit",
-    "zielart": [
-      "prozeduren"
-    ],
     "relatedMatch": [
       "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-4",
       "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/31-5"
+    ],
+    "zielart": [
+      "prozeduren"
+    ],
+    "ansatz": [
+      "uebung"
     ],
     "schritte": [
       {
@@ -88,7 +100,10 @@
         ],
         "ziel": "erstwissen-ungesichert",
         "rolle": "haupt",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "prozeduren"
+        ]
       },
       {
         "id": "p3",
@@ -98,7 +113,10 @@
         ],
         "ziel": "prozedur-gelaeufig",
         "rolle": "haupt",
-        "zeitanteil": 45
+        "zeitanteil": 45,
+        "wissensart": [
+          "prozeduren"
+        ]
       },
       {
         "id": "p4",
@@ -108,7 +126,10 @@
         ],
         "ziel": "wissen-konsolidiert",
         "rolle": "sicherung",
-        "zeitanteil": 20
+        "zeitanteil": 20,
+        "wissensart": [
+          "prozeduren"
+        ]
       }
     ]
   },
@@ -117,6 +138,9 @@
     "label": "Problemlösen / Transfer",
     "relatedMatch": [
       "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/33"
+    ],
+    "zielart": [
+      "problemloesen"
     ],
     "schritte": [
       {
@@ -137,7 +161,11 @@
         ],
         "ziel": "loesungsversuche",
         "rolle": "haupt",
-        "zeitanteil": 33
+        "zeitanteil": 33,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "q3",
@@ -147,7 +175,11 @@
         ],
         "ziel": "konzept-gesichert",
         "rolle": "sicherung",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "q4",
@@ -158,7 +190,11 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 30
+        "zeitanteil": 30,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       }
     ]
   },
@@ -187,7 +223,10 @@
         ],
         "ziel": "erstwissen-ungesichert",
         "rolle": "haupt",
-        "zeitanteil": 40
+        "zeitanteil": 40,
+        "wissensart": [
+          "fakten"
+        ]
       },
       {
         "id": "f3",
@@ -197,7 +236,10 @@
         ],
         "ziel": "wissen-konsolidiert",
         "rolle": "sicherung",
-        "zeitanteil": 33
+        "zeitanteil": 33,
+        "wissensart": [
+          "fakten"
+        ]
       },
       {
         "id": "f4",
@@ -214,11 +256,14 @@
   {
     "id": "fuenf-e",
     "label": "5E (Engage – Explore – Explain – Elaborate – Evaluate)",
+    "closeMatch": [
+      "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-1"
+    ],
     "zielart": [
       "konzepte"
     ],
-    "closeMatch": [
-      "http://w3id.org/openeduhub/vocabs/didacticPlanningTools/32-1"
+    "ansatz": [
+      "forschend"
     ],
     "schritte": [
       {
@@ -239,7 +284,10 @@
         ],
         "ziel": "loesungsversuche",
         "rolle": "haupt",
-        "zeitanteil": 32
+        "zeitanteil": 32,
+        "wissensart": [
+          "konzepte"
+        ]
       },
       {
         "id": "e3",
@@ -249,7 +297,10 @@
         ],
         "ziel": "konzept-gesichert",
         "rolle": "sicherung",
-        "zeitanteil": 23
+        "zeitanteil": 23,
+        "wissensart": [
+          "konzepte"
+        ]
       },
       {
         "id": "e4",
@@ -260,7 +311,10 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "konzepte"
+        ]
       },
       {
         "id": "e5",
@@ -277,6 +331,9 @@
   {
     "id": "pbl-siebensprung",
     "label": "Problemorientiertes Lernen (PBL / Siebensprung)",
+    "zielart": [
+      "problemloesen"
+    ],
     "schritte": [
       {
         "id": "pbl1",
@@ -296,7 +353,11 @@
         ],
         "ziel": "loesungsversuche",
         "rolle": "haupt",
-        "zeitanteil": 30
+        "zeitanteil": 30,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "pbl3",
@@ -306,7 +367,11 @@
         ],
         "ziel": "konzept-gesichert",
         "rolle": "sicherung",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "pbl4",
@@ -317,7 +382,11 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 23
+        "zeitanteil": 23,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "pbl5",
@@ -338,6 +407,9 @@
       "prozeduren",
       "konzepte"
     ],
+    "ansatz": [
+      "instruktion"
+    ],
     "schritte": [
       {
         "id": "di1",
@@ -357,7 +429,11 @@
         ],
         "ziel": "erstwissen-ungesichert",
         "rolle": "haupt",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "prozeduren",
+          "konzepte"
+        ]
       },
       {
         "id": "di3",
@@ -367,7 +443,11 @@
         ],
         "ziel": "prozedur-gelaeufig",
         "rolle": "haupt",
-        "zeitanteil": 35
+        "zeitanteil": 35,
+        "wissensart": [
+          "prozeduren",
+          "konzepte"
+        ]
       },
       {
         "id": "di4",
@@ -387,13 +467,20 @@
         ],
         "ziel": "wissen-konsolidiert",
         "rolle": "sicherung",
-        "zeitanteil": 20
+        "zeitanteil": 20,
+        "wissensart": [
+          "prozeduren",
+          "konzepte"
+        ]
       }
     ]
   },
   {
     "id": "kooperatives-lernen",
     "label": "Kooperatives Lernen (Individuell → Team → Sicherung)",
+    "ansatz": [
+      "kooperativ"
+    ],
     "schritte": [
       {
         "id": "ko1",
@@ -414,7 +501,12 @@
         ],
         "ziel": "erstwissen-ungesichert",
         "rolle": "haupt",
-        "zeitanteil": 50
+        "zeitanteil": 50,
+        "wissensart": [
+          "konzepte",
+          "fakten",
+          "prozeduren"
+        ]
       },
       {
         "id": "ko3",
@@ -424,7 +516,12 @@
         ],
         "ziel": "wissen-konsolidiert",
         "rolle": "sicherung",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "konzepte",
+          "fakten",
+          "prozeduren"
+        ]
       },
       {
         "id": "ko4",
@@ -440,8 +537,81 @@
     ]
   },
   {
+    "id": "produktion",
+    "label": "Produktion (Schreiben, Gestalten, Programmieren)",
+    "zielart": [
+      "gestalten"
+    ],
+    "schritte": [
+      {
+        "id": "pd1",
+        "label": "Auftrag, Anlass und Kriterien klären",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 10
+      },
+      {
+        "id": "pd2",
+        "label": "Vorbilder, Muster und Techniken erschließen",
+        "funktion": [
+          "erwerb",
+          "verstehen"
+        ],
+        "ziel": "erstwissen-ungesichert",
+        "rolle": "haupt",
+        "zeitanteil": 22,
+        "wissensart": [
+          "prozeduren",
+          "konzepte",
+          "psychomotorik"
+        ]
+      },
+      {
+        "id": "pd3",
+        "label": "Entwerfen und ausarbeiten",
+        "funktion": [
+          "anwendung",
+          "problemloesen"
+        ],
+        "ziel": "transfer-gezeigt",
+        "rolle": "haupt",
+        "zeitanteil": 48,
+        "wissensart": [
+          "prozeduren",
+          "konzepte",
+          "psychomotorik"
+        ]
+      },
+      {
+        "id": "pd4",
+        "label": "Rückmeldung einholen, überarbeiten und reflektieren",
+        "funktion": [
+          "metakognition",
+          "diagnose"
+        ],
+        "ziel": "lernen-reflektiert",
+        "rolle": "sicherung",
+        "zeitanteil": 20,
+        "wissensart": [
+          "prozeduren",
+          "konzepte",
+          "psychomotorik"
+        ]
+      }
+    ]
+  },
+  {
     "id": "projektlernen",
     "label": "Projektbasiertes & handlungsorientiertes Lernen",
+    "zielart": [
+      "gestalten"
+    ],
+    "ansatz": [
+      "offen"
+    ],
     "schritte": [
       {
         "id": "pr1",
@@ -462,7 +632,11 @@
         ],
         "ziel": "konzept-gesichert",
         "rolle": "haupt",
-        "zeitanteil": 28
+        "zeitanteil": 28,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "pr3",
@@ -473,7 +647,11 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 48
+        "zeitanteil": 48,
+        "wissensart": [
+          "konzepte",
+          "prozeduren"
+        ]
       },
       {
         "id": "pr4",
@@ -490,6 +668,12 @@
   {
     "id": "urteilsbildung",
     "label": "Urteilsbildung (Streitfrage – Argumente – Kontroverse – Urteil)",
+    "zielart": [
+      "urteilen"
+    ],
+    "ansatz": [
+      "diskurs"
+    ],
     "schritte": [
       {
         "id": "u1",
@@ -510,7 +694,11 @@
         ],
         "ziel": "erstwissen-ungesichert",
         "rolle": "haupt",
-        "zeitanteil": 28
+        "zeitanteil": 28,
+        "wissensart": [
+          "einstellungen",
+          "konzepte"
+        ]
       },
       {
         "id": "u3",
@@ -522,7 +710,11 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 45
+        "zeitanteil": 45,
+        "wissensart": [
+          "einstellungen",
+          "konzepte"
+        ]
       },
       {
         "id": "u4",
@@ -532,7 +724,11 @@
         ],
         "ziel": "lernen-reflektiert",
         "rolle": "sicherung",
-        "zeitanteil": 15
+        "zeitanteil": 15,
+        "wissensart": [
+          "einstellungen",
+          "konzepte"
+        ]
       }
     ]
   },
@@ -540,7 +736,7 @@
     "id": "fertigkeit-bewegung",
     "label": "Bewegung und praktische Fertigkeit (Vormachen – Üben – Anwenden)",
     "zielart": [
-      "psychomotorik"
+      "bewegung"
     ],
     "schritte": [
       {
@@ -561,7 +757,10 @@
         ],
         "ziel": "erstwissen-ungesichert",
         "rolle": "haupt",
-        "zeitanteil": 18
+        "zeitanteil": 18,
+        "wissensart": [
+          "psychomotorik"
+        ]
       },
       {
         "id": "b3",
@@ -572,7 +771,10 @@
         ],
         "ziel": "prozedur-gelaeufig",
         "rolle": "haupt",
-        "zeitanteil": 40
+        "zeitanteil": 40,
+        "wissensart": [
+          "psychomotorik"
+        ]
       },
       {
         "id": "b4",
@@ -583,7 +785,10 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 20
+        "zeitanteil": 20,
+        "wissensart": [
+          "psychomotorik"
+        ]
       },
       {
         "id": "b5",
@@ -601,7 +806,7 @@
     "id": "kondition-training",
     "label": "Kondition und Training (Aufwärmen – Belastung – Anwenden – Auswerten)",
     "zielart": [
-      "psychomotorik"
+      "kondition"
     ],
     "schritte": [
       {
@@ -623,7 +828,10 @@
         ],
         "ziel": "leistung-trainiert",
         "rolle": "haupt",
-        "zeitanteil": 45
+        "zeitanteil": 45,
+        "wissensart": [
+          "psychomotorik"
+        ]
       },
       {
         "id": "t3",
@@ -633,7 +841,10 @@
         ],
         "ziel": "transfer-gezeigt",
         "rolle": "haupt",
-        "zeitanteil": 25
+        "zeitanteil": 25,
+        "wissensart": [
+          "psychomotorik"
+        ]
       },
       {
         "id": "t4",
@@ -644,55 +855,6 @@
         "ziel": "lernen-reflektiert",
         "rolle": "rand",
         "zeitanteil": 15
-      }
-    ]
-  },
-  {
-    "id": "produktion",
-    "label": "Produktion (Schreiben, Gestalten, Programmieren)",
-    "schritte": [
-      {
-        "id": "pd1",
-        "label": "Auftrag, Anlass und Kriterien klären",
-        "funktion": [
-          "orientierung"
-        ],
-        "ziel": "problem-erschlossen",
-        "rolle": "rand",
-        "zeitanteil": 10
-      },
-      {
-        "id": "pd2",
-        "label": "Vorbilder, Muster und Techniken erschließen",
-        "funktion": [
-          "erwerb",
-          "verstehen"
-        ],
-        "ziel": "erstwissen-ungesichert",
-        "rolle": "haupt",
-        "zeitanteil": 22
-      },
-      {
-        "id": "pd3",
-        "label": "Entwerfen und ausarbeiten",
-        "funktion": [
-          "anwendung",
-          "problemloesen"
-        ],
-        "ziel": "transfer-gezeigt",
-        "rolle": "haupt",
-        "zeitanteil": 48
-      },
-      {
-        "id": "pd4",
-        "label": "Rückmeldung einholen, überarbeiten und reflektieren",
-        "funktion": [
-          "metakognition",
-          "diagnose"
-        ],
-        "ziel": "lernen-reflektiert",
-        "rolle": "sicherung",
-        "zeitanteil": 20
       }
     ]
   }

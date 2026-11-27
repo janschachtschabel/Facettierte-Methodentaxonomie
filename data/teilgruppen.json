@@ -1,0 +1,170 @@
+{
+  "merkmale": [
+    {
+      "id": "vorwissen-gering",
+      "auspraegungen": ["vorwissen-gering", "leistungsniveau-gering"],
+      "antwort": "tausch",
+      "richtung": "mehr-anleitung",
+      "wohin": "mehr Anleitung, Lösungsbeispiele; oder Entdecken mit Stütze",
+      "grundlage": "E",
+      "quelle": "Tetzlaff et al. 2025; Alfieri et al. 2011"
+    },
+    {
+      "id": "vorwissen-hoch",
+      "auspraegungen": ["vorwissen-hoch", "leistungsniveau-hoch"],
+      "antwort": "tausch",
+      "richtung": "weniger-anleitung",
+      "wohin": "weniger Anleitung; Anspruch erhöhen",
+      "grundlage": "E",
+      "quelle": "Tetzlaff et al. 2025; Steenbergen-Hu et al. 2016"
+    },
+    {
+      "id": "lernschwierigkeiten",
+      "auspraegungen": ["foerderbedarf-lernen-leicht", "foerderbedarf-lernen-umfassend"],
+      "antwort": "tausch",
+      "richtung": "explizit-mit-strategie",
+      "wohin": "explizite Instruktion mit Strategievermittlung; zieldifferent nur bei amtlicher Feststellung",
+      "grundlage": "A",
+      "quelle": "Swanson & Hoskyn 1998; KMK 2011 (Befund E, Übertragung auf diese Zuordnung A)"
+    },
+    {
+      "id": "sprachstand",
+      "auspraegungen": [
+        "sprachkompetenz-gering",
+        "sprachkompetenz-mittel",
+        "ausdrucksfaehigkeit-eingeschraenkt",
+        "foerderbedarf-sprache-gelegentlich",
+        "foerderbedarf-sprache-erheblich"
+      ],
+      "antwort": "hilfe",
+      "wohin": "sprachliches Gerüst, dieselbe Methode",
+      "grundlage": "E",
+      "quelle": "Höfler et al. 2024"
+    },
+    {
+      "id": "sehen-hoeren",
+      "auspraegungen": [
+        "foerderbedarf-sehen-leicht",
+        "foerderbedarf-sehen-deutlich",
+        "foerderbedarf-hoeren-beeintraechtigung",
+        "foerderbedarf-hoeren-taub"
+      ],
+      "antwort": "hilfe",
+      "wohin": "Medienanpassung, Nachteilsausgleich, gleiches Ziel",
+      "grundlage": "Recht",
+      "quelle": "KMK 2011"
+    },
+    {
+      "id": "arbeitsgedaechtnis",
+      "auspraegungen": ["denkverarbeitung-langsam"],
+      "antwort": "hilfe",
+      "wohin": "Schritte zerlegen, Last senken; kein Training",
+      "grundlage": "S",
+      "quelle": "Melby-Lervåg et al. 2016"
+    },
+    {
+      "id": "motivation-interesse",
+      "auspraegungen": [
+        "interessen-desinteresse",
+        "interessen-situativ",
+        "engagement-gering",
+        "relevanz-gering",
+        "werte-vermeidung",
+        "selbstwirksamkeit-gering"
+      ],
+      "antwort": "hilfe",
+      "wohin": "zwei bis vier Wahlmöglichkeiten in derselben Methode",
+      "grundlage": "E",
+      "quelle": "Patall et al. 2008 (Wirkung auf die Leistung ungeklärt)"
+    },
+    {
+      "id": "emotional-sozial",
+      "auspraegungen": [
+        "soziale-kompetenzen-eingeschraenkt",
+        "resilienz-gering",
+        "emotionale-stabilitaet-schwankend",
+        "herausforderungen-vermeidend",
+        "foerderbedarf-emotional-sozial-gelegentlich",
+        "foerderbedarf-emotional-sozial-deutlich"
+      ],
+      "antwort": "hilfe",
+      "wohin": "Vorschlag; keine belegte Grenze",
+      "grundlage": "U"
+    },
+    {
+      "id": "selbstregulation-gering",
+      "auspraegungen": ["metakognitive-gering", "lernstrategien-kaum"],
+      "antwort": "hilfe",
+      "wohin": "Vorschlag; keine belegte Grenze",
+      "grundlage": "U"
+    },
+    {
+      "id": "kann-sich-nicht-frei-bewegen",
+      "auspraegungen": ["foerderbedarf-koerperlich-deutlich"],
+      "antwort": "tausch",
+      "richtung": "ohne-bewegung",
+      "wohin": "Methode ohne Stell- oder Bewegungsfläche",
+      "grundlage": "formal"
+    }
+  ],
+  "sonst": {
+    "antwort": "hilfe",
+    "grundlage": "U",
+    "wohin": "Eine Hilfe in derselben Methode; dafür gibt es keine belegte Grenze."
+  },
+  "neutral": [
+    "vorwissen-mittel",
+    "leistungsniveau-durchschnittlich",
+    "metakognitive-mittel",
+    "denkverarbeitung-durchschnittlich",
+    "engagement-mittel",
+    "selbstwirksamkeit-mittel",
+    "soziale-kompetenzen-angemessen",
+    "resilienz-mittel",
+    "emotionale-stabilitaet-stabil",
+    "herausforderungen-anpassungsfaehig",
+    "ausdrucksfaehigkeit-angemessen",
+    "kultureller-hintergrund-vertraut",
+    "soziooekonomisch-durchschnittlich",
+    "zeitliche-verfuegbarkeit-durchschnittlich",
+    "lernressourcen-ausreichend",
+    "tech-kompetenz-mittel",
+    "methodenkompetenz-mittel",
+    "gesundheitsstatus-stabil",
+    "psychische-gesundheit-ausgeglichen",
+    "foerderbedarf-lernen-kein",
+    "foerderbedarf-sprache-keine",
+    "foerderbedarf-emotional-sozial-unauffaellig",
+    "foerderbedarf-geistig-normbereich",
+    "foerderbedarf-koerperlich-uneingeschraenkt",
+    "foerderbedarf-hoeren-keine",
+    "foerderbedarf-sehen-keine",
+    "foerderbedarf-autismus-nicht",
+    "metakognitive-stark",
+    "lernstrategien-regelmaessig",
+    "denkverarbeitung-schnell",
+    "engagement-hoch",
+    "relevanz-hoch",
+    "selbstwirksamkeit-hoch",
+    "soziale-kompetenzen-ausgepraegt",
+    "resilienz-hoch",
+    "emotionale-stabilitaet-sehr-stabil",
+    "herausforderungen-problemloesend",
+    "sprachkompetenz-hoch",
+    "ausdrucksfaehigkeit-differenziert",
+    "soziooekonomisch-umfangreich",
+    "zeitliche-verfuegbarkeit-flexibel",
+    "lernressourcen-vielfaeltig",
+    "tech-kompetenz-hoch",
+    "methodenkompetenz-stark"
+  ],
+  "gesperrt": ["sensorische"],
+  "gesperrtText": "Lerntypen und Lernstile sind als Grundlage der Methodenwahl nicht belegt (Pashler et al. 2008; Rogowsky et al. 2015). Das Merkmal wird nicht ausgewertet.",
+  "abbau": {
+    "unterstuetzung": "Entfällt, sobald die Gruppe die Aufgabe zweimal ohne die Stütze löst; vorher schrittweise zurücknehmen.",
+    "lernmaterialien": "Entfällt, wenn das Standardmaterial verstanden wird.",
+    "aufgaben": "Entfällt, wenn die Regelaufgabe gelingt.",
+    "lernzeit": "Entfällt, wenn die Gruppe im Zeitrahmen der Klasse fertig wird.",
+    "sonst": "Regelmäßig prüfen, ob die Hilfe noch nötig ist, und sie dann zurücknehmen."
+  }
+}

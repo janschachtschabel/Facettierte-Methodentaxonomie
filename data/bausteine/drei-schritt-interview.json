@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "In Vierergruppen interviewen sich erst je zwei Partner wechselseitig und stellen danach die Sicht des Gegenübers in der Gruppe vor.",
   "alternativname": [
     "Three-Step-Interview",
@@ -32,7 +29,7 @@
     "2–3 Interview-Leitfragen",
     "Notizkarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 40,
   "teamMin": 4,
@@ -150,10 +147,5 @@
     "instruktion-vor-problem",
     "geblockt",
     "massiert"
-  ],
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
   ]
 }

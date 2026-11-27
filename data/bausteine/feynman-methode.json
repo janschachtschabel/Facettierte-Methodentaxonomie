@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lernende erklären ein komplexes Konzept ohne Fachjargon so einfach, dass es ein Kind verstehen würde – Verständnisbrüche werden gezielt nachgearbeitet.",
   "alternativname": [
     "Feynman-Technik",
@@ -32,7 +29,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -144,8 +141,5 @@
   "qualitaetsrisiko": [
     "Unentdeckte Fehlkonzepte, wenn keine Rückkopplung mit Fachquelle oder Peer erfolgt",
     "Verkürzung auf bloßes Nacherzählen von Stichworten"
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ]
 }

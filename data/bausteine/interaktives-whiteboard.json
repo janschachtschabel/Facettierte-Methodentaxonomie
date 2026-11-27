@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Lernende sammeln, ordnen und kommentieren gleichzeitig Ideen, Skizzen, Quellen und Diagramme auf einer geteilten digitalen Arbeitsfläche.",
   "alternativname": [
     "Digitales Board",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-geteilt",

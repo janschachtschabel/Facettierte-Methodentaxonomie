@@ -1,4 +1,4 @@
-import type { Arrangement } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type MatchRequest } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
@@ -27,6 +27,8 @@ export interface ActivePlannerDraft {
   ohneKI: boolean;
   arrangement: Arrangement;
   groups: LearnerGroup[];
+  /** Request of step 1 as the matcher read it (room, time …); the subgroup check reads it. */
+  anfrage?: MatchRequest;
 }
 
 export function saveActivePlannerDraft(draft: ActivePlannerDraft): void {
@@ -69,6 +71,14 @@ export interface SavedScenario {
   ohneInternet?: boolean;
   ohneKI?: boolean;
   raumzeitFilter?: string;
+  /** Room type of the lesson (vocab raumtyp). Older entries name it raumFilter or lernort; see rahmenAusAltbestand. */
+  raum?: string;
+  /** Room properties the teacher set by hand (vocab raumbedarf); absent: what the room type offers. */
+  raumBietet?: string[];
+  /** What the learners cannot do yet: 'lesen', 'schreiben'. */
+  ohneSchrift?: string[];
+  /** Number of dates the unit runs over. */
+  termine?: string;
   lernziele?: string;
   problemstellung?: string;
   didaktischerAnsatz?: string;
@@ -81,6 +91,43 @@ export interface SavedScenario {
   generatedMaterials?: GeneratedMaterialItem[];
   thematicRows?: ThematicPhaseRow[] | null;
   elaboration: string | null;
+}
+
+/**
+ * Room and writing details of a saved scenario. Entries from before FMT 2.0 carry the room as `lernort`
+ * (former API field) or `raumFilter`, and reading as the flag `ohneLesen`; they are read into the new fields.
+ */
+export function rahmenAusAltbestand(p: Record<string, unknown>): Pick<SavedScenario, 'raum' | 'raumBietet' | 'ohneSchrift' | 'termine'> {
+  const str = (v: unknown) => (typeof v === 'string' && v !== '' ? v : undefined);
+  const strList = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : undefined);
+  const raum = str(p.raum) || str(p.raumFilter) || str(p.lernort);
+  const ohneSchrift = strList(p.ohneSchrift) ?? (p.ohneLesen === true ? ['lesen', 'schreiben'] : undefined);
+  const termine = typeof p.termine === 'number' ? String(p.termine) : str(p.termine);
+  const out: Pick<SavedScenario, 'raum' | 'raumBietet' | 'ohneSchrift' | 'termine'> = {};
+  if (raum) out.raum = raum;
+  const bietet = strList(p.raumBietet);
+  if (bietet) out.raumBietet = bietet;
+  if (ohneSchrift) out.ohneSchrift = ohneSchrift;
+  if (termine) out.termine = termine;
+  return out;
+}
+
+/**
+ * Blocked matrix categories (Lerntypen, data/teilgruppen.json `gesperrt`) are not evaluated. A saved scenario that
+ * still names one loads; the value is dropped here, and `entfernt` tells step 3 to show the note once.
+ */
+export function ohneGesperrteMerkmale(
+  groups: LearnerGroup[],
+  gesperrt: readonly string[] = GESPERRTE_MATRIX_KATEGORIEN
+): { groups: LearnerGroup[]; entfernt: boolean } {
+  let entfernt = false;
+  const out = groups.map((g) => {
+    const werte = g.matrixValues || {};
+    if (!Object.keys(werte).some((k) => gesperrt.includes(k))) return g;
+    entfernt = true;
+    return { ...g, matrixValues: Object.fromEntries(Object.entries(werte).filter(([k]) => !gesperrt.includes(k))) };
+  });
+  return { groups: out, entfernt };
 }
 
 export interface StorageAdapter {
@@ -111,15 +158,20 @@ export function loadSavedScenarios(storage: StorageAdapter = getBrowserStorage()
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (item): item is SavedScenario =>
-        Boolean(item) &&
-        typeof item === 'object' &&
-        typeof item.id === 'string' &&
-        typeof item.title === 'string' &&
-        Boolean(item.arrangement) &&
-        item.arrangement.typ === 'Arrangement'
-    );
+    return parsed
+      .filter(
+        (item): item is SavedScenario =>
+          Boolean(item) &&
+          typeof item === 'object' &&
+          typeof item.id === 'string' &&
+          typeof item.title === 'string' &&
+          Boolean(item.arrangement) &&
+          item.arrangement.typ === 'Arrangement'
+      )
+      .map((item) => {
+        const { raumFilter: _r, lernort: _l, ohneLesen: _o, ...rest } = item as SavedScenario & Record<string, unknown>;
+        return { ...rest, ...rahmenAusAltbestand(item as unknown as Record<string, unknown>) } as SavedScenario;
+      });
   } catch {
     return [];
   }
@@ -238,7 +290,12 @@ export function importScenarioProjectJson(
         matrixValues:
           g.selectedValues && typeof g.selectedValues === 'object'
             ? (g.selectedValues as Record<string, string>)
-            : undefined
+            : undefined,
+        ...(Array.isArray(g.genannt) ? { genannt: g.genannt.filter((x): x is string => typeof x === 'string') } : {}),
+        ...(Array.isArray(g.ohneSchrift)
+          ? { ohneSchrift: g.ohneSchrift.filter((x): x is 'lesen' | 'schreiben' => x === 'lesen' || x === 'schreiben') }
+          : {}),
+        ...(g.ohneBewegung === true ? { ohneBewegung: true } : {})
       }));
     }
 
@@ -302,6 +359,7 @@ export function importScenarioProjectJson(
         ohneInternet: typeof parsed.ohneInternet === 'boolean' ? parsed.ohneInternet : undefined,
         ohneKI: typeof parsed.ohneKI === 'boolean' ? parsed.ohneKI : undefined,
         raumzeitFilter: strOrUndef(parsed.raumzeitFilter),
+        ...rahmenAusAltbestand(parsed),
         lernziele: strOrUndef(parsed.lernziele) || strOrUndef(maschinenlesbar?.lernziele),
         problemstellung: strOrUndef(parsed.problemstellung),
         didaktischerAnsatz: strOrUndef(parsed.didaktischerAnsatz) || strOrUndef(maschinenlesbar?.didaktischerAnsatz),

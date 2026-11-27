@@ -18,11 +18,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -119,7 +119,7 @@
     "Schere",
     "Stifte"
   ],
-  "raum": "Regulärer Klassenraum",
+  "raumhinweis": "Regulärer Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 5,

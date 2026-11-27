@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Gezielter Einsatz eines kurzen Lehr- oder Dokumentarfilms mit vorab verteilten arbeitsteiligen Beobachtungsfragen und anschließender Auswertung.",
   "alternativname": [
     "Unterrichtsfilm",
@@ -31,7 +28,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-projektion",

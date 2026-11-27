@@ -6,18 +6,19 @@ import {
   hasAdjustmentProfile,
   migrateKennungen,
   proposeAdditionalPhases,
-  proposeMethodAdjustments,
   type AdditionalPhaseProposal,
   type Arrangement,
   type MethodAdjustment,
   type MatchRequest,
-  type MatchResult
+  type MatchResult,
+  type PhasenAntwort
 } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { PartiturView } from '../components/PartiturView.js';
 import { VerlaufsplanView } from '../components/VerlaufsplanView.js';
 import { ScenarioStudioPanel, type StudioTab } from '../components/ScenarioStudioPanel.js';
 import { TimelineBandSvg } from '../components/TimelineBandSvg.js';
+import { TeilgruppenEntscheidung } from '../components/TeilgruppenEntscheidung.js';
 import { buildServerByokHeaders, isUserLlmConfigured, runDirectTranslate } from '../lib/directLlm.js';
 import {
   appendBlockToArrangement,
@@ -37,10 +38,18 @@ import {
   adjustmentSignature,
   adjustmentsInForce,
   applyAdjustments,
+  hilfeAlsMaterial,
   mainGroupOnly,
-  outdatedAdjustments
+  nachErneuterPruefung,
+  outdatedAdjustments,
+  pruefeTeilgruppen,
+  teilgruppenRahmen,
+  verschiebePruefung,
+  type TeilgruppenPruefung
 } from '../planner/differentiationFlow.js';
 import { fachbereichFromField } from '../planner/fachFeld.js';
+import { verstandenAus } from '../planner/pflichtangaben.js';
+import { meldungenImAblauf, regelZeile } from '../planner/regelmeldung.js';
 import {
   buildDefaultThematicRows,
   buildNeutralLearningScenario,
@@ -62,11 +71,14 @@ import {
   importScenarioProjectJson,
   loadActivePlannerDraft,
   loadSavedScenarios,
+  ohneGesperrteMerkmale,
+  rahmenAusAltbestand,
   printHtmlDocument,
   saveActivePlannerDraft,
   saveScenarioToStorage,
   type SavedScenario
 } from '../planner/scenarioStorage.js';
+import { RAUM_EIGENSCHAFT_KLARTEXT, raumEigenschaftLabel, SCHRIFT_ORDER, toggleRaumEigenschaft } from '../planner/rahmen.js';
 
 type PlannerStep = 1 | 2 | 3 | 4 | 5;
 
@@ -221,6 +233,18 @@ const STARTER_PRESETS: StarterPreset[] = [
   }
 ];
 
+/** Context with one detail set, or removed when empty, so that an empty field is not sent. */
+function mitKontext<K extends keyof NonNullable<Arrangement['kontext']>>(
+  kontext: Arrangement['kontext'],
+  key: K,
+  wert: NonNullable<Arrangement['kontext']>[K] | undefined
+): Arrangement['kontext'] {
+  const next = { ...(kontext || {}) } as NonNullable<Arrangement['kontext']>;
+  if (wert === undefined || wert === '') delete next[key];
+  else next[key] = wert;
+  return next;
+}
+
 export function PlannerPage() {
   const {
     bundle,
@@ -271,6 +295,23 @@ export function PlannerPage() {
   const [ohneInternet, setOhneInternet] = useState(false);
   const [ohneKI, setOhneKI] = useState(false);
   const [raumzeitFilter, setRaumzeitFilter] = useState<string>('');
+  // Room of the lesson (vocab raumtyp), no preselection; raumBietet is set only once the teacher changes a property.
+  const [raum, setRaum] = useState<string>('');
+  const [raumBietet, setRaumBietet] = useState<string[] | null>(null);
+  const [ohneSchrift, setOhneSchrift] = useState<string[]>([]);
+  const [termine, setTermine] = useState<string>('');
+  // Missing required details completed in the line "Fehlt noch" (step 1); empty means not given, nothing is preset.
+  const [zielErg, setZielErg] = useState('');
+  const [stufeErg, setStufeErg] = useState('');
+  const [zeitErg, setZeitErg] = useState('');
+  const [themaErg, setThemaErg] = useState('');
+  /** Completions belong to the text they were made for: a new text, a loaded example or scenario starts without them. */
+  const clearErgaenzungen = () => {
+    setZielErg('');
+    setStufeErg('');
+    setZeitErg('');
+    setThemaErg('');
+  };
 
   const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
   const [aiDiffByStep, setAiDiffByStep] = useState<Record<string, StepDiffSuggestion[]>>({});
@@ -278,6 +319,14 @@ export function PlannerPage() {
   // Step 3 "Vorgehen anpassen": the proposals of the last run and the group selection they were made for.
   const [autoAdjustments, setAutoAdjustments] = useState<MethodAdjustment[]>([]);
   const [adjustedFor, setAdjustedFor] = useState<string | null>(null);
+  // Step 3: answers per subgroup and phase of the last check, with the hints per group.
+  const [pruefung, setPruefung] = useState<TeilgruppenPruefung | null>(null);
+  // Set after "Alle Anpassungen zurücknehmen"; a new check or a new swap clears it.
+  const [allesZurueck, setAllesZurueck] = useState(false);
+  /** One line after a new check that took back (or brought up to date) something the teacher had taken over. */
+  const [pruefStatus, setPruefStatus] = useState<string | null>(null);
+  // A loaded scenario named a blocked trait (Lerntypen): step 3 shows the note once ('offen' → 'gezeigt' → gone).
+  const [gesperrtHinweis, setGesperrtHinweis] = useState<'offen' | 'gezeigt' | null>(null);
   // Step 3: short phases for the whole class, proposed by the last check and taken over by the teacher.
   const [extraProposals, setExtraProposals] = useState<AdditionalPhaseProposal[]>([]);
   const [addedPhases, setAddedPhases] = useState<AddedPhase[]>([]);
@@ -344,6 +393,9 @@ export function PlannerPage() {
           count?: number;
           personaId?: string;
           matrixValues?: Record<string, string>;
+          genannt?: string[];
+          ohneSchrift?: Array<'lesen' | 'schreiben'>;
+          ohneBewegung?: boolean;
         }>;
       };
       if (h.scenarioText && !h.returnToStep3) setScenarioText(h.scenarioText);
@@ -351,7 +403,7 @@ export function PlannerPage() {
       if (typeof h.ohneInternet === 'boolean') setOhneInternet(h.ohneInternet);
       if (typeof h.ohneKI === 'boolean') setOhneKI(h.ohneKI);
       if (Array.isArray(h.groups) && h.groups.length > 0) {
-        setGroups(
+        const geprueft = ohneGesperrteMerkmale(
           h.groups.map((g) => ({
             id: g.id,
             label: g.label,
@@ -360,9 +412,15 @@ export function PlannerPage() {
             active: true,
             count: g.count,
             personaId: g.personaId,
-            matrixValues: g.matrixValues || {}
-          }))
+            matrixValues: g.matrixValues || {},
+            ...(Array.isArray(g.genannt) ? { genannt: g.genannt } : {}),
+            ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+            ...(g.ohneBewegung ? { ohneBewegung: true } : {})
+          })),
+          bundle?.teilgruppen.gesperrt
         );
+        setGroups(geprueft.groups);
+        if (geprueft.entfernt) setGesperrtHinweis('offen');
       }
       if (h.returnToStep3) {
         // The page was left for /differenzierung and mounts anew: bring the flow back from the live draft.
@@ -372,6 +430,7 @@ export function PlannerPage() {
           setFach(draft.fach || '');
           setThema(draft.thema || '');
           setScenarioText(draft.scenarioText || '');
+          clearErgaenzungen();
           setStep(3);
           setResourceTab('diff');
           setMatchNotice('Aktualisierte Teilgruppen & Rahmenbedingungen aus „Differenzierung“ in Schritt 3 übernommen.');
@@ -403,9 +462,10 @@ export function PlannerPage() {
       ohneInternet,
       ohneKI,
       arrangement,
-      groups
+      groups,
+      ...(matchResult?.kriterien ? { anfrage: matchResult.kriterien as MatchRequest } : {})
     });
-  }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups]);
+  }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups, matchResult]);
 
   const validation = useMemo(() => {
     if (!validator || !arrangement) return null;
@@ -467,6 +527,12 @@ export function PlannerPage() {
     if (stale.length > 0) setSubgroupMethods((prev) => applyAdjustments(prev, stale, []));
   }, [scenarioRows, subgroupMethods, autoAdjustments]);
 
+  // The note on a removed blocked trait stands in step 3 until the teacher leaves it once.
+  useEffect(() => {
+    if (step === 3 && gesperrtHinweis === 'offen') setGesperrtHinweis('gezeigt');
+    if (step !== 3 && gesperrtHinweis === 'gezeigt') setGesperrtHinweis(null);
+  }, [step, gesperrtHinweis]);
+
   if (!bundle || !validator || !search || !matcher || !arrangement || !validation) {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
   }
@@ -484,6 +550,7 @@ export function PlannerPage() {
    * Fach/Thema/Lernziele/Ansätze never contaminate the new scenario.
    */
   const handleScenarioTextChange = (nextText: string) => {
+    // Completions stay while typing: buildRequest sends a completion only for a gap the text leaves open.
     setScenarioText(nextText);
     if (templateFlowRef.current && JSON.stringify(arrangement) === templateFlowRef.current) {
       // The untouched template flow belongs to the template text; an own description starts from an empty flow.
@@ -521,34 +588,57 @@ export function PlannerPage() {
     setSubgroupMethods({});
     setAutoAdjustments([]);
     setAdjustedFor(null);
+    setPruefung(null);
+    setAllesZurueck(false);
+    setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
   };
 
   const subgroups = activeSubgroups(groups);
-  const groupSignature = adjustmentSignature(scenarioRows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
+  // The request of step 1 as the matcher read it (room, time …): a parallel method must cover its needs in that frame.
+  const checkConstraints = teilgruppenRahmen(
+    {
+      maxTechnik: maxTechnik || undefined,
+      ohneInternet,
+      ohneKI,
+      bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
+      fachbereich: planFachbereich
+    },
+    matchResult?.kriterien
+  );
+  const groupSignature = adjustmentSignature(scenarioRows, groups, checkConstraints);
   // Subgroups without persona or matrix values cannot be checked; the result says so.
-  const uncheckedSubgroups = subgroups.filter((g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues }));
+  const uncheckedSubgroups = subgroups.filter(
+    (g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues, ohneSchrift: g.ohneSchrift, ohneBewegung: g.ohneBewegung })
+  );
   const adjustmentsNow = adjustmentsInForce(subgroupMethods, autoAdjustments);
   // Added phases the teacher removed again in step 2 no longer count.
   const addedPhasesNow = addedPhases.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
 
-  const checkConstraints = {
-    maxTechnik: maxTechnik || undefined,
-    ohneInternet,
-    ohneKI,
-    bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
-    fachbereich: planFachbereich
-  };
-  const signatureOf = (rows: typeof scenarioRows) =>
-    adjustmentSignature(rows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
+  const signatureOf = (rows: typeof scenarioRows) => adjustmentSignature(rows, groups, checkConstraints);
 
-  /** Step 3: enters better fitting parallel methods for the subgroups and lists short phases the plan lacks. */
+  const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
+
+  /**
+   * Step 3: one answer per subgroup and phase (fits, help in the method, other method) and short phases the plan
+   * lacks. Nothing is entered by itself: the teacher takes over a swap or a help on its card.
+   */
+  const phaseLabelIn = (rows: typeof scenarioRows) => (stepKey: string) => {
+    const r = rows.find((x) => x.key === stepKey);
+    return r ? `${r.orderLabel} · ${r.methodName}` : stepKey;
+  };
+
   const runMethodAdjustment = () => {
     const phases = adjustmentPhases(scenarioRows);
-    const next = proposeMethodAdjustments(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints);
-    setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
-    setAutoAdjustments(next);
+    const res = pruefeTeilgruppen(bundle.bausteine, scenarioRows, groups, checkConstraints, regelsatz);
+    const nach = nachErneuterPruefung(subgroupMethods, autoAdjustments, res, generatedMaterials, phaseLabelIn(scenarioRows));
+    setSubgroupMethods(nach.subgroupMethods);
+    setGeneratedMaterials(nach.materials);
+    setPruefStatus(nach.status);
+    setAutoAdjustments(res.vorschlaege);
+    setPruefung(res);
+    setAllesZurueck(false);
     setExtraProposals(proposeAdditionalPhases(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints));
     setAdjustedFor(signatureOf(scenarioRows));
   };
@@ -562,20 +652,33 @@ export function PlannerPage() {
     const rows = buildScenarioRows(nextArrangement, bundle, blocksById, labelOf, groups, {}, {}, '', {}, []);
     const upToDate = adjustedFor !== null && adjustedFor === groupSignature;
     setArrangement(nextArrangement);
-    setAutoAdjustments((prev) => shiftAdjustmentKeys(prev, index, delta));
-    setSubgroupMethods((prev) => shiftStepKeys(prev, index, delta));
+    // Everything stored per phase moves with it first.
+    const methods = shiftStepKeys(subgroupMethods, index, delta);
+    const previous = shiftAdjustmentKeys(autoAdjustments, index, delta);
+    const materials = generatedMaterials.flatMap((m) => {
+      const key = Object.keys(shiftStepKeys({ [m.stepKey]: true }, index, delta))[0];
+      return key ? [{ ...m, stepKey: key }] : [];
+    });
     if (upToDate) {
+      // The cards follow the new flow: every phase, the added one too, gets its answer; what was taken over stays
+      // only while the new check still gives it, as after "Erneut prüfen".
+      const res = pruefeTeilgruppen(bundle.bausteine, rows, groups, checkConstraints, regelsatz);
+      const nach = nachErneuterPruefung(methods, previous, res, materials, phaseLabelIn(rows));
+      setSubgroupMethods(nach.subgroupMethods);
+      setGeneratedMaterials(nach.materials);
+      setPruefStatus(nach.status);
+      setAutoAdjustments(res.vorschlaege);
+      setPruefung(res);
       setExtraProposals(proposeAdditionalPhases(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), checkConstraints));
       setAdjustedFor(signatureOf(rows));
+    } else {
+      setSubgroupMethods(methods);
+      setGeneratedMaterials(materials);
+      setAutoAdjustments(previous);
+      setPruefung((prev) => verschiebePruefung(prev, index, delta));
     }
     setOerByStep((prev) => shiftStepKeys(prev, index, delta));
     setAiDiffByStep((prev) => shiftStepKeys(prev, index, delta));
-    setGeneratedMaterials((prev) =>
-      prev.flatMap((m) => {
-        const key = Object.keys(shiftStepKeys({ [m.stepKey]: true }, index, delta))[0];
-        return key ? [{ ...m, stepKey: key }] : [];
-      })
-    );
     // Topic rows keep their texts and move with their phases, like after any other edit of the flow.
     setThematicRows((prev) =>
       prev
@@ -602,6 +705,25 @@ export function PlannerPage() {
 
   const undoAdjustments = (list: MethodAdjustment[]) => {
     setSubgroupMethods((prev) => applyAdjustments(prev, list, []));
+  };
+
+  const takeOverAdjustment = (a: MethodAdjustment) => {
+    handleSubgroupMethodChange(a.stepKey, a.groupId, a.zuKennung);
+    setAllesZurueck(false);
+  };
+
+  /** A help taken over goes into step 4 as material of its phase. */
+  const takeOverSupport = (a: PhasenAntwort, phaseLabel: string) => {
+    const m = hilfeAlsMaterial(a, phaseLabel);
+    setGeneratedMaterials((prev) => [...prev.filter((x) => !(x.materialType === 'hilfe' && x.stepKey === a.stepKey && x.groupId === a.groupId)), m]);
+  };
+
+  const undoSupport = (a: PhasenAntwort) => {
+    setGeneratedMaterials((prev) => prev.filter((x) => !(x.materialType === 'hilfe' && x.stepKey === a.stepKey && x.groupId === a.groupId)));
+  };
+
+  const updateGroup = (id: string, patch: Partial<LearnerGroup>) => {
+    setGroups((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)));
   };
 
   const handleSubgroupMethodChange = (stepKey: string, groupId: string, methodId: string | null) => {
@@ -655,6 +777,16 @@ export function PlannerPage() {
     if (ohneInternet) req.ohneInternet = true;
     if (ohneKI) req.ohneKI = true;
     if (raumzeitFilter) req.raumzeit = [raumzeitFilter];
+    if (raum) req.raum = raum;
+    if (raum && raumBietet) req.raumBietet = raumBietet;
+    if (ohneSchrift.length) req.ohneSchrift = SCHRIFT_ORDER.filter((x) => ohneSchrift.includes(x));
+    if (Number(termine) > 0) req.termine = Number(termine);
+    // A completion only fills a gap: what the text itself states wins (explicit fields would beat the text).
+    const ausText = matcher ? matcher.lesen(scenarioText).kriterien : {};
+    if (zielErg && !ausText.zielart && !ausText.zieltyp) req.zielart = zielErg;
+    if (stufeErg && !ausText.bildungsstufe) req.bildungsstufe = stufeErg;
+    if (Number(zeitErg) > 0 && !ausText.zeitMin) req.zeitMin = Number(zeitErg);
+    if (themaErg.trim() && !extractSubjectAndTopic(scenarioText).thema) req.thema = themaErg.trim();
     // The optional "Fach" field counts like in the AI mode and in /api/v1/plan, unless the text names a subject.
     const fbFeld = matcher ? fachbereichFromField(matcher, scenarioText, fach) : undefined;
     if (fbFeld) req.fachbereich = fbFeld;
@@ -675,6 +807,13 @@ export function PlannerPage() {
     if (ohneInternet) extras.push('ohne Internet');
     if (ohneKI) extras.push('ohne KI');
     if (raumzeitFilter) extras.push(`Raumzeit: ${labelOf('raumzeit', raumzeitFilter)}`);
+    if (raum) extras.push(`Raum: ${labelOf('raumtyp', raum)}`);
+    if (raum && raumBietet) {
+      extras.push(`Der Raum bietet: ${raumBietet.map((x) => raumEigenschaftLabel(x, labelOf)).join(', ') || 'nichts davon'}`);
+    }
+    if (ohneSchrift.includes('lesen')) extras.push('Die Lernenden können noch nicht lesen');
+    if (ohneSchrift.includes('schreiben')) extras.push('Die Lernenden können noch nicht schreiben');
+    if (Number(termine) > 0) extras.push(`Termine: ${Number(termine)}`);
     return extras.length ? `${scenarioText.trim()}\n\nZusatzangaben: ${extras.join('; ')}` : scenarioText;
   };
 
@@ -711,6 +850,7 @@ export function PlannerPage() {
     templateFlowRef.current = JSON.stringify(preset);
     setArrangement(preset);
     setMatchResult(null);
+    clearErgaenzungen();
     resetFlowDerived();
     setMatchNotice(`Beispiel „${p.label}“ geladen. Sieh dir den Ablauf in Schritt 2 an oder überschreibe den Text mit deinem eigenen Vorhaben.`);
   };
@@ -744,7 +884,8 @@ export function PlannerPage() {
           active: true,
           count: g.count,
           personaId: g.personaId,
-          matrixValues: g.selectedValues || {}
+          matrixValues: g.selectedValues || {},
+          ...(g.genannt ? { genannt: g.genannt } : {})
         }));
         const hasRegel = detectedGroups.some((g) => g.focus === 'regel');
         setGroups(
@@ -1001,6 +1142,10 @@ export function PlannerPage() {
     ohneInternet,
     ohneKI,
     raumzeitFilter,
+    raum,
+    raumBietet: raumBietet ?? undefined,
+    ohneSchrift,
+    termine,
     lernziele,
     problemstellung,
     didaktischerAnsatz: didaktischerAnsatzLabel,
@@ -1041,21 +1186,36 @@ export function PlannerPage() {
     if (p.ohneInternet !== undefined) setOhneInternet(p.ohneInternet);
     if (p.ohneKI !== undefined) setOhneKI(p.ohneKI);
     if (p.raumzeitFilter !== undefined) setRaumzeitFilter(p.raumzeitFilter);
+    // Old entries carry lernort, raumFilter or ohneLesen; storage and import read them into these fields.
+    const rahmen = rahmenAusAltbestand(p as Record<string, unknown>);
+    setRaum(rahmen.raum ?? '');
+    setRaumBietet(rahmen.raumBietet ?? null);
+    setOhneSchrift(rahmen.ohneSchrift ?? []);
+    setTermine(rahmen.termine ?? '');
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
-    if (p.groups?.length) setGroups(p.groups);
+    if (p.groups?.length) {
+      // A blocked trait (Lerntypen) is not evaluated: the value is dropped and step 3 says so once.
+      const geprueft = ohneGesperrteMerkmale(p.groups, bundle?.teilgruppen.gesperrt);
+      setGroups(geprueft.groups);
+      setGesperrtHinweis(geprueft.entfernt ? 'offen' : null);
+    }
     if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
     if (p.oerByStep) setOerByStep(p.oerByStep);
     setSubgroupMethods(p.subgroupMethods || {});
     setAutoAdjustments([]);
     setAdjustedFor(null);
+    setPruefung(null);
+    setAllesZurueck(false);
+    setPruefStatus(null);
     setExtraProposals([]);
     setAddedPhases([]);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
     if (p.thematicRows !== undefined) setThematicRows(p.thematicRows);
     if (p.elaboration !== undefined) setElaboration(p.elaboration);
     setMatchResult(null);
+    clearErgaenzungen();
     setActiveSavedId(savedId);
     setShowSavedDrawer(false);
     setShowJsonImport(false);
@@ -1098,6 +1258,26 @@ export function PlannerPage() {
   const hasFlow = scenarioRows.length > 0;
   const canPropose = scenarioText.trim().length > 0;
   // Class size as typed in "Mehr Angaben", else as recognised in the description.
+  // What the matcher assumed because the request left it open (pflichtangaben.angenommen), the other notes on the
+  // sequence (annahmen of the plan), and why chain steps stayed open (shown above the flow).
+  const annahmenListe = [...new Set((matchResult?.pflichtangaben?.angenommen || []).map((x) => x.grund))];
+  const ablaufHinweise = [...new Set((matchResult?.modus === 'ablauf' && matchResult.annahmen) || [])].filter((t) => !annahmenListe.includes(t));
+  const offeneSchritte =
+    matchResult?.modus === 'ablauf'
+      ? (matchResult.offenGruende || []).map((o) => ({
+          ...o,
+          label: bundle?.ketten.find((k) => k.id === matchResult.kette?.id)?.schritte.find((st) => st.id === o.schritt)?.label || o.schritt
+        }))
+      : [];
+  // The line "Verstanden" and "Fehlt noch" read back from the last proposal (W13).
+  const verstanden = matchResult ? verstandenAus(matchResult, labelOf, extractSubjectAndTopic(scenarioText).thema || undefined) : null;
+  // Rule messages: only for methods in the arrangement (a proposal not taken or a method swapped out says nothing).
+  // Method messages stand at their row in step 2; situation-level ones (no method) and those of a method in the
+  // arrangement without a row of its own (e.g. in a slot) stand under "Hinweise zum Ablauf".
+  // A message about several methods (the safety note) stays while any of them is in the arrangement.
+  const regelmeldungen = meldungenImAblauf(matchResult?.regelmeldungen || [], usedBlocks, bundle?.regeln);
+  const zeilenMethoden = new Set(scenarioRows.map((r) => r.methodId));
+  const ablaufRegelmeldungen = regelmeldungen.filter((m) => !m.baustein || !zeilenMethoden.has(m.baustein));
   const classSize = Number(gruppeSize) || Number(matchResult?.kriterien?.gruppe) || undefined;
   const step2Groups = mainGroupOnly(groups, classSize);
   const adjustmentStale = adjustedFor !== null && adjustedFor !== groupSignature;
@@ -1124,7 +1304,7 @@ export function PlannerPage() {
       id: 3,
       label: 'Binnendifferenzierung',
       sub: subgroups.length
-        ? `${subgroups.length} ${subgroups.length === 1 ? 'Teilgruppe' : 'Teilgruppen'}${adjustmentsNow.length ? ` · ${adjustmentsNow.length} Methoden angepasst` : ''}`
+        ? `${subgroups.length} ${subgroups.length === 1 ? 'Teilgruppe' : 'Teilgruppen'}${adjustmentsNow.length ? ` · ${adjustmentsNow.length} ${adjustmentsNow.length === 1 ? 'Methode' : 'Methoden'} angepasst` : ''}`
         : 'Freiwillig: Teilgruppen berücksichtigen',
       needsFlow: true
     },
@@ -1400,6 +1580,194 @@ export function PlannerPage() {
               placeholder="z. B. Mathematik Klasse 6, Brüche addieren, Doppelstunde mit 90 Minuten, 26 Lernende"
             />
 
+            {verstanden && (
+              <section aria-label="Verstanden und fehlt noch" className="planner-verstanden" style={{ marginTop: 8, fontSize: 14 }}>
+                <p style={{ margin: 0 }}>
+                  <strong>Verstanden:</strong> {verstanden.verstanden.length ? verstanden.verstanden.join(' · ') : 'noch nichts'}
+                </p>
+                {(verstanden.fehlt.length > 0 || verstanden.zielVermutet) && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px', marginTop: 4 }}>
+                    {verstanden.fehlt.length > 0 && (
+                      <span>
+                        <strong>Fehlt noch:</strong> {verstanden.fehlt.map((f) => f.label).join(', ')}
+                      </span>
+                    )}
+                    {/* A guessed goal can be corrected like a missing one; nothing is preselected (W13). */}
+                    {verstanden.zielVermutet && !verstanden.fehlt.some((f) => f.feld === 'ziel') && (
+                      <select aria-label="Ziel ergänzen" style={{ fontSize: 13.5, padding: '2px 6px' }} value={zielErg} onChange={(e) => setZielErg(e.target.value)}>
+                        <option value="">Ziel …</option>
+                        {valuesOf('zielart').map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.label}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {verstanden.fehlt.map((f) => {
+                      const feldStil = { fontSize: 13.5, padding: '2px 6px' };
+                      if (f.feld === 'ziel')
+                        return (
+                          <select key={f.feld} aria-label="Ziel ergänzen" style={feldStil} value={zielErg} onChange={(e) => setZielErg(e.target.value)}>
+                            <option value="">Ziel …</option>
+                            {valuesOf('zielart').map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      if (f.feld === 'fach-und-thema')
+                        return (
+                          <span key={f.feld} style={{ display: 'inline-flex', gap: 6 }}>
+                            {f.teil !== 'thema' && (
+                              <input
+                                type="text"
+                                aria-label="Fach ergänzen"
+                                placeholder="Fach"
+                                style={{ ...feldStil, width: 130 }}
+                                value={fach}
+                                onChange={(e) => {
+                                  setPresetContextSource(null);
+                                  setFach(e.target.value);
+                                }}
+                              />
+                            )}
+                            {f.teil !== 'fach' && (
+                              <input
+                                type="text"
+                                aria-label="Thema ergänzen"
+                                placeholder="Thema"
+                                style={{ ...feldStil, width: 150 }}
+                                value={themaErg}
+                                onChange={(e) => {
+                                  setThemaErg(e.target.value);
+                                  setThema(e.target.value.trim());
+                                }}
+                              />
+                            )}
+                          </span>
+                        );
+                      if (f.feld === 'bildungsstufe')
+                        return (
+                          <select key={f.feld} aria-label="Bildungsstufe ergänzen" style={feldStil} value={stufeErg} onChange={(e) => setStufeErg(e.target.value)}>
+                            <option value="">Bildungsstufe …</option>
+                            {valuesOf('bildungsstufe').map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      if (f.feld === 'anzahl')
+                        return (
+                          <input
+                            key={f.feld}
+                            type="number"
+                            min={1}
+                            aria-label="Anzahl der Lernenden ergänzen"
+                            placeholder="Lernende"
+                            style={{ ...feldStil, width: 100 }}
+                            value={gruppeSize}
+                            onChange={(e) => setGruppeSize(e.target.value)}
+                          />
+                        );
+                      if (f.feld === 'raum')
+                        return (
+                          <select
+                            key={f.feld}
+                            aria-label="Raum ergänzen"
+                            style={feldStil}
+                            value={raum}
+                            onChange={(e) => {
+                              setPresetContextSource(null);
+                              setRaum(e.target.value);
+                              setRaumBietet(null);
+                            }}
+                          >
+                            <option value="">Raum …</option>
+                            {valuesOf('raumtyp').map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      return (
+                        <input
+                          key={f.feld}
+                          type="number"
+                          min={1}
+                          aria-label="Zeit in Minuten ergänzen"
+                          placeholder="Minuten"
+                          style={{ ...feldStil, width: 100 }}
+                          value={zeitErg}
+                          onChange={(e) => setZeitErg(e.target.value)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+                {verstanden.fehlt.length > 0 && (
+                  <p className="muted" style={{ fontSize: 12.5, margin: '4px 0 0' }}>
+                    Der Ablauf entsteht auch mit Lücken. Was du ergänzt, gilt beim nächsten Vorschlag.
+                  </p>
+                )}
+              </section>
+            )}
+
+            <div className="planner-raum" style={{ marginTop: 12 }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)', maxWidth: 360 }}>
+                Raum
+                <select
+                  aria-label="Raum"
+                  style={{ width: '100%' }}
+                  value={raum}
+                  onChange={(e) => {
+                    setPresetContextSource(null);
+                    setRaum(e.target.value);
+                    setRaumBietet(null);
+                  }}
+                >
+                  <option value="">nicht angegeben</option>
+                  {valuesOf('raumtyp').map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {raum ? (
+                <fieldset style={{ border: 0, padding: 0, margin: '8px 0 0' }}>
+                  <legend className="muted" style={{ fontSize: 13, padding: 0, marginBottom: 4 }}>
+                    Was der Raum bietet (nimm weg, was fehlt):
+                  </legend>
+                  <div style={{ display: 'flex', gap: '6px 18px', flexWrap: 'wrap', fontSize: 14 }}>
+                    {Object.keys(RAUM_EIGENSCHAFT_KLARTEXT).map((code) => {
+                      const offered = valuesOf('raumtyp').find((w) => w.id === raum)?.bietet || [];
+                      const checked = (raumBietet ?? offered).includes(code);
+                      return (
+                        <label key={code} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setPresetContextSource(null);
+                              setRaumBietet(toggleRaumEigenschaft(raumBietet, offered, code, e.target.checked));
+                            }}
+                          />
+                          {raumEigenschaftLabel(code, labelOf)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : (
+                <p className="muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
+                  Steht der Raum nicht im Text, nimmt der Baukasten einen Raum an (meist den Klassenraum, im Fach Sport die Sporthalle) und sagt es dir.
+                </p>
+              )}
+            </div>
+
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' }}>
               {llmAvailable ? (
                 <>
@@ -1462,6 +1830,11 @@ export function PlannerPage() {
                 <div style={{ fontFamily: 'var(--display)', fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
                   Passende Methoden für diese Phase (Klick übernimmt sie in den Ablauf):
                 </div>
+                {annahmenListe.length > 0 && (
+                  <p className="muted" style={{ fontSize: 13, margin: '0 0 6px' }}>
+                    Angenommen: {annahmenListe.join(' ')}
+                  </p>
+                )}
                 <ul className="chips">
                   {matchResult.vorschlaege.slice(0, 12).map((v) => (
                     <li key={v.baustein}>
@@ -1555,6 +1928,7 @@ export function PlannerPage() {
                         setArrangement(JSON.parse(JSON.stringify(ex)) as Arrangement);
                         templateFlowRef.current = null;
                         setMatchResult(null);
+                        clearErgaenzungen();
                         setMatchNotice(null);
                         resetFlowDerived();
                         setStep(2);
@@ -1571,7 +1945,7 @@ export function PlannerPage() {
           {/* Optional Expandable Structured Inputs */}
           <details className="card" style={{ padding: 18 }}>
             <summary style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16, cursor: 'pointer', color: 'var(--dA)' }}>
-              Mehr Angaben (freiwillig): Fach, Lernziele, Klassengröße, Technik
+              Mehr Angaben (freiwillig): Fach, Lernziele, Klassengröße, Technik, Lesen und Schreiben, Termine
             </summary>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 14 }}>
@@ -1617,12 +1991,13 @@ export function PlannerPage() {
                     Bildungsstufe
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.kontext?.bildungsstufe || 'sek1'}
+                      value={arrangement.kontext?.bildungsstufe || ''}
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, bildungsstufe: e.target.value } });
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'bildungsstufe', e.target.value || undefined) });
                       }}
                     >
+                      <option value="">nicht angegeben</option>
                       {valuesOf('bildungsstufe').map((w) => (
                         <option key={w.id} value={w.id}>
                           {w.label}
@@ -1634,12 +2009,13 @@ export function PlannerPage() {
                     Vorwissen
                     <select
                       style={{ width: '100%' }}
-                      value={arrangement.kontext?.vorwissen || 'gering'}
+                      value={arrangement.kontext?.vorwissen || ''}
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setArrangement({ ...arrangement, kontext: { ...arrangement.kontext, vorwissen: e.target.value } });
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'vorwissen', e.target.value || undefined) });
                       }}
                     >
+                      <option value="">nicht angegeben</option>
                       {valuesOf('vorwissen').map((w) => (
                         <option key={w.id} value={w.id}>
                           {w.label}
@@ -1653,13 +2029,12 @@ export function PlannerPage() {
                       type="number"
                       style={{ width: '100%' }}
                       min={0}
-                      value={arrangement.kontext?.zeitbudgetMin ?? 90}
+                      placeholder="nicht angegeben"
+                      value={arrangement.kontext?.zeitbudgetMin ?? ''}
                       onChange={(e) => {
                         setPresetContextSource(null);
-                        setArrangement({
-                          ...arrangement,
-                          kontext: { ...arrangement.kontext, zeitbudgetMin: Math.max(0, Number(e.target.value) || 0) }
-                        });
+                        const min = Math.max(0, Number(e.target.value) || 0);
+                        setArrangement({ ...arrangement, kontext: mitKontext(arrangement.kontext, 'zeitbudgetMin', min > 0 ? min : undefined) });
                       }}
                     />
                   </label>
@@ -1782,7 +2157,7 @@ export function PlannerPage() {
               {/* Group C: Technik & Raum */}
               <div style={{ paddingTop: 14, borderTop: '1px solid var(--grid)' }}>
                 <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
-                  3. Rahmenbedingungen (Raum &amp; Technik – filtert Methoden direkt)
+                  3. Rahmenbedingungen (Technik, Lesen und Schreiben, Termine – filtert Methoden direkt)
                 </strong>
                 <div
                   style={{
@@ -1810,6 +2185,22 @@ export function PlannerPage() {
                         </option>
                       ))}
                     </select>
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
+                    Termine
+                    <input
+                      aria-label="Termine"
+                      type="number"
+                      style={{ width: '100%' }}
+                      min={1}
+                      max={60}
+                      value={termine}
+                      placeholder="Anzahl der Termine, z. B. 3"
+                      onChange={(e) => {
+                        setPresetContextSource(null);
+                        setTermine(e.target.value);
+                      }}
+                    />
                   </label>
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13.5, fontWeight: 600, fontFamily: 'var(--display)' }}>
                     Raum-Zeit-Modus
@@ -1853,6 +2244,19 @@ export function PlannerPage() {
                     />
                     Ohne KI-Methoden im Unterricht
                   </label>
+                  {SCHRIFT_ORDER.map((was) => (
+                    <label key={was} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={ohneSchrift.includes(was)}
+                        onChange={(e) => {
+                          setPresetContextSource(null);
+                          setOhneSchrift((prev) => (e.target.checked ? [...prev.filter((x) => x !== was), was] : prev.filter((x) => x !== was)));
+                        }}
+                      />
+                      Die Lernenden können noch nicht {was}
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1943,6 +2347,66 @@ export function PlannerPage() {
               {matchNotice}
             </p>
           )}
+          {verstanden && (
+            <section aria-label="Verstanden" className="planner-notice" style={{ marginTop: 10 }}>
+              <p style={{ margin: 0 }}>
+                Verstanden: {verstanden.verstanden.length ? verstanden.verstanden.join(' · ') : 'noch nichts'}
+              </p>
+              {verstanden.fehlt.length > 0 && (
+                <p style={{ margin: '2px 0 0' }}>
+                  Fehlt noch: {verstanden.fehlt.map((f) => f.label).join(', ')}.{' '}
+                  <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
+                    In Schritt 1 ergänzen
+                  </button>
+                </p>
+              )}
+            </section>
+          )}
+          {annahmenListe.length > 0 && (
+            <section aria-label="Angenommen" className="card planner-annahmen" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--dB)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Angenommen, weil die Angabe fehlte</strong>
+              <ul style={{ margin: '4px 0 6px', paddingLeft: 20, fontSize: 14 }}>
+                {annahmenListe.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+              <button type="button" className="diff-preset-link" onClick={() => setStep(1)}>
+                ← Angaben in Schritt 1 ändern
+              </button>
+            </section>
+          )}
+          {(ablaufHinweise.length > 0 || ablaufRegelmeldungen.length > 0) && (
+            <section aria-label="Hinweise zum Ablauf" className="card planner-ablauf-hinweise" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--grid)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>Hinweise zum Ablauf</strong>
+              <ul style={{ margin: '4px 0 6px', paddingLeft: 20, fontSize: 14 }}>
+                {ablaufRegelmeldungen.map((m, i) => (
+                  <li key={`r${i}`}>
+                    {m.text}
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {regelZeile(m, bundle?.regeln)}
+                    </div>
+                  </li>
+                ))}
+                {ablaufHinweise.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {offeneSchritte.length > 0 && (
+            <section aria-label="Offene Schritte" className="card" style={{ padding: '10px 14px', marginTop: 10, borderLeft: '4px solid var(--err)' }}>
+              <strong style={{ fontFamily: 'var(--display)', fontSize: 14.5 }}>
+                {offeneSchritte.length === 1 ? 'Ein Schritt bleibt offen' : `${offeneSchritte.length} Schritte bleiben offen`}
+              </strong>
+              <ul style={{ margin: '4px 0 0', paddingLeft: 20, fontSize: 14 }}>
+                {offeneSchritte.map((o) => (
+                  <li key={o.schritt}>
+                    <strong>{o.label}:</strong> {o.grund}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           {subgroups.length > 0 && hasFlow && (
             <p className="planner-notice" role="status">
               Teilgruppen ({subgroups.map((g) => g.label).join(', ')}) sind vorgemerkt. Hier siehst du den Ablauf für die
@@ -2023,6 +2487,8 @@ export function PlannerPage() {
               groups={step2Groups}
               lehrkraefteInfo={lehrkraefteInfo}
               allBlocks={bundle.bausteine}
+              regelmeldungen={regelmeldungen}
+              regeln={bundle.regeln}
               subgroupMethods={{}}
               onSubgroupMethodChange={handleSubgroupMethodChange}
               onEditDiffMeasure={handleEditDiffMeasure}
@@ -2057,6 +2523,11 @@ export function PlannerPage() {
             <strong>Braucht ein Teil deiner Lerngruppe etwas anderes?</strong> Wähle die Teilgruppen aus, lass das Vorgehen
             daran anpassen und sieh dir den aktualisierten Ablauf an. Wenn alle gleich arbeiten, geh einfach weiter.
           </p>
+          {gesperrtHinweis && bundle.teilgruppen.gesperrtText && (
+            <p className="planner-notice" role="status">
+              {bundle.teilgruppen.gesperrtText}
+            </p>
+          )}
           <ScenarioStudioPanel
             mode="diff"
             diffMiddleSlot={
@@ -2067,73 +2538,66 @@ export function PlannerPage() {
                       ② Methodisches Vorgehen anpassen
                     </strong>
                     <p className="muted" style={{ fontSize: 14, margin: '4px 0 10px', maxWidth: 760 }}>
-                      Der Baukasten prüft jede Phase: Passt die geplante Methode auch zu deinen Teilgruppen? Wo nicht, bekommt
-                      die Teilgruppe eine besser passende Methode, die parallel zur Klasse läuft. Fehlt dem Ablauf etwas, das
-                      deine Teilgruppen brauchen, schlägt der Baukasten eine kurze zusätzliche Phase für alle vor. Die
-                      übernimmst du selbst.
+                      Der Baukasten prüft jede Phase für jede Teilgruppe: Passt die Methode so, reicht eine Hilfe in derselben
+                      Methode, oder braucht die Gruppe eine andere Methode, die parallel zur Klasse läuft? Eine Hilfe geht vor
+                      einem Tausch. Du entscheidest, was du übernimmst. Fehlt dem Ablauf etwas, das deine Teilgruppen brauchen,
+                      schlägt der Baukasten eine kurze zusätzliche Phase für alle vor.
                     </p>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <TeilgruppenEntscheidung
+                      subgroups={subgroups}
+                      onGroupChange={updateGroup}
+                      pruefung={adjustmentStale ? null : pruefung}
+                      rows={scenarioRows}
+                      subgroupMethods={subgroupMethods}
+                      generatedMaterials={generatedMaterials}
+                      regeln={bundle.regeln}
+                      onTauschUebernehmen={takeOverAdjustment}
+                      onTauschZuruecknehmen={(a) => undoAdjustments([a])}
+                      onHilfeUebernehmen={takeOverSupport}
+                      onHilfeZuruecknehmen={undoSupport}
+                    />
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 12 }}>
                       <button type="button" className="btn btn-primary" onClick={runMethodAdjustment}>
                         {adjustedFor === null ? 'Vorgehen an die Teilgruppen anpassen' : '↻ Erneut prüfen'}
                       </button>
                       {adjustmentsNow.length > 0 && (
-                        <button type="button" className="btn btn-sm" onClick={() => undoAdjustments(adjustmentsNow)}>
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          onClick={() => {
+                            undoAdjustments(adjustmentsNow);
+                            setAllesZurueck(true);
+                          }}
+                        >
                           Alle Anpassungen zurücknehmen
                         </button>
                       )}
                     </div>
                     <div role="status" aria-live="polite">
+                      {!adjustmentStale && pruefStatus && (
+                        <p className="planner-notice" style={{ marginTop: 10 }}>
+                          {pruefStatus}
+                        </p>
+                      )}
                       {adjustmentStale && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
                           Teilgruppen, Ablauf oder Rahmen haben sich geändert. Klicke auf „Erneut prüfen“, damit das Vorgehen
                           dazu passt.
                         </p>
                       )}
-                      {adjustedFor !== null && !adjustmentStale && adjustmentsNow.length === 0 && (
+                      {adjustedFor !== null && !adjustmentStale && adjustmentsNow.length === 0 && (allesZurueck || autoAdjustments.length === 0) && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
-                          {autoAdjustments.length === 0
-                            ? 'Geprüft: Für die geprüften Teilgruppen muss keine Methode getauscht werden. Es reichen die Hinweise je Teilgruppe im Ablauf unten.'
-                            : 'Alle Anpassungen sind zurückgenommen. Es gilt wieder eine Methode je Phase für alle.'}
+                          {allesZurueck
+                            ? 'Alle Anpassungen sind zurückgenommen. Es gilt wieder eine Methode je Phase für alle.'
+                            : 'Geprüft: Für die geprüften Teilgruppen muss keine Methode getauscht werden. Die Karten oben zeigen, wo eine Hilfe in der Methode reicht.'}
                         </p>
                       )}
                       {adjustedFor !== null && uncheckedSubgroups.length > 0 && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
                           Nicht geprüft: {uncheckedSubgroups.map((g) => g.label).join(', ')}. Für diese Teilgruppe fehlt ein
-                          Profil. Wähle es unter „Mehr Details“ bei der Feinjustierung aus.
+                          Profil. Wähle es unter „Mehr Details“ bei der Feinjustierung aus oder kreuze oben an, was sie noch
+                          nicht kann.
                         </p>
-                      )}
-                      {adjustmentsNow.length > 0 && (
-                        <>
-                          <p style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, margin: '12px 0 6px' }}>
-                            {adjustmentsNow.length === 1
-                              ? '1 Methode angepasst:'
-                              : `${adjustmentsNow.length} Methoden angepasst:`}
-                          </p>
-                          <ul className="planner-adjust-list">
-                            {adjustmentsNow.map((a) => (
-                              <li key={`${a.stepKey}-${a.groupId}`}>
-                                <div>
-                                  <span className="muted">Phase {a.phaseLabel}</span>
-                                  <div>
-                                    <strong>{a.groupLabel}</strong> arbeitet mit <strong>{a.zuName}</strong> statt mit{' '}
-                                    {a.vonName}.
-                                  </div>
-                                  <div className="muted" style={{ fontSize: 13 }}>
-                                    Warum: {a.zuName} {a.grund}.
-                                  </div>
-                                </div>
-                                <button
-                                  type="button"
-                                  className="btn btn-sm"
-                                  aria-label={`Anpassung für ${a.groupLabel} in Phase ${a.phaseLabel} zurücknehmen`}
-                                  onClick={() => undoAdjustments([a])}
-                                >
-                                  Zurücknehmen
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
                       )}
                       {!adjustmentStale && extraProposals.length > 0 && (
                         <>

@@ -17,11 +17,8 @@
     "gesellschaft",
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest"
   ],
   "quellen": [
     {
@@ -93,6 +90,7 @@
     "ki-keine"
   ],
   "aufgabe": [
+    "prozeduren",
     "authentisch",
     "schlecht-strukturiert",
     "afb3"
@@ -159,8 +157,5 @@
   "plot": {
     "x": 0.32,
     "y": 2.35
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

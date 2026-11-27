@@ -1,0 +1,320 @@
+[
+  {
+    "id": "bedarf-gedeckt",
+    "name": "Bedarf gedeckt",
+    "wfelder": [
+      "lernumgebung",
+      "medien",
+      "methode"
+    ],
+    "art": "eingebaut",
+    "wirkung": "schliesst-aus",
+    "grundlage": "formal",
+    "text": "{methode} braucht etwas, das in den Rahmenbedingungen fehlt. Ist nichts angegeben, wird nur nach Eignung geordnet."
+  },
+  {
+    "id": "zielart-bindung",
+    "name": "Wissensart bindet die Methode",
+    "wfelder": [
+      "lerninhalte",
+      "methode"
+    ],
+    "art": "eingebaut",
+    "wirkung": "schliesst-aus",
+    "grundlage": "S",
+    "text": "{methode} passt nicht zur Wissensart, die in diesem Schritt gelernt werden soll.",
+    "ersetzt": "Malus für Klassenraummethoden in Praxisketten"
+  },
+  {
+    "id": "wenig-anleitung-geringes-vorwissen",
+    "name": "Wenig Anleitung bei geringem Vorwissen",
+    "wfelder": [
+      "lernende",
+      "lernbegleitung"
+    ],
+    "art": "deklarativ",
+    "wenn": {
+      "methode": {
+        "anleitung": {
+          "nur": [
+            "offen"
+          ]
+        },
+        "sequenz": {
+          "ohne": [
+            "problem-vor-instruktion"
+          ]
+        }
+      },
+      "situation": {
+        "vorwissen": [
+          "gering"
+        ]
+      }
+    },
+    "wirkung": "warnt",
+    "grundlage": "E",
+    "quelle": "Tetzlaff et al. 2025; Alfieri et al. 2011",
+    "text": "{methode} lässt den Lernenden viel Freiheit. Bei geringem Vorwissen überfordert das oft. Gib mehr Anleitung oder Hilfen."
+  },
+  {
+    "id": "viel-anleitung-hohes-vorwissen",
+    "name": "Viel Anleitung bei hohem Vorwissen",
+    "wfelder": [
+      "lernende",
+      "lernbegleitung"
+    ],
+    "art": "deklarativ",
+    "wenn": {
+      "methode": {
+        "anleitung": {
+          "nur": [
+            "explizit"
+          ]
+        }
+      },
+      "situation": {
+        "vorwissen": [
+          "hoch"
+        ]
+      }
+    },
+    "wirkung": "warnt",
+    "grundlage": "E",
+    "quelle": "Tetzlaff et al. 2025",
+    "text": "{methode} führt die Lernenden eng. Bei hohem Vorwissen bremst das oft. Lass mehr Freiheit zu."
+  },
+  {
+    "id": "entdecken-nur-mit-stuetze",
+    "name": "Entdecken nur mit Stütze",
+    "wfelder": [
+      "lernbegleitung",
+      "methode"
+    ],
+    "art": "deklarativ",
+    "wenn": {
+      "methode": {
+        "anleitung": {
+          "nur": [
+            "offen"
+          ]
+        },
+        "feedback": {
+          "ohne": [
+            "fb-lehrkraft",
+            "peer",
+            "system",
+            "selbstkontrolle"
+          ]
+        },
+        "adaptivitaet": {
+          "nur": [
+            "uniform"
+          ]
+        },
+        "sequenz": {
+          "ohne": [
+            "problem-vor-instruktion"
+          ]
+        }
+      }
+    },
+    "wirkung": "warnt",
+    "grundlage": "E",
+    "quelle": "Alfieri et al. 2011",
+    "text": "{methode} ist offen angelegt und hat weder Rückmeldung noch Anpassung an die Lernenden. Plane Rückmeldung oder eine Hilfe ein."
+  },
+  {
+    "id": "problemloesen-vor-instruktion-primar",
+    "name": "Problemlösen vor Instruktion in der Grundschule",
+    "wfelder": [
+      "lernende",
+      "zeit"
+    ],
+    "art": "deklarativ",
+    "wenn": {
+      "methode": {
+        "sequenz": {
+          "enthaelt": [
+            "problem-vor-instruktion"
+          ]
+        },
+        "lernfunktion": {
+          "enthaelt": [
+            "problemloesen"
+          ]
+        }
+      },
+      "situation": {
+        "bildungsstufe": [
+          "primar"
+        ]
+      }
+    },
+    "wirkung": "warnt",
+    "grundlage": "E",
+    "quelle": "Sinha & Kapur 2021",
+    "text": "{methode} lässt die Lernenden zuerst allein ein Problem lösen. In der Grundschule gelingt das seltener. Prüfe, ob die Aufgabe klein genug ist."
+  },
+  {
+    "id": "wenig-anleitung-komplexer-inhalt",
+    "name": "Wenig Anleitung bei schwerem Inhalt",
+    "wfelder": [
+      "lerninhalte",
+      "lernende"
+    ],
+    "art": "deklarativ",
+    "wenn": {
+      "methode": {
+        "anleitung": {
+          "nur": [
+            "offen"
+          ]
+        }
+      },
+      "situation": {
+        "komplexitaet": [
+          "hoch"
+        ],
+        "vorwissen": [
+          "gering",
+          "mittel"
+        ]
+      }
+    },
+    "wirkung": "warnt",
+    "grundlage": "E",
+    "quelle": "Chen, Kalyuga & Sweller 2015",
+    "text": "{methode} lässt viel Freiheit, der Inhalt ist aber schwer und das Vorwissen reicht nicht weit. Gib Hilfen oder mehr Anleitung."
+  },
+  {
+    "id": "schrift-niedriges-sprachniveau",
+    "name": "Schrift bei niedrigem Sprachniveau",
+    "wfelder": [
+      "lernende",
+      "medien"
+    ],
+    "art": "deklarativ",
+    "wenn": {
+      "methode": {
+        "schriftbedarf": {
+          "enthaelt": [
+            "liest",
+            "schreibt"
+          ]
+        }
+      },
+      "situation": {
+        "sprachniveau": [
+          "a1",
+          "a2"
+        ]
+      }
+    },
+    "wirkung": "warnt",
+    "keinTausch": true,
+    "grundlage": "E",
+    "quelle": "Höfler et al. 2024",
+    "text": "{methode} verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig. Nutze Hilfen für die Sprache. Die Methode wird nicht getauscht."
+  },
+  {
+    "id": "nachweis-passt-zum-ziel",
+    "name": "Nachweis passt zum Ziel",
+    "wfelder": [
+      "ueberpruefung",
+      "lernziele"
+    ],
+    "art": "eingebaut",
+    "wirkung": "ordnet",
+    "grundlage": "S",
+    "quelle": "Biggs 1996; HRK nexus",
+    "text": "Die Überprüfung soll zur Art des Ziels passen. Passende Nachweise stehen weiter oben."
+  },
+  {
+    "id": "sicherheitshinweis",
+    "name": "Sicherheitshinweis",
+    "wfelder": [
+      "lernumgebung",
+      "methode"
+    ],
+    "art": "eingebaut",
+    "wirkung": "weist-hin",
+    "grundlage": "A",
+    "quelle": "KMK 2023 (RiSU)",
+    "text": "Im Ablauf wird praktisch gearbeitet (z. B. {methode}). Kläre vorher Sicherheit und Aufsicht."
+  },
+  {
+    "id": "lehrkraft-nicht-doppelt",
+    "name": "Lehrkraft nicht doppelt",
+    "wfelder": [
+      "lernbegleitung",
+      "zeit"
+    ],
+    "art": "eingebaut",
+    "wirkung": "schliesst-aus",
+    "grundlage": "S",
+    "text": "Zwei Methoden, die gleichzeitig laufen, brauchen nicht dieselbe Lehrkraft in derselben Rolle. Sie werden nicht zusammen vorgeschlagen."
+  },
+  {
+    "id": "gruppierung-nur-mit-anpassung",
+    "name": "Gruppieren nur mit Anpassung",
+    "wfelder": [
+      "lernende",
+      "lernbegleitung"
+    ],
+    "art": "eingebaut",
+    "wirkung": "weist-hin",
+    "grundlage": "E",
+    "quelle": "Lou et al. 1996; Deunk et al. 2018",
+    "text": "Teilgruppen helfen nur, wenn die Gruppen etwas anderes bekommen, zum Beispiel eine andere Methode oder eine Hilfe."
+  },
+  {
+    "id": "leistungsschwache-nicht-unter-sich",
+    "name": "Lernschwächere nicht unter sich",
+    "wfelder": [
+      "lernende",
+      "methode"
+    ],
+    "art": "eingebaut",
+    "wirkung": "weist-hin",
+    "grundlage": "E",
+    "quelle": "Lou et al. 1996; Deunk et al. 2018",
+    "text": "{methode} lässt in Gruppen arbeiten. Setze Lernende mit geringem Vorwissen nicht nur unter sich zusammen. Die Befunde dazu sind nicht eindeutig."
+  },
+  {
+    "id": "genannter-wunsch-bleibt",
+    "name": "Genannter Wunsch bleibt",
+    "wfelder": [
+      "methode"
+    ],
+    "art": "eingebaut",
+    "wirkung": "weist-hin",
+    "grundlage": "A",
+    "text": "{methode} hast du genannt. Sie bleibt im Ablauf, auch wenn etwas dagegen spricht, und du bekommst einen Hinweis dazu. Ein angenommener Raum verdrängt eine genannte Methode nicht."
+  },
+  {
+    "id": "begleitziel-braucht-termine",
+    "name": "Begleitziel braucht Termine",
+    "wfelder": [
+      "lernziele",
+      "zeit"
+    ],
+    "art": "eingebaut",
+    "wirkung": "weist-hin",
+    "grundlage": "E",
+    "quelle": "Dignath & Büttner 2008; Durlak et al. 2011; Lee et al. 2015",
+    "text": "Ein Begleitziel wirkt erst über mehrere Termine. Bei nur einem Termin ist das kaum zu erreichen."
+  },
+  {
+    "id": "evidenz-geltung",
+    "name": "Geltung der Evidenz",
+    "wfelder": [
+      "methode",
+      "lernende"
+    ],
+    "art": "eingebaut",
+    "wirkung": "warnt",
+    "grundlage": "A",
+    "text": "Die Belege für {methode} stammen aus anderen Situationen als deiner. Prüfe, ob sie für deine Lernenden gelten."
+  }
+]

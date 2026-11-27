@@ -14,16 +14,11 @@
   "fachbereich": [
     "nawi-technik"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen",
-    "aesthetik",
-    "sport",
-    "mathe-informatik"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {

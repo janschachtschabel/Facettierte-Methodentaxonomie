@@ -10,9 +10,7 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
+  "termineMin": 2,
   "kurzbeschreibung": "Schul- und Kursstruktur aus Lernpensen (Assignments), freien Lernbüro-Zeiten, Fachräumen und verbindlichen Planungs- und Rückmeldegesprächen.",
   "alternativname": [
     "Dalton-System",
@@ -32,7 +30,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-keine",

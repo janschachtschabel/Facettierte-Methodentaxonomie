@@ -18,12 +18,11 @@
     "nawi-technik",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -128,7 +127,7 @@
     "Interaktive Simulation (z. B. PhET)",
     "Beobachtungs- und Hypothesenbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 15,

@@ -11,8 +11,12 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz",
+    "wandflaeche"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Mehrphasige Großgruppenkonferenz, die Vergangenheit, Gegenwartstrends, Wunschzukunft und gemeinsame Handlungsschritte aller Beteiligten verbindet.",
   "alternativname": [
@@ -33,7 +37,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 16,
   "gruppeMax": 80,
   "technik": "t-keine",
@@ -108,9 +112,6 @@
       "kennung": "zeitboegen",
       "name": "Verbindung von Vergangenheit, Gegenwart und Zukunft"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Ausblenden realer Macht- und Interessenkonflikte"

@@ -12,9 +12,17 @@ import {
   FMT_RULES,
   PIKTOGRAMME,
   scoreDifferentiationMatrix,
-  suggestAlternativeMethodsForGroup
+  suggestAlternativeMethodsForGroup,
+  adaptScenario,
+  istHilfe,
+  istMethode,
+  nurMethoden
 } from '../src/index.js';
-import type { Arrangement } from '../src/types.js';
+import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
+import { nachweisformen } from '../src/zielart.js';
+import { erstelleRegeln } from '../src/regeln.js';
+import { mitEintraegen } from './fixtures/eignung.js';
+import { alsHilfe, FIXTURE_HILFE, mitHilfe } from './fixtures/hilfe.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -30,6 +38,8 @@ describe('FMT Core: Validator, Search, Matcher', () => {
   it('validates example R3 „dichte-reihe“ without errors or warnings', () => {
     const res = V.validate(byId('dichte-reihe'), reg);
     expect(res.gueltig).toBe(true);
+    // Since Task B3, R-06 reads every fit rule. The invention task is open, without feedback and uniform, but it solves
+    // the problem before the instruction: Tor D2 exempts that sequence from „Entdecken nur mit Stütze“.
     expect(res.meldungen).toEqual([]);
   });
 
@@ -148,7 +158,8 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     });
     expect(projekt.meldungen.some((m) => m.regel === 'R-05')).toBe(true);
 
-    const primar = V.validate(
+    // Tor D2 gave every stage entry a reason; the fixture puts back the old entry of erfindungsaufgabe without one.
+    const primar = createValidator(mitEintraegen(D)).validate(
       {
         typ: 'Arrangement',
         name: 't',
@@ -166,7 +177,7 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     );
     expect(primar.meldungen.some((m) => m.regel === 'R-06')).toBe(true);
     const r06 = primar.meldungen.filter((m) => m.regel === 'R-06' && /Bildungsstufe/.test(m.meldung)).map((m) => m.meldung).join(' ');
-    expect(r06).toMatch(/nicht vorgesehen \(Setzung der Redaktion\)/);
+    expect(r06).toMatch(/passt weniger zur Bildungsstufe „Primarstufe“\. \(Setzung der Redaktion\)/);
     expect(r06).not.toMatch(/Evidenz/);
   });
 
@@ -176,7 +187,13 @@ describe('FMT Core: Validator, Search, Matcher', () => {
     expect(ids({ text: 'jigsaw' })).toContain('partnerpuzzle');
     expect(ids({ text: 'Lernzirkel' })).toEqual(['stationenlernen']);
     expect(ids({ liefert: 'wissen-konsolidiert' })).toContain('abrufquiz');
+    expect(ids({ bildungsstufe: 'primar' })).not.toContain('dual-praxismodul');
+    // Tor D2 moved most stage and prior-knowledge entries into rules; the search honours those rules (Fix round 1).
     expect(ids({ bildungsstufe: 'primar' })).not.toContain('productive-failure');
+    expect(ids({ bildungsstufe: 'primar' })).not.toContain('forschendes-lernen');
+    expect(ids({ bildungsstufe: 'sek1' })).toContain('productive-failure');
+    expect(ids({ vorwissen: 'gering' })).not.toContain('freiarbeit');
+    expect(ids({ vorwissen: 'mittel' })).toContain('freiarbeit');
     expect(ids({ ansatz: 'kooperativ' })).toContain('gruppenpuzzle');
     expect(ids({ status: 'kuratiert' }).length).toBeGreaterThanOrEqual(22);
     expect(ids({ ohneKI: true })).not.toContain('ki-tutor');
@@ -345,7 +362,8 @@ describe('FMT Core: Validator, Search, Matcher', () => {
         id: 'physik-dichte',
         text: 'Unterrichtsreihe Physik Klasse 7: das Konzept Dichte verstehen, wenig Vorwissen, 270 Minuten, ohne Geräte',
         ansatz: ['forschend'],
-        expectedChain: 'konzeptaufbau',
+        // Goal kind konzepte with the wished approach forschend: the chain choice (waehleKette) takes the 5E chain.
+        expectedChain: 'fuenf-e',
         maxBudgetMin: 270
       },
       {
@@ -574,6 +592,198 @@ describe('FMT Core: Validator, Search, Matcher', () => {
   });
 });
 
+describe('FMT 2.0: Anfragefelder und Leseregeln', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  const bausteineVon = (r: MatchResult) =>
+    r.modus === 'ablauf' ? (r.schritte || []).map((s) => s.baustein) : r.vorschlaege.map((v) => v.baustein);
+
+  it('alte Anfrage mit lernort und zielart psychomotorik ergibt denselben Ablauf wie die neue', () => {
+    const alt = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 90 Minuten', lernort: 'bewegungsraum', zielart: 'psychomotorik' });
+    const neu = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 90 Minuten', raum: 'bewegungsraum', zielart: 'bewegung' });
+    expect(bausteineVon(alt).length).toBeGreaterThan(0);
+    expect(bausteineVon(alt)).toEqual(bausteineVon(neu));
+  });
+
+  it('alte Codes in zielart werden umgewandelt; einstellungen führt zur Urteilsbildung', () => {
+    const r = M.zuordnen({ text: 'Ethik Klasse 10 Sterbehilfe, 90 Minuten', zielart: 'einstellungen' });
+    expect(r.kriterien.zielart).toBe('urteilen');
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('urteilsbildung');
+  });
+
+  it('neue Felder werden geprüft; lernort gilt, steht aber nicht in felder() und schema()', () => {
+    const felder = M.felder().map((f) => f.feld);
+    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine']) expect(felder).toContain(f);
+    expect(felder).not.toContain('lernort');
+    expect(Object.keys(M.schema().properties)).not.toContain('lernort');
+    const zielarten = M.felder().find((f) => f.feld === 'zielart')!.werte!.map((w) => w.code);
+    for (const z of ['fakten', 'konzepte', 'prozeduren', 'problemloesen', 'bewegung', 'kondition', 'urteilen', 'gestalten', 'handlung', 'einstellungen', 'psychomotorik', 'metakognitiv']) {
+      expect(zielarten).toContain(z);
+    }
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', raum: 'lehrkueche', raumBietet: ['stellflaeche'], fachausstattungArt: 'kueche', termine: 3 })).not.toThrow();
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', raumBietet: ['sofa'] })).toThrow(/raumBietet/);
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', lernort: 'kirche' })).toThrow(/kirche/);
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', termine: -1 })).toThrow(/termine/);
+  });
+
+  it.each([
+    ['Politik Klasse 10: Tempolimit diskutieren und beurteilen, 90 Minuten', 'urteilsbildung'],
+    ['Jura Klasse 11: Fallbearbeitung Kaufrecht, 90 Minuten', 'problemloesen'],
+    ['Klasse 8 Projekttag Müll, 90 Minuten', 'projektlernen'],
+    ['Biologie Klasse 6: Bäume im Park erkunden, 90 Minuten', 'fuenf-e']
+  ])('Handlungsverb ohne Zielangabe: %s → Ablauf %s', (text, kette) => {
+    const r = M.zuordnen({ text });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe(kette);
+  });
+});
+
+describe('FMT 2.0: Zuordnung auf Situation, Bedarf, Kettenwahl und Bindung', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  const ablaufBausteine = (r: MatchResult) =>
+    r.modus === 'ablauf' ? [...(r.schritte || []).map((s) => s.baustein), ...(r.schritte || []).flatMap((s) => s.slots.map((x) => x.baustein))] : [];
+  const stellflaeche = new Set(D.bausteine.filter((b) => (b.raumbedarf || []).includes('stellflaeche')).map((b) => b.kennung));
+
+  it('Hörsaal: kein Schritt trägt eine Methode mit Stellfläche', () => {
+    const r = M.zuordnen({ text: 'Ethik Klasse 10, Sterbehilfe, mit Fishbowl und Kugellager, 90 Minuten', raum: 'hoersaal', gruppe: 30 });
+    expect(r.modus).toBe('ablauf');
+    expect(ablaufBausteine(r).length).toBeGreaterThan(0);
+    expect(ablaufBausteine(r).filter((id) => stellflaeche.has(id))).toEqual([]);
+    const nicht = (r as AblaufMatchResult).nichtVerankert || [];
+    expect(nicht).toContainEqual({ baustein: 'fishbowl', grund: 'braucht: Stellfläche', merkmal: 'raumbedarf' });
+    expect(nicht).toContainEqual({ baustein: 'kugellager', grund: 'braucht: Stellfläche', merkmal: 'raumbedarf' });
+  });
+
+  it('Phase im Hörsaal: der Ausschluss nennt das Merkmal; ein angenommener Raum schließt nicht aus', () => {
+    const genannt = M.zuordnen({ modus: 'phase', lernfunktion: ['verstehen', 'konsolidierung', 'anwendung'], raum: 'hoersaal' }) as PhaseMatchResult;
+    expect(genannt.ausgeschlossen.rahmen).toContainEqual({ baustein: 'fishbowl', name: expect.any(String), grund: 'braucht: Stellfläche', merkmal: 'raumbedarf' });
+    expect(genannt.vorschlaege.map((v) => v.baustein)).not.toContain('kugellager');
+    const angenommen = M.zuordnen({ modus: 'phase', lernfunktion: ['verstehen', 'konsolidierung', 'anwendung'] }) as PhaseMatchResult;
+    expect(angenommen.ausgeschlossen.rahmen.map((x) => x.baustein)).not.toContain('fishbowl');
+    expect(angenommen.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'klassenraum' }));
+  });
+
+  it('raumBietet: [] ist ein genannter Raum, der nichts bietet', () => {
+    const r = M.zuordnen({ modus: 'phase', lernfunktion: ['konsolidierung'], raum: 'klassenraum', raumBietet: [] }) as PhaseMatchResult;
+    expect(r.ausgeschlossen.rahmen).toContainEqual(expect.objectContaining({ baustein: 'abrufquiz', merkmal: 'raumbedarf', grund: 'braucht: Schreibplatz' }));
+    expect(r.pflichtangaben?.fehlt).not.toContain('raum');
+  });
+
+  it('Bewegungskette: jeder Haupt- und Sicherungsschritt trägt Psychomotorik', () => {
+    const kette = D.ketten.find((k) => k.id === 'fertigkeit-bewegung')!;
+    for (const text of ['Sport Klasse 7, Handstand, Sporthalle, 90 Minuten', 'Sport Klasse 5, Prellen im Basketball, 45 Minuten']) {
+      const r = M.zuordnen({ text }) as AblaufMatchResult;
+      expect(r.kette?.id, text).toBe('fertigkeit-bewegung');
+      const gebunden = (r.schritte || []).filter((s) => ['haupt', 'sicherung'].includes(kette.schritte.find((k) => k.id === s.schritt)?.rolle || ''));
+      expect(gebunden.length, text).toBeGreaterThan(0);
+      for (const s of gebunden) expect(D.bausteine.find((b) => b.kennung === s.baustein)!.aufgabe, `${text}: ${s.baustein}`).toContain('psychomotorik');
+    }
+  });
+
+  it('widersprüchliche Situation liefert eine Antwort mit Grund statt einer Ausnahme', () => {
+    // Real data after Tor D1: some movement methods need no room property (teil-ganz-ueben, demonstration-nachmachen),
+    // so a classroom that offers nothing still carries the skill chain; every bound step then carries psychomotorik.
+    const bewegung = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 45 Minuten', raum: 'klassenraum', raumBietet: [], zielart: 'bewegung' }) as AblaufMatchResult;
+    expect(bewegung.modus).toBe('ablauf');
+    const kette = D.ketten.find((k) => k.id === bewegung.kette?.id)!;
+    for (const s of bewegung.schritte || []) {
+      if (!kette.schritte.find((k) => k.id === s.schritt)?.wissensart?.length) continue;
+      const b = D.bausteine.find((x) => x.kennung === s.baustein)!;
+      expect(b.raumbedarf || [], s.baustein).toEqual([]);
+    }
+    // The training steps have no carrying method without a movement area: they stay open and name the need.
+    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauerlauf, 45 Minuten', raum: 'klassenraum', raumBietet: [], zielart: 'kondition' });
+    expect(r.modus).toBe('ablauf');
+    const gruende = (r as AblaufMatchResult).offenGruende || [];
+    expect(gruende.length).toBeGreaterThan(0);
+    const satz = 'Keine Methode im Katalog liefert ‚Körperliche Leistungsfähigkeit trainiert‘ für Motorische Fertigkeiten unter diesen Rahmenbedingungen.';
+    const grund = gruende.find((g) => g.schritt === 't2')?.grund || '';
+    expect(grund.startsWith(satz), grund).toBe(true);
+    expect(grund).toContain('braucht: Bewegungsfläche');
+  });
+
+  it('gebundener Schritt mit Fachbereich: ohne tragende Methode bleibt er offen, keine Ersatzmethode', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauerlauf, 45 Minuten', fachbereich: 'sport', raum: 'klassenraum', raumBietet: [], zielart: 'kondition' }) as AblaufMatchResult;
+    expect(r.kette?.id).toBe('kondition-training');
+    expect((r.offenGruende || []).map((g) => g.schritt)).toEqual(expect.arrayContaining(['t2', 't3']));
+    expect((r.annahmen || []).filter((x) => /praktische Methode des Fachbereichs/.test(x))).toEqual([]);
+    const kette = D.ketten.find((k) => k.id === 'kondition-training')!;
+    for (const s of r.schritte || []) {
+      if (kette.schritte.find((k) => k.id === s.schritt)?.rolle !== 'haupt') continue;
+      expect(D.bausteine.find((b) => b.kennung === s.baustein)!.aufgabe, s.baustein).toContain('psychomotorik');
+    }
+  });
+
+  it('Nachweis: aus der Anfrage (Klausur) oder aus der Zielart (Kondition: praktisch); unbekannte Form wird abgelehnt', () => {
+    const n15 = M.zuordnen({ text: 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur' });
+    expect(n15.kriterien.nachweis).toBe('schriftlich');
+    expect(n15.nachweis).toMatchObject({ formen: ['schriftlich'], quelle: 'anfrage' });
+    const n18 = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer mit Leistungskontrolle, Sportplatz, 45 Minuten' });
+    expect(n18.nachweis).toMatchObject({ formen: ['praktisch'], quelle: 'zielart' });
+    expect(M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' }).nachweis).toBeUndefined();
+    expect(M.felder().find((f) => f.feld === 'nachweis')!.werte!.map((w) => w.code)).toEqual(['schriftlich', 'muendlich', 'praktisch', 'produkt']);
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', nachweis: 'tanz' })).toThrow(/nachweis/);
+  });
+
+  it('n18: im Prüfschritt steht eine Prüfmethode mit der Nachweisform der Zielart (praktisch)', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 8, Ausdauer mit Leistungskontrolle, Sportplatz, 45 Minuten' }) as AblaufMatchResult;
+    const kette = D.ketten.find((k) => k.id === r.kette?.id)!;
+    const pruef = (r.schritte || []).find((s) => s.schritt === 'leistungskontrolle' || kette.schritte.find((k) => k.id === s.schritt)?.ziel === 'lernstand-diagnostiziert');
+    expect(pruef, JSON.stringify(r.schritte)).toBeDefined();
+    expect(nachweisformen(D.bausteine.find((b) => b.kennung === pruef!.baustein)!)).toContain('praktisch');
+    // A stated form of proof orders the check step as well: an oral check in maths.
+    const m = M.zuordnen({ text: 'Mathematik Klasse 8, lineare Funktionen, 45 Minuten, Lernzielkontrolle am Ende', nachweis: 'muendlich' }) as AblaufMatchResult;
+    const letzte = (m.schritte || []).find((s) => s.schritt === 'leistungskontrolle' || D.ketten.find((k) => k.id === m.kette?.id)!.schritte.find((k) => k.id === s.schritt)?.ziel === 'lernstand-diagnostiziert');
+    expect(nachweisformen(D.bausteine.find((b) => b.kennung === letzte!.baustein)!), letzte!.baustein).toContain('muendlich');
+  });
+
+  it('ungeeignet im Fach warnt in jedem Fachbereich (eignung-fach); ohne Begründung als Setzung der Redaktion', () => {
+    // Fixture: the entry of makerspace-tueftelwerkstatt as it stood before Tor D2 (without a reason).
+    const MX = createMatcher(mitEintraegen(D), createValidator(mitEintraegen(D)));
+    const r = MX.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'sport' }) as PhaseMatchResult;
+    const v = r.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
+    expect(v?.warnungen).toContain('Makerspace / Tüftelwerkstatt (FabLab) passt weniger zum Fachbereich „Sport und Bewegung“. (Setzung der Redaktion)');
+    expect((v?.warnungen || []).some((w) => w.includes('Durchsicht'))).toBe(false);
+    // The other subject areas warn as well since Task B3 (Abbau Zeile 7: no rank tier of their own).
+    const m = MX.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
+    const g = m.vorschlaege.find((x) => x.baustein === 'makerspace-tueftelwerkstatt');
+    expect(g?.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-fach', grundlage: 'A' }));
+  });
+
+  it('ohne Raumangabe steht der angenommene Raum unter pflichtangaben.angenommen', () => {
+    const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
+    expect(r.pflichtangaben?.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));
+    expect(r.pflichtangaben?.fehlt).not.toContain('fach-und-thema');
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'klassenraum' }));
+    const sport = M.zuordnen({ text: 'Sport Klasse 7, Handstand, 90 Minuten' });
+    expect(sport.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'raum', wert: 'bewegungsraum' }));
+    expect(sport.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'zielart', wert: 'bewegung' }));
+    const genannt = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten', raum: 'fachraum-nawi', gruppe: 24 });
+    expect(genannt.pflichtangaben?.fehlt).not.toContain('raum');
+    expect((genannt.pflichtangaben?.angenommen || []).map((x) => x.feld)).not.toContain('raum');
+  });
+
+  it('ohne Zielart und ohne Hinweis im Text wird konzepte angenommen', () => {
+    const r = M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('konzeptaufbau');
+    expect(r.pflichtangaben?.angenommen).toContainEqual(expect.objectContaining({ feld: 'zielart', wert: 'konzepte' }));
+    expect(r.kriterien.zielart).toBeUndefined();
+  });
+
+  it('Kettenwahl über waehleKette: Zielart mit Ansatz wählt die Kette des Ansatzes', () => {
+    const r = M.zuordnen({ text: 'Physik Klasse 8, Stromkreis, 90 Minuten', zielart: 'konzepte', ansatz: ['forschend'] });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('fuenf-e');
+  });
+
+  it('eine genannte Methode, die die Wissensart des Schritts nicht trägt, bleibt als Zusatzphase im Ablauf', () => {
+    const r = M.zuordnen({ text: 'Sport Klasse 7, Handstand mit Gruppenpuzzle, 90 Minuten' }) as AblaufMatchResult;
+    expect(r.kette?.id).toBe('fertigkeit-bewegung');
+    const s = (r.schritte || []).find((x) => x.baustein === 'gruppenpuzzle');
+    expect(s?.schritt).toBe('zusatz');
+    expect(r.verankert).toContainEqual({ baustein: 'gruppenpuzzle', schritt: expect.stringMatching(/^Zusatzphase/) });
+  });
+});
+
 describe('Piktogramme', () => {
   const D = loadFmtData(DATA_DIR);
   it('jedes Piktogramm der Daten hat eine Zeichnung in der Oberfläche', () => {
@@ -582,5 +792,300 @@ describe('Piktogramme', () => {
     expect(missing).toEqual([]);
     const svg = readFileSync(path.join(ROOT, 'apps/web/src/components/MethodPictogram.tsx'), 'utf8');
     expect(PIKTOGRAMME.filter((p) => !svg.includes(`type === '${p}'`))).toEqual([]);
+  });
+});
+
+describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  const regelIds = new Set([...D.regeln.map((r) => r.id), 'eignung-stufe', 'eignung-vorwissen', 'eignung-fach']);
+  // Fixture: Eignung entries without a reason as they stood before Tor D2 (laufdiktat in Mathematik and others).
+  const DX = mitEintraegen(D);
+  const MX = createMatcher(DX, createValidator(DX));
+  const alsText = (m: { text: string; quelle?: string }) => (m.quelle ? `${m.text} (${m.quelle})` : m.text);
+
+  it('n17: Chemie Klasse 9 ohne Raum und Anzahl nennt beide Lücken und den angenommenen Raum', () => {
+    const r = M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten' });
+    expect(r.pflichtangaben!.fehlt).toEqual(expect.arrayContaining(['anzahl', 'raum']));
+    expect(r.pflichtangaben!.angenommen.map((x) => x.feld)).toContain('raum');
+  });
+
+  it('jede Warnung im Ablauf steht als Regelmeldung mit Regel und Grundlage', () => {
+    const r = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' }) as AblaufMatchResult;
+    expect(r.modus).toBe('ablauf');
+    const meldungen = r.regelmeldungen || [];
+    expect(meldungen.length).toBeGreaterThan(0);
+    for (const m of meldungen) {
+      expect(regelIds.has(m.regel), m.regel).toBe(true);
+      expect(['E', 'S', 'A', 'formal']).toContain(m.grundlage);
+      expect(m.text.length).toBeGreaterThan(0);
+    }
+    expect(meldungen).toContainEqual(
+      expect.objectContaining({ regel: 'eignung-fach', wirkung: 'warnt', baustein: 'laufdiktat', grundlage: 'A' })
+    );
+    // The text lists are filled from the messages: text plus source in brackets.
+    expect(r.hinweise).toEqual(meldungen.map(alsText));
+    // Every warning of a chosen method is a message (same rule machine as the ranking).
+    const gewaehlt = new Set(JSON.stringify(r.arrangement).match(/"baustein":"[^"]+"/g)!.map((x) => x.slice(12, -1)));
+    const R = erstelleRegeln(D.regeln);
+    const k = r.kriterien as Record<string, string | undefined>;
+    const lage = { vorwissen: k.vorwissen, bildungsstufe: k.bildungsstufe, komplexitaet: k.komplexitaet, sprachniveau: k.sprachniveau, fachbereich: k.fachbereich };
+    for (const id of gewaehlt) {
+      for (const w of R.pruefe(DX.bausteine.find((b) => b.kennung === id)!, lage)) {
+        expect(meldungen.some((m) => m.regel === w.regel && m.baustein === id), `${id} ${w.regel}`).toBe(true);
+      }
+    }
+  });
+
+  it('Sicherheitshinweis und Hinweis „unüblich“ stehen als Regelmeldungen sicherheitshinweis und genannter-wunsch-bleibt', () => {
+    const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
+    const s = (chemie.regelmeldungen || []).find((m) => m.regel === 'sicherheitshinweis');
+    expect((chemie.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis').length).toBe(1);
+    expect(s).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', quelle: expect.stringContaining('RiSU'), baustein: expect.any(String) });
+    expect(chemie.hinweise || []).toContain(alsText(s!));
+    const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
+    expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
+
+    const mathe = MX.zuordnen({ text: 'Mathe Klasse 5 Laufdiktat zu Bruchrechnen, 45 Minuten' });
+    const g = (mathe.regelmeldungen || []).find((m) => m.regel === 'genannter-wunsch-bleibt');
+    expect(g).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', baustein: 'laufdiktat' });
+    expect(g!.text).toMatch(/Laufdiktat/);
+    expect((mathe.regelmeldungen || []).some((m) => m.regel === 'eignung-fach' && m.baustein === 'laufdiktat')).toBe(true);
+    expect((mathe.hinweise || []).join(' ')).toMatch(/Laufdiktat.*Mathematik/);
+  });
+
+  it('n20: offene Methoden tragen bei komplexem Inhalt und geringem Vorwissen die Warnung, angeleitete stehen vorn', () => {
+    const text = 'Informatik Klasse 10, Sortieralgorithmen, 90 Minuten, komplexer Inhalt, geringes Vorwissen';
+    const p = M.zuordnen({ text, modus: 'phase', lernfunktion: 'problemloesen' }) as PhaseMatchResult;
+    expect(p.kriterien).toMatchObject({ komplexitaet: 'hoch', vorwissen: 'gering' });
+    const offen = p.vorschlaege.filter((v) => D.bausteine.find((b) => b.kennung === v.baustein)!.anleitung.every((x) => x === 'offen'));
+    expect(offen.length).toBeGreaterThan(0);
+    for (const v of offen) {
+      const m = (v.regelmeldungen || []).find((x) => x.regel === 'wenig-anleitung-komplexer-inhalt');
+      expect(m, v.baustein).toMatchObject({ wirkung: 'warnt', grundlage: 'E', quelle: expect.stringContaining('Chen') });
+      expect(v.warnungen).toContain(alsText(m!));
+    }
+    // Guided methods (without a warning) stand before every warned method.
+    const ersterGewarnt = p.vorschlaege.findIndex((v) => v.warnungen.length > 0);
+    expect(ersterGewarnt).toBeGreaterThan(0);
+    expect(p.vorschlaege.slice(ersterGewarnt).every((v) => v.warnungen.length > 0)).toBe(true);
+    const a = M.zuordnen({ text });
+    expect((a.regelmeldungen || []).some((m) => m.regel === 'wenig-anleitung-komplexer-inhalt')).toBe(true);
+  });
+
+  it('ein begründeter Eintrag „ungeeignet im Fach“ warnt und steht in der Rangstufe der Warnungen', () => {
+    const begruendet = {
+      ...D,
+      bausteine: D.bausteine.map((b) =>
+        b.kennung === 'makerspace-tueftelwerkstatt'
+          ? { ...b, fachbereichUngeeignet: ['gesellschaft'], eignungsgrund: { fachbereich: { text: 'Braucht eine Werkstatt.', grundlage: 'S' as const, quelle: 'Redaktion 2026' } } }
+          : b
+      )
+    };
+    const M2 = createMatcher(begruendet, createValidator(begruendet));
+    const r = M2.zuordnen({ modus: 'phase', lernfunktion: ['problemloesen'], fachbereich: 'gesellschaft' }) as PhaseMatchResult;
+    const i = r.vorschlaege.findIndex((x) => x.baustein === 'makerspace-tueftelwerkstatt');
+    expect(i).toBeGreaterThanOrEqual(0);
+    const v = r.vorschlaege[i];
+    expect(v.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'eignung-fach', grundlage: 'S', quelle: 'Redaktion 2026' }));
+    expect(v.warnungen.join(' ')).toMatch(/Braucht eine Werkstatt\..*\(Redaktion 2026\)/);
+    // Same tier as the other warnings: no method without a warning follows, and a method with another warning
+    // but a better soft score may follow it (no tier of its own below the warnings).
+    expect(r.vorschlaege.slice(i).every((x) => x.warnungen.length > 0)).toBe(true);
+  });
+
+  it('Schrift bei niedrigem Sprachniveau warnt ohne Tausch: die Lesemethode bleibt und trägt die Warnung', () => {
+    const r = M.zuordnen({ text: 'VHS Integrationskurs Deutsch A2: beim Arzt, 90 Minuten, 15 Teilnehmende' }) as AblaufMatchResult;
+    expect(r.kriterien.sprachniveau).toBe('a2');
+    expect((r.schritte || []).map((x) => x.baustein)).toContain('sq3r-lesemethode');
+    expect(r.regelmeldungen).toContainEqual(expect.objectContaining({ regel: 'schrift-niedriges-sprachniveau', baustein: 'sq3r-lesemethode', wirkung: 'warnt' }));
+    // No note that such methods stand further back: the rule does not move them (keinTausch).
+    expect((r.regelmeldungen || []).some((m) => m.regel === 'schrift-niedriges-sprachniveau' && m.wirkung === 'ordnet')).toBe(false);
+  });
+
+  it('R-06 prüft mit derselben Regelmaschine: Eignung und Passung', () => {
+    expect(FMT_RULES.find((r) => r.id === 'R-06')!.prueft).toBe('Eignung und Passung: Methode passt zu Vorwissen, Bildungsstufe und Inhalt');
+    const V = createValidator(D);
+    const offen = D.bausteine.find((b) => b.anleitung.length && b.anleitung.every((x) => x === 'offen') && !(b.sequenz || []).includes('problem-vor-instruktion') && !(b.vorbedingung || []).length)!;
+    const r = V.validate({
+      typ: 'Arrangement',
+      name: 't',
+      reichweite: 'r3',
+      kontext: { vorwissen: 'gering' },
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: offen.kennung, dauerMin: offen.dauerMin }] }
+    });
+    const r06 = r.meldungen.filter((m) => m.regel === 'R-06');
+    expect(r06.map((m) => m.meldung).join(' ')).toMatch(/Tetzlaff/);
+  });
+
+  it('Regeltexte sprechen die Lehrkraft mit „du“ an wie der Baukasten (B4-Fix 3)', () => {
+    for (const r of D.regeln) expect(r.text, r.id).not.toMatch(/\b(?:Sie (?:bekommen|haben)|Ihre?r?\b|(?:Geben|Lassen|Planen|Prüfen|Nutzen|Klären|Setzen) Sie)/);
+    expect(D.regeln.find((r) => r.id === 'genannter-wunsch-bleibt')!.text).toMatch(/^\{methode\} hast du genannt\./);
+  });
+
+  it('Regel ohne Methode (Lage): eigene Wirkung „warnt“, wahrer Satz zur genannten Methode, auch im Phasenmodus (B3-Review a, c)', () => {
+    const r = M.zuordnen({ text: 'Mathematik Klasse 7, Brüche, 45 Minuten, 25 Lernende', vorwissen: 'gering' }) as AblaufMatchResult;
+    expect(r.kriterien.vorwissen).toBe('gering');
+    const lage = (r.regelmeldungen || []).filter((m) => m.regel === 'wenig-anleitung-geringes-vorwissen' && !m.baustein);
+    expect(lage).toHaveLength(1);
+    expect(lage[0].wirkung).toBe('warnt');
+    expect(lage[0].grundlage).toBe('E');
+    expect(lage[0].text).toMatch(/stehen weiter hinten – nicht aber eine Methode, die du selbst genannt hast\.$/);
+    const p = M.zuordnen({ modus: 'phase', lernfunktion: ['erwerb'], vorwissen: 'gering' }) as PhaseMatchResult;
+    const pl = (p.regelmeldungen || []).find((m) => m.regel === 'wenig-anleitung-geringes-vorwissen' && !m.baustein)!;
+    expect(pl).toBeDefined();
+    expect(pl.wirkung).toBe('warnt');
+    // The situation-level reading stays in the notes of a single phase (method warnings stand at each proposal).
+    expect((p.hinweise || []).some((h) => h.startsWith(pl.text))).toBe(true);
+    expect((p.regelmeldungen || []).every((m) => m.wirkung !== 'ordnet' || m.regel === 'nachweis-passt-zum-ziel')).toBe(true);
+  });
+
+  it('R-06 trägt die Grundlage der Meldung selbst: Setzung der Redaktion (A) und evidenz-geltung (A) (B3-Review d)', () => {
+    const V = createValidator(DX);
+    const b = DX.bausteine.find((x) => (x.ungeeignetBeiStufe || []).includes('primar') && !x.eignungsgrund?.stufe)!;
+    const r = V.validate({
+      typ: 'Arrangement',
+      name: 't',
+      reichweite: 'r3',
+      kontext: { bildungsstufe: 'primar' },
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: b.kennung, dauerMin: b.dauerMin }] }
+    });
+    const stufe = r.meldungen.find((m) => m.regel === 'R-06' && /Setzung der Redaktion/.test(m.meldung))!;
+    expect(stufe).toBeDefined();
+    expect(stufe.grundlage).toBe('A');
+    const offen = D.bausteine.find((x) => x.anleitung.length && x.anleitung.every((y) => y === 'offen') && !(x.vorbedingung || []).length && !(x.sequenz || []).includes('problem-vor-instruktion'))!;
+    const e = V.validate({
+      typ: 'Arrangement',
+      name: 't',
+      reichweite: 'r3',
+      kontext: { vorwissen: 'gering' },
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: offen.kennung, dauerMin: offen.dauerMin }] }
+    });
+    expect(e.meldungen.filter((m) => m.regel === 'R-06' && /Tetzlaff/.test(m.meldung)).every((m) => m.grundlage === 'E')).toBe(true);
+  });
+});
+
+describe('Eintragsart Hilfe: nie Schritt, Slot oder Phase (Task C4)', () => {
+  const D = loadFmtData(DATA_DIR);
+  const DH = mitHilfe(D);
+  const VH = createValidator(DH);
+  const MH = createMatcher(DH, VH);
+  const SH = createSearch(DH, VH);
+  const HINWEIS = '‚Wortspeicher‘ ist eine Hilfe und wird in Schritt 3 den Phasen zugeordnet';
+  const imArrangement = (r: MatchResult, id: string) => r.modus === 'ablauf' && JSON.stringify(r.arrangement || {}).includes(`"${id}"`);
+
+  it('Review Focus 5: eine im Freitext genannte Hilfe erscheint als Hilfe-Hinweis, nie als Phase; nichtVerankert bleibt leer', () => {
+    const r = MH.zuordnen({ text: 'Deutsch Klasse 5, Märchen, 45 Minuten, mit Wortspeicher' }) as AblaufMatchResult;
+    expect(r.modus).toBe('ablauf');
+    expect(r.genannteHilfen).toEqual([FIXTURE_HILFE]);
+    expect(r.hinweise).toContain(HINWEIS);
+    expect(r.nichtVerankert).toEqual([]);
+    expect((r.verankert || []).map((v) => v.baustein)).not.toContain(FIXTURE_HILFE);
+    expect((r.schritte || []).some((s) => s.baustein === FIXTURE_HILFE || s.slots.some((x) => x.baustein === FIXTURE_HILFE))).toBe(false);
+    expect(imArrangement(r, FIXTURE_HILFE)).toBe(false);
+  });
+
+  it('eine genannte Hilfe steht auch bei einer einzelnen Phase nur im Hinweis', () => {
+    const r = MH.zuordnen({ text: 'Einstieg mit Wortspeicher, 15 Minuten' }) as PhaseMatchResult;
+    expect(r.modus).toBe('phase');
+    expect(r.genannteHilfen).toEqual([FIXTURE_HILFE]);
+    expect(r.hinweise).toContain(HINWEIS);
+    expect(r.vorschlaege.map((v) => v.baustein)).not.toContain(FIXTURE_HILFE);
+  });
+
+  it('ohne genannte Hilfe gibt es kein Feld genannteHilfen', () => {
+    const r = MH.zuordnen({ text: 'Deutsch Klasse 5, Märchen, 45 Minuten' });
+    expect(r.genannteHilfen).toBeUndefined();
+  });
+
+  it('eine Hilfe ist nie Kandidat: Methoden, die der Planer wählt, werden als Hilfe nicht mehr gewählt', () => {
+    const anfragen = [
+      { text: 'Biologie Klasse 7 Fotosynthese, 45 Minuten' },
+      { text: 'Mathe Klasse 8 Prozentrechnung, 90 Minuten' },
+      { lernfunktion: 'orientierung', zeitMin: 15 },
+      { liefert: 'vorwissen-aktiviert' }
+    ];
+    const M = createMatcher(D, createValidator(D));
+    const gewaehlt = new Set<string>();
+    for (const a of anfragen) {
+      const r = M.zuordnen(a);
+      if (r.modus === 'phase') r.vorschlaege.forEach((v) => gewaehlt.add(v.baustein));
+      else for (const m of JSON.stringify(r.arrangement || {}).match(/"baustein":"[^"]+"/g) || []) gewaehlt.add(m.slice(12, -1));
+    }
+    expect(gewaehlt.size).toBeGreaterThan(5);
+    const DX = alsHilfe(D, gewaehlt);
+    const MX = createMatcher(DX, createValidator(DX));
+    for (const a of anfragen) {
+      const r = MX.zuordnen(a);
+      const ids =
+        r.modus === 'phase'
+          ? r.vorschlaege.map((v) => v.baustein)
+          : (JSON.stringify(r.arrangement || {}).match(/"baustein":"[^"]+"/g) || []).map((m) => m.slice(12, -1));
+      expect(ids.filter((id) => gewaehlt.has(id)), JSON.stringify(a)).toEqual([]);
+    }
+  });
+
+  it('der Prüfer meldet eine Hilfe als Phase mit R-00', () => {
+    const arr: Arrangement = {
+      typ: 'Arrangement',
+      name: 'h',
+      reichweite: 'r3',
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: FIXTURE_HILFE, dauerMin: 15 }] }
+    };
+    const res = VH.validate(arr);
+    expect(res.gueltig).toBe(false);
+    expect(res.meldungen).toContainEqual(expect.objectContaining({ regel: 'R-00', schwere: 'Fehler', pfad: '/ablauf/teile/0' }));
+    expect(res.meldungen.find((m) => m.regel === 'R-00')!.meldung).toContain('Wortspeicher');
+    // The same method as a method is no structural error.
+    const ok = VH.validate({ ...arr, ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: 'placemat', dauerMin: 15 }] } } as Arrangement);
+    expect(ok.meldungen.filter((m) => m.regel === 'R-00')).toEqual([]);
+  });
+
+  it('die Suche unterscheidet Methoden und Hilfen; ohne Angabe liefert sie beide', () => {
+    const alle = SH.suche({}).map((b) => b.kennung);
+    const hilfen = SH.suche({ eintragsart: 'hilfe' }).map((b) => b.kennung);
+    const methoden = SH.suche({ eintragsart: 'methode' }).map((b) => b.kennung);
+    expect(alle).toContain(FIXTURE_HILFE);
+    expect(hilfen).toContain(FIXTURE_HILFE);
+    expect(methoden).not.toContain(FIXTURE_HILFE);
+    expect(methoden).toContain('placemat');
+    expect(hilfen.every((id) => DH.bausteine.find((b) => b.kennung === id)!.eintragsart === 'hilfe')).toBe(true);
+    expect(hilfen.length + methoden.length).toBe(alle.length);
+  });
+
+  it('der Ersatz bietet nie eine Hilfe an', () => {
+    const r = MH.zuordnen({ text: 'Biologie Klasse 7 Fotosynthese, 45 Minuten' }) as AblaufMatchResult;
+    const arr = r.arrangement!;
+    const seq = arr.ablauf as { teile: Array<{ typ: string }> };
+    const i = seq.teile.findIndex((t) => t.typ === 'Einsatz');
+    const cands = SH.ersatz(arr, `/ablauf/teile/${i}`).map((c) => c.baustein);
+    expect(cands.length).toBeGreaterThan(0);
+    expect(cands).not.toContain(FIXTURE_HILFE);
+  });
+
+  it('istMethode, istHilfe und nurMethoden: eine Hilfe ist keine Methode, ohne Angabe gilt Methode', () => {
+    const hilfe = DH.bausteine.find((b) => b.kennung === FIXTURE_HILFE)!;
+    const placemat = DH.bausteine.find((b) => b.kennung === 'placemat')!;
+    expect(istHilfe(hilfe)).toBe(true);
+    expect(istMethode(hilfe)).toBe(false);
+    expect(istMethode(placemat)).toBe(true);
+    expect(istMethode({ ...placemat, eintragsart: 'methode' })).toBe(true);
+    expect(nurMethoden(DH.bausteine).map((b) => b.kennung)).not.toContain(FIXTURE_HILFE);
+    expect(nurMethoden(DH.bausteine).length).toBe(DH.bausteine.filter((b) => b.eintragsart !== 'hilfe').length);
+  });
+
+  it('adaptScenario empfiehlt für eine Phase ohne Methode keine Hilfe (passendeFmtMethoden)', () => {
+    const anfrage = {
+      scenarioText: 'Mathematik Klasse 4 Bruchteile einführen mit Papierfalten, 45 Minuten, ohne Geräte, ohne Internet',
+      lerngruppenText: '5 DaZ-Kinder, 2 Kinder mit ADHS und 4 sehr leistungsstarke Kinder',
+      fach: 'Mathematik',
+      thema: 'Bruchteile',
+      bildungsstufe: 'primar',
+      zeitMin: 45
+    };
+    const vorher = new Set(adaptScenario(D, anfrage).phasenAnpassungen.flatMap((p) => p.passendeFmtMethoden.map((m) => m.kennung)));
+    expect(vorher.size).toBeGreaterThan(0);
+    const nachher = adaptScenario(alsHilfe(D, vorher), anfrage).phasenAnpassungen.flatMap((p) => p.passendeFmtMethoden.map((m) => m.kennung));
+    expect(nachher.filter((k) => vorher.has(k))).toEqual([]);
   });
 });

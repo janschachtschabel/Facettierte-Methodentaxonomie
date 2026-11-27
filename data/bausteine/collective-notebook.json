@@ -10,11 +10,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Ein gemeinsames Notizbuch oder digitales Dokument wandert über mehrere Tage durch die Gruppe; alle ergänzen schrittweise Ideen und Kommentare.",
   "alternativname": [
@@ -35,7 +35,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 4,
   "gruppeMax": 20,
   "technik": "t-keine",

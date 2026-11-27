@@ -11,11 +11,11 @@
     "beruf-praxis",
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Strukturierte Systemanalyse aus sechs Blickwinkeln (Customers, Actors, Transformation, Weltanschauung, Owners, Environmental constraints).",
   "alternativname": [
@@ -36,7 +36,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -105,9 +105,6 @@
       "kennung": "sechs-perspektiven",
       "name": "Vollständige Betrachtung aller 6 Stakeholder-Dimensionen"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Hohe Begriffsabstraktion verlangt gute Einführung"

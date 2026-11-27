@@ -205,7 +205,7 @@ describe('D5: Vor- und Nachbedingungen der Kernmethoden', () => {
 describe('Review: Textregeln lösen nicht auf Alltagsverben aus', () => {
   const read = (text: string) => M.lesen(text).kriterien;
 
-  it('zieltyp produktion und urteilsbildung brauchen ein Produkt bzw. ein Debattenwort', () => {
+  it('zielart gestalten und urteilen brauchen ein Produkt bzw. ein Debattenwort', () => {
     for (const text of [
       'Wie kann ich den Einstieg in die Stunde gestalten? 10 Minuten',
       'Mathe Klasse 6, 45 Minuten: Bruchrechnen üben, am Ende Ergebnisse diskutieren',
@@ -214,11 +214,12 @@ describe('Review: Textregeln lösen nicht auf Alltagsverben aus', () => {
       'Kurze Diskussion zum Einstieg, 5 Minuten'
     ]) {
       expect(read(text).zieltyp, text).toBeUndefined();
+      expect(['gestalten', 'urteilen'], text).not.toContain(read(text).zielart);
     }
     expect(M.zuordnen({ text: 'Wie kann ich den Einstieg in die Stunde gestalten? 10 Minuten' }).modus).toBe('phase');
     expect(M.zuordnen({ text: 'Kurze Diskussion zum Einstieg, 5 Minuten' }).modus).toBe('phase');
-    expect(read('Kunst Klasse 7: ein Plakat gestalten, 90 Minuten').zieltyp).toBe('produktion');
-    expect(read('Deutsch Klasse 9: einen Kommentar schreiben, 90 Minuten').zieltyp).toBe('produktion');
+    expect(read('Kunst Klasse 7: ein Plakat gestalten, 90 Minuten').zielart).toBe('gestalten');
+    expect(read('Deutsch Klasse 9: einen Kommentar schreiben, 90 Minuten').zielart).toBe('gestalten');
   });
 
   it('eine ausdrücklich gesetzte Zielart hat Vorrang vor einem aus dem Text gelesenen Zieltyp', () => {

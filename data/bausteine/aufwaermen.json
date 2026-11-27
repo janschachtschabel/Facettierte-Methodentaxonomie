@@ -10,15 +10,8 @@
   "fachbereich": [
     "sport"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "sprachen",
-    "gesellschaft",
-    "nawi-technik"
-  ],
-  "lernort": [
-    "bewegungsraum",
-    "draussen"
+  "raumbedarf": [
+    "bewegungsflaeche"
   ],
   "kurzbeschreibung": "Allgemeines und spezielles Aufwärmen mit kleinem Spiel, Mobilisation und Bewegungen, die auf den Schwerpunkt der Stunde vorbereiten.",
   "alternativname": [
@@ -39,7 +32,7 @@
     "Ggf. Musik",
     "Markierungen"
   ],
-  "raum": "Sporthalle, Sportplatz oder Außengelände",
+  "raumhinweis": "Sporthalle, Sportplatz oder Außengelände",
   "gruppeMin": 4,
   "gruppeMax": 35,
   "technik": "t-keine",

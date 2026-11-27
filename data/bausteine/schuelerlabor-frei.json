@@ -15,16 +15,13 @@
   "fachbereich": [
     "nawi-technik"
   ],
-  "fachbereichUngeeignet": [
-    "sprachen",
-    "gesellschaft",
-    "aesthetik",
-    "sport",
-    "mathe-informatik"
+  "raumbedarf": [
+    "schreibplatz",
+    "fachausstattung"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
+  "fachausstattungArt": "labor",
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -125,7 +122,7 @@
     "Laborausstattung",
     "Forschungsprotokoll"
   ],
-  "raum": "Schülerlabor / Fachraum",
+  "raumhinweis": "Schülerlabor / Fachraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 45,

@@ -11,6 +11,8 @@ import {
   createMatcher,
   createValidator,
   detectLearnerGroupsFromText,
+  GESPERRTE_MATRIX_KATEGORIEN,
+  detectMatrixTraitsFromText,
   getMeasureEnrichment,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup
@@ -230,5 +232,49 @@ describe('FMT Differentiation Enrichment & adaptScenario Engine', () => {
     // No timetable/school-org measures leak into Leistungsstark recommendations by default
     const strong = singleMethodRes.teilgruppen.find((t) => t.id === 'vertiefung')!;
     expect(strong.spezifischeMassnahmen.some((m) => /Fachzeitanteile|Gleitzeit|Fachräume|Klassenlehrkraft/i.test(m.name))).toBe(false);
+  });
+
+  it('gesperrte Kategorien: die Matrix wertet sie nicht aus, die Texterkennung meldet sie getrennt', () => {
+    expect([...GESPERRTE_MATRIX_KATEGORIEN]).toEqual(D.teilgruppen.gesperrt);
+    const nurSensorisch = scoreDifferentiationMatrix({ selectedValues: { sensorische: 'sensorische-visuell' } });
+    expect(nurSensorisch.selectedCount).toBe(0);
+    expect(nurSensorisch.topRecommendations).toEqual([]);
+    const mit = scoreDifferentiationMatrix({ selectedValues: { vorwissen: 'vorwissen-gering', sensorische: 'sensorische-visuell' }, limit: 20 });
+    const ohne = scoreDifferentiationMatrix({ selectedValues: { vorwissen: 'vorwissen-gering' }, limit: 20 });
+    expect(mit).toEqual(ohne);
+    // With an explicit empty list the category counts again (callers with other data).
+    expect(scoreDifferentiationMatrix({ selectedValues: { sensorische: 'sensorische-visuell' }, gesperrt: [] }).selectedCount).toBe(1);
+
+    const det = detectMatrixTraitsFromText('Teilgruppe: visuelle Lerntypen');
+    expect(det.selectedValues.sensorische).toBeUndefined();
+    expect(det.gesperrt.map((g) => g.categoryId)).toEqual(['sensorische']);
+    expect(det.signals).toEqual([]);
+    // Presets no longer carry the blocked category.
+    for (const qp of QUICK_LEARNER_GROUP_PROFILES) expect(qp.selectedValues.sensorische).toBeUndefined();
+    for (const g of detectLearnerGroupsFromText('5 DaZ-Kinder, 3 LRS, 2 hörbeeinträchtigt, 1 sehbehindert').groups) {
+      expect(g.selectedValues?.sensorische).toBeUndefined();
+    }
+    expect(detectMatrixTraitsFromText('DaZ, LRS, schwerhörig, sehbehindert').gesperrt).toEqual([]);
+    // Negated learning styles are not a group and nothing is blocked.
+    for (const t of ['keine Lerntypen bitte', 'ohne visuelle Lerntypen', 'Wir unterscheiden nicht nach Lerntypen', 'keine Einteilung: kein Lernstil-Test']) {
+      expect(detectMatrixTraitsFromText(t).gesperrt, t).toEqual([]);
+    }
+    expect(detectLearnerGroupsFromText('Wir unterscheiden nicht nach Lerntypen').groups.map((g) => g.id)).not.toContain('lerntypen');
+    expect(detectLearnerGroupsFromText('4 visuelle Lerntypen').groups.map((g) => g.id)).toContain('lerntypen');
+  });
+
+  it('adaptScenario nennt je Teilgruppe und Phase Antwort, Beleg und Hilfen und liefert Regelmeldungen', () => {
+    const res = adaptScenario(D, { baustein: 'sos-modell', lerngruppenText: '5 DaZ-Kinder und 4 mit geringem Vorwissen' });
+    expect(Array.isArray(res.regelmeldungen)).toBe(true);
+    expect(res.gesperrt).toEqual([]);
+    for (const p of res.phasenAnpassungen) {
+      for (const t of p.teilgruppenImpulse) {
+        expect(['passt', 'hilfe', 'tausch']).toContain(t.antwort);
+        expect(typeof t.beleg.grund).toBe('string');
+        for (const h of t.hilfen) expect(h.abbau.length).toBeGreaterThan(10);
+      }
+    }
+    // sos-modell is cooperative in small groups: the group with low prior knowledge gets the grouping hint.
+    expect(res.regelmeldungen.map((m) => m.regel)).toContain('leistungsschwache-nicht-unter-sich');
   });
 });

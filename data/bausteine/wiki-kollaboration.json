@@ -16,12 +16,14 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
+  "termineMin": 2,
   "quellen": [
     {
       "titel": "Wikipedia: Wiki",
@@ -160,8 +162,5 @@
   "plot": {
     "x": 0.42,
     "y": 2.55
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import type { FacetMeta } from '@fmt/core';
+import { istHilfe, type FacetMeta } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
 import { ProfileRadarSvg } from '../components/ProfileRadarSvg.js';
 import { ControlBars } from '../components/ControlBars.js';
 import { InterfaceFlow } from '../components/InterfaceFlow.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
+import { bedarfNachWFeld } from '../planner/bedarfAnzeige.js';
 
 export function MethodDetailPage() {
   const { kennung } = useParams();
@@ -76,6 +77,7 @@ export function MethodDetailPage() {
               <span className="range-badge">
                 {b.reichweite.toUpperCase()} {labelOf('reichweite', b.reichweite)}
               </span>
+              {istHilfe(b) && <span className="status-badge">Hilfe</span>}
               {b.komposit && <span className="status-badge">Kompositbaustein</span>}
               {b.ki && <span className="status-badge">KI-Beteiligung</span>}
               <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
@@ -149,16 +151,23 @@ export function MethodDetailPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => {
-                queueBlockForPlanner(b.kennung);
-                navigate('/planer');
-              }}
-            >
-              + In Szenario-Baukasten übernehmen
-            </button>
+            {istHilfe(b) ? (
+              <p className="muted" style={{ margin: 0, maxWidth: '60ch' }}>
+                Eine Hilfe ist keine eigene Phase: Sie stützt Lernende innerhalb einer Methode. Im Baukasten ordnest du sie in
+                Schritt 3 den Phasen zu.
+              </p>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  queueBlockForPlanner(b.kennung);
+                  navigate('/planer');
+                }}
+              >
+                + In Szenario-Baukasten übernehmen
+              </button>
+            )}
             <button
               type="button"
               className="btn"
@@ -209,6 +218,38 @@ export function MethodDetailPage() {
         <InterfaceFlow baustein={b} allBlocks={bundle.bausteine} labelOf={labelOf} />
       </section>
 
+      {/* Need of the method, grouped by W-field (W-Raster, kind "Bedarf") */}
+      <section style={{ marginTop: 32 }}>
+        <h2>Was die Methode braucht</h2>
+        <p className="muted" style={{ fontSize: 14, maxWidth: '76ch' }}>
+          Der Bedarf der Methode, geordnet nach den Fragen des W-Rasters. Nennt dein Szenario das Gegenstück (etwa einen
+          Raum ohne freie Fläche), scheidet die Methode im Baukasten aus.
+        </p>
+        <div className="card" style={{ padding: 0 }}>
+          <table aria-label="Bedarf nach W-Feld" style={{ margin: 0 }}>
+            <tbody>
+              {bedarfNachWFeld(b, bundle, labelOf).map((row) => (
+                <tr key={row.wfeld}>
+                  <th scope="row" style={{ width: '24%', verticalAlign: 'top' }}>
+                    {row.name}
+                    <div className="muted" style={{ fontSize: 12.5, fontWeight: 400 }}>
+                      {row.frage}
+                    </div>
+                  </th>
+                  <td>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {row.zeilen.map((z) => (
+                        <li key={z}>{z}</li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Practice & Steering */}
       <section className="split-2" style={{ marginTop: 32 }}>
         <div className="card" style={{ padding: 18 }}>
@@ -225,7 +266,6 @@ export function MethodDetailPage() {
           </ol>
           <p style={{ fontSize: 15 }}>
             <strong>Material:</strong> {b.material.join(', ')}
-            {b.raum ? ` · Raum: ${b.raum}` : ''}
           </p>
           {b.variante && b.variante.length > 0 && (
             <p style={{ fontSize: 15 }}>
@@ -251,11 +291,11 @@ export function MethodDetailPage() {
               <strong>Q1 Kernkomponenten (Regel R-10):</strong>{' '}
               {b.kernkomponente.length ? b.kernkomponente.map((k) => k.name).join(' · ') : 'Keine (Kontrast-Baustein)'}
             </p>
-            {(b.hinweis || b.geeignetBeiVorwissen || b.ungeeignetBeiStufe) && (
+            {(b.hinweis || b.ungeeignetBeiVorwissen || b.ungeeignetBeiStufe) && (
               <p style={{ fontSize: 15 }}>
                 <strong>Q2 Bedingungen:</strong> {b.hinweis || ''}{' '}
-                {b.geeignetBeiVorwissen &&
-                  `Vorwissen: ${b.geeignetBeiVorwissen.map((v) => labelOf('vorwissen', v)).join(', ')}. `}
+                {b.ungeeignetBeiVorwissen &&
+                  `Passt weniger bei Vorwissen: ${b.ungeeignetBeiVorwissen.map((v) => labelOf('vorwissen', v)).join(', ')}. `}
                 {b.ungeeignetBeiStufe &&
                   `Nicht vorgesehen für: ${b.ungeeignetBeiStufe.map((s) => labelOf('bildungsstufe', s)).join(', ')}.`}
               </p>

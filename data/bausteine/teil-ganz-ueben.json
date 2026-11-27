@@ -10,16 +10,6 @@
     "aesthetik",
     "sport"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "gesellschaft"
-  ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum",
-    "fachraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Ein Lied, eine Choreografie oder ein Bewegungsablauf wird in kurze Abschnitte zerlegt, die nacheinander geübt und schrittweise zum Ganzen verbunden werden.",
   "alternativname": [
     "Teil-Ganz-Methode",
@@ -40,7 +30,7 @@
     "Gliederung des Ablaufs (Liedblatt, Zählzeiten, Skizze)",
     "ggf. Musik oder Instrument"
   ],
-  "raum": "Klassenraum, Musikraum oder Halle",
+  "raumhinweis": "Klassenraum, Musikraum oder Halle",
   "gruppeMin": 1,
   "gruppeMax": 32,
   "technik": "t-keine",

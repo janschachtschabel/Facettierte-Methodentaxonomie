@@ -10,8 +10,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Unstrukturierte Einzelbeobachtungen auf Karten werden still nach innerer Verwandtschaft geclustert, mit Oberbegriffen betitelt und in Beziehung gesetzt.",
   "alternativname": [
@@ -32,7 +35,7 @@
     "Moderationskarten",
     "Pinnwand oder Tisch"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

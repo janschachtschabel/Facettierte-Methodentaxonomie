@@ -16,8 +16,11 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -78,8 +81,8 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "schlecht-strukturiert",
     "konzepte",
+    "schlecht-strukturiert",
     "afb2",
     "afb3"
   ],
@@ -118,7 +121,7 @@
     "A4- oder A3-Bögen (1 pro Person)",
     "Stifte"
   ],
-  "raum": "Gruppentische",
+  "raumhinweis": "Gruppentische",
   "gruppeMin": 4,
   "gruppeMax": 32,
   "teamMin": 3,

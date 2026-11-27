@@ -19,11 +19,19 @@
     "mathe-informatik",
     "nawi-technik",
     "gesellschaft",
-    "aesthetik",
-    "sport"
+    "aesthetik"
   ],
-  "lernort": [
-    "klassenraum"
+  "eignungsgrund": {
+    "fachbereich": {
+      "text": "Gegenstand der Methode ist die Rechtschreibung.",
+      "grundlage": "S"
+    }
+  },
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
   ],
   "quellen": [
     {
@@ -117,7 +125,7 @@
     "Diktattext",
     "Liniiertes Papier"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 10,

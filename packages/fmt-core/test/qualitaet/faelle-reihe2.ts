@@ -11,7 +11,7 @@ export const REIHE2: Qualitaetsfall[] = [
   { id: 'r2-gs-mathe-einmaleins-30', text: 'Grundschule 3. Klasse Einmaleins automatisieren, 30 Minuten', erwartet: { modus: 'ablauf', kriterien: { bildungsstufe: 'primar', zielart: 'fakten' } } },
   { id: 'r2-gs-sachunterricht-strom-90', text: 'Sachunterricht Klasse 4: einfacher Stromkreis mit Batterie und Lämpchen ausprobieren, Doppelstunde', erwartet: { kriterien: { bildungsstufe: 'primar', fachbereich: 'nawi-technik', zeitMin: 90 } } },
   { id: 'r2-gs-sport-ballgewoehnung-45', text: 'Sport 1. Klasse Ballgewöhnung, 45 Minuten', erwartet: { praxis: true, kette: 'fertigkeit-bewegung', kriterien: { bildungsstufe: 'primar' } } },
-  { id: 'r2-gs-musik-lied-45', text: 'Musik Klasse 2: ein neues Lied singen lernen, 45 Minuten', erwartet: { praxis: true, kriterien: { fachbereich: 'aesthetik', zielart: 'psychomotorik' } } },
+  { id: 'r2-gs-musik-lied-45', text: 'Musik Klasse 2: ein neues Lied singen lernen, 45 Minuten', erwartet: { praxis: true, kriterien: { fachbereich: 'aesthetik', zielart: 'bewegung' } } },
   { id: 'r2-gs-kunst-collage-90', text: 'Kunst 4. Klasse Collage zum Thema Herbst gestalten, 90 Minuten', erwartet: { kette: 'produktion', kriterien: { fachbereich: 'aesthetik' } } },
   { id: 'r2-gs-religion-feste-45', text: 'Religion Klasse 3 Feste der Weltreligionen, 45 Minuten', erwartet: { kriterien: { fachbereich: 'gesellschaft' } } },
   { id: 'r2-gs-englisch-farben-20', text: 'Englisch in der Grundschule, Klasse 1, colours spielerisch einführen, 20 Minuten', erwartet: { modus: 'phase', kriterien: { bildungsstufe: 'primar' } } },

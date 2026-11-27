@@ -1,6 +1,6 @@
 {
   "name": "fmt-methodendatenbank",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, REST/Linked-Data-API & MCP-Server (Autor Inhalte: Jan Schachtschabel, CC-BY 4.0)",
   "license": "Apache-2.0",
@@ -23,7 +23,8 @@
     "mcp:stdio": "node apps/server/dist/mcp/stdio.js",
     "dev:server": "npm -w @fmt/server run dev",
     "dev:web": "npm -w @fmt/web run dev",
-    "qualitaet": "tsx packages/fmt-core/test/qualitaet/bericht.ts"
+    "qualitaet": "tsx packages/fmt-core/test/qualitaet/bericht.ts",
+    "qualitaet:ausgang": "tsx packages/fmt-core/test/qualitaet/vergleich.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

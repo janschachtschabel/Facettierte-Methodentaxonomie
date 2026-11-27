@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Eine bewusst zugespitzte oder absurde Gegenthese („PO: Autos haben eckige Räder“) bricht Denkroutinen auf und wird gezielt auf neue Ideen hin untersucht.",
   "alternativname": [
     "PO-Methode nach De Bono",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -101,9 +98,6 @@
       "kennung": "bewegung",
       "name": "Weiterdenken der Provokation statt sofortiger Ablehnung"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Albernheit ohne produktiven Übergang zu realen Lösungen"

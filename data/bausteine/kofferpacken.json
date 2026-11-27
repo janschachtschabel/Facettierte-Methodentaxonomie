@@ -16,9 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "quellen": [
     {
       "titel": "ZUM Deutsch-Lernen: Kofferpacken",
@@ -108,7 +105,7 @@
   "material": [
     "Kein Material erforderlich (optional Wortkarten als Stütze)"
   ],
-  "raum": "Regulärer Klassenraum oder Stuhlkreis",
+  "raumhinweis": "Regulärer Klassenraum oder Stuhlkreis",
   "gruppeMin": 4,
   "gruppeMax": 30,
   "teamMin": 4,

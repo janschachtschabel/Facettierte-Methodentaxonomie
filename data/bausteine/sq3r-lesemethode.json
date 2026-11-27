@@ -17,13 +17,12 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport",
-    "aesthetik"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum",
-    "hoersaal"
+  "schriftbedarf": [
+    "liest",
+    "schreibt"
   ],
   "quellen": [
     {
@@ -153,8 +152,5 @@
   "plot": {
     "x": 0.72,
     "y": 2.15
-  },
-  "ungeeignetBeiStufe": [
-    "primar"
-  ]
+  }
 }

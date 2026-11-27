@@ -10,14 +10,11 @@
   "fachbereich": [
     "gesellschaft"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "aesthetik",
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Internationale Konferenzsimulation, in der Lernende als Delegierte verschiedener Staaten Positionspapiere verfassen, verhandeln und Resolutionen verabschieden.",
   "alternativname": [
@@ -38,7 +35,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 14,
   "gruppeMax": 80,
   "technik": "t-keine",
@@ -115,9 +112,6 @@
       "kennung": "resolution",
       "name": "Gemeinsame Verhandlung einer Resolution"
     }
-  ],
-  "ungeeignetBeiStufe": [
-    "primar"
   ],
   "qualitaetsrisiko": [
     "Klischeehafte Länderdarstellung bei zu knapper Recherchezeit"

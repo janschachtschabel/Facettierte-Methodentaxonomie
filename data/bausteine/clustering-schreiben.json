@@ -11,11 +11,11 @@
     "sprachen",
     "uebergreifend"
   ],
-  "fachbereichUngeeignet": [
-    "sport"
+  "raumbedarf": [
+    "schreibplatz"
   ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Vom eingekreisten Kernbegriff aus entstehen freie, verzweigte Wortketten, um Vorwissen, Assoziationen und Schreibideen visuell freizulegen.",
   "alternativname": [
@@ -35,7 +35,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 40,
   "technik": "t-keine",

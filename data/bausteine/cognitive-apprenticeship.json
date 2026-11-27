@@ -16,10 +16,6 @@
     "beruf-praxis",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "fachraum"
-  ],
   "reichweite": "r3",
   "lernfunktion": [
     "erwerb",
@@ -77,9 +73,9 @@
     "ki-keine"
   ],
   "aufgabe": [
-    "schlecht-strukturiert",
     "prozeduren",
-    "konzepte"
+    "konzepte",
+    "schlecht-strukturiert"
   ],
   "sequenz": [
     "geblockt"
@@ -104,11 +100,6 @@
   ],
   "dauerMin": 90,
   "dauerMax": 240,
-  "geeignetBeiVorwissen": [
-    "gering",
-    "mittel",
-    "hoch"
-  ],
   "problem": "Bei komplexen Denk- und Problemlöseaufgaben bleiben die entscheidenden Zwischenschritte von Experten für Lernende unsichtbar.",
   "durchfuehrung": [
     "Modeling: Lehrkraft demonstriert eine authentische Aufgabe und verbalisiert Entscheidungen und Irrwege.",
@@ -120,7 +111,7 @@
     "Authentische Aufgabenreihe",
     "Strategiekarten / Leitfragen"
   ],
-  "raum": "Klassen- oder Fachraum",
+  "raumhinweis": "Klassen- oder Fachraum",
   "gruppeMin": 2,
   "gruppeMax": 30,
   "vorbereitungMin": 30,

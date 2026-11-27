@@ -9,15 +9,8 @@
   "fachbereich": [
     "sprachen"
   ],
-  "fachbereichUngeeignet": [
-    "mathe-informatik",
-    "nawi-technik",
-    "gesellschaft",
-    "aesthetik",
-    "sport"
-  ],
-  "lernort": [
-    "klassenraum"
+  "schriftbedarf": [
+    "schreibt"
   ],
   "kurzbeschreibung": "Zwei Lernende mit unterschiedlichen Erstsprachen oder Stärken unterstützen sich wechselseitig zu gleichen Zeitanteilen beim authentischen Sprechen.",
   "alternativname": [
@@ -38,7 +31,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 40,
   "teamMin": 2,
@@ -141,7 +134,7 @@
     "y": 2.78
   },
   "aufgabe": [
-    "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

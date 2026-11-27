@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Selbstgetaktetes Anhören eines fachlichen Podcasts oder Hörbeitrags (auch asynchron) mit Leitfragen oder Sketchnote-Protokoll.",
   "alternativname": [
     "Hörverstehen",
@@ -31,7 +28,7 @@
     "Arbeitsmaterial",
     "Kriterienbogen"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "technik": "t-einzeln",

@@ -7,15 +7,15 @@ import type { Qualitaetsfall } from './faelle.js';
  */
 export const REIHE3: Qualitaetsfall[] = [
   // Lernorte
-  { id: 'r3-ort-erdkunde-bach-90', text: 'Erdkunde Klasse 7 Exkursion an den Bach: Gewässergüte bestimmen, 90 Minuten, draußen', erwartet: { kriterien: { lernort: 'draussen', zeitMin: 90, bildungsstufe: 'sek1' }, nichtKriterien: { ansatz: ['spiel-simulation'] } } },
-  { id: 'r3-ort-bio-schulgarten-45', text: 'Bio Klasse 5 im Schulgarten: Pflanzen bestimmen, 45 Minuten', erwartet: { kriterien: { lernort: 'draussen', fachbereich: 'nawi-technik' } } },
-  { id: 'r3-ort-gs-wald-90', text: 'Waldtag mit der 2. Klasse, Tiere im Wald entdecken, 90 Minuten', erwartet: { kriterien: { lernort: 'draussen', bildungsstufe: 'primar' } } },
-  { id: 'r3-ort-museum-60', text: 'Geschichte 9. Klasse Museumsbesuch zur Industrialisierung vorbereiten und durchführen, 60 Minuten im Museum', erwartet: { kriterien: { lernort: 'draussen', fachbereich: 'gesellschaft' } } },
-  { id: 'r3-ort-hoersaal-bwl-90', text: 'Vorlesung BWL im Hörsaal, 180 Studierende, Kostenrechnung, 90 Minuten, trotzdem etwas Aktivierung', erwartet: { kriterien: { lernort: 'hoersaal', bildungsstufe: 'hochschule', gruppe: 180 } } },
-  { id: 'r3-ort-chemie-labor-90', text: 'Chemie Q1 Titration im Labor, Schülerversuch, Doppelstunde', erwartet: { praxis: true, kriterien: { lernort: 'fachraum', bildungsstufe: 'sek2', zeitMin: 90 } } },
-  { id: 'r3-ort-technik-werkstatt-90', text: 'Technik Klasse 8 in der Werkstatt: Vogelhaus sägen und bohren, 90 Minuten', erwartet: { praxis: true, kriterien: { lernort: 'fachraum', fachbereich: 'nawi-technik' } } },
-  { id: 'r3-ort-hauswirtschaft-kueche-90', text: 'Hauswirtschaft Klasse 9 in der Lehrküche: Pizza backen und Hygiene beachten, 90 Minuten', erwartet: { praxis: true, kriterien: { lernort: 'fachraum' } } },
-  { id: 'r3-ort-sport-draussen-45', text: 'Sport Klasse 6 auf dem Sportplatz: Sprint und Staffellauf, 45 Minuten', erwartet: { praxis: true, kriterien: { fachbereich: 'sport', lernort: 'draussen' } } },
+  { id: 'r3-ort-erdkunde-bach-90', text: 'Erdkunde Klasse 7 Exkursion an den Bach: Gewässergüte bestimmen, 90 Minuten, draußen', erwartet: { kriterien: { raum: 'draussen', zeitMin: 90, bildungsstufe: 'sek1' }, nichtKriterien: { ansatz: ['spiel-simulation'] } } },
+  { id: 'r3-ort-bio-schulgarten-45', text: 'Bio Klasse 5 im Schulgarten: Pflanzen bestimmen, 45 Minuten', erwartet: { kriterien: { raum: 'draussen', fachbereich: 'nawi-technik' } } },
+  { id: 'r3-ort-gs-wald-90', text: 'Waldtag mit der 2. Klasse, Tiere im Wald entdecken, 90 Minuten', erwartet: { kriterien: { raum: 'draussen', bildungsstufe: 'primar' } } },
+  { id: 'r3-ort-museum-60', text: 'Geschichte 9. Klasse Museumsbesuch zur Industrialisierung vorbereiten und durchführen, 60 Minuten im Museum', erwartet: { kriterien: { raum: 'ausserschulisch', fachbereich: 'gesellschaft' } } },
+  { id: 'r3-ort-hoersaal-bwl-90', text: 'Vorlesung BWL im Hörsaal, 180 Studierende, Kostenrechnung, 90 Minuten, trotzdem etwas Aktivierung', erwartet: { kriterien: { raum: 'hoersaal', bildungsstufe: 'hochschule', gruppe: 180 } } },
+  { id: 'r3-ort-chemie-labor-90', text: 'Chemie Q1 Titration im Labor, Schülerversuch, Doppelstunde', erwartet: { praxis: true, kriterien: { raum: 'fachraum-nawi', bildungsstufe: 'sek2', zeitMin: 90 } } },
+  { id: 'r3-ort-technik-werkstatt-90', text: 'Technik Klasse 8 in der Werkstatt: Vogelhaus sägen und bohren, 90 Minuten', erwartet: { praxis: true, kriterien: { raum: 'werkraum', fachbereich: 'nawi-technik' } } },
+  { id: 'r3-ort-hauswirtschaft-kueche-90', text: 'Hauswirtschaft Klasse 9 in der Lehrküche: Pizza backen und Hygiene beachten, 90 Minuten', erwartet: { praxis: true, kriterien: { raum: 'lehrkueche' } } },
+  { id: 'r3-ort-sport-draussen-45', text: 'Sport Klasse 6 auf dem Sportplatz: Sprint und Staffellauf, 45 Minuten', erwartet: { praxis: true, kriterien: { fachbereich: 'sport', raum: 'draussen' } } },
 
   // Primarstufe
   { id: 'r3-gs-mathe-geld-45', text: 'Mathe 2. Klasse Rechnen mit Geld, Kaufladen, 45 min', erwartet: { kriterien: { bildungsstufe: 'primar', fachbereich: 'mathe-informatik', zeitMin: 45 } } },
@@ -49,7 +49,7 @@ export const REIHE3: Qualitaetsfall[] = [
   // Berufliche Bildung
   { id: 'r3-bs-kfz-reifen-90', text: 'Kfz-Mechatroniker 1. Lehrjahr: Reifenwechsel in der Werkstatt, 90 Minuten, 14 Azubis', erwartet: { praxis: true, kriterien: { fachbereich: 'beruf-praxis', gruppe: 14 } } },
   { id: 'r3-bs-einzelhandel-kunden-90', text: 'Kaufleute im Einzelhandel: Verkaufsgespräch und Reklamation üben, 90 Minuten', erwartet: { kriterien: { fachbereich: 'beruf-praxis' } } },
-  { id: 'r3-bs-pflege-blutdruck-60', text: 'Pflegeschule 1. Ausbildungsjahr: Blutdruck messen im Skills Lab, 60 Minuten, 18 Auszubildende', erwartet: { praxis: true, kriterien: { lernort: 'fachraum', gruppe: 18 } } },
+  { id: 'r3-bs-pflege-blutdruck-60', text: 'Pflegeschule 1. Ausbildungsjahr: Blutdruck messen im Skills Lab, 60 Minuten, 18 Auszubildende', erwartet: { praxis: true, kriterien: { raum: 'fachraum', gruppe: 18 } } },
   { id: 'r3-bs-elektro-pruefung-45', text: 'Elektroniker Lernfeld 3, Fehlersuche an Schaltungen, 45 Minuten, am Ende praktische Prüfung', erwartet: { leistungskontrolle: true, kriterien: { fachbereich: 'beruf-praxis' } } },
   { id: 'r3-bs-erzieher-portfolio-90', text: 'Fachschule Sozialpädagogik: Beobachtungsbögen auswerten und Portfolio führen, 90 Minuten', erwartet: { kriterien: { bildungsstufe: 'berufsbildung' } } },
 

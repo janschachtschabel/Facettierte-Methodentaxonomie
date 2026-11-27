@@ -23,6 +23,15 @@ export interface LearnerGroup {
   personaId?: string;
   /** Custom Anpassungsvariablen overrides for the scoring matrix */
   matrixValues?: Record<string, string>;
+  /** What the group cannot do yet: read, write (statement of the teacher, not a matrix trait). */
+  ohneSchrift?: Array<'lesen' | 'schreiben'>;
+  /** The group cannot move freely (statement of the teacher, not a matrix trait). */
+  ohneBewegung?: boolean;
+  /**
+   * Matrix values the teacher named (core values of a chip, values set by hand); only these decide the subgroup check,
+   * the others only order the matrix. Undefined: every value in matrixValues counts.
+   */
+  genannt?: string[];
 }
 
 export interface StepDiffSuggestion {
@@ -55,6 +64,8 @@ export interface GeneratedMaterialItem {
   materialType: string;
   content: string;
   createdAt: string;
+  /** Subgroup a help taken over in step 3 belongs to (materialType 'hilfe'). */
+  groupId?: string;
 }
 
 /** Maps stepKey -> groupId -> alternative FMT method kennung */
@@ -140,6 +151,8 @@ export interface QuickDiffGroupTemplate {
   defaultCount: number;
   personaId?: string;
   matrixValues: Record<string, string>;
+  /** Core values of the preset: what the chip names (only these decide the subgroup check). */
+  kern: string[];
 }
 
 // Single Source of Truth from @fmt/core (100% validated against DIFF_MATRIX_VARIABLES)
@@ -151,7 +164,8 @@ export const QUICK_DIFF_GROUP_TEMPLATES: QuickDiffGroupTemplate[] = QUICK_LEARNE
   focus: p.focus,
   defaultCount: p.defaultCount,
   personaId: p.personaId,
-  matrixValues: { ...p.selectedValues }
+  matrixValues: { ...p.selectedValues },
+  kern: [...p.kern]
 }));
 
 export const DEFAULT_LEARNER_GROUPS: LearnerGroup[] = [
@@ -363,7 +377,7 @@ export function buildScenarioRows(
   ): ScenarioPhaseRow => {
     const b = blocksById.get(node.baustein);
     const social = (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || '–';
-    const room = b?.raum || ((b?.raumzeit || []).map((x) => labelOf('raumzeit', x)).join(', ') || 'Klassenraum');
+    const room = b?.raumhinweis || ((b?.raumzeit || []).map((x) => labelOf('raumzeit', x)).join(', ') || 'Klassenraum');
     const tech = b?.technik ? labelOf('technikbedarf', b.technik) : '';
     const diff = aiDiffByStep[key]?.length ? aiDiffByStep[key] : buildDeterministicDiffHints(b, groups);
     return {
@@ -466,7 +480,7 @@ export function buildScenarioRows(
       teacherRole: 'Verteilte Abruftermine ansetzen und kurz auswerten',
       learnerRole: b ? summarizeLearnerRole(b, labelOf) : 'Wiederholter Abruf',
       socialForm: (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || 'Einzelarbeit',
-      environment: b?.raum || 'Klassenraum',
+      environment: b?.raumhinweis || 'Klassenraum',
       materials: b?.material || [],
       differentiation: aiDiffByStep['wiederkehr']?.length ? aiDiffByStep['wiederkehr'] : buildDeterministicDiffHints(b, groups),
       subgroupMethods: resolveSubgroupMethods('wiederkehr'),

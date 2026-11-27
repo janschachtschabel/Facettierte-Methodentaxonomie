@@ -10,9 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Wertschätzende, lernförderliche Rückmeldeform: Zwei konkrete gelungene Aspekte (Sterne) und ein gezielter Verbesserungsvorschlag (Wunsch).",
   "alternativname": [
     "Zwei Sterne und ein Wunsch",
@@ -31,7 +28,7 @@
     "Arbeitsblätter",
     "Moderationskarten"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",

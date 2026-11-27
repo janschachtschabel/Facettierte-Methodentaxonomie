@@ -16,10 +16,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "bewegungsraum"
-  ],
   "quellen": [
     {
       "titel": "Wikipedia: Freispiel",
@@ -111,7 +107,7 @@
   "material": [
     "Konstruktions-, Rollen- und Lernspielmaterial"
   ],
-  "raum": "Klassenraum / Lernlandschaft",
+  "raumhinweis": "Klassenraum / Lernlandschaft",
   "gruppeMin": 1,
   "gruppeMax": 35,
   "vorbereitungMin": 15,
@@ -127,6 +123,13 @@
     "hochschule",
     "erwachsenenbildung"
   ],
+  "eignungsgrund": {
+    "stufe": {
+      "text": "Freispiel ist für den Elementar- und frühen Primarbereich beschrieben und dort belegt.",
+      "grundlage": "S",
+      "quelle": "Weisberg, Hirsh-Pasek & Golinkoff 2013"
+    }
+  },
   "hinweis": "Gezielte Dimensions-Lückenschließung im 240er-Katalog (Ersterfassung).",
   "qualitaetsrisiko": [
     "Ohne vorbereitete Umgebung oder Abschlussreflexion bleiben fachliche Lernchancen ungenutzt"
@@ -137,7 +140,7 @@
       "evidenzBezug": "methode",
       "befund": "Fördert Selbstregulation, soziale Kompetenz und Sprachentwicklung im Elementar- und frühen Primarbereich.",
       "quelle": "Weisberg, Hirsh-Pasek & Golinkoff 2013",
-      "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
+      "geltung": "Elementar- und früher Primarbereich",
       "umstritten": "Für gezielten fachlichen Kompetenzerwerb ist angeleitetes Spiel (Guided Play) wirksamer als rein freies Spiel"
     }
   ],

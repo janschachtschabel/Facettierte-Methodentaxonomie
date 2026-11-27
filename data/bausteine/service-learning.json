@@ -17,9 +17,8 @@
     "gesellschaft",
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
+  "raumbedarf": [
+    "aussenort"
   ],
   "quellen": [
     {
@@ -128,10 +127,6 @@
   ],
   "dauerMin": 270,
   "dauerMax": 1800,
-  "geeignetBeiVorwissen": [
-    "mittel",
-    "hoch"
-  ],
   "problem": "Unterricht wirkt lebensfern, und gesellschaftliches Engagement bleibt ohne fachliche Reflexion unverbunden.",
   "durchfuehrung": [
     "Bedarf im Umfeld erkunden und Praxispartner gewinnen",
@@ -144,7 +139,7 @@
     "Kooperationsabsprache",
     "Reflexionsleitfaden"
   ],
-  "raum": "Schule und außerschulischer Einsatzort",
+  "raumhinweis": "Schule und außerschulischer Einsatzort",
   "gruppeMin": 6,
   "gruppeMax": 35,
   "teamMin": 3,

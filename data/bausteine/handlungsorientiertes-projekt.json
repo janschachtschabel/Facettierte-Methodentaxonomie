@@ -10,10 +10,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum",
-    "draussen"
-  ],
   "kurzbeschreibung": "Lernende planen, erstellen und reflektieren ein ganzheitliches Handlungsprodukt mit realem Gebrauchswert in enger Verbindung von Kopf- und Handarbeit.",
   "alternativname": [
     "Handlungsorientierung",
@@ -33,7 +29,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 35,
   "technik": "t-keine",
@@ -162,6 +158,7 @@
   },
   "aufgabe": [
     "konzepte",
+    "prozeduren",
     "afb2",
     "wohlstrukturiert",
     "fall"

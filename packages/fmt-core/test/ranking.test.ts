@@ -28,6 +28,14 @@ describe('Bewertung der Kandidaten', () => {
     expect(softScore({ ...base, mentioned: true, ansatzMiss: true, evidence: null, draft: true })).toBeLessThan(softScore(base));
   });
 
+  it('Raumbedarf ordnet: eine Methode, die den besonderen Raum nicht nutzt, steht im Hauptschritt weiter hinten als am Rand', () => {
+    expect(softScore({ ...base, raumUngenutzt: 'haupt' })).toBeGreaterThan(softScore({ ...base, raumUngenutzt: 'rand' }));
+    expect(softScore({ ...base, raumUngenutzt: 'rand' })).toBeGreaterThan(softScore(base));
+    expect(softScore({ ...base, ohnePraxisImHauptschritt: true })).toBeGreaterThan(softScore(base));
+    // A named method stays ahead (genannter-wunsch-bleibt).
+    expect(softScore({ ...base, mentioned: true, raumUngenutzt: 'haupt', ohnePraxisImHauptschritt: true })).toBeLessThan(softScore(base));
+  });
+
   it('stableHash ist stabil und streut', () => {
     expect(stableHash('wald', 'abrufquiz')).toBe(stableHash('wald', 'abrufquiz'));
     const values = Array.from({ length: 200 }, (_, i) => stableHash('thema', `m${i}`));

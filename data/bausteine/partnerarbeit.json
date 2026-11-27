@@ -9,9 +9,6 @@
   "fachbereich": [
     "uebergreifend"
   ],
-  "lernort": [
-    "klassenraum"
-  ],
   "kurzbeschreibung": "Zwei Lernende lösen eine klar umrissene Aufgabe gemeinsam, vergleichen Lösungswege und prüfen sich gegenseitig.",
   "alternativname": [
     "Tandemarbeit",
@@ -30,7 +27,7 @@
     "Arbeitsblätter",
     "Tafel oder Pinnwand"
   ],
-  "raum": "Klassenraum",
+  "raumhinweis": "Klassenraum",
   "gruppeMin": 2,
   "gruppeMax": 40,
   "teamMin": 2,
