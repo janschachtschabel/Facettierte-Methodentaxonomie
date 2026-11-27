@@ -162,3 +162,28 @@ describe('Fix wave Paket C, 1b–1e: Hilfen aus der entscheidenden Zeile', () =>
     }
   });
 });
+
+describe('Fix wave C, 2: die Gleichwertigkeit liest Raum und Zeit der Anfrage', () => {
+  const gruppe: MethodAdjustmentGroup = { id: 'vg', label: 'Geringes Vorwissen', selectedValues: { vorwissen: 'vorwissen-gering' } };
+  const ohneAnfrage = teilgruppenAntworten(D.bausteine, phasen('erfindungsaufgabe'), [gruppe], { lehrende: 2 }, R)[0];
+  const ziel = ohneAnfrage.alternativen[0].kennung;
+  // The same catalogue, but the first replacement needs space to move.
+  const mitFlaeche = { ...D, bausteine: D.bausteine.map((b) => (b.kennung === ziel ? { ...b, raumbedarf: [...(b.raumbedarf || []), 'bewegungsflaeche'] } : b)) };
+  const anpassen = (anfrage?: Record<string, unknown>) =>
+    adaptScenario(mitFlaeche, {
+      phasen: [{ key: 's0', phaseLabel: 'Erfindung', baustein: 'erfindungsaufgabe', durationMin: 20 }],
+      gruppen: [{ id: 'regel', label: 'Regelgruppe', personaId: 'average' }, gruppe],
+      lehrende: 2,
+      ...(anfrage ? { anfrage } : {})
+    }).phasenAnpassungen[0].teilgruppenImpulse.find((t) => t.groupId === 'vg')!;
+
+  it('ohne genannten Raum bleibt der Ersatz mit Bewegungsfläche möglich', () => {
+    expect(ohneAnfrage.antwort).toBe('tausch');
+    expect(anpassen().alternativeMethoden.map((a) => a.kennung)).toContain(ziel);
+  });
+
+  it('ein genannter Klassenraum schließt den Ersatz aus, der Bewegungsfläche braucht', () => {
+    const t = anpassen({ raum: 'klassenraum' });
+    expect(t.alternativeMethoden.map((a) => a.kennung)).not.toContain(ziel);
+  });
+});

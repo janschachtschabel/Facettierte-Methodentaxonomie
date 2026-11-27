@@ -12,7 +12,7 @@ import {
   type MeasureEffort,
   type MeasureLevel
 } from './differentiationMatrix.js';
-import type { Arrangement, Baustein, FmtData, Grundlage, Regelmeldung } from './types.js';
+import type { Arrangement, Baustein, FmtData, Grundlage, MatchRequest, Regelmeldung } from './types.js';
 import { KennungIndex } from './kennung.js';
 import { TECH_RANK, techLimitRank } from './technik.js';
 import {
@@ -86,6 +86,11 @@ export interface AdaptScenarioInput {
   includeSystemMeasures?: boolean;
   /** Number of teachers in the room; with two, a parallel method may bind a teacher as well. */
   lehrende?: number;
+  /**
+   * Request of the plan (room, time, group size …, as the matcher read it); a parallel method has to cover its needs
+   * in the same frame. Without it no room counts as named.
+   */
+  anfrage?: MatchRequest;
 }
 
 export interface QuickLearnerGroupProfile {
@@ -1104,7 +1109,8 @@ export function adaptScenario(
     ohneKI,
     bildungsstufe: input.bildungsstufe || input.arrangement?.kontext?.bildungsstufe || undefined,
     fachbereich: input.fachbereich,
-    ...(input.lehrende ? { lehrende: input.lehrende } : {})
+    ...(input.lehrende ? { lehrende: input.lehrende } : {}),
+    ...(input.anfrage ? { anfrage: input.anfrage } : {})
   };
   const groupById = new Map(adjustmentGroups.map((g) => [g.id, g]));
   // Full list of measures per group for the helps (the ranked synthesis result keeps only twelve).

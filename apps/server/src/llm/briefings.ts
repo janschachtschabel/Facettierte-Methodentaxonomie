@@ -697,7 +697,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneInternet: effectiveOhneInternet,
     ohneKI: effectiveOhneKI,
     bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
-    fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined
+    fachbereich: planFachbereich && planFachbereich !== 'uebergreifend' ? planFachbereich : undefined,
+    // The request as the matcher read it (room, time …): a parallel method must cover its needs in that frame.
+    anfrage: matched.kriterien as MatchRequest
   };
   const regelsatz = { teilgruppen: store.bundle.teilgruppen, regeln: store.bundle.regeln, schemes: store.bundle.schemes };
   const teilgruppenMethoden = proposeMethodAdjustments(store.bundle.bausteine, adjustmentPhases, adjustmentGroups, adjustmentConstraints, regelsatz);

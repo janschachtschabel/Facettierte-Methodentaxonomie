@@ -292,6 +292,7 @@ export function DifferentiationPage() {
           : undefined,
         fach: livePlannerDraft.fach,
         thema: livePlannerDraft.thema,
+        ...(livePlannerDraft.anfrage ? { anfrage: livePlannerDraft.anfrage } : {}),
         bildungsstufe: bildungsstufe || undefined,
         zeitMin: Number(zeitMin) || undefined,
         maxTechnik: maxTechnik || undefined,

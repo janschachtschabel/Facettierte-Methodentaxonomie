@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import type { CatalogBundle } from '@fmt/core';
-import { adjustmentGroups, adjustmentSignature, pruefeTeilgruppen } from '../src/planner/differentiationFlow.js';
+import { adjustmentGroups, adjustmentSignature, pruefeTeilgruppen, teilgruppenRahmen } from '../src/planner/differentiationFlow.js';
 import {
   buildScenarioRows,
   QUICK_DIFF_GROUP_TEMPLATES,
@@ -63,5 +63,21 @@ describe('Fix wave C, 1: Schnellprofile nennen nur ihre Kernwerte', () => {
     const g = gruppeAusVorlage(vorlage('vorwissen-gering'));
     const rows = [{ key: 'step-0', methodId: 'a' }] as ScenarioPhaseRow[];
     expect(adjustmentSignature(rows, [regel, g], {})).not.toBe(adjustmentSignature(rows, [regel, { ...g, genannt: undefined }], {}));
+  });
+});
+
+describe('Fix wave C, 2: die Prüfung bekommt die Anfrage aus Schritt 1', () => {
+  it('teilgruppenRahmen gibt die gelesene Anfrage als anfrage weiter, ohne den Text', () => {
+    const r = teilgruppenRahmen({ maxTechnik: 't-keine', fachbereich: 'mathe' }, { text: 'x', raum: 'klassenraum', zeitMin: 45 });
+    expect(r).toMatchObject({ maxTechnik: 't-keine', fachbereich: 'mathe', anfrage: { raum: 'klassenraum', zeitMin: 45 } });
+    expect(r.anfrage).not.toHaveProperty('text');
+    expect(teilgruppenRahmen({}, undefined).anfrage).toBeUndefined();
+  });
+
+  it('die Signatur ändert sich mit dem Raum der Anfrage', () => {
+    const rows = [{ key: 'step-0', methodId: 'a' }] as ScenarioPhaseRow[];
+    const ohne = adjustmentSignature(rows, [regel], teilgruppenRahmen({}, { zeitMin: 45 }));
+    expect(adjustmentSignature(rows, [regel], teilgruppenRahmen({}, { zeitMin: 45, raum: 'klassenraum' }))).not.toBe(ohne);
+    expect(adjustmentSignature(rows, [regel], teilgruppenRahmen({}, { zeitMin: 45, text: 'anders' }))).toBe(ohne);
   });
 });

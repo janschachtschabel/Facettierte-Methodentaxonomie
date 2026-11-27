@@ -145,16 +145,21 @@ export const matrixFuer = (g: MethodAdjustmentGroup, t: TeilgruppenRegelsatz, co
     limit
   });
 
-/** Request the equivalence check reads: the given one, or the frame of the constraints. */
+/**
+ * Request the equivalence check reads: the request of the plan (room, time, group size …) over the frame of the
+ * constraints. Without a request no room is named, so an assumed room never excludes a replacement.
+ */
 function anfrageAus(constraints: MethodAdjustmentConstraints): MatchRequest {
-  if (constraints.anfrage) return constraints.anfrage;
   const a: MatchRequest = {};
   if (constraints.maxTechnik) a.maxTechnik = constraints.maxTechnik;
   if (constraints.ohneInternet) a.ohneInternet = true;
   if (constraints.ohneKI) a.ohneKI = true;
   if (constraints.bildungsstufe) a.bildungsstufe = constraints.bildungsstufe;
   if (constraints.fachbereich) a.fachbereich = constraints.fachbereich;
-  return a;
+  if (!constraints.anfrage) return a;
+  // The text was read into the request already; the frame fills only what the request leaves open.
+  const { text: _text, ...anfrage } = constraints.anfrage;
+  return { ...a, ...Object.fromEntries(Object.entries(anfrage).filter(([, v]) => v != null && v !== '')) };
 }
 
 /** Social form of a measure that contradicts the interaction of the method (e.g. solo work in a group method). */

@@ -1,4 +1,4 @@
-import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement, type MatchRequest } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
@@ -27,6 +27,8 @@ export interface ActivePlannerDraft {
   ohneKI: boolean;
   arrangement: Arrangement;
   groups: LearnerGroup[];
+  /** Request of step 1 as the matcher read it (room, time …); the subgroup check reads it. */
+  anfrage?: MatchRequest;
 }
 
 export function saveActivePlannerDraft(draft: ActivePlannerDraft): void {

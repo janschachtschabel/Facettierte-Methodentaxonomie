@@ -43,6 +43,7 @@ import {
   mainGroupOnly,
   outdatedAdjustments,
   pruefeTeilgruppen,
+  teilgruppenRahmen,
   type TeilgruppenPruefung
 } from '../planner/differentiationFlow.js';
 import { fachbereichFromField } from '../planner/fachFeld.js';
@@ -458,9 +459,10 @@ export function PlannerPage() {
       ohneInternet,
       ohneKI,
       arrangement,
-      groups
+      groups,
+      ...(matchResult?.kriterien ? { anfrage: matchResult.kriterien as MatchRequest } : {})
     });
-  }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups]);
+  }, [arrangement, fach, thema, scenarioText, maxTechnik, ohneInternet, ohneKI, groups, matchResult]);
 
   const validation = useMemo(() => {
     if (!validator || !arrangement) return null;
@@ -590,7 +592,18 @@ export function PlannerPage() {
   };
 
   const subgroups = activeSubgroups(groups);
-  const groupSignature = adjustmentSignature(scenarioRows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
+  // The request of step 1 as the matcher read it (room, time …): a parallel method must cover its needs in that frame.
+  const checkConstraints = teilgruppenRahmen(
+    {
+      maxTechnik: maxTechnik || undefined,
+      ohneInternet,
+      ohneKI,
+      bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
+      fachbereich: planFachbereich
+    },
+    matchResult?.kriterien
+  );
+  const groupSignature = adjustmentSignature(scenarioRows, groups, checkConstraints);
   // Subgroups without persona or matrix values cannot be checked; the result says so.
   const uncheckedSubgroups = subgroups.filter(
     (g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues, ohneSchrift: g.ohneSchrift, ohneBewegung: g.ohneBewegung })
@@ -599,15 +612,7 @@ export function PlannerPage() {
   // Added phases the teacher removed again in step 2 no longer count.
   const addedPhasesNow = addedPhases.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
 
-  const checkConstraints = {
-    maxTechnik: maxTechnik || undefined,
-    ohneInternet,
-    ohneKI,
-    bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
-    fachbereich: planFachbereich
-  };
-  const signatureOf = (rows: typeof scenarioRows) =>
-    adjustmentSignature(rows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
+  const signatureOf = (rows: typeof scenarioRows) => adjustmentSignature(rows, groups, checkConstraints);
 
   const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
 

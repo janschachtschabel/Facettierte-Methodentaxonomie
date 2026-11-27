@@ -5,6 +5,7 @@ import {
   teilgruppenHinweise,
   type Baustein,
   type Grundlage,
+  type MatchRequest,
   type MethodAdjustment,
   type MethodAdjustmentConstraints,
   type MethodAdjustmentGroup,
@@ -105,16 +106,34 @@ export function outdatedAdjustments(rows: ScenarioPhaseRow[], adjustments: Metho
   return adjustments.filter((a) => methodByKey.get(a.stepKey) !== a.vonKennung);
 }
 
+/**
+ * Frame of the subgroup check: the plan's limits and the request of step 1 as the matcher read it (room, time, group
+ * size …), so a parallel method has to cover its needs in the same room and time slot. The text itself is left out.
+ */
+export function teilgruppenRahmen(
+  rahmen: Omit<MethodAdjustmentConstraints, 'anfrage'>,
+  kriterien: Record<string, unknown> | null | undefined
+): MethodAdjustmentConstraints {
+  const anfrage = kriterien
+    ? (Object.fromEntries(Object.entries(kriterien).filter(([k, v]) => k !== 'text' && v != null && v !== '')) as MatchRequest)
+    : undefined;
+  return { ...rahmen, ...(anfrage ? { anfrage } : {}) };
+}
+
 /** What a run of "Vorgehen anpassen" depends on; a different signature means the result may be out of date. */
 export function adjustmentSignature(
   rows: ScenarioPhaseRow[],
   groups: LearnerGroup[],
-  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; fachbereich?: string }
+  constraints: { maxTechnik?: string; ohneInternet?: boolean; ohneKI?: boolean; fachbereich?: string; anfrage?: MatchRequest }
 ): string {
+  const anfrage = Object.entries(constraints.anfrage || {})
+    .filter(([k]) => k !== 'text')
+    .sort(([a], [b]) => a.localeCompare(b));
   return JSON.stringify([
     rows.map((r) => [r.key, r.methodId]),
     activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}, g.genannt ?? null, g.ohneSchrift || [], Boolean(g.ohneBewegung)]),
-    [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI), constraints.fachbereich || '']
+    [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI), constraints.fachbereich || ''],
+    anfrage
   ]);
 }
 
