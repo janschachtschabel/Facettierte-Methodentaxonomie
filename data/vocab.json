@@ -1665,6 +1665,31 @@
           ]
         }
       ]
+    },
+    {
+      "id": "begleitziel",
+      "titel": "Begleitziel",
+      "beschreibung": "Was nebenbei gefördert werden soll. Ein Begleitziel wählt nie die Kette: Es ordnet nur unter gleichwertigen Methoden und schlägt einen kurzen Begleitstrang vor. Belegte Wirkungen stammen aus Programmen über mehrere Wochen.",
+      "werte": [
+        {
+          "id": "sprache",
+          "label": "Fach- und Bildungssprache",
+          "imSatz": "Fach- und Bildungssprache",
+          "definition": "Lernende lesen, schreiben und sprechen in der Sprache des Fachs; Signal an der Methode: Schriftbedarf oder Sprachhandlung mit anderen (C1 partner, kleingruppe-kooperativ, plenum-lernendengeleitet)"
+        },
+        {
+          "id": "sozial",
+          "label": "Soziales Lernen",
+          "imSatz": "soziales Lernen",
+          "definition": "Lernende arbeiten zusammen und schauen auf ihr Miteinander; Signal an der Methode: C1 kleingruppe-kooperativ oder A3 andere"
+        },
+        {
+          "id": "selbstregulation",
+          "label": "Selbstregulation",
+          "imSatz": "Selbstregulation",
+          "definition": "Lernende planen, überwachen und bewerten ihr Lernen; Signal an der Methode: D1 metakognitiv oder A1 metakognition"
+        }
+      ]
     }
   ],
   "facetten": [

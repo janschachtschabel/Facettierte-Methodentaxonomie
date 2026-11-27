@@ -178,6 +178,18 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Mathe Klasse 7: die Aufgaben werden bewertet, 45 Minuten', erwartet: { bewertet: true } },
   { text: 'Mathe Klasse 7: Übungsphase, unbenotet, 45 Minuten', erwartet: {}, nicht: { bewertet: true } },
   { text: 'Mathe Klasse 7: Übungsphase, nicht benotet, 45 Minuten', erwartet: {}, nicht: { bewertet: true } },
+  // Accompanying goals (Paket D, D3): the reading phrases of the brief; the phrase never sets an approach or a function.
+  { text: 'Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern', erwartet: { begleitziel: ['selbstregulation'] } },
+  { text: 'Mathe Klasse 7, Prozentrechnung, 45 Minuten, Lernen lernen', erwartet: { begleitziel: ['selbstregulation'] } },
+  { text: 'Biologie Klasse 6, Zellaufbau, 45 Minuten, mit Lernstrategien', erwartet: { begleitziel: ['selbstregulation'] } },
+  { text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken', erwartet: { begleitziel: ['sozial'] }, nicht: { ansatz: ['kooperativ'] } },
+  { text: 'Erdkunde Klasse 7, Plattentektonik, 45 Minuten, Zusammenarbeit stärken', erwartet: { begleitziel: ['sozial'] } },
+  { text: 'Deutsch Klasse 5, Märchen, 45 Minuten, Klassenklima verbessern', erwartet: { begleitziel: ['sozial'] } },
+  { text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten, sprachsensibel', erwartet: { begleitziel: ['sprache'] } },
+  { text: 'Physik Klasse 9, Optik, 45 Minuten, Fachsprache fördern', erwartet: { begleitziel: ['sprache'] } },
+  { text: 'Geschichte Klasse 8, Industrialisierung, 45 Minuten, Bildungssprache und soziales Lernen', erwartet: { begleitziel: ['sprache', 'sozial'] } },
+  // A team workshop on collaboration names its topic, not an accompanying goal.
+  { text: 'Teamworkshop in einer Firma, 15 Mitarbeitende, Zusammenarbeit verbessern, halber Tag', erwartet: {}, nicht: { begleitziel: ['sozial'] } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

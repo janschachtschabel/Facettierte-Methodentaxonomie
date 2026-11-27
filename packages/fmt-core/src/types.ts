@@ -74,6 +74,8 @@ export interface VocabValue {
   nachweis?: string[];
   /** Reading of the value per context (text or by key). */
   lesart?: Record<string, string> | string;
+  /** Begleitziel only: the name as it stands inside a sentence ("soziales Lernen"). */
+  imSatz?: string;
 }
 
 export interface VocabGroup {
@@ -644,6 +646,8 @@ export interface MatchRequest {
   einheit?: string;
   /** Whether the lesson is graded. */
   bewertet?: boolean;
+  /** Accompanying goals (scheme begleitziel): they never choose the chain, only order equivalent methods. */
+  begleitziel?: string | string[];
   [key: string]: unknown;
 }
 
@@ -744,6 +748,21 @@ export interface AblaufMatchResult extends MatchHead {
     meldungen: ValidationMessage[];
   };
   weitereKetten?: Array<{ id: string; label: string }>;
+  /**
+   * Short accompanying strand per accompanying goal (selbstregulation, sozial): a proposal to take over, not part of
+   * the plan. sprache gets no strand but a note on helps in step 3.
+   */
+  begleitstrang?: Begleitstrang[];
+}
+
+/** One proposed accompanying strand: a short reflection at the end of the lesson that carries the goal. */
+export interface Begleitstrang {
+  begleitziel: string;
+  baustein: string;
+  name: string;
+  dauerMin: number;
+  position: 'ende';
+  grund: string;
 }
 
 export type MatchResult = PhaseMatchResult | AblaufMatchResult;

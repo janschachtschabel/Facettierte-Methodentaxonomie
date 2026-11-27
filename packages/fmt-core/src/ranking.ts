@@ -35,6 +35,11 @@ export interface SoftScoreParts {
   raumUngenutzt?: 'haupt' | 'rand';
   /** A main step in such a room, and the method neither carries psychomotorik nor works enactively (kept rest of praxisFremd). */
   ohnePraxisImHauptschritt?: boolean;
+  /**
+   * The method carries an accompanying goal of the request (Paket D). Its weight is smaller than the equivalence
+   * tolerance, so it only reorders methods that are nearly equivalent and never chooses the chain.
+   */
+  begleitziel?: boolean;
 }
 
 export const SOFT_WEIGHTS = {
@@ -56,7 +61,8 @@ export const SOFT_WEIGHTS = {
   mentioned: -10,
   raumUngenutztHaupt: 4,
   raumUngenutztRand: 1.5,
-  ohnePraxisImHauptschritt: 1.5
+  ohnePraxisImHauptschritt: 1.5,
+  begleitziel: -0.5
 } as const;
 
 /**
@@ -91,7 +97,8 @@ export function softScore(p: SoftScoreParts): number {
     (p.fachbereich === 'passt' ? w.fachbereichPasst : p.fachbereich === 'fremd' ? w.fachbereichFremd : 0) +
     (p.mentioned ? w.mentioned : 0) +
     (p.raumUngenutzt === 'haupt' ? w.raumUngenutztHaupt : p.raumUngenutzt === 'rand' ? w.raumUngenutztRand : 0) +
-    (p.ohnePraxisImHauptschritt ? w.ohnePraxisImHauptschritt : 0)
+    (p.ohnePraxisImHauptschritt ? w.ohnePraxisImHauptschritt : 0) +
+    (p.begleitziel ? w.begleitziel : 0)
   );
 }
 
@@ -115,6 +122,8 @@ export interface Rankable<T> {
   id: string;
   hard: number[];
   soft: number;
+  /** Comes first among the equivalent candidates (it carries an accompanying goal); hard tiers and scores still rule. */
+  vorn?: boolean;
 }
 
 const compareHard = (a: number[], b: number[]) => {
@@ -128,7 +137,8 @@ const compareHard = (a: number[], b: number[]) => {
 /**
  * Orders candidates: hard tiers ascending; inside the best hard tier, all candidates whose soft score is
  * within `tolerance` of the best are ordered by a hash of (seed, variante, id) – so a different topic or a
- * different `variante` yields a different but equally suitable pick. Everything else follows by soft score.
+ * different `variante` yields a different but equally suitable pick; candidates marked `vorn` lead that group (the
+ * hash still orders them among themselves). Everything else follows by soft score.
  * `tolerance: 0` gives a plain best-first list (used for single-phase proposals).
  */
 export function pickOrder<T>(items: Array<Rankable<T>>, seed: string, variante = 0, tolerance = EQUIVALENCE_TOLERANCE): T[] {
@@ -140,6 +150,8 @@ export function pickOrder<T>(items: Array<Rankable<T>>, seed: string, variante =
   const best = sorted[0];
   const equivalent = sorted.filter((x) => compareHard(x.hard, best.hard) === 0 && x.soft <= best.soft + tolerance);
   const rest = sorted.filter((x) => !equivalent.includes(x));
-  equivalent.sort((a, b) => stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id));
+  equivalent.sort(
+    (a, b) => Number(Boolean(b.vorn)) - Number(Boolean(a.vorn)) || stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id)
+  );
   return [...equivalent, ...rest].map((x) => x.item);
 }

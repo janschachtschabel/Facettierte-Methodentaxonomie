@@ -74,14 +74,13 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n11',
     text: 'Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern',
-    erwartet: { begleitstrang: 'selbstregulation', regeln: ['begleitziel-braucht-termine'] },
-    bekannt: { regel: 'Paket D', begleitziel: 'Paket D' }
+    erwartet: { begleitstrang: 'selbstregulation', regeln: ['begleitziel-braucht-termine'] }
   },
   {
     id: 'n12',
     text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken',
-    erwartet: { begleitstrang: 'soziales-lernen' },
-    bekannt: { begleitziel: 'Paket D' }
+    // The paper names the goal „soziales Lernen“; the code in the scheme begleitziel is `sozial` (D3).
+    erwartet: { begleitstrang: 'sozial' }
   },
   {
     id: 'n13',

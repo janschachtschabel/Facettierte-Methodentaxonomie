@@ -19,7 +19,7 @@ import {
   nurMethoden
 } from '../src/index.js';
 import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
-import { nachweisformen } from '../src/zielart.js';
+import { nachweisformen, traegtBegleitziel } from '../src/zielart.js';
 import { erstelleRegeln } from '../src/regeln.js';
 import { mitEintraegen } from './fixtures/eignung.js';
 import { alsHilfe, FIXTURE_HILFE, mitHilfe } from './fixtures/hilfe.js';
@@ -1087,5 +1087,104 @@ describe('Eintragsart Hilfe: nie Schritt, Slot oder Phase (Task C4)', () => {
     expect(vorher.size).toBeGreaterThan(0);
     const nachher = adaptScenario(alsHilfe(D, vorher), anfrage).phasenAnpassungen.flatMap((p) => p.passendeFmtMethoden.map((m) => m.kennung));
     expect(nachher.filter((k) => vorher.has(k))).toEqual([]);
+  });
+});
+
+describe('Begleitziele (Paket D, D3)', () => {
+  const D = loadFmtData(DATA_DIR);
+  const M = createMatcher(D, createValidator(D));
+  const blocks = new Map(D.bausteine.map((b) => [b.kennung, b]));
+  const ablauf = (r: MatchResult) => r as AblaufMatchResult;
+  const schritte = (r: MatchResult) => (ablauf(r).schritte || []).map((s) => s.baustein);
+  const regelnVon = (r: MatchResult) => (r.regelmeldungen || []).map((m) => m.regel);
+
+  it('Feld begleitziel mit den Codes sprache, sozial, selbstregulation; unbekannte Werte werden abgelehnt', () => {
+    const f = M.felder().find((x) => x.feld === 'begleitziel')!;
+    expect(f.typ).toBe('codes');
+    expect(f.werte!.map((w) => w.code)).toEqual(['sprache', 'sozial', 'selbstregulation']);
+    expect(Object.keys(M.schema().properties)).toContain('begleitziel');
+    expect(() => M.zuordnen({ text: 'Mathe Klasse 8, 45 Minuten', begleitziel: ['mut'] })).toThrow(/begleitziel/);
+  });
+
+  it('n11: mit und ohne Begleitziel dieselbe Kette und dieselben Hauptmethoden; mit Begleitziel ein Begleitstrang und der Hinweis', () => {
+    const ohne = ablauf(M.zuordnen({ text: 'Physik Klasse 8, Stromkreis, 45 Minuten' }));
+    const mit = ablauf(M.zuordnen({ text: 'Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern' }));
+    expect(mit.kriterien.begleitziel).toEqual(['selbstregulation']);
+    expect(mit.kette?.id).toBe(ohne.kette?.id);
+    expect(schritte(mit)).toEqual(schritte(ohne));
+    expect(ohne.begleitstrang).toBeUndefined();
+    expect(mit.begleitstrang).toHaveLength(1);
+    const s = mit.begleitstrang![0];
+    expect(s).toMatchObject({ begleitziel: 'selbstregulation', position: 'ende' });
+    const b = blocks.get(s.baustein)!;
+    expect(b.lernfunktion).toContain('metakognition');
+    expect(b.nachbedingung).toContain('lernen-reflektiert');
+    expect(s.dauerMin).toBeLessThanOrEqual(5);
+    expect(s.name).toBe(b.name);
+    expect(s.grund).toMatch(/Selbstregulation/);
+    // A proposal to take over: not in the plan.
+    expect(schritte(mit)).not.toContain(s.baustein);
+    expect(regelnVon(ohne)).not.toContain('begleitziel-braucht-termine');
+    const m = mit.regelmeldungen!.find((x) => x.regel === 'begleitziel-braucht-termine')!;
+    expect(m.text).toBe('Wirkungen auf Selbstregulation sind für Programme über mehrere Wochen belegt. Eine einzelne Stunde genügt dafür nicht.');
+    expect(m).toMatchObject({ wirkung: 'weist-hin', grundlage: 'E' });
+    expect(mit.hinweise).toContain(`${m.text} (${m.quelle})`);
+  });
+
+  it('n12: unter gleichwertigen Methoden steht eine kooperative vorn', () => {
+    const text = 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten';
+    const traegt = (ids: string[]) => ids.filter((id) => traegtBegleitziel(blocks.get(id)!, 'sozial')).length;
+    let summeOhne = 0;
+    let summeMit = 0;
+    for (const variante of [0, 1, 2, 3, 4]) {
+      const ohne = ablauf(M.zuordnen({ text, variante }));
+      const mit = ablauf(M.zuordnen({ text: `${text}, soziales Lernen stärken`, variante }));
+      expect(mit.kette?.id).toBe(ohne.kette?.id);
+      expect(traegt(schritte(mit))).toBeGreaterThanOrEqual(traegt(schritte(ohne)));
+      summeOhne += traegt(schritte(ohne));
+      summeMit += traegt(schritte(mit));
+      expect(mit.begleitstrang?.[0]).toMatchObject({ begleitziel: 'sozial', position: 'ende' });
+      expect(traegtBegleitziel(blocks.get(mit.begleitstrang![0].baustein)!, 'sozial')).toBe(true);
+    }
+    expect(summeMit).toBeGreaterThan(summeOhne);
+  });
+
+  it('ein Begleitziel wählt nie die Kette', () => {
+    for (const [text, zusatz] of [
+      ['Sport Klasse 7, Weitsprung, 90 Minuten', 'soziales Lernen'],
+      ['Mathe Klasse 8, lineare Funktionen, 45 Minuten', 'Lernstrategien'],
+      ['Ethik Klasse 10, Sterbehilfe, 90 Minuten', 'Fachsprache fördern']
+    ]) {
+      const ohne = ablauf(M.zuordnen({ text }));
+      const mit = ablauf(M.zuordnen({ text: `${text}, ${zusatz}` }));
+      expect(mit.kette?.id, text).toBe(ohne.kette?.id);
+      expect(mit.kriterien.zielart, text).toBe(ohne.kriterien.zielart);
+      expect(mit.kriterien.ansatz, text).toEqual(ohne.kriterien.ansatz);
+    }
+  });
+
+  it('Sprache: kein Begleitstrang, sondern der Hinweis auf Hilfen in Schritt 3', () => {
+    const r = ablauf(M.zuordnen({ text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten', begleitziel: ['sprache'] }));
+    expect(r.begleitstrang).toBeUndefined();
+    expect((r.hinweise || []).some((h) => /Schritt 3/.test(h) && /Sprache/.test(h))).toBe(true);
+    expect(r.regelmeldungen!.find((x) => x.regel === 'begleitziel-braucht-termine')!.text).toMatch(/^Wirkungen auf Fach- und Bildungssprache /);
+  });
+
+  it('begleitziel-braucht-termine feuert bei fehlenden Terminen und bei einem Termin, nicht bei mehreren', () => {
+    const text = 'Physik Klasse 8, Stromkreis, 45 Minuten';
+    expect(regelnVon(M.zuordnen({ text, begleitziel: ['sozial'] }))).toContain('begleitziel-braucht-termine');
+    expect(regelnVon(M.zuordnen({ text, begleitziel: ['sozial'], termine: 1 }))).toContain('begleitziel-braucht-termine');
+    const viele = ablauf(M.zuordnen({ text, begleitziel: ['sozial', 'selbstregulation'], termine: 8 }));
+    expect(regelnVon(viele)).not.toContain('begleitziel-braucht-termine');
+    expect(viele.begleitstrang!.map((s) => s.begleitziel)).toEqual(['sozial', 'selbstregulation']);
+    const beide = ablauf(M.zuordnen({ text, begleitziel: ['sozial', 'selbstregulation'] }));
+    expect(beide.regelmeldungen!.filter((x) => x.regel === 'begleitziel-braucht-termine')).toHaveLength(1);
+    expect(beide.regelmeldungen!.find((x) => x.regel === 'begleitziel-braucht-termine')!.text).toMatch(/^Wirkungen auf soziales Lernen und Selbstregulation /);
+  });
+
+  it('der Begleitstrang deckt den Bedarf: ohne Schreiben keine Methode, die Schreiben verlangt', () => {
+    const r = ablauf(M.zuordnen({ text: 'Sachunterricht Klasse 1, Magnetismus, 45 Minuten', begleitziel: ['selbstregulation'], ohneSchrift: ['schreiben'] }));
+    const b = blocks.get(r.begleitstrang![0].baustein)!;
+    expect(b.schriftbedarf || []).not.toContain('schreibt');
   });
 });

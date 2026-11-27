@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen } from '../src/zielart.js';
+import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen, traegtBegleitziel } from '../src/zielart.js';
 import type { Baustein } from '../src/types.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -93,5 +93,27 @@ describe('Nachweisformen', () => {
     expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['fakten'] }))).not.toContain('praktisch');
     expect(nachweisformen(m({ repraesentation: ['enaktiv'] }))).not.toContain('praktisch');
     expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['konzepte'], interaktion: ['plenum-lehrergeleitet'] }))).toEqual(['muendlich']);
+  });
+});
+
+describe('traegtBegleitziel (Paket D, D3)', () => {
+  const b = (x: Partial<Baustein>) => ({ ...baustein('placemat'), interaktion: [], weltbezug: [], aufgabe: [], lernfunktion: ['erwerb'], schriftbedarf: [], ...x }) as Baustein;
+  it('sozial: C1 kleingruppe-kooperativ oder A3 andere', () => {
+    expect(traegtBegleitziel(b({ interaktion: ['kleingruppe-kooperativ'] }), 'sozial')).toBe(true);
+    expect(traegtBegleitziel(b({ weltbezug: ['andere'] }), 'sozial')).toBe(true);
+    expect(traegtBegleitziel(b({ interaktion: ['partner'], weltbezug: ['gegenstand'] }), 'sozial')).toBe(false);
+  });
+  it('selbstregulation: D1 metakognitiv oder A1 metakognition', () => {
+    expect(traegtBegleitziel(b({ aufgabe: ['metakognitiv'] }), 'selbstregulation')).toBe(true);
+    expect(traegtBegleitziel(b({ lernfunktion: ['erwerb', 'metakognition'] }), 'selbstregulation')).toBe(true);
+    expect(traegtBegleitziel(b({ aufgabe: ['konzepte'] }), 'selbstregulation')).toBe(false);
+  });
+  it('sprache: Schriftbedarf nicht leer oder C1 partner, kleingruppe-kooperativ, plenum-lernendengeleitet', () => {
+    expect(traegtBegleitziel(b({ schriftbedarf: ['liest'] }), 'sprache')).toBe(true);
+    for (const i of ['partner', 'kleingruppe-kooperativ', 'plenum-lernendengeleitet']) expect(traegtBegleitziel(b({ interaktion: [i] }), 'sprache')).toBe(true);
+    expect(traegtBegleitziel(b({ interaktion: ['einzel', 'plenum-lehrergeleitet'] }), 'sprache')).toBe(false);
+  });
+  it('unbekanntes Begleitziel: nie', () => {
+    expect(traegtBegleitziel(b({ interaktion: ['kleingruppe-kooperativ'] }), 'mut')).toBe(false);
   });
 });

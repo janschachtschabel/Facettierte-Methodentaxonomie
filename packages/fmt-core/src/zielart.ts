@@ -74,3 +74,22 @@ export function bewegungsKette(k: Pick<Funktionskette, 'zielart'>): boolean {
   return (k.zielart || []).some((z) => z === 'bewegung' || z === 'kondition');
 }
 
+
+/** Interaction forms in which learners use language with others (signal of the accompanying goal sprache). */
+const SPRACHHANDLUNG = ['partner', 'kleingruppe-kooperativ', 'plenum-lernendengeleitet'];
+
+/**
+ * Whether the method carries an accompanying goal (FMT 2.0, Paket D): sozial by cooperative small groups (C1) or a
+ * focus on others (A3), selbstregulation by the metacognitive knowledge type (D1) or function (A1), sprache by reading
+ * or writing, or by talking with others (C1). An unknown goal is never carried.
+ */
+export function traegtBegleitziel(
+  b: Pick<Baustein, 'interaktion' | 'weltbezug' | 'aufgabe' | 'lernfunktion' | 'schriftbedarf'>,
+  ziel: string
+): boolean {
+  const inter = b.interaktion || [];
+  if (ziel === 'sozial') return inter.includes('kleingruppe-kooperativ') || (b.weltbezug || []).includes('andere');
+  if (ziel === 'selbstregulation') return (b.aufgabe || []).includes('metakognitiv') || (b.lernfunktion || []).includes('metakognition');
+  if (ziel === 'sprache') return (b.schriftbedarf || []).length > 0 || inter.some((x) => SPRACHHANDLUNG.includes(x));
+  return false;
+}
