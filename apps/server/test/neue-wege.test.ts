@@ -152,6 +152,28 @@ describe('Neue Wege nach außen: REST und MCP (Task A4, Lücken R08, R19)', () =
       expect(ohne.json()).not.toHaveProperty('regelmeldungen');
     });
 
+    it('mit situation auch die Meldungen der Lage: Grundschul-Regel, Begleitziel ohne Termine, Sicherheitshinweis (R02)', async () => {
+      const lage = { bildungsstufe: 'primar', begleitziel: ['sozial'], raum: 'fachraum' };
+      const rest = (await post('/api/v1/validate', { arrangement: dichte, situation: lage })).json() as Pruefung;
+      const ids = rest.regelmeldungen!.map((m) => m.regel);
+      expect(rest.regelmeldungen!.some((m) => m.regel === 'problemloesen-vor-instruktion-primar' && !m.baustein)).toBe(true);
+      expect(ids).toContain('begleitziel-braucht-termine');
+      expect(ids).toContain('sicherheitshinweis');
+      const mcp = await call('validate_arrangement', { arrangement: dichte, situation: lage });
+      expect(mcp.json().regelmeldungen).toEqual(rest.regelmeldungen);
+      // Enough dates, a classroom in a subject area without practical work: these messages go.
+      const ruhig = (await post('/api/v1/validate', { arrangement: dichte, situation: { ...lage, termine: 3, raum: 'klassenraum' } })).json() as Pruefung;
+      expect(ruhig.regelmeldungen!.map((m) => m.regel)).not.toContain('begleitziel-braucht-termine');
+      expect(ruhig.regelmeldungen!.map((m) => m.regel)).not.toContain('sicherheitshinweis');
+    });
+
+    it('die Beschreibung von validate_arrangement nennt alle gelesenen Felder und die Meldungen der Lage', () => {
+      const d = tool('validate_arrangement').description || '';
+      for (const f of ['vorwissen', 'bildungsstufe', 'komplexitaet', 'sprachniveau', 'fachbereich', 'raum', 'begleitziel', 'termine']) expect(d, f).toContain(f);
+      expect(d).toContain('sicherheitshinweis');
+      expect(d).toContain('begleitziel-braucht-termine');
+    });
+
     it('die kriterien einer Antwort von /match lassen sich als situation übergeben', async () => {
       const match = (await post('/api/v1/match', { text: 'Physik Klasse 7 Dichte, Vorwissen hoch', modus: 'ablauf' })).json();
       const res = await post('/api/v1/validate', { arrangement: dichte, situation: match.kriterien });

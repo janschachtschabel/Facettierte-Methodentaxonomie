@@ -1,5 +1,8 @@
 import type { Arrangement, ArrangementNode, Baustein, FmtData, Grundlage, Passungsregel, Regelmeldung, RegelSituation, Wirkung } from './types.js';
 import { KennungIndex } from './kennung.js';
+import { nurMethoden } from './eintragsart.js';
+import { raumKlasse } from './situation.js';
+import { nachweisformen } from './zielart.js';
 import type { EntwurfRegelmeldung } from './entwurf.js';
 
 /** Suitability entries of a method come from the rule machine, not from data/regeln.json; they carry their own name. */
@@ -201,7 +204,7 @@ export function regelLageAus(a: Record<string, unknown> | null | undefined): Reg
  * (declarative rules, suitability entries, evidenz-geltung) are computed again for the methods now in the flow, in
  * the situation `lage`; every other message of the answer (situation-level notes, the safety note, a named wish, the
  * form of proof, dates for accompanying goals) stays as the answer gave it. The new warnings stand where the first
- * old one stood, or at the end.
+ * old one stood, or at the end. regelmeldungenNeuPruefen checks those messages of the situation again as well.
  */
 export function passungNeuPruefen(
   meldungen: Regelmeldung[],
@@ -237,6 +240,163 @@ export function passungNeuPruefen(
 }
 
 /**
+ * Request fields the messages of an answer read besides the methods: the fit-rule fields (REGEL_LAGE_FELDER), the room
+ * (stated or assumed; raum or lernort) and subject area for the safety note, the accompanying goals and the dates.
+ */
+export const MELDUNG_LAGE_FELDER = [...REGEL_LAGE_FELDER, 'raum', 'begleitziel', 'termine'] as const;
+
+type Regelmaschine = ReturnType<typeof erstelleRegeln>;
+
+/** Room classes and subject areas where hands-on work gets the rule sicherheitshinweis; safety is no coded attribute. */
+const PRAKTISCHE_RAEUME = new Set(['fachraum', 'bewegungsraum', 'draussen']);
+const PRAKTISCHE_FACHBEREICHE = new Set(['nawi-technik', 'beruf-praxis', 'sport']);
+
+/** "a, b und c" */
+export const undListe = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} und ${xs[xs.length - 1]}` : xs[0] || '');
+
+const given = (v: unknown) => v != null && v !== '';
+const liste = (x: unknown): string[] => (x == null || x === '' ? [] : Array.isArray(x) ? x.map(String) : [String(x)]);
+
+/** Readable label of a code from the vocabularies, else the code. */
+function schemaLabel(schemes: FmtData['schemes']) {
+  return (schema: string, code: string) => {
+    const s = schemes.find((x) => x.id === schema);
+    const w = (s?.werte || (s?.gruppen || []).flatMap((g) => g.werte)).find((x) => x.id === code);
+    return w ? w.label : code;
+  };
+}
+
+/**
+ * Each fit rule whose situation part holds and that sets back methods of the catalogue (not keinTausch), without a
+ * method: it says why the plan prefers other methods, also when no chosen method carries the warning.
+ */
+export function lageRegelmeldungen(maschine: Regelmaschine, katalog: Baustein[], lage: RegelSituation): Regelmeldung[] {
+  // One check per method; the ids of every firing rule are collected once (not one full run per rule).
+  const feuernd = new Set<string>();
+  for (const b of katalog) for (const m of maschine.pruefe(b, lage)) feuernd.add(m.regel);
+  return maschine
+    .alle()
+    .filter((x) => x.art === 'deklarativ' && !x.keinTausch && Object.keys(x.wenn?.situation || {}).length > 0 && feuernd.has(x.id))
+    .map((x) => ({
+      regel: x.id,
+      wirkung: x.wirkung,
+      grundlage: x.grundlage,
+      ...(x.quelle ? { quelle: x.quelle } : {}),
+      // A method the teacher named keeps its place at its step; the sentence says so to stay true.
+      text: `${x.name}: Methoden, für die das gilt, tragen eine Warnung und stehen weiter hinten – nicht aber eine Methode, die du selbst genannt hast.`
+    }));
+}
+
+/**
+ * One sicherheitshinweis per answer when methods work hands-on (enaktiv) in a practical room class or subject area: it
+ * stands at the first such method, names up to two others and lists all of them in bausteine.
+ */
+export function sicherheitsRegelmeldung(
+  maschine: Regelmaschine,
+  methoden: Baustein[],
+  klasse: string,
+  fachbereich: string,
+  modus: 'ablauf' | 'phase' = 'ablauf'
+): Regelmeldung[] {
+  const regel = maschine.regel('sicherheitshinweis');
+  if (!regel || !(PRAKTISCHE_RAEUME.has(klasse) || PRAKTISCHE_FACHBEREICHE.has(fachbereich))) return [];
+  const praktisch = methoden.filter((b) => (b.repraesentation || []).includes('enaktiv'));
+  if (!praktisch.length) return [];
+  const text = regel.text
+    .replace(/\{methode\}/g, undListe(praktisch.slice(0, 3).map((b) => b.name)))
+    .replace(/^Im Ablauf/, modus === 'phase' ? 'Unter den Vorschlägen' : 'Im Ablauf');
+  // All hands-on methods go along, so a view of the plan can keep the note while any of them stays.
+  return [{ ...maschine.meldung(regel.id, praktisch[0], text)!, bausteine: praktisch.map((b) => b.kennung) }];
+}
+
+/** nachweis-passt-zum-ziel when the method at the plan's check step yields none of the wanted forms of proof. */
+export function nachweisRegelmeldung(
+  maschine: Regelmaschine,
+  pruefung: Baustein | undefined,
+  formen: string[],
+  label: (schema: string, code: string) => string
+): Regelmeldung[] {
+  const regel = maschine.regel('nachweis-passt-zum-ziel');
+  if (!regel || !pruefung || !formen.length || nachweisformen(pruefung).some((f) => formen.includes(f))) return [];
+  const namen = formen.map((f) => label('nachweisform', f)).join(' oder ');
+  return [maschine.meldung(regel.id, pruefung, `Keine Prüfmethode der Form ${namen} passt in diese Stunde; gewählt wurde ${pruefung.name}.`)!];
+}
+
+/** begleitziel-braucht-termine when the request names accompanying goals and no dates or only one. */
+export function begleitzielRegelmeldung(
+  maschine: Regelmaschine,
+  ziele: string[],
+  termine: number | undefined,
+  imSatz: (code: string) => string
+): Regelmeldung[] {
+  const regel = maschine.regel('begleitziel-braucht-termine');
+  if (!regel || !ziele.length || !(termine == null || termine <= 1)) return [];
+  return [maschine.meldung(regel.id, undefined, regel.text.replace(/\{Begleitziel\}/g, undListe(ziele.map(imSatz))))!];
+}
+
+/** Optional parts of a new check that the request alone does not hold. */
+export interface NeuPruefenOptionen {
+  /** Room of the plan, stated or assumed (a room type); default: raum or lernort of the request. */
+  raum?: string;
+  /** Where the methods stand: flow ('ablauf', default) or proposals of one phase ('phase'); only the wording changes. */
+  modus?: 'ablauf' | 'phase';
+  /**
+   * Forms of proof the plan's check should yield now (codes of nachweisform). Given, the message nachweis-passt-zum-ziel
+   * is checked again for the method it named; absent, it stays as the answer gave it.
+   */
+  nachweis?: string[];
+}
+
+/**
+ * Every rule message of an answer, again for the current request and the methods now in the flow (R02): the warnings
+ * per method (declarative rules, suitability entries, evidenz-geltung), the fit rules of the situation, the safety note
+ * and begleitziel-braucht-termine are computed again with the builders zuordnen uses, so a field cleared since the
+ * answer or a method swapped by hand leaves no old message. nachweis-passt-zum-ziel is checked again when
+ * `optionen.nachweis` is given (the check step is the method the message named); genannter-wunsch-bleibt (it depends
+ * on the reading of the text) and unknown messages stay as the answer gave them. Order as in zuordnen: named wish,
+ * situation, method warnings, proof, safety, accompanying goals, others. Same methods and request: the same list.
+ */
+export function regelmeldungenNeuPruefen(
+  meldungen: Regelmeldung[],
+  methoden: Baustein[],
+  anfrage: Record<string, unknown> | null | undefined,
+  data: Pick<FmtData, 'bausteine' | 'regeln' | 'schemes'>,
+  optionen: NeuPruefenOptionen = {}
+): Regelmeldung[] {
+  const a = anfrage || {};
+  const label = schemaLabel(data.schemes);
+  const maschine = erstelleRegeln(data.regeln || [], label);
+  const lage = regelLageAus(a);
+  const gesehen = new Set<string>();
+  const einmal = methoden.filter((b) => !gesehen.has(b.kennung) && Boolean(gesehen.add(b.kennung)));
+  const warnungen = einmal.flatMap((b) => maschine.warnungen(b, lage));
+  const raum = optionen.raum ?? (given(a.raum) ? a.raum : a.lernort);
+  const sicherheit = sicherheitsRegelmeldung(maschine, einmal, raumKlasse(raum), lage.fachbereich || '', optionen.modus);
+  const schema = data.schemes.find((s) => s.id === 'begleitziel');
+  const begleit = schema?.werte || (schema?.gruppen || []).flatMap((g) => g.werte);
+  const imSatz = (code: string) => begleit.find((w) => w.id === code)?.imSatz || label('begleitziel', code);
+  const begleitziel = begleitzielRegelmeldung(maschine, liste(a.begleitziel), given(a.termine) ? Number(a.termine) : undefined, imSatz);
+
+  const proMethode = (m: Regelmeldung) =>
+    Boolean(m.baustein) &&
+    !m.bausteine?.length &&
+    (maschine.regel(m.regel)?.art === 'deklarativ' || m.regel.startsWith('eignung-') || m.regel === 'evidenz-geltung');
+  const ausDerLage = (m: Regelmeldung) => !m.baustein && maschine.regel(m.regel)?.art === 'deklarativ';
+  const wunsch: Regelmeldung[] = [];
+  const nachweis: Regelmeldung[] = [];
+  const andere: Regelmeldung[] = [];
+  for (const m of meldungen) {
+    if (proMethode(m) || ausDerLage(m) || m.regel === 'sicherheitshinweis' || m.regel === 'begleitziel-braucht-termine') continue;
+    if (m.regel === 'genannter-wunsch-bleibt') wunsch.push(m);
+    else if (m.regel === 'nachweis-passt-zum-ziel') {
+      if (!optionen.nachweis) nachweis.push(m);
+      else nachweis.push(...nachweisRegelmeldung(maschine, einmal.find((b) => b.kennung === m.baustein), optionen.nachweis, label));
+    } else andere.push(m);
+  }
+  return [...wunsch, ...lageRegelmeldungen(maschine, nurMethoden(data.bausteine), lage), ...warnungen, ...nachweis, ...sicherheit, ...begleitziel, ...andere];
+}
+
+/**
  * Method ids an arrangement uses, in the order of the flow and each once: Einsatz and Wiederkehr nodes, slot fillings
  * (after their method), every option of an Alternative and the accompanying strands of a Parallel. A Verweis to
  * another arrangement is not followed.
@@ -260,10 +420,11 @@ export function bausteineImArrangement(arr: Pick<Arrangement, 'ablauf'>): string
 }
 
 /**
- * Fit rules for a given flow in a situation (REST /validate, MCP validate_arrangement with situation): the warnings
- * passungNeuPruefen computes for the methods of the arrangement (bausteineImArrangement; former ids are followed,
- * unknown ids skipped) in the situation regelLageAus reads from the request. Same shape and wording as the
- * regelmeldungen of a match answer.
+ * Rule messages for a given flow in a situation (REST /validate, MCP validate_arrangement with situation): what
+ * regelmeldungenNeuPruefen computes for the methods of the arrangement (bausteineImArrangement; former ids are
+ * followed, unknown ids skipped) and the request fields MELDUNG_LAGE_FELDER: method warnings, fit rules of the
+ * situation, the safety note and begleitziel-braucht-termine. Same shape and wording as the regelmeldungen of a match
+ * answer; the named wish and the form of proof need the plan's reading and check step and are not given here.
  */
 export function passungImArrangement(
   arr: Pick<Arrangement, 'ablauf'>,
@@ -274,10 +435,5 @@ export function passungImArrangement(
   const methoden = bausteineImArrangement(arr)
     .map((k) => index.get(k))
     .filter((b): b is Baustein => Boolean(b));
-  const label = (schema: string, code: string) => {
-    const s = data.schemes.find((x) => x.id === schema);
-    const w = (s?.werte || (s?.gruppen || []).flatMap((g) => g.werte)).find((x) => x.id === code);
-    return w ? w.label : code;
-  };
-  return passungNeuPruefen([], methoden, regelLageAus(situation), data.regeln || [], label);
+  return regelmeldungenNeuPruefen([], methoden, situation, data);
 }

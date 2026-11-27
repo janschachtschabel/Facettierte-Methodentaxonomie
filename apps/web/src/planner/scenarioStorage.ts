@@ -115,8 +115,9 @@ export interface EntwurfAngaben {
   /** Whether the lesson is graded, as the request stated it; absent when not stated. */
   bewertet?: boolean;
   /**
-   * Of einheit, bewertet and nachweis: those the request set as explicit field (not only read from the text). When such
-   * a choice is cleared, the draft must not keep the value from this answer.
+   * Of einheit, bewertet, nachweis and the fields of "Mehr Angaben" the fit rules read (bildungsstufe, vorwissen,
+   * sprachniveau, komplexitaet): those the request set as explicit field (not only read from the text). When such a
+   * choice is cleared, the draft and the rule check must not keep the value from this answer.
    */
   gewaehlt?: GewaehltesFeld[];
   /** Room the matcher assumed (code), when the request names none. */
@@ -136,8 +137,10 @@ export interface EntwurfAngaben {
   hinweise?: string[];
 }
 
-export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis';
-const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis'];
+/** Fields of "Mehr Angaben" that the fit rules read (a part of REGEL_LAGE_FELDER of the core). */
+export const REGEL_MEHR_FELDER = ['bildungsstufe', 'vorwissen', 'sprachniveau', 'komplexitaet'] as const;
+export type GewaehltesFeld = 'einheit' | 'bewertet' | 'nachweis' | (typeof REGEL_MEHR_FELDER)[number];
+const GEWAEHLTE_FELDER: GewaehltesFeld[] = ['einheit', 'bewertet', 'nachweis', ...REGEL_MEHR_FELDER];
 
 /** The draft's parts of a matcher answer. */
 export function entwurfAngabenAus(r: MatchResult): EntwurfAngaben {

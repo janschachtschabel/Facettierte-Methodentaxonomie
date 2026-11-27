@@ -27,6 +27,7 @@ export * from './raster.js';
 export {
   EIGNUNG_REGEL_NAMEN,
   GRUNDLAGE_KLARTEXT,
+  MELDUNG_LAGE_FELDER,
   REGEL_LAGE_FELDER,
   WIRKUNG_KLARTEXT,
   bausteineImArrangement,
@@ -34,6 +35,7 @@ export {
   grundlageKlartext,
   passungImArrangement,
   passungNeuPruefen,
+  regelmeldungenNeuPruefen,
   regelLageAus,
   regelName,
   regelmeldungenFuerEntwurf

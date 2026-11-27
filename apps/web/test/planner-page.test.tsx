@@ -960,6 +960,38 @@ describe('N3-Fix I1: Geleertes gilt sofort im Entwurf; das Planungsprofil findet
     for (const f of kern.nachweis?.formen || []) expect(nachher).toContain(CATALOG.labelOf('nachweisform', f));
   });
 
+  it('Sprachniveau leeren: die Warnung verschwindet ohne neuen Vorschlag (R02)', () => {
+    renderPlanner();
+    waehle('Sprachniveau', 'a1');
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, 24 Lernende';
+    propose(text);
+    fireEvent.click(stepButton(2));
+    const satz = /verlangt Lesen oder Schreiben, das Sprachniveau ist aber niedrig/;
+    expect(screen.queryAllByText(satz).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(1));
+    waehle('Sprachniveau', '');
+    fireEvent.click(stepButton(2));
+    expect(screen.queryAllByText(satz)).toEqual([]);
+    // The core's answer for the request without the field says nothing about the language level either.
+    const kern = CATALOG.matcher.zuordnen({ text });
+    expect((kern.regelmeldungen || []).some((m) => m.regel === 'schrift-niedriges-sprachniveau')).toBe(false);
+  });
+
+  it('Bildungsstufe leeren: der Lage-Hinweis der alten Stufe verschwindet, die Stufe aus dem Text gilt (R02)', () => {
+    renderPlanner();
+    waehle('Bildungsstufe', 'primar');
+    const text = 'Biologie Klasse 9, Fotosynthese, 45 Minuten, 24 Lernende';
+    propose(text);
+    fireEvent.click(stepButton(2));
+    const lageSatz = /^Problemlösen vor Instruktion in der Grundschule: Methoden, für die das gilt/;
+    expect(screen.queryAllByText(lageSatz).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(1));
+    waehle('Bildungsstufe', '');
+    fireEvent.click(stepButton(2));
+    expect(screen.queryAllByText(lageSatz)).toEqual([]);
+    expect(screen.queryAllByText(/passt weniger zur Bildungsstufe „Primar/)).toEqual([]);
+  });
+
   it('Planungsprofil leeren: die Stufe aus dem Text bestimmt es wieder (Berufsschule)', () => {
     renderPlanner();
     waehle('Planungsprofil', 'hochschule');

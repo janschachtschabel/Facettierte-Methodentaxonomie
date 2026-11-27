@@ -256,7 +256,8 @@ export function ApiMcpPage() {
                   Prüfung eines Arrangements gegen R-00..R-12. Mit <code>{'{ arrangement, situation }'}</code> (Felder der Anfrage
                   wie bei <code>/match</code>, z. B. dessen <code>kriterien</code>) zusätzlich <code>regelmeldungen</code> in derselben
                   Form wie bei <code>/match</code> und <code>/plan</code>: die Passungsregeln für die Methoden dieses Ablaufs, auch
-                  nach einer Änderung von Hand; das Ergebnis von R-00..R-12 bleibt gleich
+                  nach einer Änderung von Hand, dazu die Meldungen der Lage (Passungsregeln der Situation, Sicherheitshinweis,
+                  Begleitziel ohne Termine); ein leeres Feld gilt als nicht angegeben. Das Ergebnis von R-00..R-12 bleibt gleich
                 </td>
               </tr>
               <tr>

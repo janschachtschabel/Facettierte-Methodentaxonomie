@@ -29,6 +29,9 @@ describe('API-Seite: neue Wege nach außen (Task A4, Lücken R08, R19)', () => {
     const z = zeile('POST /api/v1/validate');
     expect(z).toContain('situation');
     expect(z).toContain('regelmeldungen');
+    // R02: the messages of the situation come along (safety note, accompanying goal without dates).
+    expect(z).toContain('Sicherheitshinweis');
+    expect(z).toContain('Begleitziel');
   });
 
   it('die MCP-Liste nennt zieltyp bei search_methods und situation bei validate_arrangement', () => {

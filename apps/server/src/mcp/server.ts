@@ -9,7 +9,7 @@ import {
   MCP_HINWEISE,
   MEASURE_LEVEL_ORDER,
   QUICK_LEARNER_GROUP_PROFILES,
-  REGEL_LAGE_FELDER,
+  MELDUNG_LAGE_FELDER,
   getDifferentiationMetaSummary,
   istHilfe,
   scoreDifferentiationMatrix,
@@ -392,7 +392,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 5. validate_arrangement
   server.tool(
     'validate_arrangement',
-    `Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]). Mit \`situation\` (Felder der Anfrage wie bei match_scenario, z. B. die kriterien einer Antwort) nennt die Antwort zusätzlich \`regelmeldungen\` (Form wie bei match_scenario und build_scenario_plan): die Passungsregeln für die Methoden dieses Ablaufs, auch wenn er von Hand geändert wurde. Gelesen werden ${REGEL_LAGE_FELDER.join(', ')} (fach wie fachbereich); das Ergebnis von R-00 bis R-12 bleibt gleich. Bedarf im Raum, Schrift und Termine prüft suggest_replacements je Phase; einen neuen Ablauf wählt match_scenario.`,
+    `Prüft ein FMT-Arrangement gegen alle 13 Kompositionsregeln (R-00 bis R-12) und nennt je Meldung die Grundlage (formal, [E], [S], [A]). Mit \`situation\` (Felder der Anfrage wie bei match_scenario, z. B. die kriterien einer Antwort) nennt die Antwort zusätzlich \`regelmeldungen\` (Form wie bei match_scenario und build_scenario_plan): die Passungsregeln für die Methoden dieses Ablaufs, auch wenn er von Hand geändert wurde, und die Meldungen der Lage wie bei match_scenario: Passungsregeln der Situation ohne Methode, sicherheitshinweis (praktische Methoden in Fachraum, Sporthalle, draußen oder einem praktischen Fachbereich) und begleitziel-braucht-termine. Gelesen werden ${MELDUNG_LAGE_FELDER.join(', ')} (fach wie fachbereich, lernort wie raum); ein geleertes Feld gilt als nicht angegeben. Den genannten Wunsch und den Nachweis nennt nur die Antwort von match_scenario, weil sie Text und Prüfschritt des Plans brauchen. Das Ergebnis von R-00 bis R-12 bleibt gleich. Bedarf im Raum, Schrift und Termine prüft suggest_replacements je Phase; einen neuen Ablauf wählt match_scenario.`,
     {
       arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement im kompakten JSON-LD-Format'),
       // Unknown keys pass the schema and are answered by the shared check with the same text as REST.

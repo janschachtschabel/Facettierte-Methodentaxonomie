@@ -59,9 +59,10 @@ describe('Neue Wege nach außen im Kern (Task A4, Lücken R08, R19)', () => {
   it('passungImArrangement prüft die Passungsregeln für die Methoden des Ablaufs in der Situation', () => {
     const meldungen = passungImArrangement(dichte, { vorwissen: 'hoch', raum: 'klassenraum' }, D);
     expect(meldungen.some((m) => m.regel === 'eignung-vorwissen' && m.baustein === 'loesungsbeispiele')).toBe(true);
-    // Every message belongs to a method of the flow.
+    // Every message with a method belongs to a method of the flow; the fit rule of the situation stands without one (R02).
     const imAblauf = new Set(bausteineImArrangement(dichte));
-    for (const m of meldungen) expect(imAblauf.has(m.baustein!)).toBe(true);
+    for (const m of meldungen.filter((x) => x.baustein)) expect(imAblauf.has(m.baustein!)).toBe(true);
+    expect(meldungen.some((m) => m.regel === 'viel-anleitung-hohes-vorwissen' && !m.baustein)).toBe(true);
     // Without a field the rules read, nothing fires.
     expect(passungImArrangement(dichte, { raum: 'klassenraum' }, D)).toEqual([]);
   });
