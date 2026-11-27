@@ -122,7 +122,10 @@ export interface Rankable<T> {
   id: string;
   hard: number[];
   soft: number;
-  /** Comes first among the equivalent candidates (it carries an accompanying goal); hard tiers and scores still rule. */
+  /**
+   * Carries an accompanying goal: `soft` includes SOFT_WEIGHTS.begleitziel. Membership in the equivalent group is
+   * decided without it; inside the group such candidates come first. Hard tiers and scores outside the group still rule.
+   */
   vorn?: boolean;
 }
 
@@ -147,8 +150,12 @@ export function pickOrder<T>(items: Array<Rankable<T>>, seed: string, variante =
     compareHard(a.hard, b.hard) || a.soft - b.soft || stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id);
   const sorted = [...items].sort(plain);
   if (!sorted.length || tolerance <= 0) return sorted.map((x) => x.item);
-  const best = sorted[0];
-  const equivalent = sorted.filter((x) => compareHard(x.hard, best.hard) === 0 && x.soft <= best.soft + tolerance);
+  // Who is equivalent is decided without the accompanying-goal weight, so a goal only acts inside the tolerance
+  // (spec: "Ein Begleitziel wirkt nur innerhalb der Toleranz"); `vorn` marks a soft score that includes that weight.
+  const ohneBegleitziel = (x: Rankable<T>) => (x.vorn ? x.soft - SOFT_WEIGHTS.begleitziel : x.soft);
+  const tier = sorted.filter((x) => compareHard(x.hard, sorted[0].hard) === 0);
+  const bestBase = Math.min(...tier.map(ohneBegleitziel));
+  const equivalent = tier.filter((x) => ohneBegleitziel(x) <= bestBase + tolerance);
   const rest = sorted.filter((x) => !equivalent.includes(x));
   equivalent.sort(
     (a, b) => Number(Boolean(b.vorn)) - Number(Boolean(a.vorn)) || stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id)

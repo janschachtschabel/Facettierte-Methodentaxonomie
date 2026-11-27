@@ -1979,6 +1979,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const strang = ziele
         .filter((z) => z !== 'sprache')
         .map((z) => {
+          // Not in the plan, no rule warning, room need met: a proposal must not duplicate a planned method or carry a
+          // warning, and "Bedarf gedeckt" covers the room (review D3).
           const b = methoden
             .filter(
               (m) =>

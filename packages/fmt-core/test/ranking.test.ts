@@ -90,6 +90,11 @@ describe('Begleitziel in der Rangfolge (Paket D, D3)', () => {
     const besser = { item: 'besser', id: 'besser', hard: [0, 0], soft: 3 };
     const traeger = { item: 'traeger', id: 'traeger', hard: [0, 1], soft: softScore({ ...base, begleitziel: true }), vorn: true };
     for (const seed of ['a', 'b', 'c']) expect(pickOrder([traeger, besser], seed)).toEqual(['besser', 'traeger']);
+    // Between 0.75 and 1.25 behind (inside the tolerance only with the weight): still behind, for every seed (review D3).
+    for (const behind of [0.76, 1.0, 1.24]) {
+      const knapp = { item: 'knapp', id: 'knapp', hard: [0], soft: 1 + behind + SOFT_WEIGHTS.begleitziel, vorn: true };
+      for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) expect(pickOrder([knapp, { item: 'gut', id: 'gut', hard: [0], soft: 1 }], seed)[0], `${behind} ${seed}`).toBe('gut');
+    }
     // Outside the tolerance (even with the weight) the carrier stays behind.
     const gut = { item: 'gut', id: 'gut', hard: [0], soft: 1 };
     const fern = { item: 'fern', id: 'fern', hard: [0], soft: 1 + EQUIVALENCE_TOLERANCE + 0.01, vorn: true };
