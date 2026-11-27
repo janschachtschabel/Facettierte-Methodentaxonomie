@@ -364,6 +364,46 @@ describe('API-Seite nach FMT 2.0 (Paket D, D7)', () => {
     expect(beispiel).toContain('"begleitziel"');
     const antwort = within(sec).getByLabelText('Auszug der Antwort').textContent || '';
     for (const f of ['"pflichtangaben"', '"regelmeldungen"', '"begleitstrang"', '"planungsprofil"', '"status": "entwurf"']) expect(antwort, f).toContain(f);
+    // The old field name is set as code, not as prose (Fix-Welle D).
+    const raumZeile = within(felder).getAllByText('raum')[0].closest('tr') as HTMLElement;
+    expect(within(raumZeile).getByText('lernort', { selector: 'code' })).toBeTruthy();
   });
+});
+
+describe('Zahlen des Katalogs: Methoden und Hilfen getrennt (Fix-Welle D)', () => {
+  const hilfen = BUNDLE.bausteine.filter((b) => b.eintragsart === 'hilfe').length;
+  const methoden = BUNDLE.bausteine.length - hilfen;
+  const pruefe = (text: string, seite: string) => {
+    expect(hilfen, 'Fixture').toBeGreaterThan(0);
+    expect(text, seite).not.toContain(`${BUNDLE.bausteine.length} Methoden`);
+    expect(text, seite).not.toContain(`${BUNDLE.bausteine.length} Unterrichtsmethoden`);
+    expect(text, seite).toContain(`${methoden} `);
+    expect(text, seite).toContain(`${hilfen} Hilfen`);
+  };
+  it('Systematik, API-Seite und Katalog zählen Hilfen nicht als Methoden', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    pruefe(document.body.textContent || '', 'Systematik');
+    // Binding word rule: the heading names no "Anforderungen".
+    expect(screen.queryAllByRole('heading', { name: /Anforderung/ })).toEqual([]);
+    cleanup();
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    pruefe(document.body.textContent || '', 'API');
+    cleanup();
+    render(
+      <MemoryRouter>
+        <CatalogPage />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Tabelle' }));
+    pruefe(document.body.textContent || '', 'Katalog');
+  }, 60_000);
 });
 

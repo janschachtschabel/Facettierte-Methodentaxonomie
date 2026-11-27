@@ -1,12 +1,20 @@
+import type { ReactNode } from 'react';
 import { useCatalog } from '../data/CatalogContext.js';
+import { katalogZahlenText } from '../data/katalogZahlen.js';
 
 /** Request and answer fields added by FMT 2.0 (where they are read or returned). */
-const FMT2_FELDER: Array<[string, string, string]> = [
+const FMT2_FELDER: Array<[string, string, ReactNode]> = [
   ['planungsprofil', 'Anfrage und Antwort', 'schule, berufsschule, betrieb, hochschule oder erwachsenenbildung. Ohne Angabe folgt das Profil aus der Bildungsstufe (in der Berufsbildung auch aus „Betrieb“ im Text); die Antwort nennt das Profil, ein angenommenes zusätzlich unter pflichtangaben.'],
   ['begleitziel', 'Anfrage', 'sprache, sozial, selbstregulation (auch als Liste). Wählt nie die Kette, ordnet nur unter gleichwertigen Methoden.'],
   ['termine', 'Anfrage', 'Zahl der Termine. Methoden mit termineMin brauchen mehrere; ein Begleitziel in einer einzelnen Stunde meldet die Regel begleitziel-braucht-termine.'],
   ['nachweis', 'Anfrage und Antwort', 'Form der Überprüfung (etwa schriftlich, praktisch). Ohne Angabe trägt die Zielart sie; die Antwort nennt Formen, Quelle und Grund.'],
-  ['raum', 'Anfrage', 'Raumtyp (früher lernort, das alte Feld gilt weiter); dazu raumBietet und fachausstattungArt.'],
+  [
+    'raum',
+    'Anfrage',
+    <>
+      Raumtyp (früher <code>lernort</code>, das alte Feld gilt weiter); dazu <code>raumBietet</code> und <code>fachausstattungArt</code>.
+    </>
+  ],
   ['ohneSchrift', 'Anfrage', 'lesen oder schreiben: Methoden, die das brauchen, kommen nicht in Frage.'],
   ['pflichtangaben', 'Antwort', 'Welche der sechs Pflichtangaben fehlen (fehlt) und was dafür angenommen ist (angenommen: Feld, Wert, Grund).'],
   ['regelmeldungen', 'Antwort', 'Jede Meldung einer Passungsregel mit regel, wirkung, grundlage, quelle, text und der Methode, wenn sie eine betrifft.'],
@@ -54,8 +62,7 @@ const FMT2_ANTWORT = JSON.stringify(
 export function ApiMcpPage() {
   const { bundle, meta, setLlmSettingsOpen } = useCatalog();
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080';
-  const totalMethods = bundle?.bausteine.length ?? null;
-  const totalLabel = totalMethods != null ? `alle ${totalMethods}` : 'alle';
+  const totalLabel = bundle ? `alle ${katalogZahlenText(bundle.bausteine)}` : 'alle Methoden';
 
   const mcpHttpConfig = JSON.stringify(
     {
@@ -86,7 +93,7 @@ export function ApiMcpPage() {
     <div className="page-section">
       <h1>API, MCP &amp; Linked Data (OER)</h1>
       <p className="muted" style={{ maxWidth: '72ch' }}>
-        {totalMethods != null ? `Alle ${totalMethods}` : 'Alle'} Unterrichtsmethoden, {bundle?.schemes.length ?? 24} SKOS-Vokabulare, die deterministische 5-Stufen-Zuordnung
+        {bundle ? `Alle ${katalogZahlenText(bundle.bausteine)}` : 'Alle Unterrichtsmethoden'}, {bundle?.schemes.length ?? 24} SKOS-Vokabulare, die deterministische 5-Stufen-Zuordnung
         (&lt;1 ms, 0 LLM-Tokens) und der 13-Regeln-Validator stehen für externe KI-Agents über <strong>MCP</strong> und{' '}
         <strong>REST / JSON-LD</strong> offen unter <strong>CC BY 4.0 (Jan Schachtschabel)</strong> bereit.
       </p>
@@ -113,7 +120,7 @@ export function ApiMcpPage() {
           </p>
           <ul style={{ paddingLeft: 18, fontSize: 15 }}>
             <li><code>classify_scenario_text</code> – Zero-LLM Freitext-Klassifikation (Regeln + BM25/Trigram + opt. Model2Vec) auf 6 Skalen, Fach/Thema &amp; Matrix-Merkmale</li>
-            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} Methoden inkl. semantischer Vorschläge, auch nach <code>fach</code> oder <code>fachbereich</code></li>
+            <li><code>search_methods</code> – Facettierte Suche über {totalLabel} inkl. semantischer Vorschläge, auch nach <code>fach</code> oder <code>fachbereich</code></li>
             <li><code>get_method</code> – Vollständiges Profil inkl. Evidenz &amp; Quellen (frühere Kennungen werden weitergeleitet)</li>
             <li><code>compare_methods</code> – Facette-für-Facette-Differenzvergleich</li>
             <li><code>match_scenario</code> – Deterministische 5-Stufen-Zuordnung inkl. didaktischem Ansatz &amp; Matrix-Signalen</li>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Baustein, CatalogBundle, VocabValue } from '@fmt/core';
+import { katalogZahlenText } from '../data/katalogZahlen.js';
 
 interface Props {
   bundle: CatalogBundle;
@@ -210,18 +211,18 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <h3 style={{ margin: 0 }}>
-              1. Lenkung ist nicht Aktivität (alle {blocks.length} Methoden im Raum
+              1. Lenkung ist nicht Aktivität (alle {katalogZahlenText(blocks)} im Raum
               {hasHighlight ? ` · ${fgBlocks.length} hervorgehoben` : ''})
             </h3>
             <p className="muted" style={{ fontSize: 14.5, margin: '4px 0 0', maxWidth: '72ch' }}>
-              Anleitungsgrad (B1) und Engagementmodus (A2) sind unabhängig kodiert. Alle {blocks.length} Methoden bleiben stets sichtbar; Auswahl hebt Teilmengen hervor.
+              Anleitungsgrad (B1) und Engagementmodus (A2) sind unabhängig kodiert. Alle {katalogZahlenText(blocks)} bleiben stets sichtbar; Auswahl hebt Teilmengen hervor.
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <label style={{ fontFamily: 'var(--display)', fontWeight: 600, fontSize: 13.5, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               Ansatz hervorheben:
               <select value={plotAnsatz} onChange={(e) => setPlotAnsatz(e.target.value)}>
-                <option value="">Alle {blocks.length} Methoden</option>
+                <option value="">Alle {blocks.length} Einträge</option>
                 {valuesOf('ansatz').map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.label}
@@ -260,9 +261,9 @@ export function CatalogAnalytics({ bundle, valuesOf, labelOf }: Props) {
             }}
           >
             <span>
-              <strong>Hervorhebung aktiv:</strong> {fgBlocks.length} von {blocks.length} Methoden hervorgehoben
+              <strong>Hervorhebung aktiv:</strong> {fgBlocks.length} von {blocks.length} Einträgen hervorgehoben
               {plotAnsatz ? ` (Ansatz: ${labelOf('ansatz', plotAnsatz)})` : ''}
-              {plotReichweite ? ` (Reichweite: ${plotReichweite.toUpperCase()})` : ''} – die übrigen {bgBlocks.length} Methoden bleiben als grauer Hintergrund sichtbar.
+              {plotReichweite ? ` (Reichweite: ${plotReichweite.toUpperCase()})` : ''} – die übrigen {bgBlocks.length} Einträge bleiben als grauer Hintergrund sichtbar.
             </span>
             <button
               type="button"

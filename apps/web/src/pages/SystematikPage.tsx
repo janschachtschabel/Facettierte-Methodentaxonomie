@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FMT_RULES, nurMethoden, oehDisciplinesForFachbereich, traegtBegleitziel } from '@fmt/core';
+import { katalogZahlen, katalogZahlenText } from '../data/katalogZahlen.js';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
@@ -294,7 +295,7 @@ export function SystematikPage() {
           <p style={{ fontSize: 17.5 }}>
             Bestehende Methodensammlungen ordnen nach Einzelkriterien oder nach Methodennamen – Wirksamkeitsbefunde hängen jedoch an{' '}
             <strong>Merkmalen unter Bedingungen</strong>. Die FMT beschreibt deshalb jede der{' '}
-            <strong>{bundle.bausteine.length} Methoden</strong> als Profil aus <strong>13 getrennt kodierten Facetten</strong> in vier
+            <strong>{katalogZahlen(bundle.bausteine).methoden} Methoden</strong> (dazu {katalogZahlen(bundle.bausteine).hilfen} Hilfen) als Profil aus <strong>13 getrennt kodierten Facetten</strong> in vier
             Domänen, geordnet auf zwei Achsen und kombinierbar über sechs Operatoren.
           </p>
 
@@ -450,9 +451,9 @@ export function SystematikPage() {
         </div>
       </div>
 
-      {/* 2. Begründung & 5 Anforderungen */}
+      {/* 2. Begründung & fünf Ansprüche */}
       <section style={{ marginTop: 40, paddingTop: 30, borderTop: '1px solid var(--rule)' }}>
-        <h2>Warum eine Facettierte Methodentaxonomie? (Begründung &amp; 5 Anforderungen)</h2>
+        <h2>Warum eine Facettierte Methodentaxonomie? (Begründung &amp; fünf Ansprüche)</h2>
         <p style={{ maxWidth: '76ch' }}>
           Klassische Systematiken ordnen Verschiedenes: Meyer (1987) nach Umfang, Flechsig (1996) nach 20 Modellen, Aebli (1983) nach
           Grundformen, Oser &amp; Baeriswyl (2001) nach Choreografie und Basismodellen, Baumgartner (2011) nach Größe und Abstraktion.
@@ -1101,7 +1102,7 @@ export function SystematikPage() {
 
       {/* 6. Live Catalog Analytics Dashboard (200 Methods) */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Auswertungen &amp; Verortung des Katalogs ({bundle.bausteine.length} Methoden live)</h2>
+        <h2>Auswertungen &amp; Verortung des Katalogs ({katalogZahlenText(bundle.bausteine)} live)</h2>
         <p className="muted" style={{ maxWidth: '76ch', marginBottom: 18 }}>
           Alle Grafiken werden live aus dem aktuellen Katalog berechnet. Klicks auf Punkte, Heatmap-Zellen oder Balken führen direkt zu den
           passenden Methoden im Katalog.
@@ -1490,7 +1491,7 @@ export function SystematikPage() {
               <li>KI-Evidenz ist jung und instabil; Leistung <em>mit</em> KI zählt nie als Beleg für Lernen <em>ohne</em> KI.</li>
               <li>
                 Alle {bundle.bausteine.filter((b) => b.status !== 'kuratiert').length} neu ergänzten Bausteine im aktuellen Katalog (
-                {bundle.bausteine.length} Methoden gesamt) tragen transparent den Status <em>Ersterfassung</em>.
+                {katalogZahlenText(bundle.bausteine)} gesamt) tragen transparent den Status <em>Ersterfassung</em>.
               </li>
             </ul>
           </div>
