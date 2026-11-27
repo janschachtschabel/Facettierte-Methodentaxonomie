@@ -5,7 +5,8 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { createSearch, createValidator, type CatalogBundle, type FmtData } from '@fmt/core';
-import { SystematikPage } from '../src/pages/SystematikPage.js';
+import { SystematikPage, GRUNDLAGE_TEXT } from '../src/pages/SystematikPage.js';
+import { grundlageKlartext } from '../src/planner/regelmeldung.js';
 import { MethodDetailPage } from '../src/pages/MethodDetailPage.js';
 import { CatalogPage } from '../src/pages/CatalogPage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT } from '../src/planner/rahmen.js';
@@ -88,6 +89,11 @@ describe('W-Raster in der Oberfläche', () => {
     const kompo = sectionOf('Die 13 Kompositionsregeln (R-00 bis R-12)');
     expect(kompo.nextElementSibling).toBe(sec);
     expect(sec.textContent).not.toMatch(/Bedingungsraum|Anforderung/);
+  });
+
+  it('Grundlage „U“ heißt „ungeklärt“ (Spec §6), nicht „Umsetzung“', () => {
+    expect(grundlageKlartext({ grundlage: 'U' })).toBe('ungeklärt');
+    expect(GRUNDLAGE_TEXT.U).toBe('ungeklärt (U)');
   });
 
   it('Methodendetail zeigt „Was die Methode braucht“ nach W-Feld mit dem Hinweis zum Raum', () => {

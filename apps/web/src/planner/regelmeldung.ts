@@ -13,7 +13,7 @@ const GRUNDLAGE_KLARTEXT: Record<string, string> = {
   S: 'gefolgert',
   A: 'Setzung',
   Recht: 'Recht',
-  U: 'Umsetzung',
+  U: 'ungeklärt',
   formal: 'formal'
 };
 

@@ -65,12 +65,12 @@ const INFER_TEXT: Record<string, string> = {
   hoch: 'hoch-inferent, fachdidaktische Einschätzung über die Absicht des Designs'
 };
 
-const GRUNDLAGE_TEXT: Record<string, string> = {
+export const GRUNDLAGE_TEXT: Record<string, string> = {
   formal: 'formal (ablesbar)',
   E: 'belegt (E)',
   S: 'gefolgert (S)',
   A: 'gesetzt (A)',
-  U: 'Umsetzung (U)',
+  U: 'ungeklärt (U)',
   Recht: 'Recht'
 };
 
