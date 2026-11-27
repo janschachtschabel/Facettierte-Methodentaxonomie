@@ -1121,7 +1121,11 @@ export function SystematikPage() {
                     </div>
                   </td>
                   <td>
-                    {r.text.replace(/^\{methode\}/, 'Die Methode').replace(/\{methode\}/g, 'die Methode')}
+                    {r.text
+                      // An example in parentheses ("(z. B. {methode})") names no method here: left out.
+                      .replace(/\s*\(z\.\s*B\.\s*\{methode\}\)/g, '')
+                      .replace(/^\{methode\}/, 'Die Methode')
+                      .replace(/\{methode\}/g, 'die Methode')}
                     {r.keinTausch && (
                       <div className="muted" style={{ fontSize: 12.5 }}>
                         Warnt und zeigt Hilfe, die Methode bleibt im Ablauf.

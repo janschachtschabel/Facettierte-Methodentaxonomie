@@ -82,6 +82,9 @@ describe('W-Raster in der Oberfläche', () => {
     expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(BUNDLE.regeln!.length);
     expect(within(tabelle).getByText('Schrift bei niedrigem Sprachniveau')).toBeTruthy();
     expect(within(tabelle).getAllByText(/Höfler et al\. 2024/).length).toBeGreaterThan(0);
+    // An example placeholder in parentheses is left out; no "(z. B. die Methode)".
+    expect(within(tabelle).getByText('Im Ablauf wird praktisch gearbeitet. Kläre vorher Sicherheit und Aufsicht.')).toBeTruthy();
+    expect(tabelle.textContent).not.toMatch(/z\. B\. die Methode/);
     const wirkung = within(sec).getByRole('table', { name: 'Welche Wirkung hat welche Art' });
     for (const w of ['schließt aus', 'warnt', 'ordnet', 'weist hin']) expect(within(wirkung).getByRole('rowheader', { name: w })).toBeTruthy();
     expect(within(wirkung).getByText('Eignung')).toBeTruthy();
