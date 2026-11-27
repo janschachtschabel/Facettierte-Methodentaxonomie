@@ -1995,6 +1995,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     if (r.modus === 'ablauf' && r.arrangement) {
       const imPlan = new Set(chosenBlocks(r));
       const grade = (b: Baustein) => ['A', 'B', 'C'].indexOf(rankingGrade(b.evidenz) ?? 'D') + 1 || 4;
+      // One method per strand entry: a later goal takes the next method, never one an earlier goal already proposed.
+      const vergeben = new Set<string>();
       const strang = ziele
         .filter((z) => z !== 'sprache')
         .map((z) => {
@@ -2008,6 +2010,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                 m.dauerMin <= 5 &&
                 traegtBegleitziel(m, z) &&
                 !imPlan.has(m.kennung) &&
+                !vergeben.has(m.kennung) &&
                 !ungedeckterBedarf(m, a, situation, data) &&
                 !raumFehlt(m, situation).length &&
                 !passung(m, a).length
@@ -2019,6 +2022,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                 Number(x.status !== 'kuratiert') - Number(y.status !== 'kuratiert') ||
                 x.kennung.localeCompare(y.kennung)
             )[0];
+          if (b) vergeben.add(b.kennung);
           return b
             ? {
                 begleitziel: z,

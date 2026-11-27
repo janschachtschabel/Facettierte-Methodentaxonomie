@@ -1202,6 +1202,21 @@ describe('Begleitziele (Paket D, D3)', () => {
     expect(beide.regelmeldungen!.find((x) => x.regel === 'begleitziel-braucht-termine')!.text).toMatch(/^Wirkungen auf soziales Lernen und Selbstregulation /);
   });
 
+  it('zwei Begleitziele schlagen nie dieselbe Methode zweimal vor', () => {
+    for (const text of [
+      'Physik Klasse 8, Stromkreis, 45 Minuten',
+      'Mathe Klasse 8, lineare Funktionen, 45 Minuten',
+      'Deutsch Klasse 6, Erörterung, 45 Minuten',
+      'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten'
+    ]) {
+      const r = ablauf(M.zuordnen({ text, begleitziel: ['sozial', 'selbstregulation'] }));
+      const ids = (r.begleitstrang || []).map((s) => s.baustein);
+      expect(ids.length, text).toBeGreaterThan(0);
+      expect(new Set(ids).size, text).toBe(ids.length);
+      for (const s of r.begleitstrang!) expect(traegtBegleitziel(blocks.get(s.baustein)!, s.begleitziel as never), text).toBe(true);
+    }
+  });
+
   it('das Thema bleibt das Thema: ein Begleitziel steht nicht darin', () => {
     expect(extractSubjectAndTopic('Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern').thema).toBe('Stromkreis');
     expect(extractSubjectAndTopic('Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken').thema).toBe('Wortschatz Tiere');

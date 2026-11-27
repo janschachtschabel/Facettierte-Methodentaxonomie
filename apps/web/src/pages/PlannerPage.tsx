@@ -718,6 +718,8 @@ export function PlannerPage() {
     const res = addExtraPhase(arrangement, blocksById, begleitstrangAlsPhase(st));
     applyFlowChange(res.arrangement, res.index, 1);
     setBegleitPhasen((prev) => [...prev.filter((a) => a.kennung !== res.added.kennung), res.added]);
+    // A strand in the flow is a phase, not material as well.
+    setGeneratedMaterials((prev) => prev.filter((m) => m.id !== begleitstrangMaterialId(st)));
   };
 
   const removeBegleitstrang = (a: AddedPhase) => {
@@ -2949,6 +2951,7 @@ export function PlannerPage() {
                   const ziel = labelOf('begleitziel', st.begleitziel);
                   const angehaengt = generatedMaterials.some((m) => m.id === begleitstrangMaterialId(st));
                   const letzte = scenarioRows[scenarioRows.length - 1]?.key;
+                  const imAblauf = !!begleitImAblauf(st);
                   return (
                     <li key={st.begleitziel}>
                       <div>
@@ -2956,10 +2959,10 @@ export function PlannerPage() {
                           <strong>{st.name}</strong> ({ziel}, {st.dauerMin} min am Ende)
                         </div>
                         <div className="muted" style={{ fontSize: 13 }}>
-                          {st.grund}
+                          {imAblauf ? `${st.name} steht als letzte Phase im Ablauf; als Material entfällt er.` : st.grund}
                         </div>
                       </div>
-                      {angehaengt ? (
+                      {imAblauf ? null : angehaengt ? (
                         <button
                           type="button"
                           className="btn btn-sm"
