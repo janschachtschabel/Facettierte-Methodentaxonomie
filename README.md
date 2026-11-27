@@ -1,6 +1,6 @@
 # Facettierte Methodentaxonomie (FMT) – Methodendatenbank, Web-App, REST-API & MCP-Server
 
-Eine offene, maschinenlesbare **Datenbank für 303 Unterrichtsmethoden** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
+Eine offene, maschinenlesbare **Datenbank für 310 Unterrichtsmethoden und 4 Hilfen** im deutschsprachigen Bildungsraum auf Basis der **Facettierten Methodentaxonomie (FMT)** – für Lehrkräfte, Didaktiker:innen und KI-Agents.
 
 - **Autor (Inhalte, Taxonomie & Grafiken):** Jan Schachtschabel
 - **Inhalts- & Datenlizenz:** [CC BY 4.0](LICENSE-CONTENT.md) (`https://creativecommons.org/licenses/by/4.0/`)
@@ -11,10 +11,11 @@ Eine offene, maschinenlesbare **Datenbank für 303 Unterrichtsmethoden** im deut
 
 ## Funktionsumfang
 
-- **Methodenkatalog (303 Methoden, 25 SKOS-Vokabulare):** Kuratierte Kernbausteine + breit gestreute Ersterfassungen über alle 12 didaktischen Ansätze, Granularitätsebenen (`R1`–`R4`) und Facetten – jeweils mit vollständigem 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Kernkomponenten, Qualitätsrisiken, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Mini-Ablaufgrafik und geprüften freien Quellen.
+- **Methodenkatalog (310 Methoden, 4 Hilfen, 36 SKOS-Vokabulare):** Kuratierte Kernbausteine + breit gestreute Ersterfassungen über alle 12 didaktischen Ansätze, Granularitätsebenen (`R1`–`R4`) und Facetten – jeweils mit vollständigem 13-Facetten-Profil, 5-Achsen-Steuerungsprofil, Durchführungsschritten, Kernkomponenten, Qualitätsrisiken, Evidenzgrad (mit Geltung & Gegenposition), Piktogramm, Mini-Ablaufgrafik und geprüften freien Quellen.
 - **Zero-LLM-First (`< 5 ms`, 0 € Betriebskosten):**
   - Facettierte Suche, 5-Stufen-Zuordnung (`lesen()` + `zuordnen()`), 13-Regeln-Validator (`R-00`–`R-12`), Binnendifferenzierungsmatrix (115 Variablen × 172 Maßnahmen), 7 druckfertige Material-Strukturvorlagen und hybride Freitext-Klassifikation (`POST /api/v1/classify`, `POST /api/v1/plan`) laufen **komplett ohne Sprachmodell**.
   - Optionales statisches deutsches Bildungs-Embedding (**`JanSchachtschabel/m2v-qwen3-4b-256-edu`**, Apache-2.0) direkt in reinem Node.js ohne Python/ONNX nachladbar (`npm run download:m2v`).
+- **FMT 2.0: W-Raster, Bedarf, Teilgruppen, Planungsprofile und Begleitziele:** Jede Angabe einer Methode gehört zu einer von neun W-Fragen und einer von fünf Arten von Aussagen (Bauweise, Beitrag, Bedarf, Eignung, Einordnung). Die Wissensart eines Schritts bindet die Kette, Raum- und Schriftbedarf werden mit den Rahmenbedingungen abgeglichen, und 16 Passungsregeln nennen jede Meldung mit Wirkung und Grundlage (`regelmeldungen`). Ein Merkmal einer Teilgruppe tauscht die Methode nur mit Befund, sonst gibt es eine Hilfe in derselben Methode (`data/teilgruppen.json`). Fünf Planungsprofile (Schule, Berufsschule, Betrieb, Hochschule, Erwachsenenbildung) geben dem Entwurf mit sieben Kernfeldern die Begriffe des Bereichs. Begleitziele (Sprache, soziales Lernen, Selbstregulation) ordnen nur unter gleichwertigen Methoden und schlagen einen kurzen `begleitstrang` vor. Hilfen (`eintragsart: hilfe`) sind nie eine Phase. Grenzen und offene Punkte stehen auf der Systematikseite; Datenpflege nach dem [Kodierleitfaden](docs/datenpflege/2026-11-27-kodierleitfaden-fmt2.md), Stand der Qualitätsfälle im [Abschlussbericht](docs/qualitaet/2026-11-27-fmt2-abschluss.md).
 - **Szenario-Baukasten (5 Schritte) & Exporte:** Live-Zeitband (`TimelineBandSvg`), Didaktische Partitur, IMS-LD-Verlaufsplan, eigener Schritt 3 „Binnendifferenzierung“ (startet mit Standardgruppe + klickbaren Teilgruppen-Chips, UDL-Basis & Zielkonflikten), Live-WLO-OER-Suche (`wwwurl`), druckfertiger PDF-Export (inkl. UDL, Zielkonflikten & isolierten Materialseiten), **1-Seiten-A4-Kurzablauf (Pultvorlage)**, Markdown/LaTeX-Formeln (KaTeX offline), Word/LibreOffice (`.doc`), HTML+JSON-LD, **IMS Common Cartridge (`.imscc`)** und **Moodle-XML**.
 - **Flexible KI-Anbindung (optional):**
   1. **Zero-LLM-Standard:** Server läuft ohne API-Key; API & MCP liefern bei komplexen Aufgaben fertige `llmBriefing`-Pakete für das eigene Enduser-LLM.
@@ -176,7 +177,7 @@ Die Anwendung lädt lokal automatisch eine `.env`-Datei im Projekt-Hauptordner (
 
 ---
 
-## MCP-Server (14 Zero-LLM-Tools für KI-Clients)
+## MCP-Server (15 Zero-LLM-Tools für KI-Clients)
 
 Alle MCP-Tools antworten standardmäßig **ohne Server-LLM in `< 5 ms`** (Suche, 5-Stufen-Zuordnung, Regelprüfung, Binnendifferenzierungsmatrix, hybride Freitext-Klassifikation) und liefern bei komplexen Aufgaben ein fertiges **`llmBriefing`** für das aufrufende Enduser-LLM.
 
@@ -211,7 +212,7 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 
 ## Architektur, Verzeichnisse & Skripte
 
-- `data/` – Single Source of Truth unter **CC BY 4.0** (`meta.json`, `vocab.json`, `ketten.json`, `crosswalk/`, `beispiele/`, `bausteine/*.json` mit **303 Methoden**)
+- `data/` – Single Source of Truth unter **CC BY 4.0** (`meta.json`, `vocab.json`, `ketten.json`, `crosswalk/`, `beispiele/`, `bausteine/*.json` mit **314 Einträgen**: 310 Methoden und 4 Hilfen), dazu die Regelsätze `regeln.json` (Passungsregeln), `teilgruppen.json` (Tausch oder Hilfe), `planungsprofile.json` und `weiterleitungen.json`
 - `data/crosswalk/oeh-faecher.json` – Erkennungsschicht: 70 OEH-Schulfächer und 344 Hochschulfächer (Destatis) mit Zuordnung zu den acht FMT-Fachbereichen. Ein im Text genanntes Fach liefert Fachbereich und OEH-Kennung; an Methoden hängen keine Einzelfächer.
 - `packages/fmt-core/` – Abhängigkeitsfreier TypeScript-Kern (`validate`, `suche`, `zuordnung`, `semantic`, `differentiationMatrix`) & Artefakt-Generator (`dist-data/`)
 - `apps/server/` – Fastify-Server (Static SPA, REST API inkl. `/api/v1/classify`, `/api/v1/plan`, `/api/v1/assistant/briefing`, Linked Data + `w3id.org`, MCP Streamable HTTP + `stdio`, optionales Model2Vec & OpenAI-kompatibles LLM)
@@ -223,7 +224,9 @@ Fehler tragen `isError: true`. Erlaubte Werte stehen als Enum im Tool-Schema. `m
 |---|---|
 | `npm run build` | Baut Core, `dist-data/`, Web-App und Server |
 | `npm run build:data` | Baut nur `@fmt/core` und generiert `dist-data/` |
-| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (141 Tests) |
+| `npm test` | Führt die komplette Testsuite über alle 3 Workspaces aus (Kern 587, Server 78, Web 160 Tests) |
+| `npm run qualitaet [-- reihe2\|reihe3\|reihe4]` | Qualitätsbericht der Szenariovorschläge je Testreihe (Markdown-Tabelle) |
+| `npm run qualitaet:ausgang` | Vergleicht die Reihen 1 bis 3 mit dem Ausgangsstand `ausgang.json`; meldet nur Verschlechterungen |
 | `npm start` | Startet den gebauten Produktionsserver (`apps/server/dist/index.js`) |
 | `npm run mcp:stdio` | Startet den lokalen MCP-Server über `stdin`/`stdout` |
 | `npm run download:m2v` | Lädt optional `JanSchachtschabel/m2v-qwen3-4b-256-edu` nach `models/` |
