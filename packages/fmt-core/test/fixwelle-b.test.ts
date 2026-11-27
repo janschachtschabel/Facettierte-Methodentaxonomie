@@ -42,4 +42,21 @@ describe('Fix wave Paket B', () => {
     expect(sport.nachweis?.formen).toContain('praktisch');
     expect((sport.regelmeldungen || []).some((x) => x.regel === 'nachweis-passt-zum-ziel')).toBe(false);
   });
+
+  it('6: ein nur vermutetes Ziel steht unter pflichtangaben.angenommen (W13)', () => {
+    for (const text of ['Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal', 'Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal, 45 Minuten']) {
+      const r = M.zuordnen({ text });
+      const fn = r.erkannt.find((e) => e.feld === 'lernfunktion');
+      expect(fn?.beleg, text).toMatch(/^semantisch/);
+      const code = (r.kriterien.lernfunktion as string[])[0];
+      const label = D.schemes.find((x) => x.id === 'lernfunktion')!.werte!.find((w) => w.id === code)!.label;
+      expect(r.pflichtangaben?.angenommen, text).toContainEqual({ feld: 'lernfunktion', wert: code, grund: `Ziel „${label}“ vermutet aus dem Text.` });
+    }
+    // A goal the text names is no guess.
+    const einstieg = M.zuordnen({ text: 'Einstieg für Mathe Klasse 7 Brüche' });
+    expect((einstieg.pflichtangaben?.angenommen || []).some((x) => /vermutet aus dem Text/.test(x.grund))).toBe(false);
+    // A goal the caller states replaces the guess.
+    const mitZiel = M.zuordnen({ text: 'Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal', zielart: 'urteilen' });
+    expect((mitZiel.pflichtangaben?.angenommen || []).some((x) => /vermutet aus dem Text/.test(x.grund))).toBe(false);
+  });
 });

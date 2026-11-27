@@ -1487,11 +1487,24 @@ export function PlannerPage() {
                 <p style={{ margin: 0 }}>
                   <strong>Verstanden:</strong> {verstanden.verstanden.length ? verstanden.verstanden.join(' · ') : 'noch nichts'}
                 </p>
-                {verstanden.fehlt.length > 0 && (
+                {(verstanden.fehlt.length > 0 || verstanden.zielVermutet) && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px', marginTop: 4 }}>
-                    <span>
-                      <strong>Fehlt noch:</strong> {verstanden.fehlt.map((f) => f.label).join(', ')}
-                    </span>
+                    {verstanden.fehlt.length > 0 && (
+                      <span>
+                        <strong>Fehlt noch:</strong> {verstanden.fehlt.map((f) => f.label).join(', ')}
+                      </span>
+                    )}
+                    {/* A guessed goal can be corrected like a missing one; nothing is preselected (W13). */}
+                    {verstanden.zielVermutet && !verstanden.fehlt.some((f) => f.feld === 'ziel') && (
+                      <select aria-label="Ziel ergänzen" style={{ fontSize: 13.5, padding: '2px 6px' }} value={zielErg} onChange={(e) => setZielErg(e.target.value)}>
+                        <option value="">Ziel …</option>
+                        {valuesOf('zielart').map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.label}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     {verstanden.fehlt.map((f) => {
                       const feldStil = { fontSize: 13.5, padding: '2px 6px' };
                       if (f.feld === 'ziel')

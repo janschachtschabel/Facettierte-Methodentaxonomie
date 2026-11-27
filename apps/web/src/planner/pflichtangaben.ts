@@ -8,6 +8,8 @@ export interface Verstanden {
   verstanden: string[];
   /** Missing details in display order; fach-und-thema is split when only one half is missing. */
   fehlt: Array<{ feld: Pflichtangabe; label: string; teil?: 'fach' | 'thema' | 'beide' }>;
+  /** The goal is only guessed from the text: it can be corrected like a missing one (W13). */
+  zielVermutet: boolean;
 }
 
 const FEHLT_LABEL: Record<Pflichtangabe, string> = {
@@ -37,6 +39,7 @@ export function verstandenAus(
   const beleg = (feld: string) => r.erkannt.find((e) => e.feld === feld)?.beleg;
   const verstanden: string[] = [];
   const out: Verstanden['fehlt'] = [];
+  let zielVermutet = false;
   const fachName = r.fach?.label || (typeof k.fachbereich === 'string' ? labelOf('fachbereich', k.fachbereich) : '');
   for (const feld of PFLICHT_ORDNUNG) {
     if (fehlt.has(feld)) {
@@ -70,7 +73,8 @@ export function verstandenAus(
         geraten = vermutet('lernfunktion');
       }
       if (ziel) verstanden.push(geraten ? `Ziel (vermutet): ${ziel}` : `Ziel: ${ziel}`);
+      zielVermutet = Boolean(ziel) && geraten;
     }
   }
-  return { verstanden, fehlt: out };
+  return { verstanden, fehlt: out, zielVermutet };
 }

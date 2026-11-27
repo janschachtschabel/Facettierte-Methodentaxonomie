@@ -285,6 +285,20 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(within(neu).queryByLabelText('Zeit in Minuten ergänzen')).toBeNull();
   });
 
+  it('Schritt 1: ein nur vermutetes Ziel lässt sich korrigieren, die Auswahl sendet zielart (Fix-Welle B, Punkt 6)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    expect(zeile.textContent).toContain('Ziel (vermutet): Diagnose');
+    const ziel = within(zeile).getByLabelText('Ziel ergänzen') as HTMLSelectElement;
+    expect(ziel.value).toBe('');
+    fireEvent.change(ziel, { target: { value: 'urteilen' } });
+    propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
+    expect(spy.mock.calls.at(-1)![0]!.zielart).toBe('urteilen');
+    spy.mockRestore();
+  });
+
   it('Schritt 1: jede der sechs Angaben ist ergänzbar, ohne Vorauswahl; der Ablauf entsteht trotz Lücken (Task B4)', () => {
     const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
     renderPlanner();

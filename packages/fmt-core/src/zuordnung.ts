@@ -2046,7 +2046,18 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const p = baueSituation(anfrageSituation, data, { ...currentSituationKontext, psychomotorisch: psychomotor }).pflichtangaben;
         // An assumed subject area still counts as missing (like an assumed room); the room follows from it (gym).
         const fehlt = fachAnnahmen.length && !currentSituationKontext.fachErkannt && !p.fehlt.includes('fach-und-thema') ? ['fach-und-thema' as const, ...p.fehlt] : p.fehlt;
-        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...extra] };
+        // A goal only guessed from the text (semantic reading) fills the gap "ziel" but is named, so it can be corrected (W13).
+        const zielVermutet: Annahme[] =
+          guessedFn && !given(a.zielart) && !given(a.zieltyp) && !list(a.liefert).length && list(a.lernfunktion).length
+            ? [
+                {
+                  feld: 'lernfunktion',
+                  wert: list(a.lernfunktion)[0],
+                  grund: `Ziel „${label('lernfunktion', String(list(a.lernfunktion)[0]))}“ vermutet aus dem Text.`
+                }
+              ]
+            : [];
+        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...zielVermutet, ...extra] };
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));
