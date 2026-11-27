@@ -24,7 +24,8 @@
     "dev:server": "npm -w @fmt/server run dev",
     "dev:web": "npm -w @fmt/web run dev",
     "qualitaet": "tsx packages/fmt-core/test/qualitaet/bericht.ts",
-    "qualitaet:ausgang": "tsx packages/fmt-core/test/qualitaet/vergleich.ts"
+    "qualitaet:ausgang": "tsx packages/fmt-core/test/qualitaet/vergleich.ts",
+    "szenariotest:bedingungen": "tsx scripts/szenariotest/pruefe-bedingungen.mts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

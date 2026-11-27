@@ -6,25 +6,35 @@ import type { Qualitaetsfall } from './faelle.js';
  * (the scenario's `fach` as `fachbereich`; subgroups are a server matter and are tested in
  * apps/server/test/szenariotest.test.ts).
  * Expectations come from the report and from the acceptance of the plan docs/superpowers/plans/2026-11-27-szenariotest-befunde.md.
- * A check that a later task fixes carries `bekannt` naming that task ("wartet auf Q3", "wartet auf QD2"); the task
- * removes it. Not part of the baseline file (ausgang.json).
+ * A check that a later task fixes carries `bekannt` naming that task of docs/superpowers/plans/2026-11-27-fmt21.md
+ * ("wartet auf P2.3", "wartet auf P4.D2"); the task removes it. Not part of the baseline file (ausgang.json).
+ * The markers of the old plan (Q3, Q4, Q6, QD2) were renamed in Task P0.1; the expectations stayed as they were.
  */
 /** Data gap: no written check of 20 to 40 minutes (multiple-choice-test carries no schriftbedarf; klassenarbeit-summativ starts at 45 min). */
-const QD2_PRUEFUNG = 'wartet auf QD2: keine schriftliche Prüfmethode von 20 bis 40 Minuten im Katalog';
-const Q3 = 'wartet auf Q3';
-const Q4 = 'wartet auf Q4';
-const Q6 = 'wartet auf Q6';
-const QD2 = 'wartet auf QD2';
+const P4_D2_PRUEFUNG = 'wartet auf P4.D2: keine schriftliche Prüfmethode von 20 bis 40 Minuten im Katalog';
+/** Old Q3, part „guessed approach chooses the chain“ and assumed values: status per detail. */
+const P3_1 = 'wartet auf P3.1';
+/** Old Q3, part „form of proof also without a check step“: not taken into FMT 2.1 (plan, ruling 15: backlog). */
+const BACKLOG_NACHWEIS = 'wartet auf Backlog: Nachweisform ohne Prüfschritt (nicht Teil von FMT 2.1, Entscheidung 15)';
+/** Old Q4, Lage-Regel „Problemlösen vor Instruktion“ only with an affected chosen method. */
+const P1_6 = 'wartet auf P1.6';
+/** Old Q4, safety note at the room type. */
+const P2_3 = 'wartet auf P2.3';
+const P1_6_P2_3 = 'wartet auf P1.6 (Lage-Regel) und P2.3 (Sicherheitshinweis)';
+/** Old Q6: one mode decision for /plan and /match. */
+const P1_3_P1_4 = 'wartet auf P1.3/P1.4';
+/** Old QD2: gated data. */
+const P4_D2 = 'wartet auf P4.D2';
 
 export const REIHE5: Qualitaetsfall[] = [
   // Grundschule
   {
     id: 'gs1-mathe-zerlegen-20',
     text: 'Klasse 1 Mathe, Zahlen bis 10 zerlegen mit Plättchen, 20 Minuten, 22 Kinder, Klassenraum',
-    // Q3 asks for the plan (modus ablauf); that /match plans on its own is Q6 (server test).
+    // The request asks for the plan (modus ablauf, old Q3); that /match plans on its own is P1.3 (server test).
     anfrage: { modus: 'ablauf' },
     erwartet: { ketteNicht: 'kooperatives-lernen', angenommen: ['zielart'], themaNicht: ['Klassenraum'] },
-    bekannt: { ketteNicht: Q3, pflichtangaben: Q3 }
+    bekannt: { ketteNicht: P3_1, pflichtangaben: P3_1 }
   },
   {
     id: 'gs1-deutsch-anlaute-ohneschrift',
@@ -52,20 +62,20 @@ export const REIHE5: Qualitaetsfall[] = [
       regelnNicht: ['problemloesen-vor-instruktion-primar'],
       hinweisNicht: ['RiSU']
     },
-    bekannt: { regelNicht: Q4, hinweis: Q4 }
+    bekannt: { regelNicht: P1_6, hinweis: P2_3 }
   },
   {
     id: 'gs4-musik-bodypercussion',
     text: 'Musik Klasse 4: Rhythmus mit Bodypercussion einüben, 45 Minuten, Musikraum, 25 Kinder',
     erwartet: { kette: 'fertigkeit-bewegung', regelnNicht: ['sicherheitshinweis', 'problemloesen-vor-instruktion-primar'] },
-    bekannt: { regelNicht: Q4 }
+    bekannt: { regelNicht: P1_6_P2_3 }
   },
   {
     id: 'gs3-kunst-drucken-90',
     text: 'Kartoffeldruck: Muster gestalten',
     anfrage: { fachbereich: 'aesthetik', bildungsstufe: 'primar', zeitMin: 90, gruppe: 23, raum: 'werkraum', zielart: 'gestalten', nachweis: 'produkt' },
     erwartet: { kette: 'produktion', nachweisform: 'produkt', regeln: ['sicherheitshinweis'], regelnNicht: ['problemloesen-vor-instruktion-primar'] },
-    bekannt: { regelNicht: Q4 }
+    bekannt: { regelNicht: P1_6 }
   },
   {
     id: 'gs2-religion-samariter',
@@ -83,7 +93,7 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 's1-mathe-linfkt-einstieg',
     text: 'Einstieg in lineare Funktionen, Klasse 8, 45 Minuten, 28 Schüler, Klassenraum, nur Tafel vorhanden',
     erwartet: {},
-    bekannt: { modus: Q6 }
+    bekannt: { modus: P1_3_P1_4 }
   },
   {
     id: 's1-deutsch-sachtext-gruppen',
@@ -106,7 +116,7 @@ export const REIHE5: Qualitaetsfall[] = [
     text: 'Verbrennung von Metallen: Schülerversuch mit Eisenwolle',
     anfrage: { fachbereich: 'nawi-technik', bildungsstufe: 'sek1', zeitMin: 45, gruppe: 24, raum: 'fachraum-nawi', zielart: 'konzepte' },
     erwartet: { kriterien: { ansatz: ['forschend'] }, enthaelt: 'experiment' },
-    bekannt: { enthaelt: QD2 }
+    bekannt: { enthaelt: P4_D2 }
   },
   {
     id: 's1-physik-stromkreis-problem',
@@ -117,15 +127,15 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 's1-geschichte-karikatur',
     text: 'Geschichte Klasse 9, Weimarer Republik, Quellenarbeit mit Karikaturen, 45 Minuten, 25 Schüler',
     erwartet: { ketteNicht: 'kooperatives-lernen', angenommen: ['zielart'], enthaelt: 'karikatur-bildanalyse' },
-    bekannt: { ketteNicht: Q3, pflichtangaben: Q3, enthaelt: QD2 }
+    bekannt: { ketteNicht: P3_1, pflichtangaben: P3_1, enthaelt: P4_D2 }
   },
   {
     id: 's1-politik-wahlalter-urteil',
     text: 'Soll das Wahlalter auf 16 gesenkt werden?',
     anfrage: { fachbereich: 'gesellschaft', bildungsstufe: 'sek1', zeitMin: 90, gruppe: 28, raum: 'klassenraum', zielart: 'urteilen', nachweis: 'muendlich' },
-    // Q3: the stated proof „mündlich“ is checked also without a check step (unless a method of the plan yields it).
+    // Backlog (old Q3): the stated proof „mündlich“ is checked also without a check step (unless a method of the plan yields it).
     erwartet: { kette: 'urteilsbildung', regeln: ['nachweis-passt-zum-ziel'] },
-    bekannt: { regel: Q3 }
+    bekannt: { regel: BACKLOG_NACHWEIS }
   },
   {
     id: 's1-ethik-luegen-diskussion',
@@ -141,12 +151,12 @@ export const REIHE5: Qualitaetsfall[] = [
       hinweisNicht: ['Positionslinie', 'Klassenspaziergang'],
       nicht: ['differenzielles-lernen']
     },
-    bekannt: { hinweis: Q4, nicht: QD2 }
+    bekannt: { hinweis: P2_3, nicht: P4_D2 }
   },
   {
     id: 's1-musik-songwriting-tablets',
     text: 'Musik Klasse 9, Songwriting mit Tablets (GarageBand), 90 Minuten, 24 Schüler',
-    // „Songwriting“ is read as goal kind gestalten, which leads to produktion and away from the guessed chain (Q3).
+    // „Songwriting“ is read as goal kind gestalten, which leads to produktion and away from the guessed chain (old Q3).
     erwartet: { kette: 'produktion', ketteNicht: 'kooperatives-lernen' }
   },
   {
@@ -154,13 +164,13 @@ export const REIHE5: Qualitaetsfall[] = [
     text: 'Ausdauerlauf: 20 Minuten durchlaufen lernen',
     anfrage: { fachbereich: 'sport', bildungsstufe: 'sek1', zeitMin: 45, gruppe: 28, raum: 'draussen', zielart: 'kondition' },
     erwartet: { kette: 'kondition-training', praxis: true, regeln: ['sicherheitshinweis'], hinweisNicht: ['RiSU'] },
-    bekannt: { hinweis: Q4 }
+    bekannt: { hinweis: P2_3 }
   },
   {
     id: 's1-sport-bodenturnen-90',
     text: 'Sport Klasse 7 Bodenturnen: Rolle vorwärts und Handstand, Turnhalle, 90 Minuten, 26 Schüler',
     erwartet: { kette: 'fertigkeit-bewegung', praxis: true, regeln: ['sicherheitshinweis'], hinweisNicht: ['RiSU'] },
-    bekannt: { hinweis: Q4 }
+    bekannt: { hinweis: P2_3 }
   },
   {
     id: 's1-informatik-scratch',
@@ -183,7 +193,7 @@ export const REIHE5: Qualitaetsfall[] = [
     text: 'Mathe Klasse 6 Bruchrechnen, schriftlicher Test mit Note, 45 Minuten, 27 Schüler',
     // The graded test is the lesson: the check step gets the main share of the time (Q2) and must use a written check.
     erwartet: { kriterien: { nachweis: 'schriftlich', bewertet: true }, leistungskontrolle: true, pruefschritt: { anteil: 0.5, nachweis: 'schriftlich' } },
-    bekannt: { pruefschritt: QD2_PRUEFUNG }
+    bekannt: { pruefschritt: P4_D2_PRUEFUNG }
   },
   {
     id: 's1-mathe-pythagoras-gruppen',
@@ -253,7 +263,7 @@ export const REIHE5: Qualitaetsfall[] = [
     id: 'bs-einzelhandel-reklamation',
     text: 'Berufsschule Einzelhandel: Reklamationsgespräch führen, Rollenspiel, 45 Minuten, 24 Azubis',
     erwartet: { enthaelt: 'rollenspiel', angenommenWert: { zielart: 'gestalten' }, regelnNicht: ['sicherheitshinweis'] },
-    bekannt: { pflichtangaben: Q3, regelNicht: Q4 }
+    bekannt: { pflichtangaben: P3_1, regelNicht: P2_3 }
   },
   {
     id: 'bs-gastro-saucen',
@@ -266,26 +276,26 @@ export const REIHE5: Qualitaetsfall[] = [
       hinweisNicht: ['Positionslinie', 'Klassenspaziergang'],
       thema: '1. Lehrjahr'
     },
-    bekannt: { hinweis: Q4 }
+    bekannt: { hinweis: P2_3 }
   },
   {
     id: 'bs-it-netzwerk-ohneinternet',
     text: 'Fachinformatiker Berufsschule: Netzwerk-Fehlersuche und Subnetting, Computerraum ohne Internet, 90 Minuten, 20 Azubis',
     erwartet: { kriterien: { ohneInternet: true }, regelnNicht: ['sicherheitshinweis'] },
-    bekannt: { regelNicht: Q4 }
+    bekannt: { regelNicht: P2_3 }
   },
   {
     id: 'betrieb-kasse-unterweisung',
     text: 'Unterweisung im Betrieb: Auszubildende lernen die Kassenabrechnung am Tagesende, 20 Minuten, 4 Azubis',
-    // Q3 asks for the plan (modus ablauf); that /match plans on its own is Q6 (server test).
+    // The request asks for the plan (modus ablauf, old Q3); that /match plans on its own is P1.3 (server test).
     anfrage: { modus: 'ablauf' },
     erwartet: { planungsprofil: 'betrieb', nicht: ['gebundene-musik-rhythmus'], pflichtFehlt: ['ziel'], enthaelt: 'vier-stufen-methode' },
-    bekannt: { enthaelt: QD2 }
+    bekannt: { enthaelt: P4_D2 }
   },
   {
     id: 'bs-wirtschaft-pruefungsvorb',
     text: 'Berufsschule Industriekaufleute: Deckungsbeitragsrechnung, Prüfungsvorbereitung für die Abschlussprüfung, 90 Minuten, 22 Azubis',
-    // Read as an exam preparation in the classroom, no safety note is given (Q4 still checks the rule itself).
+    // Read as an exam preparation in the classroom, no safety note is given (P2.3 still checks the rule itself).
     erwartet: { kette: 'prozedur', regelnNicht: ['sicherheitshinweis'] }
   },
   // Hochschule
@@ -308,13 +318,13 @@ export const REIHE5: Qualitaetsfall[] = [
       hinweis: [{ muster: /unvollständig.*„Lösungsversuche“.*höchstens 35 Personen/s, erster: true }],
       hinweisNicht: ['loesungsversuche']
     },
-    bekannt: { gueltig: QD2 }
+    bekannt: { gueltig: P4_D2 }
   },
   {
     id: 'hs-labor-titration',
     text: 'Laborpraktikum Chemie im 1. Semester: Säure-Base-Titration, 180 Minuten, 16 Studierende, Labor',
     erwartet: { regeln: ['sicherheitshinweis'], hinweisNicht: ['Positionslinie', 'Klassenspaziergang'], nicht: ['jenaplan-kreis'], thema: '1. Semester' },
-    bekannt: { hinweis: Q4, nicht: QD2 }
+    bekannt: { hinweis: P2_3, nicht: P4_D2 }
   },
   // Erwachsenenbildung
   {
@@ -350,14 +360,14 @@ export const REIHE5: Qualitaetsfall[] = [
   {
     id: 'vage-morgen',
     text: 'Ich brauche was für morgen',
-    // The core offers one phase without any frame (/plan still plans and says so, Q6). No learning function may be read
+    // The core offers one phase without any frame (/plan still plans and says so; one shared decision comes with P1.3). No learning function may be read
     // from the sentence (undefined: the field stays empty).
     erwartet: { modus: 'phase', kriterien: { lernfunktion: undefined }, pflichtFehlt: ['ziel', 'fach-und-thema', 'bildungsstufe', 'anzahl', 'raum', 'zeit'] }
   },
   {
     id: 'vage-klimawandel',
     text: 'Irgendwas Aktivierendes zum Thema Klimawandel',
-    // The core offers one phase without any frame (/plan still plans and says so, Q6).
+    // The core offers one phase without any frame (/plan still plans and says so; one shared decision comes with P1.3).
     erwartet: { modus: 'phase', pflichtFehlt: ['ziel'], angenommen: ['fach'], angenommenWert: { fach: 'Geografie' } }
   },
   {
@@ -382,6 +392,6 @@ export const REIHE5: Qualitaetsfall[] = [
       regeln: ['sicherheitshinweis'],
       hinweisNicht: ['RiSU']
     },
-    bekannt: { hinweis: Q4 }
+    bekannt: { hinweis: P2_3 }
   }
 ];
