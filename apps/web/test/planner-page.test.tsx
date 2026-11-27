@@ -403,6 +403,27 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     spy.mockRestore();
   });
 
+  it('Schritt 2 zeigt nur Meldungen zu Methoden im Ablauf (Fix-Welle B, Punkt 3)', () => {
+    renderPlanner();
+    // A single phase: the safety note stands at a proposal (Stummer Impuls) the teacher may not take.
+    propose('Einstieg Chemie Klasse 8 Säuren');
+    const vorschlag = (name: RegExp) => screen.getAllByRole('button').find((b) => /^\+ /.test(b.textContent || '') && name.test(b.textContent || ''))!;
+    fireEvent.click(vorschlag(/Daily Review|Rosenshine/));
+    expect(stepButton(2).getAttribute('aria-current')).toBe('step');
+    expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
+    // Taken into the flow, the method shows its message at its row; removed again, the message is gone.
+    fireEvent.click(stepButton(1));
+    fireEvent.click(vorschlag(/Stummer Impuls/));
+    expect(screen.getByRole('list', { name: /Hinweise zu Stummer Impuls/ }).textContent).toMatch(/praktisch gearbeitet/);
+    fireEvent.click(screen.getByRole('button', { name: /Methoden tauschen und umstellen/ }));
+    const entfernen = screen.getAllByRole('button', { name: 'Schritt entfernen' });
+    fireEvent.click(entfernen[entfernen.length - 1]);
+    expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
+    fireEvent.click(screen.getByRole('button', { name: /Übersicht/ }));
+    expect(screen.queryByRole('list', { name: /Hinweise zu Stummer Impuls/ })).toBeNull();
+    expect(document.body.textContent).not.toMatch(/praktisch gearbeitet/);
+  });
+
   it('Schritt 2 zeigt „Verstanden“ auch, wenn nichts fehlt (B4-Fix 2)', () => {
     renderPlanner();
     fireEvent.change(screen.getByLabelText('Raum'), { target: { value: 'klassenraum' } });
