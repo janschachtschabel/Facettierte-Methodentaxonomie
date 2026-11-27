@@ -127,7 +127,7 @@ export const REIHE4: Qualitaetsfall[] = [
     erwartet: { enthaelt: 'diktat-klassisch', regeln: ['genannter-wunsch-bleibt', 'eignung-fach'] },
     // Intended: the named method stays (genannter-wunsch-bleibt), so the general subject check finds a method of another
     // subject. Not a weakness to fix.
-    bekannt: { fachpassung: 'gewollt: genannter Wunsch bleibt (Laufdiktat ist eine Methode der Sprachen)' }
+    bekannt: { fachpassung: 'gewollt: genannter Wunsch bleibt (das klassische Diktat ist eine Methode der Sprachen)' }
   },
   {
     id: 'n20',
