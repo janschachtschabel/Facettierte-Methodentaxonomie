@@ -57,6 +57,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     (store.matcher.felder().find((f) => f.feld === feld)?.werte || []).map((w) => w.code) as [string, ...string[]];
   const code = (feld: string) => z.enum(fieldCodes(feld));
   const codes = (feld: string) => z.union([code(feld), z.array(code(feld))]);
+  const bedeutung = (feld: string) => store.matcher.felder().find((f) => f.feld === feld)?.bedeutung || feld;
 
   // Codes of the scheme schriftbedarf as the data holds them, plus the ohneSchrift codes as aliases (mapped in suche).
   const schriftCode = z.enum([
@@ -251,6 +252,14 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
         .describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
       vorhanden: codes('vorhanden').optional(),
       vorwissen: code('vorwissen').optional(),
+      // Stage-4 fields (FMT 2.0): same names, codes and meaning as REST /match (matcher.felder()).
+      komplexitaet: code('komplexitaet').optional().describe(bedeutung('komplexitaet')),
+      sprachniveau: code('sprachniveau').optional().describe(bedeutung('sprachniveau')),
+      lehrende: z.number().int().min(1).optional().describe(bedeutung('lehrende')),
+      thema: z.string().max(MAX_TEXT_CHARS).optional().describe(bedeutung('thema')),
+      einheit: z.string().max(MAX_TEXT_CHARS).optional().describe(bedeutung('einheit')),
+      bewertet: z.boolean().optional().describe(bedeutung('bewertet')),
+      planungsprofil: code('planungsprofil').optional().describe(bedeutung('planungsprofil')),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       bildungsstufe: code('bildungsstufe').optional(),
       fachbereich: code('fachbereich')

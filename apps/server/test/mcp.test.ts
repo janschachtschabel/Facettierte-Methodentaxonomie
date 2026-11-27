@@ -535,6 +535,25 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect((bad.content as Array<{ text: string }>)[0].text).toContain('maxTechnik');
   });
 
+  it('match_scenario kennt dieselben Felder wie REST /match; planungsprofil kommt an (Fix-Welle D, Punkt 2)', async () => {
+    const { tools } = await client.listTools();
+    const props = (tools.find((t) => t.name === 'match_scenario')!.inputSchema.properties || {}) as Record<string, { enum?: string[]; description?: string }>;
+    const felder = (await (await fetch(new URL('/api/v1/fields', baseUrl))).json()) as Array<{ feld: string; werte?: Array<{ code: string }> }>;
+    for (const f of felder) {
+      expect(props[f.feld], 'match_scenario ' + f.feld).toBeDefined();
+      if (f.werte && props[f.feld].enum) expect(props[f.feld].enum, f.feld).toEqual(f.werte.map((w) => w.code));
+    }
+    expect(props.planungsprofil.enum).toContain('erwachsenenbildung');
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const anfrage = { text: 'Mathe Klasse 8, lineare Funktionen, 45 Minuten', planungsprofil: 'erwachsenenbildung', komplexitaet: 'hoch', sprachniveau: 'b1', lehrende: 2, thema: 'Steigung', einheit: 'Reihe Funktionen', bewertet: true };
+    const mcp = parse(await client.callTool({ name: 'match_scenario', arguments: anfrage }));
+    const rest = await (await fetch(new URL('/api/v1/match', baseUrl), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(anfrage) })).json();
+    expect(rest.planungsprofil).toBe('erwachsenenbildung');
+    expect(mcp.planungsprofil).toBe('erwachsenenbildung');
+    for (const f of ['planungsprofil', 'komplexitaet', 'sprachniveau', 'lehrende', 'thema', 'einheit', 'bewertet']) expect(mcp.kriterien[f], f).toEqual(rest.kriterien[f]);
+    expect(mcp.kriterien.einheit).toBe('Reihe Funktionen');
+  });
+
   it('kürzt die Vorschlagsliste von match_scenario', async () => {
     const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
     const std = parse(await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg Bruchrechnen Klasse 6' } }));
