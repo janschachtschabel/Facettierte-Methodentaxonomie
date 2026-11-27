@@ -102,10 +102,6 @@ const NEGATABLE_METHODS: Array<[RegExp, string[]]> = [
   [/^quiz\w*$/, ['abrufquiz']],
   [/^(?:lehr)?film\w*$|^video\w*$/, ['lehrfilm-rezeption', 'erklaervideo', 'stop-motion-erklaerfilm']]
 ];
-/** Dance and movement design topics in sport (folded text). Not "Distanz", "Substanz". */
-// Kept (Abbau Zeile 5, bis Tor D2), see docs/qualitaet/2026-11-27-fmt2-abbau.md.
-const GESTALTUNG =
-  /\b(?:(?:volks|hip-?hop|jazz|modern|street|gesellschafts|kreis|line|aerobic)?tanz\w*|choreo\w*|gymnastik\w*|akrobati\w*|kur(?:ubung)?|bewegungsgestaltung|bewegungskunste?|jonglier\w*|rhythmische\w*\s+sportgymnastik)\b/;
 const LIMITING = /^(?:zu|lange|langen|langer|viel|viele|vielen|grosse|grossen|ausufernde\w*|reine\w*)$/;
 
 /** Methods a negated phrase rules out by name: "statt Lehrervortrag" → lehrervortrag, vortrag-prompts, … */
@@ -965,12 +961,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   let currentVariante = 0;
   let currentTechAsked = false;
   let currentArea = '';
-  /** Dance and movement design in sport borrow the methods of the arts (Vorführung, Teil-Ganz-Üben). */
-  let currentGestaltung = false;
-  /** Whether the method's subject areas include the lesson's subject (or a neighbour the topic opens). */
-  // The borrowing for dance (currentGestaltung) is kept (Abbau Zeile 5, bis Tor D2), see docs/qualitaet/2026-11-27-fmt2-abbau.md.
-  const areaFits = (b: Baustein) =>
-    (b.fachbereich || []).includes(currentArea) || (currentGestaltung && (b.fachbereich || []).includes('aesthetik'));
+  /** Whether the method's subject areas include the lesson's subject. */
+  const areaFits = (b: Baustein) => (b.fachbereich || []).includes(currentArea);
   /** Interaction forms the request rules out ("keine Gruppenarbeit"). */
   let currentNegatedInteractions = new Set<string>();
   /** Methods the request rules out by name ("kein Lehrervortrag"). */
@@ -1961,7 +1953,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         fachErkannt: Boolean(gelesen.fach || themaUndFach.fach),
         ...(fachAnnahmen.length ? { sportAusKondition: true } : {})
       };
-      currentGestaltung = currentArea === 'sport' && GESTALTUNG.test(currentRawText);
       currentNegatedInteractions = negatedInteractions(currentRawText);
       currentNegatedMethods = negatedMethods(currentRawText);
       // A method named only to rule it out ("kein Lehrervortrag") is no wish for it.
@@ -2208,7 +2199,6 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       currentVariante = 0;
       currentTechAsked = false;
       currentArea = '';
-      currentGestaltung = false;
       currentNegatedInteractions = new Set();
       currentNegatedMethods = new Set();
       currentGuessedAnsatz = false;
