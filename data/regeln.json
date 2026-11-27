@@ -241,7 +241,7 @@
     "wirkung": "weist-hin",
     "grundlage": "A",
     "quelle": "KMK 2023 (RiSU)",
-    "text": "{methode} arbeitet praktisch mit Geräten oder Stoffen. Kläre vorher die Sicherheit und die Aufsicht."
+    "text": "Im Ablauf wird praktisch gearbeitet (z. B. {methode}). Kläre vorher Sicherheit und Aufsicht."
   },
   {
     "id": "lehrkraft-nicht-doppelt",

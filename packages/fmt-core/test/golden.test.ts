@@ -474,9 +474,10 @@ describe('Hinweise ohne Evidenzbehauptung, Sicherheit per Regel (Einsatzprofil S
   it('praktische Arbeit im Fachraum bekommt den Sicherheitshinweis, eine Deutschstunde nicht', () => {
     const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
     const s = (chemie.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis');
-    expect(s.length).toBeGreaterThan(0);
+    // One message per answer, at the first hands-on method.
+    expect(s.length).toBe(1);
     expect(chemie.hinweise || []).toContain(`${s[0].text} (${s[0].quelle})`);
-    expect(s[0].text).toMatch(/Sicherheit und die Aufsicht/);
+    expect(s[0].text).toMatch(/^Im Ablauf wird praktisch gearbeitet \(z\. B\. .+\)\. Kläre vorher Sicherheit und Aufsicht\.$/);
     const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
     expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
     expect((deutsch.hinweise || []).some((h) => /Sicherheit/.test(h))).toBe(false);

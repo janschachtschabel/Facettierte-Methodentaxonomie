@@ -1827,14 +1827,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
    * - each fit rule whose situation part holds and that sets back methods of the catalogue (not keinTausch), without a
    *   method: it says why the plan prefers other methods, also when no chosen method carries the warning (n20);
    * - the warnings of the chosen methods (in a single phase they stand at each proposal, so the notes leave them out);
-   * - sicherheitshinweis for each practical method in a practical room or subject.
+   * - one sicherheitshinweis per answer when methods work hands-on in a practical room or subject: it stands at the first
+   *   such method and names up to two others.
    */
   function mitRegelmeldungen(r: MatchResult, lage: { raum: string; area: string; mentions: Set<string>; situation: Situation }): MatchResult {
     const a = r.kriterien as MatchRequest;
     const chosen = [...new Set(chosenBlocks(r))].map((id) => blocks.get(id)).filter((b): b is Baustein => Boolean(b));
     const genannt: Regelmeldung[] = [];
     const warnungen: Regelmeldung[] = [];
-    const sicherheit: Regelmeldung[] = [];
+    const praktisch: Baustein[] = [];
     const wo = r.modus === 'phase' ? 'unter den Vorschlägen' : 'im Ablauf';
     const wunsch = regeln.regel('genannter-wunsch-bleibt');
     for (const b of chosen) {
@@ -1845,9 +1846,16 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         genannt.push(regeln.meldung(wunsch.id, b, wunsch.text.replace(/\{methode\}/g, b.name).replace('im Ablauf', wo))!);
       }
       if ((PRACTICAL_ROOMS.has(lage.raum) || PRACTICAL_AREAS.has(lage.area)) && (b.repraesentation || []).includes('enaktiv')) {
-        const m = regeln.meldung('sicherheitshinweis', b);
-        if (m) sicherheit.push(m);
+        praktisch.push(b);
       }
+    }
+    const sicherheit: Regelmeldung[] = [];
+    const sicherheitsRegel = regeln.regel('sicherheitshinweis');
+    if (sicherheitsRegel && praktisch.length) {
+      const namen = praktisch.slice(0, 3).map((b) => b.name);
+      const aufzaehlung = namen.length > 1 ? `${namen.slice(0, -1).join(', ')} und ${namen[namen.length - 1]}` : namen[0];
+      const text = sicherheitsRegel.text.replace(/\{methode\}/g, aufzaehlung).replace(/^Im Ablauf/, r.modus === 'phase' ? 'Unter den Vorschlägen' : 'Im Ablauf');
+      sicherheit.push(regeln.meldung(sicherheitsRegel.id, praktisch[0], text)!);
     }
     // One check per method; the ids of every firing rule are collected once (not one full run per rule).
     const lageJetzt = regelLage(a);

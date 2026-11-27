@@ -835,7 +835,8 @@ describe('Pflichtangaben und Regelmeldungen in der Antwort (Task B3)', () => {
   it('Sicherheitshinweis und Hinweis „unüblich“ stehen als Regelmeldungen sicherheitshinweis und genannter-wunsch-bleibt', () => {
     const chemie = M.zuordnen({ text: 'Chemie Klasse 8: Schülerexperiment zu Säuren und Laugen, 90 Minuten' });
     const s = (chemie.regelmeldungen || []).find((m) => m.regel === 'sicherheitshinweis');
-    expect(s).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', quelle: expect.stringContaining('RiSU') });
+    expect((chemie.regelmeldungen || []).filter((m) => m.regel === 'sicherheitshinweis').length).toBe(1);
+    expect(s).toMatchObject({ wirkung: 'weist-hin', grundlage: 'A', quelle: expect.stringContaining('RiSU'), baustein: expect.any(String) });
     expect(chemie.hinweise || []).toContain(alsText(s!));
     const deutsch = M.zuordnen({ text: 'Deutsch Klasse 8 Gedichte, 45 Minuten' });
     expect((deutsch.regelmeldungen || []).some((m) => m.regel === 'sicherheitshinweis')).toBe(false);
