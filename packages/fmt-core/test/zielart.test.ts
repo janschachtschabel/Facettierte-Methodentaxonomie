@@ -226,3 +226,27 @@ describe('Kette „vollständige Handlung“ (Paket D, D5)', () => {
     expect(r2.modus === 'ablauf' && r2.kette?.id).toBe('vollstaendige-handlung');
   });
 });
+
+describe('Einordnung in Ketten (App-Nachzug N2)', () => {
+  it('nennt die Kettenschritte, deren Funktion die Methode hat und deren Wissensart sie trägt', async () => {
+    const { einordnungInKetten } = await import('../src/zielart.js');
+    const b = baustein('gruppenpuzzle');
+    const e = einordnungInKetten(b, D.ketten);
+    expect(e.length).toBeGreaterThan(0);
+    for (const x of e) {
+      const st = kette(x.kette).schritte.find((s) => s.id === x.schritt)!;
+      expect(st.funktion.some((f) => b.lernfunktion.includes(f))).toBe(true);
+      expect(traegtWissensart(b, st)).toBe(true);
+      expect(x.label).toBe(kette(x.kette).label);
+      expect(x.schrittLabel).toBe(st.label);
+    }
+    // Independent count: every step with a shared function and a carried knowledge type.
+    const erwartet = D.ketten.flatMap((k) => k.schritte.filter((s) => s.funktion.some((f) => b.lernfunktion.includes(f)) && traegtWissensart(b, s))).length;
+    expect(e.length).toBe(erwartet);
+  });
+  it('eine Hilfe füllt keinen Kettenschritt', async () => {
+    const { einordnungInKetten } = await import('../src/zielart.js');
+    const hilfe = D.bausteine.find((b) => b.eintragsart === 'hilfe')!;
+    expect(einordnungInKetten(hilfe, D.ketten)).toEqual([]);
+  });
+});

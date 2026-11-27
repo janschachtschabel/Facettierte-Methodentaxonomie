@@ -57,6 +57,32 @@ export function situationFehler(s: MatchRequest | undefined): string | null {
   return null;
 }
 
+/** Note on replacement candidates, as REST /replacements and MCP suggest_replacements give it. */
+export function ersatzHinweis(situation: MatchRequest | undefined): string {
+  return (
+    'Kandidaten passen formal (Arrangement bleibt gültig), sind Methoden und tragen die Wissensart des Kettenschritts' +
+    (situation ? '; ihr Bedarf ist in der angegebenen Situation gedeckt' : '') +
+    '. Gleiche Wirkung ist nicht garantiert (Loibl et al. 2024).'
+  );
+}
+
+/** Fields that name the room, literacy or dates of a lesson; only they make a situation worth checking in /adapt. */
+const RAHMEN_FELDER = ['raum', 'lernort', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine'] as const;
+
+/**
+ * Request of the plan for subgroup decisions (core AdaptScenarioInput.anfrage): the object `anfrage` plus the
+ * situation fields given at the top level (top level wins). Without `anfrage` and without any room, literacy or
+ * date field it stays undefined, so a bare call keeps its former answer (no room counts as named).
+ */
+export function anpassungsAnfrage(body: Record<string, unknown> | null | undefined): MatchRequest | undefined {
+  if (!body) return undefined;
+  const nested = body.anfrage && typeof body.anfrage === 'object' && !Array.isArray(body.anfrage) ? (body.anfrage as MatchRequest) : undefined;
+  const top = situationAus({ ...body, situation: undefined });
+  const rahmen = RAHMEN_FELDER.some((f) => top && (top as Record<string, unknown>)[f] != null);
+  if (!nested && !rahmen) return undefined;
+  return { ...(nested || {}), ...(top || {}) };
+}
+
 /** Replacements at a path: formally valid, bound to the chain step's knowledge type, needs covered in the situation. */
 export function ersatzKandidaten(store: CatalogStore, arrangement: Arrangement, pfad: string, situation?: MatchRequest): ReplacementCandidate[] {
   return store.search.ersatz(arrangement, pfad, store.exampleRegistry, situation);

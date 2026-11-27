@@ -13,12 +13,12 @@ import {
   type MeasureLevel,
   type SearchCriteria
 } from '@fmt/core';
-import { differenzierungsMerkmale, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
+import { differenzierungsMerkmale, kettenUebersicht, merkmalsEntscheidungenFuerAnfrage, schemeValues, type CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { BYOK_PROVIDERS } from '../llm/client.js';
 import { buildAdaptScenarioZeroLlm, buildScenarioPlanZeroLlm, type ScenarioPlanArgs } from '../llm/briefings.js';
 import { extractSubjectAndTopicFromText } from './assistant.js';
-import { ersatzKandidaten, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
+import { anpassungsAnfrage, ersatzHinweis, ersatzKandidaten, situationAus, situationFehler, teilgruppenAlternativen } from '../kandidaten.js';
 import { MAX_TEXT_CHARS, groupFieldError, isGroupList, isPhaseList, tooLongMessage } from './validation.js';
 
 /**
@@ -104,20 +104,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       // Planning profiles (data/planungsprofile.json): core fields, terms and modules per profile.
       planungsprofile: store.bundle.planungsprofile,
       // Function chains with their steps and the knowledge type each step binds (data/ketten.json).
-      ketten: store.bundle.ketten.map((k) => ({
-        id: k.id,
-        label: k.label,
-        ...(k.zielart ? { zielart: k.zielart } : {}),
-        ...(k.ansatz ? { ansatz: k.ansatz } : {}),
-        schritte: k.schritte.map((st) => ({
-          id: st.id,
-          label: st.label,
-          funktion: st.funktion,
-          ziel: st.ziel,
-          ...(st.rolle ? { rolle: st.rolle } : {}),
-          ...(st.wissensart?.length ? { wissensart: st.wissensart } : {})
-        }))
-      })),
+      ketten: kettenUebersicht(store.bundle),
       // Table "Tausch oder Hilfe" for subgroups (data/teilgruppen.json).
       teilgruppen: store.bundle.teilgruppen,
       llmConfigured: Boolean(config.llmApiKey),
@@ -256,10 +243,7 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
       const kandidaten = ersatzKandidaten(store, body.arrangement, body.pfad, situation);
       return {
         pfad: body.pfad,
-        hinweis:
-          'Kandidaten passen formal (Arrangement bleibt gültig), sind Methoden und tragen die Wissensart des Kettenschritts' +
-          (situation ? '; ihr Bedarf ist in der angegebenen Situation gedeckt' : '') +
-          '. Gleiche Wirkung ist nicht garantiert (Loibl et al. 2024).',
+        hinweis: ersatzHinweis(situation),
         ...(situation ? { situation } : {}),
         kandidaten
       };
@@ -359,10 +343,14 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
         .code(400)
         .send({ fehler: 'Bitte mindestens scenarioText/text, baustein, arrangement, phasen, lerngruppenText oder gruppen übergeben.' });
     }
-    return buildAdaptScenarioZeroLlm(store, body);
+    // Situation of the plan for the subgroup decisions: object `anfrage` plus raum, ohneSchrift, termine … at the top level.
+    const anfrage = anpassungsAnfrage(body as Record<string, unknown>);
+    const badSituation = situationFehler(anfrage);
+    if (badSituation) return reply.code(400).send({ fehler: badSituation });
+    return buildAdaptScenarioZeroLlm(store, { ...body, ...(anfrage ? { anfrage } : {}) });
   });
 
-  app.post('/api/v1/differentiation/score', async (req) => {
+  app.post('/api/v1/differentiation/score', async (req, reply) => {
     const body = (req.body || {}) as {
       personaId?: string;
       quickProfileId?: string;
@@ -408,6 +396,8 @@ export function registerApiRoutes(app: FastifyInstance, store: CatalogStore, con
     });
     // Parallel methods: methods only, needs covered in the situation, equivalent to the planned method (core).
     const situation = situationAus(body) || {};
+    const badSituation = situationFehler(situation);
+    if (badSituation) return reply.code(400).send({ fehler: badSituation });
     const pruefung = teilgruppenAlternativen(store, {
       matrix: scoreResult,
       baustein: body.baustein,
