@@ -2070,7 +2070,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         const fehlt = fachAnnahmen.length && !currentSituationKontext.fachErkannt && !p.fehlt.includes('fach-und-thema') ? ['fach-und-thema' as const, ...p.fehlt] : p.fehlt;
         // A goal only guessed from the text (semantic reading) fills the gap "ziel" but is named, so it can be corrected (W13).
         const zielVermutet: Annahme[] =
-          guessedFn && !given(a.zielart) && !given(a.zieltyp) && !list(a.liefert).length && list(a.lernfunktion).length
+          // An assumed goal kind (listed in extra) is the goal of the plan: the guessed function is not listed as well.
+          guessedFn && !given(a.zielart) && !given(a.zieltyp) && !list(a.liefert).length && list(a.lernfunktion).length && !extra.some((x) => x.feld === 'zielart')
             ? [
                 {
                   feld: 'lernfunktion',

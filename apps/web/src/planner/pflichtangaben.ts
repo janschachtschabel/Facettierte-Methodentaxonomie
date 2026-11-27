@@ -62,6 +62,13 @@ export function verstandenAus(
       const vermutet = (f: string) => /^semantisch/i.test(beleg(f) || '');
       let ziel = '';
       let geraten = false;
+      // A goal kind the plan assumed (e.g. Ethik → Urteilen) is the plan's goal; it beats a guessed function.
+      const angenommeneZielart = p.angenommen.find((x) => x.feld === 'zielart' && typeof x.wert === 'string');
+      if (typeof k.zielart !== 'string' && angenommeneZielart) {
+        verstanden.push(`Ziel (angenommen): ${labelOf('zielart', angenommeneZielart.wert as string)}`);
+        zielVermutet = true;
+        continue;
+      }
       if (typeof k.zielart === 'string') {
         ziel = labelOf('zielart', k.zielart);
         geraten = vermutet('zielart');

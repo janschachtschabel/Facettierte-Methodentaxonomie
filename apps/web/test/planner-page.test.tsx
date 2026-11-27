@@ -293,13 +293,23 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     // Without time the text still becomes a plan (W13); back to step 1 to correct the guess.
     fireEvent.click(stepButton(1));
     const zeile = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
-    expect(zeile.textContent).toContain('Ziel (vermutet): Diagnose');
+    // The plan assumes the goal kind (Ethik → Urteilen); the line names it as assumed, not the guessed function.
+    expect(zeile.textContent).toContain('Ziel (angenommen): Urteilen');
+    expect(zeile.textContent).not.toContain('Diagnose');
     const ziel = within(zeile).getByLabelText('Ziel ergänzen') as HTMLSelectElement;
     expect(ziel.value).toBe('');
-    fireEvent.change(ziel, { target: { value: 'urteilen' } });
+    fireEvent.change(ziel, { target: { value: 'konzepte' } });
     propose('Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal');
-    expect(spy.mock.calls.at(-1)![0]!.zielart).toBe('urteilen');
+    expect(spy.mock.calls.at(-1)![0]!.zielart).toBe('konzepte');
     spy.mockRestore();
+  });
+
+  it('Schritt 1: in einer einzelnen Phase steht die vermutete Lernfunktion als Ziel, mit derselben Auswahl (Runde 2)', () => {
+    renderPlanner();
+    propose('eine Methode für Mathe Klasse 7 Brüche');
+    const phase = screen.getByRole('region', { name: 'Verstanden und fehlt noch' });
+    expect(phase.textContent).toContain('Ziel (vermutet): Diagnose');
+    expect(within(phase).getByLabelText('Ziel ergänzen')).toBeTruthy();
   });
 
   it('Schritt 1: jede der sechs Angaben ist ergänzbar, ohne Vorauswahl; der Ablauf entsteht trotz Lücken (Task B4)', () => {

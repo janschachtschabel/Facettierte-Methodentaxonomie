@@ -44,13 +44,24 @@ describe('Fix wave Paket B', () => {
   });
 
   it('6: ein nur vermutetes Ziel steht unter pflichtangaben.angenommen (W13)', () => {
-    for (const text of ['Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal', 'Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal, 45 Minuten']) {
+    for (const text of ['eine Methode für Mathe Klasse 7 Brüche', 'Ethik Klasse 3, Freundschaft, eine Methode für 20 Lernende']) {
       const r = M.zuordnen({ text });
+      expect(r.modus, text).toBe('phase');
       const fn = r.erkannt.find((e) => e.feld === 'lernfunktion');
       expect(fn?.beleg, text).toMatch(/^semantisch/);
       const code = (r.kriterien.lernfunktion as string[])[0];
       const label = D.schemes.find((x) => x.id === 'lernfunktion')!.werte!.find((w) => w.id === code)!.label;
       expect(r.pflichtangaben?.angenommen, text).toContainEqual({ feld: 'lernfunktion', wert: code, grund: `Ziel „${label}“ vermutet aus dem Text.` });
+    }
+    // Round 2: an assumed goal kind (urteilen in n05, konzepte otherwise) replaces the guess in the list.
+    for (const text of [
+      'Ethik Klasse 10, Sterbehilfe, Hörsaal mit fester Bestuhlung, 30 Lernende',
+      'Ethik Klasse 10, Gerechtigkeit, 30 Lernende im Hörsaal, 45 Minuten'
+    ]) {
+      const r = M.zuordnen({ text });
+      expect(r.erkannt.find((e) => e.feld === 'lernfunktion')?.beleg, text).toMatch(/^semantisch/);
+      expect(r.pflichtangaben?.angenommen.some((x) => x.feld === 'zielart'), text).toBe(true);
+      expect((r.pflichtangaben?.angenommen || []).some((x) => /vermutet aus dem Text/.test(x.grund)), text).toBe(false);
     }
     // A goal the text names is no guess.
     const einstieg = M.zuordnen({ text: 'Einstieg für Mathe Klasse 7 Brüche' });
