@@ -1412,7 +1412,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     const schritte: AblaufSchrittResult[] = [];
     const offen: string[] = [];
     const offenGruende: Array<{ schritt: string; grund: string }> = [];
-    /** Steps where a practice method of the subject stands in for the bound knowledge type (bis Tor D2). */
+    /** Steps where a practice method of the subject stands in for the bound knowledge type (kept after Tor D2). */
     const bindungsAnnahmen: string[] = [];
 
     const fill = (n: EinsatzNode, b: Baustein, onlyMandatory: boolean): EinsatzNode => {
@@ -1547,11 +1547,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           .map((b) => rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b), hardCap))
       );
       const isCheck = (b: Baustein) => b.lernfunktion[0] === 'diagnose';
-      // Bis Tor D2: few methods carry psychomotorik, and their subject areas name sport, the arts and vocational
-      // practice only (Vier-Stufen-Methode, Bewegungsdemonstration), although they are used in labs and workshops too.
-      // In a bound step, carrying methods of the lesson's subject come first; when none of them fits here, a practice
-      // method whose subject areas name the lesson's subject comes before a carrying method of another subject, and the
-      // answer says so (annahmen). It never fills a step that no carrying method could fill. Remove with the reviewed subject areas (Tor D2).
+      // Few methods carry psychomotorik, and after Tor D2 only vier-stufen-methode of them names nawi-technik (it does not
+      // deliver Erstwissen). In a bound step, carrying methods of the lesson's subject come first; when none of them fits
+      // here, a practice method whose subject areas name the lesson's subject comes before a carrying method of another
+      // subject, and the answer says so (annahmen). It never fills a step that no carrying method could fill. Kept in Task
+      // B6 (r2-s1-technik-loeten-90), see docs/qualitaet/2026-11-27-fmt2-abbau.md.
       // A method the teacher named is a wish: its subject areas do not move it back.
       const fremd = (b: Baustein) =>
         Boolean(currentArea) &&
