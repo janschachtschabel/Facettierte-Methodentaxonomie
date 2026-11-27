@@ -8,7 +8,8 @@ import { MCP_HINWEISE, createSearch, createValidator, type CatalogBundle, type F
 import { MethodDetailPage, HILFE_ERKLAERUNG } from '../src/pages/MethodDetailPage.js';
 import { ComparePage } from '../src/pages/ComparePage.js';
 import { CatalogPage } from '../src/pages/CatalogPage.js';
-import { DifferentiationPage } from '../src/pages/DifferentiationPage.js';
+import { DifferentiationPage, OHNE_METHODE_TEXT } from '../src/pages/DifferentiationPage.js';
+import { ACTIVE_PLANNER_DRAFT_KEY } from '../src/planner/scenarioStorage.js';
 import { SystematikPage, zuordnungsStufen } from '../src/pages/SystematikPage.js';
 import { ApiMcpPage } from '../src/pages/ApiMcpPage.js';
 import { Layout } from '../src/components/Layout.js';
@@ -219,7 +220,7 @@ describe('Katalog: Filter über die Kernsuche, alle im Link (App-Nachzug N5)', (
 });
 
 describe('Binnendifferenzierung zeigt passt, Hilfe oder Tausch (App-Nachzug N5)', () => {
-  it('Karten mit Beleg, Grundlage und „Wann die Hilfe entfällt“; gesperrte Merkmale werden genannt', () => {
+  it('ohne geplante Methode: ein Hinweis und die Hilfen der Matrix einmal je Gruppe, keine Karten; gesperrte Merkmale werden genannt', () => {
     render(
       <MemoryRouter initialEntries={['/differenzierung']}>
         <DifferentiationPage />
@@ -227,14 +228,21 @@ describe('Binnendifferenzierung zeigt passt, Hilfe oder Tausch (App-Nachzug N5)'
     );
     fireEvent.click(screen.getByRole('tab', { name: /Nach Phase/ }));
     const block = screen.getByRole('region', { name: 'Passt, Hilfe oder andere Methode' });
-    const gruppe = within(block).getByRole('region', { name: /Entscheidung für DaZ/ });
-    expect(within(gruppe).getAllByText('Hilfe in dieser Methode').length).toBeGreaterThan(0);
-    expect(within(gruppe).getAllByText(/Wann die Hilfe entfällt:/).length).toBeGreaterThan(0);
-    expect(within(gruppe).getAllByText(/^Beleg:/).length).toBeGreaterThan(0);
-    expect(within(gruppe).getAllByText(/^Grundlage:/).length).toBeGreaterThan(0);
-    // Read-only: no take-over buttons and no boxes for what the group cannot do (that is step 3 of the planner).
-    expect(within(block).queryAllByRole('button', { name: /übernehmen/ })).toEqual([]);
-    expect(within(block).queryAllByRole('checkbox')).toEqual([]);
+    expect(within(block).getByText(OHNE_METHODE_TEXT)).toBeTruthy();
+    // No decision per phase was made, so no card says one was.
+    expect(within(block).queryAllByText('Hilfe in dieser Methode')).toEqual([]);
+    expect(within(block).queryAllByText(/^Beleg:/)).toEqual([]);
+    expect(within(block).queryAllByRole('region', { name: /Entscheidung für/ })).toEqual([]);
+    const liste = within(block).getByRole('list', { name: 'Hilfen der Matrix je Teilgruppe' });
+    const daz = within(liste).getByText(/DaZ/).closest('li') as HTMLElement;
+    // Once per group: each help at most once, with its abbau.
+    const namen = within(daz).getAllByRole('listitem').map((li) => li.firstChild?.textContent);
+    expect(namen.length).toBeGreaterThan(0);
+    expect(new Set(namen).size).toBe(namen.length);
+    expect(within(daz).getAllByText(/Wann die Hilfe entfällt:/).length).toBe(namen.length);
+    // The phase boxes say the same instead of "Hilfe in dieser Methode".
+    expect(screen.queryAllByText('Hilfe in dieser Methode')).toEqual([]);
+    expect(screen.getAllByText(/Noch keine Methode geplant$/).length).toBeGreaterThan(0);
 
     // A blocked trait (Lerntypen) is named with its reason.
     fireEvent.change(document.getElementById('diff-groups-input') as HTMLInputElement, {
@@ -243,6 +251,60 @@ describe('Binnendifferenzierung zeigt passt, Hilfe oder Tausch (App-Nachzug N5)'
     const gesperrt = within(screen.getByRole('region', { name: 'Passt, Hilfe oder andere Methode' })).getByRole('list', { name: 'Nicht ausgewertete Merkmale' });
     expect(gesperrt.textContent).toMatch(/Lerntypen/);
     expect(gesperrt.textContent).toMatch(/nicht belegt/);
+  });
+
+  it('mit geplanten Methoden: Karten mit Beleg, Grundlage und „Wann die Hilfe entfällt“, ohne Hinweis und ohne Knöpfe', () => {
+    window.sessionStorage.setItem(
+      ACTIVE_PLANNER_DRAFT_KEY,
+      JSON.stringify({
+        updatedAt: new Date().toISOString(),
+        title: 'Physik · Dichte',
+        fach: 'Physik',
+        thema: 'Dichte',
+        scenarioText: 'Physik Klasse 7 Dichte',
+        bildungsstufe: 'sek1',
+        zeitMin: 45,
+        maxTechnik: 't-keine',
+        ohneInternet: true,
+        ohneKI: false,
+        arrangement: {
+          typ: 'Arrangement',
+          name: 'Dichte',
+          kontext: { bildungsstufe: 'sek1', zeitbudgetMin: 45 },
+          ablauf: {
+            typ: 'Sequenz',
+            teile: [
+              { typ: 'Einsatz', baustein: 'ampelspiel', dauerMin: 10 },
+              { typ: 'Einsatz', baustein: 'partnerarbeit', dauerMin: 20 }
+            ]
+          }
+        },
+        groups: [
+          { id: 'regel', label: 'Regelgruppe', profile: '', focus: 'regel', active: true, count: 20, personaId: 'average' },
+          { id: 'basis', label: 'Basis & Sprachsensibel', profile: '', focus: 'basis', active: true, count: 6, matrixValues: { sprachkompetenz: 'sprachkompetenz-gering' }, genannt: ['sprachkompetenz-gering'] }
+        ]
+      })
+    );
+    render(
+      <MemoryRouter initialEntries={['/differenzierung?source=planner']}>
+        <DifferentiationPage />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('tab', { name: /Nach Phase/ }));
+    const block = screen.getByRole('region', { name: 'Passt, Hilfe oder andere Methode' });
+    expect(within(block).queryByText(OHNE_METHODE_TEXT)).toBeNull();
+    const gruppe = within(block).getByRole('region', { name: /Entscheidung für Basis/ });
+    const titel = within(gruppe).getAllByText(/^(Passt so|Hilfe in dieser Methode|Andere Methode für diese Gruppe)$/);
+    // One card per planned phase.
+    expect(titel.length).toBe(2);
+    expect(within(gruppe).getAllByText(/^Grundlage:/).length).toBeGreaterThan(0);
+    if (within(gruppe).queryAllByText('Hilfe in dieser Methode').length) {
+      expect(within(gruppe).getAllByText(/^Beleg:/).length).toBeGreaterThan(0);
+      expect(within(gruppe).getAllByText(/Wann die Hilfe entfällt:/).length).toBeGreaterThan(0);
+    }
+    // Read-only: no take-over buttons and no boxes for what the group cannot do (that is step 3 of the planner).
+    expect(within(block).queryAllByRole('button', { name: /übernehmen/ })).toEqual([]);
+    expect(within(block).queryAllByRole('checkbox')).toEqual([]);
   });
 });
 

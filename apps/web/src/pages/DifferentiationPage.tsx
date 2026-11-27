@@ -9,7 +9,7 @@ import {
   type MeasureLevel
 } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
-import { TeilgruppenEntscheidung } from '../components/TeilgruppenEntscheidung.js';
+import { ANTWORT_TITEL, TeilgruppenEntscheidung } from '../components/TeilgruppenEntscheidung.js';
 import { pruefungAusAnpassung } from '../planner/differentiationFlow.js';
 import { regelZeile } from '../planner/regelmeldung.js';
 import { exportMarkdownToPrintableHtml } from '../planner/arrangementOps.js';
@@ -163,12 +163,13 @@ function formatTechSummary(maxTechnik: string, ohneInternet: boolean, ohneKI: bo
   return parts.length ? parts.join(' · ') : 'Technik frei';
 }
 
-/** Short word for the decision of a subgroup in a phase (table "Tausch oder Hilfe"). */
-export const ANTWORT_KURZ: Record<'passt' | 'hilfe' | 'tausch', string> = {
-  passt: 'Passt so',
-  hilfe: 'Hilfe in dieser Methode',
-  tausch: 'Andere Methode für diese Gruppe'
-};
+/** Shown instead of the decision cards while no method is planned (the core flags these answers ohneMethode). */
+export const OHNE_METHODE_TEXT =
+  'Noch keine Methode geplant: Plane zuerst im Baukasten, dann siehst du hier je Phase, ob die Methode passt, eine Hilfe reicht oder getauscht wird.';
+
+/** Short form of a decision for a phase box and the checklist; without a planned method it says so. */
+const antwortKurz = (ti: { antwort: 'passt' | 'hilfe' | 'tausch'; ohneMethode?: true }) =>
+  ti.ohneMethode ? 'Noch keine Methode geplant' : ANTWORT_TITEL[ti.antwort];
 
 function buildMarkdownChecklist(res: AdaptScenarioResult, scenarioText: string): string {
   const lines: string[] = [
@@ -214,7 +215,7 @@ function buildMarkdownChecklist(res: AdaptScenarioResult, scenarioText: string):
     }
     for (const ti of p.teilgruppenImpulse) {
       const hilfen = ti.hilfen.length ? ` Hilfen: ${ti.hilfen.map((h) => `${h.name} (entfällt: ${h.abbau})`).join('; ')}.` : '';
-      lines.push(`- **${ti.groupLabel}:** ${ANTWORT_KURZ[ti.antwort]}. Beleg: ${ti.beleg.grund}${hilfen}`);
+      lines.push(ti.ohneMethode ? `- **${ti.groupLabel}:** ${antwortKurz(ti)}.${hilfen}` : `- **${ti.groupLabel}:** ${antwortKurz(ti)}. Beleg: ${ti.beleg.grund}${hilfen}`);
       if (ti.massnahmen.length) lines.push(`  - Maßnahmen aus der Matrix: ${ti.massnahmen.map((m) => m.name).join(', ')}`);
     }
     lines.push('');
@@ -1040,6 +1041,28 @@ export function DifferentiationPage() {
                       ))}
                     </ul>
                   )}
+                  {entscheidung && entscheidung.ohneMethode.length > 0 && (
+                    <div role="note" aria-label="Noch keine Methode geplant">
+                      <p style={{ margin: '0 0 8px', fontSize: 14 }}>
+                        <strong>{OHNE_METHODE_TEXT}</strong>
+                      </p>
+                      <ul className="tg-hinweise" aria-label="Hilfen der Matrix je Teilgruppe">
+                        {entscheidung.ohneMethode.filter((g) => g.hilfen.length > 0).map((g) => (
+                          <li key={g.groupId}>
+                            <strong>{g.groupLabel}:</strong> Hilfen der Matrix für die Gruppe
+                            <ul className="tg-hilfen">
+                              {g.hilfen.map((h) => (
+                                <li key={h.id}>
+                                  {h.name}
+                                  <div className="muted tg-klein">Wann die Hilfe entfällt: {h.abbau}</div>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   {entscheidung && entscheidung.gruppen.length > 0 ? (
                     <TeilgruppenEntscheidung
                       subgroups={entscheidung.gruppen}
@@ -1049,7 +1072,7 @@ export function DifferentiationPage() {
                       generatedMaterials={[]}
                       regeln={bundle?.regeln}
                     />
-                  ) : (
+                  ) : entscheidung && entscheidung.ohneMethode.length > 0 ? null : (
                     <p className="muted">Keine Teilgruppe mit eigener Entscheidung erkannt.</p>
                   )}
                 </div>
@@ -1112,7 +1135,7 @@ export function DifferentiationPage() {
                               border: '1px solid var(--rule)'
                             }}
                           >
-                            <strong>{ti.groupLabel}</strong>: {ANTWORT_KURZ[ti.antwort]}
+                            <strong>{ti.groupLabel}</strong>: {antwortKurz(ti)}
                             {ti.massnahmen.length > 0 && (
                               <div style={{ marginTop: 3 }}>
                                 <span className="muted">Maßnahmen aus der Matrix:</span>{' '}

@@ -28,7 +28,8 @@ export const KEINE_MERKMALE_TEXT =
 
 export const KEINE_HILFE_TEXT = 'Für diese Gruppe ist hier keine belegte Hilfe hinterlegt. Prüfe selbst, was sie in dieser Methode braucht.';
 
-const TITEL: Record<PhasenAntwort['antwort'], string> = {
+/** Title of a decision card; the page Binnendifferenzierung uses the same words. */
+export const ANTWORT_TITEL: Record<PhasenAntwort['antwort'], string> = {
   passt: 'Passt so',
   hilfe: 'Hilfe in dieser Methode',
   tausch: 'Andere Methode für diese Gruppe'
@@ -109,7 +110,7 @@ export function TeilgruppenEntscheidung({
                   return (
                     <li key={a.stepKey} className={`tg-karte tg-karte-${a.antwort}`}>
                       <span className="muted tg-karte-phase">Phase {phase}</span>
-                      <strong className="tg-karte-titel">{TITEL[a.antwort]}</strong>
+                      <strong className="tg-karte-titel">{ANTWORT_TITEL[a.antwort]}</strong>
                       {a.antwort === 'passt' && (
                         <>
                           <div className="muted tg-klein">{belegOhneQuelle(a.grund)}</div>
