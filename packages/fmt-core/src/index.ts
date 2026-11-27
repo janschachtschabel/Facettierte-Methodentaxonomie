@@ -25,3 +25,4 @@ export type { Situation, Annahme, Pflichtangabe } from './situation.js';
 export * from './raster.js';
 export { erstelleRegeln } from './regeln.js';
 export * from './teilgruppen.js';
+export { istHilfe, istMethode, nurMethoden } from './eintragsart.js';

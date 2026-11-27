@@ -12,7 +12,11 @@ import {
   FMT_RULES,
   PIKTOGRAMME,
   scoreDifferentiationMatrix,
-  suggestAlternativeMethodsForGroup
+  suggestAlternativeMethodsForGroup,
+  adaptScenario,
+  istHilfe,
+  istMethode,
+  nurMethoden
 } from '../src/index.js';
 import type { AblaufMatchResult, Arrangement, MatchResult, PhaseMatchResult } from '../src/types.js';
 import { nachweisformen } from '../src/zielart.js';
@@ -1057,5 +1061,31 @@ describe('Eintragsart Hilfe: nie Schritt, Slot oder Phase (Task C4)', () => {
     const cands = SH.ersatz(arr, `/ablauf/teile/${i}`).map((c) => c.baustein);
     expect(cands.length).toBeGreaterThan(0);
     expect(cands).not.toContain(FIXTURE_HILFE);
+  });
+
+  it('istMethode, istHilfe und nurMethoden: eine Hilfe ist keine Methode, ohne Angabe gilt Methode', () => {
+    const hilfe = DH.bausteine.find((b) => b.kennung === FIXTURE_HILFE)!;
+    const placemat = DH.bausteine.find((b) => b.kennung === 'placemat')!;
+    expect(istHilfe(hilfe)).toBe(true);
+    expect(istMethode(hilfe)).toBe(false);
+    expect(istMethode(placemat)).toBe(true);
+    expect(istMethode({ ...placemat, eintragsart: 'methode' })).toBe(true);
+    expect(nurMethoden(DH.bausteine).map((b) => b.kennung)).not.toContain(FIXTURE_HILFE);
+    expect(nurMethoden(DH.bausteine).length).toBe(DH.bausteine.filter((b) => b.eintragsart !== 'hilfe').length);
+  });
+
+  it('adaptScenario empfiehlt für eine Phase ohne Methode keine Hilfe (passendeFmtMethoden)', () => {
+    const anfrage = {
+      scenarioText: 'Mathematik Klasse 4 Bruchteile einführen mit Papierfalten, 45 Minuten, ohne Geräte, ohne Internet',
+      lerngruppenText: '5 DaZ-Kinder, 2 Kinder mit ADHS und 4 sehr leistungsstarke Kinder',
+      fach: 'Mathematik',
+      thema: 'Bruchteile',
+      bildungsstufe: 'primar',
+      zeitMin: 45
+    };
+    const vorher = new Set(adaptScenario(D, anfrage).phasenAnpassungen.flatMap((p) => p.passendeFmtMethoden.map((m) => m.kennung)));
+    expect(vorher.size).toBeGreaterThan(0);
+    const nachher = adaptScenario(alsHilfe(D, vorher), anfrage).phasenAnpassungen.flatMap((p) => p.passendeFmtMethoden.map((m) => m.kennung));
+    expect(nachher.filter((k) => vorher.has(k))).toEqual([]);
   });
 });

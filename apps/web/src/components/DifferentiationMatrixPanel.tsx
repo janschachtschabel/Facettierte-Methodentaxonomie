@@ -7,6 +7,7 @@ import {
   DIFF_MATRIX_VARIABLES,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
+  nurMethoden,
   type Baustein,
   type MeasureEffort,
   type MeasureLevel
@@ -175,7 +176,8 @@ export function DifferentiationMatrixPanel({
   }, [activeGroups, maxTechnik, ohneInternet, ohneKI, includeSystemMeasures]);
 
   const activeMatrix = selectedGroup ? matrixByGroup.get(selectedGroup.id) : null;
-  const sortedBlocks = useMemo(() => [...allBlocks].sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);
+  // Only methods are offered for a phase or a subgroup; a help (eintragsart 'hilfe') is never a parallel method.
+  const sortedBlocks = useMemo(() => nurMethoden(allBlocks).sort((a, b) => a.name.localeCompare(b.name, 'de')), [allBlocks]);
 
   const updateGroup = (id: string, patch: Partial<LearnerGroup>) => {
     onGroupsChange(groups.map((g) => (g.id === id ? { ...g, ...patch } : g)));

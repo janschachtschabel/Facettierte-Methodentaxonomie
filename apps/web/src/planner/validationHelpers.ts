@@ -1,5 +1,6 @@
 import {
   FMT_RULES,
+  nurMethoden,
   type Arrangement,
   type ArrangementNode,
   type Baustein,
@@ -57,7 +58,9 @@ function bestProducerFor(
 ): Baustein | null {
   const gradeRank = (b: Baustein) =>
     b.evidenz.some((e) => e.grad === 'A') ? 0 : b.evidenz.some((e) => e.grad === 'B') ? 1 : 2;
-  const cands = bundle.bausteine
+  // Only methods fill a step; a help (eintragsart 'hilfe') is assigned to phases in step 3.
+  const methoden = nurMethoden(bundle.bausteine);
+  const cands = methoden
     .filter(
       (b) =>
         !b.komposit &&
@@ -66,7 +69,7 @@ function bestProducerFor(
         (b.vorbedingung || []).length === 0
     )
     .sort((a, b) => gradeRank(a) - gradeRank(b) || a.dauerMin - b.dauerMin || a.name.localeCompare(b.name, 'de'));
-  return cands[0] || bundle.bausteine.find((b) => !b.komposit && (b.nachbedingung || []).includes(stateId)) || null;
+  return cands[0] || methoden.find((b) => !b.komposit && (b.nachbedingung || []).includes(stateId)) || null;
 }
 
 export function explainValidationMessage(
@@ -277,7 +280,7 @@ export function explainValidationMessage(
           if (parent && emptySlot) {
             const pRang = rangMap.get(parent.reichweite) || 3;
             const sRang = rangMap.get(emptySlot.reichweite) || 2;
-            const cand = bundle.bausteine.find(
+            const cand = nurMethoden(bundle.bausteine).find(
               (c) =>
                 (rangMap.get(c.reichweite) || 0) < pRang &&
                 (rangMap.get(c.reichweite) || 0) <= sRang &&

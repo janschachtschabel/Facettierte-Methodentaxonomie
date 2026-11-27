@@ -9,6 +9,7 @@ import type {
   ReplacementCandidate,
   WiederkehrNode
 } from '@fmt/core';
+import { nurMethoden } from '@fmt/core';
 import { MethodPictogram } from './MethodPictogram.js';
 import { ProfileRadarSvg } from './ProfileRadarSvg.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
@@ -102,7 +103,7 @@ export function PartiturView({
   const { seq, prefix } = getMainSequence(arrangement);
   const kette = arrangement.zieltyp ? bundle.ketten.find((k) => k.id === arrangement.zieltyp) : null;
   // Only methods can fill a phase or a slot; a help (eintragsart 'hilfe') is assigned to phases in step 3.
-  const sortedBlocks = bundle.bausteine.filter((b) => b.eintragsart !== 'hilfe').sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const sortedBlocks = nurMethoden(bundle.bausteine).sort((a, b) => a.name.localeCompare(b.name, 'de'));
   const rangMap = new Map((bundle.schemes.find((s) => s.id === 'reichweite')?.werte || []).map((w) => [w.id, w.rang ?? 0]));
 
   const openSwap = (pfad: string) => {

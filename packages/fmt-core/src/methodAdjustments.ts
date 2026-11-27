@@ -1,3 +1,4 @@
+import { istMethode } from './eintragsart.js';
 import type { Baustein, Grundlage, MatchRequest, Passungsregel, Regelmeldung, Scheme, TeilgruppenRegelsatz } from './types.js';
 import { TECH_RANK } from './technik.js';
 import { mehrTechnikAls, setztKiEin } from './bedarf.js';
@@ -546,7 +547,7 @@ export function proposeAdditionalPhases(
   const maxTech = Math.min(1, constraints.maxTechnik ? (TECH_RANK[constraints.maxTechnik] ?? 1) : 1);
 
   const inFrame = (b: Baustein) =>
-    b.eintragsart !== 'hilfe' &&
+    istMethode(b) &&
     b.dauerMin <= EXTRA_PHASE_MAX_MIN &&
     b.anleitung.includes('explizit') &&
     (TECH_RANK[b.technik] ?? 0) <= maxTech &&

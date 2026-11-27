@@ -1,3 +1,4 @@
+import { istHilfe } from './eintragsart.js';
 import type { FmtData } from './types.js';
 import { foldDe } from './semantic.js';
 
@@ -39,7 +40,7 @@ const tokens = (s: string) =>
 /** Detects catalogue methods a teacher names in free text, by main name or synonym. */
 export function createMentionDetector(data: FmtData): FmtMentionDetector {
   const byAlias = new Map<string, AliasEntry[]>();
-  const hilfen = new Set(data.bausteine.filter((b) => b.eintragsart === 'hilfe').map((b) => b.kennung));
+  const hilfen = new Set(data.bausteine.filter(istHilfe).map((b) => b.kennung));
   const add = (kennung: string, raw: string, main: boolean) => {
     const words = tokens(raw);
     if (!words.length) return;

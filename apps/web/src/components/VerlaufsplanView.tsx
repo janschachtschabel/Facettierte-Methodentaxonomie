@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein, type Passungsregel, type Regelmeldung } from '@fmt/core';
+import { nurMethoden, scoreDifferentiationMatrix, suggestAlternativeMethodsForGroup, type Baustein, type Passungsregel, type Regelmeldung } from '@fmt/core';
 import { regelZeile } from '../planner/regelmeldung.js';
 import { EvidenceBadge } from './EvidenceBadge.js';
 import type { LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from '../planner/scenarioModel.js';
@@ -91,7 +91,8 @@ export function VerlaufsplanView({
     const fns = new Set(cur.lernfunktion || []);
     const curRank = RANGE_ORDER[cur.reichweite] ?? 2;
     const maxDur = Math.max(row.durationMin * 1.5, cur.dauerMax);
-    return allBlocks
+    // Only methods: a help (eintragsart 'hilfe') is never a parallel method.
+    return nurMethoden(allBlocks)
       .filter((b) => {
         if (b.kennung === cur.kennung) return false;
         if (!b.lernfunktion.some((f) => fns.has(f))) return false;

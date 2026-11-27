@@ -1,3 +1,4 @@
+import { istMethode } from './eintragsart.js';
 import type {
   Arrangement,
   Baustein,
@@ -232,7 +233,7 @@ export function createSearch(data: FmtData, validator?: FmtValidator): FmtSearch
     const out: ReplacementCandidate[] = [];
     // A help is never a phase: it is no replacement for one.
     data.bausteine
-      .filter((b) => b.kennung !== node.baustein && b.eintragsart !== 'hilfe')
+      .filter((b) => b.kennung !== node.baustein && istMethode(b))
       .forEach((b) => {
         const copy = JSON.parse(JSON.stringify(arrangement)) as Arrangement;
         const at = locate(copy, pfad);

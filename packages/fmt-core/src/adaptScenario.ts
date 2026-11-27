@@ -1,3 +1,4 @@
+import { nurMethoden } from './eintragsart.js';
 import {
   DEFAULT_CLASSROOM_LEVELS,
   DIFF_MATRIX_MEASURES,
@@ -800,7 +801,8 @@ function recommendMethodsForPhase(
     return grades.includes('A') ? 'A' : grades.includes('B') ? 'B' : grades.includes('C') ? 'C' : null;
   };
 
-  const candidates = allBlocks
+  // A help supports learners inside a method; it is never recommended for a phase.
+  const candidates = nurMethoden(allBlocks)
     .filter((b) => {
       if (!b.lernfunktion.includes(lernfunktion)) return false;
       if ((TECH_RANK[b.technik] ?? 0) > maxTechRank) return false;

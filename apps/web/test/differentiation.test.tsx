@@ -8,7 +8,8 @@ import type { CatalogBundle } from '@fmt/core';
 import { DifferentiationPage } from '../src/pages/DifferentiationPage.js';
 import { DifferentiationMatrixPanel } from '../src/components/DifferentiationMatrixPanel.js';
 import { ACTIVE_PLANNER_DRAFT_KEY } from '../src/planner/scenarioStorage.js';
-import { STANDARD_LEARNER_GROUPS, type LearnerGroup } from '../src/planner/scenarioModel.js';
+import { buildScenarioRows, STANDARD_LEARNER_GROUPS, type LearnerGroup } from '../src/planner/scenarioModel.js';
+import { createChainPreset } from '../src/planner/arrangementOps.js';
 import { useState } from 'react';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -158,3 +159,49 @@ describe('DifferentiationPage (/differenzierung)', () => {
     expect(screen.getByText(/bisher nur die Regelgruppe · 26 Lernende/i)).toBeTruthy();
   });
 });
+
+describe('Phasen & Alternativ-Methoden bieten keine Hilfe an (Task C4)', () => {
+  it('die Auswahl „Alternative FMT-Methode“ enthält keine Hilfe', () => {
+    const labelOf = (schemeId: string, code: string) => {
+      const sc = BUNDLE.schemes.find((x) => x.id === schemeId);
+      return (sc?.werte || (sc?.gruppen || []).flatMap((g) => g.werte) || []).find((w) => w.id === code)?.label || code;
+    };
+    const blocks = new Map(BUNDLE.bausteine.map((b) => [b.kennung, b]));
+    const rows = buildScenarioRows(createChainPreset('konzeptaufbau', BUNDLE), BUNDLE, blocks, labelOf, STANDARD_LEARNER_GROUPS, {}, {}, '', {});
+    const optionen = (allBlocks: CatalogBundle['bausteine']) => {
+      function Harness() {
+        const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
+        return (
+          <MemoryRouter>
+            <DifferentiationMatrixPanel
+              groups={groups}
+              onGroupsChange={setGroups}
+              scenarioRows={rows}
+              allBlocks={allBlocks}
+              subgroupMethods={{}}
+              onSubgroupMethodChange={() => {}}
+              aiDiffByStep={{}}
+              onAiDiffChange={() => {}}
+              onEditDiffMeasure={() => {}}
+              onRunAiDifferentiate={() => {}}
+              busyDiff={false}
+              diffError={null}
+              llmAvailable={false}
+            />
+          </MemoryRouter>
+        );
+      }
+      const { container, unmount } = render(<Harness />);
+      fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/i }));
+      fireEvent.click(screen.getByRole('tab', { name: /4\. Phasen/i }));
+      const werte = new Set([...container.querySelectorAll('optgroup option')].map((o) => (o as HTMLOptionElement).value).filter(Boolean));
+      unmount();
+      return werte;
+    };
+    const vorher = optionen(BUNDLE.bausteine);
+    expect(vorher.size).toBeGreaterThan(0);
+    const nachher = optionen(BUNDLE.bausteine.map((b) => (vorher.has(b.kennung) ? { ...b, eintragsart: 'hilfe' as const } : b)));
+    expect([...nachher].filter((k) => vorher.has(k))).toEqual([]);
+  });
+});
+

@@ -1,3 +1,4 @@
+import { nurMethoden } from './eintragsart.js';
 import type {
   AblaufMatchResult,
   AblaufSchrittResult,
@@ -171,7 +172,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   const implies = new Map((scheme('lernzustand').werte || []).map((w) => [w.id, w.impliziert || []]));
   const blocks: Map<string, Baustein> = new KennungIndex(data.bausteine.map((b) => [b.kennung, b] as const), data.weiterleitungen);
   /** Entries that may carry a chain step, a slot or a phase: every entry except the helps (eintragsart 'hilfe'). */
-  const methoden = data.bausteine.filter((b) => b.eintragsart !== 'hilfe');
+  const methoden = nurMethoden(data.bausteine);
   const chains = new Map<string, Funktionskette>(data.ketten.map((k) => [k.id, k]));
 
   const closure = (states: string[]): Set<string> => {

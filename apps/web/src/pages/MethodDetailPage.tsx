@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import type { FacetMeta } from '@fmt/core';
+import { istHilfe, type FacetMeta } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
 import { ProfileRadarSvg } from '../components/ProfileRadarSvg.js';
@@ -77,7 +77,7 @@ export function MethodDetailPage() {
               <span className="range-badge">
                 {b.reichweite.toUpperCase()} {labelOf('reichweite', b.reichweite)}
               </span>
-              {b.eintragsart === 'hilfe' && <span className="status-badge">Hilfe</span>}
+              {istHilfe(b) && <span className="status-badge">Hilfe</span>}
               {b.komposit && <span className="status-badge">Kompositbaustein</span>}
               {b.ki && <span className="status-badge">KI-Beteiligung</span>}
               <span className={`status-badge ${b.status === 'kuratiert' ? 'status-kuratiert' : ''}`}>
@@ -151,7 +151,7 @@ export function MethodDetailPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-            {b.eintragsart === 'hilfe' ? (
+            {istHilfe(b) ? (
               <p className="muted" style={{ margin: 0, maxWidth: '60ch' }}>
                 Eine Hilfe ist keine eigene Phase: Sie stützt Lernende innerhalb einer Methode. Im Baukasten ordnest du sie in
                 Schritt 3 den Phasen zu.

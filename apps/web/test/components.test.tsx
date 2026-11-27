@@ -214,3 +214,36 @@ describe('React UI Components (PartiturView & TimelineBandSvg)', () => {
     expect(clickedStep).toBeTruthy();
   });
 });
+
+describe('Verlaufsplan bietet keine Hilfe als Methode einer Teilgruppe an (Task C4)', () => {
+  it('die Auswahl „Alternative Methode“ enthält keine Hilfe', () => {
+    const preset = createChainPreset('konzeptaufbau', BUNDLE);
+    const rows = buildScenarioRows(preset, BUNDLE, BLOCKS, labelOf, DEFAULT_LEARNER_GROUPS, {}, {}, '', {});
+    const optionen = (allBlocks: CatalogBundle['bausteine']) => {
+      const { container, unmount } = render(
+        <MemoryRouter>
+          <VerlaufsplanView
+            rows={rows}
+            groups={DEFAULT_LEARNER_GROUPS}
+            allBlocks={allBlocks}
+            subgroupMethods={{}}
+            onSubgroupMethodChange={() => {}}
+            onEditDiffMeasure={() => {}}
+            onOpenResourcesForStep={() => {}}
+          />
+        </MemoryRouter>
+      );
+      fireEvent.click(screen.getByRole('button', { name: /Hinweise bearbeiten/ }));
+      const werte = new Set(
+        [...container.querySelectorAll('select[aria-label^="Alternative Methode"] option')].map((o) => (o as HTMLOptionElement).value).filter(Boolean)
+      );
+      unmount();
+      return werte;
+    };
+    const vorher = optionen(BUNDLE.bausteine);
+    expect(vorher.size).toBeGreaterThan(0);
+    const nachher = optionen(BUNDLE.bausteine.map((b) => (vorher.has(b.kennung) ? { ...b, eintragsart: 'hilfe' as const } : b)));
+    expect([...nachher].filter((k) => vorher.has(k))).toEqual([]);
+  });
+});
+

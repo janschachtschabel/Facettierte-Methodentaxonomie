@@ -622,3 +622,64 @@ describe('Stufe 3: eigene Eingabe und anderer Vorschlag', () => {
   });
 });
 });
+
+describe('Schnellkorrekturen bieten keine Hilfe als Phase oder Slot an (Task C4)', () => {
+  const alsHilfe = (ids: Set<string>): CatalogBundle => ({
+    ...BUNDLE,
+    bausteine: BUNDLE.bausteine.map((b) => (ids.has(b.kennung) ? { ...b, eintragsart: 'hilfe' as const } : b))
+  });
+  const genannt = (label: string | undefined) => (label ? (label.match(/„([^“]+)“ (?:anfügen|belegen)/) || [])[1] : undefined);
+  const nameZuKennung = new Map(BUNDLE.bausteine.map((b) => [b.name, b.kennung]));
+
+  it('R-04: der fehlende Lernzustand wird nie durch eine Hilfe ergänzt', () => {
+    const arr = createChainPreset('konzeptaufbau', BUNDLE);
+    const zustaende = (BUNDLE.schemes.find((s) => s.id === 'lernzustand')?.werte || []).map((w) => w.id);
+    const vorschlag = (bundle: CatalogBundle, z: string) =>
+      genannt(
+        explainValidationMessage(
+          { regel: 'R-04', schwere: 'Fehler', pfad: '/ablauf', meldung: `Funktion fehlt (Zielzustand ${z}).` } as never,
+          arr,
+          new Map(bundle.bausteine.map((b) => [b.kennung, b])),
+          bundle,
+          45
+        ).quickFix?.label
+      );
+    const vorher = new Set(zustaende.map((z) => nameZuKennung.get(vorschlag(BUNDLE, z) || '')).filter((k): k is string => Boolean(k)));
+    expect(vorher.size).toBeGreaterThan(0);
+    const DX = alsHilfe(vorher);
+    for (const z of zustaende) {
+      const k = nameZuKennung.get(vorschlag(DX, z) || '');
+      expect(k && vorher.has(k), z).toBeFalsy();
+    }
+  });
+
+  it('R-11: ein leerer Pflichtslot wird nie mit einer Hilfe belegt', () => {
+    const container = BUNDLE.bausteine.find((b) => (b.slot || []).some((s) => s.pflicht))!;
+    const arr: Arrangement = {
+      typ: 'Arrangement',
+      name: 'slot',
+      reichweite: 'r4',
+      ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: container.kennung, dauerMin: container.dauerMin }] }
+    };
+    const kandidat = (bundle: CatalogBundle) =>
+      nameZuKennung.get(
+        genannt(
+          explainValidationMessage(
+            { regel: 'R-11', schwere: 'Warnung', pfad: '/ablauf/teile/0', meldung: '' } as never,
+            arr,
+            new Map(bundle.bausteine.map((b) => [b.kennung, b])),
+            bundle,
+            container.dauerMin
+          ).quickFix?.label
+        ) || ''
+      );
+    const hilfen = new Set<string>();
+    for (let i = 0; i < 3; i++) {
+      const k = kandidat(alsHilfe(hilfen));
+      expect(k, `Runde ${i}`).toBeTruthy();
+      expect(hilfen.has(k!)).toBe(false);
+      hilfen.add(k!);
+    }
+  });
+});
+

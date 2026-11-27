@@ -1,3 +1,4 @@
+import { istMethode } from './eintragsart.js';
 import { DIFF_MATRIX_DATA } from './differentiationMatrixData.js';
 import {
   getMeasureEnrichment,
@@ -473,7 +474,7 @@ export function suggestAlternativeMethodsForGroup(
     .filter((b) => {
       if (b.kennung === currentBlock.kennung) return false;
       // A help supports learners inside a method; it is never a parallel method.
-      if (b.eintragsart === 'hilfe') return false;
+      if (!istMethode(b)) return false;
       if (!b.lernfunktion.some((f) => fns.has(f))) return false;
       const bRank = RANGE_ORDER[b.reichweite] ?? 2;
       if (bRank > curRank) return false;

@@ -1,3 +1,4 @@
+import { istHilfe } from './eintragsart.js';
 import { ruleBasisOf } from './rules.js';
 import { erstelleRegeln } from './regeln.js';
 import type {
@@ -200,7 +201,7 @@ export function createValidator(data: FmtData): FmtValidator {
         add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
         return typeof node.dauerMin === 'number' ? node.dauerMin : 0;
       }
-      if (b.eintragsart === 'hilfe') add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
+      if (istHilfe(b)) add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
       const r = rang.get(b.reichweite) || 0;
       if (r > arrRang) {
         add('R-01', 'Fehler', pfad, `„${b.name}“ (${b.reichweite}) passt nicht in ein Arrangement der Reichweite ${arr.reichweite}.`);
@@ -315,7 +316,7 @@ export function createValidator(data: FmtData): FmtValidator {
             add('R-00', 'Fehler', pfad, `Unbekannter Baustein „${node.baustein}“.`);
             return 0;
           }
-          if (b.eintragsart === 'hilfe') add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
+          if (istHilfe(b)) add('R-00', 'Fehler', pfad, hilfeAlsPhase(b));
           if ((rang.get(b.reichweite) || 0) > arrRang) {
             add('R-01', 'Fehler', pfad, `„${b.name}“ hat größere Reichweite als das Arrangement.`);
           }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import type { EvidenceGrade, SearchCriteria } from '@fmt/core';
+import { istHilfe, type EvidenceGrade, type SearchCriteria } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { MethodPictogram } from '../components/MethodPictogram.js';
 import { MethodCardDiagram } from '../components/MethodCardDiagram.js';
@@ -80,8 +80,7 @@ export function CatalogPage() {
   const ansatzValues = valuesOf('ansatz');
   const activeAnsatz = typeof filters.ansatz === 'string' ? filters.ansatz : '';
   const activeArt = filters.eintragsart || '';
-  const hilfenAnzahl = bundle.bausteine.filter((b) => b.eintragsart === 'hilfe').length;
-  const istHilfe = (b: { eintragsart?: string }) => b.eintragsart === 'hilfe';
+  const hilfenAnzahl = bundle.bausteine.filter(istHilfe).length;
   const HILFE_TITEL = 'Eine Hilfe stützt Lernende innerhalb einer Methode; du ordnest sie in Schritt 3 des Baukastens den Phasen zu.';
 
   const pickForCompare = (kennung: string) => {

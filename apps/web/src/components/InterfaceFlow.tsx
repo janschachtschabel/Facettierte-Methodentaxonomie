@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { Baustein } from '@fmt/core';
+import { nurMethoden, type Baustein } from '@fmt/core';
 
 interface Props {
   baustein: Baustein;
@@ -10,15 +10,17 @@ interface Props {
 export function InterfaceFlow({ baustein, allBlocks, labelOf }: Props) {
   const pre = baustein.vorbedingung || [];
   const post = baustein.nachbedingung || [];
+  // Neighbours in a sequence are methods; a help (eintragsart 'hilfe') is no step before or after.
+  const methoden = nurMethoden(allBlocks);
 
   const fitsBefore = pre.length
-    ? allBlocks
+    ? methoden
         .filter((other) => other.kennung !== baustein.kennung && pre.some((z) => (other.nachbedingung || []).includes(z)))
         .slice(0, 5)
     : [];
 
   const fitsAfter = post.length
-    ? allBlocks
+    ? methoden
         .filter((other) => other.kennung !== baustein.kennung && (other.vorbedingung || []).some((z) => post.includes(z)))
         .slice(0, 5)
     : [];
