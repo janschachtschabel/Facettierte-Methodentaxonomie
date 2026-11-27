@@ -79,4 +79,36 @@ describe('Fix wave Paket B', () => {
       expect(M.zuordnen({ text }).modus, text).toBe('phase');
     }
   });
+
+  it('1: Ethik, Philosophie und Religion ohne Ziel nehmen Urteilen an und nennen es (wie Sport → Bewegung)', () => {
+    const urteil = (text: string, fach: string) => {
+      const r = M.zuordnen({ text });
+      expect(r.modus === 'ablauf' && r.kette?.id, text).toBe('urteilsbildung');
+      expect(r.pflichtangaben?.angenommen, text).toContainEqual({
+        feld: 'zielart',
+        wert: 'urteilen',
+        grund: `Ziel Urteilsbildung angenommen, weil das Fach ${fach} ist.`
+      });
+    };
+    // n05: the assumption wins over a merely semantic guess of an approach (Kooperatives Lernen).
+    urteil('Ethik Klasse 10, Sterbehilfe, Hörsaal mit fester Bestuhlung, 30 Lernende', 'Ethik');
+    urteil('Religion Klasse 8, Weltreligionen, 45 Minuten', 'Religion');
+    urteil('Philosophie Klasse 11, Freiheit, 45 Minuten', 'Philosophie');
+    // A goal read from the text or stated by the caller wins.
+    const wiederholen = M.zuordnen({ text: 'Ethik Klasse 10, Sterbehilfe, Begriffe wiederholen, 45 Minuten' });
+    expect(wiederholen.modus === 'ablauf' && wiederholen.kette?.id).not.toBe('urteilsbildung');
+    const fakten = M.zuordnen({ text: 'Ethik Klasse 8, Fakten zur Sterbehilfe lernen, 45 Minuten' });
+    expect(fakten.modus === 'ablauf' && fakten.kette?.id).toBe('faktenwissen');
+    const gesagt = M.zuordnen({ text: 'Religion Klasse 8, Weltreligionen, 45 Minuten', zielart: 'konzepte' });
+    expect(gesagt.modus === 'ablauf' && gesagt.kette?.id).not.toBe('urteilsbildung');
+    for (const r of [wiederholen, fakten, gesagt]) {
+      expect((r.pflichtangaben?.angenommen || []).some((x) => /Urteilsbildung angenommen/.test(x.grund))).toBe(false);
+    }
+    // Discussing the text rules out speaks against judging.
+    const keineDiskussion = M.zuordnen({ text: 'Ethik Klasse 9 Freundschaft, 45 Minuten, bitte keine Diskussion im Plenum' });
+    expect(keineDiskussion.modus === 'ablauf' && keineDiskussion.kette?.id).not.toBe('urteilsbildung');
+    // Other subjects keep the general assumption.
+    const geschichte = M.zuordnen({ text: 'Geschichte Klasse 9, Weimarer Republik, 45 Minuten' });
+    expect((geschichte.pflichtangaben?.angenommen || []).some((x) => /Urteilsbildung angenommen/.test(x.grund))).toBe(false);
+  });
 });

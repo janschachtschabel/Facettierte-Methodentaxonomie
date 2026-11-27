@@ -463,6 +463,12 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     /\b(?:einstieg\w*|eroffnung|sicherung\w*|abschluss\w*|ausstieg|warm-?up|aufwarm\w*|stundenbeginn|stundenende|\w*phase|zum\s+(?:beginn|ende|schluss)|am\s+(?:anfang|ende|schluss)|zu\s+beginn)\b/;
 
   const semantic = createSemanticClassifier(data);
+  /** School subjects (OEH discipline ids) whose lessons without a stated goal assume judging (zielart urteilen). */
+  const URTEILS_FAECHER = new Map([
+    ['160', 'Ethik'],
+    ['450', 'Philosophie'],
+    ['520', 'Religion']
+  ]);
   /** Lesson length assumed for a plan when the request names no time. */
   const STANDARD_STUNDE_MIN = 45;
   /** Fields whose rules read negations themselves ("ohne Tablets", "ohne Vorbereitung"); all others read the text without negated phrases. */
@@ -2112,6 +2118,17 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         } else if (verb) {
           wahl = waehleKette(data.ketten, verb);
           chainGuessed = Boolean(wahl);
+        }
+        // Like sport → movement: Ethik, Philosophie and Religion without a stated or text-read goal assume judging.
+        // It wins over an approach the text only suggests (semantic guess), not over one it names.
+        const urteilsFach = gelesen.fach ? URTEILS_FAECHER.get(gelesen.fach.id) : undefined;
+        const zielAusText = list(a.lernfunktion).length > 0 && !guessedFn;
+        // "bitte nicht diskutieren", "keine Diskussion": judging or discussing the text rules out speaks against the assumption.
+        const verneint = (re: RegExp) => re.test(currentRawText) && !re.test(withoutNegated(currentRawText));
+        const urteilenVerneint =
+          VERB_CHAINS.some(([re, w]) => w.zielart === 'urteilen' && verneint(re)) || verneint(/\b(?:diskussion|diskutier|debatt)\w*/);
+        if (!wahl && urteilsFach && !given(a.zielart) && !zielAusText && !urteilenVerneint && (!ansatzList.length || currentGuessedAnsatz)) {
+          wahl = nimmAn('urteilen', `Ziel Urteilsbildung angenommen, weil das Fach ${urteilsFach} ist.`);
         }
         if (!wahl && ansatzList.length) wahl = waehleKette(data.ketten, { ansatz: ansatzList });
         if (!wahl) {
