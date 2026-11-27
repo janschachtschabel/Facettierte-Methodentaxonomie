@@ -29,3 +29,10 @@ export function setzeGruppenwert(g: LearnerGroup, kategorie: string, wert: strin
   if (wert && !genannt.includes(wert)) genannt.push(wert);
   return { ...g, matrixValues, genannt };
 }
+
+/** Whether a group names something the subgroup check can read: a named matrix value or what it cannot do. */
+export function nenntMerkmale(g: Pick<LearnerGroup, 'matrixValues' | 'genannt' | 'ohneSchrift' | 'ohneBewegung'>): boolean {
+  const werte = Object.values(g.matrixValues || {}).filter(Boolean);
+  const genannt = g.genannt ? werte.filter((w) => g.genannt!.includes(w)) : werte;
+  return genannt.length > 0 || Boolean(g.ohneSchrift?.length) || Boolean(g.ohneBewegung);
+}

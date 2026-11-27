@@ -231,6 +231,9 @@ export function hilfeUebernommen(materials: GeneratedMaterialItem[], stepKey: st
   return materials.some((m) => m.materialType === 'hilfe' && m.stepKey === stepKey && m.groupId === groupId);
 }
 
+/** Material text without its "Phase: …" line (the label moves with the flow). */
+const ohnePhase = (content: string) => content.replace(/^Phase: .*$/m, '');
+
 const zahl = (n: number, eins: string, mehr: string) => (n === 1 ? eins : `${n} ${mehr}`);
 
 /** Result of a new check for what the teacher took over: methods and help materials as they now stand, and why. */
@@ -265,6 +268,8 @@ export function nachErneuterPruefung(
     }
     const frisch = hilfeAlsMaterial(a, phaseLabel(a.stepKey));
     if (frisch.title === m.title && frisch.content === m.content) return [m];
+    // Only the phase's position or label changed: the help is the same; the material takes the new label quietly.
+    if (frisch.title === m.title && ohnePhase(frisch.content) === ohnePhase(m.content)) return [{ ...m, content: frisch.content }];
     erneuert++;
     return [frisch];
   });

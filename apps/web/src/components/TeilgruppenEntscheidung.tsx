@@ -1,5 +1,6 @@
 import type { MethodAdjustment, Passungsregel, PhasenAntwort } from '@fmt/core';
 import { belegOhneQuelle, belegZeile, hilfeUebernommen, sichtbareHilfen, type TeilgruppenPruefung } from '../planner/differentiationFlow.js';
+import { nenntMerkmale } from '../planner/gruppen.js';
 import { regelZeile } from '../planner/regelmeldung.js';
 import type { GeneratedMaterialItem, LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from '../planner/scenarioModel.js';
 
@@ -19,6 +20,10 @@ interface Props {
 }
 
 /** Shown in a help card when the table names no help the teacher can use as it stands. */
+/** Shown on a group that has only a persona: nothing it names can be adapted to. */
+export const KEINE_MERKMALE_TEXT =
+  'Diese Gruppe nennt keine Merkmale. Wähle Merkmale, damit der Baukasten Hilfen oder eine andere Methode vorschlagen kann.';
+
 export const KEINE_HILFE_TEXT = 'Für diese Gruppe ist hier keine belegte Hilfe hinterlegt. Prüfe selbst, was sie in dieser Methode braucht.';
 
 const TITEL: Record<PhasenAntwort['antwort'], string> = {
@@ -88,6 +93,7 @@ export function TeilgruppenEntscheidung({
               <legend className="sr-only">Was {g.label} noch nicht kann</legend>
               {kann}
             </fieldset>
+            {g.personaId && !nenntMerkmale(g) && <p className="muted tg-klein">{KEINE_MERKMALE_TEXT}</p>}
             {antworten.length > 0 && (
               <ul className="tg-karten">
                 {antworten.map((a) => {

@@ -175,3 +175,13 @@ describe('Fix wave C, Follow-up: Gruppe ohne genannte Werte', () => {
     expect(res.hinweise.basis.some((m) => m.regel === 'gruppierung-nur-mit-anpassung')).toBe(false);
   });
 });
+
+describe('Fix wave C, Runde 2: Status nach einer verschobenen Phase', () => {
+  it('4: nur eine andere Phasenbezeichnung ist keine geänderte Hilfe; das Material bekommt still die neue Bezeichnung', () => {
+    const alt = hilfeAlsMaterial(hilfe('step-1', ['Wortspeicher']), '2 · Gruppenpuzzle');
+    const r = nachErneuterPruefung({}, [], pruefung([hilfe('step-1', ['Wortspeicher'])]), [alt], () => '3 · Gruppenpuzzle');
+    expect(r.status).toBeNull();
+    expect(r.materials).toHaveLength(1);
+    expect(r.materials[0].content).toContain('Phase: 3 · Gruppenpuzzle');
+  });
+});

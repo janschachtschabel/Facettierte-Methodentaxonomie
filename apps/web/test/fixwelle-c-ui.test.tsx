@@ -107,3 +107,38 @@ describe('Fix wave C, 10: Karte und Material zeigen dieselben Hilfen', () => {
     expect(within(karte()).getByText('Hilfe 3')).toBeTruthy();
   });
 });
+
+describe('Fix wave C, Runde 2, 5: Gruppe ohne genannte Merkmale', () => {
+  const NOTIZ = 'Diese Gruppe nennt keine Merkmale. Wähle Merkmale, damit der Baukasten Hilfen oder eine andere Methode vorschlagen kann.';
+  const mit = (g: LearnerGroup) =>
+    render(
+      <TeilgruppenEntscheidung
+        subgroups={[g]}
+        onGroupChange={() => {}}
+        pruefung={null}
+        rows={rows}
+        subgroupMethods={{}}
+        generatedMaterials={[]}
+        onTauschUebernehmen={() => {}}
+        onTauschZuruecknehmen={() => {}}
+        onHilfeUebernehmen={() => {}}
+        onHilfeZuruecknehmen={() => {}}
+      />
+    );
+
+  it('eine Gruppe nur mit Persona zeigt einen kleinen Hinweis', () => {
+    mit({ ...gruppe, personaId: 'languageAndCulture', matrixValues: {} });
+    expect(screen.getByText(NOTIZ)).toBeTruthy();
+  });
+
+  it('mit genannten Werten oder eigener Angabe kein Hinweis', () => {
+    mit({ ...gruppe, personaId: 'languageAndCulture', matrixValues: { vorwissen: 'vorwissen-gering' } });
+    expect(screen.queryByText(NOTIZ)).toBeNull();
+    cleanup();
+    mit({ ...gruppe, personaId: 'languageAndCulture', matrixValues: { strukturierung: 'strukturierung-stark' }, genannt: [] });
+    expect(screen.getByText(NOTIZ)).toBeTruthy();
+    cleanup();
+    mit({ ...gruppe, personaId: 'languageAndCulture', ohneBewegung: true });
+    expect(screen.queryByText(NOTIZ)).toBeNull();
+  });
+});
