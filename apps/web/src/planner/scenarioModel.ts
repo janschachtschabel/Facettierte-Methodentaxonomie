@@ -23,6 +23,10 @@ export interface LearnerGroup {
   personaId?: string;
   /** Custom Anpassungsvariablen overrides for the scoring matrix */
   matrixValues?: Record<string, string>;
+  /** What the group cannot do yet: read, write (statement of the teacher, not a matrix trait). */
+  ohneSchrift?: Array<'lesen' | 'schreiben'>;
+  /** The group cannot move freely (statement of the teacher, not a matrix trait). */
+  ohneBewegung?: boolean;
 }
 
 export interface StepDiffSuggestion {
@@ -55,6 +59,8 @@ export interface GeneratedMaterialItem {
   materialType: string;
   content: string;
   createdAt: string;
+  /** Subgroup a help taken over in step 3 belongs to (materialType 'hilfe'). */
+  groupId?: string;
 }
 
 /** Maps stepKey -> groupId -> alternative FMT method kennung */

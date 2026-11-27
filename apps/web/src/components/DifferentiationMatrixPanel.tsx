@@ -5,6 +5,7 @@ import {
   detectLearnerGroupsFromText,
   DIFF_MATRIX_PERSONAS,
   DIFF_MATRIX_VARIABLES,
+  GESPERRTE_MATRIX_KATEGORIEN,
   scoreDifferentiationMatrix,
   suggestAlternativeMethodsForGroup,
   nurMethoden,
@@ -65,6 +66,13 @@ const KEY_VARIABLE_IDS = new Set([
   'foerderbedarf-sprache',
   'foerderbedarf-emotional-sozial'
 ]);
+
+/** Categories the teacher can pick: blocked ones (Lerntypen, data/teilgruppen.json `gesperrt`) are not shown. */
+const WAEHLBARE_VARIABLEN = DIFF_MATRIX_VARIABLES.map((ok) => ({
+  ...ok,
+  kategorien: ok.kategorien.filter((k) => !GESPERRTE_MATRIX_KATEGORIEN.includes(k.id))
+}));
+const ANZAHL_VARIABLEN = WAEHLBARE_VARIABLEN.reduce((n, ok) => n + ok.kategorien.length, 0);
 
 function formatLevelLabel(level: MeasureLevel): string {
   switch (level) {
@@ -760,7 +768,7 @@ export function DifferentiationMatrixPanel({
                       <div className="muted" style={{ fontSize: 13 }}>{activeMatrix.didacticProfile.summary}</div>
                     </div>
                     <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowAllVariables((s) => !s)}>
-                      {showAllVariables ? '▲ Weniger Variablen' : '▼ Alle 36 Variablen'}
+                      {showAllVariables ? '▲ Weniger Variablen' : `▼ Alle ${ANZAHL_VARIABLEN} Variablen`}
                     </button>
                   </div>
 
@@ -803,7 +811,7 @@ export function DifferentiationMatrixPanel({
                       Anpassungsvariablen für „{selectedGroup.label}“ feinjustieren
                     </summary>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8, marginTop: 10 }}>
-                      {DIFF_MATRIX_VARIABLES.flatMap((ok) =>
+                      {WAEHLBARE_VARIABLEN.flatMap((ok) =>
                         ok.kategorien
                           .filter((k) => showAllVariables || KEY_VARIABLE_IDS.has(k.id))
                           .map((kat) => {

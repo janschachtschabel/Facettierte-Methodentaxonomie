@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import type { CatalogBundle } from '@fmt/core';
 import { DifferentiationPage } from '../src/pages/DifferentiationPage.js';
 import { DifferentiationMatrixPanel } from '../src/components/DifferentiationMatrixPanel.js';
-import { ACTIVE_PLANNER_DRAFT_KEY } from '../src/planner/scenarioStorage.js';
+import { ACTIVE_PLANNER_DRAFT_KEY, DIFF_HANDOFF_KEY } from '../src/planner/scenarioStorage.js';
 import { buildScenarioRows, STANDARD_LEARNER_GROUPS, type LearnerGroup } from '../src/planner/scenarioModel.js';
 import { createChainPreset } from '../src/planner/arrangementOps.js';
 import { useState } from 'react';
@@ -205,3 +205,74 @@ describe('Phasen & Alternativ-Methoden bieten keine Hilfe an (Task C4)', () => {
   });
 });
 
+
+describe('Merkmale ohne gesperrte Kategorien (Task C6)', () => {
+  it('die Auswahl der Merkmale zeigt „Sensorische Präferenzen“ nicht', () => {
+    function Harness() {
+      const [groups, setGroups] = useState<LearnerGroup[]>(STANDARD_LEARNER_GROUPS);
+      return (
+        <MemoryRouter>
+          <DifferentiationMatrixPanel
+            groups={groups}
+            onGroupsChange={setGroups}
+            scenarioRows={[]}
+            allBlocks={BUNDLE.bausteine}
+            subgroupMethods={{}}
+            onSubgroupMethodChange={() => {}}
+            aiDiffByStep={{}}
+            onAiDiffChange={() => {}}
+            onEditDiffMeasure={() => {}}
+            onRunAiDifferentiate={() => {}}
+            busyDiff={false}
+            diffError={null}
+            llmAvailable={false}
+          />
+        </MemoryRouter>
+      );
+    }
+    render(<Harness />);
+    fireEvent.click(screen.getByRole('button', { name: /DaZ \/ Sprachförderung/i }));
+    fireEvent.click(screen.getByRole('tab', { name: /3\. Teilgruppen/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Alle \d+ Variablen/ }));
+    expect(screen.getAllByText('Vorwissen').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Sensorische Präferenzen')).toBeNull();
+  });
+});
+
+describe('Differenzierung reicht die Angaben der Teilgruppe weiter (Task C6)', () => {
+  it('„kann noch nicht lesen“ und „kann sich nicht frei bewegen“ gehen zurück in den Baukasten', () => {
+    window.sessionStorage.setItem(
+      ACTIVE_PLANNER_DRAFT_KEY,
+      JSON.stringify({
+        updatedAt: new Date().toISOString(),
+        title: 'Physik · Dichte',
+        fach: 'Physik',
+        thema: 'Dichte',
+        scenarioText: 'Physik Klasse 7 Dichte',
+        maxTechnik: '',
+        ohneInternet: false,
+        ohneKI: false,
+        arrangement: {
+          typ: 'Arrangement',
+          name: 'Dichte',
+          kontext: { bildungsstufe: 'sek1', zeitbudgetMin: 45 },
+          ablauf: { typ: 'Sequenz', teile: [{ typ: 'Einsatz', baustein: 'partnerarbeit', dauerMin: 20 }] }
+        },
+        groups: [
+          { id: 'regel', label: 'Regelgruppe', profile: '', focus: 'regel', active: true },
+          { id: 'x', label: 'Gruppe X', profile: '', focus: 'custom', active: true, ohneSchrift: ['lesen'], ohneBewegung: true }
+        ]
+      })
+    );
+    render(
+      <MemoryRouter initialEntries={['/differenzierung?source=planner']}>
+        <DifferentiationPage />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: /In Baukasten übernehmen \(Schritt 3\)/i }));
+    const h = JSON.parse(window.sessionStorage.getItem(DIFF_HANDOFF_KEY) || '{}');
+    const x = h.groups.find((g: { id: string }) => g.id === 'x');
+    expect(x.ohneSchrift).toEqual(['lesen']);
+    expect(x.ohneBewegung).toBe(true);
+  });
+});

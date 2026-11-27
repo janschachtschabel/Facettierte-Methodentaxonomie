@@ -184,9 +184,13 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     fireEvent.click(screen.getByRole('button', { name: /Leistungsstark \/ Vertiefung/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Vorgehen an die Teilgruppen anpassen' }));
 
-    expect(screen.getByText(/Methode(n)? angepasst:/)).toBeTruthy();
-    const undo = screen.getAllByRole('button', { name: /^Anpassung für .* zurücknehmen$/ });
-    expect(undo.length).toBeGreaterThan(0);
+    // Since C6 nothing is entered by itself: the teacher takes each swap over on its card.
+    expect(screen.queryByText(/Eigene Methode für diese Gruppe/)).toBeNull();
+    const take = screen.getAllByRole('button', { name: /^Andere Methode für .* übernehmen$/ });
+    expect(take.length).toBeGreaterThan(0);
+    take.forEach((b) => fireEvent.click(b));
+    const undo = screen.getAllByRole('button', { name: /^Andere Methode für .* zurücknehmen$/ });
+    expect(undo.length).toBe(take.length);
     // The updated plan shows every subgroup and the method entered for it.
     expect(screen.getByText('Ablauf mit allen Teilgruppen')).toBeTruthy();
     expect(screen.getAllByText(/Eigene Methode für diese Gruppe/).length).toBe(undo.length);
@@ -507,5 +511,120 @@ describe('Szenario-Baukasten: geführte Schritte', () => {
     expect(thema.value).toBe('Fotosynthese');
     fireEvent.change(feld, { target: { value: '' } });
     expect(thema.value).toBe('');
+  });
+});
+
+describe('Schritt 3: Entscheidung je Teilgruppe (Task C6)', () => {
+  const N07 = 'Mathematik Klasse 8, lineare Funktionen, 90 Minuten, Erfindungsaufgabe mit kontrastierenden Fällen, Teilgruppe: 6 Lernende mit geringem Vorwissen';
+  const N08 = 'Biologie Klasse 7, Fotosynthese, 45 Minuten, Teilgruppe: 4 Lernende DaZ Niveau A2';
+  const pruefen = () => fireEvent.click(screen.getByRole('button', { name: 'Vorgehen an die Teilgruppen anpassen' }));
+  const gruppen = () => screen.getAllByRole('region', { name: /^Entscheidung für / });
+
+  it('je Teilgruppe drei Kästchen ohne Vorauswahl; eine Änderung verlangt erneutes Prüfen', () => {
+    renderPlanner();
+    propose(N08);
+    fireEvent.click(stepButton(3));
+    const [g] = gruppen();
+    const lesen = within(g).getByLabelText('kann noch nicht lesen') as HTMLInputElement;
+    const schreiben = within(g).getByLabelText('kann noch nicht schreiben') as HTMLInputElement;
+    const bewegen = within(g).getByLabelText('kann sich nicht frei bewegen') as HTMLInputElement;
+    expect([lesen.checked, schreiben.checked, bewegen.checked]).toEqual([false, false, false]);
+    pruefen();
+    fireEvent.click(lesen);
+    expect((within(gruppen()[0]).getByLabelText('kann noch nicht lesen') as HTMLInputElement).checked).toBe(true);
+    expect(screen.getByText(/Klicke auf „Erneut prüfen“/)).toBeTruthy();
+  });
+
+  it('n08: je Phase eine Karte; DaZ bekommt „Hilfe in dieser Methode“ mit „Wann die Hilfe entfällt“ und Beleg, keinen Tausch', () => {
+    renderPlanner();
+    propose(N08);
+    fireEvent.click(stepButton(3));
+    pruefen();
+    const [g] = gruppen();
+    const karten = within(g).getAllByRole('listitem').filter((li) => li.classList.contains('tg-karte'));
+    expect(karten.length).toBe(within(screen.getByRole('table')).getAllByRole('row').length - 1);
+    for (const k of karten) {
+      const titel = within(k).getByText(/^(Passt so|Hilfe in dieser Methode|Andere Methode für diese Gruppe)$/);
+      expect(titel).toBeTruthy();
+    }
+    expect(within(g).queryByText('Andere Methode für diese Gruppe')).toBeNull();
+    const hilfe = karten.find((k) => within(k).queryByText('Hilfe in dieser Methode'))!;
+    expect(hilfe).toBeTruthy();
+    const hilfen = within(hilfe).getAllByText(/^Wann die Hilfe entfällt:/);
+    expect(hilfen.length).toBeGreaterThan(0);
+    expect(hilfen.length).toBeLessThanOrEqual(3);
+    expect(within(hilfe).getByText(/^Grundlage: belegt \(Höfler et al\. 2024\)$/)).toBeTruthy();
+    expect(within(hilfe).getByText(/^Beleg: /)).toBeTruthy();
+  });
+
+  it('n08: eine übernommene Hilfe geht als Material in Schritt 4 und lässt sich zurücknehmen', () => {
+    renderPlanner();
+    propose(N08);
+    fireEvent.click(stepButton(3));
+    pruefen();
+    const [knopf] = within(gruppen()[0]).getAllByRole('button', { name: /^Hilfe für .* übernehmen$/ });
+    fireEvent.click(knopf);
+    expect(within(gruppen()[0]).getAllByRole('button', { name: /^Hilfe für .* zurücknehmen$/ }).length).toBe(1);
+    fireEvent.click(stepButton(4));
+    fireEvent.click(screen.getByRole('button', { name: /Material per KI erstellen/ }));
+    expect(screen.getByText(/angehängte Materialien \(1\)/)).toBeTruthy();
+    expect(screen.getAllByText(/^Hilfe für /).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(3));
+    fireEvent.click(within(gruppen()[0]).getByRole('button', { name: /^Hilfe für .* zurücknehmen$/ }));
+    expect(within(gruppen()[0]).queryByRole('button', { name: /^Hilfe für .* zurücknehmen$/ })).toBeNull();
+  });
+
+  it('n07: „Andere Methode für diese Gruppe“ mit Beleg; nichts ist eingetragen, bis du „Übernehmen“ klickst, und es ist umkehrbar', () => {
+    renderPlanner();
+    propose(N07);
+    fireEvent.click(stepButton(3));
+    pruefen();
+    const g = gruppen()[0];
+    const tausch = within(g).getAllByText('Andere Methode für diese Gruppe');
+    expect(tausch.length).toBeGreaterThan(0);
+    const karte = tausch[0].closest('li')!;
+    expect(within(karte).getByText(/^Beleg: /)).toBeTruthy();
+    expect(within(karte).getByText(/^Grundlage: /)).toBeTruthy();
+    expect(screen.queryByText(/Eigene Methode für diese Gruppe/)).toBeNull();
+    fireEvent.click(within(karte).getByRole('button', { name: /übernehmen$/ }));
+    expect(screen.getAllByText(/Eigene Methode für diese Gruppe/).length).toBe(1);
+    expect(stepButton(3).textContent).toMatch(/1 Methode angepasst/);
+    fireEvent.click(within(gruppen()[0]).getByRole('button', { name: /^Andere Methode für .* zurücknehmen$/ }));
+    expect(screen.queryByText(/Eigene Methode für diese Gruppe/)).toBeNull();
+  });
+
+  it('Hinweise zur Gruppierung stehen unter den Karten der Gruppe, mit Regel und Grundlage', () => {
+    renderPlanner();
+    // A cooperative small-group method with a group of low prior knowledge: leistungsschwache-nicht-unter-sich.
+    propose('Mathematik Klasse 8, lineare Funktionen, 90 Minuten, Gruppenpuzzle, Teilgruppe: 6 Lernende mit geringem Vorwissen');
+    fireEvent.click(stepButton(3));
+    pruefen();
+    const g = gruppen()[0];
+    const hinweise = within(g).getByRole('list', { name: /^Hinweise zu / });
+    const regeln = within(hinweise).getAllByText(/^Regel: .* · Grundlage: /);
+    expect(regeln.length).toBeGreaterThan(0);
+    // The hints come after the cards.
+    const karten = within(g).getAllByRole('listitem').filter((li) => li.classList.contains('tg-karte'));
+    expect(karten[karten.length - 1].compareDocumentPosition(hinweise) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('ein gespeichertes Szenario mit Lerntyp lädt; der Wert entfällt und Schritt 3 zeigt den Hinweis einmal', () => {
+    const arrangement = createChainPreset('konzeptaufbau', BUNDLE);
+    const groups = [
+      { id: 'regel', label: 'Regelgruppe', profile: '', focus: 'regel', active: true },
+      { id: 'visuell', label: 'Visuelle', profile: '', focus: 'custom', active: true, matrixValues: { sensorische: 'sensorische-visuell', vorwissen: 'vorwissen-gering' } }
+    ];
+    window.localStorage.setItem(
+      SAVED_SCENARIOS_KEY,
+      JSON.stringify([{ id: 'sc_lt', savedAt: '2026-01-01T00:00:00Z', title: 'Lerntyp', fach: 'Physik', thema: 'Dichte', hinweise: '', arrangement, groups, aiDiffByStep: {}, oerByStep: {}, elaboration: null }])
+    );
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /Gespeichert \(1\)/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Laden' }));
+    fireEvent.click(stepButton(3));
+    expect(screen.getAllByText(BUNDLE.teilgruppen.gesperrtText!)).toHaveLength(1);
+    fireEvent.click(stepButton(2));
+    fireEvent.click(stepButton(3));
+    expect(screen.queryByText(BUNDLE.teilgruppen.gesperrtText!)).toBeNull();
   });
 });

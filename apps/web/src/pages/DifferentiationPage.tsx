@@ -284,7 +284,9 @@ export function DifferentiationPage() {
                 label: g.label,
                 count: g.count,
                 personaId: g.personaId,
-                selectedValues: g.matrixValues
+                selectedValues: g.matrixValues,
+                ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+                ...(g.ohneBewegung ? { ohneBewegung: true } : {})
               }))
           : undefined,
         fach: livePlannerDraft.fach,
@@ -311,7 +313,9 @@ export function DifferentiationPage() {
                 label: g.label,
                 count: g.count,
                 personaId: g.personaId,
-                selectedValues: g.matrixValues
+                selectedValues: g.matrixValues,
+                ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+                ...(g.ohneBewegung ? { ohneBewegung: true } : {})
               }))
           : undefined,
         fach: activeSaved.fach,
@@ -430,7 +434,9 @@ export function DifferentiationPage() {
                 label: g.label,
                 count: g.count,
                 personaId: g.personaId,
-                selectedValues: g.matrixValues || {}
+                selectedValues: g.matrixValues || {},
+                ohneSchrift: g.ohneSchrift,
+                ohneBewegung: g.ohneBewegung
               }))
           }
         : detectLearnerGroupsFromText(scenarioText);
@@ -446,7 +452,10 @@ export function DifferentiationPage() {
         label: g.label,
         count: g.count,
         personaId: 'personaId' in g ? g.personaId : undefined,
-        matrixValues: g.selectedValues || {}
+        matrixValues: g.selectedValues || {},
+        // What the group cannot do yet is the teacher's statement in the planner; it goes back unchanged.
+        ...('ohneSchrift' in g && g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+        ...('ohneBewegung' in g && g.ohneBewegung ? { ohneBewegung: true } : {})
       }))
     };
     try {

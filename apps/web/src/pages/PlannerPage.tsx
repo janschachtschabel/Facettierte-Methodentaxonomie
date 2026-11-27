@@ -6,18 +6,19 @@ import {
   hasAdjustmentProfile,
   migrateKennungen,
   proposeAdditionalPhases,
-  proposeMethodAdjustments,
   type AdditionalPhaseProposal,
   type Arrangement,
   type MethodAdjustment,
   type MatchRequest,
-  type MatchResult
+  type MatchResult,
+  type PhasenAntwort
 } from '@fmt/core';
 import { useCatalog } from '../data/CatalogContext.js';
 import { PartiturView } from '../components/PartiturView.js';
 import { VerlaufsplanView } from '../components/VerlaufsplanView.js';
 import { ScenarioStudioPanel, type StudioTab } from '../components/ScenarioStudioPanel.js';
 import { TimelineBandSvg } from '../components/TimelineBandSvg.js';
+import { TeilgruppenEntscheidung } from '../components/TeilgruppenEntscheidung.js';
 import { buildServerByokHeaders, isUserLlmConfigured, runDirectTranslate } from '../lib/directLlm.js';
 import {
   appendBlockToArrangement,
@@ -37,8 +38,12 @@ import {
   adjustmentSignature,
   adjustmentsInForce,
   applyAdjustments,
+  behalteUebernommene,
+  hilfeAlsMaterial,
   mainGroupOnly,
-  outdatedAdjustments
+  outdatedAdjustments,
+  pruefeTeilgruppen,
+  type TeilgruppenPruefung
 } from '../planner/differentiationFlow.js';
 import { fachbereichFromField } from '../planner/fachFeld.js';
 import { verstandenAus } from '../planner/pflichtangaben.js';
@@ -64,6 +69,7 @@ import {
   importScenarioProjectJson,
   loadActivePlannerDraft,
   loadSavedScenarios,
+  ohneGesperrteMerkmale,
   rahmenAusAltbestand,
   printHtmlDocument,
   saveActivePlannerDraft,
@@ -311,6 +317,12 @@ export function PlannerPage() {
   // Step 3 "Vorgehen anpassen": the proposals of the last run and the group selection they were made for.
   const [autoAdjustments, setAutoAdjustments] = useState<MethodAdjustment[]>([]);
   const [adjustedFor, setAdjustedFor] = useState<string | null>(null);
+  // Step 3: answers per subgroup and phase of the last check, with the hints per group.
+  const [pruefung, setPruefung] = useState<TeilgruppenPruefung | null>(null);
+  // Set after "Alle Anpassungen zurücknehmen"; a new check or a new swap clears it.
+  const [allesZurueck, setAllesZurueck] = useState(false);
+  // A loaded scenario named a blocked trait (Lerntypen): step 3 shows the note once ('offen' → 'gezeigt' → gone).
+  const [gesperrtHinweis, setGesperrtHinweis] = useState<'offen' | 'gezeigt' | null>(null);
   // Step 3: short phases for the whole class, proposed by the last check and taken over by the teacher.
   const [extraProposals, setExtraProposals] = useState<AdditionalPhaseProposal[]>([]);
   const [addedPhases, setAddedPhases] = useState<AddedPhase[]>([]);
@@ -377,6 +389,8 @@ export function PlannerPage() {
           count?: number;
           personaId?: string;
           matrixValues?: Record<string, string>;
+          ohneSchrift?: Array<'lesen' | 'schreiben'>;
+          ohneBewegung?: boolean;
         }>;
       };
       if (h.scenarioText && !h.returnToStep3) setScenarioText(h.scenarioText);
@@ -384,7 +398,7 @@ export function PlannerPage() {
       if (typeof h.ohneInternet === 'boolean') setOhneInternet(h.ohneInternet);
       if (typeof h.ohneKI === 'boolean') setOhneKI(h.ohneKI);
       if (Array.isArray(h.groups) && h.groups.length > 0) {
-        setGroups(
+        const geprueft = ohneGesperrteMerkmale(
           h.groups.map((g) => ({
             id: g.id,
             label: g.label,
@@ -393,9 +407,14 @@ export function PlannerPage() {
             active: true,
             count: g.count,
             personaId: g.personaId,
-            matrixValues: g.matrixValues || {}
-          }))
+            matrixValues: g.matrixValues || {},
+            ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+            ...(g.ohneBewegung ? { ohneBewegung: true } : {})
+          })),
+          bundle?.teilgruppen.gesperrt
         );
+        setGroups(geprueft.groups);
+        if (geprueft.entfernt) setGesperrtHinweis('offen');
       }
       if (h.returnToStep3) {
         // The page was left for /differenzierung and mounts anew: bring the flow back from the live draft.
@@ -501,6 +520,12 @@ export function PlannerPage() {
     if (stale.length > 0) setSubgroupMethods((prev) => applyAdjustments(prev, stale, []));
   }, [scenarioRows, subgroupMethods, autoAdjustments]);
 
+  // The note on a removed blocked trait stands in step 3 until the teacher leaves it once.
+  useEffect(() => {
+    if (step === 3 && gesperrtHinweis === 'offen') setGesperrtHinweis('gezeigt');
+    if (step !== 3 && gesperrtHinweis === 'gezeigt') setGesperrtHinweis(null);
+  }, [step, gesperrtHinweis]);
+
   if (!bundle || !validator || !search || !matcher || !arrangement || !validation) {
     return <div className="page-section">Lade Szenario-Baukasten…</div>;
   }
@@ -556,6 +581,8 @@ export function PlannerPage() {
     setSubgroupMethods({});
     setAutoAdjustments([]);
     setAdjustedFor(null);
+    setPruefung(null);
+    setAllesZurueck(false);
     setExtraProposals([]);
     setAddedPhases([]);
   };
@@ -563,7 +590,9 @@ export function PlannerPage() {
   const subgroups = activeSubgroups(groups);
   const groupSignature = adjustmentSignature(scenarioRows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
   // Subgroups without persona or matrix values cannot be checked; the result says so.
-  const uncheckedSubgroups = subgroups.filter((g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues }));
+  const uncheckedSubgroups = subgroups.filter(
+    (g) => !hasAdjustmentProfile({ personaId: g.personaId, selectedValues: g.matrixValues, ohneSchrift: g.ohneSchrift, ohneBewegung: g.ohneBewegung })
+  );
   const adjustmentsNow = adjustmentsInForce(subgroupMethods, autoAdjustments);
   // Added phases the teacher removed again in step 2 no longer count.
   const addedPhasesNow = addedPhases.filter((a) => scenarioRows.some((r) => r.methodId === a.kennung));
@@ -578,13 +607,19 @@ export function PlannerPage() {
   const signatureOf = (rows: typeof scenarioRows) =>
     adjustmentSignature(rows, groups, { maxTechnik, ohneInternet, ohneKI, fachbereich: planFachbereich });
 
-  /** Step 3: enters better fitting parallel methods for the subgroups and lists short phases the plan lacks. */
+  const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
+
+  /**
+   * Step 3: one answer per subgroup and phase (fits, help in the method, other method) and short phases the plan
+   * lacks. Nothing is entered by itself: the teacher takes over a swap or a help on its card.
+   */
   const runMethodAdjustment = () => {
     const phases = adjustmentPhases(scenarioRows);
-    const regelsatz = { teilgruppen: bundle.teilgruppen, regeln: bundle.regeln, schemes: bundle.schemes };
-    const next = proposeMethodAdjustments(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints, regelsatz);
-    setSubgroupMethods((prev) => applyAdjustments(prev, autoAdjustments, next));
-    setAutoAdjustments(next);
+    const res = pruefeTeilgruppen(bundle.bausteine, scenarioRows, groups, checkConstraints, regelsatz);
+    setSubgroupMethods((prev) => behalteUebernommene(prev, autoAdjustments, res.vorschlaege));
+    setAutoAdjustments(res.vorschlaege);
+    setPruefung(res);
+    setAllesZurueck(false);
     setExtraProposals(proposeAdditionalPhases(bundle.bausteine, phases, adjustmentGroups(groups), checkConstraints));
     setAdjustedFor(signatureOf(scenarioRows));
   };
@@ -598,11 +633,17 @@ export function PlannerPage() {
     const rows = buildScenarioRows(nextArrangement, bundle, blocksById, labelOf, groups, {}, {}, '', {}, []);
     const upToDate = adjustedFor !== null && adjustedFor === groupSignature;
     setArrangement(nextArrangement);
-    setAutoAdjustments((prev) => shiftAdjustmentKeys(prev, index, delta));
     setSubgroupMethods((prev) => shiftStepKeys(prev, index, delta));
     if (upToDate) {
+      // The cards follow the new flow: every phase, the added one too, gets its answer.
+      const res = pruefeTeilgruppen(bundle.bausteine, rows, groups, checkConstraints, regelsatz);
+      setAutoAdjustments(res.vorschlaege);
+      setPruefung(res);
       setExtraProposals(proposeAdditionalPhases(bundle.bausteine, adjustmentPhases(rows), adjustmentGroups(groups), checkConstraints));
       setAdjustedFor(signatureOf(rows));
+    } else {
+      setAutoAdjustments((prev) => shiftAdjustmentKeys(prev, index, delta));
+      setPruefung((prev) => (prev ? { ...prev, antworten: shiftAdjustmentKeys(prev.antworten, index, delta) } : prev));
     }
     setOerByStep((prev) => shiftStepKeys(prev, index, delta));
     setAiDiffByStep((prev) => shiftStepKeys(prev, index, delta));
@@ -638,6 +679,25 @@ export function PlannerPage() {
 
   const undoAdjustments = (list: MethodAdjustment[]) => {
     setSubgroupMethods((prev) => applyAdjustments(prev, list, []));
+  };
+
+  const takeOverAdjustment = (a: MethodAdjustment) => {
+    handleSubgroupMethodChange(a.stepKey, a.groupId, a.zuKennung);
+    setAllesZurueck(false);
+  };
+
+  /** A help taken over goes into step 4 as material of its phase. */
+  const takeOverSupport = (a: PhasenAntwort, phaseLabel: string) => {
+    const m = hilfeAlsMaterial(a, phaseLabel);
+    setGeneratedMaterials((prev) => [...prev.filter((x) => !(x.materialType === 'hilfe' && x.stepKey === a.stepKey && x.groupId === a.groupId)), m]);
+  };
+
+  const undoSupport = (a: PhasenAntwort) => {
+    setGeneratedMaterials((prev) => prev.filter((x) => !(x.materialType === 'hilfe' && x.stepKey === a.stepKey && x.groupId === a.groupId)));
+  };
+
+  const updateGroup = (id: string, patch: Partial<LearnerGroup>) => {
+    setGroups((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)));
   };
 
   const handleSubgroupMethodChange = (stepKey: string, groupId: string, methodId: string | null) => {
@@ -1108,12 +1168,19 @@ export function PlannerPage() {
     if (p.lernziele !== undefined) setLernziele(p.lernziele);
     if (p.problemstellung !== undefined) setProblemstellung(p.problemstellung);
     if (p.lehrkraefteInfo !== undefined) setLehrkraefteInfo(p.lehrkraefteInfo);
-    if (p.groups?.length) setGroups(p.groups);
+    if (p.groups?.length) {
+      // A blocked trait (Lerntypen) is not evaluated: the value is dropped and step 3 says so once.
+      const geprueft = ohneGesperrteMerkmale(p.groups, bundle?.teilgruppen.gesperrt);
+      setGroups(geprueft.groups);
+      setGesperrtHinweis(geprueft.entfernt ? 'offen' : null);
+    }
     if (p.aiDiffByStep) setAiDiffByStep(p.aiDiffByStep);
     if (p.oerByStep) setOerByStep(p.oerByStep);
     setSubgroupMethods(p.subgroupMethods || {});
     setAutoAdjustments([]);
     setAdjustedFor(null);
+    setPruefung(null);
+    setAllesZurueck(false);
     setExtraProposals([]);
     setAddedPhases([]);
     if (p.generatedMaterials) setGeneratedMaterials(p.generatedMaterials);
@@ -1209,7 +1276,7 @@ export function PlannerPage() {
       id: 3,
       label: 'Binnendifferenzierung',
       sub: subgroups.length
-        ? `${subgroups.length} ${subgroups.length === 1 ? 'Teilgruppe' : 'Teilgruppen'}${adjustmentsNow.length ? ` · ${adjustmentsNow.length} Methoden angepasst` : ''}`
+        ? `${subgroups.length} ${subgroups.length === 1 ? 'Teilgruppe' : 'Teilgruppen'}${adjustmentsNow.length ? ` · ${adjustmentsNow.length} ${adjustmentsNow.length === 1 ? 'Methode' : 'Methoden'} angepasst` : ''}`
         : 'Freiwillig: Teilgruppen berücksichtigen',
       needsFlow: true
     },
@@ -2428,6 +2495,11 @@ export function PlannerPage() {
             <strong>Braucht ein Teil deiner Lerngruppe etwas anderes?</strong> Wähle die Teilgruppen aus, lass das Vorgehen
             daran anpassen und sieh dir den aktualisierten Ablauf an. Wenn alle gleich arbeiten, geh einfach weiter.
           </p>
+          {gesperrtHinweis && bundle.teilgruppen.gesperrtText && (
+            <p className="planner-notice" role="status">
+              {bundle.teilgruppen.gesperrtText}
+            </p>
+          )}
           <ScenarioStudioPanel
             mode="diff"
             diffMiddleSlot={
@@ -2438,17 +2510,37 @@ export function PlannerPage() {
                       ② Methodisches Vorgehen anpassen
                     </strong>
                     <p className="muted" style={{ fontSize: 14, margin: '4px 0 10px', maxWidth: 760 }}>
-                      Der Baukasten prüft jede Phase: Passt die geplante Methode auch zu deinen Teilgruppen? Wo nicht, bekommt
-                      die Teilgruppe eine besser passende Methode, die parallel zur Klasse läuft. Fehlt dem Ablauf etwas, das
-                      deine Teilgruppen brauchen, schlägt der Baukasten eine kurze zusätzliche Phase für alle vor. Die
-                      übernimmst du selbst.
+                      Der Baukasten prüft jede Phase für jede Teilgruppe: Passt die Methode so, reicht eine Hilfe in derselben
+                      Methode, oder braucht die Gruppe eine andere Methode, die parallel zur Klasse läuft? Eine Hilfe geht vor
+                      einem Tausch. Du entscheidest, was du übernimmst. Fehlt dem Ablauf etwas, das deine Teilgruppen brauchen,
+                      schlägt der Baukasten eine kurze zusätzliche Phase für alle vor.
                     </p>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <TeilgruppenEntscheidung
+                      subgroups={subgroups}
+                      onGroupChange={updateGroup}
+                      pruefung={adjustmentStale ? null : pruefung}
+                      rows={scenarioRows}
+                      subgroupMethods={subgroupMethods}
+                      generatedMaterials={generatedMaterials}
+                      regeln={bundle.regeln}
+                      onTauschUebernehmen={takeOverAdjustment}
+                      onTauschZuruecknehmen={(a) => undoAdjustments([a])}
+                      onHilfeUebernehmen={takeOverSupport}
+                      onHilfeZuruecknehmen={undoSupport}
+                    />
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 12 }}>
                       <button type="button" className="btn btn-primary" onClick={runMethodAdjustment}>
                         {adjustedFor === null ? 'Vorgehen an die Teilgruppen anpassen' : '↻ Erneut prüfen'}
                       </button>
                       {adjustmentsNow.length > 0 && (
-                        <button type="button" className="btn btn-sm" onClick={() => undoAdjustments(adjustmentsNow)}>
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          onClick={() => {
+                            undoAdjustments(adjustmentsNow);
+                            setAllesZurueck(true);
+                          }}
+                        >
                           Alle Anpassungen zurücknehmen
                         </button>
                       )}
@@ -2460,51 +2552,19 @@ export function PlannerPage() {
                           dazu passt.
                         </p>
                       )}
-                      {adjustedFor !== null && !adjustmentStale && adjustmentsNow.length === 0 && (
+                      {adjustedFor !== null && !adjustmentStale && adjustmentsNow.length === 0 && (allesZurueck || autoAdjustments.length === 0) && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
-                          {autoAdjustments.length === 0
-                            ? 'Geprüft: Für die geprüften Teilgruppen muss keine Methode getauscht werden. Es reichen die Hinweise je Teilgruppe im Ablauf unten.'
-                            : 'Alle Anpassungen sind zurückgenommen. Es gilt wieder eine Methode je Phase für alle.'}
+                          {allesZurueck
+                            ? 'Alle Anpassungen sind zurückgenommen. Es gilt wieder eine Methode je Phase für alle.'
+                            : 'Geprüft: Für die geprüften Teilgruppen muss keine Methode getauscht werden. Die Karten oben zeigen, wo eine Hilfe in der Methode reicht.'}
                         </p>
                       )}
                       {adjustedFor !== null && uncheckedSubgroups.length > 0 && (
                         <p className="planner-notice" style={{ marginTop: 10 }}>
                           Nicht geprüft: {uncheckedSubgroups.map((g) => g.label).join(', ')}. Für diese Teilgruppe fehlt ein
-                          Profil. Wähle es unter „Mehr Details“ bei der Feinjustierung aus.
+                          Profil. Wähle es unter „Mehr Details“ bei der Feinjustierung aus oder kreuze oben an, was sie noch
+                          nicht kann.
                         </p>
-                      )}
-                      {adjustmentsNow.length > 0 && (
-                        <>
-                          <p style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 14, margin: '12px 0 6px' }}>
-                            {adjustmentsNow.length === 1
-                              ? '1 Methode angepasst:'
-                              : `${adjustmentsNow.length} Methoden angepasst:`}
-                          </p>
-                          <ul className="planner-adjust-list">
-                            {adjustmentsNow.map((a) => (
-                              <li key={`${a.stepKey}-${a.groupId}`}>
-                                <div>
-                                  <span className="muted">Phase {a.phaseLabel}</span>
-                                  <div>
-                                    <strong>{a.groupLabel}</strong> arbeitet mit <strong>{a.zuName}</strong> statt mit{' '}
-                                    {a.vonName}.
-                                  </div>
-                                  <div className="muted" style={{ fontSize: 13 }}>
-                                    Warum: {a.zuName} {a.grund}.
-                                  </div>
-                                </div>
-                                <button
-                                  type="button"
-                                  className="btn btn-sm"
-                                  aria-label={`Anpassung für ${a.groupLabel} in Phase ${a.phaseLabel} zurücknehmen`}
-                                  onClick={() => undoAdjustments([a])}
-                                >
-                                  Zurücknehmen
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
                       )}
                       {!adjustmentStale && extraProposals.length > 0 && (
                         <>

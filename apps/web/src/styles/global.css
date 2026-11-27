@@ -1310,6 +1310,96 @@ code {
   background: var(--paper);
   font-size: 14px;
 }
+/* Step 3: decision per subgroup and phase */
+.tg-gruppen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+.tg-gruppe {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: 12px 14px;
+}
+.tg-gruppe-kopf {
+  font-family: var(--display);
+  font-size: 15px;
+}
+.tg-kann {
+  border: 0;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.tg-kann-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.tg-karten {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+}
+.tg-karte {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 11px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--grid);
+  border-radius: 6px;
+  background: var(--paper);
+  font-size: 13.5px;
+}
+.tg-karte-hilfe {
+  border-left-color: var(--dB);
+}
+.tg-karte-tausch {
+  border-left-color: var(--dD);
+}
+.tg-karte-phase {
+  font-size: 12px;
+}
+.tg-karte-titel {
+  font-family: var(--display);
+  font-size: 14px;
+}
+.tg-klein {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.tg-hilfen {
+  margin: 2px 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.tg-hilfen strong {
+  font-weight: 600;
+}
+.tg-aktion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.tg-hinweise {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+}
 .diff-details {
   border-top: 1px solid var(--rule);
   padding-top: 12px;

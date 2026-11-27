@@ -1,5 +1,20 @@
-import type { MethodAdjustment, MethodAdjustmentGroup, MethodAdjustmentPhase } from '@fmt/core';
-import type { LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from './scenarioModel.js';
+import {
+  proposeMethodAdjustments,
+  proposeSupports,
+  teilgruppenAntworten,
+  teilgruppenHinweise,
+  type Baustein,
+  type Grundlage,
+  type MethodAdjustment,
+  type MethodAdjustmentConstraints,
+  type MethodAdjustmentGroup,
+  type MethodAdjustmentPhase,
+  type PhasenAntwort,
+  type Regelmeldung,
+  type TeilgruppenRegelwerk
+} from '@fmt/core';
+import { grundlageKlartext } from './regelmeldung.js';
+import type { GeneratedMaterialItem, LearnerGroup, ScenarioPhaseRow, SubgroupMethodMap } from './scenarioModel.js';
 
 /** The main group ("Regelgruppe") is the one the plan of step 2 is written for. */
 export function isMainGroup(g: LearnerGroup): boolean {
@@ -47,7 +62,9 @@ export function adjustmentGroups(groups: LearnerGroup[]): MethodAdjustmentGroup[
       label: g.label,
       isMain: isMainGroup(g),
       personaId: g.personaId,
-      selectedValues: g.matrixValues
+      selectedValues: g.matrixValues,
+      ...(g.ohneSchrift?.length ? { ohneSchrift: g.ohneSchrift } : {}),
+      ...(g.ohneBewegung ? { ohneBewegung: true } : {})
     }));
 }
 
@@ -95,7 +112,84 @@ export function adjustmentSignature(
 ): string {
   return JSON.stringify([
     rows.map((r) => [r.key, r.methodId]),
-    activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}]),
+    activeSubgroups(groups).map((g) => [g.id, g.personaId || '', g.matrixValues || {}, g.ohneSchrift || [], Boolean(g.ohneBewegung)]),
     [constraints.maxTechnik || '', Boolean(constraints.ohneInternet), Boolean(constraints.ohneKI), constraints.fachbereich || '']
   ]);
+}
+
+/** Result of "Vorgehen anpassen": one answer per subgroup and phase, the swaps among them and the hints per group. */
+export interface TeilgruppenPruefung {
+  antworten: PhasenAntwort[];
+  /** Parallel methods for the answers 'tausch'; proposals the teacher takes over by hand. */
+  vorschlaege: MethodAdjustment[];
+  /** Hints on grouping (gruppierung-nur-mit-anpassung, leistungsschwache-nicht-unter-sich) by group id. */
+  hinweise: Record<string, Regelmeldung[]>;
+}
+
+/** Step 3: the subgroup decision of the core (one path for answers, swaps, helps and hints). */
+export function pruefeTeilgruppen(
+  allBlocks: Baustein[],
+  rows: ScenarioPhaseRow[],
+  groups: LearnerGroup[],
+  constraints: MethodAdjustmentConstraints,
+  regelsatz: TeilgruppenRegelwerk
+): TeilgruppenPruefung {
+  const phases = adjustmentPhases(rows);
+  const gruppen = adjustmentGroups(groups);
+  const antworten = teilgruppenAntworten(allBlocks, phases, gruppen, constraints, regelsatz);
+  const vorschlaege = proposeMethodAdjustments(allBlocks, phases, gruppen, constraints, regelsatz, antworten);
+  const hilfen = proposeSupports(phases, gruppen, regelsatz, { antworten });
+  const hinweise: Record<string, Regelmeldung[]> = {};
+  // Asked group by group, so a hint stands under the cards of the group it is about.
+  for (const g of gruppen) {
+    if (g.isMain) continue;
+    hinweise[g.id] = teilgruppenHinweise(phases, [g], vorschlaege, hilfen, regelsatz);
+  }
+  return { antworten, vorschlaege, hinweise };
+}
+
+const sameAdjustment = (a: MethodAdjustment, b: MethodAdjustment) =>
+  a.stepKey === b.stepKey && a.groupId === b.groupId && a.zuKennung === b.zuKennung;
+
+/**
+ * After a new check: swaps the teacher took over stay while the new check still proposes them; the others are taken
+ * out. Nothing is entered by itself, and methods picked by hand stay untouched.
+ */
+export function behalteUebernommene(current: SubgroupMethodMap, previous: MethodAdjustment[], next: MethodAdjustment[]): SubgroupMethodMap {
+  const entfallen = adjustmentsInForce(current, previous).filter((a) => !next.some((n) => sameAdjustment(a, n)));
+  return applyAdjustments(current, entfallen, []);
+}
+
+/** Small line under a decision: "Grundlage: belegt (Quelle)"; without a basis it is "ungeklärt". */
+export function belegZeile(b: { grundlage?: Grundlage; quelle?: string }): string {
+  return `Grundlage: ${grundlageKlartext({ grundlage: b.grundlage ?? 'U', quelle: b.quelle })}`;
+}
+
+/** A help taken over in step 3 goes into step 4 as material of its phase. */
+export function hilfeAlsMaterial(a: PhasenAntwort, phaseLabel: string, now = new Date()): GeneratedMaterialItem {
+  const namen = a.hilfen.map((h) => h.name).join(', ');
+  const content = [
+    `# Hilfe für ${a.groupLabel}`,
+    '',
+    `Phase: ${phaseLabel}`,
+    '',
+    ...a.hilfen.flatMap((h) => [`- **${h.name}**`, `  Wann die Hilfe entfällt: ${h.abbau}`]),
+    '',
+    `Beleg: ${a.grund}`,
+    '',
+    belegZeile(a)
+  ].join('\n');
+  return {
+    id: `hilfe-${a.stepKey}-${a.groupId}`,
+    stepKey: a.stepKey,
+    groupId: a.groupId,
+    title: `Hilfe für ${a.groupLabel}: ${namen}`,
+    materialType: 'hilfe',
+    content,
+    createdAt: now.toISOString()
+  };
+}
+
+export function hilfeUebernommen(materials: GeneratedMaterialItem[], stepKey: string, groupId: string): boolean {
+  return materials.some((m) => m.materialType === 'hilfe' && m.stepKey === stepKey && m.groupId === groupId);
 }

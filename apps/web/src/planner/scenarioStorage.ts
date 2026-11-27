@@ -1,4 +1,4 @@
-import type { Arrangement } from '@fmt/core';
+import { GESPERRTE_MATRIX_KATEGORIEN, type Arrangement } from '@fmt/core';
 import { importArrangementJson } from './arrangementOps.js';
 import { safeExternalUrl, safeOerList } from './safeUrl.js';
 import type {
@@ -108,6 +108,24 @@ export function rahmenAusAltbestand(p: Record<string, unknown>): Pick<SavedScena
   if (ohneSchrift) out.ohneSchrift = ohneSchrift;
   if (termine) out.termine = termine;
   return out;
+}
+
+/**
+ * Blocked matrix categories (Lerntypen, data/teilgruppen.json `gesperrt`) are not evaluated. A saved scenario that
+ * still names one loads; the value is dropped here, and `entfernt` tells step 3 to show the note once.
+ */
+export function ohneGesperrteMerkmale(
+  groups: LearnerGroup[],
+  gesperrt: readonly string[] = GESPERRTE_MATRIX_KATEGORIEN
+): { groups: LearnerGroup[]; entfernt: boolean } {
+  let entfernt = false;
+  const out = groups.map((g) => {
+    const werte = g.matrixValues || {};
+    if (!Object.keys(werte).some((k) => gesperrt.includes(k))) return g;
+    entfernt = true;
+    return { ...g, matrixValues: Object.fromEntries(Object.entries(werte).filter(([k]) => !gesperrt.includes(k))) };
+  });
+  return { groups: out, entfernt };
 }
 
 export interface StorageAdapter {
@@ -270,7 +288,11 @@ export function importScenarioProjectJson(
         matrixValues:
           g.selectedValues && typeof g.selectedValues === 'object'
             ? (g.selectedValues as Record<string, string>)
-            : undefined
+            : undefined,
+        ...(Array.isArray(g.ohneSchrift)
+          ? { ohneSchrift: g.ohneSchrift.filter((x): x is 'lesen' | 'schreiben' => x === 'lesen' || x === 'schreiben') }
+          : {}),
+        ...(g.ohneBewegung === true ? { ohneBewegung: true } : {})
       }));
     }
 
