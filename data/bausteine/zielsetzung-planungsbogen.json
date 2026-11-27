@@ -1,0 +1,146 @@
+{
+  "kennung": "zielsetzung-planungsbogen",
+  "name": "Zielsetzung mit Planungsbogen",
+  "eintragsart": "hilfe",
+  "kurzbeschreibung": "Lernende halten vor einer Arbeitsphase auf einem kurzen Bogen Ziel, nächste Schritte, Zeit und eine mögliche Hürde fest und prüfen am Ende, wie weit sie gekommen sind.",
+  "alternativname": [
+    "Planungsbogen",
+    "Zielbogen"
+  ],
+  "status": "entwurf",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion"
+  ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "raumbedarf": [
+    "schreibplatz"
+  ],
+  "schriftbedarf": [
+    "schreibt"
+  ],
+  "quellen": [
+    {
+      "titel": "Dignath & Büttner (2008): Components of fostering self-regulated learning among students. Metacognition and Learning 3",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Locke & Latham (2002)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "metakognition"
+  ],
+  "engagement": [
+    "konstruktiv"
+  ],
+  "weltbezug": [
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-tempo"
+  ],
+  "feedback": [
+    "selbstkontrolle",
+    "selbstregulationsebene",
+    "formativ",
+    "bn-individuell"
+  ],
+  "interaktion": [
+    "einzel"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "distanz",
+    "synchron",
+    "asynchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [],
+  "kernkomponente": [
+    {
+      "kennung": "ziel",
+      "name": "Konkretes Ziel für die Arbeitsphase"
+    },
+    {
+      "kennung": "plan",
+      "name": "Schritte, Zeit und eine mögliche Hürde mit Gegenmittel"
+    },
+    {
+      "kennung": "abgleich",
+      "name": "Abgleich von Ziel und Ergebnis am Ende"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "problem": "Lernende beginnen eine selbstständige Arbeitsphase ohne Ziel und Plan und merken erst am Ende, dass die Zeit nicht gereicht hat.",
+  "durchfuehrung": [
+    "Vor der Arbeitsphase den Planungsbogen ausgeben: Ziel, Schritte, Zeit, mögliche Hürde",
+    "Lernende füllen ihn in wenigen Minuten aus; die Lehrkraft sieht einzelne Bögen kurz an",
+    "Während der Arbeit hakt jede Person erledigte Schritte ab",
+    "Am Ende Ziel und Ergebnis vergleichen und einen Satz zur nächsten Planung notieren",
+    "Den Bogen mit wachsender Übung kürzen, bis die Planung ohne ihn gelingt"
+  ],
+  "material": [
+    "Planungsbogen mit vier Feldern"
+  ],
+  "gruppeMin": 1,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Wochenplanungsbogen über mehrere Stunden"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Hilfe: stützt Lernende innerhalb einer Methode und liefert keinen Lernstand. Trägt das Begleitziel Selbstregulation. Verwandt mit dem Lernvertrag (lernvertrag), der Ziele mit der Lehrkraft über eine Reihe vereinbart.",
+  "qualitaetsrisiko": [
+    "Der Bogen wird ausgefüllt, aber am Ende nicht abgeglichen"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "evidenzBezug": "programm",
+      "befund": "Trainings zum selbstregulierten Lernen in der Primar- und Sekundarstufe wirken; die Meta-Analyse wertet ihre Komponenten aus. Der Befund gilt Trainings über mehrere Sitzungen, nicht dem Planungsbogen allein.",
+      "quelle": "Dignath & Büttner 2008",
+      "geltung": "Interventionsstudien in Primar- und Sekundarstufe; dass Zielsetzung und Planung zu den belegten Komponenten zählen, stammt aus dem Regelsatz der FMT 2.0 („als Komponente belegt“) und ist am Original zu prüfen"
+    },
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Konkrete, herausfordernde Ziele führen zu höherer Leistung als vage Ziele.",
+      "quelle": "Locke & Latham 2002",
+      "geltung": "Zielsetzungsforschung, überwiegend Erwachsene und Arbeitskontexte; für die Schule übertragen"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2
+  }
+}

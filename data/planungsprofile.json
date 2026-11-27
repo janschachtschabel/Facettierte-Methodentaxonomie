@@ -1,0 +1,234 @@
+{
+  "kernfelder": [
+    {
+      "id": "rahmendaten",
+      "name": "Rahmendaten: Titel, Bereich, Dauer, Ort, Zielgruppe",
+      "wfelder": [
+        "lerninhalte",
+        "zeit",
+        "lernumgebung",
+        "lernende"
+      ]
+    },
+    {
+      "id": "lernvoraussetzungen",
+      "name": "Lernvoraussetzungen",
+      "wfelder": [
+        "lernende"
+      ]
+    },
+    {
+      "id": "ziele",
+      "name": "Ziele oder Lernergebnisse",
+      "wfelder": [
+        "lernziele"
+      ]
+    },
+    {
+      "id": "einordnung",
+      "name": "Einordnung in die größere Einheit",
+      "wfelder": [
+        "lerninhalte"
+      ]
+    },
+    {
+      "id": "verlauf",
+      "name": "Verlaufsplan: Zeit, Phase, Tätigkeit, Methode und Sozialform, Medien",
+      "wfelder": [
+        "methode",
+        "medien",
+        "zeit"
+      ]
+    },
+    {
+      "id": "lernerfolg",
+      "name": "Sicherung und Kontrolle des Lernerfolgs",
+      "wfelder": [
+        "ueberpruefung"
+      ]
+    },
+    {
+      "id": "reflexion",
+      "name": "Reflexion und Evaluation",
+      "wfelder": [
+        "ueberpruefung"
+      ]
+    }
+  ],
+  "profile": [
+    {
+      "id": "schule",
+      "bildungsstufe": [
+        "primar",
+        "sek1",
+        "sek2"
+      ],
+      "einheit": "Unterrichtsstunde",
+      "groessereEinheit": "Unterrichtsreihe",
+      "dokument": "Unterrichtsentwurf",
+      "lehrende": "Lehrkraft",
+      "lernende": "Schülerinnen und Schüler",
+      "status": "vorgeschrieben in der Prüfung, sonst üblich",
+      "formen": {
+        "einheit": "Unterrichtsstunde",
+        "derEinheit": "der Unterrichtsstunde",
+        "groessereEinheit": "Unterrichtsreihe",
+        "inGroessereEinheit": "in die Unterrichtsreihe",
+        "derLehrenden": "der Lehrkraft",
+        "fuerLehrende": "für die Lehrkraft",
+        "derLernenden": "der Schülerinnen und Schüler"
+      },
+      "module": [
+        {
+          "id": "sachanalyse",
+          "name": "Sachanalyse"
+        },
+        {
+          "id": "didaktische-begruendung",
+          "name": "Didaktische Begründung"
+        },
+        {
+          "id": "differenzierung",
+          "name": "Differenzierung"
+        },
+        {
+          "id": "erwartungshorizont",
+          "name": "Erwartungshorizont"
+        }
+      ]
+    },
+    {
+      "id": "berufsschule",
+      "bildungsstufe": [
+        "berufsbildung"
+      ],
+      "einheit": "Lernsituation",
+      "groessereEinheit": "Lernfeld",
+      "dokument": "Unterrichtsentwurf mit Lernsituation",
+      "lehrende": "Lehrkraft",
+      "lernende": "Auszubildende",
+      "status": "Lernsituation curricular gefordert, Form frei (KMK 2021)",
+      "formen": {
+        "einheit": "Lernsituation",
+        "derEinheit": "der Lernsituation",
+        "groessereEinheit": "Lernfeld",
+        "inGroessereEinheit": "in das Lernfeld",
+        "derLehrenden": "der Lehrkraft",
+        "fuerLehrende": "für die Lehrkraft",
+        "derLernenden": "der Auszubildenden"
+      },
+      "module": [
+        {
+          "id": "handlungssituation",
+          "name": "Handlungssituation"
+        },
+        {
+          "id": "phasen-vollstaendige-handlung",
+          "name": "Phasen der vollständigen Handlung"
+        }
+      ]
+    },
+    {
+      "id": "betrieb",
+      "bildungsstufe": [
+        "berufsbildung"
+      ],
+      "einheit": "Ausbildungssituation, Unterweisung",
+      "groessereEinheit": "Ausbildungsrahmenplan, betrieblicher Ausbildungsplan",
+      "dokument": "Konzept zur Ausbildungssituation",
+      "lehrende": "Ausbilderin, Ausbilder",
+      "lernende": "Auszubildende",
+      "status": "Prüfung geregelt (AusbEignV § 4); Konzeptpapier je Kammer verschieden",
+      "formen": {
+        "einheit": "Ausbildungssituation",
+        "derEinheit": "der Ausbildungssituation",
+        "groessereEinheit": "betrieblicher Ausbildungsplan",
+        "inGroessereEinheit": "in den betrieblichen Ausbildungsplan",
+        "derLehrenden": "der Ausbilderin oder des Ausbilders",
+        "fuerLehrende": "für die Ausbilderin oder den Ausbilder",
+        "derLernenden": "der Auszubildenden"
+      },
+      "module": [
+        {
+          "id": "ausbildungsberuf",
+          "name": "Ausbildungsberuf"
+        },
+        {
+          "id": "ausbildungsstand",
+          "name": "Ausbildungsstand"
+        },
+        {
+          "id": "unterweisungsmethode",
+          "name": "Unterweisungsmethode"
+        }
+      ]
+    },
+    {
+      "id": "hochschule",
+      "bildungsstufe": [
+        "hochschule"
+      ],
+      "einheit": "Sitzung, Lehrveranstaltung",
+      "groessereEinheit": "Modul",
+      "dokument": "Ablaufplan der Sitzung; Modulbeschreibung",
+      "lehrende": "Lehrende",
+      "lernende": "Studierende",
+      "status": "Modul vorgeschrieben (MRVO § 7), Sitzung üblich",
+      "formen": {
+        "einheit": "Sitzung",
+        "derEinheit": "der Sitzung",
+        "groessereEinheit": "Modul",
+        "inGroessereEinheit": "in das Modul",
+        "derLehrenden": "der Lehrenden",
+        "fuerLehrende": "für die Lehrenden",
+        "derLernenden": "der Studierenden"
+      },
+      "module": [
+        {
+          "id": "arbeitsaufwand-leistungspunkte",
+          "name": "Arbeitsaufwand und Leistungspunkte"
+        },
+        {
+          "id": "pruefungsform",
+          "name": "Prüfungsform"
+        },
+        {
+          "id": "abstimmung-ziel-pruefung-methode",
+          "name": "Abstimmung von Ziel, Prüfung und Methode"
+        }
+      ]
+    },
+    {
+      "id": "erwachsenenbildung",
+      "bildungsstufe": [
+        "erwachsenenbildung"
+      ],
+      "einheit": "Kurseinheit, Kurstag",
+      "groessereEinheit": "Kurs, Programm",
+      "dokument": "Kursverlaufsplan",
+      "lehrende": "Kursleitung",
+      "lernende": "Teilnehmende",
+      "status": "üblich; Konzeptpflicht nur für geförderte Maßnahmen (AZAV § 3)",
+      "formen": {
+        "einheit": "Kurseinheit",
+        "derEinheit": "der Kurseinheit",
+        "groessereEinheit": "Kurs",
+        "inGroessereEinheit": "in den Kurs",
+        "derLehrenden": "der Kursleitung",
+        "fuerLehrende": "für die Kursleitung",
+        "derLernenden": "der Teilnehmenden"
+      },
+      "module": [
+        {
+          "id": "rolle-kursleitung",
+          "name": "Rolle der Kursleitung"
+        },
+        {
+          "id": "teilnehmendenorientierung",
+          "name": "Teilnehmendenorientierung"
+        }
+      ]
+    }
+  ],
+  "hinweis": "Geprüft sind acht Länder (BY, NW, HE, NI, SN, BW, BE, BB). Die Spalten des Verlaufsplans sind nirgends normiert (E, Recherche B)."
+}

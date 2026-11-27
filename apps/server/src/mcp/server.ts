@@ -57,6 +57,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
     (store.matcher.felder().find((f) => f.feld === feld)?.werte || []).map((w) => w.code) as [string, ...string[]];
   const code = (feld: string) => z.enum(fieldCodes(feld));
   const codes = (feld: string) => z.union([code(feld), z.array(code(feld))]);
+  const bedeutung = (feld: string) => store.matcher.felder().find((f) => f.feld === feld)?.bedeutung || feld;
 
   // Codes of the scheme schriftbedarf as the data holds them, plus the ohneSchrift codes as aliases (mapped in suche).
   const schriftCode = z.enum([
@@ -243,11 +244,22 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       fachausstattungArt: code('fachausstattungArt').optional().describe('Art der Fachausstattung, die der Raum bietet'),
       termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
       nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
+      begleitziel: codes('begleitziel')
+        .optional()
+        .describe('Was nebenbei gefördert werden soll (sprache, sozial, selbstregulation); wählt nie die Kette, ordnet nur unter gleichwertigen Methoden; die Antwort nennt begleitstrang'),
       ohneSchrift: codes('ohneSchrift')
         .optional()
         .describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
       vorhanden: codes('vorhanden').optional(),
       vorwissen: code('vorwissen').optional(),
+      // Stage-4 fields (FMT 2.0): same names, codes and meaning as REST /match (matcher.felder()).
+      komplexitaet: code('komplexitaet').optional().describe(bedeutung('komplexitaet')),
+      sprachniveau: code('sprachniveau').optional().describe(bedeutung('sprachniveau')),
+      lehrende: z.number().int().min(1).optional().describe(bedeutung('lehrende')),
+      thema: z.string().max(MAX_TEXT_CHARS).optional().describe(bedeutung('thema')),
+      einheit: z.string().max(MAX_TEXT_CHARS).optional().describe(bedeutung('einheit')),
+      bewertet: z.boolean().optional().describe(bedeutung('bewertet')),
+      planungsprofil: code('planungsprofil').optional().describe(bedeutung('planungsprofil')),
       variante: z.number().int().min(0).optional().describe('0 = erster Vorschlag; 1, 2, … liefern den nächsten gleichwertigen Vorschlag zum selben Text'),
       bildungsstufe: code('bildungsstufe').optional(),
       fachbereich: code('fachbereich')
@@ -476,6 +488,9 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       zeitMin: z.number().int().min(10).optional(),
       gruppe: z.number().int().min(1).optional(),
       bildungsstufe: code('bildungsstufe').optional(),
+      planungsprofil: code('planungsprofil')
+        .optional()
+        .describe('Planungsprofil des Entwurfs (Begriffe, Module); sonst aus Bildungsstufe und Text, ohne beides angenommen'),
       vorwissen: code('vorwissen').optional(),
       maxTechnik: code('maxTechnik').optional(),
       maxVorbereitung: z.number().int().min(0).optional(),
@@ -493,12 +508,15 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       ohneSchrift: codes('ohneSchrift').optional().describe('Was die Lernenden noch nicht können (lesen, schreiben); Methoden mit diesem Schriftbedarf scheiden aus'),
       termine: z.number().int().min(1).optional().describe('Anzahl der Termine (Sitzungen, Stunden) der Einheit'),
       nachweis: code('nachweis').optional().describe('Woran sich der Lernerfolg zeigen soll; ordnet die Prüfmethode'),
+      begleitziel: codes('begleitziel')
+        .optional()
+        .describe('Was nebenbei gefördert werden soll (sprache, sozial, selbstregulation); wählt nie die Kette, ordnet nur unter gleichwertigen Methoden; die Antwort nennt begleitstrang (kurze Methode am Ende, ein Vorschlag, nicht im Ablauf)'),
       includeWloOer: z.boolean().optional().default(false).describe('Optional: Live-WLO-OER-Suche (mit wwwurl); false für <5 ms Antwortzeit'),
       umfang: z
         .enum(['kompakt', 'voll'])
         .optional()
         .default('kompakt')
-        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen, Pflichtangaben (fehlt/angenommen) und Regelmeldungen (Regel, Wirkung, Grundlage, Quelle, Text). voll: zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
+        .describe('kompakt (Standard): Ablauf, Methodendetails, Tabelle, Lerngruppen, Pflichtangaben (fehlt/angenommen), Regelmeldungen (Regel, Wirkung, Grundlage, Quelle, Text) und Planungsprofil. voll: zusätzlich entwurf (sieben Kernfelder mit den Begriffen des Planungsprofils, Module zum Ausfüllen), llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis, konflikte'),
       gruppen: z
         .array(
           z.object({
@@ -526,7 +544,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
   // 11. elaborate_scenario (Zero-LLM by default: <2 ms deterministic table + ready-to-use llmBriefing for the caller's LLM!)
   server.tool(
     'elaborate_scenario',
-    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann.',
+    'Erstellt in <2 ms deterministisch eine thematische Verlaufstabelle und den Entwurf mit sieben Kernfeldern (Rahmendaten, Lernvoraussetzungen, Ziele, Einordnung, Verlaufsplan, Sicherung des Lernerfolgs, Reflexion) in den Begriffen des Planungsprofils, validiert R-00..R-12 und liefert ein vorab gefiltertes llmBriefing (Katalogdaten, Durchführungsschritte, Kernkomponenten, Evidenz & Leitplanken), damit das aufrufende Enduser-LLM den Entwurf direkt ohne Halluzinationen ausformulieren kann.',
     {
       arrangement: z.record(z.string().max(MAX_TEXT_CHARS), z.unknown()).describe('FMT-Arrangement JSON-LD'),
       fach: z.string().max(MAX_TEXT_CHARS).optional(),
@@ -536,6 +554,20 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
       lernziele: z.string().max(MAX_TEXT_CHARS).optional(),
       problemstellung: z.string().max(MAX_TEXT_CHARS).optional(),
       hinweise: z.string().max(MAX_TEXT_CHARS).optional(),
+      bildungsstufe: code('bildungsstufe').optional().describe('Bildungsstufe; sonst aus dem Arrangement. Ohne Angabe steht „Bildungsstufe nicht angegeben“.'),
+      planungsprofil: code('planungsprofil').optional().describe('Planungsprofil des Entwurfs (Begriffe, Module); sonst aus der Bildungsstufe'),
+      begleitziel: codes('begleitziel').optional().describe('Begleitziele des Plans; erscheinen im Kernfeld Ziele'),
+      begleitstrang: z
+        .array(
+          z.object({
+            begleitziel: code('begleitziel'),
+            baustein: z.string().max(MAX_TEXT_CHARS).optional(),
+            name: z.string().max(MAX_TEXT_CHARS).optional(),
+            dauerMin: z.number().int().min(1)
+          })
+        )
+        .optional()
+        .describe('Begleitstrang aus build_scenario_plan (Feld begleitstrang); erscheint als Vorschlag im Kernfeld Ziele'),
       oerRessourcen: z
         .array(z.object({ stepKey: z.string().max(MAX_TEXT_CHARS).optional(), titel: z.string().max(MAX_TEXT_CHARS), wwwurl: z.string().max(MAX_TEXT_CHARS) }))
         .optional(),
@@ -557,7 +589,11 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           lernziele: args.lernziele,
           problemstellung: args.problemstellung,
           hinweise: args.hinweise,
-          oerRessourcen: args.oerRessourcen
+          oerRessourcen: args.oerRessourcen,
+          bildungsstufe: args.bildungsstufe,
+          planungsprofil: args.planungsprofil,
+          begleitziel: args.begleitziel,
+          begleitstrang: args.begleitstrang
         };
         if (args.useServerLlm && effectiveConfig.llmApiKey) {
           if ((args.arrangement as { typ?: unknown }).typ !== 'Arrangement') {
@@ -575,6 +611,7 @@ export function createFmtMcpServer(store: CatalogStore, config?: ServerConfig): 
           pruefung: briefing.pruefung,
           ausarbeitung: briefing.fallbackMarkdown,
           thematischeTabelle: briefing.fallbackTable,
+          entwurf: briefing.entwurf,
           llmBriefing: briefing.llmBriefing,
           leitplanken: FMT_GUARDRAILS
         });

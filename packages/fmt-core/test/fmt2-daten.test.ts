@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
 import { endwerte, leseEntscheidung, uebernehme, WISSENSARTEN } from '../scripts/uebernehme-durchsicht.js';
 import { deute, formatiereTeilgruppen, wendeAn, type Op } from '../scripts/uebernehme-eignung.js';
+import { ENTSCHEIDUNGEN, ordne, wendeAn as wendeAnKatalog } from '../scripts/uebernehme-katalog.js';
 import { erstelleRegeln } from '../src/regeln.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +15,20 @@ const ALT = JSON.parse(fs.readFileSync(path.join(HERE, 'fixtures', 'vor-durchsic
   string,
   { lernort: string[]; raum?: string; aufgabe: string[]; fachbereichUngeeignet?: string[] }
 >;
+/** The eleven entries adopted from the drafts after Tor D3 (Task D7). */
+const NEU_D3 = [
+  'darstellungswechsel',
+  'schreiben-mit-schreibrahmen',
+  'satzmuster-redemittel',
+  'sprachvergleich',
+  'strukturierte-gruppenreflexion',
+  'training-sozialer-fertigkeiten',
+  'zielsetzung-planungsbogen',
+  'klassenmusizieren',
+  'gestaltungsaufgabe-gruppen',
+  'aesthetische-forschung',
+  'methodische-uebungsreihe'
+];
 const werte = (scheme: string) => new Set((D.schemes.find((s) => s.id === scheme)?.werte || []).map((w) => w.id));
 const roh = (b: unknown) => b as Record<string, unknown>;
 
@@ -54,8 +69,11 @@ describe('FMT 2.0: Daten nach Durchsicht 1', () => {
     // ki-chat is a contrast entry without a reliable learning state; Tor D1 left its knowledge type empty on purpose.
     const BEWUSST_LEER = ['ki-chat'];
     expect(ohne).toEqual(BEWUSST_LEER);
-    // The other values of D1 (AFB, structure, authenticity) stay untouched.
+    // The other values of D1 (AFB, structure, authenticity) stay untouched. The fixture predates the eleven entries
+    // adopted after Tor D3 (Task D7); exactly those have no row and are left out of the comparison.
+    expect(D.bausteine.filter((b) => !ALT[b.kennung]).map((b) => b.kennung).sort()).toEqual([...NEU_D3].sort());
     for (const b of D.bausteine) {
+      if (NEU_D3.includes(b.kennung)) continue;
       const rest = (x: string[]) => x.filter((y) => !WISSENSARTEN.includes(y));
       expect(rest(b.aufgabe || []), b.kennung).toEqual(rest(ALT[b.kennung].aufgabe));
     }
@@ -138,8 +156,8 @@ describe('FMT 2.0: Daten nach Durchsicht 2 (Tor D2)', () => {
     const hilfen = D.bausteine.filter((b) => b.eintragsart === 'hilfe');
     for (const b of hilfen) expect(b.nachbedingung || [], b.kennung).toEqual([]);
     for (const b of D.bausteine) if (b.eintragsart) expect(['methode', 'hilfe'], b.kennung).toContain(b.eintragsart);
-    // Tor D2, part 5: only scaffolding-hilfen becomes a Hilfe.
-    expect(hilfen.map((b) => b.kennung)).toEqual(['scaffolding-hilfen']);
+    // Tor D2, part 5: scaffolding-hilfen becomes a Hilfe; Tor D3 adds three new Hilfen (Task D7).
+    expect(hilfen.map((b) => b.kennung).sort()).toEqual(['satzmuster-redemittel', 'scaffolding-hilfen', 'sprachvergleich', 'zielsetzung-planungsbogen']);
   });
 
   it('die eingebaute Regel evidenz-geltung deckt die 18 entfallenen Stufen-Einträge', () => {
@@ -305,5 +323,80 @@ describe('uebernehme-eignung.ts', () => {
     const p = path.resolve(HERE, '..', '..', '..', 'data', 'teilgruppen.json');
     const text = fs.readFileSync(p, 'utf8');
     expect(formatiereTeilgruppen(JSON.parse(text))).toBe(text);
+  });
+});
+
+describe('FMT 2.0: Daten nach Durchsicht 3 (Tor D3)', () => {
+  const by = (k: string) => D.bausteine.find((b) => b.kennung === k)!;
+  const quellen = (k: string) => by(k).evidenz.map((e) => e.quelle);
+
+  it('die elf neuen Einträge stehen im Status entwurf, die drei Hilfen ohne Nachbedingung', () => {
+    for (const k of NEU_D3) expect(by(k)?.status, k).toBe('entwurf');
+    const hilfen = NEU_D3.filter((k) => by(k).eintragsart === 'hilfe').sort();
+    expect(hilfen).toEqual(['satzmuster-redemittel', 'sprachvergleich', 'zielsetzung-planungsbogen']);
+    for (const k of hilfen) expect(by(k).nachbedingung || [], k).toEqual([]);
+  });
+
+  it('übernimmt die Änderungen der Prüfung an den Entwürfen', () => {
+    expect(by('training-sozialer-fertigkeiten').aufgabe).toContain('einstellungen');
+    expect(by('training-sozialer-fertigkeiten').aufgabe).not.toContain('prozeduren');
+    expect(by('darstellungswechsel').schriftbedarf).toEqual(['schreibt']);
+    expect(by('zielsetzung-planungsbogen').schriftbedarf).toEqual(['schreibt']);
+    expect(by('darstellungswechsel').evidenz[0].befund).not.toMatch(/spricht für/);
+    expect(by('sprachvergleich').evidenz.map((e) => `${e.grad}/${e.evidenzBezug}`)).toEqual(['C/prinzip']);
+    expect(by('zielsetzung-planungsbogen').evidenz.map((e) => e.grad)).toEqual(['B', 'C']);
+    expect(quellen('klassenmusizieren')).not.toContain('Sala & Gobet 2020');
+    expect(by('klassenmusizieren').hinweis).toMatch(/Sala & Gobet 2020/);
+    expect(by('gestaltungsaufgabe-gruppen').evidenz.map((e) => e.grad)).toEqual(['C', 'C']);
+    expect(quellen('aesthetische-forschung').join(' ')).not.toMatch(/Kämpf-Jansen/);
+  });
+
+  it('Evidenzbezug programm und die Hattie-Befunde wie in Teil 2 und 3', () => {
+    for (const k of ['aufwaermen', 'pro-contra-debatte', 'schuelercoaching']) expect(by(k).evidenz[0].evidenzBezug, k).toBe('programm');
+    const di = by('direkte-instruktion').evidenz;
+    expect(di.map((e) => `${e.grad}/${e.evidenzBezug}/${e.quelle}`)).toEqual(['B/methode/Rosenshine 2012', 'B/programm/Stockard et al. 2018']);
+    for (const e of di) expect(e.geltung).toBeTruthy();
+    expect(by('klassenrat').evidenz).toHaveLength(1);
+    // Hattie stays only where the finding names the synthesis (Microteaching) or the feedback review (Votum-Ei).
+    const mitHattie = D.bausteine.filter((b) => b.evidenz.some((e) => /Hattie/.test(`${e.quelle} ${e.befund}`))).map((b) => b.kennung).sort();
+    expect(mitHattie).toEqual(['microteaching', 'votum-ei']);
+    expect(by('microteaching').evidenz[0].grad).toBe('C');
+    expect(by('microteaching').evidenz[0].umstritten).toMatch(/^Transfer in komplexe Alltagsklassen.*Wecker et al\. 2016\)$/);
+    expect(by('mastery-learning-bloom').evidenz[0]).toMatchObject({ grad: 'B', quelle: 'Kulik, Kulik & Bangert-Drowns (1990)' });
+    expect(by('mastery-learning-bloom').evidenz[0].befund).not.toMatch(/0,58/);
+    expect(by('klassenarbeit-summativ').evidenz[0]).toMatchObject({ grad: 'B', evidenzBezug: 'prinzip', quelle: 'Black & Wiliam 1998' });
+    expect(by('kompetenzraster-checkliste').evidenz[0]).toMatchObject({ grad: 'C', evidenzBezug: 'prinzip' });
+    expect(by('diktat-klassisch').evidenz[0]).toMatchObject({ grad: 'C', quelle: 'Bredel, Fuhrhop & Noack 2011' });
+  });
+});
+
+describe('uebernehme-katalog.ts', () => {
+  const z = (eintrag: string, teil: string, kennung: string, final: string) => ({ eintrag, teil, kennung, final });
+  const tabelle = { 'T1-x-eintrag': { final: 'aufnehmen' }, 'T2-y-0': { final: 'evidenzBezug=programm' } };
+
+  it('hält an, wenn Tabelle und geprüfte CSV nicht zusammenpassen', () => {
+    expect(() => ordne([z('T1-x-eintrag', '1', 'x', 'aufnehmen als methode')], tabelle)).toThrow(/T2-y-0: Entscheidung ohne Zeile/);
+    expect(() => ordne([z('T1-x-eintrag', '1', 'x', 'aufnehmen'), z('T2-y-0', '2', 'y', 'bleibt methode')], tabelle)).toThrow(/T2-y-0: final beginnt nicht/);
+    expect(() => ordne([z('T1-x-eintrag', '1', 'x', 'aufnehmen'), z('T2-y-0', '2', 'y', 'evidenzBezug=programm'), z('T9', '2', 'y', 'a')], tabelle)).toThrow(/T9: keine Entscheidung/);
+    expect([...ordne([z('T1-x-eintrag', '1', 'x', 'aufnehmen'), z('T2-y-0', '2', 'y', 'evidenzBezug=programm')], tabelle).keys()]).toEqual(['x', 'y']);
+  });
+
+  it('jede Entscheidung ist wiederholbar und hält die Reihenfolge der Schlüssel', () => {
+    const roh = { kennung: 'x', name: 'X', status: 'kuratiert', aufgabe: ['prozeduren', 'einstellungen'], hinweis: 'H.', evidenz: [
+      { grad: 'A', befund: 'b (d ≈ 0,58) c', quelle: 'Q; Hattie 2009', geltung: 'g', umstritten: 'u' },
+      { grad: 'B', evidenzBezug: 'programm', befund: 'b', quelle: 'Stockard et al. 2018', geltung: 'g2' }
+    ] };
+    for (const [id, e] of Object.entries(ENTSCHEIDUNGEN)) {
+      if (!e.aendere || id === 'T2-direkte-instruktion-0') continue;
+      const einmal = wendeAnKatalog(roh, [e], true);
+      expect(einmal.status, id).toBe('entwurf');
+      expect(JSON.stringify(wendeAnKatalog(einmal, [e], false)), id).toBe(JSON.stringify(einmal));
+    }
+    const bezug = ENTSCHEIDUNGEN['T2-pro-contra-debatte-0'].aendere!({ kennung: 'p', evidenz: [{ grad: 'C', befund: 'b' }] });
+    expect(Object.keys((bezug.evidenz as object[])[0])).toEqual(['grad', 'evidenzBezug', 'befund']);
+    const di = ENTSCHEIDUNGEN['T2-direkte-instruktion-0'].aendere!;
+    const geteilt = di({ kennung: 'd', evidenz: [{ grad: 'B', evidenzBezug: 'methode', befund: 'b', quelle: 'q', geltung: 'G' }] });
+    expect((geteilt.evidenz as Array<{ geltung: string }>).map((e) => e.geltung)[1]).toBe('G');
+    expect(di(geteilt)).toBe(geteilt);
   });
 });

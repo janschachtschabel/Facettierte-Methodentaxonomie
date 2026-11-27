@@ -31,6 +31,8 @@ import {
   buildNeutralLearningScenario,
   buildScenarioRows,
   DEFAULT_LEARNER_GROUPS,
+  entwurfBegriffe,
+  lehrendeInfo,
   detectMaterialTypeForBlock,
   extractSubjectAndTopic
 } from '../src/planner/scenarioModel.js';
@@ -38,6 +40,7 @@ import { markdownToHtml, renderInlineMarkdownHtml } from '../src/planner/markdow
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../src/planner/lmsExport.js';
 import {
   deleteSavedScenario,
+  entwurfAngabenAus,
   exportScenarioProjectJson,
   importScenarioProjectJson,
   loadSavedScenarios,
@@ -59,6 +62,7 @@ const DATA: FmtData = {
   ketten: BUNDLE.ketten,
   regeln: BUNDLE.regeln,
   teilgruppen: BUNDLE.teilgruppen,
+  planungsprofile: BUNDLE.planungsprofile,
   bausteine: BUNDLE.bausteine,
   beispiele: BUNDLE.beispiele
 };
@@ -401,6 +405,39 @@ describe('Modular Scenario Planner Tree Operations', () => {
     expect(deleteSavedScenario(saved.id, storage).length).toBe(0);
   });
 
+  it('Projektdatei behält die Angaben des Entwurfs: Planungsprofil betrieb, Einheit, Nachweis, Regelmeldungen, Begleitstrang (Fix-Welle D, Punkt 7)', () => {
+    const r = createMatcher(DATA, VALIDATOR).zuordnen({ text: 'Berufsschule, Unterweisung im Betrieb: Bohrmaschine sicher bedienen, Einheit Lernfeld 3, 45 Minuten, soziales Lernen stärken' });
+    const angaben = entwurfAngabenAus(r);
+    expect(angaben).toMatchObject({ planungsprofil: 'betrieb', einheit: 'Lernfeld 3', nachweis: ['praktisch'], begleitziele: ['sozial'] });
+    const phase = { art: 'begleitstrang' as const, kennung: angaben.begleitstrang![0].baustein, name: 'x', dauerMin: 3, grund: 'g', donors: [{ kennung: 'a', minutes: 3 }] };
+    const json = exportScenarioProjectJson({
+      title: 'T',
+      fach: 'Metall',
+      thema: 'Bohren',
+      hinweise: '',
+      arrangement: (r as { arrangement: Arrangement }).arrangement,
+      groups: DEFAULT_LEARNER_GROUPS,
+      aiDiffByStep: {},
+      oerByStep: {},
+      elaboration: null,
+      entwurfAngaben: angaben,
+      begleitPhasen: [phase]
+    });
+    const imp = importScenarioProjectJson(json);
+    if (!imp.ok) throw new Error(imp.fehler);
+    expect(imp.project.entwurfAngaben).toEqual(JSON.parse(JSON.stringify(angaben)));
+    expect(imp.project.begleitPhasen).toEqual([phase]);
+    // Files may come from anyone: malformed entries are dropped.
+    const kaputt = importScenarioProjectJson(
+      JSON.stringify({ ...JSON.parse(json), entwurfAngaben: { planungsprofil: 7, regelmeldungen: [{ regel: 1 }], begleitstrang: ['x'] }, begleitPhasen: [{ kennung: 3 }] })
+    );
+    if (!kaputt.ok) throw new Error(kaputt.fehler);
+    expect(kaputt.project.entwurfAngaben?.planungsprofil).toBeUndefined();
+    expect(kaputt.project.entwurfAngaben?.regelmeldungen).toEqual([]);
+    expect(kaputt.project.entwurfAngaben?.begleitstrang).toEqual([]);
+    expect(kaputt.project.begleitPhasen).toEqual([]);
+  });
+
   it('renders GFM Markdown tables, rules, blockquotes, KaTeX formulas (UI & MathML print) and escapes XSS safely', () => {
     const sample = [
       '## Auswertung & Formeln',
@@ -683,3 +720,118 @@ describe('Schnellkorrekturen bieten keine Hilfe als Phase oder Slot an (Task C4)
   });
 });
 
+
+describe('Entwurf mit sieben Kernfeldern und Begriffen des Planungsprofils (Paket D, D2)', () => {
+  const labelOf = (schemeId: string, code: string) => {
+    const s = BUNDLE.schemes.find((x) => x.id === schemeId);
+    const vals = s?.werte || (s?.gruppen || []).flatMap((g) => g.werte);
+    return vals.find((w) => w.id === code)?.label || code;
+  };
+  const matcher = createMatcher(DATA, VALIDATOR);
+  const entwurfFuer = (text: string, extra: Record<string, unknown> = {}) => {
+    const r = matcher.zuordnen({ text });
+    if (r.modus !== 'ablauf' || !r.arrangement) throw new Error('kein Ablauf');
+    const arr = r.arrangement;
+    const groups = DEFAULT_LEARNER_GROUPS.map((g) => (g.id === 'basis' ? { ...g, active: true, count: 4 } : g));
+    const rows = buildScenarioRows(arr, BUNDLE, BLOCKS, labelOf, groups, {}, {}, '', {}, [
+      { id: 'h1', stepKey: 'step-1', title: 'Wortliste', materialType: 'hilfe', content: 'x', createdAt: '2026-11-27T00:00:00Z', groupId: 'basis' }
+    ]);
+    const sc = buildNeutralLearningScenario(arr, rows, groups, {
+      fach: 'Statistik',
+      thema: 'Mittelwerte',
+      totalDurationMin: VALIDATOR.validate(arr).dauerMin,
+      labelOf,
+      planungsprofile: BUNDLE.planungsprofile,
+      planungsprofil: r.planungsprofil,
+      planungsprofilAngenommen: (r.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+      ...extra
+    });
+    return { sc, rows, r };
+  };
+
+  it('n15: Entwurf nutzt „Sitzung“, „Studierende“, „Modul“ und führt sieben Kernfelder', () => {
+    const { sc } = entwurfFuer('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur');
+    expect(sc.planungsprofil?.id).toBe('hochschule');
+    expect(sc.kernfelder?.map((k) => k.id)).toEqual(['rahmendaten', 'lernvoraussetzungen', 'ziele', 'einordnung', 'verlauf', 'lernerfolg', 'reflexion']);
+    const text = sc.generated_content.narrative_lesson_plan_markdown;
+    for (const w of ['Sitzung', 'Studierende', 'Modul']) expect(text, w).toContain(w);
+    expect(text).toContain('Tätigkeit der Lehrenden');
+    expect(sc.module?.map((m) => m.id)).toEqual(['arbeitsaufwand-leistungspunkte', 'pruefungsform', 'abstimmung-ziel-pruefung-methode']);
+    sc.module?.forEach((m) => expect(m.inhalt).toBe(''));
+  });
+
+  it('Verlaufsplan trägt die Anpassungen je Teilgruppe (Hilfe aus Schritt 3)', () => {
+    const { sc } = entwurfFuer('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende');
+    const verlauf = sc.kernfelder!.find((k) => k.id === 'verlauf')!.inhalt;
+    expect(verlauf).toContain('Anpassungen je Teilgruppe');
+    expect(verlauf).toMatch(/Hilfe „Wortliste“/);
+  });
+
+  it('Sicherung des Lernerfolgs nur aus dem Prüfschritt, nicht aus der Eingangsdiagnose oder der Wiederkehr (Fix-Welle D, Punkt 4)', () => {
+    const { sc, rows } = entwurfFuer('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    const f = Object.fromEntries(sc.kernfelder!.map((k) => [k.id, k.inhalt]));
+    const erste = rows[0].methodName;
+    expect(f.lernerfolg).not.toContain(erste);
+    expect(f.lernerfolg).not.toMatch(/Wiederkehr/);
+    expect(f.lernerfolg.split('\n').filter((l) => /Prüfschritt|Sicherung/.test(l))).toHaveLength(1);
+    expect(f.reflexion).not.toMatch(/Wiederkehr/);
+    expect(f.reflexion).toContain(rows.filter((r) => r.key !== 'wiederkehr' && !r.isNestedSlot).at(-1)!.methodName);
+  });
+
+  it('Entwurf ohne Bildungsstufe enthält nirgends „Sekundarstufe I“', () => {
+    const { sc, r } = entwurfFuer('Fotosynthese, Lichtreaktion, 45 Minuten');
+    expect(r.planungsprofil).toBe('schule');
+    expect(sc.planungsprofil).toMatchObject({ id: 'schule', angenommen: true });
+    const all = JSON.stringify(sc);
+    expect(all).not.toContain('Sekundarstufe I');
+    expect(all).toContain('Bildungsstufe nicht angegeben');
+  });
+
+  it('Exporte folgen den Begriffen: Erwachsenenbildung nennt „Tätigkeit der Kursleitung“', () => {
+    const { sc, rows } = entwurfFuer('Volkshochschule, Kochkurs Grundtechniken, 3 Stunden, 12 Teilnehmende');
+    expect(sc.planungsprofil?.id).toBe('erwachsenenbildung');
+    const moodle = exportScenarioToMoodleXml(sc, rows);
+    expect(moodle).toContain('Tätigkeit der Kursleitung');
+    expect(moodle).not.toContain('Rolle Lehrkraft');
+    const zip = new TextDecoder().decode(exportScenarioToImscc(sc, rows));
+    expect(zip).toContain('Tätigkeit der Teilnehmenden');
+    expect(sc.generated_content.narrative_lesson_plan_markdown).toContain('Kursverlaufsplan');
+  });
+
+  it('Schule: „Tätigkeit der Lehrkraft“ bleibt', () => {
+    const { sc } = entwurfFuer('Biologie Klasse 7, Fotosynthese, 45 Minuten');
+    expect(sc.planungsprofil?.spalten.lehrende).toBe('Tätigkeit der Lehrkraft');
+    expect(sc.generated_content.narrative_lesson_plan_markdown).toContain('Tätigkeit der Schülerinnen und Schüler');
+  });
+  it('Markdown, Word, HTML-Handout und Einseiter folgen den Begriffen (Erwachsenenbildung)', () => {
+    const { sc, rows, r } = entwurfFuer('Volkshochschule, Kochkurs Grundtechniken, 3 Stunden, 12 Teilnehmende');
+    const arr = r.modus === 'ablauf' ? r.arrangement! : (undefined as never);
+    const val = VALIDATOR.validate(arr);
+    const meta = { planungsprofile: BUNDLE.planungsprofile, planungsprofil: r.planungsprofil };
+    const profil = entwurfBegriffe(meta, arr.kontext?.bildungsstufe)!;
+    expect(profil).toMatchObject({ lehrende: 'Kursleitung', lernende: 'Teilnehmende' });
+    const opts = {
+      fach: 'Kochen',
+      thema: 'Grundtechniken',
+      lehrkraefteInfo: lehrendeInfo('1 Lehrkraft', meta, arr.kontext?.bildungsstufe),
+      groups: DEFAULT_LEARNER_GROUPS,
+      scenarioRows: rows,
+      thematicRows: sc.generated_content.thematic_table,
+      profil
+    };
+    expect(opts.lehrkraefteInfo).toBeUndefined();
+    const md = exportArrangementMarkdown(arr, BLOCKS, val, opts);
+    expect(md).toContain('Tätigkeit der Kursleitung');
+    expect(md).toContain('Tätigkeit der Teilnehmenden');
+    const mdOhneThema = exportArrangementMarkdown(arr, BLOCKS, val, { ...opts, thematicRows: undefined });
+    expect(mdOhneThema).toContain('| Tätigkeit der Kursleitung | Tätigkeit der Teilnehmenden |');
+    const word = exportArrangementWordDoc(arr, BLOCKS, val, opts);
+    const html = exportArrangementHtmlHandout(arr, BLOCKS, val, opts);
+    const one = exportArrangementOnePageSheet(arr, BLOCKS, val, opts);
+    for (const [name, out] of [['md', md], ['md2', mdOhneThema], ['word', word], ['html', html], ['one', one]] as const) {
+      expect(out, name).not.toMatch(/Lehrkraft/);
+    }
+    expect(one).toContain('Tätigkeit der Kursleitung &amp; Tätigkeit der Teilnehmenden');
+    expect(lehrendeInfo('1 Lehrkraft + Schulbegleitung', meta)).toBe('1 Lehrkraft + Schulbegleitung');
+  });
+});

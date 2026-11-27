@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFmtData } from '../src/load-data.js';
-import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen } from '../src/zielart.js';
+import { normZielart, waehleKette, traegtWissensart, wissensartenVon, nachweisformen, traegtBegleitziel, lesart, LESART_JE_ZIELART } from '../src/zielart.js';
 import type { Baustein } from '../src/types.js';
+import { createMatcher, createValidator } from '../src/index.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const D = loadFmtData(path.join(ROOT, 'data'));
@@ -93,5 +94,135 @@ describe('Nachweisformen', () => {
     expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['fakten'] }))).not.toContain('praktisch');
     expect(nachweisformen(m({ repraesentation: ['enaktiv'] }))).not.toContain('praktisch');
     expect(nachweisformen(m({ repraesentation: ['enaktiv'], aufgabe: ['konzepte'], interaktion: ['plenum-lehrergeleitet'] }))).toEqual(['muendlich']);
+  });
+});
+
+describe('traegtBegleitziel (Paket D, D3)', () => {
+  const b = (x: Partial<Baustein>) => ({ ...baustein('placemat'), interaktion: [], weltbezug: [], aufgabe: [], lernfunktion: ['erwerb'], schriftbedarf: [], ...x }) as Baustein;
+  it('sozial: C1 kleingruppe-kooperativ oder A3 andere', () => {
+    expect(traegtBegleitziel(b({ interaktion: ['kleingruppe-kooperativ'] }), 'sozial')).toBe(true);
+    expect(traegtBegleitziel(b({ weltbezug: ['andere'] }), 'sozial')).toBe(true);
+    expect(traegtBegleitziel(b({ interaktion: ['partner'], weltbezug: ['gegenstand'] }), 'sozial')).toBe(false);
+  });
+  it('selbstregulation: D1 metakognitiv oder A1 metakognition', () => {
+    expect(traegtBegleitziel(b({ aufgabe: ['metakognitiv'] }), 'selbstregulation')).toBe(true);
+    expect(traegtBegleitziel(b({ lernfunktion: ['erwerb', 'metakognition'] }), 'selbstregulation')).toBe(true);
+    expect(traegtBegleitziel(b({ aufgabe: ['konzepte'] }), 'selbstregulation')).toBe(false);
+  });
+  it('sprache: Schriftbedarf nicht leer oder C1 partner, kleingruppe-kooperativ, plenum-lernendengeleitet', () => {
+    expect(traegtBegleitziel(b({ schriftbedarf: ['liest'] }), 'sprache')).toBe(true);
+    for (const i of ['partner', 'kleingruppe-kooperativ', 'plenum-lernendengeleitet']) expect(traegtBegleitziel(b({ interaktion: [i] }), 'sprache')).toBe(true);
+    expect(traegtBegleitziel(b({ interaktion: ['einzel', 'plenum-lehrergeleitet'] }), 'sprache')).toBe(false);
+  });
+  it('unbekanntes Begleitziel: nie', () => {
+    expect(traegtBegleitziel(b({ interaktion: ['kleingruppe-kooperativ'] }), 'mut')).toBe(false);
+  });
+});
+
+
+describe('Lesarten der Lernstände je Zielart (Paket D, D4)', () => {
+  it('prozedur-gelaeufig liest sich bei Zielart Bewegung als „Feinform gelingt“, ohne Zielart als Label', () => {
+    expect(lesart(D, 'prozedur-gelaeufig', 'bewegung')).toBe('Feinform gelingt');
+    expect(lesart(D, 'prozedur-gelaeufig')).toBe('Prozedur geläufig');
+    expect(lesart(D, 'prozedur-gelaeufig', '')).toBe('Prozedur geläufig');
+  });
+  it('Zielarten werden auf vier Lesarten abgebildet; alte Codes über den Alias', () => {
+    expect(LESART_JE_ZIELART).toEqual({
+      fakten: 'wissen', konzepte: 'wissen', prozeduren: 'wissen', problemloesen: 'wissen',
+      bewegung: 'bewegung', kondition: 'bewegung', handlung: 'bewegung',
+      urteilen: 'urteilen', gestalten: 'gestalten'
+    });
+    for (const z of D.schemes.find((s) => s.id === 'zielart')!.werte!) expect(z.lesart, z.id).toBe(LESART_JE_ZIELART[z.id]);
+    expect(lesart(D, 'erstwissen-ungesichert', 'kondition')).toBe('Grobform gelingt');
+    expect(lesart(D, 'erstwissen-ungesichert', 'psychomotorik')).toBe('Grobform gelingt');
+    expect(lesart(D, 'transfer-gezeigt', 'einstellungen')).toBe('Urteil begründet');
+    expect(lesart(D, 'loesungsversuche', 'gestalten')).toBe('Entwurf liegt vor');
+    expect(lesart(D, 'konzept-gesichert', 'fakten')).toBe('Konzept verstanden und gesichert');
+    expect(lesart(D, 'transfer-gezeigt', 'problemloesen')).toBe('auf Neues übertragen');
+  });
+  it('ein Strich in der Tabelle heißt: Label des Zustands', () => {
+    expect(lesart(D, 'leistung-trainiert', 'konzepte')).toBe('Körperliche Leistungsfähigkeit trainiert');
+    expect(lesart(D, 'prozedur-gelaeufig', 'urteilen')).toBe('Prozedur geläufig');
+    expect(lesart(D, 'wissen-konsolidiert', 'gestalten')).toBe('Wissen konsolidiert');
+    expect(lesart(D, 'leistung-trainiert', 'kondition')).toBe('Leistungsfähigkeit trainiert');
+  });
+  it('fehlvorstellungen-sichtbar liest sich in jeder Lesart als „Ausgangslage sichtbar“, ohne Zielart als Label', () => {
+    for (const z of Object.keys(LESART_JE_ZIELART)) expect(lesart(D, 'fehlvorstellungen-sichtbar', z)).toBe('Ausgangslage sichtbar');
+    expect(lesart(D, 'fehlvorstellungen-sichtbar')).toBe('Fehlvorstellungen sichtbar');
+  });
+  it('unbekannte Zielart oder unbekannter Zustand fallen auf Label bzw. Code zurück', () => {
+    expect(lesart(D, 'prozedur-gelaeufig', 'unbekannt')).toBe('Prozedur geläufig');
+    expect(lesart(D, 'gibt-es-nicht', 'bewegung')).toBe('gibt-es-nicht');
+  });
+  it('die zwölf Lernstände und ihre Labels bleiben unverändert', () => {
+    const werte = D.schemes.find((s) => s.id === 'lernzustand')!.werte!;
+    expect(werte.map((w) => [w.id, w.label])).toEqual([
+      ['vorwissen-aktiviert', 'Vorwissen aktiviert'],
+      ['fehlvorstellungen-sichtbar', 'Fehlvorstellungen sichtbar'],
+      ['problem-erschlossen', 'Problem erschlossen'],
+      ['loesungsversuche', 'Eigene Lösungsversuche liegen vor'],
+      ['erstwissen-ungesichert', 'Erstwissen erworben, ungesichert'],
+      ['konzept-gesichert', 'Konzept verstanden und gesichert'],
+      ['prozedur-gelaeufig', 'Prozedur geläufig'],
+      ['leistung-trainiert', 'Körperliche Leistungsfähigkeit trainiert'],
+      ['wissen-konsolidiert', 'Wissen konsolidiert'],
+      ['transfer-gezeigt', 'Transfer gezeigt / Produkt erstellt'],
+      ['lernstand-diagnostiziert', 'Lernstand diagnostiziert'],
+      ['lernen-reflektiert', 'Eigenes Lernen reflektiert']
+    ]);
+  });
+});
+
+describe('Kette „vollständige Handlung“ (Paket D, D5)', () => {
+  const M = createMatcher(D, createValidator(D));
+  it('steht aus dem Regelsatz in den Daten (h4 bindet wie h3), gebunden an die Zielart handlung, Grundlage ungeklärt', () => {
+    const k = kette('vollstaendige-handlung');
+    expect(k.label).toBe('Berufliche Handlung (vollständige Handlung)');
+    expect(k.zielart).toEqual(['handlung']);
+    expect(k.grundlage).toBe('U');
+    expect(k.quelle).toBe('KMK 2021: Lernsituationen im Lernfeld; Lernwirksamkeit der Phasenfolge kaum geprüft');
+    expect(k.schritte.map((s) => [s.id, s.label, s.funktion, s.ziel, s.rolle, s.zeitanteil, s.wissensart])).toEqual([
+      ['h1', 'Auftrag analysieren, informieren', ['orientierung'], 'problem-erschlossen', 'rand', 10, undefined],
+      ['h2', 'Planen und entscheiden', ['problemloesen', 'verstehen'], 'loesungsversuche', 'haupt', 20, ['prozeduren', 'konzepte']],
+      ['h3', 'Ausführen', ['anwendung', 'konsolidierung'], 'prozedur-gelaeufig', 'haupt', 45, ['prozeduren', 'psychomotorik']],
+      // h4 binds like h3; the rule set lacked the entry (controller ruling, D5).
+      ['h4', 'Kontrollieren', ['diagnose'], 'lernstand-diagnostiziert', 'sicherung', 13, ['prozeduren', 'psychomotorik']],
+      ['h5', 'Bewerten und reflektieren', ['metakognition'], 'lernen-reflektiert', 'rand', 12, undefined]
+    ]);
+  });
+  it('Zielart handlung wählt die Kette', () => {
+    expect(wahl({ zielart: 'handlung' })?.kette.id).toBe('vollstaendige-handlung');
+    expect(wahl({ zielart: 'handlung' })?.grund).toBe('zielart');
+  });
+  it('n13: Lernfeld in der Berufsschule ergibt die Kette vollständige Handlung', () => {
+    const r = M.zuordnen({ text: 'Berufsschule, Lernfeld 3 Kfz-Mechatronik, Bremsanlage prüfen, Werkstatt, 180 Minuten' });
+    expect(r.modus).toBe('ablauf');
+    if (r.modus === 'ablauf') {
+      expect(r.kette?.id).toBe('vollstaendige-handlung');
+      expect(r.pruefung?.gueltig).toBe(true);
+    }
+  });
+  it('n14: eine kurze Unterweisung bleibt Bewegung und Einzelphase', () => {
+    const r = M.zuordnen({ text: 'Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten' });
+    expect(r.modus).toBe('phase');
+    expect(M.lesen('Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten').kriterien.zielart).toBe('bewegung');
+  });
+  it('Prüfschritt ohne Wissensart: eine praktische Prüfung, die nicht in die Zeit oder nicht zum Fach passt, wird gesagt, nicht geplant', () => {
+    const r = M.zuordnen({ text: 'Elektroniker Lernfeld 3, Fehlersuche an Schaltungen, 45 Minuten, am Ende praktische Prüfung' });
+    expect(r.modus === 'ablauf' && r.kette?.id).toBe('vollstaendige-handlung');
+    if (r.modus !== 'ablauf') return;
+    expect(r.pruefung?.dauerMin).toBeLessThanOrEqual(45);
+    const h4 = (r.schritte || []).find((s) => s.schritt === 'h4')!;
+    expect(['fall-simulation-osce', 'sportmotorischer-test']).not.toContain(h4.baustein);
+    expect((r.regelmeldungen || []).some((x) => x.regel === 'nachweis-passt-zum-ziel')).toBe(true);
+  });
+  it('Leseregel nur mit Bildungsstufe berufsbildung; eine angegebene Bildungsstufe zählt, eine angegebene Zielart gewinnt', () => {
+    expect(M.lesen('Lernsituation Angebot erstellen, 90 Minuten').kriterien.zielart).toBeUndefined();
+    expect(M.lesen('Lernsituation Angebot erstellen, 90 Minuten', 'berufsbildung').kriterien.zielart).toBe('handlung');
+    expect(M.lesen('Berufsschule: Lernsituation Angebot erstellen, 90 Minuten', 'sek2').kriterien.zielart).toBeUndefined();
+    const r = M.zuordnen({ text: 'Berufsschule, Lernsituation Angebot erstellen, 90 Minuten', zielart: 'konzepte' });
+    if (r.modus === 'ablauf') expect(r.kette?.id).not.toBe('vollstaendige-handlung');
+    const r2 = M.zuordnen({ text: 'Lernsituation Angebot erstellen, 90 Minuten', bildungsstufe: 'berufsbildung' });
+    expect(r2.modus === 'ablauf' && r2.kette?.id).toBe('vollstaendige-handlung');
   });
 });

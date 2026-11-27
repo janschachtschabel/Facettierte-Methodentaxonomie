@@ -9,6 +9,12 @@ import { buildApp } from '../src/app.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
+const LEITPLANKEN = [
+  'Methoden, Reihenfolge und Kernkomponenten sind vorgegeben und werden nicht geändert.',
+  'Aussagen zur Wirksamkeit stammen nur aus dem Katalog, mit Grad, Geltung und Bezug.',
+  'Kennzeichne, was übernommen und was erzeugt ist.',
+  'Beschreibe Gruppen, keine einzelnen Lernenden.'
+];
 const EXPECTED_METHOD_COUNT = fs.readdirSync(path.join(ROOT, 'data', 'bausteine')).filter((f) => f.endsWith('.json')).length;
 
 describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
@@ -509,7 +515,7 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     expect(match.bildungsstufe.enum).toContain('sek1');
     expect(match.vorwissen.enum).toEqual(expect.arrayContaining(['gering', 'mittel', 'hoch']));
     expect(JSON.stringify(match.ansatz)).toContain('kooperativ');
-    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'nachweis', 'zielart']) {
+    for (const f of ['raum', 'raumBietet', 'fachausstattungArt', 'ohneSchrift', 'termine', 'nachweis', 'zielart', 'begleitziel']) {
       expect(match[f], 'match_scenario ' + f).toBeDefined();
       expect(props('build_scenario_plan')[f], 'build_scenario_plan ' + f).toBeDefined();
     }
@@ -527,6 +533,63 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
     const bad = await client.callTool({ name: 'match_scenario', arguments: { text: 'Einstieg', maxTechnik: 'quatsch' } });
     expect(bad.isError).toBe(true);
     expect((bad.content as Array<{ text: string }>)[0].text).toContain('maxTechnik');
+  });
+
+  it('match_scenario kennt dieselben Felder wie REST /match; planungsprofil kommt an (Fix-Welle D, Punkt 2)', async () => {
+    const { tools } = await client.listTools();
+    const props = (tools.find((t) => t.name === 'match_scenario')!.inputSchema.properties || {}) as Record<string, { enum?: string[]; description?: string }>;
+    const felder = (await (await fetch(new URL('/api/v1/fields', baseUrl))).json()) as Array<{ feld: string; werte?: Array<{ code: string }> }>;
+    for (const f of felder) {
+      expect(props[f.feld], 'match_scenario ' + f.feld).toBeDefined();
+      if (f.werte && props[f.feld].enum) expect(props[f.feld].enum, f.feld).toEqual(f.werte.map((w) => w.code));
+    }
+    expect(props.planungsprofil.enum).toContain('erwachsenenbildung');
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const anfrage = { text: 'Mathe Klasse 8, lineare Funktionen, 45 Minuten', planungsprofil: 'erwachsenenbildung', komplexitaet: 'hoch', sprachniveau: 'b1', lehrende: 2, thema: 'Steigung', einheit: 'Reihe Funktionen', bewertet: true };
+    const mcp = parse(await client.callTool({ name: 'match_scenario', arguments: anfrage }));
+    const rest = await (await fetch(new URL('/api/v1/match', baseUrl), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(anfrage) })).json();
+    expect(rest.planungsprofil).toBe('erwachsenenbildung');
+    expect(mcp.planungsprofil).toBe('erwachsenenbildung');
+    for (const f of ['planungsprofil', 'komplexitaet', 'sprachniveau', 'lehrende', 'thema', 'einheit', 'bewertet']) expect(mcp.kriterien[f], f).toEqual(rest.kriterien[f]);
+    expect(mcp.kriterien.einheit).toBe('Reihe Funktionen');
+  });
+
+  it('Entwurf: Sicherung aus dem Prüfschritt, nicht aus der Eingangsdiagnose oder der Wiederkehr (Fix-Welle D, Punkt 4)', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const text = 'Biologie Klasse 7, Fotosynthese, 45 Minuten';
+    const plan = parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text, umfang: 'voll' } }));
+    const rest = await (await fetch(new URL('/api/v1/plan', baseUrl), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, umfang: 'voll' }) })).json();
+    for (const p of [plan, rest]) {
+      const f = Object.fromEntries((p.entwurf.kernfelder as Array<{ id: string; inhalt: string }>).map((k) => [k.id, k.inhalt]));
+      const teile = p.maschinenlesbar.arrangement.ablauf.teile as Array<{ typ: string; baustein: string }>;
+      const name = (id: string) => (p.methodenDetails as Array<{ kennung: string; name: string }>).find((m) => m.kennung === id)?.name || id;
+      expect(f.lernerfolg).not.toContain(name(teile[0].baustein));
+      expect(f.lernerfolg).not.toMatch(/Wiederkehr/);
+      expect(f.reflexion).not.toMatch(/Wiederkehr/);
+      expect(f.reflexion).toContain(name(teile.filter((t) => t.typ !== 'Wiederkehr').at(-1)!.baustein));
+    }
+  });
+
+  it('Entwurf: Lernvoraussetzungen nennen nur genannte Teilgruppen, ohne Matrixwerte (Fix-Welle D, Punkt 5)', async () => {
+    const parse = (r: unknown) => JSON.parse(((r as { content: Array<{ text: string }> }).content)[0].text);
+    const lv = (p: { entwurf: { kernfelder: Array<{ id: string; inhalt: string }> } }) => p.entwurf.kernfelder.find((k) => k.id === 'lernvoraussetzungen')!.inhalt;
+    const post = async (body: object) =>
+      (await fetch(new URL('/api/v1/plan', baseUrl), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ umfang: 'voll', ...body }) })).json();
+    const text = 'Mathe Klasse 8, lineare Funktionen, 45 Minuten';
+    for (const p of [await post({ text }), parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text, umfang: 'voll' } }))]) {
+      const t = lv(p);
+      expect(t).toContain('- **Teilgruppen:** keine angegeben');
+      expect(t).not.toMatch(/Basisunterstützung|Vertiefung|\(\+\d+\)/);
+      // The default groups stay in the plan's matrix.
+      expect((p.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toContain('basis');
+    }
+    const mitAngaben = lv(await post({ text, vorwissen: 'gering' }));
+    expect(mitAngaben).toContain('- **Vorwissen:** gering');
+    const genannt = lv(await post({ text: 'Mathematik Klasse 7, 28 Kinder, davon 5 DaZ-Kinder, Bruchrechnen, 45 Minuten' }));
+    expect(genannt).toMatch(/DaZ/);
+    expect(genannt).not.toMatch(/\(\+\d+\)|Top-Maßnahmen/);
+    const uebergeben = lv(await post({ text, gruppen: [{ id: 'regel', label: 'Regelgruppe' }, { id: 'lese', label: 'Leseförderung', count: 4, profile: 'liest langsam' }] }));
+    expect(uebergeben).toContain('Leseförderung (4): liest langsam');
   });
 
   it('kürzt die Vorschlagsliste von match_scenario', async () => {
@@ -566,5 +629,80 @@ describe('FMT MCP Server (Streamable HTTP /mcp)', () => {
 
     const ohne = parse(await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Mathematik Klasse 7, Bruchrechnen, 45 Minuten' } }));
     expect((ohne.lerngruppenUndMatrix as Array<{ id: string }>).map((g) => g.id)).toEqual(['basis', 'regel', 'vertiefung']);
+  });
+  it('build_scenario_plan: Entwurf für n15 nutzt Sitzung, Studierende, Modul und führt sieben Kernfelder (Paket D, D2)', async () => {
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const text = 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur';
+    const voll = await call('build_scenario_plan', { text, umfang: 'voll' });
+    expect(voll.entwurf.planungsprofil.id).toBe('hochschule');
+    expect(voll.entwurf.kernfelder.map((k: { id: string }) => k.id)).toEqual(['rahmendaten', 'lernvoraussetzungen', 'ziele', 'einordnung', 'verlauf', 'lernerfolg', 'reflexion']);
+    const entwurf = JSON.stringify(voll.entwurf);
+    for (const w of ['Sitzung', 'Studierende', 'Modul', 'Tätigkeit der Lehrenden']) expect(entwurf, w).toContain(w);
+    expect(voll.entwurf.module.every((m: { inhalt: string }) => m.inhalt === '')).toBe(true);
+    for (const satz of LEITPLANKEN) expect(voll.llmBriefing.systemPrompt, satz).toContain(satz);
+    expect(voll.llmBriefing.systemPrompt).toContain('Verlaufsplan der Sitzung');
+    const kompakt = await call('build_scenario_plan', { text, umfang: 'kompakt' });
+    expect(kompakt.planungsprofil).toMatchObject({ id: 'hochschule', angenommen: false, einheit: 'Sitzung' });
+
+    const ohne = await call('build_scenario_plan', { text: 'Fotosynthese, Lichtreaktion, 45 Minuten', umfang: 'voll' });
+    expect(JSON.stringify(ohne)).not.toContain('Sekundarstufe I');
+    expect(ohne.entwurf.planungsprofil).toMatchObject({ id: 'schule', angenommen: true });
+    expect(JSON.stringify(ohne.entwurf)).toContain('Bildungsstufe nicht angegeben');
+    expect(ohne.pflichtangaben.angenommen.map((a: { feld: string }) => a.feld)).toContain('planungsprofil');
+  });
+
+  it('build_scenario_plan: Begleitziel als Feld und aus dem Text, begleitstrang auch kompakt, Entwurf nennt Begleitziel und Begleitstrang (Paket D, D3)', async () => {
+    const call = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+      return JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    };
+    const text = 'Physik Klasse 8, Stromkreis, 45 Minuten';
+    const kompakt = await call('build_scenario_plan', { text, begleitziel: ['selbstregulation'], umfang: 'kompakt' });
+    expect(kompakt.begleitstrang).toHaveLength(1);
+    expect(kompakt.begleitstrang[0]).toMatchObject({ begleitziel: 'selbstregulation', position: 'ende' });
+    expect(kompakt.regelmeldungen.map((m: { regel: string }) => m.regel)).toContain('begleitziel-braucht-termine');
+    const ohne = await call('build_scenario_plan', { text, umfang: 'kompakt' });
+    expect(ohne.begleitstrang).toBeUndefined();
+    const voll = await call('build_scenario_plan', { text: `${text}, soziales Lernen stärken`, umfang: 'voll' });
+    expect(voll.erkannteKriterien.begleitziel).toEqual(['sozial']);
+    // The topic stays the topic: the accompanying goal does not enter it.
+    expect(voll.thema).toBe('Stromkreis');
+    const ziele = voll.entwurf.kernfelder.find((k: { id: string }) => k.id === 'ziele').inhalt;
+    expect(ziele).toContain('Soziales Lernen');
+    expect(ziele).toContain(`Begleitstrang (Vorschlag): ${voll.begleitstrang[0].name}`);
+  });
+
+  it('elaborate_scenario nimmt begleitziel und begleitstrang an und nennt sie im Feld Ziele (Paket D, D3)', async () => {
+    const plan = JSON.parse(
+      ((await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Physik Klasse 8, Stromkreis, 45 Minuten', begleitziel: ['selbstregulation'], umfang: 'voll' } })).content as Array<{ text: string }>)[0].text
+    );
+    const res = await client.callTool({
+      name: 'elaborate_scenario',
+      arguments: { arrangement: plan.maschinenlesbar.arrangement, thema: 'Stromkreis', begleitziel: ['selbstregulation'], begleitstrang: plan.begleitstrang }
+    });
+    expect(res.isError, JSON.stringify(res.content)).toBeFalsy();
+    const j = JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    const ziele = j.entwurf.kernfelder.find((k: { id: string }) => k.id === 'ziele').inhalt;
+    expect(ziele).toContain('Selbstregulation');
+    expect(ziele).toContain(`Begleitstrang (Vorschlag): ${plan.begleitstrang[0].name}, ${plan.begleitstrang[0].dauerMin} min am Ende (Selbstregulation)`);
+  });
+
+  it('elaborate_scenario liefert den Entwurf mit sieben Kernfeldern und die Leitplanken im Briefing (Paket D, D2)', async () => {
+    const plan = JSON.parse(
+      ((await client.callTool({ name: 'build_scenario_plan', arguments: { text: 'Volkshochschule, Kochkurs Grundtechniken, 3 Stunden, 12 Teilnehmende', umfang: 'voll' } })).content as Array<{ text: string }>)[0].text
+    );
+    const res = await client.callTool({
+      name: 'elaborate_scenario',
+      arguments: { arrangement: plan.maschinenlesbar.arrangement, thema: 'Kochkurs', planungsprofil: 'erwachsenenbildung' }
+    });
+    const j = JSON.parse((res.content as Array<{ text: string }>)[0].text);
+    expect(j.entwurf.kernfelder).toHaveLength(7);
+    expect(j.ausarbeitung).toContain('Tätigkeit der Kursleitung');
+    for (const satz of LEITPLANKEN) expect(j.llmBriefing.systemPrompt, satz).toContain(satz);
   });
 });

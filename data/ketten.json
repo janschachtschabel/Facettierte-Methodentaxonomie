@@ -857,5 +857,80 @@
         "zeitanteil": 15
       }
     ]
+  },
+  {
+    "id": "vollstaendige-handlung",
+    "label": "Berufliche Handlung (vollständige Handlung)",
+    "zielart": [
+      "handlung"
+    ],
+    "grundlage": "U",
+    "quelle": "KMK 2021: Lernsituationen im Lernfeld; Lernwirksamkeit der Phasenfolge kaum geprüft",
+    "schritte": [
+      {
+        "id": "h1",
+        "label": "Auftrag analysieren, informieren",
+        "funktion": [
+          "orientierung"
+        ],
+        "ziel": "problem-erschlossen",
+        "rolle": "rand",
+        "zeitanteil": 10
+      },
+      {
+        "id": "h2",
+        "label": "Planen und entscheiden",
+        "funktion": [
+          "problemloesen",
+          "verstehen"
+        ],
+        "ziel": "loesungsversuche",
+        "rolle": "haupt",
+        "zeitanteil": 20,
+        "wissensart": [
+          "prozeduren",
+          "konzepte"
+        ]
+      },
+      {
+        "id": "h3",
+        "label": "Ausführen",
+        "funktion": [
+          "anwendung",
+          "konsolidierung"
+        ],
+        "ziel": "prozedur-gelaeufig",
+        "rolle": "haupt",
+        "zeitanteil": 45,
+        "wissensart": [
+          "prozeduren",
+          "psychomotorik"
+        ]
+      },
+      {
+        "id": "h4",
+        "label": "Kontrollieren",
+        "funktion": [
+          "diagnose"
+        ],
+        "ziel": "lernstand-diagnostiziert",
+        "rolle": "sicherung",
+        "zeitanteil": 13,
+        "wissensart": [
+          "prozeduren",
+          "psychomotorik"
+        ]
+      },
+      {
+        "id": "h5",
+        "label": "Bewerten und reflektieren",
+        "funktion": [
+          "metakognition"
+        ],
+        "ziel": "lernen-reflektiert",
+        "rolle": "rand",
+        "zeitanteil": 12
+      }
+    ]
   }
 ]

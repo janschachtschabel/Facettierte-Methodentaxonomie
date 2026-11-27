@@ -1,0 +1,126 @@
+{
+  "kennung": "sprachvergleich",
+  "name": "Sprachvergleich",
+  "eintragsart": "hilfe",
+  "kurzbeschreibung": "Lernende vergleichen ein Fachwort, eine Wendung oder eine Satzstruktur im Deutschen mit ihrer Herkunftssprache oder einer anderen Sprache, die sie kennen, und klären so Bedeutung und Form.",
+  "alternativname": [
+    "Sprachen vergleichen",
+    "Mehrsprachigkeit nutzen"
+  ],
+  "status": "entwurf",
+  "piktogramm": "sprache",
+  "ansatz": [
+    "diskurs"
+  ],
+  "fachbereich": [
+    "sprachen",
+    "uebergreifend"
+  ],
+  "quellen": [
+    {
+      "titel": "Höfler, Woerfel et al. (2024): Wirkung sprachsensibler Unterrichtsansätze. Zeitschrift für Erziehungswissenschaft",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "verstehen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "geteilt",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "udl"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "unmittelbar",
+    "formativ"
+  ],
+  "interaktion": [
+    "partner",
+    "plenum-lehrergeleitet"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "konzepte",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [],
+  "kernkomponente": [
+    {
+      "kennung": "vergleich",
+      "name": "Gegenüberstellung derselben Bedeutung oder Struktur in mindestens zwei Sprachen"
+    },
+    {
+      "kennung": "rueckbezug",
+      "name": "Rückbezug auf das Deutsche und den Fachinhalt"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 15,
+  "problem": "Lernende mit anderer Herkunftssprache bringen sprachliches Wissen mit, das der Unterricht ungenutzt lässt; Unterschiede zwischen den Sprachen führen zu Fehlern, die niemand erklärt.",
+  "durchfuehrung": [
+    "Fachwort, Wendung oder Satzstruktur wählen, an der das Deutsche schwierig ist",
+    "Lernende nennen die Entsprechung in einer Sprache, die sie kennen, freiwillig und ohne Bewertung",
+    "Gemeinsam benennen, was gleich und was anders ist",
+    "Auf das Deutsche zurückkommen und die Form für die Aufgabe festhalten"
+  ],
+  "material": [
+    "Tafel oder Karte mit der Ausgangsform"
+  ],
+  "gruppeMin": 2,
+  "gruppeMax": 35,
+  "vorbereitungMin": 10,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Vergleich mit einer gemeinsam gelernten Fremdsprache, wenn keine Herkunftssprachen eingebracht werden"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Hilfe: stützt Lernende innerhalb einer Methode und liefert keinen Lernstand. Trägt das Begleitziel Fach- und Bildungssprache.",
+  "qualitaetsrisiko": [
+    "Lernende werden gegen ihren Willen als Vertretung einer Sprache vorgeführt"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Sprachsensible Unterrichtsansätze schneiden nicht schlechter ab als Kontrollunterricht; die Evidenz ist methodisch dünn, eine Meta-Analyse war nicht möglich.",
+      "quelle": "Höfler et al. 2024",
+      "geltung": "Systematisches Review mit 55 Studien; Effektstärken fehlen, einzelne Werkzeuge sind nicht für sich untersucht. Der Regelsatz der FMT 2.0 nennt den Sprachvergleich „im Mercator-Review mehrfach geprüft“; dass dieser Review Höfler et al. 2024 ist, ist angenommen"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.38
+  }
+}

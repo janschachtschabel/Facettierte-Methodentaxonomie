@@ -1,6 +1,10 @@
 import {
+  ENTWURF_LEITPLANKEN,
   FMT_GUARDRAILS,
   adaptScenario,
+  entwurfMarkdown,
+  istPruefschritt,
+  type Entwurf,
   computeMultiGroupSynthesis,
   detectLearnerGroupsFromText,
   isRegularGroupId,
@@ -13,15 +17,17 @@ import {
   type MatchRequest,
   type ValidationResult
 } from '@fmt/core';
-import type { CatalogStore } from '../catalog-store.js';
+import { schemeValues, type CatalogStore } from '../catalog-store.js';
 import {
   buildDeterministicThematicTable,
+  extractScheduledPhases,
   extractSubjectAndTopicFromText,
   type ElaboratePayload,
   type MaterialPayload,
   type ThematicTableRow
 } from '../routes/assistant.js';
 import { searchWloOer } from '../routes/oer.js';
+import { entwurfAusTabelle, profilRahmen } from './entwurf.js';
 
 export interface PromptPair {
   systemPrompt: string;
@@ -47,7 +53,12 @@ export interface ElaborateBriefingResult {
   tableBatches: Array<{ chunkIndex: number; phaseKeys: string[]; prompt: PromptPair }>;
   narrativePrompt: PromptPair;
   llmBriefing: LlmBriefingPacket;
+  /** Draft with the seven core fields and the terms and modules of the planning profile. */
+  entwurf: Entwurf;
 }
+
+/** The four guardrails for a language model writing out a draft, as a prompt block. */
+const LEITPLANKEN_BLOCK = `LEITPLANKEN:\n${ENTWURF_LEITPLANKEN.map((g) => `- ${g}`).join('\n')}`;
 
 function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> {
   if (!node || typeof node !== 'object') return out;
@@ -98,6 +109,82 @@ export function buildTranslateBriefing(store: CatalogStore, text: string) {
   };
 }
 
+/**
+ * Draft with the seven core fields for an elaboration: profile, terms and modules, from the given table rows
+ * (deterministic or merged with LLM rows), as object and as Markdown.
+ */
+export function buildEntwurfFuerAusarbeitung(
+  store: CatalogStore,
+  body: ElaboratePayload,
+  pruefung: ValidationResult,
+  rows: ThematicTableRow[]
+): { entwurf: Entwurf; markdown: string; rahmen: ReturnType<typeof profilRahmen> } {
+  const kontext = body.arrangement.kontext || {};
+  const chain = body.arrangement.zieltyp ? store.bundle.ketten.find((k) => k.id === body.arrangement.zieltyp) : undefined;
+  const geplant = body.phasen?.length ? body.phasen : extractScheduledPhases(store, body.arrangement);
+  const rolleJeSchritt = new Map((chain?.schritte || []).map((st) => [st.id, st.rolle]));
+  const bildungsstufe = body.bildungsstufe || kontext.bildungsstufe;
+  const rahmen = profilRahmen(store, { planungsprofil: body.planungsprofil, bildungsstufe, text: body.text, angenommen: body.planungsprofilAngenommen });
+  const entwurf = entwurfAusTabelle(
+    store,
+    {
+      planungsprofil: body.planungsprofil,
+      planungsprofilAngenommen: body.planungsprofilAngenommen,
+      bildungsstufe,
+      text: body.text,
+      titel: body.thema || body.arrangement.name,
+      fach: body.fach,
+      thema: body.thema,
+      dauerMin: pruefung.dauerMin,
+      raum: body.raum,
+      anzahl: body.anzahl,
+      vorwissen: kontext.vorwissen,
+      sprachniveau: kontext.sprachniveau,
+      teilgruppen: body.entwurfTeilgruppen ?? body.differenzierung,
+      ausgangslage: body.problemstellung,
+      hauptziel: body.lernziele?.trim() || chain?.label,
+      einheit: body.einheit,
+      nachweis: body.nachweis,
+      hinweise: [...(body.hinweise?.trim() ? [body.hinweise.trim()] : []), ...(body.hinweiseListe || [])],
+      begleitziel: body.begleitziel,
+      begleitstrang: body.begleitstrang,
+      schritte: Object.fromEntries(
+        geplant.map((p) => [
+          p.key,
+          {
+            rolle: p.kettenschritt ? rolleJeSchritt.get(p.kettenschritt) : undefined,
+            pruefschritt: istPruefschritt(chain, p.kettenschritt),
+            // The web app sends its repetition row under the key 'wiederkehr'.
+            wiederkehr: Boolean(p.wiederkehr) || p.key === 'wiederkehr'
+          }
+        ])
+      )
+    },
+    rows
+  );
+  const { spalten } = entwurf;
+
+  const markdown = [
+    `# ${entwurf.planungsprofil.dokument}: ${body.fach ? `${body.fach} – ` : ''}${body.thema || body.arrangement.name}`,
+    '',
+    `- **Gesamtdauer:** ${pruefung.dauerMin} min · **Prüfstatus:** ${pruefung.gueltig ? 'Gültig' : 'Prüfhinweise offen'}`,
+    ...(body.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${body.didaktischerAnsatz}`] : []),
+    ...(body.akteure ? [`- **Akteure / Lerngruppe:** ${body.akteure}`] : []),
+    '',
+    entwurfMarkdown(entwurf, 2, {
+      verlauf: [
+        '### Durchführung Phase für Phase',
+        ...rows.map(
+          (r) =>
+            `#### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **${spalten.lehrende}:** ${r.teacherAction}\n- **${spalten.lernende}:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
+        )
+      ].join('\n')
+    })
+  ].join('\n');
+
+  return { entwurf, markdown, rahmen };
+}
+
 export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePayload): ElaborateBriefingResult {
   const pruefung = store.validator.validate(body.arrangement, store.exampleRegistry);
   const usedIds = [...collectUsedBlocks(body.arrangement.ablauf)];
@@ -132,23 +219,12 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
   const catalogContext = [...catalogById.values()];
   const fallbackTable = buildDeterministicThematicTable(store, body);
 
-  const fallbackMarkdown = [
-    `# Unterrichtsentwurf: ${body.fach ? `${body.fach} – ` : ''}${body.thema || body.arrangement.name}`,
-    '',
-    `- **Gesamtdauer:** ${pruefung.dauerMin} min · **Prüfstatus:** ${pruefung.gueltig ? 'Gültig' : 'Prüfhinweise offen'}`,
-    ...(body.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${body.didaktischerAnsatz}`] : []),
-    ...(body.akteure ? [`- **Akteure / Lerngruppe:** ${body.akteure}`] : []),
-    ...(body.lernziele ? ['', '## Lernziele', body.lernziele] : []),
-    '',
-    '## Thematischer Ablauf',
-    ...fallbackTable.map(
-      (r) =>
-        `### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **Lehrkraft:** ${r.teacherAction}\n- **Lernende:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
-    )
-  ].join('\n');
+  const { entwurf, markdown: fallbackMarkdown, rahmen } = buildEntwurfFuerAusarbeitung(store, body, pruefung, fallbackTable);
+  const { spalten } = entwurf;
 
   const sharedContextHeader =
     `FACH: ${body.fach || 'nicht angegeben'} · THEMA: ${body.thema || 'nicht angegeben'} · GESAMTDAUER: ${pruefung.dauerMin} min\n` +
+    `Bildungsstufe: ${rahmen.stufe} · ${rahmen.zeile}\n` +
     (body.didaktischerAnsatz ? `Didaktischer Ansatz: ${body.didaktischerAnsatz}\n` : '') +
     (body.akteure ? `Akteure / Personenanzahl: ${body.akteure}\n` : '') +
     (body.lernziele ? `Lernziele:\n${body.lernziele}\n` : '') +
@@ -185,7 +261,9 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
     '    }\n' +
     '  ]\n' +
     '}\n' +
-    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs außerhalb der übergebenen Katalog- und WLO-Daten.';
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs außerhalb der übergebenen Katalog- und WLO-Daten.\n' +
+    `BEGRIFFE: "teacherAction" ist die ${spalten.lehrende}, "learnerAction" die ${spalten.lernende}.\n` +
+    LEITPLANKEN_BLOCK;
 
   const tableBatches = phaseChunks.map((chunk, chunkIdx) => {
     const chunkKeys = new Set(chunk.map((r) => r.key));
@@ -243,13 +321,16 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
 
   const narrativeSystemPrompt =
     'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-    'Erstelle einen praxisfertigen, klar gegliederten deutschen Unterrichtsentwurf im Markdown-Format (KEIN JSON, direkt lesbares Markdown!).\n' +
-    'VERBINDLICHE STRUKTUR & METHODENTREUE:\n' +
-    '1. ## Kurzüberblick, Lernziele, didaktischer Ansatz & gewählte FMT-Methoden (jede Methode mit Kennung, Status kuratiert/entwurf und geplanter Dauer exakt aus der Phasenfolge)\n' +
-    '2. ## Thematische Durchführung (Phase für Phase): Setze JEDE ausgewählte FMT-Methode methodentreu um – übertrage ihre originalen Durchführungsschritte & Kernkomponenten explizit auf das konkrete Thema (inkl. Arbeitsimpulsen, Übergängen, Materialien und WLO-OER-Links mit exakter wwwurl). Falls du begründet von einer Methode abweichst, kennzeichne dies ausdrücklich.\n' +
-    '3. ## Binnendifferenzierung & Teilgruppen-Unterstützung (Matrix-Empfehlungen mit dem Hinweis ausweisen, dass es sich um Werte der FMT-Punktematrix handelt, nicht um empirische Effektstärken)\n' +
-    '4. ## Qualitätsrisiken, Evidenz (stets mit Geltungsbereich!) & verifizierte Quellen (nur aus den übergebenen Katalogdaten)\n' +
-    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Übernimm die exakten Phasendauern (Summe = Gesamtdauer).';
+    `Erstelle einen praxisfertigen, klar gegliederten deutschen Entwurf (${entwurf.planungsprofil.dokument}) im Markdown-Format (KEIN JSON, direkt lesbares Markdown!).\n` +
+    `BEGRIFFE DES PLANUNGSPROFILS: ${rahmen.zeile}. Spalten des Verlaufsplans: ${Object.values(spalten).join(' | ')}.\n` +
+    'VERBINDLICHE STRUKTUR (sieben Kernfelder in dieser Reihenfolge, Inhalt aus dem mitgelieferten Entwurf):\n' +
+    entwurf.kernfelder.map((k, i) => `${i + 1}. ## ${k.titel}`).join('\n') +
+    '\n' +
+    (entwurf.module.length ? `Danach die Module zum Ausfüllen: ${entwurf.module.map((m) => m.name).join(', ')} (nur als Überschrift mit Platz, nichts erfinden).\n` : '') +
+    'METHODENTREUE: Setze im Verlaufsplan JEDE ausgewählte FMT-Methode um – übertrage ihre originalen Durchführungsschritte & Kernkomponenten explizit auf das konkrete Thema (inkl. Arbeitsimpulsen, Übergängen, Materialien und WLO-OER-Links mit exakter wwwurl). ' +
+    'Binnendifferenzierung: Matrix-Empfehlungen mit dem Hinweis ausweisen, dass es sich um Werte der FMT-Punktematrix handelt, nicht um empirische Effektstärken.\n' +
+    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Übernimm die exakten Phasendauern (Summe = Gesamtdauer).\n' +
+    LEITPLANKEN_BLOCK;
 
   const narrativeUserPrompt =
     `AUSGESTALTUNG DES UNTERRICHTSENTWURFS (Markdown):\n${sharedContextHeader}\n` +
@@ -265,6 +346,7 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
       }))
     )}\n` +
     `Prüfstatus: ${pruefung.gueltig ? 'Formal gültig' : 'Prüfhinweise vorhanden'} (${pruefung.dauerMin} min)\n\n` +
+    `Entwurf (deterministisch aus dem geprüften Ablauf, übernommen):\n${entwurfMarkdown(entwurf, 2)}\n\n` +
     `FMT-Katalogdaten (Durchführung, Kernkomponenten, Risiken, Evidenz, Quellen):\n${JSON.stringify(catalogContext)}`;
 
   const narrativePrompt: PromptPair = {
@@ -280,6 +362,7 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
     fallbackMarkdown,
     tableBatches,
     narrativePrompt,
+    entwurf,
     llmBriefing: {
       zweck: 'Geprüftes FMT-Arrangement mit vorselektierten Methodendaten, Matrix-Maßnahmen und WLO-Links im eigenen LLM thematisch ausformulieren',
       ausfuehrungHinweis:
@@ -288,7 +371,8 @@ export function buildElaborateBriefing(store: CatalogStore, body: ElaboratePaylo
       userPrompt: narrativeUserPrompt,
       jsonMode: false,
       maxTokens: 3200,
-      leitplanken: FMT_GUARDRAILS
+      // The draft guardrails travel in the structured field too, not only inside the system prompt.
+      leitplanken: [...FMT_GUARDRAILS, ...ENTWURF_LEITPLANKEN]
     }
   };
 }
@@ -373,9 +457,12 @@ export function buildMaterialBriefing(store: CatalogStore, body: MaterialPayload
     qualitaetsrisiko: block.qualitaetsrisiko
   };
 
+  // No silent default: without a Bildungsstufe the prompt says so; the planning profile names the terms.
+  const rahmen = profilRahmen(store, { planungsprofil: body.planungsprofil, bildungsstufe: body.bildungsstufe });
   const userPrompt =
     `MATERIALTYP: ${materialTyp}\n` +
-    `Fach: ${body.fach || 'nicht angegeben'} · Thema: ${body.thema || 'nicht angegeben'} · Bildungsstufe: ${body.bildungsstufe || 'Sekundarstufe I'}\n` +
+    `Fach: ${body.fach || 'nicht angegeben'} · Thema: ${body.thema || 'nicht angegeben'} · Bildungsstufe: ${rahmen.stufe}\n` +
+    `${rahmen.zeile}\n` +
     `Phase: ${body.phaseLabel || 'Unterrichtsphase'} · Dauer: ${body.dauerMin || block.dauerMin} min\n` +
     (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
     (body.gruppen?.length ? `\nAktive Lerngruppen & Binnendifferenzierung:\n${JSON.stringify(body.gruppen, null, 2)}\n` : '') +
@@ -414,6 +501,8 @@ export interface ScenarioPlanArgs {
   zeitMin?: number;
   gruppe?: number;
   bildungsstufe?: string;
+  /** Planning profile of the draft (scheme planungsprofil); otherwise it follows from Bildungsstufe and text. */
+  planungsprofil?: string;
   vorwissen?: string;
   maxTechnik?: string;
   maxVorbereitung?: number;
@@ -428,6 +517,8 @@ export interface ScenarioPlanArgs {
   ohneSchrift?: string | string[];
   termine?: number;
   nachweis?: string;
+  /** Accompanying goals (scheme begleitziel): order equivalent methods and propose a short accompanying strand. */
+  begleitziel?: string | string[];
   /** 0 = first proposal; higher values give the next equally suitable combination. */
   variante?: number;
   includeWloOer?: boolean;
@@ -488,8 +579,17 @@ export function subgroupsFromText(text: string, groupSize?: number): PlanGroup[]
   ];
 }
 
+/** Room of the plan as label: stated in the request, else the assumed one (marked). */
+function raumLabel(store: CatalogStore, matched: { kriterien: Record<string, unknown>; pflichtangaben?: { angenommen: Array<{ feld: string; wert: unknown }> } }): string | undefined {
+  const label = (code: string) => schemeValues(store.bundle, 'raumtyp').find((w) => w.id === code)?.label || code;
+  const genannt = matched.kriterien.raum || matched.kriterien.lernort;
+  if (typeof genannt === 'string' && genannt) return label(genannt);
+  const angenommen = matched.pflichtangaben?.angenommen.find((x) => x.feld === 'raum')?.wert;
+  return angenommen ? `${label(String(angenommen))} (angenommen)` : undefined;
+}
+
 /** Fields only needed for the caller's own LLM run or for the Baukasten import; left out in compact answers. */
-const PLAN_FULL_ONLY = ['llmBriefing', 'maschinenlesbar', 'skalenVorfilterung', 'erkannteMatrixSignale', 'udlBasis', 'konflikte', 'engine'] as const;
+const PLAN_FULL_ONLY = ['llmBriefing', 'entwurf', 'maschinenlesbar', 'skalenVorfilterung', 'erkannteMatrixSignale', 'udlBasis', 'konflikte', 'engine'] as const;
 
 export function compactScenarioPlan<T extends Record<string, unknown>>(plan: T): Partial<T> & { hinweisUmfang?: string } {
   if ('fehler' in plan) return plan;
@@ -501,7 +601,7 @@ export function compactScenarioPlan<T extends Record<string, unknown>>(plan: T):
       .map((r) => r.replace(' und `maschinenlesbar.arrangement`', ''));
   }
   out.hinweisUmfang =
-    'Kompakte Antwort. Mit umfang: "voll" kommen zusätzlich llmBriefing, maschinenlesbar (Baukasten-Import), udlBasis und konflikte.';
+    'Kompakte Antwort. Mit umfang: "voll" kommen zusätzlich llmBriefing, entwurf (sieben Kernfelder nach Planungsprofil), maschinenlesbar (Baukasten-Import), udlBasis und konflikte.';
   return out as Partial<T> & { hinweisUmfang?: string };
 }
 
@@ -534,6 +634,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     zeitMin: args.zeitMin,
     gruppe: args.gruppe,
     bildungsstufe: args.bildungsstufe,
+    planungsprofil: args.planungsprofil,
     vorwissen: args.vorwissen,
     maxTechnik: args.maxTechnik,
     maxVorbereitung: args.maxVorbereitung,
@@ -547,6 +648,7 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     ohneSchrift: args.ohneSchrift,
     termine: args.termine,
     nachweis: args.nachweis,
+    begleitziel: args.begleitziel,
     fachbereich:
       args.fachbereich || (fachFeld && fachFeld.fachbereich !== 'uebergreifend' ? fachFeld.fachbereich : fachbereichAusFeld)
   };
@@ -741,7 +843,23 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
       anzahl: g.count,
       matrixMassnahmen: g.matrixTop
     })),
-    oerRessourcen: oerHits.map((o) => ({ titel: o.titel, wwwurl: o.wwwurl, lizenz: o.lizenz }))
+    oerRessourcen: oerHits.map((o) => ({ titel: o.titel, wwwurl: o.wwwurl, lizenz: o.lizenz })),
+    // The draft names only groups the request names or passes in; the default groups stay in the matrix.
+    entwurfTeilgruppen:
+      activeGroups === defaultGroups ? [] : activeGroups.map((g) => ({ id: g.id, gruppe: g.label, anzahl: g.count, profil: g.profile })),
+    // Draft: profile and assumptions from the core answer, the request as the matcher read it, the plan's notes.
+    text: args.text,
+    bildungsstufe: args.bildungsstufe || (matched.kriterien.bildungsstufe as string | undefined),
+    planungsprofil: matched.planungsprofil,
+    planungsprofilAngenommen: (matched.pflichtangaben?.angenommen || []).some((x) => x.feld === 'planungsprofil'),
+    raum: raumLabel(store, matched),
+    anzahl: groupSize,
+    einheit: typeof matched.kriterien.einheit === 'string' ? matched.kriterien.einheit : undefined,
+    nachweis: matched.nachweis?.formen.map((f) => schemeValues(store.bundle, 'nachweisform').find((w) => w.id === f)?.label || f).join(' oder '),
+    hinweiseListe: matched.hinweise || [],
+    // Accompanying goals as the matcher read them (field or text) and the strand it proposes (D3).
+    begleitziel: matched.kriterien.begleitziel as string[] | undefined,
+    begleitstrang: matched.begleitstrang
   };
 
   const briefing = buildElaborateBriefing(store, elabPayload);
@@ -791,6 +909,8 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     // Steps left open and why (uncovered need), and the form of proof the check is ordered by.
     ...(matched.modus === 'ablauf' && matched.offenGruende?.length ? { offenGruende: matched.offenGruende } : {}),
     ...(matched.nachweis ? { nachweis: matched.nachweis } : {}),
+    // Accompanying strand per accompanying goal: a proposal to take over, not part of the plan (D3).
+    ...(matched.modus === 'ablauf' && matched.begleitstrang?.length ? { begleitstrang: matched.begleitstrang } : {}),
     annahmen: matched.annahmen || [],
     hinweise: matched.hinweise || [],
     pflichtangaben: matched.pflichtangaben,
@@ -812,6 +932,9 @@ export async function buildScenarioPlanZeroLlm(store: CatalogStore, args: Scenar
     zusatzphasen,
     wloOerRessourcen: oerHits,
     thematischeTabelle: briefing.fallbackTable,
+    // Planning profile with its terms (also in compact answers) and the draft with seven core fields (full answer).
+    planungsprofil: { ...briefing.entwurf.planungsprofil, spalten: briefing.entwurf.spalten },
+    entwurf: briefing.entwurf,
     llmBriefing: briefing.llmBriefing,
     maschinenlesbar: {
       '@type': 'FmtScenarioPlan',

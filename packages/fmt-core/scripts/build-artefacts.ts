@@ -288,6 +288,7 @@ export function buildContext(D: FmtData) {
     alternativname: { '@id': 'skos:altLabel', '@container': '@set' },
     problem: 'fmt:problem',
     raumhinweis: 'fmt:raumhinweis',
+    betreuungshinweis: 'fmt:betreuungshinweis',
     durchfuehrung: { '@id': 'fmt:durchfuehrung', '@container': '@list' },
     material: { '@id': 'fmt:material', '@container': '@set' },
     variante: { '@id': 'fmt:variante', '@container': '@set' },
@@ -460,6 +461,7 @@ export function buildSchema(D: FmtData) {
       komposit: { type: 'boolean' },
       problem: { type: 'string' },
       raumhinweis: { type: 'string' },
+      betreuungshinweis: { type: 'string' },
       durchfuehrung: { type: 'array', items: { type: 'string' }, minItems: 2 },
       material: { type: 'array', items: { type: 'string' } },
       variante: { type: 'array', items: { type: 'string' } },
@@ -556,7 +558,7 @@ export function buildSchema(D: FmtData) {
             quelle: { type: 'string' },
             geltung: { type: 'string' },
             umstritten: { type: 'string' },
-            evidenzBezug: { enum: ['methode', 'prinzip'] }
+            evidenzBezug: { enum: ['methode', 'prinzip', 'programm'] }
           }
         }
       }
@@ -714,6 +716,7 @@ export function buildAllArtefacts(rootDir: string) {
     ketten: D.ketten,
     regeln: D.regeln,
     teilgruppen: D.teilgruppen,
+    planungsprofile: D.planungsprofile,
     bausteine: D.bausteine,
     beispiele: D.beispiele,
     oeh,
@@ -739,6 +742,7 @@ export function buildAllArtefacts(rootDir: string) {
     ketten: D.ketten,
     regeln: D.regeln,
     teilgruppen: D.teilgruppen,
+    planungsprofile: D.planungsprofile,
     bausteine: D.bausteine,
     beispiele: D.beispiele,
     oeh,

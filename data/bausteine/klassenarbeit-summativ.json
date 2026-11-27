@@ -132,9 +132,9 @@
   "evidenz": [
     {
       "grad": "B",
-      "evidenzBezug": "methode",
+      "evidenzBezug": "prinzip",
       "befund": "Summative Prüfungen sichern Vergleichbarkeit, wirken aber erst lernförderlich, wenn formative Rückmeldung und Nacharbeit folgen.",
-      "quelle": "Black & Wiliam 1998; Hattie 2009",
+      "quelle": "Black & Wiliam 1998",
       "geltung": "Allgemeinbildende & berufliche Schulen, Hochschulen",
       "umstritten": "Soziale Bezugsnorm und Prüfungsangst können Motivation schwächerer Lernender senken"
     }

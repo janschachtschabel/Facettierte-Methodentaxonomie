@@ -178,6 +178,32 @@ export const LESEFAELLE: Array<{ text: string; erwartet: Record<string, unknown>
   { text: 'Mathe Klasse 7: die Aufgaben werden bewertet, 45 Minuten', erwartet: { bewertet: true } },
   { text: 'Mathe Klasse 7: Übungsphase, unbenotet, 45 Minuten', erwartet: {}, nicht: { bewertet: true } },
   { text: 'Mathe Klasse 7: Übungsphase, nicht benotet, 45 Minuten', erwartet: {}, nicht: { bewertet: true } },
+  // Accompanying goals (Paket D, D3): the reading phrases of the brief; the phrase never sets an approach or a function.
+  { text: 'Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern', erwartet: { begleitziel: ['selbstregulation'] } },
+  { text: 'Mathe Klasse 7, Prozentrechnung, 45 Minuten, Lernen lernen', erwartet: { begleitziel: ['selbstregulation'] } },
+  { text: 'Biologie Klasse 6, Zellaufbau, 45 Minuten, mit Lernstrategien', erwartet: { begleitziel: ['selbstregulation'] } },
+  { text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken', erwartet: { begleitziel: ['sozial'] }, nicht: { ansatz: ['kooperativ'] } },
+  { text: 'Erdkunde Klasse 7, Plattentektonik, 45 Minuten, Zusammenarbeit stärken', erwartet: { begleitziel: ['sozial'] } },
+  { text: 'Deutsch Klasse 5, Märchen, 45 Minuten, Klassenklima verbessern', erwartet: { begleitziel: ['sozial'] } },
+  { text: 'Chemie Klasse 9, Säuren und Basen, 45 Minuten, sprachsensibel', erwartet: { begleitziel: ['sprache'] } },
+  { text: 'Physik Klasse 9, Optik, 45 Minuten, Fachsprache fördern', erwartet: { begleitziel: ['sprache'] } },
+  { text: 'Geschichte Klasse 8, Industrialisierung, 45 Minuten, Bildungssprache und soziales Lernen', erwartet: { begleitziel: ['sprache', 'sozial'] } },
+  // A team workshop on collaboration names its topic, not an accompanying goal.
+  { text: 'Teamworkshop in einer Firma, 15 Mitarbeitende, Zusammenarbeit verbessern, halber Tag', erwartet: {}, nicht: { begleitziel: ['sozial'] } },
+  // Complete action (Paket D, D5): the keywords name the goal kind only together with vocational education; a short
+  // instruction (n14) stays a movement skill.
+  { text: 'Berufsschule, Lernfeld 3 Kfz-Mechatronik, Bremsanlage prüfen, Werkstatt, 180 Minuten', erwartet: { bildungsstufe: 'berufsbildung', zielart: 'handlung' } },
+  { text: 'Berufsschule Industriekaufleute: Lernsituation Angebot erstellen, 90 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Ausbildung Elektroniker, Kundenauftrag Beleuchtung planen, 135 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Auszubildende Tischler, Arbeitsauftrag Regal bauen, 180 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Berufsschule, vollstaendige Handlung: Wartung einer Pumpe, 90 Minuten', erwartet: { zielart: 'handlung' } },
+  { text: 'Berufskolleg, vollständige Handlung: Wartung einer Pumpe, 90 Minuten', erwartet: { bildungsstufe: 'berufsbildung', zielart: 'handlung' } },
+  { text: 'Berufskolleg Wirtschaft: Lernfeld 4, 90 Minuten', erwartet: { bildungsstufe: 'berufsbildung', fachbereich: 'beruf-praxis' } },
+  { text: 'Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten', erwartet: { zielart: 'bewegung' } },
+  { text: 'Deutsch Klasse 8: Lernsituation Kundenauftrag, 45 Minuten', erwartet: {}, nicht: { zielart: 'handlung' } },
+  // A goal kind with higher priority read from the text wins over the keyword.
+  { text: 'Berufsschule Elektroniker, Lernfeld 2: Schaltpläne lesen, 90 Minuten', erwartet: { zielart: 'prozeduren' } },
+  { text: 'Fachinformatiker Lernfeld 3: Netzwerk planen, 90 Minuten', erwartet: {}, nicht: { zielart: 'handlung' } },
 ];
 
 /** Requests that name a method; the plan must contain it. */

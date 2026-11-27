@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pickOrder, softScore, stableHash, type SoftScoreParts } from '../src/ranking.js';
+import { EQUIVALENCE_TOLERANCE, SOFT_WEIGHTS, pickOrder, rankingGrade, softScore, stableHash, type SoftScoreParts } from '../src/ranking.js';
 
 const base: SoftScoreParts = {
   ansatzMiss: false,
@@ -68,6 +68,42 @@ describe('Bewertung der Kandidaten', () => {
   });
 });
 
+describe('Begleitziel in der Rangfolge (Paket D, D3)', () => {
+  it('Gewicht -0.5, kleiner als die Toleranz der Gleichwertigkeit', () => {
+    expect(SOFT_WEIGHTS.begleitziel).toBe(-0.5);
+    expect(Math.abs(SOFT_WEIGHTS.begleitziel)).toBeLessThan(EQUIVALENCE_TOLERANCE);
+    expect(softScore({ ...base, begleitziel: true }) - softScore(base)).toBe(-0.5);
+    expect(softScore({ ...base, begleitziel: false })).toBe(softScore(base));
+  });
+
+  it('unter Gleichwertigen steht eine Methode, die das Begleitziel trägt, vorn – bei jedem Thema und jeder Variante', () => {
+    const items = Array.from({ length: 8 }, (_, i) => ({ item: `m${i}`, id: `m${i}`, hard: [0], soft: 1 + i * 0.05 }));
+    const traeger = { item: 'traeger', id: 'traeger', hard: [0], soft: 1.3 + SOFT_WEIGHTS.begleitziel, vorn: true };
+    // Without the goal it is just one of the equivalents (1.3 is within 1 + 0.75), so the hash decides.
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
+      for (const v of [0, 1, 2]) expect(pickOrder([...items, traeger], seed, v)[0]).toBe('traeger');
+    }
+  });
+
+  it('ein Begleitziel verdrängt keine Methode mit besserer Rangstufe', () => {
+    // A better hard tier always wins, however low the soft score of the carrier is.
+    const besser = { item: 'besser', id: 'besser', hard: [0, 0], soft: 3 };
+    const traeger = { item: 'traeger', id: 'traeger', hard: [0, 1], soft: softScore({ ...base, begleitziel: true }), vorn: true };
+    for (const seed of ['a', 'b', 'c']) expect(pickOrder([traeger, besser], seed)).toEqual(['besser', 'traeger']);
+    // Between 0.75 and 1.25 behind (inside the tolerance only with the weight): still behind, for every seed (review D3).
+    for (const behind of [0.76, 1.0, 1.24]) {
+      const knapp = { item: 'knapp', id: 'knapp', hard: [0], soft: 1 + behind + SOFT_WEIGHTS.begleitziel, vorn: true };
+      for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) expect(pickOrder([knapp, { item: 'gut', id: 'gut', hard: [0], soft: 1 }], seed)[0], `${behind} ${seed}`).toBe('gut');
+    }
+    // Outside the tolerance (even with the weight) the carrier stays behind.
+    const gut = { item: 'gut', id: 'gut', hard: [0], soft: 1 };
+    const fern = { item: 'fern', id: 'fern', hard: [0], soft: 1 + EQUIVALENCE_TOLERANCE + 0.01, vorn: true };
+    for (const seed of ['a', 'b', 'c']) expect(pickOrder([fern, gut], seed)).toEqual(['gut', 'fern']);
+    // With tolerance 0 (single phase) the order is by score alone; the weight only moves a carrier by half a point.
+    expect(pickOrder([{ ...fern, soft: 1.6 }, gut], 'x', 0, 0)).toEqual(['gut', 'fern']);
+  });
+});
+
 describe('softScore: phase filling and subject area', () => {
   const base = {
     ansatzMiss: false,
@@ -92,5 +128,16 @@ describe('softScore: phase filling and subject area', () => {
     const { softScore } = await import('../src/ranking.js');
     expect(softScore({ ...base, fachbereich: 'passt' })).toBeLessThan(softScore({ ...base, fachbereich: 'neutral' }));
     expect(softScore({ ...base, fachbereich: 'fremd' })).toBeGreaterThan(softScore({ ...base, fachbereich: 'neutral' }));
+  });
+});
+
+
+describe('rankingGrade mit Evidenzbezug programm (Paket D, D4)', () => {
+  it('Grad A mit Bezug programm zählt wie B, wie prinzip; B und C bleiben', () => {
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'programm' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'prinzip' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'A', evidenzBezug: 'programm' }, { grad: 'A', evidenzBezug: 'methode' }])).toBe('A');
+    expect(rankingGrade([{ grad: 'B', evidenzBezug: 'programm' }])).toBe('B');
+    expect(rankingGrade([{ grad: 'C', evidenzBezug: 'programm' }])).toBe('C');
   });
 });

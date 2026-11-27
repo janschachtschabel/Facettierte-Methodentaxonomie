@@ -74,6 +74,8 @@ export interface VocabValue {
   nachweis?: string[];
   /** Reading of the value per context (text or by key). */
   lesart?: Record<string, string> | string;
+  /** Begleitziel only: the name as it stands inside a sentence ("soziales Lernen"). */
+  imSatz?: string;
 }
 
 export interface VocabGroup {
@@ -108,6 +110,53 @@ export interface MerkmalAntwort {
   grundlage: Grundlage;
   quelle?: string;
 }
+/** Common field of every planning document (data/planungsprofile.json). */
+export interface Kernfeld {
+  id: 'rahmendaten' | 'lernvoraussetzungen' | 'ziele' | 'einordnung' | 'verlauf' | 'lernerfolg' | 'reflexion';
+  name: string;
+  wfelder: string[];
+}
+
+/** Terms and modules of one field of education (school, vocational school, company, university, adult education). */
+export interface Planungsprofil {
+  id: 'schule' | 'berufsschule' | 'betrieb' | 'hochschule' | 'erwachsenenbildung';
+  bildungsstufe: string[];
+  einheit: string;
+  groessereEinheit: string;
+  dokument: string;
+  lehrende: string;
+  lernende: string;
+  status: string;
+  /**
+   * Grammatical forms of the terms for headings and column names (e.g. "Tätigkeit der Kursleitung"),
+   * stored explicitly because the terms above are lists ("Sitzung, Lehrveranstaltung") or need a case form.
+   */
+  formen: PlanungsprofilFormen;
+  module: Array<{ id: string; name: string }>;
+}
+
+export interface PlanungsprofilFormen {
+  /** One unit, nominative singular ("Sitzung"). */
+  einheit: string;
+  /** Genitive with article ("der Sitzung"). */
+  derEinheit: string;
+  groessereEinheit: string;
+  /** Accusative with preposition ("in das Modul"). */
+  inGroessereEinheit: string;
+  /** Genitive of the teaching person(s) with article ("der Kursleitung"). */
+  derLehrenden: string;
+  /** Accusative with "für" ("für die Ausbilderin oder den Ausbilder"), for headings like "Hinweise für …". */
+  fuerLehrende: string;
+  /** Genitive of the learners with article ("der Teilnehmenden"). */
+  derLernenden: string;
+}
+
+export interface PlanungsprofileRegelsatz {
+  kernfelder: Kernfeld[];
+  profile: Planungsprofil[];
+  hinweis?: string;
+}
+
 export interface TeilgruppenRegelsatz {
   merkmale: MerkmalAntwort[];
   /** Answer for matrix values no row names. */
@@ -221,6 +270,10 @@ export interface Funktionskette {
   zielart?: string[];
   /** Approaches (vocab ansatz) that pick this chain among those of one goal kind. */
   ansatz?: string[];
+  /** Evidence basis of the step sequence (FMT 2.0); a chain without it is a setting of the data. */
+  grundlage?: Grundlage;
+  /** Source of the chain, shown with its basis. */
+  quelle?: string;
   closeMatch?: string | string[];
   relatedMatch?: string | string[];
   broadMatch?: string | string[];
@@ -250,8 +303,11 @@ export interface Evidenzaussage {
   quelle: string;
   geltung: string;
   umstritten?: string;
-  /** methode: studies on this method itself; prinzip: derived from the underlying principle. */
-  evidenzBezug?: 'methode' | 'prinzip';
+  /**
+   * methode: studies on this method itself; prinzip: derived from the underlying principle;
+   * programm: studies on whole programmes over weeks, not on the single phase.
+   */
+  evidenzBezug?: 'methode' | 'prinzip' | 'programm';
 }
 
 export interface Steuerungsprofil {
@@ -341,7 +397,7 @@ export interface Baustein {
   technik: string;
   internet: boolean;
   variante?: string[];
-  kategorie: string[];
+  kategorie?: string[];
   hinweis?: string;
   qualitaetsrisiko?: string[];
   evidenz: Evidenzaussage[];
@@ -461,6 +517,7 @@ export interface FmtData {
   regeln: Passungsregel[];
   /** Table "Tausch oder Hilfe" for subgroups. */
   teilgruppen: TeilgruppenRegelsatz;
+  planungsprofile: PlanungsprofileRegelsatz;
   bausteine: Baustein[];
   beispiele: Arrangement[];
   /** OEH school and university subjects mapped to FMT subject areas (recognition layer, optional). */
@@ -582,6 +639,8 @@ export interface MatchRequest {
   vorhanden?: string | string[];
   vorwissen?: string;
   bildungsstufe?: string;
+  /** Planning profile (scheme planungsprofil); derived from bildungsstufe and text when absent. */
+  planungsprofil?: string;
   /** Complexity of the content (scheme komplexitaet). */
   komplexitaet?: string;
   /** Language level of the whole group (scheme sprachniveau, A1 to C2). */
@@ -594,6 +653,8 @@ export interface MatchRequest {
   einheit?: string;
   /** Whether the lesson is graded. */
   bewertet?: boolean;
+  /** Accompanying goals (scheme begleitziel): they never choose the chain, only order equivalent methods. */
+  begleitziel?: string | string[];
   [key: string]: unknown;
 }
 
@@ -643,6 +704,8 @@ export interface MatchHead {
   regelmeldungen?: Regelmeldung[];
   /** Which of the six required details the request leaves open, and what was assumed instead (field, value, reason). */
   pflichtangaben?: Situation['pflichtangaben'];
+  /** Planning profile of the draft (terms and modules): stated, read from Bildungsstufe and text, or assumed (then under pflichtangaben.angenommen). */
+  planungsprofil?: Planungsprofil['id'];
   /** Form of proof the check is ordered by (rule nachweis-passt-zum-ziel): stated in the request or carried by the goal kind. */
   nachweis?: { formen: string[]; quelle: 'anfrage' | 'zielart'; grund: string };
 }
@@ -692,6 +755,21 @@ export interface AblaufMatchResult extends MatchHead {
     meldungen: ValidationMessage[];
   };
   weitereKetten?: Array<{ id: string; label: string }>;
+  /**
+   * Short accompanying strand per accompanying goal (selbstregulation, sozial): a proposal to take over, not part of
+   * the plan. sprache gets no strand but a note on helps in step 3.
+   */
+  begleitstrang?: Begleitstrang[];
+}
+
+/** One proposed accompanying strand: a short reflection at the end of the lesson that carries the goal. */
+export interface Begleitstrang {
+  begleitziel: string;
+  baustein: string;
+  name: string;
+  dauerMin: number;
+  position: 'ende';
+  grund: string;
 }
 
 export type MatchResult = PhaseMatchResult | AblaufMatchResult;
@@ -713,6 +791,7 @@ export interface CatalogBundle {
   ketten: Funktionskette[];
   regeln: Passungsregel[];
   teilgruppen: TeilgruppenRegelsatz;
+  planungsprofile: PlanungsprofileRegelsatz;
   bausteine: Baustein[];
   beispiele: Arrangement[];
   oeh: Record<string, string>;

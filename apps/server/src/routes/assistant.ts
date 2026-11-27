@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type MatchRequest, type ValidationResult } from '@fmt/core';
+import { FMT_GUARDRAILS, extractSubjectAndTopic, type Arrangement, type Entwurf, type MatchRequest, type ValidationResult } from '@fmt/core';
 import type { CatalogStore } from '../catalog-store.js';
 import type { ServerConfig } from '../config.js';
 import { LruTtlCache } from '../llm/cache.js';
@@ -15,11 +15,13 @@ import {
 import {
   buildDifferentiateBriefing,
   buildElaborateBriefing,
+  buildEntwurfFuerAusarbeitung,
   buildMaterialBriefing,
   buildTranslateBriefing,
   type DifferentiateBriefingPayload,
   type LlmBriefingPacket
 } from '../llm/briefings.js';
+import { profilRahmen } from '../llm/entwurf.js';
 import { InvalidRequestError, isMaterialGroupList } from './validation.js';
 
 export interface ThematicTableRow {
@@ -52,6 +54,11 @@ export interface ElaboratePayload {
     anzahl?: number;
     matrixMassnahmen?: string[];
   }>;
+  /**
+   * Subgroups the draft names under Lernvoraussetzungen: only those read from the request or passed in, without
+   * matrix scores. Empty when the request names none; absent means `differenzierung` (elaborate, from the web app).
+   */
+  entwurfTeilgruppen?: Array<{ id?: string; gruppe: string; profil?: string; anzahl?: number }>;
   oerRessourcen?: Array<{
     stepKey?: string;
     titel: string;
@@ -74,7 +81,29 @@ export interface ElaboratePayload {
     methodId: string;
     methodName: string;
     subgroupMethods?: Record<string, { methodId: string; methodName: string }>;
+    /** Chain step the phase fills (read from the arrangement). */
+    kettenschritt?: string;
+    /** Distributed repetition (Wiederkehr node): never the check step or the closing step of the draft. */
+    wiederkehr?: boolean;
   }>;
+  /** Bildungsstufe as code or label; read from the arrangement when absent. */
+  bildungsstufe?: string;
+  /** Planning profile (scheme planungsprofil); otherwise it follows from the Bildungsstufe. */
+  planungsprofil?: string;
+  /** The profile was assumed by the matcher (named under pflichtangaben.angenommen). */
+  planungsprofilAngenommen?: boolean;
+  /** Room as label, class size, larger unit, form of proof and the plan's notes, for the core fields. */
+  raum?: string;
+  anzahl?: number;
+  einheit?: string;
+  nachweis?: string;
+  hinweiseListe?: string[];
+  /** Request text (company words choose the profile betrieb). */
+  text?: string;
+  /** Accompanying goals (codes of the scheme begleitziel or labels), for the core field Ziele (D3). */
+  begleitziel?: string | string[];
+  /** Accompanying strand the plan proposes (answer field begleitstrang of the plan), for the core field Ziele (D3). */
+  begleitstrang?: Array<{ begleitziel: string; baustein?: string; name?: string; dauerMin: number }>;
 }
 
 export interface MaterialPayload {
@@ -88,6 +117,8 @@ export interface MaterialPayload {
   mode?: 'ki' | 'template';
   gruppen?: Array<{ label: string; profile: string; count?: number; matrixMeasures?: string[] }>;
   hinweise?: string;
+  /** Planning profile (scheme planungsprofil); otherwise it follows from the Bildungsstufe. */
+  planungsprofil?: string;
 }
 
 function readByokHeaders(req: FastifyRequest, bodyObj?: Record<string, unknown> | null): LlmOverride {
@@ -125,7 +156,7 @@ function collectUsedBlocks(node: unknown, out = new Set<string>()): Set<string> 
   return out;
 }
 
-function extractScheduledPhases(
+export function extractScheduledPhases(
   store: CatalogStore,
   arrangement: Arrangement
 ): NonNullable<ElaboratePayload['phasen']> {
@@ -161,7 +192,8 @@ function extractScheduledPhases(
         phaseLabel,
         durationMin,
         methodId: n.baustein,
-        methodName: b?.name || n.baustein
+        methodName: b?.name || n.baustein,
+        ...(stepId ? { kettenschritt: stepId } : {})
       });
       return;
     }
@@ -179,7 +211,8 @@ function extractScheduledPhases(
         phaseLabel: `Wiederkehr (${count}× à ${single} min)`,
         durationMin: single * count,
         methodId: n.baustein,
-        methodName: b?.name || n.baustein
+        methodName: b?.name || n.baustein,
+        wiederkehr: true
       });
       return;
     }
@@ -294,6 +327,8 @@ export async function elaborateScenarioCore(
   pruefung: ValidationResult;
   ausarbeitung: string;
   thematischeTabelle: ThematicTableRow[];
+  /** Draft with the seven core fields in the terms of the planning profile (from the deterministic table). */
+  entwurf?: Entwurf;
   meta?: {
     teilprompts: number;
     erfolgreich: number;
@@ -332,23 +367,11 @@ export async function elaborateScenarioCore(
         }
       ])
   );
-  const catalogContext = [...catalogById.values()];
 
-  const buildStructuredMarkdownFallback = (rows: ThematicTableRow[]) =>
-    [
-      `# Unterrichtsentwurf: ${body.fach ? `${body.fach} – ` : ''}${body.thema || body.arrangement.name}`,
-      '',
-      `- **Gesamtdauer:** ${pruefung.dauerMin} min · **Prüfstatus:** ${pruefung.gueltig ? 'Gültig' : 'Prüfhinweise offen'}`,
-      ...(body.didaktischerAnsatz ? [`- **Didaktischer Ansatz:** ${body.didaktischerAnsatz}`] : []),
-      ...(body.akteure ? [`- **Akteure / Lerngruppe:** ${body.akteure}`] : []),
-      ...(body.lernziele ? ['', '## Lernziele', body.lernziele] : []),
-      '',
-      '## Thematischer Ablauf',
-      ...rows.map(
-        (r) =>
-          `### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min)\n- **Methodisches Vorgehen:** ${r.methodProcedure}\n- **Lehrkraft:** ${r.teacherAction}\n- **Lernende:** ${r.learnerAction}\n- **Materialien & OER:** ${r.materialsAndOer}`
-      )
-    ].join('\n');
+  // Draft with the seven core fields; the same prompts as the briefing for the caller's own LLM (guardrails, terms).
+  const buildStructuredMarkdownFallback = (rows: ThematicTableRow[]) => buildEntwurfFuerAusarbeitung(store, body, pruefung, rows).markdown;
+  const briefing = buildElaborateBriefing(store, body);
+  const entwurf = briefing.entwurf;
 
   const fallbackTable = buildDeterministicThematicTable(store, body);
   const target = resolveLlmTarget(config, override);
@@ -358,14 +381,26 @@ export async function elaborateScenarioCore(
       gecacht: false,
       pruefung,
       ausarbeitung: buildStructuredMarkdownFallback(fallbackTable),
-      thematischeTabelle: fallbackTable
+      thematischeTabelle: fallbackTable,
+      entwurf
     };
   }
 
   const cacheKey = hashKey([
-    'elaborate-v6',
+    'elaborate-v7',
     store.bundle.versionHash,
     target.model,
+    body.bildungsstufe || '',
+    body.planungsprofil || '',
+    body.planungsprofilAngenommen || false,
+    body.raum || '',
+    body.anzahl ?? null,
+    body.einheit || '',
+    body.nachweis || '',
+    body.hinweiseListe || null,
+    body.begleitziel || null,
+    body.begleitstrang || null,
+    body.text || '',
     body.thema || '',
     body.fach || '',
     body.didaktischerAnsatz || '',
@@ -383,7 +418,7 @@ export async function elaborateScenarioCore(
   if (!target.isByok) {
     const cached = sharedElaborateCache.get(cacheKey);
     if (cached) {
-      return { quelle: 'llm', gecacht: true, pruefung, ...cached };
+      return { quelle: 'llm', gecacht: true, pruefung, ...cached, entwurf };
     }
   }
 
@@ -415,24 +450,7 @@ export async function elaborateScenarioCore(
     phaseChunks.push(fallbackTable.slice(i, i + CHUNK_SIZE));
   }
 
-  const tableSystemPrompt =
-    'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-    'Konkretisiere NUR die übergebenen Unterrichtsphasen präzise und praxisfertig auf das Fach, das Thema, die Lerngruppen (Binnendifferenzierungsmatrix), die WLO-OER-Ressourcen (inkl. exakter wwwurl) und erstellte Materialien.\n' +
-    'WICHTIG: Die methodische Vorgehensweise (Durchführungsschritte & Kernkomponenten jeder FMT-Methode) darf NICHT verloren gehen – übertrage sie explizit und schrittweise auf das konkrete Thema!\n' +
-    'ANTWORTE AUSSCHLIESSLICH als gültiges JSON-Objekt mit exakt diesem Feld:\n' +
-    '{\n' +
-    '  "thematischeTabelle": [\n' +
-    '    {\n' +
-    '      "key": "<exakter phase.key>",\n' +
-    '      "methodProcedure": "<konkret aufs Thema übertragene methodische Schrittfolge / didaktische Vorgehensweise der FMT-Methode (2-4 Sätze)>",\n' +
-    '      "teacherAction": "<konkrete thematische Lehrkrafthandlung inkl. Impuls/Moderation (2-3 Sätze)>",\n' +
-    '      "learnerAction": "<konkrete thematische Aktivität der Lernenden mit Bezug aufs Thema (2-3 Sätze)>",\n' +
-    '      "groupAdaptations": { "<groupId>": "<konkrete thematische Anpassung oder alternative Methode für diese Teilgruppe>" },\n' +
-    '      "materialsAndOer": "<konkreter Bezug auf zugeordnete Materialien & WLO-OER inkl. vollständiger wwwurl>"\n' +
-    '    }\n' +
-    '  ]\n' +
-    '}\n' +
-    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs außerhalb der übergebenen Katalog- und WLO-Daten.';
+  const tableSystemPrompt = briefing.tableBatches[0]?.prompt.systemPrompt || '';
 
   const tableBatchPromises = phaseChunks.map((chunk, chunkIdx) => {
     const chunkKeys = new Set(chunk.map((r) => r.key));
@@ -492,31 +510,8 @@ export async function elaborateScenarioCore(
   });
 
   // Narrative prose lesson plan runs concurrently in plain Markdown (no JSON escaping overhead!)
-  const narrativeSystemPrompt =
-    'Du bist ein didaktischer Planungsassistent für die Facettierte Methodentaxonomie (FMT). ' +
-    'Erstelle einen praxisfertigen, klar gegliederten deutschen Unterrichtsentwurf im Markdown-Format (KEIN JSON, direkt lesbares Markdown!).\n' +
-    'Struktur:\n' +
-    '1. ## Kurzüberblick, Lernziele, didaktischer Ansatz & Lernvoraussetzungen\n' +
-    '2. ## Thematische Durchführung (Phase für Phase): Übertrage die konkrete methodische Vorgehensweise (Schrittfolge & Kernkomponenten der FMT-Methoden) explizit auf das Thema, inkl. konkreter Arbeitsimpulse, Moderationsübergänge, Einbindung der erstellten Materialien und WLO-OER-Links (immer mit exakter wwwurl als Markdown-Link)\n' +
-    '3. ## Binnendifferenzierung & Teilgruppen-Unterstützung\n' +
-    '4. ## Qualitätsrisiken & verifizierte Quellen (nur aus den übergebenen Katalogdaten)\n' +
-    'STRENGE REGELN: Erfinde KEINE neuen Methoden, Studien oder URLs. Evidenzbefunde immer mit Geltung nennen.';
-
-  const narrativeUserPrompt =
-    `AUSGESTALTUNG DES UNTERRICHTSENTWURFS (Markdown):\n${sharedContextHeader}\n` +
-    (body.oerRessourcen?.length ? `WLO-OER-Ressourcen (exakte wwwurl einbinden):\n${JSON.stringify(body.oerRessourcen)}\n` : '') +
-    (body.materialien?.length ? `Erstellte Unterrichtsmaterialien:\n${JSON.stringify(body.materialien)}\n` : '') +
-    `\nPhasenfolge:\n${JSON.stringify(
-      fallbackTable.map((r) => ({
-        order: r.orderLabel,
-        phase: r.phaseLabel,
-        dauerMin: r.durationMin,
-        methode: r.methodName,
-        subgroupMethods: body.phasen?.find((p) => p.key === r.key)?.subgroupMethods
-      }))
-    )}\n` +
-    `Prüfstatus: ${pruefung.gueltig ? 'Formal gültig' : 'Prüfhinweise vorhanden'} (${pruefung.dauerMin} min)\n\n` +
-    `FMT-Katalogdaten (Durchführung, Kernkomponenten, Risiken, Evidenz, Quellen):\n${JSON.stringify(catalogContext)}`;
+  const narrativeSystemPrompt = briefing.narrativePrompt.systemPrompt;
+  const narrativeUserPrompt = briefing.narrativePrompt.userPrompt;
 
   const narrativePromise = callChatCompletion(
     target,
@@ -642,7 +637,7 @@ export async function elaborateScenarioCore(
   };
   const result = { ausarbeitung, thematischeTabelle: mergedTable };
   if (!target.isByok && failed === 0) sharedElaborateCache.set(cacheKey, result);
-  return { quelle: 'llm', gecacht: false, pruefung, ...result, meta };
+  return { quelle: 'llm', gecacht: false, pruefung, ...result, entwurf, meta };
 }
 
 export async function generateMaterialCore(
@@ -672,7 +667,9 @@ export async function generateMaterialCore(
     const fachLabel = body.fach?.trim() || 'Unterricht';
     const themaLabel = body.thema?.trim() || block.name;
     const dauer = body.dauerMin || block.dauerMin;
-    const stufe = body.bildungsstufe || 'Sekundarstufe I';
+    // No silent default: without a Bildungsstufe the template says so; the planning profile names the learners.
+    const rahmen = profilRahmen(store, { planungsprofil: body.planungsprofil, bildungsstufe: body.bildungsstufe });
+    const stufe = rahmen.stufe;
     const steps = block.durchfuehrung || [];
     const cores = (block.kernkomponente || []).map((k) => k.name);
     const risks = block.qualitaetsrisiko || [];
@@ -781,7 +778,7 @@ export async function generateMaterialCore(
     const template = [
       `# ${typeHeading[materialTyp] || materialTyp}: ${fachLabel} – ${themaLabel}`,
       '',
-      `**Methode:** ${block.name} · **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${dauer} min · **Stufe:** ${stufe}`,
+      `**Methode:** ${block.name} · **Phase:** ${body.phaseLabel || 'Unterrichtsphase'} · **Dauer:** ${dauer} min · **Zielgruppe:** ${stufe} · ${rahmen.begriffe.lernende}`,
       ...(body.hinweise ? ['', `> **Zusatzauftrag:** ${body.hinweise}`] : []),
       '',
       ...bodySections,
@@ -796,7 +793,7 @@ export async function generateMaterialCore(
             ''
           ]
         : []),
-      '## Hinweise für die Lehrkraft (FMT-Katalog)',
+      `## Hinweise ${rahmen.begriffe.fuerLehrende} (FMT-Katalog)`,
       ...cores.map((c) => `- **Kernkomponente:** ${c}`),
       ...risks.map((r) => `- **Qualitätsrisiko im Blick behalten:** ${r}`),
       '',
@@ -821,10 +818,12 @@ export async function generateMaterialCore(
     body.fach || '',
     body.thema || '',
     body.bildungsstufe || '',
+    body.planungsprofil || '',
     body.dauerMin || block.dauerMin,
     body.gruppen || [],
     body.hinweise || ''
   ]);
+  const materialRahmen = profilRahmen(store, { planungsprofil: body.planungsprofil, bildungsstufe: body.bildungsstufe });
 
   if (!target.isByok) {
     const cached = sharedMaterialCache.get(cacheKey);
@@ -844,7 +843,8 @@ export async function generateMaterialCore(
 
   const userPrompt =
     `MATERIALTYP: ${materialTyp}\n` +
-    `Fach: ${body.fach || 'nicht angegeben'} · Thema: ${body.thema || 'nicht angegeben'} · Bildungsstufe: ${body.bildungsstufe || 'Sekundarstufe I'}\n` +
+    `Fach: ${body.fach || 'nicht angegeben'} · Thema: ${body.thema || 'nicht angegeben'} · Bildungsstufe: ${materialRahmen.stufe}\n` +
+    `${materialRahmen.zeile}\n` +
     `Phase: ${body.phaseLabel || 'Unterrichtsphase'} · Dauer: ${body.dauerMin || block.dauerMin} min\n` +
     (body.hinweise ? `Zusätzliche Hinweise: ${body.hinweise}\n` : '') +
     (body.gruppen?.length ? `\nAktive Lerngruppen & Binnendifferenzierung:\n${JSON.stringify(body.gruppen, null, 2)}\n` : '') +
@@ -1073,6 +1073,7 @@ export function registerAssistantRoutes(app: FastifyInstance, store: CatalogStor
         pruefung: b.pruefung,
         ausarbeitung: b.fallbackMarkdown,
         thematischeTabelle: b.fallbackTable,
+        entwurf: b.entwurf,
         llmBriefing: b.llmBriefing,
         tableBatches: b.tableBatches,
         leitplanken: FMT_GUARDRAILS

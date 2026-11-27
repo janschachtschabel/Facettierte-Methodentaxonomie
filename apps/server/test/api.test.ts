@@ -69,6 +69,15 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(meta.zielarten).toHaveLength(9);
   });
 
+  it('/meta liefert die Planungsprofile mit Begriffen und Modulen (Fix-Welle D, Punkt 6)', async () => {
+    const meta = (await app.inject({ method: 'GET', url: '/api/v1/meta' })).json();
+    expect(meta.planungsprofile.profile.map((p: { id: string }) => p.id)).toEqual(['schule', 'berufsschule', 'betrieb', 'hochschule', 'erwachsenenbildung']);
+    expect(meta.planungsprofile.kernfelder).toHaveLength(7);
+    const hs = meta.planungsprofile.profile.find((p: { id: string }) => p.id === 'hochschule');
+    expect(hs.lernende).toBe('Studierende');
+    expect(hs.module.length).toBeGreaterThan(0);
+  });
+
   it('/meta führt die Passungsregeln; /plan nennt Regelmeldungen mit Regel, Wirkung, Grundlage, Quelle, Text (Task B4)', async () => {
     const meta = (await app.inject({ method: 'GET', url: '/api/v1/meta' })).json();
     expect(meta.regeln).toHaveLength(16);
@@ -99,6 +108,17 @@ describe('FMT Unified Server: REST API, Caching, Linked Data & Content Negotiati
     expect(schrift.treffer.every((b: { schriftbedarf?: string[] }) => (b.schriftbedarf || []).includes('schreibt'))).toBe(true);
     const alias = await get('schriftbedarf=schreiben');
     expect(alias.anzahl).toBe(schrift.anzahl);
+  });
+
+  it('POST /plan nimmt begleitziel an und nennt begleitstrang, auch kompakt; unbekannter Wert ergibt 400 (Paket D, D3)', async () => {
+    for (const umfang of ['voll', 'kompakt']) {
+      const r = (await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten', begleitziel: ['sozial'], umfang } })).json();
+      expect(r.begleitstrang?.[0], umfang).toMatchObject({ begleitziel: 'sozial', position: 'ende' });
+      expect(r.erkannteKriterien.begleitziel).toEqual(['sozial']);
+    }
+    const bad = await app.inject({ method: 'POST', url: '/api/v1/plan', payload: { text: 'Mathe Klasse 8, 45 Minuten', begleitziel: ['mut'] } });
+    expect(bad.statusCode).toBe(400);
+    expect(bad.json().fehler).toContain('begleitziel');
   });
 
   it('POST /plan nennt offenGruende und nachweis, auch kompakt', async () => {

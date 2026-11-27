@@ -1,0 +1,150 @@
+{
+  "kennung": "training-sozialer-fertigkeiten",
+  "name": "Training sozialer Fertigkeiten",
+  "kurzbeschreibung": "In kurzen, wiederkehrenden Einheiten lernt die Klasse je eine soziale Fertigkeit wie Zuhören, um Hilfe bitten oder Kritik äußern: benennen, vormachen, im Rollenspiel üben und im Unterricht anwenden.",
+  "alternativname": [
+    "Sozialtraining",
+    "Social-Skills-Training"
+  ],
+  "status": "entwurf",
+  "piktogramm": "rolle",
+  "ansatz": [
+    "instruktion",
+    "spiel-simulation"
+  ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "termineMin": 2,
+  "quellen": [
+    {
+      "titel": "Durlak et al. (2011): The impact of enhancing students’ social and emotional learning. Child Development 82(1)",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r3",
+  "lernfunktion": [
+    "erwerb",
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "peer",
+    "unmittelbar",
+    "prozessebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "partner",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "einstellungen",
+    "afb1",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem",
+    "verteilt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "fertigkeit",
+      "name": "Eine benannte Fertigkeit je Einheit mit sichtbaren Schritten"
+    },
+    {
+      "kennung": "ueben",
+      "name": "Üben im Rollenspiel mit Rückmeldung"
+    },
+    {
+      "kennung": "anwenden",
+      "name": "Anwendung im Unterricht und Auswertung über mehrere Wochen"
+    }
+  ],
+  "dauerMin": 90,
+  "dauerMax": 360,
+  "problem": "Gruppenarbeit scheitert oft nicht am Fach, sondern daran, dass Lernende nicht wissen, wie sie zuhören, nachfragen oder Kritik äußern.",
+  "durchfuehrung": [
+    "Fertigkeit benennen und in zwei bis vier sichtbare Schritte zerlegen, etwa Blickkontakt, ausreden lassen, nachfragen",
+    "Lehrkraft macht die Fertigkeit vor, dazu ein Gegenbeispiel",
+    "Paare üben in kurzen Rollenspielen und geben sich Rückmeldung zu den Schritten",
+    "Anwendung in der nächsten Gruppenarbeit vereinbaren",
+    "In der folgenden Einheit auswerten und die nächste Fertigkeit einführen"
+  ],
+  "material": [
+    "Karte mit den Schritten der Fertigkeit",
+    "Kurze Situationen für Rollenspiele"
+  ],
+  "raumhinweis": "Fläche für kurze Rollenspiele zu zweit",
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "teamMin": 2,
+  "teamMax": 2,
+  "vorbereitungMin": 20,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Als Teil eines Programms zum sozialen Lernen über ein Schuljahr"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Trägt das Begleitziel soziales Lernen. Die Dauer gilt für alle Einheiten zusammen. Die belegte Wirkung gilt Programmen über Wochen, nicht der einzelnen Einheit.",
+  "qualitaetsrisiko": [
+    "Einmalige Übung ohne Anwendung im Unterricht",
+    "Rollenspiel stellt Einzelne bloß"
+  ],
+  "evidenz": [
+    {
+      "grad": "B",
+      "evidenzBezug": "programm",
+      "befund": "Schulische Programme zum sozial-emotionalen Lernen verbessern soziale und emotionale Fertigkeiten, Verhalten und Schulleistung.",
+      "quelle": "Durlak et al. 2011",
+      "geltung": "Meta-Analyse schulischer universeller Programme; gilt dem Programm, nicht der einzelnen Trainingseinheit",
+      "umstritten": "Die Wirkung hängt an der Umsetzung; Abweichungen vom geprüften Programm sind häufig (Durlak & DuPre 2008)"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.93
+  }
+}

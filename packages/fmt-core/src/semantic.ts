@@ -1,3 +1,4 @@
+import { nurMethoden } from './eintragsart.js';
 import type { Baustein, FmtData, Scheme, VocabValue } from './types.js';
 
 export type ScaleName = 'ansatz' | 'lernfunktion' | 'anleitung' | 'engagement' | 'interaktion' | 'reichweite';
@@ -218,8 +219,10 @@ export function createSemanticClassifier(data: FmtData): FmtSemanticClassifier {
     scaleSearchers.set(s, buildBm25Index(subset));
   }
 
+  // Only methods: a help (eintragsart hilfe) is never a candidate, and in the index it would also take a slot of the
+  // ranking and set the top score that normalizes the methods' relevance (Task D7).
   const methodSearcher = buildBm25Index<Baustein>(
-    data.bausteine.map((b) => ({
+    nurMethoden(data.bausteine).map((b) => ({
       item: b,
       text: [
         b.name,

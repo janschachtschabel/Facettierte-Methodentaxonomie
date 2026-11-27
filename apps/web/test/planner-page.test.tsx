@@ -662,3 +662,124 @@ describe('Schritt 3: Entscheidung je Teilgruppe (Task C6)', () => {
     expect(screen.queryByText(BUNDLE.teilgruppen.gesperrtText!)).toBeNull();
   });
 });
+
+describe('Schritt 5: Entwurf mit sieben Kernfeldern nach Planungsprofil (Paket D, D2)', () => {
+  it('Schritt 1: aufklappbares Feld „Was soll nebenbei gefördert werden?“ ohne Vorauswahl; die Auswahl geht als begleitziel an die Zuordnung (D3)', () => {
+    const spy = vi.spyOn(CATALOG.matcher, 'zuordnen');
+    renderPlanner();
+    expect(screen.getByText('Was soll nebenbei gefördert werden?')).toBeTruthy();
+    const feld = screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' });
+    const boxen = within(feld).getAllByRole('checkbox') as HTMLInputElement[];
+    expect(boxen.map((b) => b.closest('label')!.textContent)).toEqual(['Fach- und Bildungssprache', 'Soziales Lernen', 'Selbstregulation']);
+    expect(boxen.every((b) => !b.checked)).toBe(true);
+    propose('Physik Klasse 8, Stromkreis, 45 Minuten');
+    expect(spy.mock.calls.at(-1)![0]!.begleitziel).toBeUndefined();
+    fireEvent.click(stepButton(1));
+    fireEvent.click(within(screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).getByLabelText('Soziales Lernen'));
+    propose('Physik Klasse 8, Stromkreis, 45 Minuten, Lernstrategien');
+    // The field and the text together: what the text names is not lost.
+    expect(spy.mock.calls.at(-1)![0]!.begleitziel).toEqual(['sozial', 'selbstregulation']);
+    spy.mockRestore();
+  });
+
+  it('Schritt 2: Begleitstrang als Vorschlagskarte, übernehmen und wieder entfernen; Schritt 4 als Material; Schritt 5 nennt ihn (D3)', () => {
+    renderPlanner();
+    propose('Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken');
+    const strang = (CATALOG.matcher.zuordnen({ text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken' }) as { begleitstrang?: Array<{ name: string; dauerMin: number }> }).begleitstrang![0];
+    const box = screen.getByRole('region', { name: 'Begleitziele' });
+    expect(within(box).getByText(new RegExp(`Vorschlag: ${strang.name}, ${strang.dauerMin} min am Ende`))).toBeTruthy();
+    expect(within(box).getByText(/Ein Vorschlag zum Übernehmen/)).toBeTruthy();
+    // Nothing is taken over until you click.
+    const rows = () => within(screen.getByRole('table')).getAllByRole('row').length;
+    const vorher = rows();
+    fireEvent.click(within(box).getByRole('button', { name: `${strang.name} am Ende übernehmen` }));
+    expect(rows()).toBe(vorher + 1);
+    fireEvent.click(within(screen.getByRole('region', { name: 'Begleitziele' })).getByRole('button', { name: `${strang.name} wieder entfernen` }));
+    expect(rows()).toBe(vorher);
+
+    fireEvent.click(stepButton(4));
+    const mat = screen.getByRole('region', { name: 'Begleitstrang für Begleitziele' });
+    expect(within(mat).getAllByText(new RegExp(strang.name)).length).toBeGreaterThan(0);
+    fireEvent.click(within(mat).getByRole('button', { name: `${strang.name} als Material anhängen` }));
+    expect(within(screen.getByRole('region', { name: 'Begleitstrang für Begleitziele' })).getByRole('button', { name: `Material zu ${strang.name} zurücknehmen` })).toBeTruthy();
+
+    fireEvent.click(stepButton(5));
+    const text = document.body.textContent || '';
+    expect(text).toContain('Soziales Lernen');
+    expect(text).toContain(`Begleitstrang (Vorschlag): ${strang.name}, ${strang.dauerMin} min am Ende (Soziales Lernen)`);
+  });
+
+  it('zwei Begleitziele: zwei verschiedene Methoden; eine übernehmen markiert nur diese; im Ablauf kein Material mehr (Fix-Welle D, Punkt 1)', () => {
+    renderPlanner();
+    fireEvent.click(within(screen.getByRole('group', { name: 'Was soll nebenbei gefördert werden?' })).getByLabelText('Soziales Lernen'));
+    propose('Physik Klasse 8, Stromkreis, 45 Minuten, Lernstrategien');
+    const r = CATALOG.matcher.zuordnen({ text: 'Physik Klasse 8, Stromkreis, 45 Minuten, Lernstrategien', begleitziel: ['sozial', 'selbstregulation'] }) as { begleitstrang?: Array<{ name: string; baustein: string }> };
+    const [a, b] = r.begleitstrang!;
+    expect(a.baustein).not.toBe(b.baustein);
+    const box = () => screen.getByRole('region', { name: 'Begleitziele' });
+    // Attach a as material first, then take it into the flow: the material goes, it is a phase now.
+    fireEvent.click(stepButton(4));
+    fireEvent.click(within(screen.getByRole('region', { name: 'Begleitstrang für Begleitziele' })).getByRole('button', { name: `${a.name} als Material anhängen` }));
+    fireEvent.click(stepButton(2));
+    fireEvent.click(within(box()).getByRole('button', { name: `${a.name} am Ende übernehmen` }));
+    expect(within(box()).getByRole('button', { name: `${a.name} wieder entfernen` })).toBeTruthy();
+    expect(within(box()).getByRole('button', { name: `${b.name} am Ende übernehmen` })).toBeTruthy();
+    fireEvent.click(stepButton(4));
+    const mat = screen.getByRole('region', { name: 'Begleitstrang für Begleitziele' });
+    expect(within(mat).queryByRole('button', { name: `${a.name} als Material anhängen` })).toBeNull();
+    expect(within(mat).queryByRole('button', { name: `Material zu ${a.name} zurücknehmen` })).toBeNull();
+    expect(within(mat).getByText((t) => t.startsWith(`${a.name} steht als letzte Phase im Ablauf`))).toBeTruthy();
+    expect(within(mat).getByRole('button', { name: `${b.name} als Material anhängen` })).toBeTruthy();
+    fireEvent.click(stepButton(5));
+    const text = document.body.textContent || '';
+    expect(text).not.toContain(`Begleitstrang (${'Soziales Lernen'}): ${a.name}`);
+  });
+
+  it('Speichern und Laden behält Planungsprofil, Einheit, Nachweis, Regelhinweise und Begleitstrang im Entwurf (Fix-Welle D, Punkt 7)', () => {
+    const text = 'Berufsschule, Unterweisung im Betrieb: Bohrmaschine sicher bedienen, Einheit Lernfeld 3, 45 Minuten, Lernstand prüfen, soziales Lernen stärken';
+    renderPlanner();
+    propose(text);
+    fireEvent.click(stepButton(5));
+    const vorher = document.body.textContent || '';
+    const erwartet = ['Konzept zur Ausbildungssituation', 'Lernfeld 3', 'Begleitstrang (Vorschlag)', 'Tätigkeit der Ausbilderin oder des Ausbilders'];
+    for (const t of erwartet) expect(vorher, t).toContain(t);
+    fireEvent.click(screen.getAllByRole('button', { name: /Speichern/ })[0]);
+    const gespeichert = JSON.parse(window.localStorage.getItem(SAVED_SCENARIOS_KEY)!)[0];
+    expect(gespeichert.entwurfAngaben).toMatchObject({ planungsprofil: 'betrieb', einheit: 'Lernfeld 3' });
+    cleanup();
+
+    renderPlanner();
+    fireEvent.click(screen.getByRole('button', { name: /Gespeichert \(1\)/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Laden' }));
+    fireEvent.click(stepButton(5));
+    const nachher = document.body.textContent || '';
+    for (const t of erwartet) expect(nachher, t).toContain(t);
+    expect(nachher).not.toContain('Unterrichtsentwurf mit Lernsituation');
+    const nachweis = CATALOG.labelOf('nachweisform', 'praktisch');
+    expect(vorher).toContain(`**Nachweis:** ${nachweis}`.replace(/\*\*/g, ''));
+    expect(nachher).toContain(`Nachweis: ${nachweis}`);
+    const regel = BUNDLE.regeln!.find((r) => r.id === 'sicherheitshinweis')!;
+    expect(vorher).toContain(regel.name);
+    expect(nachher).toContain(regel.name);
+  });
+
+  it('Schritt 2: Begleitziel Sprache ohne Begleitstrang, mit dem Hinweis auf Hilfen in Schritt 3 (D3)', () => {
+    renderPlanner();
+    propose('Chemie Klasse 9, Säuren und Basen, 45 Minuten, sprachsensibel');
+    const box = screen.getByRole('region', { name: 'Begleitziele' });
+    expect(within(box).getByText(/Schritt 3/)).toBeTruthy();
+    expect(within(box).queryByRole('button', { name: /am Ende übernehmen$/ })).toBeNull();
+  });
+
+  it('n15: Sitzung, Studierende, Modul; Spalten in den Begriffen der Hochschule', () => {
+    renderPlanner();
+    propose('Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur');
+    expect(screen.getAllByText(/Tätigkeit der Lehrenden/).length).toBeGreaterThan(0);
+    fireEvent.click(stepButton(5));
+    const text = document.body.textContent || '';
+    for (const t of ['Ablaufplan der Sitzung', 'Lernvoraussetzungen der Studierenden', 'Einordnung in das Modul', 'Verlaufsplan der Sitzung', 'Sicherung und Kontrolle des Lernerfolgs', 'Reflexion und Evaluation', 'Prüfungsform']) {
+      expect(text, t).toContain(t);
+    }
+    expect(text).not.toContain('Sekundarstufe I');
+  });
+});

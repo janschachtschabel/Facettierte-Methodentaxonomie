@@ -185,8 +185,15 @@
     {
       "grad": "B",
       "evidenzBezug": "methode",
-      "befund": "Kleinschrittige Instruktion mit geleiteter Übung: gleichgerichtete Befunde der Prozess-Produkt-Forschung; eine Meta-Analyse liegt nur für die DI-Curricula vor",
-      "quelle": "Rosenshine 2012; Stockard et al. 2018",
+      "befund": "Kleinschrittige Instruktion mit geleiteter Übung: gleichgerichtete Befunde der Prozess-Produkt-Forschung",
+      "quelle": "Rosenshine 2012",
+      "geltung": "Überblick über Prozess-Produkt-Forschung zu lehrergeleitetem Unterricht; gilt dem Muster selbst"
+    },
+    {
+      "grad": "B",
+      "evidenzBezug": "programm",
+      "befund": "Eine Meta-Analyse liegt nur für die DI-Curricula vor",
+      "quelle": "Stockard et al. 2018",
       "geltung": "Stockard et al. betrifft ausschließlich Engelmanns Direct-Instruction-Curricula (v. a. USA), nicht dieses Muster"
     }
   ],

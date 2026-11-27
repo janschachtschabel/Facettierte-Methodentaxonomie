@@ -4,7 +4,8 @@ import type { Qualitaetsfall } from './faelle.js';
  * Fourth test series (FMT 2.0): the 20 cases n01 to n20 of the proposal (fmt2-testfaelle.json), texts verbatim.
  * They cover all didactic W questions, not only the how: purpose and knowledge type (bindung), needs (bedarf),
  * subgroups, companion goals, planning profiles, mandatory details and rules.
- * Expectations name values that do not exist yet; each failing check carries `bekannt` with the package that fixes it.
+ * Expectations named values that did not exist yet; a failing check carries `bekannt` with its reason. After Paket D
+ * (Task D7) only n19 keeps one: it is intended.
  * Not part of the baseline file (ausgang.json).
  */
 export const REIHE4: Qualitaetsfall[] = [
@@ -74,38 +75,33 @@ export const REIHE4: Qualitaetsfall[] = [
   {
     id: 'n11',
     text: 'Physik Klasse 8, Stromkreis, 45 Minuten, zusätzlich Selbstregulation fördern',
-    erwartet: { begleitstrang: 'selbstregulation', regeln: ['begleitziel-braucht-termine'] },
-    bekannt: { regel: 'Paket D', begleitziel: 'Paket D' }
+    erwartet: { begleitstrang: 'selbstregulation', regeln: ['begleitziel-braucht-termine'] }
   },
   {
     id: 'n12',
     text: 'Englisch Klasse 5, Wortschatz Tiere, 45 Minuten, soziales Lernen stärken',
-    erwartet: { begleitstrang: 'soziales-lernen' },
-    bekannt: { begleitziel: 'Paket D' }
+    // The paper names the goal „soziales Lernen“; the code in the scheme begleitziel is `sozial` (D3).
+    erwartet: { begleitstrang: 'sozial' }
   },
   {
     id: 'n13',
     text: 'Berufsschule, Lernfeld 3 Kfz-Mechatronik, Bremsanlage prüfen, Werkstatt, 180 Minuten',
-    erwartet: { kette: 'vollstaendige-handlung', planungsprofil: 'berufsschule' },
-    bekannt: { kette: 'Paket D', profil: 'Paket D' }
+    erwartet: { kette: 'vollstaendige-handlung', planungsprofil: 'berufsschule' }
   },
   {
     id: 'n14',
     text: 'Betrieb, Auszubildende im 1. Lehrjahr, Unterweisung Bohren an der Ständerbohrmaschine, 15 Minuten',
-    erwartet: { modus: 'phase', enthaelt: 'vier-stufen-methode', planungsprofil: 'betrieb' },
-    bekannt: { profil: 'Paket D' }
+    erwartet: { modus: 'phase', enthaelt: 'vier-stufen-methode', planungsprofil: 'betrieb' }
   },
   {
     id: 'n15',
     text: 'Hochschule, Seminar Statistik, 90 Minuten, 25 Studierende, Prüfungsform Klausur',
-    erwartet: { planungsprofil: 'hochschule', nachweisform: 'schriftlich' },
-    bekannt: { profil: 'Paket D' }
+    erwartet: { planungsprofil: 'hochschule', nachweisform: 'schriftlich' }
   },
   {
     id: 'n16',
     text: 'Volkshochschule, Kochkurs Grundtechniken, Lehrküche, 3 Stunden, 12 Teilnehmende',
-    erwartet: { planungsprofil: 'erwachsenenbildung', kriterien: { gruppe: 12 } },
-    bekannt: { profil: 'Paket D' }
+    erwartet: { planungsprofil: 'erwachsenenbildung', kriterien: { gruppe: 12 } }
   },
 
   // Package B (and A for n18): mandatory details, named wishes, rules.

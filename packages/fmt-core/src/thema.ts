@@ -3,6 +3,8 @@
  * show the same topic. The topic is what remains after all frame information
  * (grade, time, group size, learner groups, technology, approach) is removed.
  */
+import { liesBegleitziele } from './begleitziel.js';
+
 const SUBJECT_PATTERNS: Array<[RegExp, string]> = [
   [/\bmathematik\b|\bmathe\b|\bbruchrechn|\bgleichung|\bgeometrie|\balgebra/i, 'Mathematik'],
   [/\bphysik\b|\bdichte\b|\belektrizit|\bmechanik|\boptik/i, 'Physik'],
@@ -78,7 +80,8 @@ const LEADING_ABOUT = /^(?:eine[rn]?\s+)?(?:zu[mr]?|über)\s+/i;
 const TRAILING = /(?:\s*\b(?:in|im|für|mit|und|oder|zu|zur|zum|bei|davon|sowie|an|am|der|die|das|den|dem))+\s*$/i;
 
 export function extractSubjectAndTopic(raw: string): { fach: string | null; thema: string | null } {
-  const firstLine = (raw || '').split(/\n\s*Zusatzangaben:/i)[0].trim();
+  // An accompanying goal ("soziales Lernen stärken") is no topic (D3).
+  const firstLine = liesBegleitziele((raw || '').split(/\n\s*Zusatzangaben:/i)[0]).rest.trim();
   if (!firstLine) return { fach: null, thema: null };
 
   let fach: string | null = null;

@@ -8,6 +8,7 @@ import { createSearch, createValidator, type CatalogBundle, type FmtData } from 
 import { SystematikPage, GRUNDLAGE_TEXT } from '../src/pages/SystematikPage.js';
 import { grundlageKlartext } from '../src/planner/regelmeldung.js';
 import { MethodDetailPage } from '../src/pages/MethodDetailPage.js';
+import { ApiMcpPage } from '../src/pages/ApiMcpPage.js';
 import { CatalogPage } from '../src/pages/CatalogPage.js';
 import { RAUM_EIGENSCHAFT_KLARTEXT } from '../src/planner/rahmen.js';
 
@@ -71,6 +72,22 @@ describe('W-Raster in der Oberfläche', () => {
     expect(sec.textContent).not.toMatch(/Lernort/);
   });
 
+  it('Systematik zeigt die Kette vollständige Handlung mit ihrer Grundlage (Paket D, D5)', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    const tabelle = screen.getByRole('table', { name: 'Funktionsketten' });
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(BUNDLE.ketten.length);
+    const zeile = within(tabelle).getByText('Berufliche Handlung (vollständige Handlung)').closest('tr') as HTMLElement;
+    expect(within(zeile).getByText(/Auftrag analysieren, informieren/)).toBeTruthy();
+    expect(zeile.textContent).toContain('Grundlage: ungeklärt (U)');
+    expect(zeile.textContent).toContain('KMK 2021: Lernsituationen im Lernfeld; Lernwirksamkeit der Phasenfolge kaum geprüft');
+    const ziele = screen.getByRole('table', { name: 'Zielarten' });
+    expect(within(ziele).getAllByText('Berufliche Handlung (vollständige Handlung)').length).toBe(1);
+  });
+
   it('Systematik zeigt die Passungsregeln aus den Daten neben den 13 Kompositionsregeln (Task B4)', () => {
     render(
       <MemoryRouter>
@@ -85,6 +102,9 @@ describe('W-Raster in der Oberfläche', () => {
     // An example placeholder in parentheses is left out; no "(z. B. die Methode)".
     expect(within(tabelle).getByText('Im Ablauf wird praktisch gearbeitet. Kläre vorher Sicherheit und Aufsicht.')).toBeTruthy();
     expect(tabelle.textContent).not.toMatch(/z\. B\. die Methode/);
+    // No raw placeholder in any row (Fix-Welle D, Punkt 3).
+    expect(tabelle.textContent).not.toMatch(/[{}]/);
+    expect(tabelle.textContent).toContain('Wirkungen auf ein Begleitziel sind für Programme');
     const wirkung = within(sec).getByRole('table', { name: 'Welche Wirkung hat welche Art' });
     for (const w of ['schließt aus', 'warnt', 'ordnet', 'weist hin']) expect(within(wirkung).getByRole('rowheader', { name: w })).toBeTruthy();
     expect(within(wirkung).getByText('Eignung')).toBeTruthy();
@@ -124,6 +144,21 @@ describe('W-Raster in der Oberfläche', () => {
       </MemoryRouter>
     );
     expect(within(sectionOf('Was die Methode braucht')).getByText(`mindestens ${t.termineMin} Termine`, { exact: false })).toBeTruthy();
+  });
+
+  it('Methodendetail zeigt einen Eintrag ohne OEH-Kategorie und kennzeichnet den Status entwurf als Ersterfassung (D7)', () => {
+    const b = BUNDLE.bausteine.find((x) => !x.kategorie && x.status === 'entwurf')!;
+    expect(b).toBeDefined();
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${b.kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(b.name);
+    expect(screen.getAllByText('Ersterfassung').length).toBeGreaterThan(0);
+    expect(screen.queryByText('OpenEduHub-Kategorien:')).toBeNull();
   });
 
   it('Katalog schaltet zwischen Methoden und Hilfen um; eine Hilfe kommt nicht als Phase in den Baukasten (Task C4)', () => {
@@ -192,3 +227,183 @@ describe('W-Raster in der Oberfläche', () => {
     expect(screen.getByText('Aufwärmen / Aufwärmspiel')).toBeTruthy();
     }, 60_000);
 });
+
+
+describe('Lesarten und Evidenzbezug in der Oberfläche (Paket D, D4)', () => {
+  const zeigeMethode = (kennung: string) =>
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+  it('Methodendetail nennt den Bezug jeder Evidenzaussage mit den drei Wendungen', () => {
+    const mit = (bezug: string) => BUNDLE.bausteine.find((b) => b.evidenz.some((e) => e.evidenzBezug === bezug))!;
+    zeigeMethode(mit('methode').kennung);
+    expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getAllByText(/gilt der Methode/).length).toBeGreaterThan(0);
+    cleanup();
+    zeigeMethode(mit('prinzip').kennung);
+    expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getAllByText(/gilt dem Wirkprinzip/).length).toBeGreaterThan(0);
+    cleanup();
+    // No method carries programm yet (Tor D3); the phrase is shown once a finding does.
+    const b = mit('methode');
+    const geaendert = { ...b, evidenz: b.evidenz.map((e) => ({ ...e, evidenzBezug: 'programm' as const })) };
+    const vorher = CATALOG.blocksById.get(b.kennung)!;
+    CATALOG.blocksById.set(b.kennung, geaendert);
+    const idx = BUNDLE.bausteine.indexOf(vorher);
+    BUNDLE.bausteine[idx] = geaendert;
+    try {
+      zeigeMethode(b.kennung);
+      expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getAllByText(/gilt ganzen Programmen, nicht der einzelnen Phase/).length).toBeGreaterThan(0);
+    } finally {
+      CATALOG.blocksById.set(b.kennung, vorher);
+      BUNDLE.bausteine[idx] = vorher;
+    }
+  });
+
+  it('Methoden des Fachbereichs Ästhetik werden mit dem Eigenwert begründet, ohne Transferversprechen', () => {
+    const satz = 'Begründet mit dem Eigenwert; ein Transfer auf andere Leistungen ist nicht belegt (Sala & Gobet 2020).';
+    const aesth = BUNDLE.bausteine.find((b) => (b.fachbereich || []).includes('aesthetik'))!;
+    zeigeMethode(aesth.kennung);
+    expect(within(sectionOf('Q4 Evidenzlage (stets unter Bedingungen)')).getByText(satz)).toBeTruthy();
+    cleanup();
+    const andere = BUNDLE.bausteine.find((b) => !(b.fachbereich || []).includes('aesthetik'))!;
+    zeigeMethode(andere.kennung);
+    expect(screen.queryByText(satz)).toBeNull();
+  });
+
+  it('Systematik zeigt die Tabelle der Lesarten: zwölf Lernstände, vier Lesarten, Strich als Label', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    const tabelle = screen.getByRole('table', { name: 'Lesarten der Lernstände' });
+    const zeilen = within(tabelle).getAllByRole('row').slice(1);
+    expect(zeilen.length).toBe(12);
+    for (const k of ['Wissen und Konzepte', 'Bewegung und Fertigkeit', 'Urteilen und Werten', 'Gestalten und Produzieren'])
+      expect(within(tabelle).getByRole('columnheader', { name: k })).toBeTruthy();
+    const zeile = within(tabelle).getByRole('rowheader', { name: /prozedur-gelaeufig/ }).closest('tr') as HTMLElement;
+    expect(zeile.textContent).toContain('Feinform gelingt');
+    expect(zeile.textContent).toContain('Technik geläufig');
+    expect(within(tabelle).getAllByText('Ausgangslage sichtbar').length).toBe(4);
+  });
+});
+
+describe('Systematik nach FMT 2.0 (Paket D, D7)', () => {
+  const zeige = () =>
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+
+  it('Tabelle „Tausch oder Hilfe“: jede Zeile aus teilgruppen.json mit Antwort, Grundlage und Quelle, dazu sonst und gesperrt', () => {
+    zeige();
+    const tabelle = screen.getByRole('table', { name: 'Tausch oder Hilfe' });
+    const zeilen = within(tabelle).getAllByRole('row').slice(1);
+    expect(zeilen.length).toBe(BUNDLE.teilgruppen.merkmale.length + 1);
+    for (const m of BUNDLE.teilgruppen.merkmale) {
+      const z = within(tabelle).getByRole('rowheader', { name: new RegExp(m.id) }).closest('tr') as HTMLElement;
+      expect(z.textContent).toContain(m.antwort === 'tausch' ? 'Tausch' : 'Hilfe');
+      expect(z.textContent).toContain(m.wohin);
+      expect(z.textContent).toContain(GRUNDLAGE_TEXT[m.grundlage] || m.grundlage);
+      if (m.quelle) expect(z.textContent).toContain(m.quelle);
+    }
+    expect(within(tabelle).getByText(BUNDLE.teilgruppen.sonst.wohin)).toBeTruthy();
+    expect(screen.getByText(BUNDLE.teilgruppen.gesperrtText, { exact: false })).toBeTruthy();
+  });
+
+  it('Planungsprofile: fünf Bereiche mit Einheit, Dokument und Modulen, sieben Kernfelder', () => {
+    zeige();
+    const tabelle = screen.getByRole('table', { name: 'Planungsprofile' });
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(5);
+    for (const p of BUNDLE.planungsprofile.profile) {
+      const z = within(tabelle).getByRole('rowheader', { name: new RegExp(` ${p.id}$`) }).closest('tr') as HTMLElement;
+      expect(z.textContent).toContain(p.einheit);
+      expect(z.textContent).toContain(p.dokument);
+      for (const m of p.module) expect(z.textContent).toContain(m.name);
+    }
+    const kern = screen.getByRole('list', { name: 'Kernfelder des Entwurfs' });
+    expect(within(kern).getAllByRole('listitem').length).toBe(7);
+  });
+
+  it('Begleitziele: drei Ziele mit Signal an der Methode und Zahl der Methoden, die sie tragen', () => {
+    zeige();
+    const tabelle = screen.getByRole('table', { name: 'Begleitziele' });
+    const werte = BUNDLE.schemes.find((x) => x.id === 'begleitziel')!.werte!;
+    expect(within(tabelle).getAllByRole('row').slice(1).length).toBe(werte.length);
+    expect(werte.length).toBe(3);
+    for (const w of werte) expect(within(tabelle).getByRole('rowheader', { name: new RegExp(w.label) })).toBeTruthy();
+    expect(screen.getByText(/wählt nie die Kette/)).toBeTruthy();
+  });
+
+  it('Grenzen: die offenen Punkte aus dem Design stehen auf der Seite', () => {
+    zeige();
+    const sec = sectionOf('Grenzen der FMT 2.0');
+    for (const t of [/Bindung ist gezählt/, /Was ein Raumtyp bietet, ist gesetzt/, /Lesarten sind gesetzt/, /zwei unabhängige Kodierende/i, /Nutzen für das Lernen/])
+      expect(within(sec).getByText(t)).toBeTruthy();
+  });
+});
+
+describe('API-Seite nach FMT 2.0 (Paket D, D7)', () => {
+  it('nennt die neuen Anfrage- und Antwortfelder mit Beispielanfrage', () => {
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    const sec = sectionOf('Neue Felder der FMT 2.0');
+    const felder = within(sec).getByRole('table', { name: 'Neue Felder der FMT 2.0' });
+    for (const f of ['planungsprofil', 'begleitziel', 'termine', 'nachweis', 'raum', 'ohneSchrift', 'pflichtangaben', 'regelmeldungen', 'begleitstrang', 'entwurf', 'teilgruppenImpulse', 'genannteHilfen'])
+      expect(within(felder).getAllByText(f).length, f).toBeGreaterThan(0);
+    const beispiel = within(sec).getByLabelText('Beispielanfrage FMT 2.0').textContent || '';
+    expect(beispiel).toContain('"planungsprofil": "schule"');
+    expect(beispiel).toContain('"begleitziel"');
+    const antwort = within(sec).getByLabelText('Auszug der Antwort').textContent || '';
+    for (const f of ['"pflichtangaben"', '"regelmeldungen"', '"begleitstrang"', '"planungsprofil"', '"status": "entwurf"']) expect(antwort, f).toContain(f);
+    // The old field name is set as code, not as prose (Fix-Welle D).
+    const raumZeile = within(felder).getAllByText('raum')[0].closest('tr') as HTMLElement;
+    expect(within(raumZeile).getByText('lernort', { selector: 'code' })).toBeTruthy();
+  });
+});
+
+describe('Zahlen des Katalogs: Methoden und Hilfen getrennt (Fix-Welle D)', () => {
+  const hilfen = BUNDLE.bausteine.filter((b) => b.eintragsart === 'hilfe').length;
+  const methoden = BUNDLE.bausteine.length - hilfen;
+  const pruefe = (text: string, seite: string) => {
+    expect(hilfen, 'Fixture').toBeGreaterThan(0);
+    expect(text, seite).not.toContain(`${BUNDLE.bausteine.length} Methoden`);
+    expect(text, seite).not.toContain(`${BUNDLE.bausteine.length} Unterrichtsmethoden`);
+    expect(text, seite).toContain(`${methoden} `);
+    expect(text, seite).toContain(`${hilfen} Hilfen`);
+  };
+  it('Systematik, API-Seite und Katalog zählen Hilfen nicht als Methoden', () => {
+    render(
+      <MemoryRouter>
+        <SystematikPage />
+      </MemoryRouter>
+    );
+    pruefe(document.body.textContent || '', 'Systematik');
+    // Binding word rule: the heading names no "Anforderungen".
+    expect(screen.queryAllByRole('heading', { name: /Anforderung/ })).toEqual([]);
+    cleanup();
+    render(
+      <MemoryRouter>
+        <ApiMcpPage />
+      </MemoryRouter>
+    );
+    pruefe(document.body.textContent || '', 'API');
+    cleanup();
+    render(
+      <MemoryRouter>
+        <CatalogPage />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Tabelle' }));
+    pruefe(document.body.textContent || '', 'Katalog');
+  }, 60_000);
+});
+

@@ -31,8 +31,11 @@ import { KennungIndex } from './kennung.js';
 import { raumBietet, raumFehlt, setztKiEin, ungedeckterBedarf, type BedarfLuecke } from './bedarf.js';
 import { baueSituation, type Annahme, type Situation } from './situation.js';
 import { extractSubjectAndTopic } from './thema.js';
+import { liesBegleitziele } from './begleitziel.js';
+import { waehlePlanungsprofil } from './planungsprofil.js';
 import { phaseBudgets, stretch } from './zeitverteilung.js';
-import { bewegungsKette, nachweisformen, normZielart, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
+import { bewegungsKette, nachweisformen, normZielart, traegtBegleitziel, traegtWissensart, waehleKette, wissensartenVon, type Kettenwahl } from './zielart.js';
+import { LEISTUNGSKONTROLLE_SCHRITT } from './entwurf.js';
 
 const GRADE_ORDER: EvidenceGrade[] = ['A', 'B', 'C'];
 const FRAME_WORDS = new Set(
@@ -338,6 +341,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       werte: opts(values(scheme('nachweisform')))
     },
     {
+      feld: 'begleitziel',
+      typ: 'codes',
+      bedeutung:
+        'Was nebenbei gefördert werden soll (Fach- und Bildungssprache, soziales Lernen, Selbstregulation); wählt nie die Kette, ordnet nur unter gleichwertigen Methoden und schlägt einen kurzen Begleitstrang vor',
+      werte: opts(values(scheme('begleitziel')))
+    },
+    {
       feld: 'vorhanden',
       typ: 'codes',
       stufe: 3,
@@ -377,6 +387,13 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       stufe: 4,
       bedeutung: 'Bildungsstufe',
       werte: opts(values(scheme('bildungsstufe')))
+    },
+    {
+      feld: 'planungsprofil',
+      typ: 'code',
+      stufe: 4,
+      bedeutung: 'Planungsprofil: Begriffe und Module des Entwurfs; ohne Angabe folgt es aus Bildungsstufe und Text',
+      werte: opts(values(scheme('planungsprofil')))
     },
     {
       feld: 'fachbereich',
@@ -549,7 +566,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     ],
     [
       'bildungsstufe',
-      /berufsschul|berufsbildung|auszubildende|azubi|\blehrjahr\b|\w+ausbildung\b|\bausbildung\b|\blernfeld\b|fachinformatiker|kaufleute|kaufmann|kauffrau|mechatroniker|elektroniker|\w+fachleute\b|uberbetrieblich\w*/,
+      /berufsschul|\bberufskolleg\w*|berufsbildung|auszubildende|azubi|\blehrjahr\b|\w+ausbildung\b|\bausbildung\b|\blernfeld\b|fachinformatiker|kaufleute|kaufmann|kauffrau|mechatroniker|elektroniker|\w+fachleute\b|uberbetrieblich\w*/,
       () => 'berufsbildung'
     ],
     ['bildungsstufe', /\w*studium\b|\buni\b|\btutorium\b|studiengang|\bsemester\b/, () => 'hochschule'],
@@ -790,9 +807,15 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     [/\bzentralperspektive\b|\bcollage\w*/, 'aesthetik']
   ];
 
+  /** Keywords of a vocational learning situation (Paket D, D5); they count only together with the stage berufsbildung. */
+  const HANDLUNG_WORTE = /\blernfeld\w*|\blernsituation\w*|\bvollst(?:a|ae)ndige\w*\s+handlung\b|\bkundenauftrag\w*|\barbeitsauftrag\w*/;
+
   const subjects = createSubjectDetector(data.faecher);
 
-  function lesen(text: string, stufe?: string) {
+  function lesen(volltext: string, stufe?: string) {
+    // Accompanying goals first: their phrases leave the text, so nothing else is read from them (Paket D, D3).
+    const begleit = liesBegleitziele(volltext || '');
+    const text = begleit.rest;
     const t = fold(text || '');
     const kriterien: Record<string, unknown> = {};
     const erkannt: Array<{ feld: string; wert: unknown; beleg: string }> = [];
@@ -802,12 +825,25 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         erkannt.push({ feld, wert, beleg });
       }
     };
+    if (begleit.codes.length) take('begleitziel', begleit.codes, begleit.belege.join(', '));
     // "keine Gruppenarbeit" or "ohne Experimente" rules something out: such a phrase must not select it.
     const tPos = withoutNegated(t);
     RULES.forEach(([feld, re, fn]) => {
       const m = re.exec(NEGATION_AWARE.has(feld) ? t : tPos);
       if (m) take(feld, fn(m), m[0].trim());
     });
+    // A learning situation of vocational education (Paket D, D5) names the goal kind handlung, but only at the stage
+    // berufsbildung (stated, or read from the text) and only when no goal kind or chain was read above and no action
+    // verb names one ("Lernfeld 3: Netzwerk planen" stays a project): those are more specific and win.
+    if (
+      !('zielart' in kriterien) &&
+      !('zieltyp' in kriterien) &&
+      (stufe || kriterien.bildungsstufe) === 'berufsbildung' &&
+      !VERB_CHAINS.some(([re]) => re.test(tPos))
+    ) {
+      const m = HANDLUNG_WORTE.exec(tPos);
+      if (m) take('zielart', 'handlung', m[0].trim());
+    }
     // The unit keeps the case and umlauts of the text: cut the phrase from the original at the position the folded text matched.
     const eh = erkannt.find((e) => e.feld === 'einheit');
     if (eh) {
@@ -996,10 +1032,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
   /** The chain step being filled binds the knowledge type (main or securing step with a knowledge type). */
   let currentStepGebunden = false;
   const mentionDetector = createMentionDetector(data);
-  type Ranked = { b: Baustein; hard: number[]; soft: number };
+  type Ranked = { b: Baustein; hard: number[]; soft: number; vorn?: boolean };
   const order = (items: Ranked[], tolerance?: number): Baustein[] =>
     pickOrder(
-      items.map((x) => ({ item: x.b, id: x.b.kennung, hard: x.hard, soft: x.soft })),
+      items.map((x) => ({ item: x.b, id: x.b.kennung, hard: x.hard, soft: x.soft, ...(x.vorn ? { vorn: true } : {}) })),
       currentSeed,
       currentVariante,
       tolerance
@@ -1085,8 +1121,11 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
     // A named method counts as a wish at the step reserved for it (or anywhere when no step is reserved).
     const genanntHier =
       currentMentions.has(b.kennung) && (!currentAnchorStep.has(b.kennung) || currentAnchorStep.get(b.kennung) === currentStepIndex);
+    // Accompanying goal (Paket D): orders nearly equivalent methods only, never a hard tier.
+    const begleitziel = list(a.begleitziel).some((z) => traegtBegleitziel(b, z));
     return {
       b,
+      ...(begleitziel ? { vorn: true } : {}),
       // Hard tiers: reaching the step target / reuse, fit warnings, negative evidence, domain mismatch.
       // Last tier: the method's minimum duration does not fit into what is left of the lesson.
       hard: [
@@ -1139,7 +1178,8 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         // A single phase (no chain step) counts like a main step.
         ohnePraxisImHauptschritt: (currentStepRole === 'haupt' || currentStepIndex < 0) && raumBesonders().length > 0 && !praxisMethode(b),
         // A named method gets its bonus at the step reserved for it, not at an earlier step it could also serve.
-        mentioned: genanntHier
+        mentioned: genanntHier,
+        begleitziel
       })
     };
   }
@@ -1336,7 +1376,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         }
       } else {
         const check: PlanStep = {
-          id: 'leistungskontrolle',
+          id: LEISTUNGSKONTROLLE_SCHRITT,
           label: 'Leistung oder Lernstand überprüfen',
           funktion: ['diagnose'],
           ziel: 'lernstand-diagnostiziert',
@@ -1565,6 +1605,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
           .map((b) => rankOf(b, a, step.funktion, 1 + (used.has(b.kennung) ? 1 : 0), stepCap, varietyPenaltyOf(b), hardCap))
       );
       const isCheck = (b: Baustein) => b.lernfunktion[0] === 'diagnose';
+      const passtZeit = (b: Baustein) => hardCap == null || b.dauerMin <= hardCap;
       // Few methods carry psychomotorik, and after Tor D2 only vier-stufen-methode of them names nawi-technik (it does not
       // deliver Erstwissen). In a bound step, carrying methods of the lesson's subject come first; when none of them fits
       // here, a practice method whose subject areas name the lesson's subject comes before a carrying method of another
@@ -1600,11 +1641,14 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
             )
           : [];
       const ersatzIds = new Set(ersatzFach.map((b) => b.kennung));
+      const pruefungPasst = (b: Baustein) => formPasst(b) && passtZeit(b) && !fremd(b);
       const cands =
         step.id === checkStepId
           ? [
-              ...primaryCands.filter((b) => isCheck(b) && formPasst(b)),
-              ...primaryCands.filter((b) => isCheck(b) && !formPasst(b)),
+              // A check of the wanted form comes first only if it fits the time left and the lesson's subject (W5: an
+              // overlong test or a sports test in an electronics lesson is said, not planned).
+              ...primaryCands.filter((b) => isCheck(b) && pruefungPasst(b)),
+              ...primaryCands.filter((b) => isCheck(b) && !pruefungPasst(b)),
               ...primaryCands.filter((b) => !isCheck(b)),
               ...fallbackCands
             ]
@@ -1922,7 +1966,90 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
 
   function zuordnen(anfrage: MatchRequest = {}): MatchResult {
     const r = mitRegelmeldungen(planen(anfrage), { raum: lastRoom, area: lastArea, mentions: lastMentions, situation: lastSituation });
-    return mitHilfen(r, lastNamedHelps);
+    return mitHilfen(mitBegleitzielen(r, lastSituation), lastNamedHelps);
+  }
+
+  /** Name of an accompanying goal inside a sentence ("soziales Lernen"). */
+  const begleitzielImSatz = (code: string) => values(scheme('begleitziel')).find((w) => w.id === code)?.imSatz || label('begleitziel', code);
+  const undListe = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} und ${xs[xs.length - 1]}` : xs[0] || '');
+  const BEGLEITSTRANG_FOKUS: Record<string, string> = {
+    selbstregulation: 'mit einer Frage nach dem eigenen Vorgehen beim Lernen',
+    sozial: 'mit Blick auf die Zusammenarbeit in der Gruppe'
+  };
+
+  /**
+   * Accompanying goals (Paket D, D3). They never choose the chain; here they add to the answer:
+   * - per goal selbstregulation or sozial a short accompanying strand at the end (plans only): the shortest method with
+   *   function metakognition, learning state lernen-reflektiert and at most 5 minutes that carries the goal, whose needs
+   *   the situation covers and that no rule warns against; not placed in the plan, but proposed to take over;
+   * - for sprache no strand, but the note on language helps in step 3;
+   * - the rule begleitziel-braucht-termine when the request names no dates or only one.
+   */
+  function mitBegleitzielen(r: MatchResult, situation: Situation): MatchResult {
+    const a = r.kriterien as MatchRequest;
+    const ziele = list(a.begleitziel);
+    if (!ziele.length) return r;
+    const neu = [...(r.hinweise || [])];
+    const add = (h: string) => {
+      if (!neu.includes(h)) neu.push(h);
+    };
+    if (r.modus === 'ablauf' && r.arrangement) {
+      const imPlan = new Set(chosenBlocks(r));
+      const grade = (b: Baustein) => ['A', 'B', 'C'].indexOf(rankingGrade(b.evidenz) ?? 'D') + 1 || 4;
+      // One method per strand entry: a later goal takes the next method, never one an earlier goal already proposed.
+      const vergeben = new Set<string>();
+      const strang = ziele
+        .filter((z) => z !== 'sprache')
+        .map((z) => {
+          // Not in the plan, no rule warning, room need met: a proposal must not duplicate a planned method or carry a
+          // warning, and "Bedarf gedeckt" covers the room (review D3).
+          const b = methoden
+            .filter(
+              (m) =>
+                m.lernfunktion.includes('metakognition') &&
+                (m.nachbedingung || []).includes('lernen-reflektiert') &&
+                m.dauerMin <= 5 &&
+                traegtBegleitziel(m, z) &&
+                !imPlan.has(m.kennung) &&
+                !vergeben.has(m.kennung) &&
+                !ungedeckterBedarf(m, a, situation, data) &&
+                !raumFehlt(m, situation).length &&
+                !passung(m, a).length
+            )
+            .sort(
+              (x, y) =>
+                x.dauerMin - y.dauerMin ||
+                grade(x) - grade(y) ||
+                Number(x.status !== 'kuratiert') - Number(y.status !== 'kuratiert') ||
+                x.kennung.localeCompare(y.kennung)
+            )[0];
+          if (b) vergeben.add(b.kennung);
+          return b
+            ? {
+                begleitziel: z,
+                baustein: b.kennung,
+                name: b.name,
+                dauerMin: b.dauerMin,
+                position: 'ende' as const,
+                grund: `Trägt das Begleitziel ${begleitzielImSatz(z)}: ${b.name} am Ende der Stunde (${b.dauerMin} min), ${BEGLEITSTRANG_FOKUS[z]}. Ein Vorschlag zum Übernehmen; er steht nicht im Ablauf.`
+              }
+            : null;
+        })
+        .filter((x): x is NonNullable<typeof x> => x !== null);
+      if (strang.length) r.begleitstrang = strang;
+    }
+    if (ziele.includes('sprache')) {
+      add(`Begleitziel ${label('begleitziel', 'sprache')}: Hilfen für die Sprache (etwa Wortspeicher oder Satzanfänge) ordnest du in Schritt 3 den Phasen zu.`);
+    }
+    const termine = given(a.termine) ? Number(a.termine) : situation.termine;
+    const regel = regeln.regel('begleitziel-braucht-termine');
+    if (regel && (termine == null || termine <= 1)) {
+      const m = regeln.meldung(regel.id, undefined, regel.text.replace(/\{Begleitziel\}/g, undListe(ziele.map(begleitzielImSatz))))!;
+      r.regelmeldungen = [...(r.regelmeldungen || []), m];
+      add(alsText(m));
+    }
+    if (neu.length) r.hinweise = neu;
+    return r;
   }
 
   /** Named helps: listed under genannteHilfen and noted, never placed (they go to the phases in step 3). */
@@ -1954,6 +2081,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       anfrage = given(rest.raum) || !given(lernort) ? rest : { ...rest, raum: lernort };
     }
     anfrage = check(anfrage);
+    // Accompanying goals leave the text before anything else reads it: with or without them the same chain, topic and
+    // seed (Paket D, D3). Read from the text, they count like the field, unless the caller states the field.
+    const begleitGelesen = given(anfrage.text) ? liesBegleitziele(String(anfrage.text)) : null;
+    if (begleitGelesen?.codes.length) anfrage = { ...anfrage, text: begleitGelesen.rest };
     currentRawText = given(anfrage.text) ? fold(String(anfrage.text)) : '';
     currentSemanticScores = new Map(
       // Text relevance is measured on the topic words only: "Klasse 8" or "45 Minuten" must not favour a method.
@@ -1973,6 +2104,10 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
       const gelesen: ReturnType<typeof lesen> = given(anfrage.text)
         ? lesen(String(anfrage.text), given(anfrage.bildungsstufe) ? String(anfrage.bildungsstufe) : undefined)
         : { kriterien: {}, erkannt: [], offen: [] };
+      if (begleitGelesen?.codes.length) {
+        gelesen.kriterien.begleitziel = begleitGelesen.codes;
+        gelesen.erkannt.push({ feld: 'begleitziel', wert: begleitGelesen.codes, beleg: begleitGelesen.belege.join(', ') });
+      }
       const a: MatchRequest = { ...gelesen.kriterien };
       Object.keys(anfrage).forEach((k) => {
         if (k !== 'text' && given(anfrage[k])) a[k] = anfrage[k];
@@ -2078,11 +2213,29 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
         checkInLesson
           ? 'ablauf'
           : 'phase');
+      // Planning profile of the draft: stated, from the Bildungsstufe (and company words in the text), else assumed.
+      const profilWahl = data.planungsprofile?.profile?.length
+        ? waehlePlanungsprofil(data.planungsprofile.profile, {
+            planungsprofil: given(a.planungsprofil) ? String(a.planungsprofil) : undefined,
+            bildungsstufe: given(a.bildungsstufe) ? String(a.bildungsstufe) : undefined,
+            text: given(anfrage.text) ? String(anfrage.text) : undefined
+          })
+        : null;
+      const profilAnnahme: Annahme[] = profilWahl?.angenommen
+        ? [
+            {
+              feld: 'planungsprofil',
+              wert: profilWahl.profil.id,
+              grund: `Keine Bildungsstufe angegeben: Planungsprofil „${label('planungsprofil', profilWahl.profil.id)}“ angenommen.`
+            }
+          ]
+        : [];
       const head = {
         kriterien: a,
         erkannt: gelesen.erkannt,
         offen: FIELDS.filter((f) => f.stufe && !given(a[f.feld])).map((f) => f.feld),
-        ...(gelesen.fach ? { fach: gelesen.fach } : {})
+        ...(gelesen.fach ? { fach: gelesen.fach } : {}),
+        ...(profilWahl ? { planungsprofil: profilWahl.profil.id } : {})
       };
       // Required details and what was assumed, read from the request as the caller sent it (before any assumed time).
       const anfrageSituation = { ...a };
@@ -2102,7 +2255,7 @@ export function createMatcher(data: FmtData, validator: FmtValidator): FmtMatche
                 }
               ]
             : [];
-        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...zielVermutet, ...extra] };
+        return { fehlt, angenommen: [...fachAnnahmen, ...p.angenommen, ...zielVermutet, ...extra, ...profilAnnahme] };
       };
       if (modus === 'phase') {
         const psychomotor = BEWEGUNG_ZIELARTEN.has(String(a.zielart));

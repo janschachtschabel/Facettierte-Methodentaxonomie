@@ -1,0 +1,136 @@
+{
+  "kennung": "strukturierte-gruppenreflexion",
+  "name": "Strukturierte Gruppenreflexion",
+  "kurzbeschreibung": "Nach einer Gruppenarbeit wertet jede Gruppe ihre Zusammenarbeit an zwei festen Leitfragen aus und vereinbart ein Vorhaben für die nächste Zusammenarbeit.",
+  "alternativname": [
+    "Reflexion der Zusammenarbeit",
+    "Group Processing"
+  ],
+  "status": "entwurf",
+  "piktogramm": "reflexion",
+  "ansatz": [
+    "reflexion",
+    "kooperativ"
+  ],
+  "fachbereich": [
+    "uebergreifend"
+  ],
+  "quellen": [
+    {
+      "titel": "Kyndt et al. (2013): A meta-analysis of the effects of face-to-face cooperative learning. Educational Research Review 10",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Wikipedia: Kooperatives Lernen",
+      "url": "https://de.wikipedia.org/wiki/Kooperatives_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r1",
+  "lernfunktion": [
+    "metakognition"
+  ],
+  "engagement": [
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "andere",
+    "selbst"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "lernende"
+  },
+  "adaptivitaet": [
+    "uniform"
+  ],
+  "feedback": [
+    "peer",
+    "selbstkontrolle",
+    "unmittelbar",
+    "prozessebene",
+    "selbstregulationsebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "symbolisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "moderator",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "metakognitiv",
+    "einstellungen",
+    "afb2"
+  ],
+  "sequenz": [],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "lernen-reflektiert"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "leitfragen",
+      "name": "Zwei feste Leitfragen zur Zusammenarbeit"
+    },
+    {
+      "kennung": "vorhaben",
+      "name": "Ein vereinbartes Vorhaben, das die nächste Gruppenarbeit aufgreift"
+    }
+  ],
+  "dauerMin": 5,
+  "dauerMax": 10,
+  "problem": "Gruppen arbeiten zusammen, ohne je zu besprechen, was ihre Zusammenarbeit gestützt oder gestört hat; dieselben Schwierigkeiten kehren wieder.",
+  "durchfuehrung": [
+    "Nach der Gruppenarbeit zwei Leitfragen zeigen: Was hat uns geholfen? Was machen wir beim nächsten Mal anders?",
+    "Jede Person antwortet in der Gruppe reihum in einem Satz",
+    "Die Gruppe einigt sich auf eine Stärke und ein Vorhaben",
+    "Das Vorhaben nennen und zu Beginn der nächsten Gruppenarbeit wieder aufgreifen"
+  ],
+  "material": [
+    "Leitfragen an der Tafel oder auf einer Karte"
+  ],
+  "gruppeMin": 4,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 5,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit Rollenkarten: jede Person schätzt die eigene Rolle ein",
+    "Als kurzer schriftlicher Gruppenbogen"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Trägt das Begleitziel soziales Lernen; geeignet als Begleitstrang am Ende einer Stunde mit Gruppenarbeit.",
+  "qualitaetsrisiko": [
+    "Floskeln wie „lief gut“ ohne Vorhaben"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Die Reflexion der Zusammenarbeit gilt als Basiselement strukturierten kooperativen Lernens, und kooperatives Lernen wirkt, wenn es strukturiert ist. Für die Gruppenreflexion allein liegt kein eigener Befund vor.",
+      "quelle": "Kyndt et al. 2013",
+      "geltung": "Kooperatives Lernen allgemein; die Wirkung der einzelnen Komponente ist nicht geprüft; Zuordnung „Basiselement“ aus dem Regelsatz der FMT 2.0"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.75
+  }
+}

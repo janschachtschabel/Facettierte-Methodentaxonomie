@@ -1,10 +1,51 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FMT_RULES, oehDisciplinesForFachbereich } from '@fmt/core';
+import { FMT_RULES, nurMethoden, oehDisciplinesForFachbereich, traegtBegleitziel } from '@fmt/core';
+import { katalogZahlen, katalogZahlenText } from '../data/katalogZahlen.js';
 import { useCatalog } from '../data/CatalogContext.js';
 import { EvidenceBadge } from '../components/EvidenceBadge.js';
 import { CatalogAnalytics } from '../components/CatalogAnalytics.js';
 import { raumEigenschaftLabel } from '../planner/rahmen.js';
+
+/** Columns of the table "Lesarten" (FMT 2.0): reading key of vocab lernzustand[].lesart and its heading. */
+const LESART_SPALTEN = [
+  { id: 'wissen', titel: 'Wissen und Konzepte' },
+  { id: 'bewegung', titel: 'Bewegung und Fertigkeit' },
+  { id: 'urteilen', titel: 'Urteilen und Werten' },
+  { id: 'gestalten', titel: 'Gestalten und Produzieren' }
+] as const;
+
+/** Readable names of the subgroup rows in data/teilgruppen.json (FMT 2.0, table "Tausch oder Hilfe"). */
+const TEILGRUPPE_NAME: Record<string, string> = {
+  'vorwissen-gering': 'Geringes Vorwissen oder Leistungsniveau',
+  'vorwissen-hoch': 'Hohes Vorwissen oder Leistungsniveau',
+  lernschwierigkeiten: 'Förderbedarf Lernen',
+  sprachstand: 'Sprachstand und Ausdruck',
+  'sehen-hoeren': 'Sehen und Hören',
+  arbeitsgedaechtnis: 'Langsame Verarbeitung (Arbeitsgedächtnis)',
+  'motivation-interesse': 'Motivation und Interesse',
+  'emotional-sozial': 'Emotional-soziale Entwicklung',
+  'selbstregulation-gering': 'Geringe Selbstregulation',
+  'kann-sich-nicht-frei-bewegen': 'Kann sich nicht frei bewegen'
+};
+
+/** Readable names of the planning profiles in data/planungsprofile.json. */
+const PROFIL_NAME: Record<string, string> = {
+  schule: 'Schule',
+  berufsschule: 'Berufsschule',
+  betrieb: 'Betrieb',
+  hochschule: 'Hochschule',
+  erwachsenenbildung: 'Erwachsenenbildung'
+};
+
+/** Open points of the FMT 2.0 papers (design, section 11); they stay open and are named as limits. */
+const GRENZEN_FMT2 = [
+  'Die Bindung ist gezählt, aber noch nicht an Fällen gerechnet: Wie oft die Wissensart eines Schritts die Wahl wirklich entscheidet, zeigen bisher nur die Qualitätsfälle, keine Erhebung im Unterricht.',
+  'Was ein Raumtyp bietet, ist gesetzt. Die Tabelle der Raumtypen beruht auf einer Setzung, nicht auf einer Erhebung an Schulen und Betrieben.',
+  'Die Lesarten sind gesetzt. Sie übersetzen die zwölf Lernstände in die Sprache der Zielarten; nur die Lesarten für Bewegung stützen sich auf ein Modell (Meinel & Schnabel 2007).',
+  'Zwei unabhängige Kodierende und Fachlehrkräfte fehlen. Die Durchsichten 1 bis 3 haben je einen Vorschlag und eine unabhängige Prüfung durchlaufen; dass zwei Kodierende denselben Eintrag gleich kodieren, ist nicht gemessen, und Fachlehrkräfte haben die Daten nicht gelesen.',
+  'Der Nutzen für das Lernen ist mit Tests nicht zu klären. Die Tests prüfen, dass die Zuordnung ihren Regeln folgt, nicht, dass Lernende mit dem Vorschlag besser lernen.'
+];
 
 const DOMAINS = [
   { id: 'A', name: ['Lernprozess'], color: 'var(--dA)', soft: 'var(--dA-soft)' },
@@ -254,7 +295,7 @@ export function SystematikPage() {
           <p style={{ fontSize: 17.5 }}>
             Bestehende Methodensammlungen ordnen nach Einzelkriterien oder nach Methodennamen – Wirksamkeitsbefunde hängen jedoch an{' '}
             <strong>Merkmalen unter Bedingungen</strong>. Die FMT beschreibt deshalb jede der{' '}
-            <strong>{bundle.bausteine.length} Methoden</strong> als Profil aus <strong>13 getrennt kodierten Facetten</strong> in vier
+            <strong>{katalogZahlen(bundle.bausteine).methoden} Methoden</strong> (dazu {katalogZahlen(bundle.bausteine).hilfen} Hilfen) als Profil aus <strong>13 getrennt kodierten Facetten</strong> in vier
             Domänen, geordnet auf zwei Achsen und kombinierbar über sechs Operatoren.
           </p>
 
@@ -410,9 +451,9 @@ export function SystematikPage() {
         </div>
       </div>
 
-      {/* 2. Begründung & 5 Anforderungen */}
+      {/* 2. Begründung & fünf Ansprüche */}
       <section style={{ marginTop: 40, paddingTop: 30, borderTop: '1px solid var(--rule)' }}>
-        <h2>Warum eine Facettierte Methodentaxonomie? (Begründung &amp; 5 Anforderungen)</h2>
+        <h2>Warum eine Facettierte Methodentaxonomie? (Begründung &amp; fünf Ansprüche)</h2>
         <p style={{ maxWidth: '76ch' }}>
           Klassische Systematiken ordnen Verschiedenes: Meyer (1987) nach Umfang, Flechsig (1996) nach 20 Modellen, Aebli (1983) nach
           Grundformen, Oser &amp; Baeriswyl (2001) nach Choreografie und Basismodellen, Baumgartner (2011) nach Größe und Abstraktion.
@@ -579,6 +620,46 @@ export function SystematikPage() {
               </li>
             ))}
           </ul>
+          <h4 style={{ margin: '16px 0 6px' }}>Lesarten je Zielart</h4>
+          <p className="muted" style={{ fontSize: 14.5, marginBottom: 8 }}>
+            Die Stufen behalten ihre Kennungen. Je Zielart bekommen sie eine Lesart, damit Anzeige und Entwurf die Sprache des
+            Fachs sprechen; die Lesarten für Bewegung folgen den Phasen des motorischen Lernens (Meinel &amp; Schnabel 2007). Wo
+            keine eigene Lesart steht, gilt die Bezeichnung des Lernstands. <em>Fehlvorstellungen sichtbar</em> liest sich in
+            allen Zielarten als „Ausgangslage sichtbar“: Fehlvorstellung, Fehlerbild einer Bewegung oder Vorurteil.
+          </p>
+          <div className="scroll">
+            <table aria-label="Lesarten der Lernstände" style={{ fontSize: 14 }}>
+              <thead>
+                <tr>
+                  <th>Lernstand (Kennung)</th>
+                  {LESART_SPALTEN.map((sp) => (
+                    <th key={sp.id}>{sp.titel}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {lernzustaende.map((z) => {
+                  const texte = typeof z.lesart === 'object' && z.lesart ? z.lesart : {};
+                  return (
+                    <tr key={z.id}>
+                      <th scope="row" style={{ fontWeight: 600 }}>
+                        {z.label} <code style={{ fontSize: 12 }}>{z.id}</code>
+                      </th>
+                      {LESART_SPALTEN.map((sp) =>
+                        texte[sp.id] ? (
+                          <td key={sp.id}>{texte[sp.id]}</td>
+                        ) : (
+                          <td key={sp.id} className="muted">
+                            {z.label}
+                          </td>
+                        )
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <div style={{ marginTop: 12 }}>
             <Link to="/planer" className="btn btn-primary btn-sm">
               Im Szenario-Baukasten ausprobieren →
@@ -919,7 +1000,7 @@ export function SystematikPage() {
           zählen nicht zum Budget der geplanten Stunde.
         </p>
         <div className="scroll">
-          <table>
+          <table aria-label="Funktionsketten">
             <thead>
               <tr>
                 <th>Funktionskette</th>
@@ -931,7 +1012,15 @@ export function SystematikPage() {
                 const total = k.schritte.reduce((n, st) => n + (st.zeitanteil || 0), 0);
                 return (
                   <tr key={k.id}>
-                    <td style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{k.label}</td>
+                    <td>
+                      <span style={{ fontFamily: 'var(--display)', fontWeight: 700 }}>{k.label}</span>
+                      {k.grundlage ? (
+                        <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
+                          Grundlage: {GRUNDLAGE_TEXT[k.grundlage] || k.grundlage}
+                          {k.quelle ? ` – ${k.quelle}` : ''}
+                        </div>
+                      ) : null}
+                    </td>
                     <td>
                       <ul className="chips">
                         {k.schritte.map((st) => (
@@ -1013,7 +1102,7 @@ export function SystematikPage() {
 
       {/* 6. Live Catalog Analytics Dashboard (200 Methods) */}
       <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
-        <h2>Auswertungen &amp; Verortung des Katalogs ({bundle.bausteine.length} Methoden live)</h2>
+        <h2>Auswertungen &amp; Verortung des Katalogs ({katalogZahlenText(bundle.bausteine)} live)</h2>
         <p className="muted" style={{ maxWidth: '76ch', marginBottom: 18 }}>
           Alle Grafiken werden live aus dem aktuellen Katalog berechnet. Klicks auf Punkte, Heatmap-Zellen oder Balken führen direkt zu den
           passenden Methoden im Katalog.
@@ -1125,7 +1214,9 @@ export function SystematikPage() {
                       // An example in parentheses ("(z. B. {methode})") names no method here: left out.
                       .replace(/\s*\(z\.\s*B\.\s*\{methode\}\)/g, '')
                       .replace(/^\{methode\}/, 'Die Methode')
-                      .replace(/\{methode\}/g, 'die Methode')}
+                      .replace(/\{methode\}/g, 'die Methode')
+                      // The goal is filled in when the rule fires; in the table it stays general.
+                      .replace(/\{Begleitziel\}/g, 'ein Begleitziel')}
                     {r.keinTausch && (
                       <div className="muted" style={{ fontSize: 12.5 }}>
                         Warnt und zeigt Hilfe, die Methode bleibt im Ablauf.
@@ -1141,6 +1232,141 @@ export function SystematikPage() {
                       </div>
                     )}
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 7c. FMT 2.0: subgroups, planning profiles and accompanying goals (live from the bundle) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Teilgruppen, Planungsprofile und Begleitziele</h2>
+        <h3 style={{ marginTop: 22 }}>Tausch oder Hilfe: was ein Merkmal der Lernenden bewirkt</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Ein Merkmal einer Teilgruppe tauscht die Methode nur, wo ein Befund eine Grenze der Methode zeigt. Sonst bleibt die
+          Methode, und die Teilgruppe bekommt eine Hilfe in derselben Methode. Jede Zeile nennt ihre Grundlage; eine Hilfe
+          wird wieder zurückgenommen, sobald sie nicht mehr nötig ist.
+        </p>
+        <div className="scroll">
+          <table aria-label="Tausch oder Hilfe" style={{ fontSize: 14 }}>
+            <thead>
+              <tr>
+                <th>Merkmal</th>
+                <th>Antwort</th>
+                <th>Was geschieht</th>
+                <th>Grundlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bundle.teilgruppen.merkmale.map((m) => (
+                <tr key={m.id}>
+                  <th scope="row" style={{ fontWeight: 600 }}>
+                    {TEILGRUPPE_NAME[m.id] || m.id} <code style={{ fontSize: 12 }}>{m.id}</code>
+                  </th>
+                  <td style={{ whiteSpace: 'nowrap' }}>{m.antwort === 'tausch' ? 'Tausch' : 'Hilfe'}</td>
+                  <td>{m.wohin}</td>
+                  <td>
+                    {GRUNDLAGE_TEXT[m.grundlage] || m.grundlage}
+                    {m.quelle && (
+                      <div className="muted" style={{ fontSize: 12.5 }}>
+                        {m.quelle}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <th scope="row" style={{ fontWeight: 600 }}>
+                  Alle übrigen Ausprägungen <code style={{ fontSize: 12 }}>sonst</code>
+                </th>
+                <td>Hilfe</td>
+                <td>{bundle.teilgruppen.sonst.wohin}</td>
+                <td>{GRUNDLAGE_TEXT[bundle.teilgruppen.sonst.grundlage]}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+          Gesperrt: {bundle.teilgruppen.gesperrtText} Durchschnittliche oder unauffällige Ausprägungen ({bundle.teilgruppen.neutral.length})
+          lösen nichts aus.
+        </p>
+
+        <h3 style={{ marginTop: 22 }}>Planungsprofile: {bundle.planungsprofile.profile.length} Bereiche, {bundle.planungsprofile.kernfelder.length} Kernfelder</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Der Entwurf eines Plans hat in jedem Bereich dieselben Kernfelder. Das Planungsprofil gibt ihnen die Begriffe des
+          Bereichs und ergänzt eigene Module. Es folgt aus der Bildungsstufe (in der Berufsbildung auch aus Wörtern wie
+          „Betrieb“ im Text) oder wird angegeben; ein nur angenommenes Profil nennt die Antwort unter <code>pflichtangaben</code>.
+        </p>
+        <ol aria-label="Kernfelder des Entwurfs" style={{ paddingLeft: 20, fontSize: 14.5 }}>
+          {bundle.planungsprofile.kernfelder.map((k) => (
+            <li key={k.id}>{k.name}</li>
+          ))}
+        </ol>
+        <div className="scroll">
+          <table aria-label="Planungsprofile" style={{ fontSize: 14 }}>
+            <thead>
+              <tr>
+                <th>Profil</th>
+                <th>Bildungsstufe</th>
+                <th>Einheit und größere Einheit</th>
+                <th>Dokument</th>
+                <th>Eigene Module</th>
+                <th>Verbindlichkeit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bundle.planungsprofile.profile.map((p) => (
+                <tr key={p.id}>
+                  <th scope="row" style={{ fontWeight: 600 }}>
+                    {PROFIL_NAME[p.id] || p.id} <code style={{ fontSize: 12 }}>{p.id}</code>
+                  </th>
+                  <td>{p.bildungsstufe.map((x) => labelOf('bildungsstufe', x)).join(', ')}</td>
+                  <td>
+                    {p.einheit}
+                    <div className="muted" style={{ fontSize: 12.5 }}>
+                      in: {p.groessereEinheit}
+                    </div>
+                  </td>
+                  <td>{p.dokument}</td>
+                  <td>{p.module.map((m) => m.name).join(', ')}</td>
+                  <td className="muted">{p.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {bundle.planungsprofile.hinweis && (
+          <p className="muted" style={{ maxWidth: '76ch', fontSize: 14 }}>
+            {bundle.planungsprofile.hinweis}
+          </p>
+        )}
+
+        <h3 style={{ marginTop: 22 }}>Begleitziele: was nebenbei gefördert wird</h3>
+        <p style={{ maxWidth: '76ch' }}>
+          Ein Begleitziel wählt nie die Kette und verdrängt keine Methode, die besser zum Ziel passt. Es ordnet nur unter
+          gleichwertigen Methoden und schlägt für soziales Lernen und Selbstregulation einen kurzen Begleitstrang am Ende vor,
+          den die Lehrkraft übernehmen kann. Für die Sprache nennt der Baukasten Hilfen, die in Schritt 3 den Phasen zugeordnet
+          werden. Belegte Wirkungen stammen aus Programmen über mehrere Wochen; ein Begleitziel in einer einzelnen Stunde
+          meldet die Regel „Begleitziel braucht Termine“.
+        </p>
+        <div className="scroll">
+          <table aria-label="Begleitziele" style={{ fontSize: 14 }}>
+            <thead>
+              <tr>
+                <th>Begleitziel</th>
+                <th>Was gemeint ist und woran die Methode es trägt</th>
+                <th>Methoden, die es tragen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {valuesOf('begleitziel').map((w) => (
+                <tr key={w.id}>
+                  <th scope="row" style={{ fontWeight: 600 }}>
+                    {w.label} <code style={{ fontSize: 12 }}>{w.id}</code>
+                  </th>
+                  <td>{w.definition}</td>
+                  <td>{nurMethoden(bundle.bausteine).filter((b) => traegtBegleitziel(b, w.id)).length}</td>
                 </tr>
               ))}
             </tbody>
@@ -1265,11 +1491,25 @@ export function SystematikPage() {
               <li>KI-Evidenz ist jung und instabil; Leistung <em>mit</em> KI zählt nie als Beleg für Lernen <em>ohne</em> KI.</li>
               <li>
                 Alle {bundle.bausteine.filter((b) => b.status !== 'kuratiert').length} neu ergänzten Bausteine im aktuellen Katalog (
-                {bundle.bausteine.length} Methoden gesamt) tragen transparent den Status <em>Ersterfassung</em>.
+                {katalogZahlenText(bundle.bausteine)} gesamt) tragen transparent den Status <em>Ersterfassung</em>.
               </li>
             </ul>
           </div>
         </div>
+      </section>
+
+      {/* 10. Limits of FMT 2.0 (design, section 11) */}
+      <section style={{ marginTop: 42, paddingTop: 32, borderTop: '1px solid var(--rule)' }}>
+        <h2>Grenzen der FMT 2.0</h2>
+        <p style={{ maxWidth: '76ch' }}>
+          Diese Punkte aus den Papieren zur FMT 2.0 sind offen und bleiben so stehen, bis jemand sie prüft. Neue Einträge der
+          Durchsicht 3 tragen den Status <em>Ersterfassung</em>, bis sie gelesen sind.
+        </p>
+        <ul style={{ paddingLeft: 18, maxWidth: '76ch', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {GRENZEN_FMT2.map((g) => (
+            <li key={g}>{g}</li>
+          ))}
+        </ul>
       </section>
     </div>
   );

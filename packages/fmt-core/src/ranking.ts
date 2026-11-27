@@ -35,6 +35,11 @@ export interface SoftScoreParts {
   raumUngenutzt?: 'haupt' | 'rand';
   /** A main step in such a room, and the method neither carries psychomotorik nor works enactively (kept rest of praxisFremd). */
   ohnePraxisImHauptschritt?: boolean;
+  /**
+   * The method carries an accompanying goal of the request (Paket D). Its weight is smaller than the equivalence
+   * tolerance, so it only reorders methods that are nearly equivalent and never chooses the chain.
+   */
+  begleitziel?: boolean;
 }
 
 export const SOFT_WEIGHTS = {
@@ -56,17 +61,19 @@ export const SOFT_WEIGHTS = {
   mentioned: -10,
   raumUngenutztHaupt: 4,
   raumUngenutztRand: 1.5,
-  ohnePraxisImHauptschritt: 1.5
+  ohnePraxisImHauptschritt: 1.5,
+  begleitziel: -0.5
 } as const;
 
 /**
- * Evidence grade as it counts for ranking: a grade A that is only derived from the underlying principle
- * (not from studies on the method itself) counts like B. The displayed grade stays unchanged.
+ * Evidence grade as it counts for ranking: a grade A that is only derived from the underlying principle, or that
+ * stems from whole programmes rather than the single phase, counts like B. The displayed grade stays unchanged.
  */
 export function rankingGrade(
-  entries: Array<{ grad: 'A' | 'B' | 'C'; evidenzBezug?: 'methode' | 'prinzip' }> | undefined
+  entries: Array<{ grad: 'A' | 'B' | 'C'; evidenzBezug?: 'methode' | 'prinzip' | 'programm' }> | undefined
 ): 'A' | 'B' | 'C' | null {
-  const grades = (entries || []).map((e) => (e.grad === 'A' && e.evidenzBezug === 'prinzip' ? 'B' : e.grad));
+  const abgeleitet = (b?: string) => b === 'prinzip' || b === 'programm';
+  const grades = (entries || []).map((e) => (e.grad === 'A' && abgeleitet(e.evidenzBezug) ? 'B' : e.grad));
   return (['A', 'B', 'C'] as const).find((g) => grades.includes(g)) || null;
 }
 
@@ -91,7 +98,8 @@ export function softScore(p: SoftScoreParts): number {
     (p.fachbereich === 'passt' ? w.fachbereichPasst : p.fachbereich === 'fremd' ? w.fachbereichFremd : 0) +
     (p.mentioned ? w.mentioned : 0) +
     (p.raumUngenutzt === 'haupt' ? w.raumUngenutztHaupt : p.raumUngenutzt === 'rand' ? w.raumUngenutztRand : 0) +
-    (p.ohnePraxisImHauptschritt ? w.ohnePraxisImHauptschritt : 0)
+    (p.ohnePraxisImHauptschritt ? w.ohnePraxisImHauptschritt : 0) +
+    (p.begleitziel ? w.begleitziel : 0)
   );
 }
 
@@ -115,6 +123,11 @@ export interface Rankable<T> {
   id: string;
   hard: number[];
   soft: number;
+  /**
+   * Carries an accompanying goal: `soft` includes SOFT_WEIGHTS.begleitziel. Membership in the equivalent group is
+   * decided without it; inside the group such candidates come first. Hard tiers and scores outside the group still rule.
+   */
+  vorn?: boolean;
 }
 
 const compareHard = (a: number[], b: number[]) => {
@@ -128,7 +141,8 @@ const compareHard = (a: number[], b: number[]) => {
 /**
  * Orders candidates: hard tiers ascending; inside the best hard tier, all candidates whose soft score is
  * within `tolerance` of the best are ordered by a hash of (seed, variante, id) – so a different topic or a
- * different `variante` yields a different but equally suitable pick. Everything else follows by soft score.
+ * different `variante` yields a different but equally suitable pick; candidates marked `vorn` lead that group (the
+ * hash still orders them among themselves). Everything else follows by soft score.
  * `tolerance: 0` gives a plain best-first list (used for single-phase proposals).
  */
 export function pickOrder<T>(items: Array<Rankable<T>>, seed: string, variante = 0, tolerance = EQUIVALENCE_TOLERANCE): T[] {
@@ -137,9 +151,15 @@ export function pickOrder<T>(items: Array<Rankable<T>>, seed: string, variante =
     compareHard(a.hard, b.hard) || a.soft - b.soft || stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id);
   const sorted = [...items].sort(plain);
   if (!sorted.length || tolerance <= 0) return sorted.map((x) => x.item);
-  const best = sorted[0];
-  const equivalent = sorted.filter((x) => compareHard(x.hard, best.hard) === 0 && x.soft <= best.soft + tolerance);
+  // Who is equivalent is decided without the accompanying-goal weight, so a goal only acts inside the tolerance
+  // (spec: "Ein Begleitziel wirkt nur innerhalb der Toleranz"); `vorn` marks a soft score that includes that weight.
+  const ohneBegleitziel = (x: Rankable<T>) => (x.vorn ? x.soft - SOFT_WEIGHTS.begleitziel : x.soft);
+  const tier = sorted.filter((x) => compareHard(x.hard, sorted[0].hard) === 0);
+  const bestBase = Math.min(...tier.map(ohneBegleitziel));
+  const equivalent = tier.filter((x) => ohneBegleitziel(x) <= bestBase + tolerance);
   const rest = sorted.filter((x) => !equivalent.includes(x));
-  equivalent.sort((a, b) => stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id));
+  equivalent.sort(
+    (a, b) => Number(Boolean(b.vorn)) - Number(Boolean(a.vorn)) || stableHash(key, a.id) - stableHash(key, b.id) || a.id.localeCompare(b.id)
+  );
   return [...equivalent, ...rest].map((x) => x.item);
 }

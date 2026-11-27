@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { OehSubjectCrosswalk } from './fach.js';
-import type { Arrangement, Aussageart, Baustein, FacetMeta, FmtData, FmtMeta, Funktionskette, Passungsregel, Merkmal, Scheme, TeilgruppenRegelsatz, WFeld } from './types.js';
+import type { Arrangement, Aussageart, Baustein, FacetMeta, FmtData, FmtMeta, Funktionskette, Passungsregel, Merkmal, Scheme, PlanungsprofileRegelsatz, TeilgruppenRegelsatz, WFeld } from './types.js';
 
 export function loadFmtData(dataDir: string): FmtData {
   const readJson = <T>(rel: string): T => JSON.parse(fs.readFileSync(path.join(dataDir, rel), 'utf8')) as T;
@@ -10,6 +10,7 @@ export function loadFmtData(dataDir: string): FmtData {
   const ketten = readJson<Funktionskette[]>('ketten.json');
   const regeln = readJson<Passungsregel[]>('regeln.json');
   const teilgruppen = readJson<TeilgruppenRegelsatz>('teilgruppen.json');
+  const planungsprofile = readJson<PlanungsprofileRegelsatz>('planungsprofile.json');
 
   const bausteineDir = path.join(dataDir, 'bausteine');
   const bausteine = fs
@@ -48,6 +49,7 @@ export function loadFmtData(dataDir: string): FmtData {
     ketten,
     regeln,
     teilgruppen,
+    planungsprofile,
     bausteine,
     beispiele,
     faecher,

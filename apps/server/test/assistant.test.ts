@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import http from 'node:http';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
@@ -10,6 +11,12 @@ import { sanitizeWloSearchWord } from '../src/routes/oer.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const DIST_DATA = path.join(ROOT, 'dist-data');
+const LEITPLANKEN = [
+  'Methoden, Reihenfolge und Kernkomponenten sind vorgegeben und werden nicht geändert.',
+  'Aussagen zur Wirksamkeit stammen nur aus dem Katalog, mit Grad, Geltung und Bezug.',
+  'Kennzeichne, was übernommen und was erzeugt ist.',
+  'Beschreibe Gruppen, keine einzelnen Lernenden.'
+];
 
 describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSRF Guard)', () => {
   let mockServer: http.Server;
@@ -463,6 +470,20 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(cj.matrixMerkmale.selectedValues.strukturierung).toBe('strukturierung-stark');
     expect(cj.methodenVorschlaege.length).toBeGreaterThan(0);
 
+    // A help is never a method suggestion, also when the text names it (Task D7).
+    const bundle = JSON.parse(readFileSync(path.join(DIST_DATA, 'catalog.bundle.json'), 'utf8')) as { bausteine: Array<{ kennung: string; eintragsart?: string }> };
+    const hilfen = new Set(bundle.bausteine.filter((b) => b.eintragsart === 'hilfe').map((b) => b.kennung));
+    expect(hilfen.size).toBeGreaterThan(0);
+    const clsH = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/classify',
+      payload: { text: 'Sprachvergleich: Herkunftssprache und Deutsch vergleichen, Satzmuster und Redemittel, Scaffolding' }
+    });
+    expect(clsH.statusCode).toBe(200);
+    const vorschlaegeH = (clsH.json().methodenVorschlaege as Array<{ kennung: string }>).map((m) => m.kennung);
+    expect(vorschlaegeH.length).toBeGreaterThan(0);
+    expect(vorschlaegeH.filter((k) => hilfen.has(k))).toEqual([]);
+
     // Ultra-fast Zero-LLM scenario pre-filtering + caller-LLM briefing endpoint (/api/v1/plan)
     const planRes = await appNoKey.inject({
       method: 'POST',
@@ -518,5 +539,91 @@ describe('FMT Hybrid LLM Assistant (OpenAI-compatible, Cache, Fallback, BYOK SSR
     expect(j.thematischeTabelle.length).toBe(60);
     expect(j.meta.teilprompts).toBeLessThanOrEqual(9);
     expect(mockCalls - callsBefore).toBeLessThanOrEqual(9);
+  });
+  it('Entwurf im Briefing: sieben Kernfelder, Begriffe des Profils, vier Leitplanken, keine Vorgabe „Sekundarstufe I“ (Paket D, D2)', async () => {
+    const dichte = (await appNoKey.inject({ method: 'GET', url: '/beispiele/dichte-reihe.jsonld' })).json();
+    const ohneStufe = { ...dichte, kontext: { ...(dichte.kontext || {}), bildungsstufe: undefined } };
+    const brief = await appNoKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/briefing',
+      payload: { task: 'elaborate', payload: { arrangement: ohneStufe, thema: 'Dichte', fach: 'Physik' } }
+    });
+    expect(brief.statusCode).toBe(200);
+    const b = brief.json();
+    for (const satz of LEITPLANKEN) expect(b.llmBriefing.systemPrompt, satz).toContain(satz);
+    expect(b.entwurf.kernfelder.map((k: { id: string }) => k.id)).toEqual(['rahmendaten', 'lernvoraussetzungen', 'ziele', 'einordnung', 'verlauf', 'lernerfolg', 'reflexion']);
+    expect(b.entwurf.planungsprofil).toMatchObject({ id: 'schule', angenommen: true });
+    expect(JSON.stringify(b)).not.toContain('Sekundarstufe I');
+    expect(b.fallbackMarkdown).toContain('Bildungsstufe nicht angegeben');
+
+    const kurs = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/briefing',
+        payload: { task: 'elaborate', payload: { arrangement: dichte, thema: 'Dichte', fach: 'Physik', planungsprofil: 'erwachsenenbildung' } }
+      })
+    ).json();
+    expect(kurs.fallbackMarkdown).toContain('Tätigkeit der Kursleitung');
+    expect(kurs.llmBriefing.systemPrompt).toContain('Tätigkeit der Kursleitung');
+    expect(kurs.fallbackMarkdown).toContain('Kursverlaufsplan');
+  });
+
+  it('Material ohne Bildungsstufe: „Bildungsstufe nicht angegeben“ statt „Sekundarstufe I“, Begriffe des Profils (Paket D, D2)', async () => {
+    const briefMat = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/briefing',
+        payload: { task: 'material', payload: { baustein: 'abrufquiz', fach: 'Biologie', thema: 'Fotosynthese', materialTyp: 'quiz' } }
+      })
+    ).json();
+    expect(briefMat.llmBriefing.userPrompt).toContain('Bildungsstufe nicht angegeben');
+    expect(JSON.stringify(briefMat)).not.toContain('Sekundarstufe I');
+    const hs = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/briefing',
+        payload: { task: 'material', payload: { baustein: 'abrufquiz', thema: 'Statistik', materialTyp: 'quiz', bildungsstufe: 'hochschule' } }
+      })
+    ).json();
+    expect(hs.llmBriefing.userPrompt).toContain('Studierende');
+    expect(hs.llmBriefing.userPrompt).toContain('Bildungsstufe: Hochschule');
+    expect(hs.fallbackMaterial).toContain('Studierende');
+
+    mockBehavior = 'valid';
+    await appWithKey.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/material',
+      payload: { baustein: 'loesungsbeispiele', fach: 'Mathematik', thema: 'Brüche', materialTyp: 'arbeitsblatt' }
+    });
+    const userPrompt = String((lastMockBody?.messages as Array<{ content: string }>)[1].content);
+    expect(userPrompt).toContain('Bildungsstufe nicht angegeben');
+    expect(userPrompt).not.toContain('Sekundarstufe I');
+  });
+  it('Fix D2: Betrieb im Material richtig gebeugt, Leitplanken im Feld leitplanken, angenommenes Profil bleibt angenommen', async () => {
+    const mat = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/material',
+        payload: { baustein: 'abrufquiz', thema: 'Arbeitssicherheit', materialTyp: 'quiz', planungsprofil: 'betrieb', mode: 'template' }
+      })
+    ).json();
+    expect(mat.material).toContain('Hinweise für die Ausbilderin oder den Ausbilder');
+    expect(mat.material).not.toContain('oder des Ausbilders (FMT');
+    const schule = (
+      await appNoKey.inject({ method: 'POST', url: '/api/v1/assistant/material', payload: { baustein: 'abrufquiz', thema: 'Brüche', materialTyp: 'quiz', mode: 'template' } })
+    ).json();
+    expect(schule.material).toContain('Hinweise für die Lehrkraft');
+
+    const dichte = (await appNoKey.inject({ method: 'GET', url: '/beispiele/dichte-reihe.jsonld' })).json();
+    const b = (
+      await appNoKey.inject({
+        method: 'POST',
+        url: '/api/v1/assistant/briefing',
+        payload: { task: 'elaborate', payload: { arrangement: dichte, thema: 'Dichte', planungsprofil: 'schule', planungsprofilAngenommen: true } }
+      })
+    ).json();
+    for (const satz of LEITPLANKEN) expect(b.llmBriefing.leitplanken, satz).toContain(satz);
+    expect(b.entwurf.planungsprofil.angenommen).toBe(true);
+    expect(b.llmBriefing.systemPrompt).toContain('Planungsprofil: Schule (angenommen)');
   });
 });

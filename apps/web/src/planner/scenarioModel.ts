@@ -1,8 +1,17 @@
 import {
   QUICK_LEARNER_GROUP_PROFILES,
+  baueEntwurf,
+  entwurfMarkdown,
   extractSubjectAndTopic,
+  isRegularGroupId,
+  istPruefschritt,
+  profilBegriffe,
   scoreDifferentiationMatrix,
+  waehlePlanungsprofil,
   type Arrangement,
+  type Entwurf,
+  type EntwurfPhase,
+  type PlanungsprofileRegelsatz,
   type ArrangementNode,
   type Baustein,
   type CatalogBundle,
@@ -111,6 +120,10 @@ export interface ScenarioPhaseRow {
   oerResources: OerResource[];
   generatedMaterials: GeneratedMaterialItem[];
   block?: Baustein;
+  /** Role of the chain step the phase fills ('sicherung' is read as the check step when the chain has none). */
+  chainRole?: string;
+  /** The phase fills the chain's check step (istPruefschritt). */
+  chainCheck?: boolean;
 }
 
 export interface MaterialTypeOption {
@@ -373,7 +386,9 @@ export function buildScenarioRows(
     node: EinsatzNode,
     isNestedSlot: boolean,
     slotKennung?: string,
-    parentName?: string
+    parentName?: string,
+    chainRole?: string,
+    chainCheck?: boolean
   ): ScenarioPhaseRow => {
     const b = blocksById.get(node.baustein);
     const social = (b?.interaktion || []).map((x) => labelOf('interaktion', x)).join(', ') || '–';
@@ -404,7 +419,9 @@ export function buildScenarioRows(
       subgroupMethods: resolveSubgroupMethods(key),
       oerResources: safeOerList(oerByStep[key]),
       generatedMaterials: generatedMaterials.filter((m) => m.stepKey === key),
-      block: b
+      block: b,
+      ...(chainRole ? { chainRole } : {}),
+      ...(chainCheck ? { chainCheck } : {})
     };
   };
 
@@ -412,10 +429,11 @@ export function buildScenarioRows(
     const realIdx = seq.teile.indexOf(node);
     const chainStep = node.kettenschritt && kette ? kette.schritte.find((s) => s.id === node.kettenschritt) : null;
     const phaseLabel = chainStep ? `${chainStep.id.toUpperCase()} · ${chainStep.label}` : `Phase ${visIdx + 1}`;
+    const check = istPruefschritt(kette, node.kettenschritt);
 
     if (node.typ === 'Einsatz') {
       const parentBlock = blocksById.get(node.baustein);
-      rows.push(makeRow(`step-${realIdx}`, `${visIdx + 1}`, realIdx, phaseLabel, node, false));
+      rows.push(makeRow(`step-${realIdx}`, `${visIdx + 1}`, realIdx, phaseLabel, node, false, undefined, undefined, chainStep?.rolle, check));
       (node.belegung || []).forEach((bel, si) => {
         if (bel.inhalt.typ === 'Einsatz') {
           const sl = parentBlock?.slot?.find((s) => s.kennung === bel.slotKennung);
@@ -443,7 +461,11 @@ export function buildScenarioRows(
               realIdx,
               `${phaseLabel} · Zweig ${oi + 1} (${node.kriterium || 'Differenzierung'})`,
               opt,
-              false
+              false,
+              undefined,
+              undefined,
+              chainStep?.rolle,
+              check
             )
           );
         }
@@ -564,12 +586,218 @@ export function buildDefaultThematicRows(
   });
 }
 
+/** What the draft needs beyond the plan rows. Without `planungsprofile` no draft is built (old callers). */
+export interface EntwurfMeta {
+  planungsprofile?: PlanungsprofileRegelsatz;
+  /** Profile id from the core answer (`planungsprofil`); otherwise it follows from the Bildungsstufe. */
+  planungsprofil?: string;
+  /** The core answer assumed the profile (listed under pflichtangaben.angenommen). */
+  planungsprofilAngenommen?: boolean;
+  /** Room of the lesson as label. */
+  raum?: string;
+  anzahl?: number;
+  /** Larger unit the lesson belongs to (free text). */
+  einheit?: string;
+  /** Form of proof as label. */
+  nachweis?: string;
+  /** Main goal as label when no learning objectives are written (e.g. the goal kind). */
+  hauptziel?: string;
+  begleitziele?: string[];
+  /** Accompanying strand the plan proposes and the teacher has not taken into the flow (labels, D3). */
+  begleitstrang?: Array<{ begleitziel: string; methode: string; dauerMin: number; baustein?: string }>;
+  /** Notes of the plan (rule messages as text) for the field "Reflexion und Evaluation". */
+  regelhinweise?: string[];
+}
+
+interface LessonTextMeta extends EntwurfMeta {
+  fach: string;
+  thema: string;
+  didaktischerAnsatz?: string;
+  lehrkraefteInfo?: string;
+  lernziele?: string;
+  problemstellung?: string;
+  hinweise?: string;
+  totalDurationMin: number;
+  labelOf: (s: string, c: string) => string;
+}
+
+/** Column names for the activities in the lesson plan, in the terms of the planning profile ("Tätigkeit der Kursleitung"). */
+export function entwurfSpalten(meta: EntwurfMeta, bildungsstufe?: string): { lehrende: string; lernende: string } | undefined {
+  return entwurfBegriffe(meta, bildungsstufe)?.spalten;
+}
+
+/** Terms of the planning profile for the exports: persons and activity columns. */
+export function entwurfBegriffe(
+  meta: EntwurfMeta,
+  bildungsstufe?: string
+): { lehrende: string; lernende: string; spalten: { lehrende: string; lernende: string } } | undefined {
+  const profile = meta.planungsprofile?.profile || [];
+  if (!profile.length) return undefined;
+  const profil =
+    (meta.planungsprofil && profile.find((p) => p.id === meta.planungsprofil)) || waehlePlanungsprofil(profile, { bildungsstufe }).profil;
+  const b = profilBegriffe(profil);
+  return { lehrende: b.lehrende, lernende: b.lernende, spalten: { lehrende: b.taetigkeitLehrende, lernende: b.taetigkeitLernende } };
+}
+
+/** Default staffing text of step 1; only the school profile keeps it, other profiles show their own term instead. */
+const STANDARD_LEHRKRAEFTE = '1 Lehrkraft';
+
+/** Staffing line for headings and exports: the untouched default "1 Lehrkraft" is dropped outside the school terms. */
+export function lehrendeInfo(lehrkraefteInfo: string | undefined, meta: EntwurfMeta, bildungsstufe?: string): string | undefined {
+  const t = lehrkraefteInfo?.trim();
+  if (!t) return undefined;
+  const b = entwurfBegriffe(meta, bildungsstufe);
+  return t === STANDARD_LEHRKRAEFTE && b && b.lehrende !== 'Lehrkraft' ? undefined : t;
+}
+
+/** Adaptations per subgroup already decided in the plan: own method, differentiation measures, helps taken over in step 3. */
+function anpassungenJeGruppe(r: ScenarioPhaseRow, groups: LearnerGroup[]): Array<{ gruppe: string; text: string }> {
+  const out: Array<{ gruppe: string; text: string }> = [];
+  for (const g of groups.filter((x) => x.active && !isRegularGroupId(x.id))) {
+    const parts: string[] = [];
+    const alt = r.subgroupMethods[g.id];
+    if (alt) parts.push(`Eigene Methode: ${alt.methodName}`);
+    for (const d of r.differentiation.filter((x) => x.groupId === g.id)) parts.push(d.measure);
+    for (const m of r.generatedMaterials.filter((x) => x.groupId === g.id && x.materialType === 'hilfe')) parts.push(`Hilfe „${m.title}“`);
+    if (parts.length) out.push({ gruppe: g.label, text: parts.join('; ') });
+  }
+  return out;
+}
+
 /**
- * Generates a complete, printable structured German textual lesson scenario
- * (even without calling an LLM!) that brings together Step 1 context, Step 2 method procedures,
- * Step 3 differentiation matrix, WLO-OERs (with wwwurl), and attached materials.
+ * Draft with the seven core fields and the terms and modules of the planning profile (Paket D).
+ * Null when the caller passes no planning profiles.
+ */
+export function buildScenarioEntwurf(
+  arrangement: Arrangement,
+  rows: ScenarioPhaseRow[],
+  thematicRows: ThematicPhaseRow[],
+  groups: LearnerGroup[],
+  meta: LessonTextMeta
+): Entwurf | null {
+  const regelsatz = meta.planungsprofile;
+  if (!regelsatz?.profile?.length) return null;
+  const k = arrangement.kontext || {};
+  const stated = meta.planungsprofil ? regelsatz.profile.find((p) => p.id === meta.planungsprofil) : undefined;
+  const wahl = stated
+    ? { profil: stated, angenommen: Boolean(meta.planungsprofilAngenommen) }
+    : waehlePlanungsprofil(regelsatz.profile, { bildungsstufe: k.bildungsstufe });
+  const byKey = new Map(thematicRows.map((t) => [t.key, t]));
+  const activeGroups = groups.filter((g) => g.active);
+  const teilgruppen = activeGroups.filter((g) => !isRegularGroupId(g.id));
+  const totalLearners = activeGroups.reduce((s, g) => s + (g.count || 0), 0);
+  const phasen: EntwurfPhase[] = rows.map((r) => {
+    const tr = byKey.get(r.key);
+    const medien = [
+      ...r.generatedMaterials.filter((m) => m.materialType !== 'hilfe').map((m) => m.title),
+      ...r.oerResources.map((o) => o.title),
+      ...r.materials.slice(0, 3)
+    ];
+    return {
+      zeitMin: r.durationMin,
+      phase: r.phaseLabel,
+      methode: r.methodName,
+      sozialform: r.socialForm !== '–' ? r.socialForm : undefined,
+      medien: medien.join(', ') || undefined,
+      lehrende: tr?.teacherAction || r.teacherRole,
+      lernende: tr?.learnerAction || r.learnerRole,
+      schrittRolle: r.chainRole,
+      pruefschritt: r.chainCheck,
+      wiederkehr: r.key === 'wiederkehr',
+      begleitend: r.key.startsWith('parallel-'),
+      anpassungen: anpassungenJeGruppe(r, groups)
+    };
+  });
+  return baueEntwurf(regelsatz, {
+    profil: wahl.profil,
+    profilAngenommen: wahl.angenommen,
+    titel: meta.thema ? `${meta.thema} (${arrangement.name})` : arrangement.name,
+    fach: meta.fach,
+    thema: meta.thema,
+    dauerMin: meta.totalDurationMin,
+    raum: meta.raum,
+    bildungsstufe: k.bildungsstufe ? meta.labelOf('bildungsstufe', k.bildungsstufe) : undefined,
+    anzahl: meta.anzahl || totalLearners || undefined,
+    vorwissen: k.vorwissen ? meta.labelOf('vorwissen', k.vorwissen) : undefined,
+    sprachniveau: k.sprachniveau ? meta.labelOf('sprachniveau', k.sprachniveau) : undefined,
+    teilgruppen: teilgruppen.map((g) => ({ name: g.label, anzahl: g.count, beschreibung: g.profile || undefined })),
+    ausgangslage: meta.problemstellung,
+    hauptziel: meta.lernziele?.trim() || meta.hauptziel,
+    begleitziele: meta.begleitziele,
+    begleitstrang: meta.begleitstrang?.map((s) => ({ begleitziel: s.begleitziel, methode: s.methode, dauerMin: s.dauerMin })),
+    einheit: meta.einheit,
+    phasen,
+    nachweis: meta.nachweis,
+    hinweise: [...(meta.hinweise?.trim() ? [meta.hinweise.trim()] : []), ...(meta.regelhinweise || [])]
+  });
+}
+
+/** Phase-by-phase procedure (method steps on the topic, roles in the profile's terms, groups, OER, materials). */
+function phaseDetailLines(
+  rows: ScenarioPhaseRow[],
+  thematicRows: ThematicPhaseRow[],
+  groups: LearnerGroup[],
+  spalten: { lehrende: string; lernende: string }
+): string[] {
+  const activeGroups = groups.filter((g) => g.active);
+  const byKey = new Map(thematicRows.map((t) => [t.key, t]));
+  const lines: string[] = [];
+  for (const r of rows) {
+    const tr = byKey.get(r.key);
+    lines.push('', `#### ${r.orderLabel}. ${r.phaseLabel} – ${r.methodName} (${r.durationMin} min, ${r.methodRange})`);
+    if (tr?.methodProcedure) lines.push(`**Methodisches Vorgehen:** ${tr.methodProcedure}`);
+    else if (r.block?.kurzbeschreibung) lines.push(r.block.kurzbeschreibung);
+    lines.push(`- **${spalten.lehrende}:** ${tr?.teacherAction || r.teacherRole}`);
+    lines.push(`- **${spalten.lernende} (${r.socialForm}):** ${tr?.learnerAction || r.learnerRole}`);
+    if (activeGroups.length) {
+      const notes = activeGroups
+        .map((g) => {
+          const val = tr?.groupAdaptations?.[g.id] || r.differentiation.find((d) => d.groupId === g.id)?.measure;
+          return val ? `${g.label}: ${val}` : '';
+        })
+        .filter(Boolean);
+      if (notes.length) lines.push(`- **Binnendifferenzierung:** ${notes.join(' | ')}`);
+    }
+    if (r.oerResources.length) {
+      lines.push(
+        `- **Eingebundene WLO-OER:** ${r.oerResources
+          .map((o) => `[${o.title}](${getOerWwwUrl(o)}) (\`${getOerWwwUrl(o)}\`)${o.note ? ` – ${o.note}` : ''}`)
+          .join(' · ')}`
+      );
+    }
+    if (r.generatedMaterials.length) lines.push(`- **Erstellte Materialien:** ${r.generatedMaterials.map((m) => m.title).join(', ')}`);
+    if (r.block?.kernkomponente?.length) {
+      lines.push(
+        `- **Kernkomponenten & Qualitätsrisiko:** ${r.block.kernkomponente.map((k) => k.name).join('; ')}${
+          r.block.qualitaetsrisiko?.[0] ? ` · Achtung: ${r.block.qualitaetsrisiko[0]}` : ''
+        }`
+      );
+    }
+  }
+  return lines;
+}
+
+/**
+ * Generates a complete, printable structured German lesson draft without an LLM: the seven core fields with the
+ * terms and modules of the planning profile, the phase-by-phase procedure after the lesson plan.
+ * Without planning profiles (old callers) the former text is built.
  */
 export function buildStructuredLessonText(
+  arrangement: Arrangement,
+  rows: ScenarioPhaseRow[],
+  thematicRows: ThematicPhaseRow[],
+  groups: LearnerGroup[],
+  meta: LessonTextMeta
+): string {
+  const entwurf = buildScenarioEntwurf(arrangement, rows, thematicRows, groups, meta);
+  if (!entwurf) return buildLegacyLessonText(arrangement, rows, thematicRows, groups, meta);
+  const head = `## ${entwurf.planungsprofil.dokument}: ${meta.fach ? `${meta.fach} – ` : ''}${meta.thema || arrangement.name}`;
+  const detail = ['#### Durchführung Phase für Phase', ...phaseDetailLines(rows, thematicRows, groups, entwurf.spalten)].join('\n');
+  return [head, '', entwurfMarkdown(entwurf, 3, { verlauf: detail })].join('\n');
+}
+
+/** Lesson text of callers that pass no planning profiles (kept so old callers keep working). */
+function buildLegacyLessonText(
   arrangement: Arrangement,
   rows: ScenarioPhaseRow[],
   thematicRows: ThematicPhaseRow[],
@@ -767,6 +995,12 @@ export interface NeutralLearningScenario {
     }>;
   };
   fmt_arrangement: Arrangement;
+  /** Planning profile of the draft with the column names of the lesson plan (absent for callers without profiles). */
+  planungsprofil?: Entwurf['planungsprofil'] & { spalten: Entwurf['spalten'] };
+  /** The seven core fields in fixed order, each with title and content. */
+  kernfelder?: Entwurf['kernfelder'];
+  /** Modules of the profile, empty to fill in. */
+  module?: Entwurf['module'];
 }
 
 export function buildNeutralLearningScenario(
@@ -787,7 +1021,7 @@ export function buildNeutralLearningScenario(
     generatedMaterials?: GeneratedMaterialItem[];
     totalDurationMin: number;
     labelOf: (s: string, c: string) => string;
-  }
+  } & EntwurfMeta
 ): NeutralLearningScenario {
   const effThematic = meta.thematicRows?.length
     ? meta.thematicRows
@@ -799,6 +1033,7 @@ export function buildNeutralLearningScenario(
       : buildStructuredLessonText(arrangement, rows, effThematic, groups, meta);
   const allGeneratedMaterials =
     meta.generatedMaterials ?? rows.flatMap((r) => r.generatedMaterials);
+  const entwurf = buildScenarioEntwurf(arrangement, rows, effThematic, groups, meta);
 
   const matrixSummary = groups
     .filter((g) => g.active)
@@ -924,6 +1159,9 @@ export function buildNeutralLearningScenario(
       })),
       differentiation_matrix_results: matrixSummary
     },
-    fmt_arrangement: arrangement
+    fmt_arrangement: arrangement,
+    ...(entwurf
+      ? { planungsprofil: { ...entwurf.planungsprofil, spalten: entwurf.spalten }, kernfelder: entwurf.kernfelder, module: entwurf.module }
+      : {})
   };
 }

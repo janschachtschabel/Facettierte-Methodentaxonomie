@@ -1,0 +1,142 @@
+{
+  "kennung": "klassenmusizieren",
+  "name": "Klassenmusizieren",
+  "kurzbeschreibung": "Die ganze Klasse spielt ein Stück gemeinsam auf Klasseninstrumenten, mit Stimme und Körper, in verteilten Stimmen unterschiedlicher Schwierigkeit, angeleitet von der Lehrkraft.",
+  "alternativname": [
+    "Musizieren im Klassenverband",
+    "Klassenensemble"
+  ],
+  "status": "entwurf",
+  "piktogramm": "uebung",
+  "ansatz": [
+    "uebung",
+    "kreativ"
+  ],
+  "fachbereich": [
+    "aesthetik"
+  ],
+  "raumbedarf": [
+    "fachausstattung"
+  ],
+  "fachausstattungArt": "musik",
+  "quellen": [
+    {
+      "titel": "Sala & Gobet (2020): Cognitive and academic benefits of music training with children. Memory & Cognition 48",
+      "quelltyp": "fachliteratur"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "konsolidierung",
+    "anwendung"
+  ],
+  "engagement": [
+    "aktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "explizit",
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lehrkraft",
+    "inhalt": "lehrkraft",
+    "sozial": "geteilt",
+    "bewertung": "lehrkraft"
+  },
+  "adaptivitaet": [
+    "makro",
+    "diff-inhalt"
+  ],
+  "feedback": [
+    "fb-lehrkraft",
+    "unmittelbar",
+    "aufgabenebene",
+    "formativ"
+  ],
+  "interaktion": [
+    "plenum-lehrergeleitet",
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "instrukteur",
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "psychomotorik",
+    "prozeduren",
+    "afb1",
+    "afb2",
+    "authentisch"
+  ],
+  "sequenz": [
+    "geblockt"
+  ],
+  "vorbedingung": [],
+  "nachbedingung": [
+    "prozedur-gelaeufig"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "stimmen",
+      "name": "Verteilte Stimmen, die zusammen ein Stück ergeben"
+    },
+    {
+      "kennung": "gemeinsam",
+      "name": "Gemeinsames Spiel der ganzen Klasse"
+    }
+  ],
+  "dauerMin": 20,
+  "dauerMax": 45,
+  "problem": "Musikalische Fertigkeiten entstehen im eigenen Musizieren; im Einzelunterricht ist das für eine ganze Klasse nicht möglich.",
+  "durchfuehrung": [
+    "Stück wählen und Stimmen unterschiedlicher Schwierigkeit verteilen",
+    "Stimmen in Gruppen vormachen und abschnittsweise einüben",
+    "Stimmen schrittweise zusammenführen, zunächst langsam",
+    "Das Stück als Ganzes spielen und kurz besprechen, was schon trägt und was noch geübt wird"
+  ],
+  "material": [
+    "Klasseninstrumente",
+    "Stimmenblätter oder Spielkarten"
+  ],
+  "raumhinweis": "Musikraum mit Klasseninstrumenten",
+  "gruppeMin": 8,
+  "gruppeMax": 35,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Nur mit Stimme und Bodypercussion, ohne Instrumente",
+    "Als Bläser- oder Streicherklasse über ein oder mehrere Schuljahre"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Begründet mit dem Eigenwert des Musizierens, ohne Transferversprechen. Ein Transfer von Musiktraining auf andere kognitive oder schulische Leistungen ist nicht belegt (Sala & Gobet 2020).",
+  "qualitaetsrisiko": [
+    "Unsichere Stimmen gehen im Gesamtklang unter, ohne dass es jemand bemerkt"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "methode",
+      "befund": "Für die fachinternen Ziele des Klassenmusizierens liegen kaum Wirkungsstudien vor; die Methode wird mit ihrem Eigenwert begründet.",
+      "quelle": "keine methodenspezifische Quelle; FMT 2.0, Taxonomie (Recherche C)",
+      "geltung": "Musikunterricht; Angabe „fachintern wenig untersucht; Eigenwert“ aus dem Regelsatz der FMT 2.0"
+    }
+  ],
+  "plot": {
+    "x": 0.68,
+    "y": 1.93
+  }
+}

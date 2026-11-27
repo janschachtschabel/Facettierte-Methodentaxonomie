@@ -99,7 +99,7 @@ export function CatalogPage() {
         <div>
           <h1>Methodenkatalog</h1>
           <p className="muted" style={{ maxWidth: '68ch', marginTop: 6 }}>
-            {bundle.bausteine.length} Unterrichtsmethoden für Bildung im deutschsprachigen Raum – beschrieben als
+            {bundle.bausteine.length - hilfenAnzahl} Unterrichtsmethoden und {hilfenAnzahl} Hilfen für Bildung im deutschsprachigen Raum – beschrieben als
             13-Facetten-Profile, verknüpfbar über Lernzustände und maschinenlesbar unter CC BY 4.0 (Jan Schachtschabel).
           </p>
         </div>
@@ -382,7 +382,7 @@ export function CatalogPage() {
                   Kuratiert ({bundle.bausteine.filter((b) => b.status === 'kuratiert').length} Kernmethoden)
                 </option>
                 <option value="entwurf">
-                  Ersterfassung ({bundle.bausteine.filter((b) => b.status !== 'kuratiert').length} Methoden)
+                  Ersterfassung ({bundle.bausteine.filter((b) => b.status !== 'kuratiert').length} Einträge)
                 </option>
               </select>
             </label>
@@ -411,7 +411,7 @@ export function CatalogPage() {
           }}
         >
           <div data-testid="trefferzahl" style={{ fontFamily: 'var(--display)', fontWeight: 700, fontSize: 16 }}>
-            {hits.length} von {bundle.bausteine.length} Methoden
+            {hits.length} von {bundle.bausteine.length} Einträgen ({bundle.bausteine.length - hilfenAnzahl} Methoden, {hilfenAnzahl} Hilfen)
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-sm btn-ghost" onClick={() => setShowExpert((s) => !s)}>

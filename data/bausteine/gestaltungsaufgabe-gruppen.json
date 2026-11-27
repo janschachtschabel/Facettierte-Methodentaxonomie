@@ -1,0 +1,156 @@
+{
+  "kennung": "gestaltungsaufgabe-gruppen",
+  "name": "Gestaltungsaufgabe in Gruppen",
+  "kurzbeschreibung": "Kleingruppen setzen einen offenen Gestaltungsauftrag mit klaren Kriterien als gemeinsames Produkt um, etwa Bild, Collage, Modell, Szene oder Klangstück, und stellen es zur Rückmeldung aus.",
+  "alternativname": [
+    "Gestalterische Gruppenaufgabe"
+  ],
+  "status": "entwurf",
+  "piktogramm": "kreativ",
+  "ansatz": [
+    "kreativ",
+    "kooperativ"
+  ],
+  "fachbereich": [
+    "aesthetik"
+  ],
+  "quellen": [
+    {
+      "titel": "Kyndt et al. (2013): A meta-analysis of the effects of face-to-face cooperative learning. Educational Research Review 10",
+      "quelltyp": "fachliteratur"
+    },
+    {
+      "titel": "Wikipedia: Kooperatives Lernen",
+      "url": "https://de.wikipedia.org/wiki/Kooperatives_Lernen",
+      "quelltyp": "wikipedia",
+      "lizenz": "CC BY-SA 4.0"
+    }
+  ],
+  "reichweite": "r2",
+  "lernfunktion": [
+    "anwendung",
+    "problemloesen"
+  ],
+  "engagement": [
+    "konstruktiv",
+    "interaktiv"
+  ],
+  "weltbezug": [
+    "gegenstand"
+  ],
+  "anleitung": [
+    "geleitet"
+  ],
+  "steuerung": {
+    "organisation": "lehrkraft",
+    "lernweg": "lernende",
+    "inhalt": "geteilt",
+    "sozial": "lernende",
+    "bewertung": "geteilt"
+  },
+  "adaptivitaet": [
+    "diff-produkt"
+  ],
+  "feedback": [
+    "peer",
+    "fb-lehrkraft",
+    "verzoegert",
+    "aufgabenebene",
+    "formativ",
+    "bn-kriterial"
+  ],
+  "interaktion": [
+    "kleingruppe-kooperativ"
+  ],
+  "repraesentation": [
+    "enaktiv",
+    "ikonisch"
+  ],
+  "raumzeit": [
+    "praesenz",
+    "synchron"
+  ],
+  "rolle": [
+    "coach",
+    "ki-keine"
+  ],
+  "aufgabe": [
+    "prozeduren",
+    "konzepte",
+    "afb3",
+    "schlecht-strukturiert",
+    "authentisch"
+  ],
+  "sequenz": [
+    "instruktion-vor-problem"
+  ],
+  "vorbedingung": [
+    "problem-erschlossen"
+  ],
+  "nachbedingung": [
+    "transfer-gezeigt"
+  ],
+  "kernkomponente": [
+    {
+      "kennung": "auftrag",
+      "name": "Gestaltungsauftrag mit offenen Lösungen und klaren Kriterien"
+    },
+    {
+      "kennung": "aufgaben",
+      "name": "Verteilte Aufgaben, für die jedes Mitglied einsteht"
+    },
+    {
+      "kennung": "ausstellung",
+      "name": "Ausstellung oder Vorführung mit Rückmeldung an den Kriterien"
+    }
+  ],
+  "dauerMin": 45,
+  "dauerMax": 90,
+  "problem": "Gestalterische Aufgaben verlangen Ideen, Entscheidungen und Ausführung; allein fehlen oft Ideen, in losen Gruppen arbeitet nur ein Teil mit.",
+  "durchfuehrung": [
+    "Gestaltungsauftrag, Kriterien und Material vorstellen",
+    "Gruppen sammeln Ideen, entscheiden sich für eine und verteilen die Aufgaben",
+    "Gruppen setzen ihren Entwurf um; die Lehrkraft berät",
+    "Produkte ausstellen oder vorführen; Gruppen geben sich Rückmeldung an den Kriterien",
+    "Jede Gruppe benennt, was sie bei einer Überarbeitung ändern würde"
+  ],
+  "material": [
+    "Auftragskarte mit Kriterien",
+    "Gestaltungsmaterial je nach Auftrag"
+  ],
+  "raumhinweis": "Arbeitstische für Gruppen; je nach Material Kunst- oder Werkraum",
+  "gruppeMin": 6,
+  "gruppeMax": 35,
+  "teamMin": 3,
+  "teamMax": 5,
+  "vorbereitungMin": 30,
+  "technik": "t-keine",
+  "internet": false,
+  "variante": [
+    "Mit Zwischenpräsentation des Entwurfs vor der Ausführung"
+  ],
+  "hinweis": "Entwurf aus Datenvorschlag 3 (Tor D3). Begründet mit dem Eigenwert ästhetischer Praxis, ohne Transferversprechen.",
+  "qualitaetsrisiko": [
+    "Eine Person gestaltet, die anderen schauen zu"
+  ],
+  "evidenz": [
+    {
+      "grad": "C",
+      "evidenzBezug": "methode",
+      "befund": "Keine methodenspezifische Evidenz; für die fachinternen Ziele ästhetischer Praxis fehlen Wirkungsnachweise fast ganz.",
+      "quelle": "keine methodenspezifische Quelle; FMT 2.0, Taxonomie (Recherche C)",
+      "geltung": "Kunst, Musik und Darstellendes Spiel; Angabe „keine methodenspezifische“ aus dem Regelsatz der FMT 2.0"
+    },
+    {
+      "grad": "C",
+      "evidenzBezug": "prinzip",
+      "befund": "Strukturiertes kooperatives Lernen mit verteilten Aufgaben und individueller Verantwortung wirkt positiv auf Leistung.",
+      "quelle": "Kyndt et al. 2013; Johnson, Johnson & Stanne 2000",
+      "geltung": "Kooperatives Lernen allgemein, überwiegend fachliche Leistung; für gestalterische Ziele nicht geprüft"
+    }
+  ],
+  "plot": {
+    "x": 0.5,
+    "y": 2.38
+  }
+}

@@ -24,7 +24,10 @@ import {
   type ScenarioPhaseRow,
   type StepDiffSuggestion,
   type SubgroupMethodMap,
-  type ThematicPhaseRow
+  type ThematicPhaseRow,
+  type EntwurfMeta,
+  entwurfBegriffe,
+  lehrendeInfo
 } from '../planner/scenarioModel.js';
 import { exportScenarioToImscc, exportScenarioToMoodleXml } from '../planner/lmsExport.js';
 import { printHtmlDocument } from '../planner/scenarioStorage.js';
@@ -88,6 +91,8 @@ interface Props {
   maxTechnik?: string;
   ohneInternet?: boolean;
   ohneKI?: boolean;
+  /** Planning profile and plan details for the draft with seven core fields (Paket D). */
+  entwurfMeta?: EntwurfMeta;
 }
 
 export function ScenarioStudioPanel({
@@ -142,8 +147,13 @@ export function ScenarioStudioPanel({
   llmAvailable,
   maxTechnik,
   ohneInternet,
-  ohneKI
+  ohneKI,
+  entwurfMeta = {}
 }: Props) {
+  const exportProfil = entwurfBegriffe(entwurfMeta, arrangement.kontext?.bildungsstufe);
+  const spalten = exportProfil?.spalten;
+  // The untouched default "1 Lehrkraft" is not shown outside the school terms.
+  const lehrendeZeile = lehrendeInfo(lehrkraefteInfo, entwurfMeta, arrangement.kontext?.bildungsstufe);
   // Full AI elaboration state
   const [busyElab, setBusyElab] = useState(false);
   const [elabError, setElabError] = useState<string | null>(null);
@@ -203,12 +213,13 @@ export function ScenarioStudioPanel({
         fach,
         thema,
         didaktischerAnsatz,
-        lehrkraefteInfo,
+        lehrkraefteInfo: lehrendeZeile,
         lernziele,
         problemstellung,
         hinweise,
         totalDurationMin: validation.dauerMin,
-        labelOf
+        labelOf,
+        ...entwurfMeta
       }),
     [
       arrangement,
@@ -218,12 +229,13 @@ export function ScenarioStudioPanel({
       fach,
       thema,
       didaktischerAnsatz,
-      lehrkraefteInfo,
+      lehrendeZeile,
       lernziele,
       problemstellung,
       hinweise,
       validation.dauerMin,
-      labelOf
+      labelOf,
+      entwurfMeta
     ]
   );
 
@@ -255,7 +267,7 @@ export function ScenarioStudioPanel({
       fach,
       thema,
       didaktischerAnsatz,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
       lernziele,
       problemstellung,
       hinweise,
@@ -264,7 +276,8 @@ export function ScenarioStudioPanel({
       elaboration: effectiveNarrativeText,
       generatedMaterials,
       totalDurationMin: validation.dauerMin,
-      labelOf
+      labelOf,
+      ...entwurfMeta
     });
 
   const exportOpts = (includeMachineReadableInMd = false) => {
@@ -274,7 +287,7 @@ export function ScenarioStudioPanel({
       fach,
       thema,
       didaktischerAnsatz,
-      lehrkraefteInfo,
+      lehrkraefteInfo: lehrendeZeile,
       lernziele,
       problemstellung,
       kiAusarbeitung: effectiveNarrativeText,
@@ -284,7 +297,8 @@ export function ScenarioStudioPanel({
       generatedMaterials,
       scenarioRows,
       machineReadableJson: machineJson,
-      includeMachineReadableInMd
+      includeMachineReadableInMd,
+      profil: exportProfil
     };
   };
 
@@ -335,7 +349,7 @@ export function ScenarioStudioPanel({
       }));
 
       const akteureSummary = [
-        lehrkraefteInfo || '1 Lehrkraft',
+        lehrendeZeile || exportProfil?.lehrende || '1 Lehrkraft',
         totalLearners ? `${totalLearners} Lernende gesamt` : '',
         activeGroups.map((g) => `${g.label}${g.count ? ` (${g.count})` : ''}`).join(', ')
       ]
@@ -354,7 +368,21 @@ export function ScenarioStudioPanel({
         differenzierung: diffPayload,
         oerRessourcen: oerPayload,
         materialien: matPayload,
-        phasen: phasenPayload
+        phasen: phasenPayload,
+        bildungsstufe: arrangement.kontext?.bildungsstufe || undefined,
+        // An assumed profile stays marked as assumed; the plan details fill the core fields as in the structured text.
+        planungsprofil: entwurfMeta.planungsprofil,
+        planungsprofilAngenommen: entwurfMeta.planungsprofilAngenommen || undefined,
+        raum: entwurfMeta.raum,
+        anzahl: entwurfMeta.anzahl,
+        einheit: entwurfMeta.einheit,
+        nachweis: entwurfMeta.nachweis,
+        hinweiseListe: entwurfMeta.regelhinweise?.length ? entwurfMeta.regelhinweise : undefined,
+        // Accompanying goals and the proposed strand (labels; the server reads labels as well), for the field Ziele.
+        begleitziel: entwurfMeta.begleitziele?.length ? entwurfMeta.begleitziele : undefined,
+        begleitstrang: entwurfMeta.begleitstrang?.length
+          ? entwurfMeta.begleitstrang.map((s) => ({ begleitziel: s.begleitziel, baustein: s.baustein, name: s.methode, dauerMin: s.dauerMin }))
+          : undefined
       };
 
       let json: {
@@ -409,9 +437,9 @@ export function ScenarioStudioPanel({
       const diffRequestPayload = {
         fach,
         thema,
-        bildungsstufe: arrangement.kontext?.bildungsstufe
-          ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
-          : 'Sekundarstufe I',
+        // Without a Bildungsstufe nothing is sent; the server then says it is not given (no silent default).
+        bildungsstufe: arrangement.kontext?.bildungsstufe ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe) : undefined,
+        planungsprofil: entwurfMeta.planungsprofil,
         hinweise: hinweise.trim() || undefined,
         gruppen: activeGroups.map((g) => {
           const scored = scoreDifferentiationMatrix({ personaId: g.personaId, selectedValues: g.matrixValues, maxTechnik: maxTechnik || undefined, ohneInternet, ohneKI, limit: 5 });
@@ -474,9 +502,9 @@ export function ScenarioStudioPanel({
         dauerMin: row.durationMin,
         fach,
         thema,
-        bildungsstufe: arrangement.kontext?.bildungsstufe
-          ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe)
-          : 'Sekundarstufe I',
+        // Without a Bildungsstufe nothing is sent; the server then says it is not given (no silent default).
+        bildungsstufe: arrangement.kontext?.bildungsstufe ? labelOf('bildungsstufe', arrangement.kontext.bildungsstufe) : undefined,
+        planungsprofil: entwurfMeta.planungsprofil,
         materialTyp: effType,
         mode,
         gruppen: activeGroups.map((g) => {
@@ -1100,9 +1128,9 @@ export function ScenarioStudioPanel({
                   🧭 Methodisches Vorgehen (am Thema)
                 </th>
                 <th style={{ width: '15%', background: 'color-mix(in srgb, var(--dA-soft) 55%, var(--surface))' }}>
-                  👩‍🏫 {lehrkraefteInfo || 'Lehrkraft'}
+                  👩‍🏫 {spalten?.lehrende || lehrendeZeile || 'Lehrkraft'}
                 </th>
-                <th style={{ width: '15%' }}>👥 Lernende</th>
+                <th style={{ width: '15%' }}>👥 {spalten?.lernende || 'Lernende'}</th>
                 {activeGroups.length > 0 && (
                   <th style={{ width: '18%', background: 'color-mix(in srgb, var(--dB-soft) 45%, var(--surface))' }}>
                     ⚖ Binnendifferenzierung
