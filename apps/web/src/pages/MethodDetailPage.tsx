@@ -282,9 +282,9 @@ export function MethodDetailPage() {
               <strong>Varianten:</strong> {b.variante.join(' · ')}
             </p>
           )}
-          {b.kategorie.length > 0 && (
+          {(b.kategorie || []).length > 0 && (
             <p style={{ fontSize: 14 }} className="muted">
-              <strong>OpenEduHub-Kategorien:</strong> {b.kategorie.map((iri) => bundle.oeh[iri] || iri).join(', ')}
+              <strong>OpenEduHub-Kategorien:</strong> {(b.kategorie || []).map((iri) => bundle.oeh[iri] || iri).join(', ')}
             </p>
           )}
         </div>

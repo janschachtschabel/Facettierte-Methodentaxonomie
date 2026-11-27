@@ -142,6 +142,21 @@ describe('W-Raster in der Oberfläche', () => {
     expect(within(sectionOf('Was die Methode braucht')).getByText(`mindestens ${t.termineMin} Termine`, { exact: false })).toBeTruthy();
   });
 
+  it('Methodendetail zeigt einen Eintrag ohne OEH-Kategorie und kennzeichnet den Status entwurf als Ersterfassung (D7)', () => {
+    const b = BUNDLE.bausteine.find((x) => !x.kategorie && x.status === 'entwurf')!;
+    expect(b).toBeDefined();
+    render(
+      <MemoryRouter initialEntries={[`/methoden/${b.kennung}`]}>
+        <Routes>
+          <Route path="/methoden/:kennung" element={<MethodDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(b.name);
+    expect(screen.getAllByText('Ersterfassung').length).toBeGreaterThan(0);
+    expect(screen.queryByText('OpenEduHub-Kategorien:')).toBeNull();
+  });
+
   it('Katalog schaltet zwischen Methoden und Hilfen um; eine Hilfe kommt nicht als Phase in den Baukasten (Task C4)', () => {
     render(
       <MemoryRouter>

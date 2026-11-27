@@ -397,7 +397,7 @@ export interface Baustein {
   technik: string;
   internet: boolean;
   variante?: string[];
-  kategorie: string[];
+  kategorie?: string[];
   hinweis?: string;
   qualitaetsrisiko?: string[];
   evidenz: Evidenzaussage[];
